@@ -36,6 +36,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -55,6 +56,7 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathComposite;
 import uk.ac.diamond.daq.mapping.ui.path.PathCompositeProvider;
 import uk.ac.diamond.daq.mapping.ui.region.RegionCompositeProvider;
@@ -184,9 +186,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
+
 		// Make the region selection
 		Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
-		horizontalGrabGridData.applyTo(regionComboComposite);
+		horizontalGrabGridData.span(1, 1).applyTo(regionComboComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(regionComboComposite);
 		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
@@ -207,11 +210,22 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Make the path selection
 		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(pathComboComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(pathComboComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(pathComboComposite);
 		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
 		pathSelector = new ComboViewer(pathComboComposite);
 		horizontalGrabGridData.applyTo(pathSelector.getControl());
+
+		Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);
+		configureStageButton.setToolTipText("Configure mapping stage");
+		configureStageButton.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
+		configureStageButton.addListener(SWT.Selection, event -> {
+			MappingStageInfo mappingStage = getService(MappingStageInfo.class);
+			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage);
+			if (dialog.open() == Window.OK) {
+				rebuildMappingSection();
+			}
+		});
 
 		// Add logic
 		regionSelector.setLabelProvider(new LabelProvider() {
@@ -323,7 +337,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	/**
 	 * Call this to rebuild the mapping section. Only required when the underlying beans are swapped.
 	 */
-	private void rebuildMappingSection() {
+	protected void rebuildMappingSection() {
 		// Remove the old controls
 		if (regionComposite != null) {
 			regionComposite.dispose();
@@ -339,6 +353,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		if (mappingScanRegion == null) {
 			return; // We can't build a UI to edit null
 		}
+
 		regionComposite = RegionCompositeProvider.createRegionComposite(regionAndPathComposite, mappingScanRegion);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
 

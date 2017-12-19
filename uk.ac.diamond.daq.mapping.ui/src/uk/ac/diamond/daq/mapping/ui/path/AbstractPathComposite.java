@@ -43,7 +43,7 @@ public class AbstractPathComposite extends AbstractRegionAndPathComposite {
 
 	protected void makeSnakeControl(Composite parent, IScanPathModel path) {
 		Label snakeLabel = new Label(parent, SWT.NONE);
-		snakeLabel.setText("Snake:");
+		snakeLabel.setText("Snake");
 		Button snake = new Button(parent, SWT.CHECK);
 
 		bindSelection(snake, "snake", path);
@@ -51,7 +51,7 @@ public class AbstractPathComposite extends AbstractRegionAndPathComposite {
 
 	protected void makeContinuousControl(Composite parent, IScanPathModel path) {
 		continuousLabel = new Label(parent, SWT.NONE);
-		continuousLabel.setText("Continuous:");
+		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
 
 		bindSelection(continuous, "continuous", path);

@@ -29,7 +29,7 @@ public class FermatSpiralPathComposite extends AbstractPathComposite {
 	public FermatSpiralPathComposite(Composite parent, SpiralModel path) {
 		super(parent, SWT.NONE);
 
-		(new Label(this, SWT.NONE)).setText("Scale:");
+		(new Label(this, SWT.NONE)).setText("Scale");
 		Text scaleText = new Text(this, SWT.BORDER);
 		gdControls.applyTo(scaleText);
 

@@ -31,22 +31,22 @@ public class LineRegionComposite extends AbstractRegionAndPathComposite {
 	public LineRegionComposite(Composite parent, LineMappingRegion region) {
 		super(parent, SWT.NONE);
 
-		(new Label(this, SWT.NONE)).setText("X Start:");
+		(new Label(this, SWT.NONE)).setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStart);
 		bindNumberUnits(xStart, "xStart", region);
 
-		(new Label(this, SWT.NONE)).setText("Y Start:");
+		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Start");
 		NumberAndUnitsComposite yStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStart);
 		bindNumberUnits(yStart, "yStart", region);
 
-		(new Label(this, SWT.NONE)).setText("X Stop:");
+		(new Label(this, SWT.NONE)).setText(getFastAxisName() + " Stop");
 		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStop);
 		bindNumberUnits(xStop, "xStop", region);
 
-		(new Label(this, SWT.NONE)).setText("Y Stop:");
+		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Stop");
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStop);
 		bindNumberUnits(yStop, "yStop", region);

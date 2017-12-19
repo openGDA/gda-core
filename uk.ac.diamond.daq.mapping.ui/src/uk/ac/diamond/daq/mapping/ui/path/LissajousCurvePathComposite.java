@@ -30,28 +30,28 @@ public class LissajousCurvePathComposite extends AbstractPathComposite {
 	public LissajousCurvePathComposite(Composite parent, LissajousModel path) {
 		super(parent, SWT.NONE);
 
-		(new Label(this, SWT.NONE)).setText("A:");
+		(new Label(this, SWT.NONE)).setText("A");
 		Text aTxt = new Text(this, SWT.BORDER);
 		gdControls.applyTo(aTxt);
 		bindTextBox(aTxt, "a", path);
 
 
-		(new Label(this, SWT.NONE)).setText("B:");
+		(new Label(this, SWT.NONE)).setText("B");
 		Text bTxt = new Text(this, SWT.BORDER);
 		gdControls.applyTo(bTxt);
 		bindTextBox(bTxt, "b", path);
 
-		(new Label(this, SWT.NONE)).setText("Delta:");
+		(new Label(this, SWT.NONE)).setText("Delta");
 		Text deltaTxt = new Text(this, SWT.BORDER);
 		gdControls.applyTo(deltaTxt);
 		bindTextBox(deltaTxt, "delta", path);
 
-		(new Label(this, SWT.NONE)).setText("Points:");
+		(new Label(this, SWT.NONE)).setText("Points");
 		Spinner pointsSpinner = new Spinner(this, SWT.BORDER);
 		gdControls.applyTo(pointsSpinner);
 		bindSelection(pointsSpinner, "points", path);
 
-		(new Label(this, SWT.NONE)).setText("Theta step:");
+		(new Label(this, SWT.NONE)).setText("Theta step");
 		Text thetaTxt = new Text(this, SWT.BORDER);
 		gdControls.applyTo(thetaTxt);
 		bindTextBox(thetaTxt, "thetaStep", path);

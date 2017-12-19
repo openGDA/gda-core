@@ -19,12 +19,6 @@
             name="Mapping Experiment Setup"
             restorable="true">
       </e4view>
-      <e4view
-            class="uk.ac.diamond.daq.mapping.ui.experiment.StageManagerView"
-            id="uk.ac.diamond.daq.mapping.ui.experiment.stageManagerView"
-            name="Mapping Stage Manager"
-            restorable="true">
-      </e4view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">

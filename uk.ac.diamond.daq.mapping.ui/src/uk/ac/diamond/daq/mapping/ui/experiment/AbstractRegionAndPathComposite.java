@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.Objects;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -29,8 +31,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
 
 public abstract class AbstractRegionAndPathComposite extends Composite {
@@ -38,9 +43,13 @@ public abstract class AbstractRegionAndPathComposite extends Composite {
 	protected final DataBindingContext dbc = new DataBindingContext();
 	protected final GridDataFactory gdControls = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
+	private MappingStageInfo mappingStageInfo;
+
 
 	public AbstractRegionAndPathComposite(Composite parent, int style) {
 		super(parent, style);
+		BundleContext context = FrameworkUtil.getBundle(AbstractRegionAndPathComposite.class).getBundleContext();
+		mappingStageInfo = context.getService(context.getServiceReference(MappingStageInfo.class));
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(this);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 	}
@@ -61,6 +70,22 @@ public abstract class AbstractRegionAndPathComposite extends Composite {
 		IObservableValue target = (new NumberUnitsWidgetProperty()).observe(widget);
 		IObservableValue model = BeanProperties.value(modelProperty).observe(region);
 		dbc.bindValue(target, model);
+	}
+
+	protected String getFastAxisName() {
+		if (Objects.nonNull(mappingStageInfo)) {
+			return mappingStageInfo.getActiveFastScanAxis();
+		} else {
+			return "Fast Axis";
+		}
+	}
+
+	protected String getSlowAxisName() {
+		if (Objects.nonNull(mappingStageInfo)) {
+			return mappingStageInfo.getActiveSlowScanAxis();
+		} else {
+			return "Slow Axis";
+		}
 	}
 
 }
