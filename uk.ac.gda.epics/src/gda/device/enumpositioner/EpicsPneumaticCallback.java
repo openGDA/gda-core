@@ -18,6 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -43,11 +48,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class maps onto the EPICS PneumaticCallback template.
@@ -247,33 +247,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 		} catch (Throwable th) {
 			throw new DeviceException("failed to get status position from " + status.getName(), th);
 		}
-	}
-
-	/**
-	 * gets the current status of this device from EPICS, i.e poll it.
-	 *
-	 * @return EnumPositionerStatus
-	 * @throws DeviceException
-	 */
-	public EnumPositionerStatus getPositionerStatus() throws DeviceException {
-		try {
-			short statusValue = controller.cagetEnum(status);
-			String statusString = statuspositions.get(statusValue);
-			// first check if its moving
-			if (statusString.equals("Opening") || statusString.equals("Closing")) {
-				return EnumPositionerStatus.MOVING;
-			} else if (statusString.equals("Open") || statusString.equals("Closed")) {
-				return EnumPositionerStatus.IDLE;
-			} else if (statusString.equals("Fault")) {
-				return EnumPositionerStatus.ERROR;
-			} else {
-				logger.error("{} returned an unknown status. It is set to ERROR now.", getName());
-				return EnumPositionerStatus.ERROR;
-			}
-		} catch (Throwable e) {
-			throw new DeviceException("while polling EpicsPneumaticCallback " + getName() + " : " + e.getMessage(), e);
-		}
-
 	}
 
 	@Override

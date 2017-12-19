@@ -216,33 +216,6 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		}
 	}
 
-	/**
-	 * gets the current status of this device from EPICS, i.e poll it.
-	 *
-	 * @return EnumPositionerStatus
-	 * @throws DeviceException
-	 */
-	public EnumPositionerStatus getPositionerStatus() throws DeviceException {
-		try {
-			short statusValue = controller.cagetEnum(status);
-			String statusString = statuspositions.get(statusValue);
-			// first check if its moving
-			if (statusString.equals("Opening") || statusString.equals("Closing")) {
-				return EnumPositionerStatus.MOVING;
-			} else if (statusString.equals("Open") || statusString.equals("Closed")) {
-				return EnumPositionerStatus.IDLE;
-			} else if (statusString.equals("Fault")) {
-				return EnumPositionerStatus.ERROR;
-			} else {
-				logger.error("{} returned an unknown status. It is set to ERROR now.", getName());
-				return EnumPositionerStatus.ERROR;
-			}
-		} catch (Throwable e) {
-			throw new DeviceException("while polling EpicsPneumatic " + getName() + " : " + e.getMessage(), e);
-		}
-
-	}
-
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string

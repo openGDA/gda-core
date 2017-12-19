@@ -254,39 +254,6 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		}
 	}
 
-	/**
-	 * @deprecated: Call getStatus() instead
-	 * @return EnumPositionerStatus
-	 * @throws DeviceException
-	 */
-	@Deprecated
-	public EnumPositionerStatus getPositionerStatus() throws DeviceException {
-		try {
-			// first check if its moving
-			if (controller.cagetDouble(dmov) == 0.0) {
-				return EnumPositionerStatus.MOVING;
-			}
-			// check if in position
-			if (isInPos()) {
-				// and status is NO_ALARM
-				if (controller.cagetDouble(error) == 0) {
-					return EnumPositionerStatus.IDLE;
-				}
-				logger.error("{} completed move but has error status.", getName());
-				notifyIObservers(this, EnumPositionerStatus.ERROR);
-				return EnumPositionerStatus.ERROR;
-			}
-			// else its an error
-
-			logger.error("{} failed to successfully move to required location.", getName());
-			return EnumPositionerStatus.ERROR;
-
-		} catch (Exception e) {
-			throw new DeviceException("Exception while updating EpicsPositioner " + getName(), e);
-		}
-
-	}
-
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
