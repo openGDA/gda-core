@@ -108,6 +108,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 				.variable(LineReader.ERRORS, 40)
 					// ^^^ hack to work around jline hardcoded completion handling
 					// https://github.com/jline/jline3/issues/147
+				.variable(LineReader.WORDCHARS, "*?_-[]~=/&;!#$%^(){}<>") // Remove '.' from wordchars
 				.build();
 		read.unsetOpt(Option.HISTORY_REDUCE_BLANKS); // keep tabs/indents in history
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
