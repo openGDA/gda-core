@@ -19,9 +19,8 @@
 package gda.device.motor;
 
 import gda.device.MotorException;
-import gda.device.scannable.MotorUnitStringSupplier;
 
-public class DummyUnitsMotor extends DummyMotor implements MotorUnitStringSupplier {
+public class DummyUnitsMotor extends DummyMotor {
 
 	String unitString = "mm";
 

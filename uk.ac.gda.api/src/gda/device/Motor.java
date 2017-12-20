@@ -260,4 +260,10 @@ public interface Motor extends Device {
 	 * @throws DeviceException
 	 */
 	MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException;
+
+	/**
+	 * @return unit as a String
+	 * @throws MotorException
+	 */
+	String getUnitString() throws MotorException;
 }

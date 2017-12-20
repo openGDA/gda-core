@@ -325,4 +325,9 @@ public class SimpleMotor implements Motor, InitializingBean{
 		return getStatus();
 	}
 
+	@Override
+	public String getUnitString() throws MotorException {
+		return "";
+	}
+
 }

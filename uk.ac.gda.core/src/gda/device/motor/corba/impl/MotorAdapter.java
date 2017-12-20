@@ -540,6 +540,11 @@ public class MotorAdapter extends DeviceAdapter implements Motor {
 	}
 
 	@Override
+	public String getUnitString() throws MotorException {
+		return "";
+	}
+
+	@Override
 	public MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException {
 		while (getStatus() == MotorStatus.BUSY) {
 			Thread.sleep(POLL_TIME_MILLIS);

@@ -28,14 +28,13 @@ import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
-import gda.device.scannable.MotorUnitStringSupplier;
 import gda.observable.IObservable;
 import uk.ac.gda.util.ThreadManager;
 
 /**
  * A Dummy motor class
  */
-public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor, MotorUnitStringSupplier {
+public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyMotor.class);
 

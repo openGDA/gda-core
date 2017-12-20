@@ -491,15 +491,11 @@ public class ScannableMotorTest {
 		assertArrayEquals(new String[] { "keV", "eV", "GeV" }, scannable.getAcceptableUnits());
 	}
 
-
-	/** Interface to combine 2 interfaces to allow easier mocking */
-	private interface UnitStringProvidingMotor extends Motor, MotorUnitStringSupplier{}
-
 	@Test
-	public void testConfigureWithMotorThatImplementsMotorUnitStringSupplier() throws Exception {
-		UnitStringProvidingMotor mockedMotor = mock(UnitStringProvidingMotor.class);
+	public void testConfigureWithMotorThatProvidesUnits() throws Exception {
+		final Motor mockedMotor = mock(Motor.class);
 		when(mockedMotor.getUnitString()).thenReturn("eV");
-		ScannableMotor scannable = new ScannableMotor();
+		final ScannableMotor scannable = new ScannableMotor();
 		scannable.setMotor(mockedMotor);
 		scannable.setUserUnits("keV");
 		scannable.configure();

@@ -460,4 +460,9 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	public double getUserOffset() throws MotorException {
 		return Double.NaN;
 	}
+
+	@Override
+	public String getUnitString() throws MotorException {
+		return "";
+	}
 }
