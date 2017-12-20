@@ -32,7 +32,6 @@ import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorProperties.MotorProperty;
 import gda.device.MotorStatus;
-import gda.device.scannable.MotorUnitStringSupplier;
 import gda.epics.AccessControl;
 import gda.epics.connection.CompoundDataTypeHandler;
 import gda.epics.connection.EpicsChannelManager;
@@ -74,7 +73,7 @@ import gov.aps.jca.event.PutListener;
  * EpicsMotor implements GDA Motor interface and provide mapping from GDA interface to EPICS motor record. Note only
  * selected PVs or channels are instantiated in this class as required by the GDA motor interface.
  */
-public class EpicsMotor extends MotorBase implements Motor, InitializationListener, IObserver, MotorUnitStringSupplier {
+public class EpicsMotor extends MotorBase implements Motor, InitializationListener, IObserver {
 
 	@Override
 	public void savePosition(String name, double currentPosition) {

@@ -18,8 +18,11 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.Motor;
-import gda.device.scannable.MotorUnitStringSupplier;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
@@ -30,15 +33,11 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 /**
  * Abstract decorator class for {@link EpicsMotor} that initialises and monitors IOC status PV.
  * It also supports connections of motor object to EPICS PVs after GDA had started if IOC status changed to RUNNING.
  */
-public abstract class MotorIocDecorator extends MotorBase implements Motor,MotorUnitStringSupplier,InitializingBean {
+public abstract class MotorIocDecorator extends MotorBase implements Motor, InitializingBean {
 	private Logger logger = LoggerFactory.getLogger(MotorIocDecorator.class);
 	protected Motor decoratedMotor;
 	protected boolean iocRunning=false;

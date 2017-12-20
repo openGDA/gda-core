@@ -21,7 +21,6 @@ package gda.device.motor;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
-import gda.device.scannable.MotorUnitStringSupplier;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -52,7 +51,7 @@ import gov.aps.jca.event.PutListener;
  * </pre>
  * </p>
  */
-public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitStringSupplier, IObserver {
+public class EpicsMotorDecorator extends MotorIocDecorator implements IObserver {
 
 	public EpicsMotorDecorator() {
 		super();
