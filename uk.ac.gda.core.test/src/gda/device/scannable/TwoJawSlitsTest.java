@@ -22,40 +22,48 @@ package gda.device.scannable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.device.DeviceException;
-import gda.device.motor.TotalDummyMotor;
-import gda.factory.Finder;
-import gda.factory.ObjectFactory;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import gda.device.DeviceException;
+import gda.device.Motor;
+import gda.device.MotorException;
+import gda.factory.Finder;
+import gda.factory.ObjectFactory;
 
 /**
  * Tests the two Scannable classes used to operate a slit operated by two motors
  */
 public class TwoJawSlitsTest {
 
-	ObjectFactory factory;
+	private ObjectFactory factory;
 
 	//these names must be unique else they clash with motors in other tests!!!
-	String motorName1 = "TwoJawSlitsTestMotor01";
-	String motorName2 = "TwoJawSlitsTestMotor02";
-	String scannableMotorName1 = "TwoJawSlitsTestscannableMotor1";
-	String scannableMotorName2 = "TwoJawSlitsTestscannableMotor2";
+	private static final String motorName1 = "TwoJawSlitsTestMotor01";
+	private static final String motorName2 = "TwoJawSlitsTestMotor02";
+	private static final String scannableMotorName1 = "TwoJawSlitsTestscannableMotor1";
+	private static final String scannableMotorName2 = "TwoJawSlitsTestscannableMotor2";
 
-	String gapName = "slitGap";
-	String positionName = "slitPosition";
+	private static final String gapName = "slitGap";
+	private static final String positionName = "slitPosition";
 
-	ScannableMotor scannableMotor1;
-	ScannableMotor scannableMotor2;
+	private Motor motor1;
+	private Motor motor2;
 
-	TwoJawSlitGap gap;
-	TwoJawSlitPosition position;
+	private ScannableMotor scannableMotor1;
+	private ScannableMotor scannableMotor2;
 
+	private TwoJawSlitGap gap;
+	private TwoJawSlitPosition position;
 
-	/**
-	 * @throws Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		factory = new ObjectFactory();
@@ -63,11 +71,9 @@ public class TwoJawSlitsTest {
 		Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
 
-		TotalDummyMotor motor1 = new TotalDummyMotor();
-		motor1.setName(motorName1);
+		motor1 = createMotor(motorName1);
 		factory.addFindable(motor1);
-		TotalDummyMotor motor2 = new TotalDummyMotor();
-		motor2.setName(motorName2);
+		motor2 = createMotor(motorName2);
 		factory.addFindable(motor2);
 
 		scannableMotor1 = new ScannableMotor();
@@ -110,9 +116,14 @@ public class TwoJawSlitsTest {
 		position.configure();
 	}
 
-	/**
-	 *
-	 */
+	private Motor createMotor(String name) throws MotorException {
+		final Motor motor = mock(Motor.class);
+		when(motor.getName()).thenReturn(name);
+		when(motor.getMinPosition()).thenReturn(Double.NaN);
+		when(motor.getMaxPosition()).thenReturn(Double.NaN);
+		return motor;
+	}
+
 	@Test
 	public void testInputNames() {
 		assertEquals(gapName, gap.getInputNames()[0]);
@@ -124,15 +135,11 @@ public class TwoJawSlitsTest {
 		assertEquals(0, position.getExtraNames().length);
 	}
 
-	/**
-	 *
-	 */
 	@Test
 	public void testToString() {
 		assertEquals("slitGap : 0.0000mm (0.0000:10.000)", gap.toFormattedString());
 		assertEquals("slitPosition : 0.0000mm (-3.0000:3.0000)", position.toFormattedString());
 	}
-
 
 	@Test
 	public void testGetPosition() throws Exception {
@@ -140,10 +147,6 @@ public class TwoJawSlitsTest {
 		assertEquals(0., position.getPosition());
 	}
 
-
-	/**
-	 *
-	 */
 	@Test
 	public void testIsPositionValid() {
 		try {
@@ -171,9 +174,6 @@ public class TwoJawSlitsTest {
 		assertEquals(0, gapMin, 0);
 	}
 
-	/**
-	 *
-	 */
 	@Test
 	public void testAsynchronousMoveTo() {
 		try {
@@ -181,23 +181,29 @@ public class TwoJawSlitsTest {
 			position.setTolerance(0.000001);
 
 			gap.moveTo(9);
+			moveMotors();
 			assertTrue(gap.isAt(9));
 
 			gap.moveTo("0.9 mm");
+			moveMotors();
 			assertTrue(gap.isAt("0.9 mm"));
 
 			gap.moveTo("5 micron");
+			moveMotors();
 			assertTrue(gap.isAt("5 micron"));
 
 			position.moveTo(1);
+			moveMotors();
 			assertTrue(position.isAt(1));
 			assertTrue(gap.isAt("5 micron"));
 
 			position.moveTo("0.9 mm");
+			moveMotors();
 			assertTrue(position.isAt("0.9 mm"));
 			assertTrue(gap.isAt("5 micron"));
 
 			position.moveTo("5 micron");
+			moveMotors();
 			assertTrue(position.isAt("5 micron"));
 			assertTrue(gap.isAt("5 micron"));
 
@@ -207,9 +213,22 @@ public class TwoJawSlitsTest {
 
 	}
 
+	private void moveMotors() throws DeviceException {
+		moveMotor(motor1);
+		moveMotor(motor2);
+	}
+
 	/**
-	 *
+	 * Simulate moving a motor.<br>
+	 * Get the value of the latest call to moveTo() and return this as the value of getPosition()
 	 */
+	private void moveMotor(Motor motor) throws MotorException {
+		final ArgumentCaptor<Double> posCaptor = ArgumentCaptor.forClass(Double.class);
+		verify(motor, atLeastOnce()).moveTo(posCaptor.capture());
+		final List<Double> values = posCaptor.getAllValues();
+		when(motor.getPosition()).thenReturn(values.get(values.size() - 1));
+	}
+
 	@Test
 	public void testSetHardwareUnitString() {
 		try {

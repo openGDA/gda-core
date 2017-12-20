@@ -42,7 +42,6 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorStatus;
 import gda.device.ScannableMotion;
-import gda.device.motor.TotalDummyMotor;
 import gda.factory.Finder;
 import gda.factory.ObjectFactory;
 import gda.jython.ITerminalPrinter;
@@ -85,8 +84,8 @@ public class ScannableMotorTest {
 		Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
 
-		TotalDummyMotor motor = new TotalDummyMotor();
-		motor.setName("motor");
+		final Motor motor = mock(Motor.class);
+		when(motor.getName()).thenReturn("motor");
 		factory.addFindable(motor);
 
 		sm = new ScannableMotor();
