@@ -53,6 +53,8 @@ public class BeamlineMbbinaryShutterCompositeFactory implements CompositeFactory
 	private String label;
 	private EnumPositioner shutter;
 	private boolean controlPermitted = false;
+	private String openString="OPEN";
+	private String closeString="CLOSE";
 
 	public String getLabel() {
 		return label;
@@ -65,7 +67,7 @@ public class BeamlineMbbinaryShutterCompositeFactory implements CompositeFactory
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		return new BeamlineMbbinaryShutterComposite(parent, style, parent.getDisplay(), label,
-				shutter, controlPermitted);
+				shutter, controlPermitted, openString, closeString);
 	}
 
 	public EnumPositioner getShutter() {
@@ -82,6 +84,22 @@ public class BeamlineMbbinaryShutterCompositeFactory implements CompositeFactory
 
 	public void setControlPermitted(boolean controlPermitted) {
 		this.controlPermitted = controlPermitted;
+	}
+
+	public String getOpenString() {
+		return openString;
+	}
+
+	public void setOpenString(String openString) {
+		this.openString = openString;
+	}
+
+	public String getCloseString() {
+		return closeString;
+	}
+
+	public void setCloseString(String closeString) {
+		this.closeString = closeString;
 	}
 
 }
@@ -106,9 +124,11 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 
 	private EnumPositioner shutter;
 	private boolean controlPermitted = false;
+	private String openString;
+	private String closeString;
 
 	public BeamlineMbbinaryShutterComposite(Composite parent, int style, final Display display, String label,
-			final EnumPositioner shutter, boolean controlPermitted) {
+			final EnumPositioner shutter, boolean controlPermitted, String open, String close) {
 		super(parent, style);
 
 		GridDataFactory.fillDefaults().applyTo(this);
@@ -125,6 +145,8 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 
 		this.shutter = shutter;
 		this.setControlPermitted(controlPermitted);
+		this.openString=open;
+		this.closeString=close;
 
 		currentColor = CLOSE_COLOR;
 		String currentPos = "";
@@ -133,9 +155,9 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 		} catch (DeviceException e1) {
 			logger.error("failed to get current shutter position from " + shutter.getName(), e1);
 		}
-		if (currentPos.equalsIgnoreCase("Open")) {
+		if (currentPos.equalsIgnoreCase(openString)) {
 			currentColor = OPEN_COLOR;
-		} else if (currentPos.equalsIgnoreCase("Close")) {
+		} else if (currentPos.equalsIgnoreCase(closeString)) {
 			currentColor = CLOSE_COLOR;
 		}
 
@@ -162,17 +184,17 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 		if (isControlPermitted()) {
 			canvas.setMenu(createPopup(this));
 			// initialize tooltip
-			if (currentPos.equalsIgnoreCase("Open")) {
+			if (currentPos.equalsIgnoreCase(openString)) {
 				canvas.setToolTipText(OPEN_TOOL_TIP);
 				openShutter.setSelection(true);
-			} else if (currentPos.equalsIgnoreCase("Close")) {
+			} else if (currentPos.equalsIgnoreCase(closeString)) {
 				canvas.setToolTipText(CLOSE_TOOL_TIP);
 				closeShutter.setSelection(true);
 			}
 		} else {
-			if (currentPos.equalsIgnoreCase("Open")) {
+			if (currentPos.equalsIgnoreCase(openString)) {
 				canvas.setToolTipText(OPEN_TOOL_TIP_NO_CONTROL);
-			} else if (currentPos.equalsIgnoreCase("Close")) {
+			} else if (currentPos.equalsIgnoreCase(closeString)) {
 				canvas.setToolTipText(CLOSE_TOOL_TIP_NO_CONTROL);
 			}
 		}
@@ -184,8 +206,9 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 					public void run() {
 						if (theObserved instanceof EnumPositioner) {
 							if (changeCode instanceof ScannablePositionChangeEvent) {
-								final String value =((ScannablePositionChangeEvent) changeCode).toString().toLowerCase();
-								if (value.contains("open")) {
+								final String value =((ScannablePositionChangeEvent) changeCode).newPosition.toString().toLowerCase();
+								logger.info("Shutter {} state changed to {}", shutter.getName(), value);
+								if (value.equalsIgnoreCase(openString)) {
 									currentColor = OPEN_COLOR;
 									if (isControlPermitted()) {
 										canvas.setToolTipText(OPEN_TOOL_TIP);
@@ -194,7 +217,7 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 									} else {
 										canvas.setToolTipText(OPEN_TOOL_TIP_NO_CONTROL);
 									}
-								} else if (value.contains("close")) {
+								} else if (value.equalsIgnoreCase(closeString)) {
 									currentColor = CLOSE_COLOR;
 									if (isControlPermitted()) {
 										canvas.setToolTipText(CLOSE_TOOL_TIP);
@@ -229,11 +252,11 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 		Menu menu = new Menu(parent.getShell(), SWT.POP_UP);
 
 		openShutter = new MenuItem(menu, SWT.RADIO);
-		openShutter.setText("OPEN");
+		openShutter.setText(openString);
 		openShutter.addSelectionListener(popupSelectionListener);
 		openShutter.setSelection(false);
 		closeShutter = new MenuItem(menu, SWT.RADIO);
-		closeShutter.setText("CLOSE");
+		closeShutter.setText(closeString);
 		closeShutter.setSelection(false);
 		closeShutter.addSelectionListener(popupSelectionListener);
 		return menu;
@@ -251,10 +274,10 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 
 			try {
 				if (selected.equals(openShutter)) {
-					shutter.moveTo("OPEN");
+					shutter.moveTo(openString);
 					logger.info("Open shutter.");
 				} else if (selected.equals(closeShutter)) {
-					shutter.moveTo("CLOSE");
+					shutter.moveTo(closeString);
 					logger.info("Close shutter.");
 				}
 			} catch (DeviceException e) {

@@ -212,7 +212,7 @@ class FrontEndPneumaticShutterComposite extends Composite {
 					public void run() {
 						if (theObserved instanceof EnumPositioner) {
 							if (changeCode instanceof ScannablePositionChangeEvent) {
-								final String value = ((ScannablePositionChangeEvent) changeCode).toString().toLowerCase();
+								final String value = ((ScannablePositionChangeEvent) changeCode).newPosition.toString().toLowerCase();
 								if (value.contains("open") && !value.contains("opening")) {
 									currentColor = OPEN_COLOR;
 									if (isControlPermitted()) {
