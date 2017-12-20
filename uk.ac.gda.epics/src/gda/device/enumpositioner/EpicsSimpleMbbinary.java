@@ -256,7 +256,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				positions.add(position[i]);
 				logger.info("{} has available position: {}", getName(), position[i]);
 			}
 		}
@@ -271,27 +271,19 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	private class PvMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			logger.debug("{} monitor changed: {}", getName(), arg0);
+			logger.info("Monitor event received from {}", arg0.getSource());
 			if (initialised) {
-				String[] posn;
-				try {
-					posn = getPositions();
-				} catch (DeviceException de) {
-					return;
-				}
-				if (posn.length != 0) {
-					int value = -1;
-					String position = "";
-					DBR dbr = arg0.getDBR();
-					if (dbr.isENUM()) {
-						value = ((DBR_Enum) dbr).getEnumValue()[0];
-						position = posn[value];
-						if (!position.isEmpty()) {
-							positionerStatus = EnumPositionerStatus.IDLE;
-							notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
-						}
-						logger.info("{} is at {}", getName(), position);
-					}
+				int value = -1;
+				String position = "";
+				DBR dbr = arg0.getDBR();
+				if (dbr.isENUM()) {
+					value = ((DBR_Enum) dbr).getEnumValue()[0];
+					position = EpicsSimpleMbbinary.this.positions.get(value);
+					positionerStatus = EnumPositionerStatus.IDLE;
+					notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
+					logger.info("{} is at {}", getName(), position);
+				} else {
+					logger.error("Expect enum but got {}", dbr.getType().getName());
 				}
 			}
 		}

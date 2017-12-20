@@ -331,7 +331,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 				this.statuspositions.add(statusposition[i]);
 			}
 		}
-		logger.info("{} is initialised.", getName());
+		logger.info("{} is initialised. Control positions available: {}, Status positions available: {}", getName(), super.positions, statuspositions);
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 			if (statusPvIndicatesPositionOnly) {
 				// See GDA-5822 - wait for status positions field being initialised before calling getPosition().
 				try {
-					while (statuspositions.size() < value + 1) {
+					while (EpicsPneumaticCallback.this.statuspositions.size() < value + 1) {
 						Thread.sleep(100);
 					}
 				} catch (InterruptedException e) {
@@ -358,7 +358,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 					return;
 				}
 				notifyIObservers(EpicsPneumaticCallback.this,
-						new ScannablePositionChangeEvent(statuspositions.get(value)));
+						new ScannablePositionChangeEvent(EpicsPneumaticCallback.this.statuspositions.get(value)));
 
 			} else {
 				if (value == 0) {
