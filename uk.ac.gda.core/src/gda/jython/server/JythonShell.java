@@ -288,8 +288,6 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 			} catch (EndOfFileException eof) { // ctrl-d while editing
 				throw Py.EOFError("EOF when reading a line");
 			} catch (UserInterruptException uie) { // ctrl-c while editing
-				// this is is never handled as another (java.nio.channels.ClosedByInterruptException)
-				// is thrown before it can be caught
 				throw Py.KeyboardInterrupt("KeyboardInterrupt");
 			} finally {
 				read.setVariable(LineReader.DISABLE_HISTORY, false);

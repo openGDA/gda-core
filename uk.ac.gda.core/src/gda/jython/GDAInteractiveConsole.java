@@ -89,6 +89,8 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			if( logger.isTraceEnabled() )
 				super.showexception(arg0);
 			InterfaceProvider.getTerminalPrinter().print(arg0.toString());
+		} else if (arg0.match(Py.KeyboardInterrupt)) {
+			InterfaceProvider.getTerminalPrinter().print("KeyboardInterrupt");
 		} else {
 			if (arg0.type instanceof PyJavaType) {
 				// in this case the jython code is just way too verbose for users
