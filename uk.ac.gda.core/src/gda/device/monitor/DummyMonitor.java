@@ -42,6 +42,9 @@ public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 
 	private Double constantValue;
 
+	/** Interval between new values - in milliseconds */
+	private int updateInterval = 5000;
+
 	/**
 	 * Constructor.
 	 */
@@ -52,7 +55,7 @@ public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 	public void configure() {
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
-		EXECUTOR.scheduleAtFixedRate(this::updateValue, 0, 5000, TimeUnit.MILLISECONDS);
+		EXECUTOR.scheduleAtFixedRate(this::updateValue, 0, updateInterval, TimeUnit.MILLISECONDS);
 	}
 
 	private void updateValue() {
@@ -98,5 +101,13 @@ public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 	 */
 	public void setConstantValue(Double constantValue) {
 		this.constantValue = constantValue;
+	}
+
+	/**
+	 * Set time between updates
+	 * @param updateInterval in milliseconds
+	 */
+	public void setUpdateInterval(int updateInterval) {
+		this.updateInterval = updateInterval;
 	}
 }
