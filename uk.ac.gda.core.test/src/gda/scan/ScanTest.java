@@ -83,7 +83,7 @@ public class ScanTest {
 		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
 		 * static block is invoked.
 		 */
-		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(ScanTest.class, "scanTest.properties").getAbsolutePath());
+		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, TestUtils.getResourceAsFile(ScanTest.class, "scanTest.properties").getAbsolutePath());
 
 		configureLogging();
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(ScanTest.class, "scanTest_server.xml").getAbsolutePath());

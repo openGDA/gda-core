@@ -23,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -67,7 +69,7 @@ public class FindableHashtableTest {
 		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
 		 * static block is invoked.
 		 */
-		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(FindableHashtableTest.class, "java_findableHashtable.properties")
+		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, TestUtils.getResourceAsFile(FindableHashtableTest.class, "java_findableHashtable.properties")
 				.getAbsolutePath());
 
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(FindableHashtableTest.class, "server_findableHashtable.xml").getAbsolutePath());
