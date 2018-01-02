@@ -383,6 +383,14 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return pvFactory.getPVInteger(PCArmOut).get() == 1;
 	}
 
+	public boolean isGateBusy() throws Exception {
+		return pvFactory.getPVInteger(PCGateStatus).get() == 1;
+	}
+
+	public boolean isPulseBusy() throws Exception {
+		return pvFactory.getPVInteger(PCPulseStatus).get() == 1;
+	}
+
 	@Override
 	public void setPCCaptureBitField(int val) throws Exception {
 		pvFactory.getIntegerPVValueCache(PCCaptureBitField).putWait(val);
