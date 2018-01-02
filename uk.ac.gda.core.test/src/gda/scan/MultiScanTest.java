@@ -36,6 +36,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
+import gda.device.MotorException;
+import gda.device.MotorStatus;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -46,7 +48,7 @@ import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.NXPluginBase;
-import gda.device.motor.TotalDummyMotor;
+import gda.device.motor.MotorBase;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionConvertorFunctions;
@@ -76,7 +78,7 @@ public class MultiScanTest {
 		final MyMoveController moveController = new MyMoveController();
 		final MyScannableMotor scannableMotor = new MyScannableMotor();
 		scannableMotor.setName("csvc");
-		scannableMotor.setMotor(new TotalDummyMotor());
+		scannableMotor.setMotor(new MyMotor());
 		scannableMotor.setCmc(moveController);
 		scannableMotor.configure();
 		moveController.setScannableBeingMoved(scannableMotor);
@@ -316,6 +318,86 @@ public class MultiScanTest {
 		@Override
 		public double getStep() {
 			return step;
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+
+	private static class MyMotor extends MotorBase {
+
+		private double posn = 0.0;
+		private double speed = 2;
+		private MotorStatus status = MotorStatus.READY;
+		private boolean moving = false;
+
+		public MyMotor() {
+			super();
+			setName("myMotor");
+		}
+
+		@Override
+		public void configure(){
+			// no configuration required
+		}
+
+		@Override
+		public void moveBy(double steps) throws MotorException {
+			moving = true;
+			posn += steps;
+			moving = false;
+		}
+
+		@Override
+		public void moveTo(double steps) throws MotorException {
+			moving = true;
+			posn = steps;
+			moving = false;
+		}
+
+		@Override
+		public void moveContinuously(int direction) throws MotorException {
+			moving = true;
+			posn = posn + direction * 10;
+		}
+
+		@Override
+		public void setPosition(double steps) throws MotorException {
+			posn = steps;
+		}
+
+		@Override
+		public double getPosition() throws MotorException {
+			return posn;
+		}
+
+		@Override
+		public void setSpeed(double speed) throws MotorException {
+			this.speed = speed;
+		}
+
+		@Override
+		public double getSpeed() throws MotorException {
+			return speed;
+		}
+
+		@Override
+		public void stop() throws MotorException {
+			moving = false;
+		}
+
+		@Override
+		public void panicStop() throws MotorException {
+			moving = false;
+		}
+
+		@Override
+		public MotorStatus getStatus() {
+			return status;
+		}
+
+		@Override
+		public boolean isMoving() throws MotorException {
+			return moving;
 		}
 	}
 }
