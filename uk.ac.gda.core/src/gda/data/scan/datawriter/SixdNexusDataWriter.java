@@ -166,7 +166,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		metadata = GDAMetadataProvider.getInstance();
 
 		try {
-			beamline = metadata.getMetadataValue("instrument", "gda.instrument", null);
+			beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
 		} catch (DeviceException e1) {
 		}
 

@@ -146,7 +146,7 @@ public class NeXusUtils {
 	 */
 	public static void writeXESraw(NexusFile file, String entryName) throws NexusException, IOException {
 
-		String beamline = LocalProperties.get("gda.instrument", "base");
+		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
 		NumTracker runNumber = new NumTracker(beamline);
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
@@ -203,7 +203,7 @@ public class NeXusUtils {
 	 */
 	public static void write_NXinstrument(NexusFile file, GroupNode group) throws NexusException {
 
-		String beamline = LocalProperties.get("gda.instrument", "base");
+		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
 
 		// Make instrument if it's not there.
 		group = file.getGroup(group, "instrument", NexusExtractor.NXInstrumentClassName, true);
@@ -253,7 +253,7 @@ public class NeXusUtils {
 		group = file.getGroup(group, "source", "NXsource", true);
 
 		try {
-			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", "gda.facility", "DLS"));
+			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", LocalProperties.GDA_FACILITY, "DLS"));
 			NexusUtils.writeString(file, group, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
 			NexusUtils.writeString(file, group, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
 			if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())

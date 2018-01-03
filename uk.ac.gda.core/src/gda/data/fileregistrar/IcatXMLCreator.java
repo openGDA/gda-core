@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.factory.Finder;
@@ -68,7 +69,7 @@ public class IcatXMLCreator implements ArchiveFileCreator {
 		private String inv_type = "experiment";
 
 		public IvestigationInfo() throws DeviceException {
-			instrument = metadata.getMetadataValue("instrument", "gda.instrument", null);
+			instrument = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
 			instrument = xmlSanitize(instrument);
 			title = metadata.getMetadataValue("title");
 			title = xmlSanitize(title);
