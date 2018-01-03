@@ -20,6 +20,8 @@
 package gda.data;
 
 import static org.junit.Assert.assertEquals;
+
+import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.MetadataEntry;
 import gda.data.metadata.PropertyMetadataEntry;
@@ -34,8 +36,8 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -45,7 +47,6 @@ import org.junit.Test;
  * property gda.tests is set AS A VM ARGUMENT when running the test. In the latter case the test's Java property and XML
  * files are assumed to be under ${gda.tests}/gda/src...
  */
-@Ignore("2010/06/07 Test ignored since not passing GDA-3276")
 public class PathConstructorTest {
 	private static Metadata metadata;
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-d.H.m");
@@ -60,13 +61,12 @@ public class PathConstructorTest {
 	 */
 	@BeforeClass()
 	public static void setUpBeforeClass() throws Exception {
-		/*
-		 * The following line is required to ensure that the default LocalProperties are obtained from the test's Java
-		 * properties file. The property gda.propertiesFile must be set BEFORE LocalProperties is used and thus it's
-		 * static block is invoked.
-		 */
-		System.setProperty("gda.propertiesFile", TestUtils.getResourceAsFile(PathConstructorTest.class, "java.properties").getAbsolutePath());
 
+		System.setProperty("gda.facility", "dls");
+		System.setProperty("gda.instrument", "i02");
+		
+		Finder.getInstance().removeAllFactories();
+		GDAMetadataProvider.setInstanceForTesting(null);
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
 		metadata = (Metadata) Finder.getInstance().find("GDAMetadata");
 
@@ -125,15 +125,25 @@ public class PathConstructorTest {
 	 * @throws Exception
 	 */
 	// These tests are not working. There does not appear to be entries for proposal or visit.
-	// @Test
+	@Test
 	public void testPathConstructorIkittenAccess() throws Exception {
 		IcatProvider.getInstance().setOperatingDate(dateFormat.parse(date));
 		metadata.setMetadataValue("federalid", validId);
+		metadata.setMetadataValue("visit", "sp666-1");
 
-		testPathConstructor("/dls/i18/data/2007/sp0-$visit$", "/dls/i18/data/2007/sp0-1");
-		testPathConstructor("/dls/i18/data/2007/sp$proposal$-1", "/dls/i18/data/2007/sp666-1");
-		testPathConstructor("/dls/i18/data/2007/sp$proposal$-$visit$", "/dls/i18/data/2007/sp666-1");
+		testPathConstructor("/dls/i18/data/2007/$visit$", "/dls/i18/data/2007/sp666-1");
+		testPathConstructor("/dls/i18/data/2007/$proposal$-1", "/dls/i18/data/2007/sp666-1");
 
 		IcatProvider.getInstance().setOperatingDate(null);
+	}
+
+	@AfterClass
+	public static void cleanUpAfterClass() {
+		
+		Finder.getInstance().removeAllFactories();
+		GDAMetadataProvider.setInstanceForTesting(null);
+		
+		System.clearProperty("gda.facility");
+		System.clearProperty("gda.instrument");
 	}
 }
