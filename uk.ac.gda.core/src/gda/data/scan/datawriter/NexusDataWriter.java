@@ -205,7 +205,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		metadata = GDAMetadataProvider.getInstance();
 
 		try {
-			beamline = metadata.getMetadataValue(INSTRUMENT, "gda.instrument", null);
+			beamline = metadata.getMetadataValue(INSTRUMENT, LocalProperties.GDA_INSTRUMENT, null);
 		} catch (DeviceException e) {
 			logger.error("Error getting instrument metadata", e);
 		}

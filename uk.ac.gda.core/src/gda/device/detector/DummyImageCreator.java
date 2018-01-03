@@ -19,6 +19,7 @@
 
 package gda.device.detector;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
@@ -137,7 +138,7 @@ public class DummyImageCreator extends DetectorBase implements Detector {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
 		try {
-			beamline = metadata.getMetadataValue("instrument", "gda.instrument", "base");
+			beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "base");
 		} catch (DeviceException e1) {
 		}
 

@@ -177,7 +177,7 @@ public abstract class ScanBase implements NestableScan {
 		// randomly create the name
 		name = generateRandomName();
 
-		instrument = LocalProperties.get("gda.instrument", "unknown");
+		instrument = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "unknown");
 
 		// rbac: you must be the baton holder to be able to create scans. Scan should also run within a Thread which
 		// has the same properties as a thread from the Command server so the rbac system works.

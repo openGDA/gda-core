@@ -87,7 +87,7 @@ public class PathConstructorTest {
 		 */
 		MetadataEntry entry = new PropertyMetadataEntry("facility", "gda.facility");
 		metadata.addMetadataEntry(entry);
-		entry = new PropertyMetadataEntry("instrument", "gda.instrument");
+		entry = new PropertyMetadataEntry("instrument", LocalProperties.GDA_INSTRUMENT);
 		metadata.addMetadataEntry(entry);
 	}
 
@@ -98,7 +98,7 @@ public class PathConstructorTest {
 	@Test
 	public void testPathConstructorPropertyAccess() {
 		System.setProperty("gda.facility", "dls");
-		System.setProperty("gda.instrument", "i02");
+		System.setProperty(LocalProperties.GDA_INSTRUMENT, "i02");
 		testPathConstructor("/$facility$/$instrument$/data/2007/sp0-0", "/dls/i02/data/2007/sp0-0");
 	}
 
@@ -160,7 +160,7 @@ public class PathConstructorTest {
 		final String facility = "d" + random.nextInt(10, 100);
 
 		System.setProperty(LocalProperties.GDA_DEF_VISIT, visit);
-		System.setProperty("gda.instrument", instrument);
+		System.setProperty(LocalProperties.GDA_INSTRUMENT, instrument);
 		System.setProperty("gda.facility", facility);
 
 		final int thisYear = LocalDate.now().getYear();
@@ -183,6 +183,6 @@ public class PathConstructorTest {
 
 		System.clearProperty(LocalProperties.GDA_DEF_VISIT);
 		System.clearProperty("gda.facility");
-		System.clearProperty("gda.instrument");
+		System.clearProperty(LocalProperties.GDA_INSTRUMENT);
 	}
 }

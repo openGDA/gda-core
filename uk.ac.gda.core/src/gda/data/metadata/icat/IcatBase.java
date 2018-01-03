@@ -217,7 +217,7 @@ public abstract class IcatBase implements Icat {
 			return instrumentName;
 		}
 
-		instrumentName = LocalProperties.get("gda.instrument");
+		instrumentName = LocalProperties.get(LocalProperties.GDA_INSTRUMENT);
 		if (!(instrumentName == null) && !instrumentName.isEmpty()) {
 			return instrumentName;
 		}

@@ -73,7 +73,7 @@ public class PathConstructor implements IPathConstructor {
 
 	private static String[] tokens = { "proposal", "visit", "instrument", "facility", "year", "subdirectory", "hostid" };
 
-	private static String[] defaultProperties = { "", LocalProperties.GDA_DEF_VISIT, "gda.instrument", "gda.facility", "", "", "" };
+	private static String[] defaultProperties = { "", LocalProperties.GDA_DEF_VISIT, LocalProperties.GDA_INSTRUMENT, "gda.facility", "", "", "" };
 
 	private static String[] defaultValues = { "0", "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "", HostId.getId() };
 

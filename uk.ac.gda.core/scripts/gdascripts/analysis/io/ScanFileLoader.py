@@ -13,7 +13,7 @@ class ScanFileLoader:
 			self.dir=dir
 		else:
 			self.dir = PathConstructor.createFromDefaultProperty()
-		self.beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "tmp")
+		self.beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "tmp")
 		if (self.format == "NexusDataWriter"):
 			#really should use scanFileName prefix rather than forcing to beamline-
 			self.prefix = LocalProperties.get("gda.data.filePrefix",self.beamline + "-")

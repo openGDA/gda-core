@@ -146,7 +146,7 @@ public class NeXusUtils {
 	 */
 	public static void writeXESraw(NexusFile file, String entryName) throws NexusException, IOException {
 
-		String beamline = LocalProperties.get("gda.instrument", "base");
+		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
 		NumTracker runNumber = new NumTracker(beamline);
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
@@ -203,7 +203,7 @@ public class NeXusUtils {
 	 */
 	public static void write_NXinstrument(NexusFile file, GroupNode group) throws NexusException {
 
-		String beamline = LocalProperties.get("gda.instrument", "base");
+		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
 
 		// Make instrument if it's not there.
 		group = file.getGroup(group, "instrument", NexusExtractor.NXInstrumentClassName, true);
