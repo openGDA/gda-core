@@ -39,7 +39,9 @@ import org.slf4j.LoggerFactory;
  *
  * Manages the life of the connection and provides the shell for the user to
  * interact with
+ * @deprecated Use SSH connection instead
  */
+@Deprecated
 class JythonTelnetConnection extends Connection {
 	private static final Logger logger = LoggerFactory.getLogger(JythonTelnetConnection.class);
 
@@ -48,6 +50,7 @@ class JythonTelnetConnection extends Connection {
 
 	JythonTelnetConnection(ThreadGroup tcg, ConnectionData cd) throws IOException {
 		super(tcg, cd);
+		logger.warn("Deprecated telnet connection being used from {}", cd.getHostName());
 		io = new TelnetIO();
 		io.setConnection(this);
 		io.initIO();
@@ -80,6 +83,11 @@ class JythonTelnetConnection extends Connection {
 	@Override
 	protected void doRun() throws Exception {
 		try (JythonShell shell = new JythonShell(terminal)) {
+			// Issue deprecation warning in red
+			terminal.writer().format(
+					"\033[1;31m%s\033[0m",
+					"TELNET CONNECTION IS NOW DEPRECATED.\n" +
+					"PLEASE USE SSH FOR REMOTE CONNECTIONS\n");
 			shell.run();
 		}
 	}
