@@ -234,6 +234,10 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_DEF_VISIT = "gda.defVisit";
 
+	public static final String GDA_INSTRUMENT = "gda.instrument";
+
+	public static final String GDA_FACILITY = "gda.facility";
+
 	/**
 	 * This is the default visit that will be used if no default visit is specified by the {@link #GDA_DEF_VISIT} property.
 	 */
