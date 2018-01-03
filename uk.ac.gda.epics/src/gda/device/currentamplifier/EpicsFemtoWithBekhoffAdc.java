@@ -92,9 +92,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final String ADC_BUFFFER_COUNT = "BUFFERCOUNT";
 	private static final String ADC_CHANNEL_BUFFFER = "CHANBUFF";
 	private static final String ADC_CAPTURE = "CAPTURE";
-	private static final String ADC_VALUE = "VALUE"; //on I21 this is the actual averaged value over the specifid integration time.
+	private static final String ADC_VALUE = "VALUE"; //on I21 this is the actual averaged value over the specified integration time.
 	private static final String ADC_STATE = "STATE";
 	private static final String ADC_INTERRUPT = "INTERRUPT";
+	private static final String ADC_INTEGRAL = "INTEGRAL";
 
 	private boolean hasIAVinPV = true;
 	private boolean hasIinPV = true;
@@ -139,6 +140,17 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 			acquiringLatch.countDown();
 		}
 	};
+
+	private int adcSamples;
+
+	private int adcAverage;
+
+	private boolean integrated=false;
+
+	private boolean adcModeEnableRetriggerCached=false;
+
+	private boolean adcSamplesAverageCached=false;
+
 
 	public enum AdcMode {
 		CONTINUOUS, TRIGGERED, GATED
@@ -422,7 +434,11 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		if (samples <= 0) {
 			samples = 1;
 		}
-
+		//cache existing settings before applying changes
+		adcSamples = getAdcSamples();
+		adcAverage = getAdcAverage();
+		adcSamplesAverageCached=true;
+		//apply new parameters
 		setAdcAveragingSamples(samples);
 	}
 
@@ -526,15 +542,24 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		adcMode = getAdcMode();
 		adcEnable = getAdcEnable();
 		adcRetrigger = getAdcRetrigger();
+		adcModeEnableRetriggerCached=true;
 		setAdcMode(AdcMode.TRIGGERED);
 		setAdcEnable(true);
 		setAdcRetrigger(true);
 	}
 
 	private void restoreADCMode() throws DeviceException {
-		if (adcMode != null) setAdcMode(adcMode);
-		setAdcEnable(adcEnable);
-		setAdcRetrigger(adcRetrigger);
+		if (adcModeEnableRetriggerCached) {
+			if (adcMode != null) setAdcMode(adcMode);
+			setAdcEnable(adcEnable);
+			setAdcRetrigger(adcRetrigger);
+		}
+		if (adcSamplesAverageCached) {
+			setAdcSamples(adcSamples);
+			setAdcAverage(adcAverage);
+		}
+		adcModeEnableRetriggerCached=false;
+		adcSamplesAverageCached=false;
 	}
 
 	@Override
@@ -622,13 +647,30 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 			throw new DeviceException(msg, e);
 		}
 	}
+	private double getIntegralVoltage() throws DeviceException {
+		logger.trace("getIntegralVoltage called");
+		try {
+			return EPICS_CONTROLLER.cagetDouble(getFemtoChannel(ADC_PREFIX + adcChannel + "_" + ADC_INTEGRAL));
+		} catch (TimeoutException | CAException | InterruptedException e) {
+			String msg = "Error getting integral voltage";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+	}
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		logger.trace("readout called");
 
 		// Get the data from EPICS
-		final double voltage = getAverageVoltage();
+		final double voltage;
+		if (!isIntegrated()) {
+			//Default - EPICS driver return averaged value only
+			voltage = getAverageVoltage();
+		} else {
+			//FIXME remove this once EPICS driver give integrated value
+			voltage = getIntegralVoltage();
+		}
 		final double gain = getGain();
 		// Divide by the gain to change from V back to amps (Gain is in V/A)
 		final double current = voltage / gain;
@@ -731,6 +773,44 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		}
 	}
 
+	public int getAdcSamples() throws DeviceException {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getAdcChannel(ADC_SAMPLES));
+		} catch (CAException | InterruptedException | TimeoutException e) {
+			String msg = "Error getting ADC Samples";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+	}
+	public void setAdcSamples(final int num) throws DeviceException {
+		try {
+			EPICS_CONTROLLER.caputWait(getAdcChannel(ADC_SAMPLES), num);
+		} catch (CAException | InterruptedException | TimeoutException e) {
+			String msg = "Error setting ADC Samples";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+		logger.debug("Changed ADC Samples to: {}", num);
+	}
+	public int getAdcAverage() throws DeviceException {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getAdcChannel(ADC_AVERAGE));
+		} catch (CAException | InterruptedException | TimeoutException e) {
+			String msg = "Error getting ADC Average";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+	}
+	public void setAdcAverage(final int num) throws DeviceException {
+		try {
+			EPICS_CONTROLLER.caputWait(getAdcChannel(ADC_AVERAGE), num);
+		} catch (CAException | InterruptedException | TimeoutException e) {
+			String msg = "Error setting ADC Average";
+			logger.error(msg, e);
+			throw new DeviceException(msg, e);
+		}
+		logger.debug("Changed ADC Average to: {}", num);
+	}
 	public void setAdcEnable(final boolean enabled) throws DeviceException {
 		try {
 			EPICS_CONTROLLER.caput(getAdcChannel(ADC_ENABLE), enabled ? "ENABLED" : "DISABLED");
@@ -871,6 +951,14 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 	public void setSupportsCoupling(boolean supportsCoupling) {
 		this.supportsCoupling = supportsCoupling;
+	}
+	
+	public boolean isIntegrated() {
+		return integrated;
+	}
+
+	public void setIntegrated(boolean integrated) {
+		this.integrated = integrated;
 	}
 
 }
