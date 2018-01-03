@@ -101,14 +101,14 @@ public abstract class IcatBase implements Icat {
 			addVisitIfNotNullOrEmpty(defVisit, visits);
 
 			// allow beamline staff to use the default ID listed in Java properties
-			String defProperty = LocalProperties.get("gda.defVisit");
+			String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
 			addVisitIfNotNullOrEmpty(defProperty, visits);
 		}
 
 		// if nothing has been found so far and the local property is set, use the def visit
 		if (visits.isEmpty() && LocalProperties.get("gda.icat.usersCanUseDefVisit", "false").equals("true")) {
 			// allow beamline staff to use the default ID listed in Java properties
-			String defProperty = LocalProperties.get("gda.defVisit");
+			String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
 			addVisitIfNotNullOrEmpty(defProperty, visits);
 		}
 

@@ -43,7 +43,7 @@ public class NullIcat extends IcatBase implements Icat {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		String defVisit = metadata.getMetadataValue("defVisit");
 		if (defVisit != null && !defVisit.equals("")) {
-			defVisit = LocalProperties.get("gda.defVisit");
+			defVisit = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
 		}
 
 		VisitEntry[] out = new VisitEntry[1];
