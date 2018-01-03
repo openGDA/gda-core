@@ -21,24 +21,27 @@ package gda.data;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.MetadataEntry;
 import gda.data.metadata.PropertyMetadataEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.util.HostId;
 import gda.util.ObjectServer;
 import gda.util.TestUtils;
-
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * A Class for performing unit tests on a class for constructing paths based on templates. Separate Java properties and
@@ -55,16 +58,9 @@ public class PathConstructorTest {
 	private static String year = null;
 	private String propertyName = "test.property";
 
-	/**
-	 * Test setup to be run once at the start.
-	 * @throws FactoryException
-	 */
-	@BeforeClass()
-	public static void setUpBeforeClass() throws Exception {
+	@Before
+	public void setUpBeforeEachTest() throws Exception {
 
-		System.setProperty("gda.facility", "dls");
-		System.setProperty("gda.instrument", "i02");
-		
 		Finder.getInstance().removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
 		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
@@ -101,6 +97,8 @@ public class PathConstructorTest {
 	 */
 	@Test
 	public void testPathConstructorPropertyAccess() {
+		System.setProperty("gda.facility", "dls");
+		System.setProperty("gda.instrument", "i02");
 		testPathConstructor("/$facility$/$instrument$/data/2007/sp0-0", "/dls/i02/data/2007/sp0-0");
 	}
 
@@ -137,12 +135,53 @@ public class PathConstructorTest {
 		IcatProvider.getInstance().setOperatingDate(null);
 	}
 
-	@AfterClass
-	public static void cleanUpAfterClass() {
-		
+	@Test
+	public void testDefaultValues() {
+
+		final int thisYear = LocalDate.now().getYear();
+		final String hostId = HostId.getId();
+
+		assertEquals("/0", PathConstructor.createFromTemplate("/$proposal$"));
+		assertEquals("/0-0", PathConstructor.createFromTemplate("/$visit$"));
+		assertEquals("/", PathConstructor.createFromTemplate("/$instrument$"));
+		assertEquals("/", PathConstructor.createFromTemplate("/$facility$"));
+		assertEquals("/" + thisYear, PathConstructor.createFromTemplate("/$year$"));
+		assertEquals("/", PathConstructor.createFromTemplate("/$subdirectory$"));
+		assertEquals("/" + hostId, PathConstructor.createFromTemplate("/$hostid$"));
+	}
+
+	@Test
+	public void testDefaultProperties() {
+
+		final ThreadLocalRandom random = ThreadLocalRandom.current();
+		final String proposal = "cm" + random.nextInt(10000, 20000);
+		final String visit = proposal + "-" + random.nextInt(1, 100);
+		final String instrument = "p" + random.nextInt(10, 100);
+		final String facility = "d" + random.nextInt(10, 100);
+
+		System.setProperty(LocalProperties.GDA_DEF_VISIT, visit);
+		System.setProperty("gda.instrument", instrument);
+		System.setProperty("gda.facility", facility);
+
+		final int thisYear = LocalDate.now().getYear();
+		final String hostId = HostId.getId();
+
+		assertEquals("/" + proposal, PathConstructor.createFromTemplate("/$proposal$"));
+		assertEquals("/" + visit, PathConstructor.createFromTemplate("/$visit$"));
+		assertEquals("/" + instrument, PathConstructor.createFromTemplate("/$instrument$"));
+		assertEquals("/" + facility, PathConstructor.createFromTemplate("/$facility$"));
+		assertEquals("/" + thisYear, PathConstructor.createFromTemplate("/$year$"));
+		assertEquals("/", PathConstructor.createFromTemplate("/$subdirectory$"));
+		assertEquals("/" + hostId, PathConstructor.createFromTemplate("/$hostid$"));
+	}
+
+	@After
+	public void cleanUpAfterEachTest() {
+
 		Finder.getInstance().removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
-		
+
+		System.clearProperty(LocalProperties.GDA_DEF_VISIT);
 		System.clearProperty("gda.facility");
 		System.clearProperty("gda.instrument");
 	}
