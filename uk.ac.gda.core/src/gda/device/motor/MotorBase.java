@@ -253,6 +253,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 			fis = new FileInputStream(fullName);
 			in = new ObjectInputStream(new BufferedInputStream(fis));
 			setPosition(in.readDouble());
+			logger.debug("Loaded motor position {} for {}", getPosition(), name);
 			in.close();
 		} catch (FileNotFoundException fnfe) {
 			logger.info("Motor Position File " + fullName + " not found - setting " + name + " position to "

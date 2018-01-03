@@ -132,7 +132,6 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 		runner.setName(getClass().getName() + " " + getName());
 		loadPosition(getName(), currentPosition);
-		logger.debug("Loaded motor position " + getPosition());
 		if (speed == 0.0) {
 			speed = getSlowSpeed();
 			if (speed == 0.0) {
