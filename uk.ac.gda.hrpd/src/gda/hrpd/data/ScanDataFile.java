@@ -51,12 +51,6 @@ public class ScanDataFile implements Serializable {
 	protected String command = "";
 
 	/**
-	 * The name of the gui panel which initiated this scan. This is used by the local JythonFacade to know which local
-	 * object to distribute this data point to for display.
-	 */
-	private String creatorPanelName = "";
-
-	/**
 	 * The string from the getCurrentFileName method of the {@link DataWriter} object owned by the scan
 	 * which created this file. Could be used to uniquely identify where this data is being recorded by the
 	 * {@link DataWriter} object.
@@ -218,32 +212,6 @@ public class ScanDataFile implements Serializable {
 	}
 
 	/**
-	 * This constructor is only used on the client-side to rebuild ScanDataPoint. This is because we only corbarised
-	 * ScanDataPoint as data STRUCT, not as object.
-	 * 
-	 * @param scanName
-	 *            - unique name of the scan
-	 * @param scannables
-	 *            - vector of scannable objects
-	 * @param detectors
-	 *            - vector of detector objects
-	 * @param creatorPanelName
-	 *            - name of the panel which started the scan
-	 * @param currentFilename
-	 *            -the file being filled
-	 * @param hasChild
-	 */
-	public ScanDataFile(String scanName, Vector<String> scannables, Vector<String> detectors, String creatorPanelName,
-			 String currentFilename, int hasChild) {
-		this.uniqueName = scanName;
-		this.scannableNames = scannables;
-		this.creatorPanelName = creatorPanelName;
-		this.currentFilename = currentFilename;
-		this.numberOfFiles = hasChild;
-	}
-
-
-	/**
 	 * Add a detector to the list of detectors this object holds data from.
 	 * 
 	 * @param det
@@ -266,15 +234,6 @@ public class ScanDataFile implements Serializable {
 	 */
 	public String getCommand() {
 		return command;
-	}
-
-	/**
-	 * Set the name of the panel which requested the scan which created this data point.
-	 * 
-	 * @return String
-	 */
-	public String getCreatorPanelName() {
-		return creatorPanelName;
 	}
 
 	/**
@@ -375,15 +334,6 @@ public class ScanDataFile implements Serializable {
 	 */
 	public void setCommand(String command) {
 		this.command = command;
-	}
-
-	/**
-	 * Get the name of the panel which ran this scan.
-	 * 
-	 * @param creatorPanel
-	 */
-	public void setCreatorPanelName(String creatorPanel) {
-		this.creatorPanelName = creatorPanel;
 	}
 
 	/**
