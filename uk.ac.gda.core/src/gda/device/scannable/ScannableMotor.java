@@ -220,9 +220,9 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			try {
 				internalDoublePosition = PositionConvertorFunctions.toDouble(internalPosition);
 				if (isLogMoveRequestsWithInfo()) {
-					logger.info("{}: move to {} ", getName(), internalPosition);
+					logger.info("{}: move to {}", getName(), internalPosition);
 				} else {
-					logger.debug("{}: move to {} ", getName(), internalPosition);
+					logger.debug("{}: move to {}", getName(), internalPosition);
 				}
 				notifyIObservers(this, ScannableStatus.BUSY);
 				this.motor.moveTo(internalDoublePosition);
@@ -541,7 +541,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				return motor.getSpeed();
 			}
 		} catch (MotorException e) {
-			logger.error("{}: exception while getting speed from motor. ", getName(), e);
+			logger.error("{}: exception while getting speed from motor.", getName(), e);
 			throw new DeviceException("Could not get speed", e);
 		}
 		return -1;
@@ -561,7 +561,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 				motor.setSpeed(theSpeed);
 			}
 		} catch (MotorException e) {
-			logger.error(getName() + ": exception while setting speed of motor. ", e);
+			logger.error(getName() + ": exception while setting speed of motor.", e);
 			throw new DeviceException("Could not set speed to " + theSpeed, e);
 		}
 	}
