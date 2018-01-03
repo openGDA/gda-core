@@ -41,7 +41,6 @@ import org.jline.reader.Reference;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
-import org.jline.utils.InfoCmp.Capability;
 import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,11 +172,6 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		KeyMap<Binding> mainKeyMap = read.getKeyMaps().get(LineReader.MAIN);
 		// Ctrl-space autocompletes
 		mainKeyMap.bind(new Reference(LineReader.MENU_COMPLETE), KeyMap.ctrl(' '));
-
-		// During auto complete, up and down should move through menu
-		KeyMap<Binding> menuKeyMap = read.getKeyMaps().get(LineReader.MENU);
-		menuKeyMap.bind(new Reference(LineReader.UP_LINE_OR_HISTORY), KeyMap.key(terminal, Capability.key_up));
-		menuKeyMap.bind(new Reference(LineReader.DOWN_LINE_OR_HISTORY), KeyMap.key(terminal, Capability.key_down));
 	}
 
 	@Override
