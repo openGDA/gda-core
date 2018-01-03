@@ -19,23 +19,31 @@
 
 package gda.device.monitor;
 
-import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Monitor;
+import gda.device.Scannable;
+
 /**
  * A dummy implementation of the Monitor interface for testing / development.
  */
-public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scannable {
+public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 
+	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 	private static final Logger logger = LoggerFactory.getLogger(DummyMonitor.class);
 
 	double latestValue = 0.0;
 
 	private Double constantValue;
+
+	/** Interval between new values - in milliseconds */
+	private int updateInterval = 5000;
 
 	/**
 	 * Constructor.
@@ -47,26 +55,12 @@ public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scan
 	public void configure() {
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
-		// TODO Do not need separate threads in all monitors since
-		// thread just used to assign value. Could use single thread
-		// and process all DummyMonitors in it.
-		uk.ac.gda.util.ThreadManager.getThread(this).start();
+		EXECUTOR.scheduleAtFixedRate(this::updateValue, 0, updateInterval, TimeUnit.MILLISECONDS);
 	}
 
-	@Override
-	public void run() {
-		try {
-			// generate a new value at regular intervals
-			while (true) {
-				Thread.sleep(5000);
-				latestValue = Math.random() * 100;
-				notifyIObservers(this, latestValue);
-			}
-		} catch (InterruptedException e) {
-			logger.warn(getName() + " thread interrupted. Stopping number generation.");
-			e.printStackTrace();
-		}
-
+	private void updateValue() {
+		latestValue = Math.random() * 100;
+		notifyIObservers(this, latestValue);
 	}
 
 	@Override
@@ -107,5 +101,13 @@ public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scan
 	 */
 	public void setConstantValue(Double constantValue) {
 		this.constantValue = constantValue;
+	}
+
+	/**
+	 * Set time between updates
+	 * @param updateInterval in milliseconds
+	 */
+	public void setUpdateInterval(int updateInterval) {
+		this.updateInterval = updateInterval;
 	}
 }
