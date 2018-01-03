@@ -85,7 +85,7 @@ public class PathConstructorTest {
 		 * Add these metadata entries here rather than via the XML configuration so that this test can use the default
 		 * property names that the path construction uses. Other tests will use the values in the metadata entries.
 		 */
-		MetadataEntry entry = new PropertyMetadataEntry("facility", "gda.facility");
+		MetadataEntry entry = new PropertyMetadataEntry("facility", LocalProperties.GDA_FACILITY);
 		metadata.addMetadataEntry(entry);
 		entry = new PropertyMetadataEntry("instrument", LocalProperties.GDA_INSTRUMENT);
 		metadata.addMetadataEntry(entry);
@@ -97,7 +97,7 @@ public class PathConstructorTest {
 	 */
 	@Test
 	public void testPathConstructorPropertyAccess() {
-		System.setProperty("gda.facility", "dls");
+		System.setProperty(LocalProperties.GDA_FACILITY, "dls");
 		System.setProperty(LocalProperties.GDA_INSTRUMENT, "i02");
 		testPathConstructor("/$facility$/$instrument$/data/2007/sp0-0", "/dls/i02/data/2007/sp0-0");
 	}
@@ -161,7 +161,7 @@ public class PathConstructorTest {
 
 		System.setProperty(LocalProperties.GDA_DEF_VISIT, visit);
 		System.setProperty(LocalProperties.GDA_INSTRUMENT, instrument);
-		System.setProperty("gda.facility", facility);
+		System.setProperty(LocalProperties.GDA_FACILITY, facility);
 
 		final int thisYear = LocalDate.now().getYear();
 		final String hostId = HostId.getId();
@@ -182,7 +182,7 @@ public class PathConstructorTest {
 		GDAMetadataProvider.setInstanceForTesting(null);
 
 		System.clearProperty(LocalProperties.GDA_DEF_VISIT);
-		System.clearProperty("gda.facility");
+		System.clearProperty(LocalProperties.GDA_FACILITY);
 		System.clearProperty(LocalProperties.GDA_INSTRUMENT);
 	}
 }

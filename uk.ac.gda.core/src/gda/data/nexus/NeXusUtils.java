@@ -253,7 +253,7 @@ public class NeXusUtils {
 		group = file.getGroup(group, "source", "NXsource", true);
 
 		try {
-			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", "gda.facility", "DLS"));
+			NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("facility.name", LocalProperties.GDA_FACILITY, "DLS"));
 			NexusUtils.writeString(file, group, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
 			NexusUtils.writeString(file, group, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
 			if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())
