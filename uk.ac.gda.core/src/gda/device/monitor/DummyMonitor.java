@@ -23,9 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
@@ -36,20 +33,14 @@ import gda.device.Scannable;
 public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 
 	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
-	private static final Logger logger = LoggerFactory.getLogger(DummyMonitor.class);
 
-	double latestValue = 0.0;
+	private double latestValue = 0.0;
+	private String unit = "";
 
 	private Double constantValue;
 
 	/** Interval between new values - in milliseconds */
 	private int updateInterval = 5000;
-
-	/**
-	 * Constructor.
-	 */
-	public DummyMonitor() {
-	}
 
 	@Override
 	public void configure() {
@@ -85,8 +76,11 @@ public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
 
 	@Override
 	public String getUnit() throws DeviceException {
-		// unknown
-		return "";
+		return unit;
+	}
+
+	public void setUnit(String units) {
+		unit = units;
 	}
 
 	/**
