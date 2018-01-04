@@ -18,34 +18,50 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.IOException;
-
 
 public class PixiumSimpleAcquire extends SimpleAcquire {
 
-	double maxExposureTime = Double.MAX_VALUE;
-	double exposureTime = maxExposureTime;
+	private static final Logger logger = LoggerFactory.getLogger(PixiumSimpleAcquire.class);
 
-	int numberExposuresPerImage = 1;
+	private double maxExposureTime = Double.MAX_VALUE;
+	private double exposureTime = maxExposureTime;
+
+	private int numberExposuresPerImage = 1;
 	/**
 	 * To allow for detectors with prefix acquire give option to read it at prepareForCollection
 	 */
 	private boolean readAcquireTimeFromHardware = true;
 	private String prefix;
 
+	private Integer backupDataType = 3; //Uint16
+	private Integer backupEarlyFrames = 0; //Off
+
 	private String calibrationRequiredPVName = "CalibrationRequired_RBV";
 	private PV<Integer> calibrationRequiredPV;
 
 	private String numberExposuresPerImagePVName = "NumExposures";
 	private PV<Integer> numberExposuresPerImagePV;
+
+	private boolean forceExcludeEarlyFramesToOn = false;
+	private String earlyFramesPVName = "MotionBlur";
+	private PV<Integer> earlyFramesPV;
+
+	private String detectorStatePVName = "DetectorState_RBV";
+	private PV<Integer> detectorStatePV;
+
+	private String dataTypePVName = "DataType";
+	private PV<Integer> dataTypePV;
 
 	public PixiumSimpleAcquire(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -65,6 +81,27 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		return numberExposuresPerImagePV;
 	}
 
+	public PV<Integer> getEarlyFramesPV() {
+		if (earlyFramesPV == null) {
+			earlyFramesPV = LazyPVFactory.newIntegerPV(getPrefix()+earlyFramesPVName);
+		}
+		return earlyFramesPV;
+	}
+
+	public PV<Integer> getDataTypePV() {
+		if (dataTypePV == null) {
+			dataTypePV = LazyPVFactory.newIntegerPV(getPrefix()+dataTypePVName);
+		}
+		return dataTypePV;
+	}
+
+	public PV<Integer> getDetectorStatePV() {
+		if (detectorStatePV == null) {
+			detectorStatePV = LazyPVFactory.newIntegerPV(getPrefix()+detectorStatePVName);
+		}
+		return detectorStatePV;
+	}
+
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo_IGNORED) throws Exception {
 		if (getCalibrationRequiredPV().get() != 0) {
@@ -76,15 +113,40 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		getAdBase().stopAcquiring();
 		setNumExposuresPerImage(numberExposuresPerImage);
 		getAdBase().setNumImages(numImages);
+		//getAdBase().setNumImages(getTotalNumberScanImages(scanInfo_IGNORED));
+		//getAdBase().setNumImages(getTotalNumberScanImages(InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation()));
+		backupDataType = getDataTypePV().get();
+		backupEarlyFrames = getEarlyFramesPV().get();
+		if (numberExposuresPerImage > 1) {
+			getAdBase().setDataType("UInt32");
+			if (isForceExcludeEarlyFramesToOn())
+			{
+				excludeEarlyFrames();
+			}
+		} else {
+			getAdBase().setDataType("UInt16");
+			if (isForceExcludeEarlyFramesToOn())
+			{
+				excludeEarlyFrames();
+			}
+		}
 		getAdBase().setImageModeWait(numImages > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 	}
 
-	public boolean isReadAcquireTimeFromHardware() {
+    public boolean isReadAcquireTimeFromHardware() {
 		return readAcquireTimeFromHardware;
 	}
 
 	public void setReadAcquireTimeFromHardware(boolean readAcquireTimeFromHardware) {
 		this.readAcquireTimeFromHardware = readAcquireTimeFromHardware;
+	}
+
+	public boolean isForceExcludeEarlyFramesToOn() {
+		return forceExcludeEarlyFramesToOn;
+	}
+
+	public void setForceExcludeEarlyFramesToOn(boolean forceExcludeEarlyFramesToOn) {
+		this.forceExcludeEarlyFramesToOn = forceExcludeEarlyFramesToOn;
 	}
 
 	public double getMaxExposureTime() {
@@ -149,18 +211,16 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		if (numberExposuresPerImagePV == null) {
 			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
 		}
-		super.afterPropertiesSet();
-	}
-
-	/**
-	 * method to print message to the Jython Terminal console.
-	 *
-	 * @param msg
-	 */
-	private void print(String msg) {
-		if (InterfaceProvider.getTerminalPrinter() != null) {
-			InterfaceProvider.getTerminalPrinter().print(msg);
+		if (earlyFramesPV == null) {
+			earlyFramesPV = LazyPVFactory.newIntegerPV(getPrefix()+earlyFramesPVName);
 		}
+		if (detectorStatePV == null) {
+			detectorStatePV = LazyPVFactory.newIntegerPV(getPrefix()+detectorStatePVName);
+		}
+		if (dataTypePV == null) {
+			dataTypePV = LazyPVFactory.newIntegerPV(getPrefix()+dataTypePVName);
+		}
+		super.afterPropertiesSet();
 	}
 
 	public String getPrefix() {
@@ -169,5 +229,56 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+
+	@Override
+	public void completeCollection() throws Exception {
+		// stopAcquiring is unwanted on i12
+		//getAdBase().stopAcquiring();
+		//getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
+		//getAdBase().startAcquiring();
+		restoreBackupValues();
+	}
+
+	private void excludeEarlyFrames() throws DeviceException {
+		try {
+			waitForIdle();
+			getEarlyFramesPV().putWait(1);
+		} catch (IOException e) {
+			throw new DeviceException("Exception in excludeEarlyFrames", e);
+		}
+	}
+
+	private void restoreBackupValues() throws DeviceException {
+		try {
+			if (getDetectorStatePV().get() == 0) {
+				getDataTypePV().putWait(backupDataType);
+				getEarlyFramesPV().putWait(backupEarlyFrames);
+			} else {
+				throw new DeviceException("restoreBackupValues Failed to set value because detector was found in a state different from Idle!");
+			}
+		} catch (IOException e) {
+			throw new DeviceException("Failed to restore backup values", e);
+		}
+	}
+
+	private void waitForIdle() throws DeviceException {
+		final int totMillis = 60 * 1000;
+		final int grain = 25;
+
+		for (int i = 0; i < totMillis / grain; i++) {
+			try {
+				if (getDetectorStatePV().get() == 0) {
+					return;
+				}
+				Thread.sleep(grain);
+			} catch (IOException e) {
+				throw new DeviceException("Exception waiting for device to be idle", e);
+			} catch (InterruptedException e) {
+				logger.warn("Exception waiting for idle state", e);
+				Thread.currentThread().interrupt();
+			}
+		}
+		throw new DeviceException("Timeout waiting for detector to be in the Idle state.");
 	}
 }
