@@ -18,14 +18,6 @@
 
 package uk.ac.gda.client;
 
-import gda.commandqueue.CommandProgress;
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.commandqueue.Processor;
-import gda.commandqueue.ProcessorCurrentItem;
-import gda.commandqueue.QueueChangeEvent;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -55,6 +47,15 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.commandqueue.CommandProgress;
+import gda.commandqueue.JythonCommandCommandProvider;
+import gda.commandqueue.Processor;
+import gda.commandqueue.ProcessorCurrentItem;
+import gda.commandqueue.QueueChangeEvent;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
 import uk.ac.gda.menu.JythonControlsFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
@@ -260,11 +261,13 @@ public class CommandProcessorComposite extends Composite {
 
 		final Group statusGroup = new Group(this, SWT.BORDER);
 		statusGroup.setText("Queue status");
+		statusGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		GridLayoutFactory.swtDefaults().margins(3, 3).applyTo(statusGroup);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusGroup);
 
 		final Group currentTaskGroup = new Group(this, SWT.BORDER);
 		currentTaskGroup.setText("Current task");
+		currentTaskGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		GridLayoutFactory.swtDefaults().applyTo(currentTaskGroup);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(currentTaskGroup);
 
