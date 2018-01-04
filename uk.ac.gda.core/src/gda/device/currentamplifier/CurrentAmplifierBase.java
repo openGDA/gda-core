@@ -19,7 +19,8 @@
 
 package gda.device.currentamplifier;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.python.core.PyString;
 
@@ -32,9 +33,9 @@ import gda.device.scannable.ScannableBase;
  */
 public abstract class CurrentAmplifierBase extends ScannableBase implements CurrentAmplifier {
 
-	protected Vector<String> gainPositions = new Vector<String>();
-	protected Vector<String> gainUnits = new Vector<String>();
-	protected Vector<String> modePositions = new Vector<String>();
+	protected final List<String> gainPositions = new ArrayList<>();
+	protected final List<String> gainUnits = new ArrayList<>();
+	protected final List<String> modePositions = new ArrayList<>();
 
 	@Override
 	public String[] getGainPositions() throws DeviceException {
@@ -79,29 +80,4 @@ public abstract class CurrentAmplifierBase extends ScannableBase implements Curr
 		}
 		return position.toString() + "not in the list of gain positions";
 	}
-
-	@Override
-	public abstract double getCurrent() throws DeviceException;
-
-	@Override
-	public abstract String getGain() throws DeviceException;
-
-	@Override
-	public abstract String getGainUnit() throws DeviceException;
-
-	@Override
-	public abstract String getMode() throws DeviceException;
-
-	@Override
-	public abstract Status getStatus() throws DeviceException;
-
-	@Override
-	public abstract void setGain(String position) throws DeviceException;
-
-	@Override
-	public abstract void setGainUnit(String unit) throws DeviceException;
-
-	@Override
-	public abstract void setMode(String mode) throws DeviceException;
-
 }
