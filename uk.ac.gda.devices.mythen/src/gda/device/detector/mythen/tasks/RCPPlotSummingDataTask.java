@@ -76,22 +76,22 @@ public class RCPPlotSummingDataTask implements DataProcessingTask, InitializingB
 	private Scriptcontroller eventAdmin;
 
 	protected void sumProcessedData(Detector detector)  throws DeviceException {
-		ArrayList<File> files=new ArrayList<File>();
+		ArrayList<File> files;
 		int numberOfModules;
 		DataConverter dataConverter;
 		File dataDirectory;
 		String summedFilename;
 		if (detector instanceof MythenDetector) {
 			MythenDetector mydetector=(MythenDetector)detector;
-			files=mydetector.getProcessedDataFilesForThisScan();
+			files = mydetector.getProcessedDataFilesForThisScan();
 			numberOfModules=mydetector.getNumberOfModules();
 			dataConverter=mydetector.getDataConverter();
 			dataDirectory=mydetector.getDataDirectory();
 			summedFilename = mydetector.buildFilename("summed", FileType.PROCESSED);
 		} else {
-			throw new RuntimeException("summing processed data is not supported for detcetor "+detector.getName());
+			throw new IllegalArgumentException("Summing processed data is not supported for detector " + detector.getName());
 		}
-		logger.info(String.format("Going to sum %d dataset(s)", files.size()));
+		logger.info("Going to sum {} dataset(s)", files.size());
 
 		// Build filename of each processed data file
 		String[] filenames = new String[files.size()];
@@ -107,11 +107,17 @@ public class RCPPlotSummingDataTask implements DataProcessingTask, InitializingB
 		// Sum the data
 		logger.info("Summing data...");
 		print("Summing data ...");
-		double[][] summedData = MythenSum.sum(allData, numberOfModules, dataConverter.getBadChannelProvider(), step);
+		double[][] summedData;
+		try {
+			summedData = MythenSum.sum(allData, numberOfModules, dataConverter.getBadChannelProvider(), step);
+		} catch (IndexOutOfBoundsException ioobe) {
+			logger.error("Could not calculate MythenSum", ioobe);
+			return;
+		}
 		logger.info("Done");
 		// Save the summed data
 		File summedDataFile = new File(dataDirectory, summedFilename);
-		logger.info(String.format("Saving summed data to %s", summedDataFile.getAbsolutePath()));
+		logger.info("Saving summed data to {}", summedDataFile.getAbsolutePath());
 		print("Saving summed data to "+ summedDataFile.getAbsolutePath());
 		try {
 			MythenDataFileUtils.saveProcessedDataFile(summedData, summedDataFile.getAbsolutePath());
