@@ -1824,6 +1824,15 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			NexusDataWriter.metadatascannables = metadatascannables;
 	}
 
+	/**
+	 * Allow arbitrary metadata to be added to nexus data files.
+	 * <p>
+	 * To add an entry (eg sample_background) to each file as a note in the "sample" group,
+	 * set the entries as {'sample_background': 'sample:NXsample/sample_background'}
+	 *
+	 * @param entries should be a map of metadata names to nexus paths (relative to the top level
+	 * /entry1/ node.
+	 */
 	public static void setMetadata(Map<String, String> entries) {
 		if (entries.containsKey(null) || entries.containsValue(null)) {
 			throw new IllegalArgumentException("Metadata entries and paths must not be null");
