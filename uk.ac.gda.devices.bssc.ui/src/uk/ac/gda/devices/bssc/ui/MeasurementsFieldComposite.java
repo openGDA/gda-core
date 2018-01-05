@@ -202,7 +202,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setViscosity(value);
 			}
 		});
-		columns.put("Molecular\n Weight", new Column<TitrationBean, Double>(100, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Molecular\n Weight", new Column<TitrationBean, Double>(70, tableViewer, rbeditor, ColumnType.DOUBLE) {
 			@Override
 			public Double getRealValue(TitrationBean element) {
 				return element.getMolecularWeight();
@@ -350,6 +350,19 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		});
 		columns.get("Exposure\nTemperature").setOutputFormat("%4.1f \u00B0C");
 
+		columns.put("Sample\nVolume", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, ColumnType.DOUBLE) {
+			@Override
+			public Double getRealValue(TitrationBean element) {
+				return element.getSampleVolume();
+			}
+			@Override
+			public void setNewValue(TitrationBean element, String value) {
+				try {
+					element.setSampleVolume(Double.valueOf(value));
+				} catch (NumberFormatException nfe) {
+				}
+			}
+		});
 		columns.put("Mode", new Column<TitrationBean, String>(40, tableViewer, rbeditor, TitrationBean.MODES.keySet().toArray(new String[]{})) {
 			private int a = 0;
 			@Override
@@ -389,6 +402,16 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setKey(value);
 			}
 
+		});
+		columns.put("Move", new Column<TitrationBean, Boolean>(25, tableViewer, rbeditor, ColumnType.BOOL) {
+			@Override
+			public Boolean getRealValue(TitrationBean element) {
+				return element.getMove();
+			}
+			@Override
+			public void setNewValue(TitrationBean element, String value) {
+				element.setMove(Boolean.valueOf(value));
+			}
 		});
 		if (isStaff) {
 			columns.put("Visit", new Column<TitrationBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {

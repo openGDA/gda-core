@@ -55,6 +55,12 @@
 		<field name="mode" type="string">
 			<bind-xml name="mode" node="element" />
 		</field>
+		<field name="move" type="boolean">
+			<bind-xml name="mode" node="element" />
+		</field>
+		<field name="sampleVolume" type="double">
+			<bind-xml name="sampleVolume" node="element" />
+		</field>
 		<field name="visit" type="string">
 			<bind-xml name="visit" node="element" />
 		</field>

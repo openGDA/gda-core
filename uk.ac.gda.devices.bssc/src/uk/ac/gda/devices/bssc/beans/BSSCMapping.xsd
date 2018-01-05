@@ -39,6 +39,8 @@
 				<xsd:element name="frames" type="xsd:int" minOccurs="1"/>
 				<xsd:element name="exposureTemperature" type="xsd:float" />
 				<xsd:element name="mode" type="xsd:string" minOccurs="1"/>
+				<xsd:element name="move" type="xsd:boolean" minOccurs="0"/>
+				<xsd:element name="sampleVolume" type="xsd:double" minOccurs="0"/>
 				<xsd:element name="key" type="xsd:string"/>
 				<xsd:element name="username" type="xsd:string" minOccurs="0"/>
 				<xsd:element name="visit" type="xsd:string" minOccurs="0"/>

@@ -64,7 +64,7 @@ public class TitrationBean implements XMLRichBean {
 	public static void setModes(Map<String, Boolean> modes) {
 		MODES = modes;
 	}
-	
+
 	LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 	LocationBean recouperateLocation = null;
 	String buffers = "";
@@ -84,6 +84,8 @@ public class TitrationBean implements XMLRichBean {
 	String username = "";
 	boolean isStaff;
 	private String datafilename;
+	private boolean move;
+	private double sampleVolume;
 
 	public TitrationBean() {
 		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
@@ -91,7 +93,7 @@ public class TitrationBean implements XMLRichBean {
 		this.username = myDetails.getUserID();
 		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
 	}
-	
+
 	public String getVisit() {
 		return visit;
 	}
@@ -197,7 +199,7 @@ public class TitrationBean implements XMLRichBean {
 	}
 	public void setBuffers(String buffers) {
 		Pattern validCell = Pattern.compile("\\s*([0-9]+)\\s*([a-zA-Z])\\s*([0-9]+)\\s*");
-		Matcher matcher; 
+		Matcher matcher;
 		String[] cells = buffers.split("[;,]+");
 		for (int i = 0; i < cells.length; i++ ) {
 			matcher = validCell.matcher(cells[i]);
@@ -250,5 +252,21 @@ public class TitrationBean implements XMLRichBean {
 
 	public void setDatafilename(String datafilename) {
 		this.datafilename = datafilename;
+	}
+
+	public void setMove(boolean move) {
+		this.move = move;
+	}
+
+	public boolean getMove() {
+		return move;
+	}
+
+	public void setSampleVolume(double volume) {
+		sampleVolume = volume;
+	}
+
+	public double getSampleVolume() {
+		return sampleVolume;
 	}
 }
