@@ -18,7 +18,6 @@
 
 package uk.ac.gda.eventbus;
 
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -97,7 +96,8 @@ public class GDAEventBusExample {
 	private static void testActiveMq() throws InterruptedException, JMSException {
 
 		// create
-		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		connectionFactory.setTrustAllPackages(true);
 		GDAEventBus eventBus1 = new GDAEventBus("eventBus1", connectionFactory);
 		GDAEventBus eventBus2 = new GDAEventBus("eventBus2", connectionFactory);
 //		eventBus2 = eventBus1; // can be the same!
