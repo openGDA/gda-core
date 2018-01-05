@@ -59,12 +59,6 @@ public class HplcSessionBean implements XMLRichBean {
 
 	public void setMeasurements(List<HplcBean> measurements) {
 		this.measurements = measurements;
-		for (HplcBean tb : measurements) {
-			LocationBean loc = tb.getLocation();
-			if (loc.getConfig() == null) {
-				loc.setConfig(HPLC_PLATES);
-			}
-		}
 	}
 
 	public static PlateConfig getHplcPlates() {

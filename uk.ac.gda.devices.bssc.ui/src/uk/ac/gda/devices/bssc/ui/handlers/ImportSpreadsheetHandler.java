@@ -78,6 +78,7 @@ public class ImportSpreadsheetHandler implements IHandler {
 	private static final int KEY_COL = 16;
 	private static final int VISIT_COL = 17;
 	private static final int USER_COL = 18;
+	private static final int MOVE_COL = 19;
 
 	@Override
 	public void addHandlerListener(IHandlerListener handlerListener) {
@@ -140,6 +141,7 @@ public class ImportSpreadsheetHandler implements IHandler {
 					tibi.setBuffers(row.getCell(BUFFERS_COL, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
 					tibi.setKey(row.getCell(KEY_COL).getStringCellValue());
 					tibi.setMode(row.getCell(MODE_COL).getStringCellValue());
+					tibi.setMove(row.getCell(MOVE_COL).getBooleanCellValue());
 					
 					Cell visit = row.getCell(VISIT_COL, Row.RETURN_BLANK_AS_NULL);
 					if (visit != null) {
