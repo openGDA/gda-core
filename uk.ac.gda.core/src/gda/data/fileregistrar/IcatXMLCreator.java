@@ -278,6 +278,7 @@ public class IcatXMLCreator {
 			return fileDirectory;
 		}
 		String dataDirectory = fullFilePath.substring(0, visitEndIndex + visitId.length() + 1);
+		dataDirectory = StringUtils.stripEnd(dataDirectory, File.separator).trim();
 
 		// Subfolder within visit directory
 		String relativePath = fileDirectory.replace(dataDirectory, "");
