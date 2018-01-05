@@ -92,7 +92,7 @@ public class ImportSpreadsheetHandler implements IHandler {
 					LocationBean location = locationFromCells(DEFAULT_PLATE, row.getCell(ROW_COL), row.getCell(COLUMN_COL));
 					if (!location.isValid())
 						throw new Exception("invalid sample location");
-					hb.setLocation(location);
+					hb.setLocation(String.format("%c%d", location.getRow() + location.getColumn()));
 					hb.setSampleName(row.getCell(SAMPLE_NAME_COL).getStringCellValue());
 					hb.setBuffers(row.getCell(BUFFERS_COL).getStringCellValue());
 					hb.setComment(row.getCell(COMMENT_COL).getStringCellValue());

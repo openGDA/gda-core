@@ -16,7 +16,7 @@ public class HplcBean implements XMLRichBean {
 	public static void setModes(Map<String, Boolean> modes) {
 		MODES = modes;
 	}
-	private LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
+	private String location = "A1";
 	private String sampleName = "Sample";
 	private double concentration;
 	private double molecularWeight;
@@ -36,14 +36,10 @@ public class HplcBean implements XMLRichBean {
 		this.username = myDetails.getUserID();
 		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
 	}
-	public LocationBean getLocation() {
+	public String getLocation() {
 		return location;
 	}
-	public void setLocation(LocationBean location) {
-		location.setConfig(HplcSessionBean.HPLC_PLATES);
-		if (!location.isValid()) {
-			throw new IllegalArgumentException("Location is not valid");
-		}
+	public void setLocation(String location) {
 		this.location = location;
 	}
 	public String getSampleName() {

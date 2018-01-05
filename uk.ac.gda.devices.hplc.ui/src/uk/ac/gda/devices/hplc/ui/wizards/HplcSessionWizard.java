@@ -43,12 +43,8 @@ public class HplcSessionWizard extends HatsaxsWizard implements INewWizard {
 	protected InputStream getContentStream() {
 		HplcSessionBean sessionBean = new HplcSessionBean();
 		List<HplcBean> measurements = new ArrayList<HplcBean>();
-		LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
-		location.setPlate((short) 1);
-		location.setRow('A');
-		location.setColumn((short) 1);
 		HplcBean hb = new HplcBean();
-		hb.setLocation(location);
+		hb.setLocation("A1");
 		hb.setConcentration(concentration);
 		hb.setBuffers("");
 		hb.setMolecularWeight(0);

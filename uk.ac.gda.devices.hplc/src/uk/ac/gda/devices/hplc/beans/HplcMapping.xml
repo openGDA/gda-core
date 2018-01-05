@@ -10,7 +10,7 @@
 
 	<class name="uk.ac.gda.devices.hplc.beans.HplcBean">
 		<map-to xml="HplcBean" />
-		<field name="location" type="uk.ac.gda.devices.hatsaxs.beans.LocationBean">
+		<field name="location" type="string">
 			<bind-xml name="location" node="element" />
 		</field>
 		<field name="sampleName" type="string">

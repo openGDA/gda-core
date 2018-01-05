@@ -152,23 +152,16 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 
 		columns = new LinkedHashMap<>();
-		columns.putAll(getLocationColumns("", new ColumnHelper<HplcBean, LocationBean>() {
+		columns.put("Location", new Column<HplcBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
 			@Override
-			public LocationBean getValue(HplcBean target) {
-				return target.getLocation();
+			public String getRealValue(HplcBean element) {
+				return element.getLocation();
 			}
 			@Override
-			public void setValue(HplcBean target, LocationBean value) {
-				target.setLocation(value);
+			public void setNewValue(HplcBean element, String value) {
+				element.setLocation(value);
 			}
-			@Override
-			public Color bGColor(HplcBean element) {
-				if (!getValue(element).isValid()) {
-					return warning;
-				}
-				return okay;
-			}
-		}));
+		});
 		columns.put("Sample Name",new Column<HplcBean, String>(100, tableViewer, rbeditor, ColumnType.TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
@@ -344,7 +337,6 @@ public class HplcSampleFieldComposite extends FieldComposite {
 						for (TableItem element : selection) {
 							HplcBean oldBean = (HplcBean) element.getData();
 							HplcBean copiedBean = (HplcBean) BeanUtils.cloneBean(oldBean);
-							copiedBean.setLocation((LocationBean) BeanUtils.cloneBean(oldBean.getLocation()));
 							data.add(copiedBean);
 						}
 					} catch (Exception e) {
@@ -495,7 +487,6 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				try {
 					HplcBean oldBean = getList().get(i);
 					HplcBean copiedBean = (HplcBean) BeanUtils.cloneBean(oldBean);
-					copiedBean.setLocation((LocationBean) BeanUtils.cloneBean(oldBean.getLocation()));
 					toadd.add(copiedBean);
 				} catch (Exception e) {
 				}

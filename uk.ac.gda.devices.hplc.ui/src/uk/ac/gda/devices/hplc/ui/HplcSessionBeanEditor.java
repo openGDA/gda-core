@@ -234,15 +234,8 @@ public final class HplcSessionBeanEditor extends RichBeanMultiPageEditorPart {
 	private void initialiseHplcBean(HplcBean titrationBean, String name, String viscosity, short bufferCol,
 			char bufferRow, short bufferPlate, short col, char row, short plate, double concentration,
 			double molecularWeight, double timePerFrame, int noOfFrames, float exposureTemp) throws Exception {
-		LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
 		titrationBean.setSampleName(name);
-		location.setColumn(col);
-		location.setRow(row);
-		location.setPlate(plate);
-		if (!location.isValid()) {
-			location = null;
-			throw new Exception("invalid sample location");
-		}
+		String location = String.format("%c%d", col, row);
 		titrationBean.setLocation(location);
 		titrationBean.setConcentration(concentration);
 		titrationBean.setMolecularWeight(molecularWeight);

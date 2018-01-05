@@ -31,7 +31,7 @@
 	
 	<xsd:complexType name="HplcBean">
 		<xsd:all>
-			<xsd:element name="location" type="LocationBean" minOccurs="1" />
+			<xsd:element name="location" type="xsd:string" minOccurs="1" />
 			<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="concentration" type="xsd:double" />
 			<xsd:element name="molecularWeight" type="xsd:double" />
