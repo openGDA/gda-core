@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.ExceptionListener;
@@ -108,7 +107,8 @@ public enum MsgBus {
 			// Connection
 			final String brokerUri = LocalProperties.getActiveMQBrokerURI();
 			logger.debug("connecting to ActiveMQ broker {}", brokerUri);
-			final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUri);
+			final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUri);
+			connectionFactory.setTrustAllPackages(true);
 			connection = connectionFactory.createConnection();
 //			connection.setClientID("TODO");
 			connection.start();
