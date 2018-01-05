@@ -441,12 +441,23 @@
          install-size="0"
          version="0.0.0"/>
 
+   <!--
+   Jline and sshd are not "really" needed by the client as they provide telnet/ssh server access.
+   However they are required as the client depends on core which uses these plugins.
+   -->
    <plugin
          id="org.jline"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.apache.sshd.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false" />
 
    <plugin
          id="org.dawnsci.mapping.ui"
