@@ -71,6 +71,25 @@ are listed in more detail in the later sections of this guide:
    data (from old data files as well) is held inside data objects which
    can be plotted or be used in mathematical operations.
 
+Code Completion
+---------------
+
+Code completion is available on the command line. This can be triggered using either
+`Ctrl-Space` (similar to eclipse) or `tab` (similar to bash/zsh etc).
+
+If there is only one option, it will automatically inserted
+
+    >>> conti<TAB>
+    >>> continue
+
+If there are multiple choices, they will appear in a popup above the cursor. Typing will
+continue to filter the options and `tab` or `enter` will insert the selected one.
+
+.. note:: a `tab` will still indent code if the cursor is at the beginning of the line
+
+       >>> |print 'helloWorld'
+       >>>     |print 'helloWorld'
+
 Example usage of the main Jython GDA commands
 ---------------------------------------------
 
