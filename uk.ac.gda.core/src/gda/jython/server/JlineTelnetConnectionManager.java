@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
  * <br><br>
  * To run the server, call the static {@link #runServer(int)} method with the
  * port to listen for connections on.
+ *
+ * @deprecated Use SSH connection instead
  */
+@Deprecated
 public class JlineTelnetConnectionManager extends ConnectionManager {
 	private static final Logger logger = LoggerFactory.getLogger(JlineTelnetConnectionManager.class);
 
