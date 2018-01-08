@@ -18,27 +18,25 @@
 
 package gda.device.detector.xmap.edxd;
 
-
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
 
 public class EDXDElementTest {
 
 	@Test
 	public void testPolyFit() throws Exception {
 
-		EDXDElement e = new EDXDElement(null, 0);
+		final EDXDElement e = new EDXDElement(null, 0);
 
-		double[] actual = {102.1,134.2,156.3};
-		double[] reported = {102, 134, 156};
+		final double[] actual = {102.1,134.2,156.3};
+		final double[] reported = {102, 134, 156};
 
 		e.fitPolynomialToEnergyData(actual, reported);
 
-		Assert.assertEquals(actual[0], e.createEnergyValue(reported[0]), 0.1);
-		Assert.assertEquals(actual[1], e.createEnergyValue(reported[1]), 0.1);
-		Assert.assertEquals(actual[2], e.createEnergyValue(reported[2]), 0.1);
+		assertEquals(actual[0], e.createEnergyValue(reported[0]), 0.1);
+		assertEquals(actual[1], e.createEnergyValue(reported[1]), 0.1);
+		assertEquals(actual[2], e.createEnergyValue(reported[2]), 0.1);
 	}
 
 }
