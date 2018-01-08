@@ -84,18 +84,6 @@ public class IcatXMLCreator {
 			return visit_id;
 		}
 
-		@Override
-		public String toString() {
-			String s = "";
-			s += " <inv_number>" + inv_number + "</inv_number>\n";
-			s += " <visit_id>" + visit_id + "</visit_id>\n";
-			s += " <instrument>" + instrument + "</instrument>\n";
-			s += " <title>" + title + "</title>\n";
-			s += " <inv_type>" + inv_type + "</inv_type>\n";
-
-			return s;
-		}
-
 		/**
 		 * @param string
 		 * @return string but better
@@ -111,6 +99,18 @@ public class IcatXMLCreator {
 			string = string.replace("\"", "");
 			string = string.replace("\\", "");
 			return string;
+		}
+
+		@Override
+		public String toString() {
+			String s = "";
+			s += " <inv_number>" + inv_number + "</inv_number>\n";
+			s += " <visit_id>" + visit_id + "</visit_id>\n";
+			s += " <instrument>" + instrument + "</instrument>\n";
+			s += " <title>" + title + "</title>\n";
+			s += " <inv_type>" + inv_type + "</inv_type>\n";
+
+			return s;
 		}
 	}
 
