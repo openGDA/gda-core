@@ -18,6 +18,17 @@
 
 package gda.device.epicsdevice;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.python.core.PyString;
+import org.python.expose.ExposedType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.Device;
 import gda.device.DeviceBase;
@@ -32,15 +43,6 @@ import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gov.aps.jca.event.PutListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.python.core.PyString;
-import org.python.expose.ExposedType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * EpicsDevice class which is placed on the Finder by EpicsDeviceFactory when that factory is created by the
  * ObjectServer if a java property has been set.
@@ -53,9 +55,9 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 	private static final Logger logger = LoggerFactory.getLogger(FindableEpicsDevice.class);
 
 	private EpicsDevice epicsDevice;
-	private ArrayList<String> epicsRecordNames = new ArrayList<String>();
+	private List<String> epicsRecordNames = new ArrayList<>();
 	private String deviceName;
-	private HashMap<String, String> recordPVs = new HashMap<String, String>();
+	private Map<String, String> recordPVs = new HashMap<>();
 	protected boolean dummy = false;
 
 	public FindableEpicsDevice() {
@@ -78,7 +80,7 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 			gda.epics.interfaceSpec.Device device = null;
 			if (!epicsRecordNames.isEmpty()) {
 				for (String epicsRecordName : epicsRecordNames) {
-					EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
+					EpicsRecord epicsRecord = Finder.getInstance().find(epicsRecordName);
 					if (epicsRecord == null)
 						throw new IllegalArgumentException("EpicsDevice:" + getName() + " unable to find record  "
 								+ epicsRecordName);
@@ -118,11 +120,11 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		}
 	}
 
-	public HashMap<String, String> getRecordPVs() {
+	public Map<String, String> getRecordPVs() {
 		return recordPVs;
 	}
 
-	public void setRecordPVs(HashMap<String, String> recordPVs) {
+	public void setRecordPVs(Map<String, String> recordPVs) {
 		this.recordPVs = recordPVs;
 	}
 
@@ -150,11 +152,11 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		return true;
 	}
 
-	public void setEpicsRecordNames(ArrayList<String> epicsRecordNames) {
+	public void setEpicsRecordNames(List<String> epicsRecordNames) {
 		this.epicsRecordNames = epicsRecordNames;
 	}
 
-	public ArrayList<String> getEpicsRecordNames() {
+	public List<String> getEpicsRecordNames() {
 		return epicsRecordNames;
 	}
 

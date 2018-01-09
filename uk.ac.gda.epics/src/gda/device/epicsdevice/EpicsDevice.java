@@ -18,6 +18,17 @@
 
 package gda.device.epicsdevice;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.python.core.Py;
+import org.python.core.PyString;
+import org.python.expose.ExposedType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import gda.device.Detector;
 import gda.device.Device;
 import gda.device.DeviceBase;
@@ -41,17 +52,6 @@ import gov.aps.jca.dbr.TIME;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.python.core.Py;
-import org.python.core.PyString;
-import org.python.expose.ExposedType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * Control devices using the Epics Valve/Shutter template.
@@ -77,9 +77,9 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 			CTRL = "DBR_CTRL:", NATIVE = "DBR_NATIVE:", STS = "DBR_STS:", TIME = "DBR_TIME:", GR = "DBR_GR:",
 			Delimiter = "://:", Add = "Add:", Del = "Del:", Close = "Close:", CloseAll = "CloseAll:";
 
-	private static HashMap<String, ReturnType> returnTypeMap = new HashMap<String, ReturnType>();
+	private static Map<String, ReturnType> returnTypeMap = new HashMap<>();
 
-	final private boolean InDummyMode;
+	private final boolean inDummyMode;
 	static {
 		returnTypeMap.put(CTRL, ReturnType.DBR_CTRL);
 		returnTypeMap.put(NATIVE, ReturnType.DBR_NATIVE);
@@ -87,13 +87,13 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		returnTypeMap.put(GR, ReturnType.DBR_GR);
 		returnTypeMap.put(TIME, ReturnType.DBR_TIME);
 	}
-	private final HashMap<String, String> recordPVs;
+	private final Map<String, String> recordPVs;
 	private final Map.Entry<String, String> firstRecordPV;
-	private HashMap<String, Channel> channels = new HashMap<String, Channel>();
-	private final HashMap<EpicsRegistrationRequest, Registration> registrations = new HashMap<EpicsRegistrationRequest, Registration>();
-	private final HashMap<EpicsRegistrationRequest, DummyRegistration> dummyRegistrations = new HashMap<EpicsRegistrationRequest, DummyRegistration>();
-	private HashMap<String, DummyChannel> dummyChannels = new HashMap<String, DummyChannel>();
-	private HashMap<String, Object> fields = new HashMap<String, Object>();
+	private final Map<String, Channel> channels = new HashMap<>();
+	private final Map<EpicsRegistrationRequest, Registration> registrations = new HashMap<>();
+	private final Map<EpicsRegistrationRequest, DummyRegistration> dummyRegistrations = new HashMap<>();
+	private final Map<String, DummyChannel> dummyChannels = new HashMap<>();
+	private final Map<String, Object> fields = new HashMap<>();
 
 
 	@Override
@@ -137,35 +137,35 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	 *
 	 * @param name
 	 * @param recordPVs
-	 * @param InDummyMode
+	 * @param inDummyMode
 	 * @throws DeviceException
 	 */
-	public EpicsDevice(String name, HashMap<String, String> recordPVs, boolean InDummyMode) throws DeviceException {
-		this(recordPVs, InDummyMode);
+	public EpicsDevice(String name, Map<String, String> recordPVs, boolean inDummyMode) throws DeviceException {
+		this(recordPVs, inDummyMode);
 		setName(name);
 	}
 
 	/**
 	 * @param recordPVs
-	 * @param InDummyMode
+	 * @param inDummyMode
 	 * @throws DeviceException
 	 */
-	public EpicsDevice(HashMap<String, String> recordPVs, boolean InDummyMode) throws DeviceException {
+	public EpicsDevice(Map<String, String> recordPVs, boolean inDummyMode) throws DeviceException {
 		this.recordPVs = recordPVs;
 		if (this.recordPVs.size() == 1) {
 			firstRecordPV = this.recordPVs.entrySet().iterator().next();
 		} else {
 			firstRecordPV = null;
 		}
-		this.InDummyMode = InDummyMode;
-		if (!this.InDummyMode) {
+		this.inDummyMode = inDummyMode;
+		if (!this.inDummyMode) {
 			controller = EpicsController.getInstance();
 		} else {
 			controller = null;
 		}
 		setAttribute("Records", recordPVs);
 		setAttribute("Configured", true);
-		setAttribute("Dummy", InDummyMode);
+		setAttribute("Dummy", inDummyMode);
 
 		for (String s : recordPVs.keySet())
 			fields.put(s, null);
@@ -180,7 +180,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		 * stop all monitors from epics remove references to observers in the observable components close all epics
 		 * channels
 		 */
-		if (InDummyMode) {
+		if (inDummyMode) {
 			return; // do not bother in dummy mode
 		}
 		{
@@ -198,7 +198,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	}
 
 	private Channel getChannel(String pvName, Double timeout) throws CAException, TimeoutException {
-		if (InDummyMode) {
+		if (inDummyMode) {
 			throw new IllegalArgumentException("getChannel called with controller == null. Try getDummyChannel");
 		}
 		Channel channel = null;
@@ -277,7 +277,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	}
 
 	private Object getValue(String pvName, ReturnType returnType) throws DeviceException {
-		if (InDummyMode) {
+		if (inDummyMode) {
 			DummyChannel dummy = getDummyChannel(pvName);
 			Object val = dummy.getValue();
 			if (val == null) {
@@ -334,7 +334,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	}
 
 	private void setValue(final String pvName, final Object value, final double timeout) throws DeviceException {
-		if (InDummyMode) {
+		if (inDummyMode) {
 			DummyChannel dummy = getDummyChannel(pvName);
 			dummy.setValue(value);
 			return;
@@ -388,7 +388,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		if( field != null && !field.isEmpty()){
 			pvName += field;
 		}
-		if (InDummyMode) {
+		if (inDummyMode) {
 			DummyChannel dummy = getDummyChannel(pvName);
 			dummy.setValue(value);
 			return;
@@ -490,7 +490,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		 * IObserve
 		 */
 		synchronized (registrations) {
-			if (InDummyMode) {
+			if (inDummyMode) {
 				if (!dummyRegistrations.containsKey(request)) {
 					if (request.returnType == ReturnType.DBR_GR || request.returnType == ReturnType.DBR_STS
 							|| request.returnType == ReturnType.DBR_TIME)
@@ -555,7 +555,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		 * IObserve
 		 */
 		synchronized (registrations) {
-			if (InDummyMode) {
+			if (inDummyMode) {
 				if (dummyRegistrations.containsKey(request)) {
 					String pvName = request.pvName;
 					ObservableComponent obsComp = dummyRegistrations.get(request).obsComp;
@@ -609,7 +609,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		/*
 		 * for each PV in the channel list if not being observed then remove
 		 */
-		if (InDummyMode) {
+		if (inDummyMode) {
 			return; // in dummy mode do not bother with this
 		}
 		Iterator<Map.Entry<String, Channel>> iter = channels.entrySet().iterator();
@@ -712,7 +712,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		} else {
 			if (setMode != SetMode.VALUE) {
 				if (setMode == SetMode.CLOSECHANNEL) {
-					if (InDummyMode) {
+					if (inDummyMode) {
 						return; // do not bother in dummy mode
 					}
 					if (canCloseChannel(pvName)) {
@@ -1011,7 +1011,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	 * @return Returns the inDummyMode.
 	 */
 	public boolean isInDummyMode() {
-		return InDummyMode;
+		return inDummyMode;
 	}
 
 	public void setValue(String record, String field, Object value, double connection_timeout, PutListener listener) throws DeviceException {
@@ -1019,7 +1019,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 		if( field != null && !field.isEmpty()){
 			pvName += field;
 		}
-		if (InDummyMode) {
+		if (inDummyMode) {
 			DummyChannel dummy = getDummyChannel(pvName);
 			dummy.setValue(value);
 			listener.putCompleted(null);
