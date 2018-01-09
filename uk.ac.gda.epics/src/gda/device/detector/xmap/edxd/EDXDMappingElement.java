@@ -35,9 +35,9 @@ import gda.factory.FactoryException;
  */
 public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteable {
 	private static final String MCA = "MCA";
-	private int maxROIs = 32;
+	private static final int MAX_ROIS = 32;
 	private final EpicsMCASimple simpleMca;
-	transient private static final Logger logger = LoggerFactory.getLogger(EDXDMappingElement.class);
+	private static final Logger logger = LoggerFactory.getLogger(EDXDMappingElement.class);
 
 	/**
 	 * @param xmapDevice the device where the element is connected to
@@ -45,14 +45,17 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 */
 	public EDXDMappingElement(FindableEpicsDevice xmapDevice, int elementNumber, EpicsMCASimple simpleMca) {
 		super(xmapDevice, elementNumber);
+
+		final String mcaName = MCA + elementNumber;
+		final String pvName = xmap.getRecordPVs().get(mcaName);
+
 		this.simpleMca = simpleMca;
-		this.simpleMca.setName(MCA + elementNumber);
-		this.simpleMca.setMcaPV(xmap.getRecordPVs().get(MCA + elementNumber));
+		this.simpleMca.setName(mcaName);
+		this.simpleMca.setMcaPV(pvName);
 		try {
 			this.simpleMca.configure();
 		} catch (FactoryException e) {
-			logger.error("Exception configuring the ROI mca s in Xmap" , e);
-			e.printStackTrace();
+			logger.error("Exception configuring the ROI mca {} : PV {} in Xmap", mcaName, pvName, e);
 		}
 	}
 
@@ -63,23 +66,20 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 */
 	@Override
 	public void setROIs(double[][] rois) throws DeviceException {
-		double [] roiLow  = getLowROIs();
+		final double[] roiLow = getLowROIs();
 		mergeRois(roiLow, rois, 0);
 		setLowROIs(roiLow);
-		double [] roiHigh = getHighROIs();
+		final double[] roiHigh = getHighROIs();
 		mergeRois(roiHigh, rois, 1);
 		setHighROIs(roiHigh);
 		final double[] curLow = getLowROIs();
-		if (!Arrays.equals(roiLow, curLow))
+		if (!Arrays.equals(roiLow, curLow)) {
 			throw new DeviceException("Did not set low rois!");
+		}
 		final double[] curHi = getHighROIs();
-		if (!Arrays.equals(curHi, roiHigh))
+		if (!Arrays.equals(curHi, roiHigh)) {
 			throw new DeviceException("Did not set high rois!");
-	}
-
-	private void mergeRois(double[] curRois, double[][] rois, int i) {
-		for (int j = 0; j < curRois.length; j++)
-			curRois[j] = rois[j][i];
+		}
 	}
 
 	/**
@@ -88,13 +88,14 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setLowROIs(double[] roiLow) throws DeviceException{
-		if(simpleMca.isConfigured()){
-			if(roiLow.length > maxROIs)
+	public void setLowROIs(double[] roiLow) throws DeviceException {
+		if (simpleMca.isConfigured()) {
+			if (roiLow.length > MAX_ROIS) {
 				throw new DeviceException("Number of ROI's is larger than the maximum allowed value");
-			EpicsMCARegionOfInterest[] roiLowObject = new EpicsMCARegionOfInterest[roiLow.length];
-			for(int i =0 ; i < roiLow.length ; i++){
-				EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
+			}
+			final EpicsMCARegionOfInterest[] roiLowObject = new EpicsMCARegionOfInterest[roiLow.length];
+			for (int i = 0; i < roiLow.length; i++) {
+				final EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
 				roi.setRegionLow(roiLow[i]);
 				roiLowObject[i] = roi;
 			}
@@ -109,10 +110,10 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 */
 	@Override
 	public double[] getLowROIs() throws DeviceException{
-		if(simpleMca.isConfigured()){
-			double[] lowRois = new double[maxROIs];
-			EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[])simpleMca.getRegionsOfInterest();
-			for(int i =0 ; i< roiObject.length; i++){
+		if (simpleMca.isConfigured()) {
+			final double[] lowRois = new double[MAX_ROIS];
+			final EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[]) simpleMca.getRegionsOfInterest();
+			for (int i = 0; i < roiObject.length; i++) {
 				lowRois[i] = roiObject[i].getRegionLow();
 			}
 			return lowRois;
@@ -126,12 +127,13 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setHighROIs(double[] roiHigh) throws DeviceException{
-		if(roiHigh.length > maxROIs)
-		throw new DeviceException("Number of ROI's is larger than the maximum allowed value");
-		EpicsMCARegionOfInterest[] roiHighObject = new EpicsMCARegionOfInterest[roiHigh.length];
-		for(int i =0 ; i < roiHigh.length ; i++){
-			EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
+	public void setHighROIs(double[] roiHigh) throws DeviceException {
+		if (roiHigh.length > MAX_ROIS) {
+			throw new DeviceException("Number of ROI's is larger than the maximum allowed value");
+		}
+		final EpicsMCARegionOfInterest[] roiHighObject = new EpicsMCARegionOfInterest[roiHigh.length];
+		for (int i = 0; i < roiHigh.length; i++) {
+			final EpicsMCARegionOfInterest roi = simpleMca.getNthRegionOfInterest(i);
 			roi.setRegionHigh(roiHigh[i]);
 			roiHighObject[i] = roi;
 		}
@@ -144,11 +146,11 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @throws DeviceException
 	 */
 	@Override
-	public double[] getHighROIs() throws DeviceException{
-		if(simpleMca.isConfigured()){
-			double[] highRois = new double[maxROIs];
-			EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[])simpleMca.getRegionsOfInterest();
-			for(int i =0 ; i< roiObject.length; i++){
+	public double[] getHighROIs() throws DeviceException {
+		if (simpleMca.isConfigured()) {
+			final double[] highRois = new double[MAX_ROIS];
+			final EpicsMCARegionOfInterest[] roiObject = (EpicsMCARegionOfInterest[]) simpleMca.getRegionsOfInterest();
+			for (int i = 0; i < roiObject.length; i++) {
 				highRois[i] = roiObject[i].getRegionHigh();
 			}
 			return highRois;
@@ -163,10 +165,10 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 */
 	@Override
 	public double[] getROICounts() throws DeviceException {
-		if(simpleMca.isConfigured()){
-			double[][] bothCounts = simpleMca.getRegionsOfInterestCount();
-			double[] counts = new double[bothCounts.length];
-			for(int i =0 ; i< bothCounts.length; i++){
+		if (simpleMca.isConfigured()) {
+			final double[][] bothCounts = simpleMca.getRegionsOfInterestCount();
+			final double[] counts = new double[bothCounts.length];
+			for (int i = 0; i < bothCounts.length; i++) {
 				counts[i] = bothCounts[i][0];
 			}
 			return counts;

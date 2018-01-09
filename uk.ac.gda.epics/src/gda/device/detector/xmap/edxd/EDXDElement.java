@@ -70,10 +70,10 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	private double[] q = null;
 
 	protected FindableEpicsDevice xmap;
-	protected Integer number;
-	private static String SCADATA = "SCADATA";
-	private static String SCALOWLIMITS = "SCALOWLIMITS";
-	private static String SCAHIGHLIMITS = "SCAHIGHLIMITS";
+	private Integer number;
+	private static final String SCADATA = "SCADATA";
+	private static final String SCALOWLIMITS = "SCALOWLIMITS";
+	private static final String SCAHIGHLIMITS = "SCAHIGHLIMITS";
 
 	/**
 	 * @param xmapDevice the device where the element is connected to
@@ -153,8 +153,8 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public double[] getEnergyBins() throws DeviceException {
-		double[] data = (double[]) xmap.getValue(ReturnType.DBR_NATIVE,ENERGYBINS+number.toString(),"");
-		double[] result = new double[getDataDimensions()[0]];
+		final double[] data = (double[]) xmap.getValue(ReturnType.DBR_NATIVE, ENERGYBINS + number.toString(), "");
+		final double[] result = new double[getDataDimensions()[0]];
 		for(int i = 0; i < result.length; i++)
 			result[i] = data[i];
 		return result;
@@ -415,13 +415,12 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 
 	@Override
 	public NexusGroupData readout() throws DeviceException {
-		double[] data = (double[]) xmap.getValue(ReturnType.DBR_NATIVE,DATA+number.toString(),"");
-		double[] result = new double[getDataDimensions()[0]];
+		final double[] data = (double[]) xmap.getValue(ReturnType.DBR_NATIVE, DATA + number.toString(), "");
+		final double[] result = new double[getDataDimensions()[0]];
 		for(int i = 0; i < result.length; i++) {
 			result[i] = data[i];
 		}
-		NexusGroupData groupData = new NexusGroupData(getDataDimensions(), result );
-		return groupData;
+		return new NexusGroupData(getDataDimensions(), result);
 	}
 
 	/**
@@ -429,12 +428,12 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public double[] readoutDoubles() throws DeviceException {
-		Object obj =  xmap.getValue(ReturnType.DBR_NATIVE,DATA+number.toString(),"");
+		final Object obj = xmap.getValue(ReturnType.DBR_NATIVE, DATA + number.toString(), "");
 		if(obj instanceof double[])
 			return (double[])obj ;
 		else if( obj instanceof int[]){
-			int[] returnObj = (int[])obj;
-			double[] toreturnObj = new double[returnObj.length];
+			final int[] returnObj = (int[]) obj;
+			final double[] toreturnObj = new double[returnObj.length];
 			for(int i =0 ; i< returnObj.length; i++)
 				toreturnObj[i] = returnObj[i];
 			return toreturnObj;
@@ -448,12 +447,12 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public int[] readoutInts() throws DeviceException {
-		Object obj =  xmap.getValue(ReturnType.DBR_NATIVE,DATA+number.toString(),"");
+		final Object obj = xmap.getValue(ReturnType.DBR_NATIVE, DATA + number.toString(), "");
 		if(obj instanceof int[])
 			return (int[])obj ;
 		else if( obj instanceof double[]){
-			double[] returnObj = (double[])obj;
-			int[] toreturnObj = new int[returnObj.length];
+			final double[] returnObj = (double[]) obj;
+			final int[] toreturnObj = new int[returnObj.length];
 			for(int i =0 ; i< returnObj.length; i++)
 				toreturnObj[i] = (int)returnObj[i];
 			return toreturnObj;
@@ -463,11 +462,11 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 
 
 	private double[] createEnergyMapping() throws DeviceException {
-		double[] energy = new double[getDataDimensions()[0]];
-		for(int i = 0; i < energy.length; i++) {
-			energy[i] = createEnergyValue(i);
+		final double[] energyMapping = new double[getDataDimensions()[0]];
+		for (int i = 0; i < energyMapping.length; i++) {
+			energyMapping[i] = createEnergyValue(i);
 		}
-		return energy;
+		return energyMapping;
 	}
 
 	/**
@@ -491,11 +490,11 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 
 	private double[] createQMapping() throws DeviceException {
-		double pre = Math.sin(theta) * ((4.0*Math.PI)/12.39);
-		double[] q = new double[getDataDimensions()[0]];
-		double[] energy = getEnergyMapping();
+		final double pre = Math.sin(theta) * ((4.0 * Math.PI) / 12.39);
+		final double[] q = new double[getDataDimensions()[0]];
+		final double[] energyMapping = getEnergyMapping();
 		for(int i = 0; i < q.length; i++)
-			q[i] = pre*energy[i];
+			q[i] = pre*energyMapping[i];
 		return q;
 	}
 
@@ -516,11 +515,11 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws Exception
 	 */
 	public void fitPolynomialToEnergyData(double[] actual, double[] reported) throws Exception {
-		Dataset act = DatasetFactory.createFromObject(actual);
-		Dataset rep = DatasetFactory.createFromObject(reported);
+		final Dataset act = DatasetFactory.createFromObject(actual);
+		final Dataset rep = DatasetFactory.createFromObject(reported);
 
-		double[] initial = {0.0,1.0,0.0};
-		CompositeFunction out = Fitter.fit(rep, act, new LeastSquares(0.0),new Quadratic(initial));
+		final double[] initial = { 0.0, 1.0, 0.0 };
+		final CompositeFunction out = Fitter.fit(rep, act, new LeastSquares(0.0), new Quadratic(initial));
 		a = out.getFunction(0).getParameter(0).getValue();
 		b = out.getFunction(0).getParameter(1).getValue();
 		c = out.getFunction(0).getParameter(2).getValue();
@@ -562,7 +561,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public EDXDElementBean saveConfiguration() throws DeviceException {
-		EDXDElementBean bean = new EDXDElementBean();
+		final EDXDElementBean bean = new EDXDElementBean();
 		bean.setBaseLength(getBaseLength());
 		bean.setBaseThreshold(getBaseThreshold());
 		bean.setBinWidth(getBinWidth());
@@ -606,19 +605,19 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 * @throws DeviceException
 	 */
 	public void setROIs(double[][] rois) throws DeviceException {
-		double [] roiLow  = getLowROIs();
+		final double [] roiLow  = getLowROIs();
 		mergeRois(roiLow, rois, 0);
 		setLowROIs(roiLow);
-		double [] roiHigh = getHighROIs();
+		final double [] roiHigh = getHighROIs();
 		mergeRois(roiHigh, rois, 1);
 		setHighROIs(roiHigh);
-		double[] curLow = getLowROIs();
+		final double[] curLow = getLowROIs();
 		if (!Arrays.equals(roiLow, curLow)) throw new DeviceException("Did not set low rois!");
-		double[] curHi = getHighROIs();
+		final double[] curHi = getHighROIs();
 		if (!Arrays.equals(curHi, roiHigh)) throw new DeviceException("Did not set high rois!");
 	}
 
-	private void mergeRois(double[] curRois, double[][] rois, int i) {
+	protected void mergeRois(double[] curRois, double[][] rois, int i) {
 		for (int j = 0; j < curRois.length; j++)
 			curRois[j] = rois[j][i];
 	}
