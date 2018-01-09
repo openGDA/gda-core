@@ -207,4 +207,10 @@ public class EpicsMCARegionOfInterest implements Serializable {
 				this.regionName.equals(other.regionName) &&
 				this.regionPreset == other.regionPreset );
 	}
+
+	@Override
+	public String toString() {
+		return "EpicsMCARegionOfInterest [regionIndex=" + regionIndex + ", regionLow=" + regionLow + ", regionHigh=" + regionHigh + ", regionBackground="
+				+ regionBackground + ", regionPreset=" + regionPreset + ", regionName=" + regionName + "]";
+	}
 }

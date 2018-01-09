@@ -18,6 +18,11 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
@@ -25,31 +30,26 @@ import gda.device.detector.analyser.EpicsMCASimple;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.factory.FactoryException;
 
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Each EDXDMappingElement wraps an EpicsMCASimple instance.
  */
 public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteable {
 	private static final String MCA = "MCA";
 	private int maxROIs = 32;
-	private EpicsMCASimple simpleMca;
+	private final EpicsMCASimple simpleMca;
 	transient private static final Logger logger = LoggerFactory.getLogger(EDXDMappingElement.class);
 
 	/**
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
-	public EDXDMappingElement(FindableEpicsDevice xmapDevice, int elementNumber ) {
+	public EDXDMappingElement(FindableEpicsDevice xmapDevice, int elementNumber, EpicsMCASimple simpleMca) {
 		super(xmapDevice, elementNumber);
-		simpleMca = new EpicsMCASimple();
-		simpleMca.setName(MCA + elementNumber);
-		simpleMca.setMcaPV(xmap.getRecordPVs().get(MCA + elementNumber));
+		this.simpleMca = simpleMca;
+		this.simpleMca.setName(MCA + elementNumber);
+		this.simpleMca.setMcaPV(xmap.getRecordPVs().get(MCA + elementNumber));
 		try {
-			simpleMca.configure();
+			this.simpleMca.configure();
 		} catch (FactoryException e) {
 			logger.error("Exception configuring the ROI mca s in Xmap" , e);
 			e.printStackTrace();

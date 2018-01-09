@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.detector.analyser.EpicsMCASimple;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.Configurable;
@@ -93,7 +94,7 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	@Override
 	protected void addElements() {
 		for(int i = (0+ elementOffset); i < (numberOfElements + elementOffset); i++ )
-			subDetectors.add(new EDXDMappingElement(xmap,i));
+			subDetectors.add(new EDXDMappingElement(xmap, i, new EpicsMCASimple()));
 	}
 
 	/**
