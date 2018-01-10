@@ -274,7 +274,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// get the DeviceInformation objects for the malcolm devices and apply the function
 		// above to create DetectorModelWrappers for them.
-		final Map<String, IDetectorModelWrapper> malcolmParams = getMalcolmDeviceInfo().stream()
+		final Map<String, IDetectorModelWrapper> malcolmParams = getMappingMalcolmDeviceInfos().stream()
 				.map(malcolmInfoToWrapper::apply)
 				.collect(toMap(IDetectorModelWrapper::getName, identity()));
 
@@ -307,7 +307,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		return detectorParamsByName;
 	}
 
-	private Collection<DeviceInformation<?>> getMalcolmDeviceInfo() {
+	private Collection<DeviceInformation<?>> getMappingMalcolmDeviceInfos() {
 		try {
 			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {

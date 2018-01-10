@@ -19,8 +19,16 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
 import java.beans.PropertyChangeListener;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -51,8 +59,17 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IAttributableDevice;
+import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
@@ -66,6 +83,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
@@ -93,6 +111,9 @@ class FocusScanSetupPage extends WizardPage {
 
 	@Inject
 	private IScannableDeviceService scannableService;
+
+	@Inject
+	private IEventService eventService;
 
 	@Inject
 	private IMapFileController mapFileController;
@@ -376,21 +397,98 @@ class FocusScanSetupPage extends WizardPage {
 		});
 
 		// Get detector wrappers from mapping bean and add as input to combo
-		final List<IDetectorModelWrapper> detectorWrappers =
-				mappingBeanProvider.getMappingExperimentBean().getDetectorParameters();
-		comboViewer.setInput(detectorWrappers);
 		comboViewer.addSelectionChangedListener(
 				evt -> focusScanBean.setDetector(getDetectorWrapperForSelection(evt.getSelection()).getModel()));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboViewer.getControl());
+		populateDetectorCombo(comboViewer);
 
 		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
 		configureDetectorButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 		configureDetectorButton.setToolTipText("Edit parameters");
 		configureDetectorButton.addListener(SWT.Selection,
 				event -> editDetectorParameters(getDetectorWrapperForSelection(comboViewer.getSelection())));
+	}
 
-		detectorWrappers.stream().filter(IDetectorModelWrapper::isIncludeInScan).findFirst()
-			.ifPresent(wrapper -> comboViewer.setSelection(new StructuredSelection(wrapper)));
+	private void populateDetectorCombo(ComboViewer comboViewer) {
+		final List<IDetectorModelWrapper> mappingDetectors =
+				mappingBeanProvider.getMappingExperimentBean().getDetectorParameters();
+		final String focusMalcolmDeviceName = focusScanBean.getFocusMalcolmDeviceName();
+
+		// get the available detectors for a focus scan
+		final List<IDetectorModelWrapper> availableFocusDetectors;
+		// filter out all malcolm devices except the focus malcolm device
+		final Predicate<IDetectorModelWrapper> focusDetectorFilter = wrapper ->
+			!(wrapper.getModel() instanceof IMalcolmModel) || (
+					focusMalcolmDeviceName != null && wrapper.getModel().getName().equals(focusMalcolmDeviceName));
+		availableFocusDetectors = mappingDetectors.stream().filter(focusDetectorFilter).collect(Collectors.toList());
+		comboViewer.setInput(availableFocusDetectors);
+
+		// get the detector to select as default
+		final Optional<IDetectorModelWrapper> firstSelected = mappingDetectors.stream()
+				.filter(IDetectorModelWrapper::isIncludeInScan).findFirst();
+		Optional<IDetectorModelWrapper> defaultDetector = firstSelected;
+		if (firstSelected.map(IDetectorModelWrapper::getModel).filter(IMalcolmModel.class::isInstance).isPresent()) {
+			if (focusMalcolmDeviceName != null) {
+				// if the selected device is a malcolm device and a focus malcolm device is set, use that instead
+				defaultDetector = availableFocusDetectors.stream()
+						.filter(wrapper -> wrapper.getModel().getName().equals(focusMalcolmDeviceName)).findFirst();
+			} else {
+				// otherwise choose the first software detector if there is one
+				defaultDetector = availableFocusDetectors.isEmpty() ? Optional.empty() : Optional.of(availableFocusDetectors.get(0));
+			}
+		}
+
+		// set the initially selected detector
+		if (defaultDetector.isPresent()) {
+			IDetectorModelWrapper wrapper = defaultDetector.get();
+			comboViewer.setSelection(new StructuredSelection(wrapper));
+			if (wrapper.getModel() instanceof IMalcolmModel && firstSelected.isPresent()) {
+				checkMalcolmStages(firstSelected.get(), wrapper);
+			}
+		}
+	}
+
+	private void checkMalcolmStages(IDetectorModelWrapper mappingMalcolmDevice, IDetectorModelWrapper focusMalcolmDevice) {
+		try {
+			final IRunnableDeviceService runnableDeviceService = getRunnableDeviceService();
+			final Set<String> focusDeviceAxes = getMalcolmAxes(focusMalcolmDevice, runnableDeviceService);
+			final Set<String> mappingDeviceAxes = getMalcolmAxes(mappingMalcolmDevice, runnableDeviceService);
+			if (mappingDeviceAxes.stream().anyMatch(axis -> !focusDeviceAxes.contains(axis))) {
+				MessageDialog.openWarning(getShell(), "Focus Scan",
+						MessageFormat.format("Note: the selected malcolm device is configured for different axes that the currently selected malcolm device in the Mapping Experiment View:\n"
+						+ "Axes for the mapping device ''{0}'': {1}\n"
+						+ "Axes for the focus scan device ''{2}'': {3}",
+						mappingMalcolmDevice.getName(), mappingDeviceAxes, focusMalcolmDevice.getName(), focusDeviceAxes));
+			}
+			if (!focusDeviceAxes.contains(focusScanBean.getFocusScannableName())) {
+				MessageDialog.openWarning(getShell(), "Focus Scan", "The selected malcolm device does not include the focus scannable as an axis");
+			}
+		} catch (ScanningException | EventException e) {
+			logger.error("Could not get malcolm axes", e);
+			MessageDialog.openError(getShell(), "Focus Scan", "Could not get axes for malcolm device. See error log for more details");
+		}
+	}
+
+	public IRunnableDeviceService getRunnableDeviceService() throws EventException {
+		try {
+			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			return  eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+		} catch (URISyntaxException e) {
+			throw new EventException("Malformed URI for activemq", e);
+		}
+	}
+
+	private Set<String> getMalcolmAxes(IDetectorModelWrapper wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
+		final String deviceName = wrapper.getModel().getName();
+		final IRunnableDevice<?> device = runnableDeviceService.getRunnableDevice(deviceName);
+		if (device instanceof IAttributableDevice) {
+			Object axesToMoveAttr = ((IAttributableDevice) device).getAttribute(MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE);
+			if (axesToMoveAttr instanceof StringArrayAttribute) {
+				final String[] axesArray = ((StringArrayAttribute) axesToMoveAttr).getValue();
+				return new TreeSet<>(Arrays.asList(axesArray));
+			}
+		}
+		throw new ScanningException("Cannot get axes for malcolm device " + wrapper.getName());
 	}
 
 	private void editDetectorParameters(IDetectorModelWrapper detectorModelWrapper) {

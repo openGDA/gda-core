@@ -29,23 +29,63 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
  *      line is scanned at each focus step.</li>
  * </ul>
  *
- * In particular focusScannableName must be set as it cannot be set in the user interface.
+ * <em>Note:</em>This bean has a dual purpose, besides describing a particular focus scan,
+ * some fields are required to setup focus scanning in general for a beamline.
+ *  TODO perhaps this bean should be split into two, one to setup focus scanning on a beamline
+ *  e.g. FocusScanSetupBean, and FocusScanBean only containing the fields necessary to setup
+ *  a particular scan.
  */
 public class FocusScanBean {
 
+	/**
+	 * Set in spring to the name of the focus scannable, typically a zone plate, e.g. ZonePlateZ
+	 * The UI does not allow this value to be changed.
+	 */
 	private String focusScannableName;
 
+	/**
+	 * This is the centre on the range scanned with the focus scannable,
+	 * The Focus scan wizard will set this to the current position of the focus scannable.
+	 * <em>Do not set this field in spring.</em>
+	 */
 	private double focusCentre;
 
+	/**
+	 * The size of the range to focus plus or minus the focusCentre (therefore the full range
+	 * scanned is actually double this value). This should be set in spring to a default value
+	 * which the user can change.
+	 */
 	private double focusRange;
 
+	/**
+	 *  The number of focus steps to scan along the full focus range. This should be set in spring
+	 *  to the default value.
+	 */
 	private int numberOfFocusSteps;
 
+	/**
+	 * Describes the 2 dimensional line region to scan in the mapping stage.
+	 * <em>Do not set this field in spring.</em>
+	 */
 	private ILineMappingRegion lineRegion;
 
+	/**
+	 * The number of points in the line to scan. This should be set in spring to a default value.
+	 */
 	private int numberOfLinePoints;
 
+	/**
+	 * The detector (possibly a malcolm device) that should be used to perform the scan. This field
+	 * can optionally be set in spring to a default value.
+	 */
 	private IDetectorModel detector;
+
+	/**
+	 * The name of the malcolm device to use for focus malcolm scans. This field should be set
+	 * in spring if it is required to use a particular malcolm device for focus scans. Note that
+	 * this field is used by the focus scan UI to help and does form part of the definition of a focus scan, see note on class Javadoc.
+	 */
+	private String focusMalcolmDeviceName;
 
 	public String getFocusScannableName() {
 		return focusScannableName;
@@ -101,6 +141,14 @@ public class FocusScanBean {
 
 	public void setDetector(IDetectorModel detector) {
 		this.detector = detector;
+	}
+
+	public String getFocusMalcolmDeviceName() {
+		return focusMalcolmDeviceName;
+	}
+
+	public void setFocusMalcolmDeviceName(String focusMalcolmDeviceName) {
+		this.focusMalcolmDeviceName = focusMalcolmDeviceName;
 	}
 
 }

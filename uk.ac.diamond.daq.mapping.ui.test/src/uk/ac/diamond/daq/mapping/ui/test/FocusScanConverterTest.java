@@ -101,8 +101,8 @@ public class FocusScanConverterTest {
 		final StepModel focusModel = (StepModel) models.get(0);
 		assertEquals(1, focusModel.getScannableNames().size());
 		assertEquals(focusScanBean.getFocusScannableName(), focusModel.getScannableNames().get(0));
-		assertEquals(focusScanBean.getFocusCentre() - focusScanBean.getFocusRange(), focusModel.getStart(), 1e-15);
-		assertEquals(focusScanBean.getFocusCentre() + focusScanBean.getFocusRange() + focusModel.getStep() / 100,
+		assertEquals(focusScanBean.getFocusCentre() - focusScanBean.getFocusRange() + focusModel.getStep() / 2, focusModel.getStart(), 1e-15);
+		assertEquals(focusScanBean.getFocusCentre() + focusScanBean.getFocusRange() - focusModel.getStep() / 2 + focusModel.getStep() / 100,
 				focusModel.getStop(), 1e-15);
 		assertEquals(focusScanBean.getFocusRange() * 2 / focusScanBean.getNumberOfFocusSteps(), focusModel.getStep(), 1e-15);
 

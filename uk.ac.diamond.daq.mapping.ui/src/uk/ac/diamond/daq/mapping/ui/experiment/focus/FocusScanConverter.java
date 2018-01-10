@@ -71,9 +71,6 @@ public class FocusScanConverter {
 		detectorsMap.put(detectorModel.getName(), detectorModel);
 		scanRequest.setDetectors(detectorsMap);
 
-		// TODO should we add:
-		//   - beamline configuration (i.e. start position)
-
 		return scanRequest;
 	}
 
@@ -82,9 +79,9 @@ public class FocusScanConverter {
 		final double centre = focusScanBean.getFocusCentre();
 		final double range = focusScanBean.getFocusRange();
 
-		final double start = centre - range;
 		final double step = (range * 2) / focusScanBean.getNumberOfFocusSteps();
-		final double stop = centre + range + (step / 100); // add step/100 to prevent rounding errors
+		final double start = (centre - range) + step / 2;
+		final double stop = centre + range - (step / 2) + (step / 100); // add step/100 to prevent rounding errors
 
 		return new StepModel(zonePlateScannableName, start, stop, step);
 	}
