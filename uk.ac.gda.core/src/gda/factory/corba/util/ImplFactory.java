@@ -19,27 +19,27 @@
 
 package gda.factory.corba.util;
 
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Localizable;
-import gda.jython.accesscontrol.RbacUtils;
-
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
 import org.omg.PortableServer.POA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Localizable;
+import gda.jython.accesscontrol.RbacUtils;
+
 public abstract class ImplFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImplFactory.class);
 
 	private NetService netService;
-	private HashMap<String, CorbaBoundObject> store = new LinkedHashMap<String, CorbaBoundObject>();
+	private Map<String, CorbaBoundObject> store = new LinkedHashMap<>();
 
 	public ImplFactory(NetService netService) {
 		this.netService = netService;
@@ -149,16 +149,18 @@ public abstract class ImplFactory {
 
 	/**
 	 * Shuts down this ImplFactory, unregistering names from CORBA.
+	 *
+	 * Currently this is called in 2 threads, from the shutdown hook in {@link #makeObjectsAvailable()} and from
+	 * SpringObjectServer shutdown method, resulting in potential NPEs to fix this it is now synchronized
 	 */
-	public void shutdown() {
+	public synchronized void shutdown() {
 		logger.info("Shutting down {}", this);
 		try {
-			String[] names = store.keySet().toArray(new String[store.keySet().size()]);
-			for (String name : names) {
-				final CorbaBoundObject boundObj = store.get(name);
+			for(CorbaBoundObject boundObject : store.values()) {
 				try {
-					netService.unbind(name, boundObj.type);
-				} catch (FactoryException e) {
+					netService.unbind(boundObject.fullName, boundObject.type);
+				}
+				catch (FactoryException e) {
 					// Deliberately do nothing. Its only cleaning up where possible.
 				}
 			}
@@ -177,9 +179,9 @@ public abstract class ImplFactory {
  * {@code gda.util.findableHashtable.FindableHashtable}).
  */
 class CorbaBoundObject {
-	public String fullName;
-	public String type;
-	public org.omg.CORBA.Object object;
+	public final String fullName;
+	public final String type;
+	public final org.omg.CORBA.Object object;
 
 	public CorbaBoundObject(String fullName, String type, org.omg.CORBA.Object object) {
 		this.fullName = fullName;
