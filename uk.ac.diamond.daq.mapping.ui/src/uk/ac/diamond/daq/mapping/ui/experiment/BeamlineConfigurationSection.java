@@ -126,7 +126,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 		final FocusScanWizard focusScanWizard = ContextInjectionFactory.make(FocusScanWizard.class, getEclipseContext());
 		final WizardDialog wizardDialog = new WizardDialog(getShell(), focusScanWizard);
-		wizardDialog.setPageSize(1200, 650);
+		wizardDialog.setPageSize(focusScanWizard.getPreferredPageSize());
 		wizardDialog.open();
 		// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
 	}

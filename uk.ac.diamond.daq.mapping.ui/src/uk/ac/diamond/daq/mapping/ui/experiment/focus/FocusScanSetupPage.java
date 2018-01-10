@@ -222,7 +222,7 @@ class FocusScanSetupPage extends WizardPage {
 		// Create the controls to show the detector
 		createDetectorControls(composite);
 
-		sashForm.setWeights(new int[] { 3, 2 });
+		sashForm.setWeights(new int[] { 9, 5 });
 		setControl(sashForm);
 		setPageComplete(false);
 	}

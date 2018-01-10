@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.graphics.Point;
 
 /**
  * A wizard to run a focus scan (a.k.a. 'butterfly scan') and set the focus (zone plate) position.
@@ -58,6 +59,10 @@ public class FocusScanWizard extends Wizard {
 		resultPage.setFocusPosition();
 
 		return true;
+	}
+
+	public Point getPreferredPageSize() {
+		return new Point(1500, 750);
 	}
 
 }
