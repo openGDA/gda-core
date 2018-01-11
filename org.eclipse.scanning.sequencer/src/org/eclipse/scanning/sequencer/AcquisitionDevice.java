@@ -630,7 +630,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			stateChangeLock.unlock();
 		}
 
-		return !getDeviceState().isRestState();
+		// check again that the scan hasn't been set to a rest state, this can happen after we resume from pausing
+		// Armed is excluded as this is the state malcolm puts the scan in when it has finished an inner scan
+		return !getDeviceState().isRestState() || getDeviceState() == DeviceState.ARMED;
 	}
 
 	@Override
