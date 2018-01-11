@@ -405,7 +405,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	 */
 	public double setMaxWidth(double maxWidth) throws DeviceException {
 		xmap.setValue("SET"+MAXWIDTH+number.toString(),"",maxWidth);
-		return getTriggerGapTime();
+		return getMaxWidth();
 	}
 
 	@Override
