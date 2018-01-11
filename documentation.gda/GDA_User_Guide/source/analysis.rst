@@ -43,7 +43,7 @@ The above can be used in the following way within the Jython terminal::
    >>> Plotter.plotImage("Data Vector", sfh[0])
     					
 Images can be saved from a ScanFileHolder in either PNG or JPEG format
-(PNGSavar and JPEGSaver) with the possibility of scaling the image
+(PNGSaver and JPEGSaver) with the possibility of scaling the image
 such that it will be able to be saved in the requested format. The
 upper limit of JPEG is 255 and PNG is 65535 for any intensity of pixel
 value. If the pixel intensity is greater than this value the image can
@@ -56,7 +56,7 @@ be scaled using PNGScaledSaver and JPEGScaledSaver::
    >>> sfh.save(FileSave("FileName"))
     					
 
-The the ending is not specified the proper ending will be added and if
+If the ending is not specified the proper ending will be added and if
 there are many images they will be called 'Image00001.xxx,
 Image00002.xxx' etc.
 
@@ -86,8 +86,8 @@ way to surface plot a 2D dataset. When no third parameter is provided
 and the data contained in the ScanFileHolder is too large to display
 at once either because there is not enough memory available or the
 display refresh rate would be too low and therefore not interactive it
-will automatically subsampling. If you prefer not to subsampling but
-rather would to display a subset of the data as a window on the whole
+will automatically subsample. If you prefer not to subsample but
+rather would like to display a subset of the data as a window on the whole
 data, change the last command to this::
 
     >>> Plotter.plot3D("Data Vector",data[0],True)

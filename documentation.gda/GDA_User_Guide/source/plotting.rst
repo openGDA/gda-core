@@ -3,8 +3,8 @@
 ==========
 
 
-ScanFileHolderClass
-===================
+ScanFileHolder Class
+====================
 
 The first class to be detailed here is the ScanFileHolder. This class
 acts as storage for a single scan, the idea behind this is that
