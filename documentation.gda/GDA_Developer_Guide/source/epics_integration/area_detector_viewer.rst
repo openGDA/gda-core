@@ -7,7 +7,7 @@
 `EPICS <http://www.aps.anl.gov/epics/>`_
 
 The EPICS AreaDetector system is used widely within Diamond for both diagnostic cameras and experimental 
-xray detectors. GDA plugin ``uk.ac.gda.epics.adviewer`` provides code for visualising such systems within RCP GUI.
+xray detectors. GDA plugin ``uk.ac.gda.epics.adviewer`` provides code for visualising such systems within an RCP GUI.
 
 The ADViewer provides 3 views:
 
@@ -19,7 +19,7 @@ The ADViewer provides 3 views:
    .. image:: images/PCOArrayView.png
 
 As the image from the MJPeg view is normally an 8 bit representation of the camera image it is usual to use the
-PROC plugin to select an the range of values in the camera image that are to be presentation by the 8bit scale. 
+PROC plugin to select the range of values in the camera image that are to be presented by the 8bit scale. 
 
 The range consists of 2 numbers:
 
@@ -32,7 +32,7 @@ Values for (a) and (b) can be controlled by the user from a display of the histo
 from the same data. In automatic mode the values of (a) and (b) are chosen to be  the 5% and 95% percentile values.
 
 In the case of large detector images simply pulling the data from the Array plugin of the IOC can be slow. 
-In such cases the user may preferred to select a region of interest of the camera image instead. ADViewer makes 
+In such cases the user may prefer to select a region of interest of the camera image instead. ADViewer makes 
 this simple by automatically enabling a ROI plugin.
 
 EPICS AreaDetector plugins work independent of each other and can be configured together at runtime. The ADViewer assumes a certain
@@ -89,7 +89,7 @@ How to Add ADViewer views to a GUI when the plugins do not conform to the DLS Ar
 
 If one or more plugin suffix does not match the convention listed above then you need to do two things. Firstly register  a service that 
 supports the interface uk.ac.gda.epics.adviewer.ADPVSuffixes; a simple way is to use uk.ac.gda.epics.adviewer.SimpleADPVSuffixes and
-override one or mroe of its suffix propertiies. This is done in the example below where the MPG Plugin PV suffix is set to FFMPEG: ::
+override one or more of its suffix properties. This is done in the example below where the MPG Plugin PV suffix is set to FFMPEG: ::
  
 
 	<bean class="gda.rcp.util.OSGIServiceRegister">
@@ -135,15 +135,15 @@ Secondly you need to append the name of the new service to the secondary id, sep
 
 
 
-How to Add ADViewer views to a GUI be defining a detector specific ADController
+How to Add ADViewer views to a GUI by defining a detector specific ADController
 -------------------------------------------------------------------------------
 
-If the PV's for the EPICS Area Detector plugins accessed by the ADViewer views DO NOT follow the convention above then you need to tell the system the PVs. Currently this is
-done by provided an instance of a class through which the PV's are accessed. This class is of type uk.ac.gda.epics.adviewer.ADController. The 
+If the PVs for the EPICS Area Detector plugins accessed by the ADViewer views DO NOT follow the convention above then you need to tell the system the PVs. Currently this is
+done by provided an instance of a class through which the PVs are accessed. This class is of type uk.ac.gda.epics.adviewer.ADController. The 
 views access the instance via OSGi services using a name specified in the secondary Id used to open the view. The instance and the registration is done using Spring Config
-declarations in the file named in property 
+declarations in the file named in ``property``.
 
-Below is an example of a Spring Config file in which an ADController instance and it's dependent reference beans are declared. The use of the 
+Below is an example of a Spring Config file in which an ADController instance and its dependent reference beans are declared. The use of the 
 OSGIServiceRegister will result in the instance being registered as an OSGI service of type uk.ac.gda.epics.adviewer.ADController with 
 property 'SERVICE_NAME' set to 'd1'. :: 
 
@@ -212,8 +212,8 @@ property 'SERVICE_NAME' set to 'd1'. ::
 Using the gda.rcp.views.OpenViewListBoxComposite
 ------------------------------------------------
 
-A simply way to provide a list of AD Viewer views to the user is by using the OpenViewListBoxComposite with the
-views described in instance of either gda.rcp.views.OpenViewOptionImpl with the secondaryId property set to the name of the 
+A simple way to provide a list of AD Viewer views to the user is by using the OpenViewListBoxComposite with the
+views described in an instance of either gda.rcp.views.OpenViewOptionImpl with the secondaryId property set to the name of the 
 OSGi service that implements ADController or uk.ac.gda.epics.adviewer.views.ADOpenViewOption if there is a common PVPrefix for the plugins::
 
 				<bean class="gda.rcp.views.OpenViewListBoxCompositeFactory">

@@ -7,10 +7,10 @@
 TANGO `TANGO <http://www.tango-controls.org/>`_
 
 
-Integration of TANGO within GDA covers the creation of Devices and Scannables that talk to TANGO devices 
+Integration of TANGO within GDA covers the creation of Devices and Scannables that talk to TANGO devices.
 
 Connecting GDA to TANGO is done by use of class gda.device.TangoDeviceProxy in the plugin
-org.gda.tango. This plugin contains the TANGO jar TangORG-7.0.3.jar
+org.gda.tango. This plugin contains the TANGO jar TangORG-7.0.3.jar.
 
 To create a bean to connect to the tg_test device supplied with the main Tango release registered in 
 the Tango database at localhost:10000 add the following to the Spring config::
