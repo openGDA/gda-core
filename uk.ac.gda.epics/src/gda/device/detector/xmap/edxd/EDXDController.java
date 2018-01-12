@@ -42,25 +42,23 @@ import uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelfManager;
 import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
 
 /**
- * This class describes the EDXD detector on I12, it is made up of 24 subdetectors
+ * This class describes an EDXD detector made up of 24 subdetectors
  */
 public class EDXDController extends DetectorBase implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(EDXDController.class);
-	protected static final int NUMBER_OF_ATTEMPTS = 5;
+
+	private boolean isBusy = false;
+	private String epicsDeviceName = "edxd";
+	private IEpicsChannel statusChannel;
+
 	protected int numberOfElements = 24;
-	protected static final int TOTAL_NUMBER_OF_TRACE_DATASETS = 10;
-	protected static final String EDXD_PLOT = "EDXD Plot";
-	protected int version  = 2;
 	protected FindableEpicsDevice xmap = null;
-	protected boolean isBusy = false;
-	protected String epicsDeviceName="edxd";
-	protected final List<EDXDElement> subDetectors = new ArrayList<EDXDElement>();
-	protected DeviceException collectData_Exception;
-	protected IEpicsChannel statusChannel;
-	protected static final String STATUS = "ACQUIRING";
+	protected final List<EDXDElement> subDetectors = new ArrayList<>();
+	protected DeviceException collectDataException;
 
 	// Keys to access xmap's PVs
 	protected static final String ACQUIRE = "ACQUIRE";
+	protected static final String ACQUIRING = "ACQUIRING";
 	protected static final String GETDYNRANGE = "GETDYNRANGE";
 	protected static final String GETDYNRANGE0 = "GETDYNRANGE0";
 	protected static final String GETNBINS = "GETNBINS";
@@ -81,17 +79,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
 
-	public EDXDController() {
-	}
-
-	public String getEpicsDeviceName() {
-		return epicsDeviceName;
-	}
-
-	public void setEpicsDeviceName(String deviceName) {
-		this.epicsDeviceName = deviceName;
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		// FIXME The xmap FindableEpicsDevice should preferably be configured in Spring but,
@@ -103,7 +90,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 			xmap.setName(epicsDeviceName);
 			xmap.configure();
 		}
-		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, STATUS , "");
+		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, ACQUIRING , "");
 		statusChannel.addIObserver(new IObserver(){
 
 			@Override
@@ -117,7 +104,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 					isBusy = false;
 				}
 				try {
-					notifyIObservers(this, getStatusObject());
+					notifyIObservers(this, getStatus());
 					logger.debug("acquisition status updated to {}", getStatus());
 				} catch (DeviceException e) {
 					logger.error("ln351 : AcqStatusListener , error ", e);
@@ -135,7 +122,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 			subDetectors.add(new EDXDElement(xmap, i + 1));
 	}
 
+	/**
+	 * reconfigure() deprecated because this will cause a new Xmap device to be created, which may be different from the one configured in Spring
+	 */
 	@Override
+	@Deprecated
 	public void reconfigure() throws FactoryException {
 		try {
 			xmap.dispose();
@@ -148,13 +139,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 		configure();
 	}
 
-	protected Integer getStatusObject() {
-		return isBusy ? Detector.BUSY : Detector.IDLE;
-	}
-
 	@Override
 	public void collectData() throws DeviceException {
-		collectData_Exception=null;
+		collectDataException=null;
 		// set the acquisition time
 		xmap.setValue(SETPRESETVALUE, "", collectionTime);
 		// set to take the acquisition for the amount of time specified
@@ -166,16 +153,14 @@ public class EDXDController extends DetectorBase implements Configurable {
 		(new Thread() {
 			@Override
 			public void run() {
-				//isBusy = true;
 				// now run the actual collection
 				// this has been seen to fail, so a loop trying a couple of times would probably be good
 				try {
 					xmap.setValue(null, ACQUIRE, "", 1, (2 * collectionTime) + 5);
 				} catch (DeviceException e) {
 					logger.error(e.getMessage(),e);
-					collectData_Exception = e;
+					collectDataException = e;
 				}
-				//isBusy = false;
 				return;
 			}
 		}).start();
@@ -184,7 +169,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
-			// Just carry on, it shouldent be too much of a problem if this fails
+			// Just carry on, it shouldn't be too much of a problem if this fails
 		}
 	}
 
@@ -205,9 +190,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	@Override
 	public int getStatus() throws DeviceException {
-		return getStatusObject();
+		return isBusy ? Detector.BUSY : Detector.IDLE;
 	}
-
 
 	/**
 	 * Get the acquisition/collection/preset  time in the hardware
@@ -215,7 +199,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public double getAcquisitionTime() throws DeviceException {
-		return (Double) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETVALUE  ,"");
+		return (double) xmap.getValue(ReturnType.DBR_NATIVE, GETPRESETVALUE, "");
 	}
 
 	/**
@@ -224,7 +208,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public int getPresetType() throws DeviceException {
-		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE,GETPRESETTYPE ,"");
+		return (int) xmap.getValue(ReturnType.DBR_NATIVE, GETPRESETTYPE, "");
 	}
 
 	@Override
@@ -239,8 +223,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 	//should be changed to private access.
 	public void verifyData() throws DeviceException {
 		// If there was a problem when acquiring the data
-		if (collectData_Exception != null)
-			throw collectData_Exception;
+		if (collectDataException != null) {
+			throw collectDataException;
+		}
 	}
 
 	/**
@@ -261,13 +246,13 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	/**
 	 * Sets the number of bins that are used by the xmap.
-	 * @param NumberOfBins a number up to 16k
+	 * @param numberOfBins a number up to 16k
 	 * @return the number of bins which are actualy set.
 	 * @throws DeviceException
 	 */
-	public int setBins(int NumberOfBins) throws DeviceException {
-		xmap.setValue(SETNBINS, "", NumberOfBins);
-		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
+	public int setBins(int numberOfBins) throws DeviceException {
+		xmap.setValue(SETNBINS, "", numberOfBins);
+		return (int) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
 	}
 
 	/**
@@ -276,7 +261,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public int getBins() throws DeviceException {
-		return (Integer) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
+		return (int) xmap.getValue(ReturnType.DBR_NATIVE, GETNBINS, "");
 	}
 
 	/**
@@ -287,7 +272,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 */
 	public double setDynamicRange(double dynamicRange) throws DeviceException {
 		xmap.setValue(SETDYNRANGE, "", dynamicRange);
-		return (Double) xmap.getValue(ReturnType.DBR_NATIVE, GETDYNRANGE0, "");
+		return (double) xmap.getValue(ReturnType.DBR_NATIVE, GETDYNRANGE0, "");
 	}
 
 	/**
@@ -305,10 +290,10 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @param numberOfBins the number of bins that are wanted, i.e the resolution
 	 * @throws DeviceException
 	 */
-	public void setup(double maxEnergy, int numberOfBins ) throws DeviceException {
-		setDynamicRange(maxEnergy*2.0);// set the dynamic range to twice the max energy
-		int bins = setBins(numberOfBins);
-		setBinWidth((maxEnergy*1000.0)/bins);
+	public void setup(double maxEnergy, int numberOfBins) throws DeviceException {
+		setDynamicRange(maxEnergy * 2.0);// set the dynamic range to twice the max energy
+		final int bins = setBins(numberOfBins);
+		setBinWidth((maxEnergy * 1000.0) / bins);
 	}
 
 	// All the saving and loading settings
@@ -332,11 +317,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void saveCurrentSettings(String name, String description) throws ObjectShelfException, LocalDatabaseException, DeviceException {
-		LocalObjectShelf los = LocalObjectShelfManager.open("EDXD"+name);
+		final LocalObjectShelf los = LocalObjectShelfManager.open("EDXD" + name);
 		los.addValue("desc", description);// Save the description
 		los.addValue("nbins", getBins());// save the number of bins
 		// populate the shelf from the subdetectors
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			los.addValue(subDetectors.get(i).getName(), subDetectors.get(i).saveConfiguration());
 		InterfaceProvider.getTerminalPrinter().print("File Saved Sucsessfully");
 	}
@@ -350,11 +335,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws LocalDatabaseException
 	 */
 	public String loadSettings(String name) throws DeviceException, ObjectShelfException, LocalDatabaseException {
-		LocalObjectShelf los = LocalObjectShelfManager.open("EDXD"+name);
+		final LocalObjectShelf los = LocalObjectShelfManager.open("EDXD" + name);
 		setBins((Integer) los.get("nbins"));// load the number of bins
 		// populate the shelf from the subdetectors
-		for( int i = 0; i < subDetectors.size(); i++) {
-			logger.info("Setting subdetector {} with loaded values",i);
+		for (int i = 0; i < subDetectors.size(); i++) {
+			logger.info("Setting subdetector {} with loaded values", i);
 			subDetectors.get(i).loadConfiguration((EDXDElementBean) los.get(subDetectors.get(i).getName()));
 		}
 		String desc = "No Description";
@@ -374,10 +359,10 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws LocalDatabaseException
 	 * @throws ObjectShelfException
 	 */
-	public String listSettings() throws ObjectShelfException, LocalDatabaseException{
+	public String listSettings() throws ObjectShelfException, LocalDatabaseException {
 		String result = "";
 		for (String shelf : LocalObjectShelfManager.shelves()) {
-			if(shelf.startsWith("EDXD")) {
+			if (shelf.startsWith("EDXD")) {
 				LocalObjectShelf los = LocalObjectShelfManager.open(shelf);
 				String desc = "No Description";
 				try {
@@ -385,7 +370,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 				} catch (ObjectShelfException e) {
 					// Do nothing id the desc is absent
 				}
-				result += shelf.replace("EDXD", "")+"\t:\t"+desc+"\n";
+				result += shelf.replace("EDXD", "") + "\t:\t" + desc + "\n";
 			}
 		}
 		return result;
@@ -398,7 +383,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setPreampGain(double preampGain) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setPreampGain(preampGain);
 	}
 
@@ -408,7 +393,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setPeakTime(double peakTime) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setPeakTime(peakTime);
 	}
 
@@ -418,7 +403,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setTriggerThreshold(double triggerThreshold) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setTriggerThreshold(triggerThreshold);
 	}
 
@@ -428,7 +413,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setBaseThreshold(double baseThreshold) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setBaseThreshold(baseThreshold);
 	}
 
@@ -438,7 +423,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setBaseLength(int baseLength) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setBaseLength(baseLength);
 	}
 
@@ -448,7 +433,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setEnergyThreshold(double energyThreshold) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setEnergyThreshold(energyThreshold);
 	}
 
@@ -458,7 +443,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setResetDelay(double resetDelay) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setResetDelay(resetDelay);
 	}
 
@@ -468,7 +453,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setGapTime(double gapTime) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setGapTime(gapTime);
 	}
 
@@ -478,7 +463,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setTriggerPeakTime(double triggerPeakTime) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setTriggerPeakTime(triggerPeakTime);
 	}
 
@@ -488,7 +473,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setTriggerGapTime(double triggerGapTime) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setTriggerGapTime(triggerGapTime);
 	}
 
@@ -498,7 +483,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @throws DeviceException
 	 */
 	public void setMaxWidth(double maxWidth) throws DeviceException {
-		for( int i = 0; i < subDetectors.size(); i++)
+		for (int i = 0; i < subDetectors.size(); i++)
 			subDetectors.get(i).setMaxWidth(maxWidth);
 	}
 
@@ -508,8 +493,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @return An the EDXDElement requested
 	 */
 	public EDXDElement getSubDetector(int index) {
-		//check that sub detectors exist before attempting to access any.
-		if(subDetectors.size()>0)
+		// check that sub detectors exist before attempting to access any.
+		if (subDetectors.size() > 0)
 			return subDetectors.get(index);
 		return null;
 	}
@@ -520,11 +505,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 	* @param resume
 	* @throws DeviceException
 	*/
-	public void setResume(boolean resume)throws DeviceException{
-		int toset =0;
-		if(resume)
-			toset = 1;
-		xmap.setValue(SETRESUME  ,"",toset);
+	public void setResume(boolean resume) throws DeviceException {
+		final int toset = resume ? 1 : 0;
+		xmap.setValue(SETRESUME, "", toset);
 	}
 
 	/**
@@ -595,8 +578,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	@Override
 	public Object readout() throws DeviceException {
-		double[][] readout = new double[numberOfElements][];
-		for(int i =0; i< numberOfElements; i++)
+		final double[][] readout = new double[numberOfElements][];
+		for (int i = 0; i < numberOfElements; i++)
 			readout[i] = subDetectors.get(i).readoutDoubles();
 		return readout;
 	}
@@ -627,4 +610,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 		this.xmap = xmap;
 	}
 
+	public String getEpicsDeviceName() {
+		return epicsDeviceName;
+	}
+
+	public void setEpicsDeviceName(String deviceName) {
+		this.epicsDeviceName = deviceName;
+	}
 }

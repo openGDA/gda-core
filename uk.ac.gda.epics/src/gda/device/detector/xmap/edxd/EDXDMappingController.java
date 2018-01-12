@@ -38,62 +38,34 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	private static final Logger logger = LoggerFactory.getLogger(EDXDMappingController.class);
 
 	private int elementOffset = 0;
-
-	private static final String STOPALL = "STOPALL";
-	private static final String ERASESTART = "ERASESTART";
-	private static final String ERASEALL = "ERASEALL";
-	private static final String COLLECTIONMODE = "COLLECTMODE";
-	private static final String PIXELADVANCEMODE = "PIXELADVANCEMODE";
-	private static final String IGNOREGATE = "IGNOREGATE";
-	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
-	private static final String PIXELSPERBUFFER ="PIXELSPERBUFFER";
-	private static final String PIXELSPERRUN ="PIXELSPERRUN";
-	private static final String CAPTURE = "NEXUS:Capture";
-	private static final String NEXUSFILEFORMAT = "NEXUS:FileTemplate";
-	private static final String NEXUSFILEWRITEMODE = "NEXUS:FileWriteMode";
-	private static final String CALLBACK = "NEXUS:EnableCallbacks";
-	private static final String NEXUSFILEPATH = "NEXUS:FilePath";
-	private static final String NEXUSFILENAME = "NEXUS:FileName";
-	private static final String FILENUMBER = "NEXUS:FileNumber";
-	private static final String NEXUSTEMPFILENAME = "TemplateFileName";
-	private static final String NEXUSTEMPFILEPATH = "TemplateFilePath";
 	private boolean aquisitionTimeOn = false;
 
+	private static final String AUTOPIXELSPERBUFFER = "AUTOPIXELSPERBUFFER";
+	private static final String COLLECTMODE = "COLLECTMODE";
+	private static final String ERASEALL = "ERASEALL";
+	private static final String ERASESTART = "ERASESTART";
+	private static final String IGNOREGATE = "IGNOREGATE";
+	private static final String PIXELADVANCEMODE = "PIXELADVANCEMODE";
+	private static final String PIXELSPERBUFFER ="PIXELSPERBUFFER";
+	private static final String PIXELSPERRUN ="PIXELSPERRUN";
+	private static final String STOPALL = "STOPALL";
+
+	private static final String NEXUS_CAPTURE = "NEXUS:Capture";
+	private static final String NEXUS_ENABLECALLBACKS = "NEXUS:EnableCallbacks";
+	private static final String NEXUS_FILENAME = "NEXUS:FileName";
+	private static final String NEXUS_FILENUMBER = "NEXUS:FileNumber";
+	private static final String NEXUS_FILEPATH = "NEXUS:FilePath";
+	private static final String NEXUS_FILETEMPLATE = "NEXUS:FileTemplate";
+	private static final String NEXUS_FILEWRITEMODE = "NEXUS:FileWriteMode";
+	private static final String NEXUS_TEMPLATEFILENAME = "TemplateFileName";
+	private static final String NEXUS_TEMPLATEFILEPATH = "TemplateFilePath";
+
 	protected NDFileHDF5 hdf5;
-
-	public NDFileHDF5 getHdf5() {
-		return hdf5;
-	}
-	public void setHdf5(NDFileHDF5 hdf5) {
-		this.hdf5 = hdf5;
-	}
-	public int getElementOffset() {
-		return elementOffset;
-	}
-
-	public void setElementOffset(int elementOffset) {
-		this.elementOffset = elementOffset;
-	}
-
-	public boolean getAquisitionTimeOn() {
-		return aquisitionTimeOn;
-	}
-
-	public void setAquisitionTimeOn(boolean aquisitionTimeOn) {
-		this.aquisitionTimeOn = aquisitionTimeOn;
-	}
-
-	/**
-	 * Basic constructor, nothing done in here, waiting for configure
-	 */
-	public EDXDMappingController() {
-		version = 3 ;
-	}
 
 	// Add all the EDXD Elements to the detector (called by configure())
 	@Override
 	protected void addElements() {
-		for(int i = (0+ elementOffset); i < (numberOfElements + elementOffset); i++ )
+		for (int i = (0 + elementOffset); i < (numberOfElements + elementOffset); i++)
 			subDetectors.add(new EDXDMappingElement(xmap, i, new EpicsMCASimple()));
 	}
 
@@ -125,14 +97,18 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 * @throws DeviceException
 	 */
 	@Override
-	public void activateROI() throws DeviceException{
+	public void activateROI() throws DeviceException {
+		// Nothing to do
 	}
 
-	/** Disable  the ROI mode in the Controller
+	/**
+	 * Disable the ROI mode in the Controller
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
-	public void deactivateROI() throws DeviceException{
+	public void deactivateROI() throws DeviceException {
+		// Nothing to do
 	}
 
 	/**
@@ -141,13 +117,13 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 */
 	@Override
 	public void start() throws DeviceException {
-		xmap.setValueNoWait(ERASESTART,"",1);
+		xmap.setValueNoWait(ERASESTART, "", 1);
 	}
 
 	@Override
 	public void stop() throws DeviceException {
 		if (xmap != null && xmap.isConfigured()) {
-			xmap.setValueNoWait(STOPALL,"",1);
+			xmap.setValueNoWait(STOPALL, "", 1);
 		}
 	}
 
@@ -158,79 +134,79 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setResume(boolean resume)throws DeviceException{
-	    if(!resume)
-	    	xmap.setValueNoWait(ERASEALL  ,"",1);
+	public void setResume(boolean resume) throws DeviceException {
+		if (!resume) {
+			xmap.setValueNoWait(ERASEALL, "", 1);
+		}
 	}
 
-	public void clear()throws DeviceException{
-		 xmap.setValueNoWait(ERASEALL  ,"",1);
+	public void clear() throws DeviceException {
+		xmap.setValueNoWait(ERASEALL, "", 1);
 	}
 
-	public void clearAndStart()throws DeviceException{
-		 xmap.setValueNoWait(ERASESTART  ,"",1);
+	public void clearAndStart() throws DeviceException {
+		xmap.setValueNoWait(ERASESTART, "", 1);
 	}
 
 	@Override
 	public void setCollectionMode(COLLECTION_MODES mode) throws DeviceException{
-		xmap.setValueNoWait(COLLECTIONMODE, "", mode.ordinal());
+		xmap.setValueNoWait(COLLECTMODE, "", mode.ordinal());
 	}
 
 	@Override
-	public void setAquisitionTime(double collectionTime)throws DeviceException {
-		if (aquisitionTimeOn == true) super.setAquisitionTime(collectionTime);
+	public void setAquisitionTime(double collectionTime) throws DeviceException {
+		if (aquisitionTimeOn) {
+			super.setAquisitionTime(collectionTime);
+		}
 
-		//removed as some versions of Epics interface does not have this SETPRESETREAL
-		//xmap.setValue(SETPRESETREAL ,"",collectionTime);
+		// removed as some versions of Epics interface does not have this SETPRESETREAL
+		// xmap.setValue(SETPRESETREAL ,"",collectionTime);
 	}
 
-	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException{
+	public void setPixelAdvanceMode(PIXEL_ADVANCE_MODE mode) throws DeviceException {
 		xmap.setValueNoWait(PIXELADVANCEMODE, "", mode.ordinal());
 	}
 
 	@Override
-	public void setIgnoreGate(boolean yes) throws DeviceException{
-		if (yes)
-			xmap.setValueNoWait(IGNOREGATE, "", 1);
-		else
-			xmap.setValueNoWait(IGNOREGATE, "", 0);
+	public void setIgnoreGate(boolean yes) throws DeviceException {
+		final int value = yes ? 1 : 0;
+		xmap.setValueNoWait(IGNOREGATE, "", value);
 	}
 
-	public void setAutoPixelsPerBuffer(boolean auto) throws DeviceException{
-		if(auto)
-			xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 1);//set as auto
-		else
-			xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", 0);//set as manual
+	public void setAutoPixelsPerBuffer(boolean auto) throws DeviceException {
+		final int value = auto ? 1 : 0;
+		xmap.setValueNoWait(AUTOPIXELSPERBUFFER, "", value);
 	}
 
-	public void setPixelsPerBuffer(int number) throws DeviceException{
-		 xmap.setValueNoWait(PIXELSPERBUFFER, "", number);
+	public void setPixelsPerBuffer(int number) throws DeviceException {
+		xmap.setValueNoWait(PIXELSPERBUFFER, "", number);
 	}
 
-	public void setPixelsPerRun(int number) throws DeviceException{
-		 xmap.setValue(PIXELSPERRUN, "", number);
+	public void setPixelsPerRun(int number) throws DeviceException {
+		xmap.setValue(PIXELSPERRUN, "", number);
 	}
 
 	public int getPixelsPerRun() throws DeviceException {
-		int number = (Integer) xmap.getValue(ReturnType.DBR_NATIVE, PIXELSPERRUN, "");
-		return number;
+		return (int) xmap.getValue(ReturnType.DBR_NATIVE, PIXELSPERRUN, "");
 	}
 
-	//hdf5 commands
+	// hdf5 commands
 	public void resetCounters() throws Exception {
 		hdf5.getFile().getPluginBase().setDroppedArrays(0);
 		hdf5.getFile().getPluginBase().setArrayCounter(0);
 	}
 
 	public void startRecording() throws Exception {
-		if (hdf5.getCapture() == 1)
+		if (hdf5.getCapture() == 1) {
 			throw new DeviceException("detector found already saving data when it should not be");
+		}
 		hdf5.startCapture();
-		int totalmillis = 60 * 1000;
-		int grain = 25;
+		final int totalmillis = 60 * 1000;
+		final int grain = 25;
 		for (int i = 0; i < totalmillis / grain; i++) {
-			if (hdf5.getCapture() == 1)
+			if (hdf5.getCapture() == 1) {
 				return;
+			}
 			Thread.sleep(grain);
 		}
 		throw new TimeoutException("Timeout waiting for hdf file creation.");
@@ -238,16 +214,19 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 	public void endRecording() throws Exception {
 		// writing the buffers can take a long time
-		int totalmillis = 1* 1000;
-		int grain = 25;
+		final int totalmillis = 1* 1000;
+		final int grain = 25;
 		for (int i = 0; i < totalmillis/grain; i++) {
-			if (hdf5.getFile().getCapture_RBV() == 0) return;
+			if (hdf5.getFile().getCapture_RBV() == 0) {
+				return;
+			}
 			Thread.sleep(grain);
 		}
 		hdf5.stopCapture();
 		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
-		if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0)
+		if (hdf5.getFile().getPluginBase().getDroppedArrays_RBV() > 0) {
 			throw new DeviceException("sorry, we missed some frames");
+		}
 	}
 
 	public String getHDFFileName() throws Exception {
@@ -256,8 +235,9 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 
 	public void setDirectory(String dataDir) throws Exception {
 		hdf5.setFilePath(dataDir);
-		if( !hdf5.getFile().filePathExists())
-			throw new Exception("Path does not exist on IOC '" + dataDir + "'");
+		if (!hdf5.getFile().filePathExists()) {
+			throw new DeviceException("Path does not exist on IOC '" + dataDir + "'");
+		}
 	}
 
 	public void setFileNumber(Number scanNumber) throws Exception {
@@ -273,12 +253,11 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 	}
 
 	//Nexus related commands
-	public void setNexusCapture(int number) throws DeviceException{
-		xmap.setValueNoWait(CAPTURE, "", number);
+	public void setNexusCapture(int number) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_CAPTURE, "", number);
 	}
 
-	public void setHdfNumCapture(int number) throws DeviceException
-	{
+	public void setHdfNumCapture(int number) throws DeviceException {
 		try {
 			hdf5.setNumCapture(number);
 		} catch (Exception e) {
@@ -286,61 +265,77 @@ public class EDXDMappingController extends EDXDController implements Configurabl
 		}
 	}
 
-	public void setNexusFileFormat(String format) throws DeviceException{
-		 xmap.setValueNoWait(NEXUSFILEFORMAT, "", format);
+	public void setNexusFileFormat(String format) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_FILETEMPLATE, "", format);
 	}
 
-	public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException{
-		 xmap.setValueNoWait(NEXUSFILEWRITEMODE, "", mode.ordinal());
+	public void setFileWriteMode(NEXUS_FILE_MODE mode) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_FILEWRITEMODE, "", mode.ordinal());
 	}
 
-	public void setCallback(boolean yes) throws DeviceException{
-		if(yes)
-			xmap.setValueNoWait(CALLBACK, "",1);
-		else
-			xmap.setValueNoWait(CALLBACK, "",0);
+	public void setCallback(boolean yes) throws DeviceException {
+		final int value = yes ? 1 : 0;
+		xmap.setValueNoWait(NEXUS_ENABLECALLBACKS, "", value);
 	}
 
-	public void setNexusFileName(String filename) throws DeviceException{
-		xmap.setValueNoWait(NEXUSFILENAME, "",filename);
+	public void setNexusFileName(String filename) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_FILENAME, "", filename);
 	}
 
-	public String getNexusFileName() throws DeviceException{
-		 return xmap.getValueAsString(NEXUSFILENAME, "");
+	public String getNexusFileName() throws DeviceException {
+		return xmap.getValueAsString(NEXUS_FILENAME, "");
 	}
 
-	public String getNexusFilePath() throws DeviceException{
-		return xmap.getValueAsString(NEXUSFILEPATH, "");
+	public String getNexusFilePath() throws DeviceException {
+		return xmap.getValueAsString(NEXUS_FILEPATH, "");
 	}
 
-	public void setNexusFilePath(String filepath) throws DeviceException{
-		xmap.setValueNoWait(NEXUSFILEPATH, "",filepath);
+	public void setNexusFilePath(String filepath) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_FILEPATH, "", filepath);
 	}
 
-	public int getFileNumber() throws DeviceException{
-		int fileNumber =  (Integer) xmap.getValue(ReturnType.DBR_NATIVE,FILENUMBER  ,"");
-		return fileNumber;
+	public int getFileNumber() throws DeviceException {
+		return (int) xmap.getValue(ReturnType.DBR_NATIVE, NEXUS_FILENUMBER, "");
 	}
 
-	public void setTemplateFileName(String templateFileName) throws DeviceException{
-		xmap.setValueNoWait(NEXUSTEMPFILENAME, "",templateFileName);
+	public void setTemplateFileName(String templateFileName) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_TEMPLATEFILENAME, "", templateFileName);
 	}
 
-	public void setTemplateFilePath(String tempFilePath) throws DeviceException{
-		xmap.setValueNoWait(NEXUSTEMPFILEPATH, "",tempFilePath);
+	public void setTemplateFilePath(String tempFilePath) throws DeviceException {
+		xmap.setValueNoWait(NEXUS_TEMPLATEFILEPATH, "", tempFilePath);
 	}
 
-	public boolean getCaptureStatus(){
-		int status = hdf5.getStatus();
-		if(status == 1)
-			return true;
-		return false;
+	public boolean getCaptureStatus() {
+		return hdf5.getStatus() == 1;
 	}
 
-	public boolean isBufferedArrayPort() throws Exception{
-		if( hdf5.getArrayPort().equals("xbuf"))
-			return true;
-		return false;
+	public boolean isBufferedArrayPort() throws Exception {
+		return hdf5.getArrayPort().equals("xbuf");
+	}
+
+	public NDFileHDF5 getHdf5() {
+		return hdf5;
+	}
+
+	public void setHdf5(NDFileHDF5 hdf5) {
+		this.hdf5 = hdf5;
+	}
+
+	public int getElementOffset() {
+		return elementOffset;
+	}
+
+	public void setElementOffset(int elementOffset) {
+		this.elementOffset = elementOffset;
+	}
+
+	public boolean getAquisitionTimeOn() {
+		return aquisitionTimeOn;
+	}
+
+	public void setAquisitionTimeOn(boolean aquisitionTimeOn) {
+		this.aquisitionTimeOn = aquisitionTimeOn;
 	}
 
 }

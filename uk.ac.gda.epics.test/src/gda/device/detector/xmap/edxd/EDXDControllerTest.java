@@ -56,11 +56,11 @@ public class EDXDControllerTest {
 
 	private class EDXDControllerForTest extends EDXDController {
 		public DeviceException getCollectDataException() {
-			return collectData_Exception;
+			return collectDataException;
 		}
 
 		public void setCollectDataException(DeviceException exception) {
-			collectData_Exception = exception;
+			collectDataException = exception;
 		}
 	}
 
