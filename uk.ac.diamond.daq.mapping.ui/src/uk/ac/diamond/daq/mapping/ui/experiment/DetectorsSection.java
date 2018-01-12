@@ -53,6 +53,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -89,6 +90,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	private List<IDetectorModelWrapper> visibleDetectors; // the detectors
 	private Composite sectionComposite; // parent composite for all controls in the section
 	private Composite detectorsComposite;
+	private IRunnableDeviceService runnableDeviceService = null;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -237,10 +239,8 @@ public class DetectorsSection extends AbstractMappingSection {
 		final String deviceName = wrapper.getModel().getName();
 		try {
 			// get the axesToMove from the malcolm device
-			IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(deviceName);
-			if (!(runnableDevice instanceof IAttributableDevice)) return;
-			List<String> axesToMove = Arrays.asList(((IAttributableDevice) runnableDevice).getAttributeValue(ATTRIBUTE_NAME_AXES_TO_MOVE));
-			MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
+			final MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
+			final List<String> axesToMove = getMalcolmDeviceAxes(deviceName);
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.
 			if (axesToMove.size() < 2) return;
@@ -266,6 +266,17 @@ public class DetectorsSection extends AbstractMappingSection {
 			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
 		}
 	}
+
+	private List<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
+		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
+		if (!(runnableDevice instanceof IAttributableDevice)) {
+			// we're on the client, so we don't have IMalcolmDevices, but _RunnableDevice which implements IAttributeDevice
+			throw new ScanningException("Device " + malcolmDeviceName + " is not a runnable device");
+		}
+		final String[] axesArray = (((IAttributableDevice) runnableDevice).getAttributeValue(ATTRIBUTE_NAME_AXES_TO_MOVE));
+		return Arrays.asList(axesArray);
+	}
+
 
 	private Map<String, IDetectorModelWrapper> updateDetectorParameters() {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
@@ -307,12 +318,27 @@ public class DetectorsSection extends AbstractMappingSection {
 		return detectorParamsByName;
 	}
 
+	/**
+	 * Get the {@link DeviceInformation} object describing malcolm devices that can be used
+	 * for mapping, i.e. ones that have 2 axesToMove.
+	 * @return
+	 */
 	private Collection<DeviceInformation<?>> getMappingMalcolmDeviceInfos() {
 		try {
-			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM);
+			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM).stream().filter(
+					this::isMappingMalcolmDevice).collect(Collectors.toList());
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
 			return Collections.emptyList();
+		}
+	}
+
+	private boolean isMappingMalcolmDevice(DeviceInformation<?> malcolmDeviceInfo) {
+		try {
+			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() == 2;
+		} catch (ScanningException | EventException e) {
+			logger.error("Cannot get axes for malcolm device " + malcolmDeviceInfo.getName(), e);
+			return false;
 		}
 	}
 
