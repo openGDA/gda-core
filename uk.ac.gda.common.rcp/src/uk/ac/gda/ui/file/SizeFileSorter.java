@@ -23,9 +23,7 @@ import java.io.File;
 import org.eclipse.jface.viewers.Viewer;
 
 
-/**
- *
- */
+@Deprecated
 public class SizeFileSorter extends FileSorter {
 
 	@Override

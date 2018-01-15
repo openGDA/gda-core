@@ -18,18 +18,16 @@
 
 package uk.ac.gda.ui.file;
 
-import uk.ac.gda.util.io.SortingUtils;
+import org.eclipse.jface.viewers.ViewerComparator;
 
 
-/**
- *
- */
-public class AlphaNumericFileSorter extends FileSorter {
+@Deprecated
+public class AlphaNumericFileSorter extends ViewerComparator {
 
 	/**
-	 * 
+	 *
 	 */
 	public AlphaNumericFileSorter() {
-		super(SortingUtils.NATURAL_SORT);
+		super(String.CASE_INSENSITIVE_ORDER);
 	}
 }

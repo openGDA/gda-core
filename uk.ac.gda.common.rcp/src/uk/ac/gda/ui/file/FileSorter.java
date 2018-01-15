@@ -19,7 +19,6 @@
 package uk.ac.gda.ui.file;
 
 import java.io.File;
-import java.util.Comparator;
 
 import org.eclipse.jface.viewers.ViewerComparator;
 
@@ -27,19 +26,6 @@ import org.eclipse.jface.viewers.ViewerComparator;
  * Marks any element that is a File and not a folder as sortable.
  */
 public class FileSorter extends ViewerComparator {
-
-	/**
-	 * 
-	 */
-	public FileSorter() {
-		super();
-	}
-	/**
-	 * @param sort
-	 */
-	public FileSorter(Comparator<?> sort) {
-		super(sort);
-	}
 
 	@Override
 	public boolean isSorterProperty(Object element, String property) {

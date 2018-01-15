@@ -22,10 +22,7 @@ import java.io.File;
 
 import org.eclipse.jface.viewers.Viewer;
 
-
-/**
- *
- */
+@Deprecated
 public class DateFileSorter extends FileSorter {
 
 	@Override
