@@ -22,7 +22,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import gda.rcp.views.dashboard.DashboardPreferencePage;
@@ -31,9 +30,10 @@ public class DashboardPreferencesAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                                 DashboardPreferencePage.ID, null, null);
-         if (pref != null) pref.open();
-		return Boolean.TRUE;
+
+		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(null, DashboardPreferencePage.ID, null, null);
+		pref.open();
+
+		return null; // Method must return null
 	}
 }

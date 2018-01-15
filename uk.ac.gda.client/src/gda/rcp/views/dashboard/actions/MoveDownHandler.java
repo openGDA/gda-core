@@ -21,7 +21,7 @@ package gda.rcp.views.dashboard.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import gda.rcp.views.dashboard.DashboardView;
 
@@ -29,12 +29,11 @@ public class MoveDownHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// Get current dashboard view.
-		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
-		if (dashboard==null) return Boolean.FALSE;
 
+		// Get current dashboard view.
+		DashboardView dashboard = (DashboardView) HandlerUtil.getActivePartChecked(event);
 		dashboard.move(1);
 
-		return Boolean.TRUE;
+		return null; // Method must return null
 	}
 }
