@@ -12,7 +12,7 @@
 package org.eclipse.scanning.test.scan;
 
 import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
@@ -23,17 +23,20 @@ import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
 
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-
 public class ScanTest extends AbstractScanTest {
 
 
 	@Before
-	public void setup() throws ScanningException {
+	public void setup() {
 
 		//System.setProperty("org.eclipse.scanning.sequencer.AcquisitionDevice.Metrics", "true");
-		setUpNonOSGIActivemqMarshaller();
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!

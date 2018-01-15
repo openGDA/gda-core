@@ -64,16 +64,17 @@ public class UISuite {
 
 		System.setProperty("org.eclipse.scanning.broker.uri", "vm://localhost?broker.persistent=false");
 
+		org.eclipse.scanning.device.ui.ServiceHolder.setExpressionService(new ServerExpressionService());
+		org.eclipse.scanning.device.ui.ServiceHolder.setSpringParser(new PseudoSpringParser());
+
 		IMarshallerService marshaller = new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(), new ScanningExampleClassRegistry(), new ScanningTestClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller())
 		);
-		ActivemqConnectorService.setJsonMarshaller(marshaller);
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(marshaller);
 
-		org.eclipse.scanning.device.ui.ServiceHolder.setExpressionService(new ServerExpressionService());
-		org.eclipse.scanning.device.ui.ServiceHolder.setSpringParser(new PseudoSpringParser());
-
-		IEventService eservice = new EventServiceImpl(new ActivemqConnectorService());
+		IEventService eservice = new EventServiceImpl(activemqConnectorService);
 		Services.setConnector(new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC)));
 		Services.setEventService(eservice);
 		org.eclipse.scanning.device.ui.ServiceHolder.setEventService(eservice);

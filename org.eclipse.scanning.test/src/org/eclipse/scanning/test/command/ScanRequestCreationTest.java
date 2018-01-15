@@ -67,9 +67,11 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 	@Before
 	public void before() throws Exception {
 
-		createMarshaller();
 		service = new PointGeneratorService();
-		Services.setEventService(new EventServiceImpl(new ActivemqConnectorService()));
+
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createMarshaller());
+		Services.setEventService(new EventServiceImpl(activemqConnectorService));
 
 		RunnableDeviceServiceImpl impl = new RunnableDeviceServiceImpl(new MockScannableConnector(null));
 		impl._register(MockDetectorModel.class, MockWritableDetector.class);

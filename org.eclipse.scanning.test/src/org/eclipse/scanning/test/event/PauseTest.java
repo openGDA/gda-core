@@ -12,10 +12,9 @@
 package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.junit.Before;
-
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 
 /**
  * Class to test that we can run
@@ -31,9 +30,9 @@ public class PauseTest extends AbstractPauseTest{
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
-
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally

@@ -41,10 +41,10 @@ import org.eclipse.scanning.api.event.IMessagingService;
  */
 public class ActivemqConnectorService implements IEventConnectorService, IMessagingService {
 
-	private static IMarshallerService jsonMarshaller;
+	private IMarshallerService jsonMarshaller;
 
-	public static void setJsonMarshaller(IMarshallerService jsonMarshaller) {
-		ActivemqConnectorService.jsonMarshaller = jsonMarshaller;
+	public void setJsonMarshaller(IMarshallerService jsonMarshaller) {
+		this.jsonMarshaller = jsonMarshaller;
 	}
 
 	static {

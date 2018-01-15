@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -26,15 +27,15 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
+import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.test.BrokerDelegate;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 
 /**
  *
@@ -56,7 +57,12 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		delegate = new BrokerDelegate();
 		delegate.start();
 
-		eservice = new EventServiceImpl(new ActivemqConnectorService());
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(new ScanningAPIClassRegistry()));
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+
 		// We publish an event to make sure all these libraries are loaded
 		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.getUri(), EventConstants.SCAN_TOPIC);
 		publisher.broadcast(new ScanBean());

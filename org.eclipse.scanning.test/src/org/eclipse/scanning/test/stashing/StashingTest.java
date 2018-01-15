@@ -37,8 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-
 public class StashingTest {
 
 
@@ -51,9 +49,7 @@ public class StashingTest {
 				Arrays.asList(new ScanningAPIClassRegistry(), new ScanningExampleClassRegistry(), new ScanningTestClassRegistry(), new TestClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller())
 		);
-		ActivemqConnectorService.setJsonMarshaller(marshaller);
 		ServiceHolder.setMarshallerService(marshaller);
-
 		ServiceHolder.setStashingService(new StashingService());
 	}
 

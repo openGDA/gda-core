@@ -35,12 +35,13 @@ public class AnyBeanEventTest extends BrokerTest {
 	private ISubscriber<IBeanListener<AnyBean>> subscriber;
 
 	@Before
-	public void createServices() throws Exception {
+	public void createServices() {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally

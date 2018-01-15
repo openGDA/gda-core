@@ -26,13 +26,13 @@ public class ScanEventTest extends AbstractScanEventTest{
 
 
 	@Before
-	public void createServices() throws Exception {
+	public void createServices() {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
-
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally

@@ -65,8 +65,11 @@ public class ThreadScanTest extends BrokerTest {
 
 	@BeforeClass
 	public static void createServices() {
-		setUpNonOSGIActivemqMarshaller();
-		eservice   = new EventServiceImpl(new ActivemqConnectorService());
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!

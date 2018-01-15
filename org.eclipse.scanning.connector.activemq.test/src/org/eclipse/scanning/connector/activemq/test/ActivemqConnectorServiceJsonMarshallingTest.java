@@ -51,21 +51,21 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 	private static final String JSON_FOR_STRING_ARRAY = "[\"String[]\",[\"a\",\"b\",\"c\"]]";
 	private static final String JSON_FOR_WRAPPED_STRING_ARRAY = "{\"object\":[\"String[]\",[\"a\",\"b\",\"c\"]]}";
 
-	private ActivemqConnectorService marshaller;
+	private ActivemqConnectorService activemqConnectorService;
 	private String json;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		MarshallerService marshaller = new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller()));
 
-		ActivemqConnectorService.setJsonMarshaller(marshaller);
-		this.marshaller = new ActivemqConnectorService();
+		this.activemqConnectorService = new ActivemqConnectorService();
+		this.activemqConnectorService.setJsonMarshaller(marshaller);
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		if (json != null) {
 			// So we can see what's going on
 //			System.out.println("JSON: " + json);
@@ -76,49 +76,48 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 //			System.out.println("Java literal:\n" + javaLiteralForJSONString);
 		}
 		json = null;
-		marshaller = null;
-		ActivemqConnectorService.setJsonMarshaller(null);
+		activemqConnectorService = null;
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testExceptionThrownFromMarshalWhenJsonMarshallerNotSet() throws Exception {
-		ActivemqConnectorService.setJsonMarshaller(null);
-		marshaller.marshal(STRING_ARRAY);
+		activemqConnectorService.setJsonMarshaller(null);
+		activemqConnectorService.marshal(STRING_ARRAY);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testExceptionThrownFromUnmarshalWhenJsonMarshallerNotSet() throws Exception {
-		ActivemqConnectorService.setJsonMarshaller(null);
-		marshaller.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
+		activemqConnectorService.setJsonMarshaller(null);
+		activemqConnectorService.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
 	}
 
 	@Test
 	public void testProjectBeanDeserialization() throws Exception {
-		marshaller.unmarshal(JSON_FOR_PROJECT_BEAN, ProjectBean.class);
+		activemqConnectorService.unmarshal(JSON_FOR_PROJECT_BEAN, ProjectBean.class);
 	}
 
 	@Test(expected = JsonMappingException.class)
 	public void testProjectBeanDeserializationWithWrongType() throws Exception {
-		marshaller.unmarshal(JSON_FOR_PROJECT_BEAN, StatusBean.class);
+		activemqConnectorService.unmarshal(JSON_FOR_PROJECT_BEAN, StatusBean.class);
 	}
 
 	// TODO	remove this - just for experimenting!
 	@Test
 	public void testProjectBeanSerialization() throws Exception {
-		ProjectBean bean = marshaller.unmarshal(JSON_FOR_PROJECT_BEAN, ProjectBean.class);
-		json = marshaller.marshal(bean);
+		ProjectBean bean = activemqConnectorService.unmarshal(JSON_FOR_PROJECT_BEAN, ProjectBean.class);
+		json = activemqConnectorService.marshal(bean);
 	}
 
 	@Test
 	public void testROISerialization() throws Exception {
 		IROI roi = new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0);
-		json = marshaller.marshal(roi);
+		json = activemqConnectorService.marshal(roi);
 	}
 
 	@Test
 	public void testROIDeserialization() throws Exception {
-		String roi = marshaller.marshal(new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0));
-		IROI actual = marshaller.unmarshal(roi, IROI.class);
+		String roi = activemqConnectorService.marshal(new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0));
+		IROI actual = activemqConnectorService.unmarshal(roi, IROI.class);
 		IROI expected = new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0);
 		assertEquals(expected, actual);
 	}
@@ -127,7 +126,7 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 	public void testROIFieldSerialization() throws Exception {
 		IROI roi = new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0);
 		ObjectWrapper<IROI> roiWrapper = new ObjectWrapper<>(roi);
-		json = marshaller.marshal(roiWrapper);
+		json = activemqConnectorService.marshal(roiWrapper);
 		assertTrue(json.startsWith("{\"object\":{\"@type\":\"roi.rectangular\""));
 	}
 
@@ -135,53 +134,53 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 	public void testROIListFieldSerialization() throws Exception {
 		IROI roi = new RectangularROI(-3.5, 4.0, 8.0, 6.1, 0.0);
 		ObjectWrapper<List<IROI>> roiWrapper = new ObjectWrapper<>(Arrays.asList(roi));
-		json = marshaller.marshal(roiWrapper);
+		json = activemqConnectorService.marshal(roiWrapper);
 		assertEquals(JSON_FOR_WRAPPED_RECTANGULAR_ROI_LIST, json);
 	}
 
 	@Test
 	public void testStringArraySerialization() throws Exception {
-		json = marshaller.marshal(STRING_ARRAY);
+		json = activemqConnectorService.marshal(STRING_ARRAY);
 		assertEquals(JSON_FOR_STRING_ARRAY, json);
 	}
 
 	@Test
 	public void testStringArrayDeserialization() throws Exception {
-		String[] actual = marshaller.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
+		String[] actual = activemqConnectorService.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
 		assertArrayEquals(actual, STRING_ARRAY);
 	}
 
 	@Test
 	public void testSimpleStringArrayDeserialization() throws Exception {
-		String[] actual = marshaller.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
+		String[] actual = activemqConnectorService.unmarshal(JSON_FOR_STRING_ARRAY, String[].class);
 		assertArrayEquals(actual, STRING_ARRAY);
 	}
 
 	@Test
 	public void testStringArrayFieldSerialization() throws Exception {
 		ObjectWrapper<String[]> arrayWrapper = new ObjectWrapper<>(STRING_ARRAY);
-		json = marshaller.marshal(arrayWrapper);
+		json = activemqConnectorService.marshal(arrayWrapper);
 		assertEquals(JSON_FOR_WRAPPED_STRING_ARRAY, json);
 	}
 
 	@Test
 	public void testStringArrayFieldDeserialization() throws Exception {
 		ObjectWrapper<String[]> expected = new ObjectWrapper<>(STRING_ARRAY);
-		ObjectWrapper<?> actual = marshaller.unmarshal(JSON_FOR_WRAPPED_STRING_ARRAY, ObjectWrapper.class);
+		ObjectWrapper<?> actual = activemqConnectorService.unmarshal(JSON_FOR_WRAPPED_STRING_ARRAY, ObjectWrapper.class);
 		assertArrayEquals(expected.getObject(), (Object[]) actual.getObject());
 	}
 
 	@Test
 	@Ignore("Fails on travis - cannot reproduce; don't see why")
 	public void testObjectArrayDeserialization() throws Exception {
-		Object[] actual = marshaller.unmarshal("[ \"a\", \"b\", 5 ]", Object[].class);
+		Object[] actual = activemqConnectorService.unmarshal("[ \"a\", \"b\", 5 ]", Object[].class);
 		assertArrayEquals(actual, new Object[] { "a", "b", 5 });
 	}
 
 	@Test
 	public void testSimpleMapDeserialization() throws Exception {
 		@SuppressWarnings("unused")
-		Map<?,?> map = marshaller.unmarshal("{ \"String key\" : \"String value\", \"Int key\" : 5 }", Map.class);
+		Map<?,?> map = activemqConnectorService.unmarshal("{ \"String key\" : \"String value\", \"Int key\" : 5 }", Map.class);
 	}
 }
 

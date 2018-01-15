@@ -45,13 +45,14 @@ public class MappingScanTest extends BrokerTest{
 	protected IPointGeneratorService gservice;
 
 	@Before
-	public void createServices() throws Exception {
+	public void createServices() {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
-		eservice = new EventServiceImpl(new ActivemqConnectorService());
 		gservice = new PointGeneratorService();
 
 		// We use the long winded constructor because we need to pass in the connector.

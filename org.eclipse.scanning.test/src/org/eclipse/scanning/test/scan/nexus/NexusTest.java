@@ -135,8 +135,9 @@ public abstract class NexusTest extends TmpTest {
 		gservice    = new PointGeneratorService();
 		fileFactory = new NexusFileFactoryHDF5();
 
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
-		IEventService eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
+		IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 
 		IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(connector);
 		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;

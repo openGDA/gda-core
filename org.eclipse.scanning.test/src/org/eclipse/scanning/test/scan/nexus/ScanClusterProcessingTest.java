@@ -40,7 +40,6 @@ import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.scan.mock.DummyOperationBean;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -54,7 +53,16 @@ public class ScanClusterProcessingTest extends NexusTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		// called after NexusTest.beforeClass()
-		BrokerTest.setUpNonOSGIActivemqMarshaller(DummyOperationBean.class);
+
+//		// We wire things together without OSGi here
+//		// DO NOT COPY THIS IN NON-TEST CODE!
+//		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+//		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller(DummyOperationBean.class));
+//		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+//
+//
+//
+//		BrokerTest.createNonOSGIActivemqMarshaller();
 		BrokerTest.startBroker();
 
 		IEventService eventService = new EventServiceImpl(new ActivemqConnectorService());

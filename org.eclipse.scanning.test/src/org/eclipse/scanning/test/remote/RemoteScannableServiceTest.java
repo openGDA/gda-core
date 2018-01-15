@@ -60,8 +60,9 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// Set up stuff because we are not in OSGi with a test
 		// DO NOT COPY TESTING ONLY

@@ -77,15 +77,16 @@ public class ScanFinishedTest {
 	protected ILoaderService              lservice;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(),
 						new ScanningExampleClassRegistry(),
 						new ScanningTestClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller())
 				));
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		eservice  = new EventServiceImpl(activemqConnectorService);
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE

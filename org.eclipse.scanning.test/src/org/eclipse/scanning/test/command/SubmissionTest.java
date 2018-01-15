@@ -48,8 +48,9 @@ public class SubmissionTest extends AbstractJythonTest {
 	@BeforeClass
 	public static void start() throws Exception {
 
-		createMarshaller();
-		eservice = new EventServiceImpl(new ActivemqConnectorService());
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService);
 		Services.setEventService(eservice);
 		org.eclipse.scanning.command.Services.setEventService(eservice);
 

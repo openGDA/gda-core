@@ -37,16 +37,16 @@ public class HeartbeatTest extends BrokerTest {
 	private ISubscriber<IHeartbeatListener> subscriber;
 
 	@Before
-	public void createServices() throws Exception {
+	public void createServices() {
 
 		Constants.setNotificationFrequency(100);
 		Constants.setTimeout(500);
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
-
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html

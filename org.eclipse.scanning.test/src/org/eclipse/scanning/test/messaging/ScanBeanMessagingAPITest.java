@@ -88,9 +88,9 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		setUpNonOSGIActivemqMarshaller();
-
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// If the publisher is not given, then the mock items are not created! Use null instead to avoid publishing.
 		connector = new MockScannableConnector(null);
@@ -370,9 +370,11 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	public void testStartEndScanMarshalling() throws Exception {
 		// Let's just ensure that the 'start' and 'end' can be marshalled correctly.
 
-		setUpNonOSGIActivemqMarshaller();
-
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		String json = "{\"@type\":\"ScanBean\","
 				+ "\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\","

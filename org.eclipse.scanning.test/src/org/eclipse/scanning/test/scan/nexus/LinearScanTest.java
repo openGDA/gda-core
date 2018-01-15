@@ -79,9 +79,11 @@ public class LinearScanTest extends BrokerTest{
 	@Before
 	public void setup() throws Exception {
 
-
-		setUpNonOSGIActivemqMarshaller();
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		this.lservice = new LoaderServiceMock();
 

@@ -18,6 +18,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -33,8 +34,6 @@ import org.eclipse.scanning.test.TmpTest;
 import org.eclipse.scanning.test.scan.mock.MockOperationService;
 import org.junit.BeforeClass;
 
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-
 public class SubscanTest extends TmpTest{
 
 	protected static IScannableDeviceService connector;
@@ -49,8 +48,9 @@ public class SubscanTest extends TmpTest{
 		dservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
 		gservice    = new PointGeneratorService();
 
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
-		IEventService eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
+		IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 
 		IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(connector);
 		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;

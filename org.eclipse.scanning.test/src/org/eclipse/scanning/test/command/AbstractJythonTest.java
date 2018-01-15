@@ -14,8 +14,8 @@ package org.eclipse.scanning.test.command;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
@@ -29,7 +29,6 @@ import org.python.util.PythonInterpreter;
 public abstract class AbstractJythonTest extends BrokerTest{
 
 	protected static PythonInterpreter pi;
-	protected static MarshallerService           marshaller;
 
 	public AbstractJythonTest() {
 		super();
@@ -38,14 +37,13 @@ public abstract class AbstractJythonTest extends BrokerTest{
 		super(start);
 	}
 
-	protected static void createMarshaller() {
-		marshaller = new MarshallerService(
+	protected static IMarshallerService createMarshaller() {
+		return new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(),
 						new ScanningExampleClassRegistry(),
 						new ScanningTestClassRegistry(DummyOperationBean.class)),
 				Arrays.asList(new PointsModelMarshaller())
 				);
-		ActivemqConnectorService.setJsonMarshaller(marshaller);
 	}
 
 	static {

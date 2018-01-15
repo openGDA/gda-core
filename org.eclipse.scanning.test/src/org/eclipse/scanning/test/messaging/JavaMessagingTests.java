@@ -57,7 +57,7 @@ public class JavaMessagingTests extends BrokerTest {
 
 		uri = new URI("tcp://localhost:61616");
 
-		setUpNonOSGIActivemqMarshaller();
+		createNonOSGIActivemqMarshaller();
 		eservice  = new EventServiceImpl(new ActivemqConnectorService());
 
 		dservice = eservice.createRemoteService(uri, IRunnableDeviceService.class); // Can make a RunnableDeviceService to obtain runnable devices.

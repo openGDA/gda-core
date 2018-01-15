@@ -92,13 +92,13 @@ public abstract class AbstractAcquisitionTest {
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(
-				Arrays.asList(new ScanningAPIClassRegistry(),
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(
+				new MarshallerService(Arrays.asList(new ScanningAPIClassRegistry(),
 						new ScanningExampleClassRegistry(),
 						new ScanningTestClassRegistry()),
-				Arrays.asList(new PointsModelMarshaller())
-				));
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+						Arrays.asList(new PointsModelMarshaller())));
+		eservice  = new EventServiceImpl(activemqConnectorService);
 
 		connector = new MockScannableConnector(null);
 		sservice  = new RunnableDeviceServiceImpl(connector);

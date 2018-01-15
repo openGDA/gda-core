@@ -49,6 +49,7 @@ import org.eclipse.scanning.api.points.models.CollatedStepModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -69,8 +70,6 @@ import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-
 public class ScanSpeedTest extends BrokerTest {
 
 	private IRunnableDeviceService      dservice;
@@ -80,10 +79,13 @@ public class ScanSpeedTest extends BrokerTest {
 	private ILoaderService              lservice;
 
 	@Before
-	public void start() throws Exception {
+	public void start() {
 
-		setUpNonOSGIActivemqMarshaller();
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!

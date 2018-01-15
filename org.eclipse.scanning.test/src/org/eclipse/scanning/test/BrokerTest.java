@@ -14,8 +14,8 @@ package org.eclipse.scanning.test;
 import java.net.URI;
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.xcen.classregistry.XcenBeanClassRegistry;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
@@ -69,15 +69,22 @@ public class BrokerTest extends TmpTest {
 		}
 	}
 
-	public final static void setUpNonOSGIActivemqMarshaller(Class<?>...extras) {
-		ActivemqConnectorService.setJsonMarshaller(new MarshallerService(
+	public final static  IMarshallerService createNonOSGIActivemqMarshaller() {
+		return new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(),
-						      new ScanningExampleClassRegistry(),
-						      new XcenBeanClassRegistry(),
-						      new ScanningTestClassRegistry(extras)),
-				Arrays.asList(new PointsModelMarshaller())
-        ));
+						new ScanningExampleClassRegistry(),
+						new XcenBeanClassRegistry()),
+				Arrays.asList(new PointsModelMarshaller()));
 	}
+
+//	public final IMarshallerService createNonOSGIActivemqMarshaller(Class<?>... extras) {
+//		return new MarshallerService(
+//				Arrays.asList(new ScanningAPIClassRegistry(),
+//						new ScanningExampleClassRegistry(),
+//						new XcenBeanClassRegistry(),
+//						new ScanningTestClassRegistry(extras)),
+//				Arrays.asList(new PointsModelMarshaller()));
+//	}
 
 	@AfterClass
 	public final static void stopBroker() throws Exception {

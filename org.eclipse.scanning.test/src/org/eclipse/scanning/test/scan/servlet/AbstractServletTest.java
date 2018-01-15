@@ -84,7 +84,6 @@ public abstract class AbstractServletTest extends BrokerTest {
 	protected static ILoaderService              lservice;
 	protected static IDeviceWatchdogService      wservice;
 	protected static IScriptService              sservice;
-	protected static MarshallerService           marshaller;
 	protected static ValidatorService            validator;
 
 	@BeforeClass
@@ -92,14 +91,15 @@ public abstract class AbstractServletTest extends BrokerTest {
 
 		ScanPointGeneratorFactory.init();
 
-		marshaller = new MarshallerService(
+		MarshallerService marshaller = new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(),
 						new ScanningExampleClassRegistry(),
 						new ScanningTestClassRegistry()),
 				Arrays.asList(new PointsModelMarshaller())
 				);
-		ActivemqConnectorService.setJsonMarshaller(marshaller);
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(marshaller);
+		eservice  = new EventServiceImpl(activemqConnectorService);
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE

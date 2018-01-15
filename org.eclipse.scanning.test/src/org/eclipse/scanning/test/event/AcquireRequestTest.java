@@ -81,8 +81,12 @@ public class AcquireRequestTest extends BrokerTest {
 
 	@Before
 	public void createServices() throws Exception {
-		setUpNonOSGIActivemqMarshaller();
-		eventService = new EventServiceImpl(new ActivemqConnectorService());
+		// We wire things together without OSGi here
+		// DO NOT COPY THIS IN NON-TEST CODE!
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
+		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+
 		runnableDeviceService = new RunnableDeviceServiceImpl(new MockScannableConnector());
 		MandelbrotDetector detector = new MandelbrotDetector();
 		((RunnableDeviceServiceImpl) runnableDeviceService)._register("mandelbrot", detector);

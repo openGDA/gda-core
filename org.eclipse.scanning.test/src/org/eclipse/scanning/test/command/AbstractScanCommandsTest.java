@@ -89,8 +89,9 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	@BeforeClass
 	public static void create() throws Exception {
 
-		createMarshaller();
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
+		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(createMarshaller());
+		eservice  = new EventServiceImpl(activemqConnectorService);
 
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE
