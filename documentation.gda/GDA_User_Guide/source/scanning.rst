@@ -24,7 +24,7 @@ operated (these operations are grouped by the level attribute which
 each Scannable has. So from the lowest level upwards all Scannables at
 a particular level are operated concurrently and once they have
 finished their movement the next level is operated and so on.). Once
-the Scannable shave been operated then data is collected from all
+the Scannables have been operated then data is collected from all
 Detectors concurrently and once they have all completed then the data
 from that round of collection plus the new locations of all Scannables
 are recorded to file.
