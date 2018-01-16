@@ -45,7 +45,7 @@ dt
 w
    waits for specified time. e.g. to wait 2 seconds::
       
-      >>>pos w 2
+      >>> pos w 2
 
 
 all single-value position so far
@@ -98,12 +98,14 @@ wide scan
 
 (finds 490 as the minimum)
 
- data plotted as it's collected
+data plotted as it's collected
 
 
 finer scan
 ~~~~~~~~~~
+
 ::
+   
    >>> go minval
    >>> rscan f -20 20 2.5 pil 20 peak2d
 
@@ -114,6 +116,7 @@ get feature details
 ~~~~~~~~~~~~~~~~~~~
 
 ::
+   
    >>> minval
 
 

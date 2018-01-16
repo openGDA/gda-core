@@ -37,25 +37,25 @@ for communicating with EPICS IOC running on your localhost and using CA server p
   
 GDA will also set **com.cosylab.epics.caj.CAJContext.event_dispatcher** to ``gov.aps.jca.event.SplitQueuedEventDispatcher``
 
-The last two properties are CAJ specific. In most case, you are not required to set them as the defaults are sufficient. However, if required, you can use these properties can be set to customise CAJ internal byte buffer size and thread pool size.
+The last two properties are CAJ specific. In most cases, you do not need to set them as the defaults are sufficient. However, if required, you can use these properties to customise CAJ's internal byte buffer size and thread pool size.
 
 At Diamond, we run an EPICS simulation server on ``dasc-epics.diamond.ac.uk`` for off beamline development of GDA software. Its IP address is 172.23.7.113, server port is 6064, repeater port is 6065.
 
 GDA-EPICS interface
 -------------------
 
-While it is possible to ``caget`` from and ``caput`` to a PV within GDA, just like on a console, at Diamond, a GDA-EPICS interface specification had been developed for the integration of EPICS control system with Diamond Data Acquisition system. 
+While it is possible to ``caget`` from and ``caput`` to a PV within GDA, just like on a console, at Diamond, a GDA-EPICS interface specification had been developed for the integration of an EPICS control system with a Diamond Data Acquisition system. 
 This specification is described in a XML :download:`Schema <genericBeamlineSchema.xsd>`, which currently defines more than 60 types of devices available in this interface. 
 The benefits of using a schema definition for this interface are:
 
-* It ensures stability and compatibility on the interface between GDA and EPICS, in that the EPICS build system generates XML files for the interface that always valid with respect to this schema, thus ensure PVs served by EPOCS IOCs always matches with what GDA expected;
-* It delivers simplicity and device security by enabling us to only exposing a subset of PVs for each of the devices that are required by experiment control and data acquisition processes;
-* It is intuitive and transparent by grouping set of PVs into logical units as devices which can be easily access using domain-specific language, such as MotorTye, provided by Java-XML data binding;
-* It is extensible to allow new device types being added later as development requires;
+* It ensures stability and compatibility on the interface between GDA and EPICS, in that the EPICS build system generates XML files for the interface that are always valid with respect to this schema, thus ensuring PVs served by EPICS IOCs always match what GDA expects;
+* It delivers simplicity and device security by enabling us to only expose a subset of PVs for each of the devices that are required by experiment control and data acquisition processes;
+* It is intuitive and transparent by grouping sets of PVs into logical units as devices which can be easily accessed using a domain-specific language, such as MotorType, provided by Java-XML data binding;
+* It is extensible to allow new device types being added later as development requires.
 
-The Java-XML data binding is generated from this schema using `CASTOR source code generator <http://www.castor.org/sourcegen.html>`_. 
+The Java-XML data binding is generated from this schema using the `CASTOR source code generator <https://castor-data-binding.github.io/castor/>`_. 
 Currently this is a manual process only required when the schema is updated. To build a new ``epics-xxx.jar``, you need to run Ant build on `build.xml` in ``uk.ac.gda.epics/epics.jar.generator/Epics_Interface (Phase II)/``. 
-Please remember to change the version number in `build.xml` according the instruction at the top so not to over-write existing epics jar to allow the possibility of rollback. After the new ``epics-xxx.jar`` generated, it must be added to the EPICS plugin's classpath to take effect. 
+Please remember to change the version number in `build.xml` according to the instructions at the top so not to over-write existing epics jar files to allow the possibility of rollback. After the new ``epics-xxx.jar`` is generated, it must be added to the EPICS plugin's classpath to take effect. 
 
 You can view the list of device types supported :download:`here <DeviceTypesSupported.txt>`
 
@@ -63,12 +63,12 @@ Access PV strings in ``BLxxI-gda-interface.xml`` file
 -----------------------------------------------------
 
 PV names of a device defined in the interface XML file can be accessed through the interface type classes in epics-xxx.jar generated above. 
-For example, in an Epics Access class ``ADBaseImpl.java``, you can get individual PV name string, say PV for temperature, by retrieving interface type configuration first then retrieve PV of the ``Temperature`` element as::
+For example, in an Epics Access class ``ADBaseImpl.java``, you can get an individual PV name string, say PV for temperature, by retrieving interface type configuration first then retrieving the PV of the ``Temperature`` element as::
 
 	ADBaseType config = Configurator.getConfiguration(getDeviceName(), ADBaseType.class);
 	String pvString = config.getTemperature().getPv()
 
-You may already notice that we have followed a naming pattern here: ``<ADBase>`` element in ``BLxxI-gda-interface.xml`` is accessible using ``ADBaseType`` in epics-xxx.jar, which is used in ``ADBaseImpl`` class. They all share the same base name ``ADBase``. 
+You may already notice that we have followed a naming pattern here: ``<ADBase>`` element in ``BLxxI-gda-interface.xml`` is accessible using ``ADBaseType`` in epics-xxx.jar, which is used in the ``ADBaseImpl`` class. They all share the same base name ``ADBase``. 
 This way we can easily find the interface type to use in Java classes from the XML interface file.
 
 
@@ -91,7 +91,7 @@ Fastest method to get/put in a script
     ca.caput("test:sensor", 1.0)  
     ca.caput("test:sensor", "1.0")  
 
-  accepts native types & String
+  accepts native types and String
 
 
 More performant method to get/put in a script

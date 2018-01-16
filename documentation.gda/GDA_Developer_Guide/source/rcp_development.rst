@@ -150,7 +150,7 @@ information to be provided to it from the script using a message bean which impl
 By using this interface the LoggingScriptController stores the messages in a Derby database. The history in the
 databases allows the Script Log view in the UI to show the history.
 
-There is an example implementation of this in the exmaple-config. When running the example-config, open the ScriptLog view
+There is an example implementation of this in the example-config. When running the example-config, open the ScriptLog view
 and run the "MessagingDemoScript" script to see output in that view.
 
 
@@ -163,7 +163,7 @@ for each scan are stored in one or more xml files. The xml files are
 stored with the data and are edited by users in the UI using graphical 
 editors. 
 
-Scan maybe grouped in multiscans, and the xml files may be stored in
+Scan may be grouped in multiscans, and the xml files may be stored in
 more than one directory. The UI helps users to organise their scans.
 
 The scans are run using the Command Queue mechanism, and progress is
@@ -185,7 +185,7 @@ experiments.
 The relationship between the Java beans, xml files and editors
 is held in the GDAs RichBean framework. The perspective which
 uses these objects is mostly generic, but for each implementation 
-of this perspective some coding is required. There is are extension
+of this perspective some coding is required. There are extension
 points which should be contributed to. This lists the 
 implementation specific classes and options required to 
 operate the Experiment perspective.

@@ -72,7 +72,7 @@ Scans
 
 ScanDataPoint
    A Serializable object which holds the data from a single point in a scan,
-   as well as metadata such as the number fo that point in the scan. These 
+   as well as metadata such as the number of that point in the scan. These 
    objects are passed to Clients for display in graphs and to data writers to 
    be recorded in files.
 
@@ -81,7 +81,7 @@ Devices
    interface to Scannable. Device has a large number of sub interfaces for 
    different types of hardware. By operating types of devices via Device
    interfaces rather than having stand alone objects, the underlying control 
-   systems used by GDA are abstracted. This makes the higher levels are the GDA
+   systems used by GDA are abstracted. This makes the higher levels of the GDA
    agnostic to control system or brands of hardware types. 
 
 Scannables

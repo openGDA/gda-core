@@ -320,9 +320,9 @@ Change the centre of scannableGaussian0 to -1.0 and rescan::
 Nested scan
 ~~~~~~~~~~~
 
-Import the demo scannable classes defined in the user`q demonstration
+Import the demo scannable classes defined in the user demonstration
 module scannableClasses.py (located in 'documentation/users/scripts',
-and viewable from from the JythonEditor view)::
+and viewable from the JythonEditor view)::
 
    >>> import scannableClasses
    >>> from scannableClasses import *
