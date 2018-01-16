@@ -38,14 +38,22 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 /**
  * creates an xml file required for the icat xml ingest file registry
  */
-public class IcatXMLCreator implements ArchiveFileCreator {
+public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(IcatXMLCreator.class);
+
+	/**
+	 * When making changes to the output format, update this field to the GDA version in which the change will take
+	 * effect.
+	 */
+	private static final String VERSION = "9.7";
 
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -195,6 +203,12 @@ public class IcatXMLCreator implements ArchiveFileCreator {
 			if (!success) throw new IOException("could not rename file to final destination");
 		}
 	}
+
+	@Override
+	public void configure() throws FactoryException {
+		logger.info("DLSICAT:IcatXMLCreator version {} writing to {}", VERSION, directory);
+	}
+
 	/**
 	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data
 	 * file information
