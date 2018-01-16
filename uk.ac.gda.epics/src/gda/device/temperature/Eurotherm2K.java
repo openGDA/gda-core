@@ -18,6 +18,14 @@
 
 package gda.device.temperature;
 
+import java.lang.reflect.Array;
+import java.text.NumberFormat;
+import java.util.Date;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.TemperatureRamp;
@@ -28,14 +36,6 @@ import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.Poller;
 import gda.util.PollerEvent;
-
-import java.lang.reflect.Array;
-import java.text.NumberFormat;
-import java.util.Date;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class that supports Eurotherm 2000 series temperature controller.
@@ -333,8 +333,6 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
 
-		logger.debug(getName() + " pollDone called");
-
 		try {
 			if (isAtTargetTemperature()) {
 				busy = false;
@@ -359,7 +357,6 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
 		timeElapsed = n.format(timeSinceStart / 1000.0) + " sec";
 		ts = new TemperatureStatus(currentTemp, lowerTemp, upperTemp, targetTemp, currentRamp, stateString, dataString);
-		// logger.debug(getName() + " notifying IObservers with " + ts);
 		notifyIObservers(this, ts);
 	}
 
