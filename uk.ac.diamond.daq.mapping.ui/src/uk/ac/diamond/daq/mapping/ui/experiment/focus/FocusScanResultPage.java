@@ -184,7 +184,7 @@ public class FocusScanResultPage extends WizardPage {
 				@Override
 				public void clickPerformed(ClickEvent evt) {
 					focusScannablePosition.setValue(evt.getyValue());
-					setPageComplete(statusBean != null && statusBean.getStatus().isFinal());
+					updatePageComplete();
 				}
 			});
 			return plotControl;
@@ -193,6 +193,11 @@ public class FocusScanResultPage extends WizardPage {
 			logger.error(message, e);
 			return MappingExperimentUtils.createErrorLabel(composite, message, e);
 		}
+	}
+
+	private void updatePageComplete() {
+		setPageComplete(statusBean != null && statusBean.getStatus().isFinal() &&
+				focusScannablePosition.getValue() != null);
 	}
 
 	private void createRunScanControls(Composite parent) {
@@ -473,7 +478,7 @@ public class FocusScanResultPage extends WizardPage {
 
 		// if the scan is finished (for any reason), update the start/stop scan button enablement
 		if (statusBean.getStatus().isFinal()) {
-			setPageComplete(focusScannablePosition.getValue() != null);
+			updatePageComplete();
 			startScanButton.setEnabled(true);
 			stopScanButton.setEnabled(false);
 
