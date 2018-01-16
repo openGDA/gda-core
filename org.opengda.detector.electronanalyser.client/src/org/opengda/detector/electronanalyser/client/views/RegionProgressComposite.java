@@ -280,7 +280,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("iteration time remaining changed to {}", timeremaining);
 			}
 		}
 	}
@@ -301,7 +300,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("lead points changed to {}", leadPoints);
 			}
 		}
 	}
@@ -321,7 +319,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("percentage completed updated to {}", percentage);
 			}
 		}
 	}
@@ -341,7 +338,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("End points updated to {}", iterationTotalDataPoints);
 			}
 		}
 	}
@@ -365,7 +361,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("current point number updated to {}", currentpoint);
+				logger.trace("current point number updated to {}", currentpoint);
 			}
 		}
 	}
@@ -386,7 +382,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("total iterations changed to {}", totalIterations);
+				logger.trace("total iterations changed to {}", totalIterations);
 			}
 		}
 	}
@@ -409,7 +405,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("current iteration is {}", currentiteration);
+				logger.trace("current iteration is {}", currentiteration);
 			}
 		}
 	}
@@ -430,7 +426,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("iteration time remaining changed to {}", timeremaining);
 			}
 		}
 	}
@@ -450,7 +445,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("total percentage completed updated to {}", percentage);
 			}
 		}
 	}
@@ -470,7 +464,6 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("total number of steps updated to {}", totalSteps);
 			}
 		}
 	}
@@ -494,7 +487,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						}
 					});
 				}
-				logger.debug("current step number updated to {}", currentstep);
+				logger.trace("current step number updated to {}", currentstep);
 			}
 		}
 	}
