@@ -19,11 +19,10 @@
 
 package uk.ac.gda.beans.xspress;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-
 import java.util.ArrayList;
 
+import gda.device.Detector;
+import gda.device.DeviceException;
 import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
@@ -69,11 +68,13 @@ public interface XspressDetector extends Detector {
 	/**
 	 * Get multi-channel data for all elements
 	 *
+	 * @TODO remove this from interface (only needed for {@link XspressParametersUIEditor} which is no longer used).
 	 * @param time
 	 *            the time to count for (mS)
 	 * @return an array of readings from channels
 	 * @throws DeviceException
 	 */
+	@Deprecated
 	public int[][][] getMCData(int time) throws DeviceException;
 
 	/**

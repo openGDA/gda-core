@@ -19,8 +19,13 @@
 package uk.ac.gda.exafs.ui.composites.detectors;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.dawnsci.plotting.system.LineTraceImpl;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.trace.ColorOption;
@@ -52,6 +57,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorTransitionLineComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorOutputPreferenceComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorReadoutModeComposite;
@@ -71,6 +77,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	private FluoDetectorCountsComposite countsComposite;
 	private FluoDetectorRegionsComposite regionsComposite;
 	private FluoDetectorOutputPreferenceComposite outputPrefComposite;
+	private FluoDetectorTransitionLineComposite elementEdgeComposite;
 	private int mcaSize;
 
 
@@ -118,6 +125,9 @@ public class FluorescenceDetectorComposite extends Composite {
 
 			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), SWT.NONE, elementsComposite);
 			horizontalGrabGridData.applyTo(regionsComposite);
+
+			elementEdgeComposite = new FluoDetectorTransitionLineComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(elementEdgeComposite);
 
 			outputPrefComposite = new FluoDetectorOutputPreferenceComposite(sashFormPlot.getLeft(), SWT.NONE );
 			horizontalGrabGridData.applyTo(outputPrefComposite);
@@ -188,6 +198,10 @@ public class FluorescenceDetectorComposite extends Composite {
 
 	public void addReadoutModeListener(ValueAdapter listener) {
 		readoutModeComposite.getReadoutCombo().addValueListener(listener);
+	}
+
+	public void addElementEdgeListener(SelectionListener listener) {
+		elementEdgeComposite.addSelectionListener(listener);
 	}
 
 	/**
@@ -616,7 +630,50 @@ public class FluorescenceDetectorComposite extends Composite {
 		sashFormPlot.getPlottingSystem().setShowLegend(true);
 		sashFormPlot.getPlottingSystem().setColorOption(ColorOption.BY_NAME);
 		sashFormPlot.plotData();
+
+		addEdgeLineToPlot(datasets);
 		showHideLoadedDataset();
+	}
+
+	/**
+	 * Add a line showing the position of currently selected edge to the plot.
+	 * Y range of line matches y range of data being plotted (to avoid rescaling when switching between showing/not showing the line).
+	 * @param linePlotData
+	 */
+	public void addEdgeLineToPlot(IDataset[] linePlotData) {
+		if (elementEdgeComposite.getShowLineInPlot()) {
+
+			// Store the original plot title (it changes after adding the line)
+			String title = sashFormPlot.getPlotTitle();
+
+			double yMin = 1e10;
+			double yMax = 0;
+
+			// Set min, max y range to match y range of data being plotted
+			for(IDataset dataset : linePlotData) {
+				yMin = Math.min(yMin, dataset.min(true).doubleValue());
+				yMax = Math.max(yMax, dataset.max(true).doubleValue());
+			}
+
+			// Get MCA channel corresponding to edge
+			double edgePosition = elementEdgeComposite.getEdgeMcaChannel();
+
+			// Create datasets, create the plot
+			IDataset xval = DatasetFactory.createFromList(Arrays.asList(edgePosition, edgePosition));
+			IDataset yval = DatasetFactory.createFromList(Arrays.asList(yMin, yMax));
+			String plotName = elementEdgeComposite.getSelectedElementName() + " " + elementEdgeComposite.getSelectedLineName() + " edge";
+			yval.setName(plotName);
+			List<IDataset> listYs = new ArrayList<IDataset>();
+			listYs.add(yval);
+			sashFormPlot.getPlottingSystem().createPlot1D(xval, listYs, null);
+
+			// Set the linewidth to something reasonable so we can see it more easily
+			LineTraceImpl trace = (LineTraceImpl) sashFormPlot.getPlottingSystem().getTrace(plotName);
+			trace.setLineWidth(2);
+
+			// Set title back to it's original value
+			sashFormPlot.getPlottingSystem().setTitle(title);
+		}
 	}
 
 	public void showHideLoadedDataset() {
@@ -647,6 +704,14 @@ public class FluorescenceDetectorComposite extends Composite {
 	 */
 	public void setShowOutputOptions(boolean showOutputOptions) {
 		GridUtils.setVisibleAndLayout(outputPrefComposite, showOutputOptions);
+	}
+
+	/**
+	 * Hide/show the #Element name and edge' part of the gui.
+	 * @param show
+	 */
+	public void setShowElementEdgeControls(boolean show) {
+		GridUtils.setVisibleAndLayout(elementEdgeComposite, show);
 	}
 
 	/**

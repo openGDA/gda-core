@@ -139,6 +139,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				public void run() {
 					updateUIFromBean();
 					plotDataAndUpdateCounts();
+					fluorescenceDetectorComposite.autoscaleAxes();
 					updatePlottedRegion();
 				}
 			});
@@ -298,6 +299,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addElementEdgeListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				plotDataAndUpdateCounts();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
@@ -385,6 +393,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			@Override
 			public void run() {
 				plotDataAndUpdateCounts();
+				if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
+					fluorescenceDetectorComposite.autoscaleAxes();
 			}
 		});
 	}
@@ -416,9 +426,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
 			fluorescenceDetectorComposite.plotDatasets(dataset, savedData);
+			fluorescenceDetectorComposite.setPlotTitle(plotTitle);
 
-			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
-				fluorescenceDetectorComposite.autoscaleAxes();
+//			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
+//				fluorescenceDetectorComposite.autoscaleAxes();
 
 			calculateAndDisplayCountTotals();
 		}

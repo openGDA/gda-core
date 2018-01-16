@@ -468,6 +468,9 @@
 		<field name="afterScriptName" type="string">
 			<bind-xml name="afterScriptName" node="element" />
 		</field>
+		<field name="beforeFirstRepetition" type="string">
+			<bind-xml name="beforeFirstRepetition" node="element" />
+		</field>
 		<field name="signal" type="uk.ac.gda.beans.exafs.SignalParameters"
 			collection="collection" set-method="addSignal" get-method="getSignalList">
 			<bind-xml name="signal" node="element" />
@@ -537,6 +540,9 @@
 		</field>
 		<field name="afterScriptName" type="string">
 			<bind-xml name="afterScriptName" node="element" />
+		</field>
+		<field name="beforeFirstRepetition" type="string">
+			<bind-xml name="beforeFirstRepetition" node="element" />
 		</field>
 		<field name="signal" type="uk.ac.gda.beans.exafs.SignalParameters"
 			collection="collection" set-method="addSignal" get-method="getSignalList">
