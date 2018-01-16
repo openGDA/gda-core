@@ -195,7 +195,7 @@ Scannable's rawGetPosition method i.e. the array returned by
 rawGetPosition may be larger than the array required by
 rawAsynchronousMoveTo. This allows for the possibility that a
 Scannable may hold and return more information than it needs in order
-to move or perform what ever operation in does inside its
+to move or perform whatever operation it does inside its
 rawAsynchronousMoveTo method. This array would normally be zero-sized
 if required.
 

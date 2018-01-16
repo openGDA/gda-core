@@ -75,7 +75,7 @@ It allows you to use properties in your Spring XML files. For example:
 
   <property name="hostname" value="${gda.images.camerahost}" />
   
-To make the tags in the ``context`` namespace are available to you, you will need to add the following attribute to
+To make the tags in the ``context`` namespace available to you, you will need to add the following attribute to
 the ``<beans>`` element in your Spring configuration:
 
 ::
@@ -315,12 +315,12 @@ You need to configure the log server using four properties:
 Property                      Description
 ============================= ============
 ``gda.logserver.port``        the port that the Log Server listening to
-``gda.logserver.xml``         the logging configuration file, for example, LogServer,xml, of the log Server 
+``gda.logserver.xml``         the logging configuration file, for example, LogServer.xml, of the log Server 
 ``gda.logs.dir``              the directory in which GDA log file, for example gda.log,  is to be stored
 ``gda.logPanel.logging.port`` the port that the log viewer listening to, i.e. the port the Log Server forwarding message to
 ============================= ============
 
-While the first two properties is required by the LogServer class and are essential, 
+While the first two properties are required by the LogServer class and are essential, 
 the last two are optional and only used in the LogServer.xml file to specify the log destinations.
 
 LogServer.xml defines logging destinations (appenders), logger level filters, and file logging rules for the cental logging service at the Log Server.
@@ -371,7 +371,7 @@ The server-side logging configuration is used for object servers, and for the ev
 
 GDA has a default server-side logging configuration file, located in the ``uk.ac.gda.core`` plugin in the file
 ``src/gda/util/logging/configurations/server-default.xml``. It is currently used only to specify the log filters 
-for some of the 3rd part libraries used in GDA.    
+for some of the 3rd party libraries used in GDA.    
 
 A server-side logging configuration file for a particular GDA configuration can be specified using the
 ``gda.server.logging.xml`` property. The default server-side configuration will be applied first,
@@ -382,7 +382,7 @@ Default client-side logging configuration
 
 GDA has a default client-side logging configuration file, located in the ``uk.ac.gda.core`` plugin in the file
 ``src/gda/util/logging/configurations/client-default.xml``.It is currently used only to specify the log filters 
-for some of the 3rd part libraries used in GDA.    
+for some of the 3rd party libraries used in GDA.    
 
 A client-side logging configuration file for a particular GDA configuration can be specified using the
 ``gda.client.logging.xml`` property. The default client-side configuration will be applied first,
@@ -419,10 +419,10 @@ Recording Jython terminal output
 ================================
 
 The server can be configured to record all text sent to clients' Jython terminals to a file in the current data/visit
-directory. To do this a RedirectablefileLogger should be created in Spring and provided an ObservablePathProvider which
-tracks the data/visit directory. When the file location changes, a note will left in the last file directing a reader
+directory. To do this a RedirectableFileLogger should be created in Spring and provided an ObservablePathProvider which
+tracks the data/visit directory. When the file location changes, a note will be left in the last file directing a reader
 to the new file, and a note will be made in the new file indicating where the log was transferred from. Adapters can then
-be used to the same observables that a the JythonTerminal observes.
+be used on the same observables that a JythonTerminal observes.
 
 For example, given that a JythonServer has been made (always named
 'command_server'), try this to get a JythonServerFacade reference::
@@ -453,14 +453,14 @@ and then the following to build up a typical logger::
        <constructor-arg ref="terminal_logger"/>
    </bean>
 
-where the terminallog_path_provider bean might be a dummy::
+where the ``terminallog_path_provider`` bean might be a dummy::
 
    <bean id="terminallog_path_provider" class="gda.data.SimpleObservablePathProvider">
        <property name="path" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
        <property name="local" value="true" />
    </bean>
 
-or a one that tracks the server's visit metadata::
+or one that tracks the server's visit metadata::
 
    <bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
        <property name="template" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
@@ -468,8 +468,8 @@ or a one that tracks the server's visit metadata::
        <property name="local" value="true" />
    </bean>
 
-Note: ``gda.data.ObservablePathConstructor`` does not support Java properties, only GDA-specific templates in implementation.
-That is to say, it will not correctly interpret  aproperty such as ``${gda.data.scan.datawriter.datadir}``.
+Note: ``gda.data.ObservablePathConstructor`` does not support Java properties, only GDA-specific templates.
+That is to say, it will not correctly interpret  a property such as ``${gda.data.scan.datawriter.datadir}``.
 Instead, you have to put the value of this property in the Spring configuration above, e.g. ``/dls/i21/data/$year$/$visit$/spool/gdaterminal.log``. 
 
 Note: the ``InputTerminalAdapter`` receives the commands typed into *all* clients' terminals
@@ -485,7 +485,7 @@ Variable interpolation may be used when defining the java properties in the same
 
 The following are the principal java properties which may need customising. However there are many more.
 
-Java properties assumed to be set by -D flags when running the server processes: 
+Java properties assumed to be set by -D flags when running the server processes:
 
 ============== =======================
 Property       Description
@@ -497,7 +497,7 @@ Property       Description
 
 Note that the RCP client will also rely on the ``gda.config`` and ``gda.data`` variables being set in its ``.ini`` file.
 
-Properties which must be set by a -D flag when running the GDA Java processes (third-party software requirement). These flags are added automatically by the Python start script: 
+Properties that must be set by a -D flag when running the GDA Java processes (third-party software requirement); these flags are added automatically by the Python start script:
 
 ===================================== ===========
 Property                              Description
@@ -506,7 +506,7 @@ Property                              Description
 ``gov.aps.jca.JCALibrary.properties`` The JCA library properties file for connecting to EPICS PVs.
 ===================================== ===========
 
-Properties most likely to be customised: 
+Properties most likely to be customised:
 
 ======================================= ===========
 Property                                Description
@@ -534,7 +534,7 @@ ICAT
 
 The ICAT subsystem talks to a database (an RDBMS or an xml file) which maps user id's to beamlines and experiments. It is used to find which experiments the user who started each client belongs to and so where any data should be written to by scans collected under the command of that client.
 
-If no ICAT is used then data is always written to the same folder as defined by the gda.data.scan.datawriter.datadir java property.
+If no ICAT is used then data is always written to the same folder as defined by the ``gda.data.scan.datawriter.datadir`` java property.
 
 Some examples of different ICAT systems:
 
@@ -585,7 +585,7 @@ Role-Based Access Control
 Concepts
 --------
 
-The idea behind the RBAC system is not to provide cast-iron security to the system, but it to prevent users from accidentally operating hardware at the wrong time which could damage their experiment. E.g. preventing users from moving optical equipment which have been tuned or hardware shared between different branches
+The idea behind the RBAC system is not to provide cast-iron security to the system, but to prevent users from accidentally operating hardware at the wrong time which could damage their experiment. E.g. preventing users from moving optical equipment which have been tuned or hardware shared between different branches.
 
 Device protection
 ^^^^^^^^^^^^^^^^^
@@ -605,16 +605,16 @@ The idea is that certain methods will always check for protection whereas some w
 Client authorisation
 ^^^^^^^^^^^^^^^^^^^^
 
-When a GDA client is started the user id is either taken from the OS or a different user id and password maybe entered. If different details are entered they are authenticated against the whatever Authoriser has been configured (the single-sign-on LDAP system at Diamond).
+When a GDA client is started the user id is either taken from the OS or a different user id and password maybe entered. If different details are entered they are authenticated against whatever Authoriser has been configured (the single-sign-on LDAP system at Diamond).
 
-The login in information is passed to the Command Server (Jython Server) from the client via the InterfaceProvider class. The client makes a unique registration with the Command Server so the source of each command may be identified. The Command Server then determines the authorisation level of that client by comparing the FedID that the Client uses against an xml database on that beamline. If the FedID is listed in the xml then the stored authorisation level is used, otherwise the client is given the default.
+The login information is passed to the Command Server (Jython Server) from the client via the InterfaceProvider class. The client makes a unique registration with the Command Server so the source of each command may be identified. The Command Server then determines the authorisation level of that client by comparing the FedID that the Client uses against an xml database on that beamline. If the FedID is listed in the xml then the stored authorisation level is used, otherwise the client is given the default.
 
 There is a tool (gda.jython.authoriser.EditPermissions) which developers or beamline scientists can use to set and change authorisation levels. It is recommended to only list users with elevated authorisation or beamline staff in the xml.
 
 The Baton
 ^^^^^^^^^
 
-One beamlines implementing the RBAC system there is the option to use a baton to determine which client has control of the beamline if the beamline may have multiple clients running. Clients holding the baton have control of the beamline subject to their authorisation level, whereas other clients cannot operate the protected methods of any hardware no matter what their authorisation level.
+On beamlines implementing the RBAC system there is the option to use a baton to determine which client has control of the beamline if the beamline may have multiple clients running. Clients holding the baton have control of the beamline subject to their authorisation level, whereas other clients cannot operate the protected methods of any hardware no matter what their authorisation level.
 
 A baton holder may release the baton, so any client can pick it up or it can give the baton to a specific client.
 
@@ -720,13 +720,11 @@ In the client xml file (Swing UI only):
 How to setup RBAC on a beamline on Diamond
 ------------------------------------------
 
-::
-
-   1. set the java properties as listed above.
-   2. add the appropriate tags to the server and client xml configuration files for each piece of hardware to control access to.
-   3. add the beamlinestaff.xml file to your configuration to list which accounts should be treated as staff
-   4. run the tool to build the authorisation database for that beamline if you wish to give certain users elevated permissions above the user default level: java -Dgda.root=/dls/ixx/software/gda -Dgda.config=/dls/ixx/software/gda/config -Dgda.propertiesFiles=/dls/ixx/software/gda/config/properties/java.properties gda.jython.authoriser.EditPermissions
-   5. restart the GDA ! 
+1. Set the java properties as listed above.
+2. Add the appropriate tags to the server and client xml configuration files for each piece of hardware to control access to.
+3. Add the ``beamlinestaff.xml`` file to your configuration to list which accounts should be treated as staff
+4. Run the tool to build the authorisation database for that beamline if you wish to give certain users elevated permissions above the user default level: ``java -Dgda.root=/dls/ixx/software/gda -Dgda.config=/dls/ixx/software/gda/config -Dgda.propertiesFiles=/dls/ixx/software/gda/config/properties/java.properties gda.jython.authoriser.EditPermissions``
+5. Restart the GDA !
 
 .. _new-configuration-layout-section:
 
@@ -911,7 +909,7 @@ The options ``-Xms256m -Xmx1024m`` say:
 
 If the memory required by the application increases above 256MB, then the JVM
 will request more memory from the operating system and resize the application
-heap. If the memory required by the application increases above 1GB, then then
+heap. If the memory required by the application increases above 1GB, then
 eventually the application will crash with a ``java.lang.OutOfMemoryError``
 exception. 
 
@@ -919,7 +917,7 @@ Unfortunately every time the JVM increases the size of the heap, time is
 required to manage the expansion. If a GDA client allocates 400MB of memory
 during the process of starting up, it will start with 256MB, increase it by
 a small block when it goes above that, increase it a little more when it goes
-over that new limit and and keep increasing the size until it no longer need
+over that new limit and keep increasing the size until it no longer needs
 to increase the heap any more. Each of these heap expansions will add time to
 the start up of the GDA client.
 
@@ -933,7 +931,7 @@ a few basic scans, but rises to 1.6GB during intense use, then ``-Xms512m
 
 The same applies to *Permanent Generation* space. 
 
-For instance, if ``jvisualvm`` shows you that a client allocates uses 60MB when
+For instance, if ``jvisualvm`` shows you that a client uses 60MB when
 starting up with the scan perspective, rises to 90MB after opening the PyDev
 scripts perspective and peaks at 150MB during a long session, then the 
 ``--XX:PermSize=96m -XX:MaxPermSize=192m`` might be sufficient.
@@ -1072,7 +1070,7 @@ house between full explicit garbage collection and none:
 .. [#] http://java.sun.com/performance/reference/whitepapers/6_performance.html#2.2.2
 
 This option uses the *Concurrent Mark Sweep Collector* which aims to keep
-garbage collection-induced pauses short. This has not be tested, but might be
+garbage collection-induced pauses short. This has not been tested, but might be
 worth investigating if both disabling explicit garbage collections and leaving
 it enabled cause problems. 
 
