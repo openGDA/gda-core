@@ -80,7 +80,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private ArchiveFileCreator icatXMLCreator = new IcatXMLCreator();
 
-	private DeviceBase sockPuppet;
+	private DeviceBase clientFileAnnouncer;
 
 	private Set<String> files = new LinkedHashSet<>();
 
@@ -223,8 +223,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			try {
 				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", datasetId);
 				icatXMLCreator.registerFiles(datasetId, fileArr);
-				if (sockPuppet != null)
-					sockPuppet.notifyIObservers(sockPuppet, fileArr);
+				if (clientFileAnnouncer != null)
+					clientFileAnnouncer.notifyIObservers(clientFileAnnouncer, fileArr);
 			} catch (Exception e) {
 				logger.error("Error generating XML", e);
 			}
@@ -285,7 +285,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	}
 
 	public DeviceBase getClientFileAnnouncer() {
-		return sockPuppet;
+		return clientFileAnnouncer;
 	}
 
 	/**
@@ -295,7 +295,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	 * @param clientFileAnnouncer
 	 */
 	public void setClientFileAnnouncer(DeviceBase clientFileAnnouncer) {
-		this.sockPuppet = clientFileAnnouncer;
+		this.clientFileAnnouncer = clientFileAnnouncer;
 	}
 	/**
 	 * Method called by spring to register the registrar with solstice scanning.
