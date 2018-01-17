@@ -19,6 +19,11 @@
 
 package gda.jython.scriptcontroller.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.factory.FactoryException;
@@ -34,16 +39,9 @@ import gda.jython.scriptcontroller.corba.CorbaScriptControllerHelper;
 import gda.observable.IIsBeingObserved;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gda.scan.ScanDataPointClient;
 import gda.scan.ScanDataPointVar;
-
-import java.util.Enumeration;
-import java.util.Vector;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client side implementation of the adapter pattern for the ScriptController class
@@ -55,7 +53,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptcontrollerAdapter.class);
 
-	private final Vector<IObserver> myIObservers = new Vector<IObserver>();
+	private final ObservableComponent observable = new ObservableComponent();
 
 	CorbaScriptController controller;
 
@@ -222,18 +220,17 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 
 	@Override
 	public void addIObserver(IObserver anIObserver) {
-		if (!myIObservers.contains(anIObserver))
-			myIObservers.addElement(anIObserver);
+		observable.addIObserver(anIObserver);
 	}
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
-		myIObservers.removeElement(anIObserver);
+		observable.deleteIObserver(anIObserver);
 	}
 
 	@Override
 	public void deleteIObservers() {
-		myIObservers.removeAllElements();
+		observable.deleteIObservers();
 	}
 
 	/**
@@ -245,21 +242,12 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 	 *            the data requested by the observer.
 	 */
 	public void notifyIObservers(Object theObserved, Object changeCode) {
-		// This must be an enumeration as Iterators allow replacement of
-		// elements
-		// which will lead to ConcurrentModificationException. You can't replace
-		// this with the Java 1.5 foreach loop.
-		Enumeration<IObserver> myIObserversList = myIObservers.elements();
-		while (myIObserversList.hasMoreElements()) {
-			IObserver anIObserver = myIObserversList.nextElement();
-			anIObserver.update(theObserved, changeCode);
-		}
+		observable.notifyIObservers(theObserved, changeCode);
 	}
 
 	@Override
 	public boolean IsBeingObserved() {
-		// TODO Auto-generated method stub
-		return myIObservers.size() > 0;
+		return observable.IsBeingObserved();
 	}
 
 }
