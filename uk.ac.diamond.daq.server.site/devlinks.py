@@ -105,7 +105,8 @@ for plugin_file in plugins_file_list:
                         versioned = versioned_list[0]                                               # resolve the path of the exported versioned folder
                         tokens[0] = versioned.split(os.sep)[-1]                                     # use the last path element to replace the unversioned folder name
                         product_versioned_script_folder = str(os.path.join(*tokens[:]))             # create the new relative path.
-                        workspace_script_folder_path = "*" + os.sep + workspace_script_folder_path  # Add prefix to allow matching of the git repository
+                        script_depth = len(plugin_file.split(os.sep)) - 4          # Depth of script directory from git_parent
+                        workspace_script_folder_path = ("*" + os.sep)*script_depth + workspace_script_folder_path  # Add prefix to allow matching of the git repository
 
                         write_link(root, workspace_script_folder_path, product_versioned_script_folder, len(tokens))
                 elif os.path.exists(os.path.join(root, workspace_script_folder_path)):
