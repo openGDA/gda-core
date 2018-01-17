@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """ This script is only run when exporting a Development GDA Server product from the uk.ac.diamond.server.site using Buckminster
 Do not attempt to use it for other purposes as the destination of the links it creates will likely not be present.
 
@@ -15,21 +18,18 @@ Arguments:
 
 The following folder structure is assumed for the plugin scripts:
 
-    < some_workspace_parent >
-         \
-          \__< some repo parent (e.g. workspace_git) >
-           \           \
-            \           \_______< this plugin's repo >
-             \           \                         \
-              \           \                         \__< this plugin (i.e. uk.ac.diamond.daq.server.site) >
-               \           \___< plugin AA's repo >
-                \                                 \____< plugin AA source root >
-                 \                                                   \___________< 0..n intermediate folders >
-                  \__< some servers root >                                                  \_________________< a scripts folder >
-                              \
-                               \__< the server being exported >
-                                                       \________< plugins_folder (passed in) >
-                                                                            \________________< exported versioned plugin AA root >
+     ./gda_versions/gda-9.6/ (some workspace parent)
+        ├──servers (servers root)
+        │   └──server_20180117-1709_linux64  (the server being exported)
+        │       └──plugins (plugins folder (passed in))
+        │           └──uk.ac.gda.core_9.7.0.v20180117-1156 (exported versioned plugin AA root)
+        └──workspace_git (some repo parent)
+            ├──daq-platform.git (this plugin's repo)
+            │   └──uk.ac.diamond.daq.server.site (this plugin)
+            └──gda-core.git (plugin AA's repo)
+                └──uk.ac.gda.core (plugin AA source root)
+                    └──??? (0..n intermediate folders)
+                        └──scripts (a scripts folder)
 
 
 when complete there will be a scripts folder link(s) at the same relative path below < exported versioned plugin AA root > that point
