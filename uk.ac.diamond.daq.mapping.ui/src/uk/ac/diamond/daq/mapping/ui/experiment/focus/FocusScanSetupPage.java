@@ -34,8 +34,10 @@ import javax.inject.Inject;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.PlottableMapObject;
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -63,6 +65,7 @@ import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -126,8 +129,6 @@ class FocusScanSetupPage extends WizardPage {
 	@Inject
 	private IMappingExperimentBeanProvider mappingBeanProvider;
 
-	private DataBindingContext bindingContext = new DataBindingContext();
-
 	private OneDEqualSpacingModel linePathModel;
 
 	private Label linePathLabel;
@@ -139,6 +140,10 @@ class FocusScanSetupPage extends WizardPage {
 	private PropertyChangeListener regionBeanPropertyChangeListener;
 
 	private PropertyChangeListener pathBeanPropertyChangeListener;
+
+	private DataBindingContext bindingContext = new DataBindingContext();
+
+	private Binding exposureTimeBinding;
 
 	FocusScanSetupPage() {
 		super(FocusScanSetupPage.class.getSimpleName());
@@ -235,6 +240,8 @@ class FocusScanSetupPage extends WizardPage {
 
 		focusScanBean.getLineRegion().removePropertyChangeListener(regionBeanPropertyChangeListener);
 		linePathModel.removePropertyChangeListener(pathBeanPropertyChangeListener);
+
+		exposureTimeBinding.dispose();
 
 		super.dispose();
 	}
@@ -402,13 +409,35 @@ class FocusScanSetupPage extends WizardPage {
 		comboViewer.addSelectionChangedListener(
 				evt -> focusScanBean.setDetector(getDetectorWrapperForSelection(evt.getSelection()).getModel()));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboViewer.getControl());
-		populateDetectorCombo(comboViewer);
 
 		final Button configureDetectorButton = new Button(detectorComposite, SWT.PUSH);
 		configureDetectorButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 		configureDetectorButton.setToolTipText("Edit parameters");
 		configureDetectorButton.addListener(SWT.Selection,
 				event -> editDetectorParameters(getDetectorWrapperForSelection(comboViewer.getSelection())));
+
+		final Label exposureTimeLabel = new Label(parent, SWT.NONE);
+		exposureTimeLabel.setText("Exposure Time:");
+
+		final Text exposureTimeText = new Text(parent, SWT.BORDER);
+		exposureTimeText.setToolTipText("Set the exposure time for this detector");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
+
+		final IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
+		comboViewer.addSelectionChangedListener(event -> {
+			if (exposureTimeBinding != null) {
+				exposureTimeBinding.dispose();
+				bindingContext.removeBinding(exposureTimeBinding);
+			}
+
+			final Object selected = ((IStructuredSelection) event.getSelection()).getFirstElement();
+			final IDetectorModel model = ((IDetectorModelWrapper) selected).getModel();
+
+			final IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
+			exposureTimeBinding = bindingContext.bindValue(exposureTextValue, exposureTimeValue);
+		});
+
+		populateDetectorCombo(comboViewer);
 	}
 
 	private void populateDetectorCombo(ComboViewer comboViewer) {
