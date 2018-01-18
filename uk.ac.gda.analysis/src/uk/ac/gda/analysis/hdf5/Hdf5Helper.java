@@ -19,13 +19,16 @@
 package uk.ac.gda.analysis.hdf5;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.dawnsci.hdf5.HDF5Utils.DatasetType;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +36,6 @@ import hdf.hdf5lib.H5;
 import hdf.hdf5lib.HDF5Constants;
 import hdf.hdf5lib.exceptions.HDF5Exception;
 import hdf.hdf5lib.structs.H5G_info_t;
-import hdf.object.h5.H5Datatype;
 
 /**
  *
@@ -297,9 +299,7 @@ public class Hdf5Helper {
 	}
 
 	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
-		int datatypeClass = hData.h5Datatype.getDatatypeClass();
-		int datatypeSize = (int) hData.h5Datatype.getDatatypeSize();
-		int dtype = HDF5Utils.getDType(datatypeClass, datatypeSize);
+		int dtype = hData.datasetType.dtype;
 		int dims[] = new int[hData.dims.length];
 		for (int i = 0; i < hData.dims.length; i++)
 			dims[i] = (int) hData.dims[i];
@@ -374,11 +374,19 @@ public class Hdf5Helper {
 		return length;
 	}
 
+	/**
+	 * Use {@link #allocateArray(DatasetType, long...)} instead
+	 * @param native_mem_type
+	 * @param data_dims
+	 * @return primitive array
+	 * @throws Exception
+	 */
+	@Deprecated
 	public Object AllocateMemory(long native_mem_type, long[] data_dims) throws Exception {
 		long lenFromDims = lenFromDims(data_dims);
 		if (lenFromDims > Integer.MAX_VALUE)
 			throw new Exception("Requested size of memory > Integer.MAX_VALUE." + lenFromDims);
-		Object data = H5Datatype.allocateArray(native_mem_type, (int) lenFromDims);
+		Object data = allocateArray(HDF5Utils.getDatasetType(native_mem_type, H5.H5Tget_native_type(native_mem_type)), data_dims);
 		if (data == null)
 			throw new Exception("Unable to allocate memory :" + lenFromDims);
 		return data;
@@ -400,7 +408,7 @@ public class Hdf5Helper {
 		long[] data_maxdims = null;
 		long[] data_dims = new long[] { length };
 		long mem_type_id = data2.native_type;
-		Object data =  H5Datatype.allocateArray(mem_type_id, (int) length);
+		Object data = allocateArray(data2.datasetType, length);
 		return readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, block, data_maxdims, data_dims,
 				mem_type_id, data, true);
 	}
@@ -459,13 +467,13 @@ public class Hdf5Helper {
 							if (status < 0)
 								throw new Exception("Error calling H5Sselect_all:" + status);
 
-							H5Datatype h5Datatype = new H5Datatype(native_mem_type);
 							long native_type = H5.H5Tget_native_type(native_mem_type);
+							DatasetType dataset_type = HDF5Utils.getDatasetType(native_mem_type, native_type);
 							status = H5.H5Dread(datasetId, native_mem_type, mem_dataspace_id, dataspaceId,
 									xfer_plist_id, data);
 							if (status < 0)
 								throw new Exception("Error calling H5Dread:" + status);
-							return new Hdf5HelperData(dsize, data, h5Datatype, native_type);
+							return new Hdf5HelperData(dsize, data, dataset_type, native_type);
 						}
 						int rank = H5.H5Sget_simple_extent_ndims(dataspaceId);
 						long[] dims = new long[rank];
@@ -477,16 +485,17 @@ public class Hdf5Helper {
 
 						long mem_type_id = H5.H5Dget_type(datasetId);// todo ensure it is closed in a finally block
 						try {
-							H5Datatype h5Datatype = new H5Datatype(mem_type_id);
 							long native_type = H5.H5Tget_native_type(mem_type_id);
+							DatasetType datasetType = HDF5Utils.getDatasetType(mem_type_id, native_type);
 							if (data != null || getData) {
-								if (data == null)
-									data = H5Datatype.allocateArray(mem_type_id, len);
+								if (data == null) {
+									data = allocateArray(datasetType, len);
+								}
 								H5.H5Dread(datasetId, mem_type_id, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL,
 										HDF5Constants.H5P_DEFAULT, data);
 
 							}
-							return new Hdf5HelperData(dims, data, h5Datatype, native_type);
+							return new Hdf5HelperData(dims, data, datasetType, native_type);
 						} finally {
 							if (mem_type_id > 0)
 								H5.H5Tclose(mem_type_id);
@@ -506,6 +515,25 @@ public class Hdf5Helper {
 				H5.H5Fclose(fileId);
 		}
 	}
+
+	/**
+	 * Allocate memory for a primitive or String array
+	 * @param datasetType
+	 * @param count
+	 * @return primitive or String array
+	 */
+	public static Object allocateArray(DatasetType datasetType, long... count) {
+		int[] shape = new int[count.length];
+		for (int i = 0; i < count.length; i++) {
+			long s = count[i];
+			if (s < 0 || s > Integer.MAX_VALUE) {
+				throw new IllegalArgumentException(String.format("Count value %ld at dimension %d is out of range", s, i));
+			}
+			shape[i] = (int) s;
+		}
+		return DatasetFactory.zeros(datasetType.isize, shape, datasetType.dtype).getBuffer();
+	}
+
 
 	public Hdf5HelperData readAttribute(String fileName, TYPE attribHolder, String attributeHolderName,
 			String attributeName) throws Exception {
@@ -556,18 +584,32 @@ public class Hdf5Helper {
 			int rank = H5.H5Sget_simple_extent_ndims(dataspaceId);
 			long[] dims = new long[rank];
 			H5.H5Sget_simple_extent_dims(dataspaceId, dims, null);
-			int len = 1;
-			for (int i = 0; i < dims.length; i++) {
-				len *= dims[i];
-			}
 
 			long mem_type_id = H5.H5Aget_type(attributeId);// todo ensure it is closed in a finally block
-			H5Datatype h5Datatype = new H5Datatype(mem_type_id);
 			long native_type = H5.H5Tget_native_type(mem_type_id);
-			Object data = H5Datatype.allocateArray(mem_type_id, len);
-			H5.H5Aread(attributeId, mem_type_id, data);
+			DatasetType datasetType = HDF5Utils.getDatasetType(mem_type_id, native_type);
+			Object data = allocateArray(datasetType, dims);
+			if (datasetType.dtype == Dataset.STRING) {
+				if (datasetType.isVariableLength) {
+					H5.H5AreadVL(attributeId, mem_type_id, (String[]) data);
+				} else {
+					int length = (int) lenFromDims(dims);
+					byte[] bytes = new byte[(int) (datasetType.size * length)];
+					H5.H5Aread(attributeId, mem_type_id, bytes);
+					String[] strings = (String[]) data;
+					int strIndex = 0;
+					for (int j = 0; j < bytes.length; j += datasetType.size) {
+						int strLength = 0;
+						//Java doesn't strip null bytes during string construction
+						for (int k = j; k < j + datasetType.size && bytes[k] != '\0'; k++) strLength++;
+						strings[strIndex++] = new String(bytes, j, strLength, Charset.forName("UTF-8")).trim();
+					}
+				}
+			} else {
+				H5.H5Aread(attributeId, mem_type_id, data);
+			}
 
-			return new Hdf5HelperData(dims, data, h5Datatype, native_type);
+			return new Hdf5HelperData(dims, data, datasetType, native_type);
 
 		} finally {
 
@@ -817,7 +859,7 @@ public class Hdf5Helper {
 				dimsToWrite = new long[dimsToWrite.length + 1];
 				System.arraycopy(data2.dims, 0, dimsToWrite, 1, data2.dims.length);
 				dimsToWrite[0] = 1;
-				data2 = new Hdf5HelperData(dimsToWrite, data2.data, data2.h5Datatype, data2.native_type);
+				data2 = new Hdf5HelperData(dimsToWrite, data2.data, data2.datasetType, data2.native_type);
 			}
 			boolean[] extendible = new boolean[dimsToWrite.length];
 			Arrays.fill(extendible, false);
@@ -844,7 +886,7 @@ public class Hdf5Helper {
 				dimsToWrite = new long[dimsToWrite.length + 1];
 				System.arraycopy(data2.dims, 0, dimsToWrite, 1, data2.dims.length);
 				dimsToWrite[0] = 1;
-				data2 = new Hdf5HelperData(dimsToWrite, data2.data, data2.h5Datatype, data2.native_type);
+				data2 = new Hdf5HelperData(dimsToWrite, data2.data, data2.datasetType, data2.native_type);
 
 			}
 			boolean[] extendible = new boolean[dimsToWrite.length];

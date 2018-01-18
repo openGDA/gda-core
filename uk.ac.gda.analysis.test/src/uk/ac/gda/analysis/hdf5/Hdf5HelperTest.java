@@ -22,16 +22,15 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
 
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.util.TestUtils;
-import hdf.object.Datatype;
-import hdf.object.h5.H5Datatype;
-import junit.framework.Assert;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 
 /**
@@ -91,7 +90,7 @@ public class Hdf5HelperTest {
 		long[] data_maxdims = null;
 		long[] data_dims = new long[]{length};
 		long mem_type_id = data2.native_type;
-		int [] data = (int[]) H5Datatype.allocateArray(mem_type_id, length);
+		int [] data = (int[]) Hdf5Helper.allocateArray(data2.datasetType, data_dims);
 
 		long before = System.currentTimeMillis();
 		for (int i = 0; i < 2; i++) {
@@ -128,7 +127,7 @@ public class Hdf5HelperTest {
 		long mem_type_id = data2.native_type;
 
 		long before = System.currentTimeMillis();
-		int []data = (int[]) Hdf5Helper.getInstance().AllocateMemory(mem_type_id, data_dims);
+		int []data = (int[]) Hdf5Helper.allocateArray(data2.datasetType, data_dims);
 		for (int i = 0; i < 2; i++) {
 			Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSet(TestFileFolder + EXCALIBUR_EQUALIZATION_HELPER_TEST_12998_NXS,ENTRY1_GROUP, "data", sstart, sstride, dsize, block, data_maxdims, // = null
 					data_dims,
@@ -165,7 +164,7 @@ public class Hdf5HelperTest {
 		data_dims[dims.length-1]=sizeOfSlice;
 		long before = System.currentTimeMillis();
 		long mem_type_id = data2.native_type;
-		int []data = (int[])  Hdf5Helper.getInstance().AllocateMemory(mem_type_id, data_dims);
+		int []data = (int[]) Hdf5Helper.allocateArray(data2.datasetType, data_dims);
 		@SuppressWarnings("unused")
 		Hdf5HelperData helperData=null;
 		while( sstart[dims.length-1] < dims[dims.length-1]){
@@ -302,7 +301,7 @@ public class Hdf5HelperTest {
 		HDF5HelperLocations attr_location = new HDF5HelperLocations("attrGroup");
 		Hdf5Helper.getInstance().writeAttribute( testScratchDirectoryName + "/1.hdf", TYPE.GROUP,attr_location , "attr", helperData);
 		Hdf5HelperData data = Hdf5Helper.getInstance().readAttribute( testScratchDirectoryName + "/1.hdf", TYPE.GROUP, "attrGroup", "attr");
-		Assert.assertEquals(1.0, ((double[])data.data)[0]);
+		Assert.assertEquals(1.0, ((double[])data.data)[0], 0);
 	}
 
 	@Test
@@ -449,8 +448,8 @@ public class Hdf5HelperTest {
 		Assert.assertEquals(string, string2);
 		Assert.assertEquals(readBack.dims.length, 1);
 		Assert.assertEquals(readBack.dims[0], 1);
-		Assert.assertEquals(string.getBytes().length,readBack.h5Datatype.getDatatypeSize());
-		Assert.assertEquals(Datatype.CLASS_STRING,readBack.h5Datatype.getDatatypeClass());
+		Assert.assertEquals(string.getBytes().length,readBack.datasetType.size);
+		Assert.assertEquals(Dataset.STRING,readBack.datasetType.dtype);
 	}
 
 }

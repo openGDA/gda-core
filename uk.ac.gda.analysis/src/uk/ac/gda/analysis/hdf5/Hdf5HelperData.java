@@ -18,39 +18,48 @@
 
 package uk.ac.gda.analysis.hdf5;
 
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.dawnsci.hdf5.HDF5Utils.DatasetType;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.dataset.Dataset;
 
 import hdf.hdf5lib.H5;
 import hdf.hdf5lib.HDF5Constants;
 import hdf.hdf5lib.exceptions.HDF5LibraryException;
-import hdf.object.h5.H5Datatype;
 
 public class Hdf5HelperData {
 
 	public long[] dims;
 	public Object data;
-	public H5Datatype h5Datatype;
+	public DatasetType datasetType;
 	public long native_type;
 
 	/**
 	 * @param dims
 	 * @param data
-	 * @param h5Datatype
+	 * @param datasetType
+	 * @param h5NativeType
 	 */
-	public Hdf5HelperData(long[] dims, Object data, H5Datatype h5Datatype, long h5tNativeInt16) {
+	Hdf5HelperData(long[] dims, Object data, DatasetType datasetType, long h5NativeType) {
 		super();
 		this.dims = dims;
 		this.data = data;
-		this.h5Datatype = h5Datatype;
-		this.native_type = h5tNativeInt16;
+		this.datasetType = datasetType;
+		this.native_type = h5NativeType;
 	}
 
-	public Hdf5HelperData(long[] dims, Object data, long native_type) {
+	public Hdf5HelperData(long[] dims, Object data, long native_id) {
 		super();
 		this.dims = dims;
 		this.data = data;
-		this.h5Datatype = new H5Datatype(native_type);
-		this.native_type = native_type;
+		long native_type;
+		try {
+			native_type = H5.H5Tget_native_type(native_id);
+			this.datasetType = HDF5Utils.getDatasetType(native_id, native_type);
+		} catch (HDF5LibraryException e) {
+		} catch (NexusException e) {
+		} // FIXME
+		this.native_type = native_id;
 	}
 
 	public Hdf5HelperData(short data) {
@@ -64,19 +73,19 @@ public class Hdf5HelperData {
 	}
 
 	public Hdf5HelperData(long[] dims, short[] data) {
-		this(dims, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT16),HDF5Constants.H5T_NATIVE_INT16);
+		this(dims, data, HDF5Constants.H5T_NATIVE_INT16);
 	}
 
 	public Hdf5HelperData(long[] dims, int[] data) {
-		this(dims, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT32),HDF5Constants.H5T_NATIVE_INT32);
+		this(dims, data, HDF5Constants.H5T_NATIVE_INT32);
 	}
 
 	public Hdf5HelperData(long[] dims, double[] data) {
-		this(dims, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
+		this(dims, data, HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
 	public Hdf5HelperData( double[] data) {
-		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
+		this(new long[]{data.length}, data, HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
 	public Hdf5HelperData( Dataset ads) {
@@ -129,13 +138,16 @@ public class Hdf5HelperData {
 		byte[] bytes = s.getBytes();
 		long typeId = H5.H5Tcopy(HDF5Constants.H5T_C_S1);
 		H5.H5Tset_size(typeId, bytes.length);
-		return new Hdf5HelperData(new long[] { 1 }, bytes, new H5Datatype(typeId), typeId);
+		return new Hdf5HelperData(new long[] { 1 }, bytes, typeId);
 	}
 
 	/**
 	 * @return Assumes data is a byte array
 	 */
 	public String getAsString() {
+		if (data instanceof String[]) {
+			return ((String[]) data)[0];
+		}
 		byte[] buf = (byte[]) data;
 		return new String(buf).trim();
 	}

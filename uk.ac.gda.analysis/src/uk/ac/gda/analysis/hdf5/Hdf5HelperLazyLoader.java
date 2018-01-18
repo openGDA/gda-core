@@ -62,8 +62,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	private void checkConfigured() throws Exception {
 		if (helperData == null) {
 			helperData = Hdf5Helper.getInstance().readDataSetAll(fileName, groupName, dataSetName, false);
-			dtype = HDF5Utils.getDType(helperData.h5Datatype.getDatatypeClass(),
-					(int) helperData.h5Datatype.getDatatypeSize());
+			dtype = helperData.datasetType.dtype;
 		}
 	}
 
