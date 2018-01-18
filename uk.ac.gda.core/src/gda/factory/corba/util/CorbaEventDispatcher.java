@@ -59,7 +59,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 
 	private ExecutorCompletionService<Void> execCompletionService;
 
-	private Object lock = new Object();
+	private final Object lock = new Object();
 
 	private Map<String, EventCollection> sourceEventsMap;
 
