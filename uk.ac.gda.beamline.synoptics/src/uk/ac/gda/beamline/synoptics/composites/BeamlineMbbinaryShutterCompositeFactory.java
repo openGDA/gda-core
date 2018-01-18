@@ -1,5 +1,29 @@
 package uk.ac.gda.beamline.synoptics.composites;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
+
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
  *
@@ -23,28 +47,6 @@ import gda.device.EnumPositioner;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
-
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BeamlineMbbinaryShutterCompositeFactory implements CompositeFactory {
 
@@ -138,6 +140,7 @@ class BeamlineMbbinaryShutterComposite extends Composite {
 		GridDataFactory.fillDefaults().applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
 		grp.setText(label);
+		grp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		this.display = display;
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);

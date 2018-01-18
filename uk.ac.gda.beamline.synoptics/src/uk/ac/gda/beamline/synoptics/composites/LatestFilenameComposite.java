@@ -52,6 +52,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import gda.device.detectorfilemonitor.FileProcessor;
 import gda.observable.IObserver;
 import uk.ac.gda.beamline.synoptics.api.PlotConfigurable;
@@ -172,6 +174,7 @@ class LatestFilenameComposite extends Composite {
 		int numColumns = 8 + (showButtonSeparator ? 1 : 0) + (separatePlayPauseButtons ? 2 : 1);
 
 		group = new Group(this, SWT.NONE);
+		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		group.setText(label);
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(group);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(group);
@@ -329,6 +332,7 @@ class LatestFilenameComposite extends Composite {
 
 		// plot - checked - clear first, unchecked - plot over
 		newPlotButton = new Button(group, SWT.CHECK);
+		newPlotButton.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		newPlotButton.setToolTipText("clear first?");
 		newPlotButton.setSelection(true);// default to checked - always clear first.
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(newPlotButton);

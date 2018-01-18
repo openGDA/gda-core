@@ -6,7 +6,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -17,6 +16,8 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import com.swtdesigner.SWTResourceManager;
 
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
@@ -106,6 +107,7 @@ class ImageButtonComposite extends Composite {
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
 		Group grp = new Group(this, style);
+		grp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
 		grp.setText(label);

@@ -17,10 +17,6 @@ package uk.ac.gda.beamline.synoptics.composites;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import gda.device.IBeamMonitor;
-import gda.observable.IObserver;
-import gda.rcp.views.CompositeFactory;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -42,6 +38,12 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
+
+import gda.device.IBeamMonitor;
+import gda.observable.IObserver;
+import gda.rcp.views.CompositeFactory;
 
 public class BeamStatusCompositeFactory implements CompositeFactory {
 	
@@ -99,6 +101,7 @@ class BeamStatusComposite extends Composite {
 		GridDataFactory.fillDefaults().applyTo(grp);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(grp);
 		grp.setText(label);
+		grp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		this.display = display;
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
