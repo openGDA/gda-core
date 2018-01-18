@@ -154,6 +154,7 @@ class PushEventQueue implements Runnable {
 	private final int chkLengthLimit = LocalProperties.getInt(GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK, 100);
 
 	CorbaEventReceiver receiver;
+
 	PushEventQueue(CorbaEventReceiver receiver){
 		this.receiver = receiver;
 		// Setup the receiver thread
@@ -221,8 +222,17 @@ class PushEventQueue implements Runnable {
 
 						long timeAfterDispatch = System.currentTimeMillis();
 						long timeToDispatch = timeAfterDispatch-timeOfDispatch;
-						if(timeToDispatch > 1000){
+
+						// TRACE: log every event in detail
+						// DEBUG: log basic warning if >1000ms, detail if >5000ms
+						// INFO-WARN: log basic warning if >1000ms
+						if (logger.isTraceEnabled()) {
+							logger.trace("Event {} took {}ms to dispatch (source={}, type={})", event, timeToDispatch, event.getHeader().eventName, event.getHeader().typeName);
+						} else if (timeToDispatch > 1000) {
 							logger.warn("Event took {}ms to dispatch (source={}, type={})", timeToDispatch, event.getHeader().eventName, event.getHeader().typeName);
+							if (timeToDispatch > 5000 && logger.isDebugEnabled()) {
+								logger.debug("Event taking >5s: {}", event);
+							}
 						}
 					}
 				}
@@ -232,5 +242,6 @@ class PushEventQueue implements Runnable {
 			}
 		}
 	}
+
 
 }
