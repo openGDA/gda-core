@@ -18,6 +18,11 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -25,9 +30,7 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.currentamplifier.ScalingAndOffset;
 import gda.device.detector.NXDetectorData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gda.jython.InterfaceProvider;
 
 /**
  * A class to represent a detector for NCD.
@@ -44,7 +47,20 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 
 	@Override
 	public void writeout(int frames, NXDetectorData nxdata) throws DeviceException {
-		float[] data = readFloat(channel, 0, 0, 1, 1, frames);
+		float[] data;
+		try {
+			data = readFloat(channel, 0, 0, 1, 1, frames);
+		} catch (DeviceException de) {
+			logger.warn("Could not read scalar data, defaulting to [1...1]", de);
+			InterfaceProvider.getTerminalPrinter().print(
+					String.format(
+							"ERROR reading from scalars for %s, defaulting to [1...1]",
+							getName()
+					)
+			);
+			data = new float[frames];
+			Arrays.fill(data, 1.0f);
+		}
 		NexusGroupData ngd;
 		String desc = scalingAndOffset.getDescription();
 
