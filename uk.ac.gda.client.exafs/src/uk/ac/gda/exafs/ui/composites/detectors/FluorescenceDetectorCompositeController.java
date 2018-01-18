@@ -86,7 +86,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private FluorescenceDetectorParameters detectorParameters;
 	private FluorescenceDetector theDetector;
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
-	private IBeanController dataBindingController;
+	private IBeanController<FluorescenceDetectorParameters> dataBindingController;
 	private FluoCompositeDataStore dataStore;
 	private FileDialog openDialog;
 	private Thread continuousThread;
@@ -142,6 +142,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				public void run() {
 					updateUIFromBean();
 					plotDataAndUpdateCounts();
+					fluorescenceDetectorComposite.autoscaleAxes();
 					updatePlottedRegion();
 				}
 			});
@@ -301,6 +302,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addElementEdgeListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				plotDataAndUpdateCounts();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
@@ -388,6 +396,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			@Override
 			public void run() {
 				plotDataAndUpdateCounts();
+				if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
+					fluorescenceDetectorComposite.autoscaleAxes();
 			}
 		});
 	}

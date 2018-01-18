@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.fileregistrar.FileRegistrar;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.DataWriter;
@@ -44,6 +46,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.ScriptBase;
 import gda.jython.batoncontrol.ClientDetails;
@@ -234,6 +237,12 @@ public abstract class XasScanBase implements XasScan {
 			if (num_sample_repeats == 1) {
 				printRepetition();
 			}
+
+			// Execute the 'before first repetition' scan/script
+			if (currentRepetition == 1 && i == 0) {
+				runScriptOrCommand(outputBean.getBeforeFirstRepetition());
+			}
+
 			doSingleScan(sampleName, descriptions, logmsg);
 		}
 	}
@@ -394,9 +403,11 @@ public abstract class XasScanBase implements XasScan {
 		if ( scriptNameOrCommand == null || scriptNameOrCommand.isEmpty() )
 			return;
 		File scriptFile = new File(scriptNameOrCommand);
-		if (scriptFile.isFile())
+		if (scriptFile.isFile()) {
+			logger.debug("Running script {}", scriptNameOrCommand);
 			runScript(scriptNameOrCommand);
-		else {
+		} else {
+			logger.debug("Running jython command : {}", scriptNameOrCommand);
 			InterfaceProvider.getCommandRunner().evaluateCommand(scriptNameOrCommand);
 		}
 	}
@@ -444,6 +455,16 @@ public abstract class XasScanBase implements XasScan {
 		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
 		if (asciidatawriterconfig != null) {
 			dataWriter.setConfiguration(asciidatawriterconfig);
+		}
+
+		Map<String, FileRegistrar> fileRegistrar = Finder.getInstance().getFindablesOfType(FileRegistrar.class);
+		if (fileRegistrar != null && fileRegistrar.size() > 0) {
+			if (fileRegistrar.size() > 1) {
+				logger.warn("{} FileRegistar objects found on server. Only one expected.", fileRegistrar.size());
+			}
+			String name = fileRegistrar.keySet().iterator().next();
+			dataWriter.addDataWriterExtender(fileRegistrar.get(name));
+			logger.info("Adding FileRegistar {} as DataWriterExtender for XasAsciiNexusScan", name);
 		}
 
 		addMetadata();

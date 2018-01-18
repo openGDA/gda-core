@@ -148,6 +148,8 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			}
 			ascii.completeCollection();
 		}
+		// call completeCollection on any extenders (e.g. FileRegistrar)
+		super.completeCollection();
 	}
 
 	@Override
