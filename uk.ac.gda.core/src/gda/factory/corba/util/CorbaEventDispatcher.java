@@ -111,7 +111,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 							Object lastElement = eventList.lastElement();
 							if( lastElement instanceof Double ){
 								//replace
-								eventList.set(eventList.size()-1, message);
+								eventList.setLastElement(message);
 								added =true;
 							}
 						}
