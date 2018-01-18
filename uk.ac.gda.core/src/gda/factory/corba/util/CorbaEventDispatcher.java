@@ -20,9 +20,9 @@
 package gda.factory.corba.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
@@ -159,7 +159,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 					try{
 						Object objectForSource;
 						{
-							Vector<Object> objectsForSource = mapEntry.getValue();
+							List<Object> objectsForSource = mapEntry.getValue();
 							if(objectsForSource.size()==1){
 								objectForSource = objectsForSource.get(0);
 							} else {

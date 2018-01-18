@@ -19,8 +19,12 @@
 package gda.factory.corba.util;
 
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.ArrayList;
 
-public class EventCollection extends Vector<Object> implements Serializable{
+public class EventCollection extends ArrayList<Object> implements Serializable {
+
+	public Object lastElement() {
+		return get(size() -1);
+	}
 
 }
