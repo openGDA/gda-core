@@ -28,6 +28,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.swtdesigner.SWTResourceManager;
+
 public class CompositeFactoryView extends ViewPart implements InitializingBean{
 
 	String viewTitle;
@@ -60,11 +62,13 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 
 		ScrolledComposite scrolledComposite= new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		Composite top = new Composite(scrolledComposite, SWT.NONE);
+		top.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(compositeFactories.size()).applyTo(top);
 		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, true).applyTo(top);
 
 		for(CompositeFactory compositeFactory : compositeFactories){
 			Composite composite = compositeFactory.createComposite(top, SWT.NONE);
+			composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 			GridDataFactory.fillDefaults().applyTo(composite);
 		}
 
