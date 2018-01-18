@@ -125,7 +125,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 				logger.debug("Cannot find Sample Information file {}.", this.filename);
 				logger.info("You may maunally input information per sample using object 'si' from JythonTerminal." );
 				// sample information object will not be configured.
-				throw new FactoryException("Cannot find Sample information file " + this.filename);
+				return;
 			}
 			if (!file.canRead()) {
 				logger.warn("Can not read from file {}. Permission denied. Scan will not be able to read data from this file.", this.filename);
