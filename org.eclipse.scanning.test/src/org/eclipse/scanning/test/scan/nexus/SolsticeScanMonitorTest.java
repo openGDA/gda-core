@@ -20,9 +20,11 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -34,11 +36,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -144,7 +149,7 @@ public class SolsticeScanMonitorTest {
 		public ExternalFileWritingDetector() {
 			super("detector", NexusBaseClass.NX_DETECTOR);
 			addExternalFileName(EXTERNAL_FILE_NAME);
-			setPropertyValue("uniqueKeys", MALCOLM_UNIQUE_KEYS_PATH);
+			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, MALCOLM_UNIQUE_KEYS_PATH);
 		}
 
 		@Override
@@ -157,14 +162,33 @@ public class SolsticeScanMonitorTest {
 
 	}
 
+	public static class InternalUniqueKeysWritingDetector extends AbstractNexusObjectProvider<NXdetector> {
+
+		public InternalUniqueKeysWritingDetector() {
+			super("internal", NexusBaseClass.NX_DETECTOR);
+			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, INTERNAL_UNIQUE_KEYS_PATH);
+		}
+
+		@Override
+		protected NXdetector createNexusObject() {
+			final NXdetector detector = NexusNodeFactory.createNXdetector();
+			detector.initializeLazyDataset(INTERNAL_UNIQUE_KEYS_PATH, 2, Integer.class);
+
+			return detector;
+		}
+
+	}
+
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
+	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
 	@Test
 	public void testCreateNexusObject() throws Exception {
 		// Arrange
 		List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
 		nexusObjectProviders.add(new ExternalFileWritingDetector());
+		nexusObjectProviders.add(new InternalUniqueKeysWritingDetector());
 		String[] positionerNames = new String[] { "xPos", "yPos" };
 		for (String positionerName : positionerNames) {
 			nexusObjectProviders.add(new ExternalFileWritingPositioner(positionerName));
@@ -270,14 +294,25 @@ public class SolsticeScanMonitorTest {
 		MockLazySaver uniqueKeysSaver = new MockLazySaver();
 		uniqueKeysDataset.setSaver(uniqueKeysSaver);
 
-		// assert links to external nodes
-		assertEquals(3, keysCollection.getNumberOfNodelinks());
+		// assert links to unique keys for devices that write their own
+		assertEquals(4, keysCollection.getNumberOfNodelinks());
 		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
-			for (String externalFilename : objectProvider.getExternalFileNames()) {
-				String datasetName = externalFilename.replace("/", "__");
+			final String deviceName = objectProvider.getName();
+			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
+			final Set<String> externalFileNames = objectProvider.getExternalFileNames();
+			if (externalFileNames.isEmpty()) {
+				assertEquals("internal", deviceName);
+				final NXobject nexusObject = objectProvider.getNexusObject();
+				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH);
+				assertTrue(uniqueKeysNodeLink != null && uniqueKeysNodeLink.isDestinationData());
+				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH).getDestination();
+				assertSame(uniqueKeysNode, keysCollection.getDataNode(deviceName));
+			} else {
+				final String externalFileName = externalFileNames.iterator().next();
+				String datasetName = externalFileName.replace("/", "__");
 				SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
 				assertNotNull(symbolicNode);
-				assertEquals(objectProvider.getPropertyValue("uniqueKeys"), symbolicNode.getPath());
+				assertEquals(uniqueKeysPath, symbolicNode.getPath());
 			}
 		}
 	}
@@ -287,6 +322,7 @@ public class SolsticeScanMonitorTest {
 		// Arrange - we have to create the nexus object first
 		List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
 		nexusObjectProviders.add(new ExternalFileWritingDetector());
+		nexusObjectProviders.add(new InternalUniqueKeysWritingDetector());
 		String[] positionerNames = new String[] { "xPos", "yPos" };
 		for (String positionerName : positionerNames) {
 			nexusObjectProviders.add(new ExternalFileWritingPositioner(positionerName));
@@ -375,14 +411,25 @@ public class SolsticeScanMonitorTest {
 		MockLazySaver uniqueKeysSaver = new MockLazySaver();
 		uniqueKeysDataset.setSaver(uniqueKeysSaver);
 
-		// assert links to external nodes
-		assertEquals(3, keysCollection.getNumberOfNodelinks());
+		// assert links to unique keys for devices that write their own
+		assertEquals(4, keysCollection.getNumberOfNodelinks());
 		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
-			for (String externalFilename : objectProvider.getExternalFileNames()) {
-				String datasetName = externalFilename.replace("/", "__");
+			final String deviceName = objectProvider.getName();
+			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
+			final Set<String> externalFileNames = objectProvider.getExternalFileNames();
+			if (externalFileNames.isEmpty()) {
+				assertEquals("internal", deviceName);
+				final NXobject nexusObject = objectProvider.getNexusObject();
+				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH);
+				assertTrue(uniqueKeysNodeLink != null && uniqueKeysNodeLink.isDestinationData());
+				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH).getDestination();
+				assertSame(uniqueKeysNode, keysCollection.getDataNode(deviceName));
+			} else {
+				final String externalFileName = externalFileNames.iterator().next();
+				String datasetName = externalFileName.replace("/", "__");
 				SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
 				assertNotNull(symbolicNode);
-				assertEquals(objectProvider.getPropertyValue("uniqueKeys"), symbolicNode.getPath());
+				assertEquals(uniqueKeysPath, symbolicNode.getPath());
 			}
 		}
 

@@ -38,10 +38,14 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -183,13 +187,13 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 
 		// write the scan shape
 		scanShape = info.getShape();
-		logger.info("Estimated scan shape " + Arrays.toString(scanShape));
+		logger.info("Estimated scan shape {}", scanShape);
 		scanPointsCollection.setDataset(FIELD_NAME_SCAN_SHAPE, DatasetFactory.createFromObject(scanShape));
 
 		// write the estimated scan duration
 		long estimatedScanTimeMillis = model.getScanInformation().getEstimatedScanTime();
 		String estimatedScanTimeStr = durationInMillisToString(Duration.ofMillis(estimatedScanTimeMillis));
-		logger.info("Estimated scan time " + estimatedScanTimeStr);
+		logger.info("Estimated scan time {}", estimatedScanTimeStr);
 		scanPointsCollection.setField(FIELD_NAME_SCAN_ESTIMATED_DURATION, estimatedScanTimeStr);
 
 		// create lazy datasets for actual scan duration, dead time and dead time percent
@@ -321,10 +325,15 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		if (nexusObjectProviders == null) throw new IllegalStateException("nexusObjectProviders not set");
 
 		for (NexusObjectProvider<?> nexusObjectProvider : nexusObjectProviders) {
-			String uniqueKeysPath = (String) nexusObjectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
+			final String uniqueKeysPath = (String) nexusObjectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
 			if (uniqueKeysPath != null) {
-				for (String externalFileName : nexusObjectProvider.getExternalFileNames()) {
-					addLinkToExternalFile(uniqueKeysCollection, externalFileName, uniqueKeysPath);
+				final Set<String> externalFiles = nexusObjectProvider.getExternalFileNames();
+				if (externalFiles.isEmpty()) {
+					addLinkToInternalDataset(uniqueKeysCollection, nexusObjectProvider, uniqueKeysPath);
+				} else {
+					for (String externalFileName : nexusObjectProvider.getExternalFileNames()) {
+						addLinkToExternalFile(uniqueKeysCollection, externalFileName, uniqueKeysPath);
+					}
 				}
 			}
 		}
@@ -346,6 +355,26 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 			uniqueKeysCollection.addExternalLink(datasetName, externalFileName,
 					uniqueKeysPath);
 		}
+	}
+
+	/**
+	 * Add a link to the unique keys dataset of the nexus object for the
+	 * given nexus object provider
+	 * @param uniqueKeysCollection
+	 * @param nexusObjectProvider
+	 * @param uniqueKeyPath
+	 */
+	private void addLinkToInternalDataset(final NXcollection uniqueKeysCollection,
+			NexusObjectProvider<?> nexusObjectProvider, String uniqueKeyPath) {
+		final String deviceName = nexusObjectProvider.getName();
+		NXobject obj = nexusObjectProvider.getNexusObject();
+		NodeLink nodeLink = obj.findNodeLink(uniqueKeyPath);
+		if (nodeLink == null || !nodeLink.isDestinationData()) {
+			throw new IllegalArgumentException("No such data node: " + uniqueKeyPath);
+		}
+
+		final DataNode dataNode = (DataNode) nodeLink.getDestination();
+		uniqueKeysCollection.addDataNode(deviceName, dataNode);
 	}
 
 	/**
