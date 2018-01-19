@@ -19,10 +19,6 @@
 package gda.rcp.views;
 
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.BatonChanged;
-import gda.observable.IObserver;
-
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -32,6 +28,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.springframework.util.StringUtils;
+
+import com.swtdesigner.SWTResourceManager;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonChanged;
+import gda.observable.IObserver;
 
 public class GroupCompositeFactory implements CompositeFactory {
 
@@ -88,16 +90,18 @@ public class GroupCompositeFactory implements CompositeFactory {
 			GridLayoutFactory.fillDefaults().applyTo(cmp);
 			GridDataFactory.fillDefaults().applyTo(cmp);
 		}
+		cmp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		int columnIndex=0;
 		Composite currentComp=null;
 		for(CompositeFactory compositeFactory : compositeFactories){
 			if(currentComp == null){
 				currentComp = new Composite(cmp, SWT.NONE);
+				currentComp.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 				GridLayoutFactory.fillDefaults().numColumns(columns).applyTo(currentComp);
 				GridDataFactory.fillDefaults().applyTo(currentComp);
 			}
-			compositeFactory.createComposite(currentComp, SWT.NONE);
+			compositeFactory.createComposite(currentComp, SWT.NONE).setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 			columnIndex++;
 			if(columnIndex == columns){
 				columnIndex = 0;
