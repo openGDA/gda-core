@@ -18,6 +18,11 @@
 
 package org.eclipse.scanning.sequencer;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
 import org.eclipse.scanning.api.annotation.scan.LevelStart;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
@@ -43,7 +48,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> {
+public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements INexusDevice<NXobject> {
 	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceProxy.class);
 
 	private AbstractRunnableDeviceDelegate delegate;
@@ -52,7 +57,7 @@ public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> {
 		super(ServiceHolder.getRunnableDeviceService());
 	}
 
-	// AbstractRunnableDevice<AreaDetectorRunnableDeviceModel>
+	// AbstractRunnableDevice<T>
 
 	@Override
 	public void configure(Object model) throws ScanningException {
@@ -81,12 +86,20 @@ public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> {
 		super.setDeviceState(nstate);
 	}
 
-	// Delegated interface IRunnableDevice<AreaDetectorRunnableDeviceModel> methods
+	// Delegated interface IRunnableDevice<T> methods
 
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		logger.trace("run({}) on {}", position, getName());
 		delegate.run(position);
+	}
+
+	// Delegated interface INexusDevice<NXobject> methods
+
+	@Override
+	public NexusObjectProvider<NXobject> getNexusProvider(NexusScanInfo info) throws NexusException {
+		logger.trace("getNexusProvider({}) on {}", info, getName());
+		return delegate.getNexusProvider(info);
 	}
 
 	// Delegated annotated methods

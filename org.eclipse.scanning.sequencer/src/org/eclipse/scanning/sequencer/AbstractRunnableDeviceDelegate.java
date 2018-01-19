@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.sequencer;
 
-import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -91,17 +91,17 @@ public abstract class AbstractRunnableDeviceDelegate {
 		return false;
 	}
 
-	// Delegated interface INexusDevice<NXdetector> methods
+	// Delegated interface INexusDevice<NXobject> methods
 
 	@SuppressWarnings("unused")
-	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+	public NexusObjectProvider<NXobject> getNexusProvider(NexusScanInfo info) throws NexusException {
 		logger.trace("getNexusProvider({}) on {}", info, runnableDeviceProxy.getName());
 		return null;
 	}
 
 
-	protected NexusObjectWrapper<NXdetector> getNexusObjectWrapper(String name, NXdetector nexusBaseClass) {
-		return new NexusObjectWrapper<NXdetector>(name, nexusBaseClass);
+	protected NexusObjectWrapper<NXobject> getNexusObjectWrapper(String name, NXobject nexusBaseClass) {
+		return new NexusObjectWrapper<NXobject>(name, nexusBaseClass);
 	}
 
 	// Delegated annotated methods
