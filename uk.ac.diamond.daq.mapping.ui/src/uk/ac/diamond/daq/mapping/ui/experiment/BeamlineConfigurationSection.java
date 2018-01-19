@@ -70,6 +70,12 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		try {
+			scannableDeviceService = getScannableDeviceService();
+		} catch (Exception e) {
+			LOGGER.error("Error creating IScannableDeviceService", e);
+		}
+
 		final boolean addFocusScanButton = getService(FocusScanBean.class) != null;
 		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
 		final int numColumns = addFocusScanButton ? 4 : 3;
@@ -98,12 +104,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		}
 
 		updateConfiguredScannableSummary();
-
-		try {
-			scannableDeviceService = getScannableDeviceService();
-		} catch (Exception e) {
-			LOGGER.error("Error creating IScannableDeviceService", e);
-		}
 	}
 
 	private void editBeamlineConfiguration() {
