@@ -477,7 +477,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		super.dispose();
 
 		xyPlot.dispose();
-		connect();
+		disconnect();
 	}
 
 	@Override
