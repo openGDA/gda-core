@@ -335,19 +335,15 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public double[][] getImage() {
 		try {
-			double[] image1DArray = controller.getImage();
+			// Get the expected image size
+			final int energyChannels = controller.getEnergyChannels();
+			final int yChannels = controller.getSlices();
 
-			int energyChannels = controller.getEnergyChannels();
-			int yChannels = controller.getSlices();
-
-			// Check the array lengths
-			if (image1DArray.length != energyChannels * yChannels) {
-				throw new RuntimeException("The image array lentgh was mismatched");
-			}
-
-			double[][] image2DArray = new double[yChannels][energyChannels];
+			// Get the image data from the IOC
+			final double[] image1DArray = controller.getImage(energyChannels * yChannels);
 
 			// Reshape the data
+			final double[][] image2DArray = new double[yChannels][energyChannels];
 			for (int i = 0; i < yChannels; i++) {
 				System.arraycopy(image1DArray, (i * energyChannels), image2DArray[i], 0, energyChannels);
 			}
