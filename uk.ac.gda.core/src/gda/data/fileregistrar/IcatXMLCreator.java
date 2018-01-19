@@ -68,7 +68,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	private String directory = "/tmp/bar-";
 	private Metadata metadata;
-	private Writer fileWriter;
+	protected Writer fileWriter;
 
 	private boolean useDirForDatasetName = true;
 
@@ -358,7 +358,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		metadata = findables.values().iterator().next();
 	}
 
-	private void closeFile() {
+	protected void closeFile() {
 		if (fileWriter == null) {
 			return;
 		}
@@ -385,7 +385,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		}
 	}
 
-	private void createFile() throws IOException {
+	protected void createFile() throws IOException {
 		fileWriter = new AtomicWriter(directory + new Date().getTime() + ".xml");
 		fileWriter.write(xmlHeader);
 	}
