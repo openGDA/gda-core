@@ -16,9 +16,16 @@ from gdascripts.scan import specscans
 from gdascripts.scan import gdascans
 
 from gda.jython.commands.GeneralCommands import alias
+from gda.jython import InterfaceProvider
+from gda.scan import ScanDataPointCache
+
+print "Setting up scan data point cache"
+scanDataPointCache = ScanDataPointCache()
+# Attach to JSF
+InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(scanDataPointCache)
 
 print "Setting up scan data processor, scan_processor"
-scan_processor = ScanDataProcessor( [MaxPositionAndValue(),MinPositionAndValue(),CentreOfMass(), GaussianPeakAndBackground() ], globals() )
+scan_processor = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue(), CentreOfMass(), GaussianPeakAndBackground() ], globals(), scanDataPointCache=scanDataPointCache)
 go = scan_processor.go
 alias("go")
 

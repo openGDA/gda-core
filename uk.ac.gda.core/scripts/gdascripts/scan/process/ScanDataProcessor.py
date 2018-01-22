@@ -37,10 +37,11 @@ class ScanDataProcessorResults(IterableUserDict):
 
 class ScanDataProcessor(ScanListener):
 
-	def __init__(self, datasetProcessorList=[], rootNamespaceDict={}, raiseProcessorExceptions=False):
-		self.raiseProcessorExceptions = raiseProcessorExceptions
+	def __init__(self, datasetProcessorList=[], rootNamespaceDict={}, raiseProcessorExceptions=False, scanDataPointCache=None):
 		self.processors = datasetProcessorList
 		self.rootNamespaceDict = rootNamespaceDict
+		self.raiseProcessorExceptions = raiseProcessorExceptions
+		self.scanDataPointCache = scanDataPointCache
 		self.results = {}
 		self.report = None
 		self.last_scannable_scanned = None
@@ -68,11 +69,12 @@ class ScanDataProcessor(ScanListener):
 			yfieldname = yscannable.name+"."+yfieldname
 			self.last_scannable_scanned = determineScannableContainingField(xfieldname, allscannables)
 
-			# Get the x and y  datasets from the scan file
-			lastScanFile = loadScanFile(concurrentScan)
+			# If we have the cache so don't bother loading the file	
+			lastScanFile = None if self.scanDataPointCache else loadScanFile(concurrentScan)
+
 			try:
-				xDataset = getDatasetFromLoadedFile(lastScanFile, xfieldname)
-				yDataset = getDatasetFromLoadedFile(lastScanFile, yfieldname)
+				xDataset = getDatasetFromLoadedFile(lastScanFile, xfieldname, self.scanDataPointCache)
+				yDataset = getDatasetFromLoadedFile(lastScanFile, yfieldname, self.scanDataPointCache)
 			except KeyError, e:
 				if self.raiseProcessorExceptions:
 					raise e
@@ -92,11 +94,11 @@ class ScanDataProcessor(ScanListener):
 				sdpr = processor.process(xDataset, yDataset)
 				if type(sdpr) == type(list()):
 					for each in sdpr:
-						sdpr = ScanDataProcessorResult(each, allscannables, xfieldname, yfieldname)
+						sdpr = ScanDataProcessorResult(each, allscannables, xfieldname, yfieldname, self.scanDataPointCache)
 						self.results[each.name] = each
 						lines.append('   ' + (each.name+':').ljust(8) + each.report)
 				else:
-					sdpr = ScanDataProcessorResult(sdpr, lastScanFile, allscannables, xfieldname, yfieldname)
+					sdpr = ScanDataProcessorResult(sdpr, lastScanFile, allscannables, xfieldname, yfieldname, self.scanDataPointCache)
 					self.results[sdpr.name] = sdpr
 					lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
 			report = '\n'.join(lines)

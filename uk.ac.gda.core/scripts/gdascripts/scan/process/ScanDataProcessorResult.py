@@ -18,7 +18,7 @@ def determineScannableContainingField(targetFieldname, scannables):
 	raise KeyError('Neither targetFieldname "%s" nor abbrevtarget "%s" found in scannables: %s' % (targetFieldname, abbrevtarget,
 					['%r:%r+%r' % (scn.getName(), list(scn.getInputNames()), list(scn.getExtraNames())) for scn in scannables]))
 
-def getDatasetFromLoadedFile(loadedFile, fieldName):
+def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 	'''
 	Gets a dataset called fieldName from an already loaded file see loadScanFile(scanOb)
 	returns dataset
@@ -32,6 +32,10 @@ def getDatasetFromLoadedFile(loadedFile, fieldName):
 		strippedFieldName = fieldName.split('.')[-1]
 	else: # fieldname doesn't require stripping
 		strippedFieldName = fieldName
+
+	# If we have a scanDataPointCache use it for performance
+	if(scanDataPointCache):
+		return  dnp.asarray(scanDataPointCache.getPositionsFor(strippedFieldName))
 
 	# Check if its a NeXus file
 	if isinstance(loadedFile, NXroot):
@@ -60,6 +64,27 @@ def getDatasetFromLoadedFile(loadedFile, fieldName):
 		print "The file format is not supported"
 		print loadedFile.__class__
 
+class Struct(object):
+
+	def __init__(self):
+		self.attrnames = []
+
+	def addAttribute(self, attrname, value):
+		self.__dict__[attrname]=value
+		self.attrnames.append(attrname)
+
+	def __repr__(self):
+		result = ''
+		for attrname in self.attrnames:
+			result += attrname + ' = ' + `self.__dict__[attrname]` + '\n'
+		return result
+
+	def __str__(self):
+		return self.__repr__()
+
+	def __getitem__(self, key):
+		return self.__dict__[key]
+
 class ScanDataProcessorResult(object):
 	"""When viewed as a string this returns nice wordy results, otherwise it
 	is a structure of the from:
@@ -74,32 +99,12 @@ class ScanDataProcessorResult(object):
 	processor.result.peak = 1
 	"""
 
-	def __init__(self, dataSetResult, lastScanFile, allscannables, xfieldname, yfieldname):
+	def __init__(self, dataSetResult, lastScanFile, allscannables, xfieldname, yfieldname, scanDataPointCache=None):
 		self.name = dataSetResult.processorName
 		self.labelValuePairs = dataSetResult.resultsDict
 		self.datasetProcessorReport = dataSetResult.report
+		self.scanDataPointCache = scanDataPointCache
 		xvalue = self.labelValuePairs[dataSetResult.keyxlabel]
-
-		class Struct(object):
-
-			def __init__(self):
-				self.attrnames = []
-
-			def addAttribute(self, attrname, value):
-				self.__dict__[attrname]=value
-				self.attrnames.append(attrname)
-
-			def __repr__(self):
-				result = ''
-				for attrname in self.attrnames:
-					result += attrname + ' = ' + `self.__dict__[attrname]` + '\n'
-				return result
-
-			def __str__(self):
-				return self.__repr__()
-
-			def __getitem__(self, key):
-				return self.__dict__[key]
 
 		self.scn = Struct()
 		self.field = Struct()
@@ -233,7 +238,7 @@ class ScanDataProcessorResult(object):
 		'''
 
 		# Get the x dataset from the file
-		dsx = getDatasetFromLoadedFile(lastScanFile, xname)
+		dsx = getDatasetFromLoadedFile(lastScanFile, xname, self.scanDataPointCache)
 		decreasing = dsx[0] > dsx[-1]
 		#dnp.interp only works on increasing datasets
 		dsx = dnp.array(dsx[::-1,...]) if decreasing else dsx
@@ -252,7 +257,7 @@ class ScanDataProcessorResult(object):
 						# Cannot get filenames from SRS files!
 						value = float('nan')
 					else:
-						dsfield = getDatasetFromLoadedFile(lastScanFile, scn_fieldname)
+						dsfield = getDatasetFromLoadedFile(lastScanFile, scn_fieldname, self.scanDataPointCache)
 						if feature_inside_scan_data:
 							# Find the value of the scannable by interpolation (only valid if feature is inside scan!).
 							# xvalue is the position of the feature against the x scannable

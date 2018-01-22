@@ -4,7 +4,6 @@ from gdascripts.analysis.datasetprocessor.oned.XYDataSetResult import XYDataSetR
 from gdascripts.scan.process.ScanDataProcessorResult import ScanDataProcessorResult
 from scisoftpy.dictutils import DataHolder
 
-
 NAN = float('nan')
 
 class MockScannable(object):
@@ -212,13 +211,65 @@ class TestScanDataProcessorResultWithFeatureOutsideCollection(TestScanDataProces
 	def testResultiongStructure(self):
 		pass #life too short
 
+class MockScanDataPointCache():
+
+	def __init__(self, sfh):
+		self.sfh = sfh
+
+	def getPositionsFor(self, scannableName):
+		return self.sfh[scannableName]
+
+class TestScanDataProcessorResultWithSDPC(TestScanDataProcessorResult):
+
+	def setUp(self):
+		unittest.TestCase.setUp(self)
+
+		self.w, self.x,self.y,self.z,self.sfh = createSimpleScanFileHolderAndScannables()
+		# assume that we have found the max value of ye as x was varied
+		self.dsr = XYDataSetResult('max', {'pos': 5., 'val': .5}, ('pos', 'val'), 'pos', "pos was 5.000000; val was .500000" )
+
+		sdpc = MockScanDataPointCache(self.sfh)
+
+		# Pass in None for the lastScanFile to ensure its not used as the SDPC should be used instead
+		self.sdpr = ScanDataProcessorResult(self.dsr, None, [self.x,self.y,self.z], 'x', 'ye', scanDataPointCache=sdpc)
+
+
+class TestScanDataProcessorResultWithInterpolatedXValuesWithSDPC(TestScanDataProcessorResultWithInterpolatedXValues):
+
+	def setUp(self):
+		self.w, self.x,self.y,self.z,self.sfh = createSimpleScanFileHolderAndScannables()
+		# assume that we have found the max value of ye as x was varied
+		self.dsr = XYDataSetResult('max', {'pos': 5.4, 'val': .5}, ('pos','val'), 'pos',"pos was 5.400000; val was .500000" )
+
+		sdpc = MockScanDataPointCache(self.sfh)
+
+		# Pass in None for the lastScanFile to ensure its not used as the SDPC should be used instead
+		self.sdpr = ScanDataProcessorResult(self.dsr, None, [self.x,self.y,self.z], 'x', 'ye', sdpc)
+
+
+class TestScanDataProcessorResultWithFeatureOutsideCollectionWithSDPC(TestScanDataProcessorResultWithFeatureOutsideCollection):
+
+	def setUp(self):
+		self.w, self.x,self.y,self.z,self.sfh = createSimpleScanFileHolderAndScannables()
+		# assume that we have found the max value of ye as x was varied
+		self.dsr = XYDataSetResult('lcen', {'lcen': -5.4}, ('lcen',), 'lcen',"..." )
+
+		sdpc = MockScanDataPointCache(self.sfh)
+
+		# Pass in None for the lastScanFile to ensure its not used as the SDPC should be used instead
+		self.sdpr = ScanDataProcessorResult(self.dsr, None, [self.x,self.y,self.z], 'x.x', 'y.ye', sdpc)
+
 
 def suite():
 	return unittest.TestSuite((
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResult),
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithInterpolatedXValues),
-		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithFeatureOutsideCollection))
-	)
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithFeatureOutsideCollection),
+		# With ScanDataPointCache
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithSDPC),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithInterpolatedXValuesWithSDPC),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorResultWithFeatureOutsideCollectionWithSDPC)
+	))
 
 if __name__ == '__main__':
 	unittest.TextTestRunner(verbosity=2).run(suite())

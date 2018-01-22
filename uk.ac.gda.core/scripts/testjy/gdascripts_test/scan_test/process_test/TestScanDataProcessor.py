@@ -157,13 +157,13 @@ class TestScanDataProcessor(unittest.TestCase):
 		sdp = ScanDataProcessor([], {})
 		sdp.processScan(concurrentScan)
 
-	def testGoCAlledWithSDPResult(self):
+	def testGoCalledWithSDPResult(self):
 		sdpresult = Mock()
 		sdp = ScanDataProcessor([], {})
 		sdp.go(sdpresult)
 		sdpresult.go.assert_called_with()
 
-	def testGoCAlledWithNoScannableFromLastScan(self):
+	def testGoCalledWithNoScannableFromLastScan(self):
 		sdp = ScanDataProcessor([], {})
 		self.assertRaises(Exception, sdp.go, 2)
 
@@ -235,12 +235,158 @@ class TestScanDataProcessorWithEceptionRaisingProcessor(TestScanDataProcessor):
 		print report
 		print "***"
 
+
+class MockScanDataPointCache():
+
+	def __init__(self, sfh):
+		self.sfh = sfh
+
+	def getPositionsFor(self, scannableName):
+		return self.sfh[scannableName]
+
+
+class TestScanDataProcessorWithSDPC(unittest.TestCase):
+
+	def setUp(self):
+		self.w, self.x, self.y, self.z, self.sfh = createSimpleScanFileHolderAndScannables()
+		self.concurrentScan = MockConcurrentScan()
+		self.sdpc = MockScanDataPointCache(self.sfh)
+
+	def testProcessScanWithNoProcessors(self):
+		rootNamespaceDict = {'a':1}
+		sdp = ScanDataProcessor([], rootNamespaceDict, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		self.assertEquals(sdp.processScan(self.concurrentScan),'<No dataset processors are configured>')
+		self.assertEquals(rootNamespaceDict, {'a':1})
+
+	def testProcessScan(self):
+		rootNamespaceDict = {}
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], rootNamespaceDict, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		report = sdp.processScan(self.concurrentScan)
+		print "report:"
+		print "***"
+		print report
+		print "***"
+		self.assertEquals(report['minval'].name, 'minval')
+		self.assertEquals(report['maxval'].name, 'maxval')
+		self.assertEquals(self.x.name, sdp.last_scannable_scanned.name)
+		print rootNamespaceDict
+
+	def testProcessScanLcenAndRcen(self):
+		rootNamespaceDict = {}
+		lcen = Lcen()
+		rcen = Rcen()
+		lcen.raise_process_exceptions = True
+		rcen.raise_process_exceptions = True
+		sdp = ScanDataProcessor([lcen, rcen], rootNamespaceDict, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		report = sdp.processScan(self.concurrentScan)
+		print "report:"
+		print "***"
+		print report
+		print "***"
+		self.assertEquals(report['lcen'].name, 'lcen')
+		self.assertEquals(report['rcen'].name, 'rcen')
+		print rootNamespaceDict
+
+	def testProcessScanWithMultiInputXScannable(self):
+		concurrentScan = MockConcurrentScan()
+		concurrentScan.getUserListedScannables.return_value = [self.w, self.x, self.y, self.z]
+		concurrentScan.getScanPlotSettings.return_value.getXAxisName.return_value = 'wi1'
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		report = sdp.processScan(concurrentScan)
+		print "report:"
+		print "***"
+		print report
+		print "***"
+
+	def testProcessScanNamespaceWritingWorksTwice(self):
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		sdp.processScan(self.concurrentScan)
+		sdp.processScan(self.concurrentScan)
+
+	def testPrepareForScan(self):
+		dataSetResult = Mock()
+		dataSetResult.resultsDict = {'key':None}
+		dataSetResult.keyxlabel = 'key'
+		sdpr = ScanDataProcessorResult(dataSetResult, None, None, None, None, scanDataPointCache=self.sdpc)
+		namespace = {'myobject': 1, 'minval': 'Non SDPR should be left alone at this stage', 'maxval': sdpr}
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], namespace, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		sdp.prepareForScan()
+		self.assertEquals(namespace, {'myobject': 1, 'minval': 'Non SDPR should be left alone at this stage'})
+
+	def testPrepareForScanWithDuplicatedNames(self):
+		dataSetResult = Mock()
+		dataSetResult.resultsDict = {'key':None}
+		dataSetResult.keyxlabel = 'key'
+		sdpr = ScanDataProcessorResult(dataSetResult, None, None, None, None, scanDataPointCache=self.sdpc)
+		namespace = {'myobject': 1, 'minval': 'Non SDPR should be left alone at this stage', 'maxval': sdpr,'maxpos': sdpr }
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], namespace, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		sdp.duplicate_names = {'maxval':'maxpos', 'minval':'minpos'}
+		sdp.prepareForScan()
+		self.assertEquals(namespace, {'myobject': 1, 'minval': 'Non SDPR should be left alone at this stage'})
+
+	def testPrepareForScanDisablesGo(self):
+		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True, scanDataPointCache=self.sdpc)
+		sdp.last_scannable_scanned = self.x
+		sdp.prepareForScan()
+		self.assertRaises(Exception, sdp.go, 3)
+
+	def testProcessScanWithJythonException(self):
+		concurrentScan = Mock()
+		concurrentScan.getUserListedScannables.side_effect = Exception("e")
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		result = sdp.processScan(concurrentScan)
+		print "***"
+		print result
+		print "***"
+
+	def testProcessScanWithJavaException(self):
+		concurrentScan = Mock()
+		def r():
+			raise java.lang.Exception("e")
+		concurrentScan.getUserListedScannables = r
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		result = sdp.processScan(concurrentScan)
+		print "***"
+		print result
+		print "***"
+
+	def testProcessScanWithJavaError(self):
+		concurrentScan = Mock()
+		def r():
+			raise java.lang.Error("e")
+		concurrentScan.getUserListedScannables = r
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		sdp.processScan(concurrentScan)
+
+	def testGoCalledWithSDPResult(self):
+		sdpresult = Mock()
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		sdp.go(sdpresult)
+		sdpresult.go.assert_called_with()
+
+	def testGoCalledWithNoScannableFromLastScan(self):
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		self.assertRaises(Exception, sdp.go, 2)
+
+	def testGoWithScannbaleFromLastScan(self):
+		scannable = Mock()
+		sdp = ScanDataProcessor([], {}, scanDataPointCache=self.sdpc)
+		sdp.last_scannable_scanned = scannable
+		sdp.go(1)
+		scannable.moveTo.assert_called_with(1)
+		sdp.go([1])
+		scannable.moveTo.assert_called_with([1])
+		sdp.go([1,2])
+		scannable.moveTo.assert_called_with([1, 2])
+
+
 def suite():
 	return unittest.TestSuite((
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessor),
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithOnlyOnePoint),
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithEceptionRaisingProcessor),
 		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorIntegrationWithRealNexusFile),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithSDPC)
 	))
 
 if __name__ == '__main__':
