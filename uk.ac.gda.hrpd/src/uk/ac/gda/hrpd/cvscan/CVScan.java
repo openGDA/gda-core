@@ -18,6 +18,19 @@
 
 package uk.ac.gda.hrpd.cvscan;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -40,21 +53,6 @@ import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
 /**
@@ -256,7 +254,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			if (!list.isEmpty()) {
 				list.clear();
 			}
-			return FilenameUtils.getName(datafile);
+			return new File(datafile).getName();
 		}
 		return getFilename();
 	}
@@ -300,7 +298,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(false);
-		
+
 		executor.shutdown();
 		boolean terminated;
 		try {
@@ -344,19 +342,19 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	// hack to satisfy scan framework requirement
 	private void filesToWriteTo() {
-		rebinnedfile = new File(appendToFileName(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat")));
+		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
+				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat"));
 	}
 
 	/*
 	 * create file handle for both RAW data and rebinned data.
 	 */
 	private void createFilesToWriteTo() {
-		rawfile = new File(appendToFileName(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.raw", "raw")));
+		rawfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
+				collectionNumber, LocalProperties.get("gda.data.file.extension.raw", "raw"));
 		InterfaceProvider.getTerminalPrinter().print("Raw data will be saved to file: " + rawfile.getAbsolutePath());
-		rebinnedfile = new File(appendToFileName(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat")));
+		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
+				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat"));
 		InterfaceProvider.getTerminalPrinter().print(
 				"Rebinned data will be saved to file: " + rebinnedfile.getAbsolutePath());
 		InterfaceProvider.getTerminalPrinter().print("When constant velocity scan completed successfully.");
@@ -429,7 +427,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * gets current CVScan profile
-	 * 
+	 *
 	 * @return CVScan profile name
 	 * @throws DeviceException
 	 */
@@ -439,7 +437,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * list CVScan profile available
-	 * 
+	 *
 	 * @return list of Profiles
 	 * @throws InterruptedException
 	 */
@@ -454,7 +452,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * reset the controller busy status to false if and only if locked to true.
-	 * 
+	 *
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
@@ -470,7 +468,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * set the start position of the 2nd motor in current CVScan Profile.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -494,7 +492,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * get the start position of the 2nd motor in the current CVScan Profile
-	 * 
+	 *
 	 * @return start position of 2nd motor
 	 * @throws DeviceException
 	 */
@@ -513,7 +511,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * get the scan range of the 2nd motor in the current CVScan Profile.
-	 * 
+	 *
 	 * @return scan range of 2nf motor
 	 * @throws DeviceException
 	 */
@@ -532,7 +530,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	/**
 	 * set the scan range of 2nd motor in the current CVScan Profile.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -554,8 +552,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 	}
 
-	private String appendToFileName(String dir, String filename, long collectionNumber, String ext) {
-		return dir.concat(filename).concat("-").concat(String.format("%03d", collectionNumber)).concat(".").concat(ext);
+	private File buildFile(String dir, String filename, long collectionNumber, String ext) {
+		String fullFileName = String.format("%s-%03d.%s", filename, collectionNumber, ext);
+		return new File(dir, fullFileName);
 	}
 
 	private void startBeamMonitor() {
@@ -816,7 +815,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	/**
 	 * used to add scannables to cvscan which are passed to the MAC data writer to capture their values as metadata in
 	 * the header.
-	 * 
+	 *
 	 * @param scannableList
 	 */
 	public void addScannables(ArrayList<Scannable> scannableList) {
