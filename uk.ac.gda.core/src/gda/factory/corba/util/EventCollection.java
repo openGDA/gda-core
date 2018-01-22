@@ -18,10 +18,14 @@
 
 package gda.factory.corba.util;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class EventCollection extends ArrayList<Object> implements Serializable {
+
+	private static final int ELEMENT_STRING_LIMIT = 20;
 
 	public Object lastElement() {
 		return get(size() -1);
@@ -31,4 +35,16 @@ public class EventCollection extends ArrayList<Object> implements Serializable {
 		return set(size() -1, element);
 	}
 
+	@Override
+	public String toString() {
+		// Only log first few items
+		final boolean truncated = size() > ELEMENT_STRING_LIMIT;
+		final String limitWarning = truncated ? String.format(" (first %d shown)", ELEMENT_STRING_LIMIT) : "";
+		final String baseString = String.format("EventCollection(size=%d%s)[", size(), limitWarning);
+		final String tailString = truncated ? ", ...]" : "]";
+		return stream()
+				.limit(ELEMENT_STRING_LIMIT)
+				.map(Object::toString)
+				.collect(joining(", ", baseString, tailString));
+	}
 }
