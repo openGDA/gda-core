@@ -23,7 +23,6 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 import uk.ac.gda.devices.bssc.ui.views.BioSAXSCollectionResultPlotView;
-import uk.ac.gda.devices.bssc.ui.views.BioSAXSReductionResultPlotView;
 
 public class BioSAXSResultPerspective implements IPerspectiveFactory {
 	public static final String ID = "uk.ac.gda.devices.bssc.biosaxsresultperspective";
@@ -33,12 +32,9 @@ public class BioSAXSResultPerspective implements IPerspectiveFactory {
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.LEFT, 0.73f,
 				IPageLayout.ID_EDITOR_AREA);
 		
-		layout.addView("uk.ac.gda.devices.bssc.biosaxsprogressview", IPageLayout.RIGHT, 0.60f,
-				IPageLayout.ID_EDITOR_AREA);
-		layout.addView("uk.ac.gda.client.CommandQueueViewFactory", IPageLayout.BOTTOM, 0.75f, "uk.ac.gda.devices.bssc.biosaxsprogressview");
+		layout.addView("uk.ac.gda.client.CommandQueueViewFactory", IPageLayout.BOTTOM, 0.75f, IPageLayout.ID_EDITOR_AREA);
 		
 		folderLayout.addView(BioSAXSCollectionResultPlotView.ID);
-		folderLayout.addView(BioSAXSReductionResultPlotView.ID);
 		
 		layout.setEditorAreaVisible(false);
 	}

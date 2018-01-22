@@ -101,12 +101,6 @@
            name="BioSAXS Robot Status">
      </view>
      <view
-           class="uk.ac.gda.devices.bssc.ui.BioSAXSProgressView"
-           id="uk.ac.gda.devices.bssc.biosaxsprogressview"
-           name="BioSAXS Progress View"
-           restorable="true">
-     </view>
-     <view
            class="uk.ac.gda.devices.bssc.ui.views.CapillaryView"
            id="uk.ac.gda.devices.bssc.views.CapillaryView"
            name="Capillary View">
