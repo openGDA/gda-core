@@ -28,6 +28,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistentFile;
@@ -61,7 +62,7 @@ public class CreateMapHandler extends AbstractHandler {
 		final LiveStreamView liveStreamView = getLiveStreamView(event);
 		final SnapshotData snapshot = liveStreamView.getSnapshot();
 
-		final Job createMapJob = Job.create("Create map from live stream snapshot", monitor -> createMap(snapshot));
+		final Job createMapJob = Job.create("Create map from live stream snapshot", (IJobFunction) monitor -> createMap(snapshot));
 		createMapJob.schedule();
 		return null;
 	}
