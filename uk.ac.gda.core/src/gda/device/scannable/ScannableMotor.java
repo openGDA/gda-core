@@ -19,6 +19,8 @@
 package gda.device.scannable;
 
 import java.text.MessageFormat;
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,15 +65,18 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableMotor.class);
 
+	/**
+	 * Set of motor states which are considered error states i.e. a move is considered to have failed if the motor ends
+	 * up in one of these states.
+	 */
+	private static final Set<MotorStatus> ERROR_STATES = EnumSet.of(MotorStatus.FAULT, MotorStatus.UPPER_LIMIT,
+			MotorStatus.LOWER_LIMIT, MotorStatus.SOFT_LIMIT_VIOLATION);
+
 	private String motorName;
 
 	private Motor motor;
 
 	private MotorLimitsComponent motorLimitsComponent;
-
-	private static final String IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT = "gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault";
-
-	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = LocalProperties.check(IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT, true);
 
 	private boolean returnDemandPosition = false;
 
@@ -340,9 +345,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	@Override
 	public boolean isBusy() throws DeviceException {
 		try {
-			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-				raiseExceptionIfInFault("isBusy()");
-			}
 			return this.motor.getStatus() == MotorStatus.BUSY;
 		} catch (MotorException e) {
 			throw new DeviceException("Error getting busy status", e);
@@ -355,31 +357,15 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 		motor.waitWhileStatusBusy();
 
-		logger.trace("{}: isIsBusyThrowingExceptionWhenMotorGoesIntoFault() = {}", getName(),
-				isIsBusyThrowingExceptionWhenMotorGoesIntoFault());
-		if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-			raiseExceptionIfInFault("waitWhileBusy()");
-		}
-
 		logger.trace("{}: waiting complete >> motor position={}, motor status={}, lastDemandedInternalPosition={}, returnDemandPosition={}",
 				getName(), motor.getPosition(), motor.getStatus(), lastDemandedInternalPosition, returnDemandPosition);
 
-		// Belt and braces...
-		if (motor.getStatus() != MotorStatus.READY) {
-			if (isIsBusyThrowingExceptionWhenMotorGoesIntoFault()) {
-				raiseExceptionIfInFault("waitWhileBusy() again");
-			} else {
-				logger.warn("Motor {} exiting waitWhileBusy() but status = {}", getName(), motor.getStatus());
-			}
+		final MotorStatus motorStatus = motor.getStatus();
+		if (ERROR_STATES.contains(motorStatus)) {
+			final String message = String.format("During %s.waitWhileBusy(), EPICS Motor was found in %s status. Please check EPICS Screen.",
+					getName(), motorStatus);
+			throw new MotorException(motorStatus, message);
 		}
-	}
-
-	private void raiseExceptionIfInFault(String caller) throws MotorException {
-		if ((motor.getStatus() == MotorStatus.FAULT) || (motor.getStatus() == MotorStatus.UPPER_LIMIT)
-				|| (motor.getStatus() == MotorStatus.LOWER_LIMIT)
-				|| (motor.getStatus() == MotorStatus.SOFT_LIMIT_VIOLATION))
-			throw new MotorException(motor.getStatus(), "\nDuring " + getName() + "." + caller + " EPICS Motor was found in "
-					+ motor.getStatus() + " status. Please check EPICS Screen.");
 	}
 
 	@Override
@@ -626,16 +612,6 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 	public MotorLimitsComponent getMotorLimitsComponent() {
 		return motorLimitsComponent;
-	}
-
-	public void setIsBusyThrowsExceptionWhenMotorGoesIntoFault(boolean isBusyThrowsExceptionWhenMotorGoesIntoFault) {
-		logger.trace("setIsBusyThrowsExceptionWhenMotorGoesIntoFault({}) was {}", isBusyThrowsExceptionWhenMotorGoesIntoFault,
-				this.isBusyThrowsExceptionWhenMotorGoesIntoFault);
-		this.isBusyThrowsExceptionWhenMotorGoesIntoFault = isBusyThrowsExceptionWhenMotorGoesIntoFault;
-	}
-
-	private boolean isIsBusyThrowingExceptionWhenMotorGoesIntoFault() {
-		return isBusyThrowsExceptionWhenMotorGoesIntoFault;
 	}
 
 	private boolean isLogMoveRequestsWithInfo() {

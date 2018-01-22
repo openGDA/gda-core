@@ -41,6 +41,7 @@ import org.mockito.ArgumentCaptor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
+import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.ScannableMotion;
 import gda.factory.Finder;
@@ -767,5 +768,65 @@ public class ScannableMotorTest {
 		sm.configure();
 		assertEquals(-Double.MAX_VALUE, sm.getLowerGdaLimits()[0], .001);
 		assertEquals(Double.MAX_VALUE, sm.getUpperGdaLimits()[0], .001);
+	}
+
+	@Test(expected = DeviceException.class)
+	public void testIsBusyCannotGetStatus() throws Exception {
+		when(motor.getStatus()).thenThrow(new MotorException(MotorStatus.FAULT, "Error getting motor status"));
+		sm.isBusy();
+	}
+
+	@Test
+	public void testIsBusyMotorAtFault() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.FAULT);
+		assertFalse(sm.isBusy());
+	}
+
+	@Test
+	public void testIsBusyMotorAtUpperLimit() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.UPPER_LIMIT);
+		assertFalse(sm.isBusy());
+	}
+
+	@Test
+	public void testIsBusyMotorAtLowerLimit() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.LOWER_LIMIT);
+		assertFalse(sm.isBusy());
+	}
+
+	@Test
+	public void testIsBusyMotorAtSoftLimitViolation() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.SOFT_LIMIT_VIOLATION);
+		assertFalse(sm.isBusy());
+	}
+
+	@Test(expected = MotorException.class, timeout = 500)
+	public void testWaitWhileBusyCannotGetMotorStatus() throws Exception {
+		when(motor.getStatus()).thenThrow(new MotorException(MotorStatus.FAULT, "Error getting motor status"));
+		sm.waitWhileBusy();
+	}
+
+	@Test(expected = DeviceException.class, timeout = 500)
+	public void testWaitWhileBusyMotorAtFault() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.FAULT);
+		sm.waitWhileBusy();
+	}
+
+	@Test(expected = DeviceException.class, timeout = 500)
+	public void testWaitWhileBusyMotorAtUpperLimit() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.UPPER_LIMIT);
+		sm.waitWhileBusy();
+	}
+
+	@Test(expected = DeviceException.class, timeout = 500)
+	public void testWaitWhileBusyMotorAtLowerLimit() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.LOWER_LIMIT);
+		sm.waitWhileBusy();
+	}
+
+	@Test(expected = DeviceException.class, timeout = 500)
+	public void testWaitWhileBusyMotorAtSoftLimitViolation() throws Exception {
+		when(motor.getStatus()).thenReturn(MotorStatus.SOFT_LIMIT_VIOLATION);
+		sm.waitWhileBusy();
 	}
 }
