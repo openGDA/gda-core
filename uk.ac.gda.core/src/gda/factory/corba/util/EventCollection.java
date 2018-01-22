@@ -27,4 +27,8 @@ public class EventCollection extends ArrayList<Object> implements Serializable {
 		return get(size() -1);
 	}
 
+	public Object setLastElement(Object element) {
+		return set(size() -1, element);
+	}
+
 }
