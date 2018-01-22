@@ -25,12 +25,6 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.diamond.scisoft.ncd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="uk.ac.gda.client.ncd"
          download-size="0"
          install-size="0"
@@ -67,27 +61,6 @@
 
    <plugin
          id="uk.ac.diamond.org.jscience4"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.diamond.scisoft.ncd.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.diamond.scisoft.ncd.calibration.rcp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.diamond.scisoft.ncd.core.rcp"
          download-size="0"
          install-size="0"
          version="0.0.0"

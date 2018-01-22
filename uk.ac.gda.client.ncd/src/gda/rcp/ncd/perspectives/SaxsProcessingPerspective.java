@@ -38,8 +38,6 @@ public class SaxsProcessingPerspective implements IPerspectiveFactory {
 			IFolderLayout folderLayout = layout.createFolder("folder_3", IPageLayout.BOTTOM, 0.43f, "folder");
 			folderLayout.addView("gda.rcp.ncd.views.StatsAndMathsWithSymmetry");
 			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceSaxs");
-			folderLayout.addView("uk.ac.diamond.scisoft.ncd.rcp.views.NcdDetectorParameters");
-			folderLayout.addView("uk.ac.diamond.scisoft.ncd.rcp.views.AbsoluteIntensityCalibration");
 			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D");
 		}
 		{
