@@ -1032,6 +1032,10 @@
          id="uk.ac.gda.client.script.run"
          name="RunScript">
    </command>
+   <command
+         id="uk.ac.gda.client.script.reload"
+         name="ReloadScript">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.commandImages">
@@ -1061,6 +1065,10 @@
             </iterate>
          </and>
       </activeWhen>
+   </handler>
+   <handler
+         class="uk.ac.gda.client.actions.ImportReloadScriptHandler"
+         commandId="uk.ac.gda.client.script.reload">
    </handler>
    <handler
          class="uk.ac.gda.client.actions.RunScriptHandler"
@@ -1172,33 +1180,29 @@
               style="push">
         </command>
      </menuContribution>
-  </extension>
-  <extension
-        name="Scripting Editor Actions"
-        point="org.eclipse.ui.editorActions">
-     <editorContribution
-           id="uk.ac.gda.pydev.editorContributions"
-           targetID="org.python.pydev.editor.PythonEditor">
-        <action
-              class="uk.ac.gda.client.scripting.ImportOrReloadScriptActionDelegate"
-              icon="icons/script_lightning.png"
-              id="uk.ac.gda.pydev.reloadScript"
-              label="Import/Reload"
-              style="push"
-              toolbarPath="Normal/additions"
-              tooltip="Import or Reload the script in the GDA Server.">
-        </action>
-        <action
-              class="uk.ac.gda.client.scripting.RunScriptActionDelegate"
-              icon="icons/script_go.png"
-              id="uk.ac.gda.pydev.runScript"
-              label="Run"
-              mode="FORCE_TEXT"
-              style="push"
-              toolbarPath="Normal/additions"
-              tooltip="Runs the script directly in the GDA Server.">
-        </action>
-     </editorContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.main.toolbar?after=org.eclipse.ui.edit.text.actionSet.navigation">
+      <toolbar
+              id="uk.ac.gda.client.script"
+              label="GDA scripts">
+           <command
+                 commandId="uk.ac.gda.client.script.run"
+                 icon="icons/script_go.png"
+                 label="Run"
+                 mode="FORCE_TEXT"
+                 style="push"
+                 tooltip="Run current script">
+           </command>
+           <command
+                 commandId="uk.ac.gda.client.script.reload"
+                 icon="icons/script_lightning.png"
+                 label="Import/Reload"
+                 style="push"
+                 tooltip="Import (or reload) current script">
+           </command>
+        </toolbar>
+     </menuContribution>
   </extension>
   <extension
         name="Navigator content for scripting"

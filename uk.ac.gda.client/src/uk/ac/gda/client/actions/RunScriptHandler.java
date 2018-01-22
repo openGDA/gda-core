@@ -20,30 +20,20 @@ package uk.ac.gda.client.actions;
 
 import java.io.File;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class RunScriptHandler extends AbstractHandler {
+public class RunScriptHandler extends ScriptHandler {
+
+	private static final ICommandRunner COMMAND_RUNNER = InterfaceProvider.getCommandRunner();
+	private static final Logger logger = LoggerFactory.getLogger(RunScriptHandler.class);
+
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try {
-			IEditorPart editor = HandlerUtil.getActiveEditor(event);
-			File script = EclipseUtils.getFile(editor.getEditorInput());
-			if (script != null) {
-				ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
-				commandRunner.runScript(script);
-			}
-		} catch (Exception e) {
-			throw new ExecutionException("Could not run script", e);
-		}
-		return null;
+	void run(File script) {
+		logger.info("Running script '{}' from UI", script);
+		COMMAND_RUNNER.runScript(script);
 	}
-
 }
