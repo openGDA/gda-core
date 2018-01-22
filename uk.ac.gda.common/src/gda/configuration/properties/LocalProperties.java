@@ -24,8 +24,11 @@ import static java.io.File.separator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -808,36 +811,24 @@ public final class LocalProperties {
 		propConfig.clearProperty(key);
 	}
 
+	/**
+	 * Properties that should not be set and the reason
+	 */
+	private static final Map<String, String> obsoletePropertyToReason = new HashMap<>();
+	static {
+		obsoletePropertyToReason.put("gda.objectDelimiter", "it is not used any more");
+		obsoletePropertyToReason.put("gda.eventreceiver.purge", "CorbaEventReceiver does not purge events any more");
+		obsoletePropertyToReason.put("gda.users", "this property was used ambiguously and should not be used any more");
+		obsoletePropertyToReason.put("gda.jython.gdaScriptDir", "script paths are defined in the Spring configuration for the command_server");
+		obsoletePropertyToReason.put("gda.jython.userScriptDir", "script paths are defined in the Spring configuration for the command_server");
+		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault", "it is not used any more");
+	}
+
 	public static void checkForObsoleteProperties() {
-		final String GDA_OBJECT_DELIMITER = "gda.objectDelimiter";
-		if (get(GDA_OBJECT_DELIMITER) != null) {
-			logger.warn("Please remove the '{}' property from your java.properties file - it is not used any more", GDA_OBJECT_DELIMITER);
-		}
-
-		final String GDA_EVENTRECEIVER_PURGE = "gda.eventreceiver.purge";
-		if (get(GDA_EVENTRECEIVER_PURGE) != null) {
-			logger.warn("Please remove the '{}' property from your java.properties file - CorbaEventReceiver does not purge events any more",
-					GDA_EVENTRECEIVER_PURGE);
-		}
-
-		final String GDA_USERS = "gda.users";
-		if (get(GDA_USERS) != null) {
-			logger.warn("Please remove the '{}' property from your java.properties file - this property was used ambiguously and should not be used any more",
-					GDA_USERS);
-		}
-
-		final String GDA_JYTHON_GDASCRIPTDIR = "gda.jython.gdaScriptDir";
-		if (get(GDA_JYTHON_GDASCRIPTDIR) != null) {
-			logger.warn(
-					"Please remove the '{}' property from your java.properties file - script paths are defined in the Spring configuration for the command_server.",
-					GDA_JYTHON_GDASCRIPTDIR);
-		}
-
-		final String GDA_JYTHON_USERSCRIPTDIR = "gda.jython.userScriptDir";
-		if (get(GDA_JYTHON_USERSCRIPTDIR) != null) {
-			logger.warn(
-					"Please remove the '{}' property from your java.properties file - script paths are defined in the Spring configuration for the command_server.",
-					GDA_JYTHON_USERSCRIPTDIR);
+		for (Entry<String, String> property : obsoletePropertyToReason.entrySet()) {
+			if (LocalProperties.contains(property.getKey())) {
+				logger.warn("Please remove the '{}' property from your java.properties file - {}", property.getKey(), property.getValue());
+			}
 		}
 	}
 
