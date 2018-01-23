@@ -45,20 +45,22 @@ import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -72,6 +74,7 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
  * A section for choosing which detectors should be included in the scan, and for
@@ -84,13 +87,14 @@ public class DetectorsSection extends AbstractMappingSection {
 	private static final int DETECTORS_COLUMNS = 3;
 	private static final String DETECTOR_SELECTION_KEY_JSON = "detectorSelection.json";
 
+	private static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
+
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Button> detectorSelectionCheckboxes;
 	private List<IDetectorModelWrapper> visibleDetectors; // the detectors
 	private Composite sectionComposite; // parent composite for all controls in the section
 	private Composite detectorsComposite;
-	private IRunnableDeviceService runnableDeviceService = null;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -235,6 +239,16 @@ public class DetectorsSection extends AbstractMappingSection {
 		updateStatusLabel();
 	}
 
+	/**
+	 * Update the mapping stage scannable names based on the given detector.
+	 * This method will only make any changes if the given detector is a malcolm device,
+	 * and the value of the {@code axesToMove} attribute of that malcolm device is
+	 * a {@link StringArrayAttribute} with a length of exactly 2.
+	 * In this case the fast and slow axes will be changed to the
+	 * first and second elements of that array.
+	 *
+	 * @param wrapper detetor model wrapper of the selected detector
+	 */
 	private void updateMappingStage(IDetectorModelWrapper wrapper) {
 		final String deviceName = wrapper.getModel().getName();
 		try {
@@ -254,11 +268,18 @@ public class DetectorsSection extends AbstractMappingSection {
 			// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
 			stageInfo.setActiveFastScanAxis(axesToMove.get(0));
 			stageInfo.setActiveSlowScanAxis(axesToMove.get(1));
-
 			// TODO: we should update the associated (i.e. 'z') axis as well. We need some way to get this from malcolm.
-			MessageDialog.openInformation(getShell(), "Mapping Stage",
-					MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''. The associated axis is ''{2}'' and has not been changed.", stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis(),
-							stageInfo.getAssociatedAxis()));
+
+			// show a dialog to inform the user of the change (unless overridden in the preferences)
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			if (prefs.getBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, true)) {
+				final String message = MessageFormat.format(
+						"The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''. The associated axis is ''{2}'' and has not been changed.",
+						stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis(), stageInfo.getAssociatedAxis());
+				MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
+						"Don't show this dialog again", false, null, null);
+				prefs.putBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, !dialog.getToggleState());
+			}
 
 			// Region and path composites need updating to reflect this change.
 			getMappingView().redrawRegionAndPathComposites();
