@@ -25,7 +25,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 
 /**
  * A section to configure essential parameters of a scan that do not belong elsewhere.
@@ -48,9 +49,8 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		Composite essentialParametersComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
-		// FIXME not good to be hard-coding things here to look like the GUI generator - can we auto-generate these fields?
 		Label sampleNameLabel = new Label(essentialParametersComposite, SWT.NONE);
-		sampleNameLabel.setText("Sample Name:");
+		sampleNameLabel.setText("Sample Name");
 		Text sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
 
@@ -61,11 +61,15 @@ public class ScanMetadataSection extends AbstractMappingSection {
 		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
 		editMetadataButton.setText("Edit metadata...");
 
-		IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
 		editMetadataButton.addListener(SWT.Selection, event -> {
-			guiGenerator.openDialog(getMappingBean().getSampleMetadata(), parent.getShell(), "Sample Metadata");
-			// Ensure that any changes to metadata in the dialog are reflected in the main GUI
-			updateControls();
+			SimpleSampleMetadata metadata = (SimpleSampleMetadata) mappingBean.getSampleMetadata();
+			EditSampleMetadataDialog dialog = new EditSampleMetadataDialog(parent.getShell(), metadata.getSampleName(), metadata.getDescription());
+			if (dialog.open() == Window.OK) {
+				metadata.setSampleName(dialog.getName());
+				metadata.setDescription(dialog.getDescription());
+				// Ensure that any changes to metadata in the dialog are reflected in the main GUI
+				updateControls();
+			}
 		});
 	}
 
