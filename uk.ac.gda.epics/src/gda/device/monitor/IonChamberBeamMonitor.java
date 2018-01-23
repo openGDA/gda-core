@@ -314,8 +314,8 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 			Object position = this.getPosition();
 
 			if (position == null) {
-				logger.warn("getPosition() from " + this.getName() + " returns NULL.");
-				return this.getName() + " : NOT AVAILABLE";
+				logger.warn("getPosition() from {} returns NULL.", getName());
+				return valueUnavailableString();
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.

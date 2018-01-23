@@ -559,8 +559,8 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 
 	@Override
 	public String toString() {
-		String myString = "";
 		try {
+			String myString = "";
 			Object position = this.getPosition();
 
 			// print out simple version if only one inputName and
@@ -585,23 +585,12 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 						myString += this.formatPosition(i, Double.parseDouble(Array.get(position, i).toString()));
 					}
 				}
-
 			}
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DeviceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return myString;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
-
-		return myString;
 	}
 
 	/**

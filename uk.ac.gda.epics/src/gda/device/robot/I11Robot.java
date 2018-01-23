@@ -18,6 +18,12 @@
 
 package gda.device.robot;
 
+import java.lang.reflect.Array;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Robot;
 import gda.device.robot.CurrentSamplePosition.CurrentSamplePositionListener;
@@ -29,12 +35,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-
-import java.lang.reflect.Array;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * I11Robot Class
@@ -413,13 +413,13 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	@Override
 	public String toString() {
-		String myString = this.getName() + " : ";
 		try {
+			String myString = this.getName() + " : ";
 			Object position = this.getPosition();
 
 			if (position == null) {
-				logger.warn("getPosition() from " + this.getName() + " returns NULL.");
-				return myString += " NOT AVAILABLE";
+				logger.warn("getPosition() from {} returns NULL.", getName());
+				return valueUnavailableString();
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
@@ -446,16 +446,11 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 					}
 				}
 			}
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+			return myString;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
-		return myString;
 	}
 
 	/**

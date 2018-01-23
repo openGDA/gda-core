@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -41,10 +44,6 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.python.core.PyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EpicsCurrAmpQuadController Class
@@ -516,7 +515,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	@Override
 	public String toString() {
 		try {
-
 			// get the current position as an array of doubles
 			Object position = getPosition();
 
@@ -545,13 +543,9 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 				output += this.extraNames[j] + ": " + positionAsArray[i + j] + " ";
 			}
 			return output.trim();
-
-		} catch (PyException e) {
-			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-			return getName();
+			logger.warn("{}: exception while getting position", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 

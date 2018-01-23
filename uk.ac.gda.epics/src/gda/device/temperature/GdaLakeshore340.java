@@ -18,6 +18,14 @@
 
 package gda.device.temperature;
 
+import java.lang.reflect.Array;
+import java.text.NumberFormat;
+import java.util.Date;
+
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.TemperatureRamp;
@@ -28,14 +36,6 @@ import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.Poller;
 import gda.util.PollerEvent;
-
-import java.lang.reflect.Array;
-import java.text.NumberFormat;
-import java.util.Date;
-
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 4K temperature control supports Lakeshore 340 device using EpicsLakeshore340Controller.
@@ -503,13 +503,13 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	// }
 	@Override
 	public String toString() {
-		String myString = "";
 		try {
+			String myString = "";
 			Object position = this.getPosition();
 
 			if (position == null) {
-				logger.warn("getPosition() from " + this.getName() + " returns NULL.");
-				return this.getName() + " : NOT AVAILABLE";
+				logger.warn("getPosition() from {} returns NULL.", getName());
+				return valueUnavailableString();
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
@@ -541,16 +541,11 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 				}
 
 			}
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+			return myString;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
-		return myString;
 	}
 
 	@Override

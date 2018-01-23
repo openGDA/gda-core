@@ -493,13 +493,13 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 //	}
 	@Override
 	public String toString() {
-		String myString = "";
 		try {
+			String myString = "";
 			Object position = this.getPosition();
 
 			if (position == null) {
-				logger.warn("getPosition() from " + this.getName() + " returns NULL.");
-				return this.getName() + " : NOT AVAILABLE";
+				logger.warn("getPosition() from {} returns NULL.", getName());
+				return valueUnavailableString();
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
@@ -528,18 +528,12 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 						myString += String.format(outputFormat[0], Double.parseDouble(Array.get(position, i).toString()));
 					}
 				}
-
 			}
-		} catch (NumberFormatException e) {
-			logger.error("Number Format Exception ", e);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			logger.error("Array Index out of bounds ", e);
-		} catch (IllegalArgumentException e) {
-			logger.error("Illegal Argument ", e);
-		} catch (DeviceException e) {
-			logger.error("Device Exception ", e);
+			return myString;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
-		return myString;
 	}
 
 	@Override

@@ -18,7 +18,6 @@
 
 package gda.device.detector.etldetector;
 
-import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -334,12 +333,9 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 			}
 			return output.trim();
 
-		} catch (PyException e) {
-			logger.error(getName() + ": jython exception while getting position. " + e.toString());
-			return getName();
 		} catch (Exception e) {
-			logger.error(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-			return getName();
+			logger.warn("{}: exception while getting position", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 

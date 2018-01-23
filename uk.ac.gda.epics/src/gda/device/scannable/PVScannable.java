@@ -18,6 +18,11 @@
 
 package gda.device.scannable;
 
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -36,11 +41,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents and controls a PV. Unlike gda.device.controlpoint classes, this operates a single pv.
@@ -257,14 +257,15 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	public String toString(){
 		try {
 			String tostring = ScannableUtils.getFormattedCurrentPosition(this);
-			String units = (String) getAttribute(UNITSATTRIBUTE);
+			String unitString = (String) getAttribute(UNITSATTRIBUTE);
 
-			if (units == null || units.isEmpty()){
+			if (unitString == null || unitString.isEmpty()){
 				return tostring;
 			}
-			return tostring + units;
-		} catch (DeviceException e) {
-			return getName();
+			return tostring + unitString;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 
