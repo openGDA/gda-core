@@ -57,20 +57,24 @@ class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, I
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T getPosition() throws Exception {
+	public T getPosition() throws ScanningException {
 		DeviceRequest req = update();
 		if (req==null) return null;
-		req.checkException();
+		try {
+			req.checkException();
+		} catch (Exception e) {
+			throw new ScanningException("Could not set position of scannable: " + getName(), e);
+		}
 		return (T)req.getDeviceValue();
 	}
 
 	/**
-	 * Calls setPosition and waits for up to five minutes.
+	 * Calls setPosition and waits for a response or up to a timeout (five minutes by default).
 	 *
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public T setPosition(T value, IPosition position) throws Exception {
+	public T setPosition(T value, IPosition position) throws ScanningException {
 		try {
 			// Will tell us that the value is changing by recording the time of the change
 			addListener();
@@ -83,9 +87,8 @@ class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, I
 			if (req.getDeviceInformation()!=null) {
 				merge((DeviceInformation<T>)req.getDeviceInformation());
 			}
-
 		} catch (Exception ne) {
-			logger.error("Cannot update device info for "+info.getName(), ne);
+			throw new ScanningException("Cannot update device info for "+info.getName(), ne);
 		}
 		return value;
 	}

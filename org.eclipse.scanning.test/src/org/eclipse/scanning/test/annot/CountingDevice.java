@@ -19,6 +19,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  *
@@ -64,11 +65,11 @@ public class CountingDevice extends CountableScannable<Double> {
        count(Thread.currentThread().getStackTrace());
     }
 	@Override
-	public Double getPosition() throws Exception {
+	public Double getPosition() throws ScanningException {
 		return value;
 	}
 	@Override
-	public Double setPosition(Double value, IPosition position) throws Exception {
+	public Double setPosition(Double value, IPosition position) throws ScanningException {
 		this.value = value;
 		return value;
 	}

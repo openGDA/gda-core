@@ -14,6 +14,7 @@ package org.eclipse.scanning.example.scannable;
 import org.eclipse.scanning.api.event.core.IDisconnectable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  * Designed to monitor topup (pretty badly, just conceptually).
@@ -79,13 +80,13 @@ public class MockTopupScannable extends MockScannable implements IDisconnectable
 	}
 
 	@Override
-	public Number setPosition(Number position) throws Exception {
+	public Number setPosition(Number position) throws ScanningException {
 		return setPosition(position, null);
 	}
 	@Override
-	public Number setPosition(Number position, IPosition loc) throws Exception {
+	public Number setPosition(Number position, IPosition loc) throws ScanningException {
 		this.position = position;
-	    delegate.firePositionChanged(getLevel(), new Scalar(getName(), -1, position));
+	    delegate.firePositionChanged(getLevel(), new Scalar<>(getName(), -1, position));
 	    return this.position;
 	}
 
@@ -94,8 +95,7 @@ public class MockTopupScannable extends MockScannable implements IDisconnectable
 	 */
     private Number nextPosition() {
 		long diff = System.currentTimeMillis() - start;
-		long timems = period-(diff%period);
-		return timems;
+		return period - (diff % period); // time in ms
 	}
 
 	public long getPeriod() {

@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api;
 
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  *
@@ -45,7 +46,7 @@ public interface IScannable<T> extends
 	 * @throws Exception
 	 */
 	@Override
-	public T getPosition() throws Exception;
+	public T getPosition() throws ScanningException;
 
 	/**
 	 * Moves to the position required, blocking until it is complete.
@@ -57,7 +58,7 @@ public interface IScannable<T> extends
 	 * @throws Exception
 	 * @return the new position attained by the device, if known. (Saves additional call to getPosition()) If not know the demand value is returned. NOTE if null is returned the system will call getPosition() again.
 	 */
-	default T setPosition(T value) throws Exception {
+	default T setPosition(T value) throws ScanningException {
 		return setPosition(value, null);
 	}
 
@@ -71,7 +72,7 @@ public interface IScannable<T> extends
 	 * @return the new position attained by the device, if known. (Saves additional call to getPosition()) If not know the demand value is returned. NOTE if null is returned the system will call getPosition() again.
 	 * @throws Exception
 	 */
-	public T setPosition(T value, IPosition position) throws Exception;
+	public T setPosition(T value, IPosition position) throws ScanningException;
 
 	/**
 	 * The unit is the unit in which the setPosition and getPosition values are in.

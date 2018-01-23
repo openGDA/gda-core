@@ -12,6 +12,7 @@
 package org.eclipse.scanning.example.scannable;
 
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  * Designed to monitor topup (pretty badly, just conceptually).
@@ -28,12 +29,17 @@ public class MockPausingMonitor extends MockScannable {
 	}
 
 	@Override
-	public Number setPosition(Number position, IPosition loc) throws Exception {
+	public Number setPosition(Number position, IPosition loc) throws ScanningException {
 
 		final int step = loc.getStepIndex();
 		if (step%10==0) { // We wait
 			System.out.println("Waiting for imaginary topup for 10ms ");
-			Thread.sleep(10);
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new ScanningException(e);
+			}
 			System.out.println("Bean current is now stable again... ");
 		}
 		return super.setPosition(position, loc);

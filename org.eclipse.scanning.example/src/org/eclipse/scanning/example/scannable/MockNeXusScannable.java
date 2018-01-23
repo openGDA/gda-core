@@ -22,6 +22,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -30,6 +31,7 @@ import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
@@ -107,24 +109,27 @@ public class MockNeXusScannable extends MockScannable implements INexusDevice<NX
 	}
 
 	@Override
-	public Number setPosition(Number value, IPosition position) throws Exception {
-
-		if (value!=null) {
-			int index = position!=null ? position.getIndex(getName()) : -1;
-			if (isRealisticMove()) {
-				value = doRealisticMove(value, index, -1);
+	public Number setPosition(Number value, IPosition position) throws ScanningException {
+		try {
+			if (value!=null) {
+				int index = position!=null ? position.getIndex(getName()) : -1;
+				if (isRealisticMove()) {
+					value = doRealisticMove(value, index, -1);
+				}
+				this.position = value;
+				delegate.firePositionPerformed(-1, new Scalar<>(getName(), index, value.doubleValue()));
 			}
-			this.position = value;
-			delegate.firePositionPerformed(-1, new Scalar(getName(), index, value.doubleValue()));
-		}
 
-		if (position!=null) {
-			return write(value, getPosition(), position);
+			if (position!=null) {
+				return write(value, getPosition(), position);
+			}
+		} catch (Exception e) {
+			throw new ScanningException("Could not set position of scannable " + getName(), e);
 		}
 		return this.position;
 	}
 
-	private Number write(Number demand, Number actual, IPosition loc) throws Exception {
+	private Number write(Number demand, Number actual, IPosition loc) throws ScanningException, DatasetException {
 
 		if (lzValue==null) return actual;
 		if (actual!=null) {
@@ -139,7 +144,7 @@ public class MockNeXusScannable extends MockScannable implements INexusDevice<NX
 		if (demand!=null) {
 			int index = loc.getIndex(getName());
 			if (index<0) {
-				throw new Exception("Incorrect data index for scan for value of '"+getName()+"'. The index is "+index);
+				throw new ScanningException("Incorrect data index for scan for value of '"+getName()+"'. The index is "+index);
 			}
 			final int[] startPos = new int[] { index };
 			final int[] stopPos = new int[] { index + 1 };

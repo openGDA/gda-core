@@ -45,28 +45,24 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 	}
 
 	@Override
-	public DeviceValueMultiPosition getPosition() throws Exception {
+	public DeviceValueMultiPosition getPosition() throws ScanningException {
 		DeviceValueMultiPosition position = new DeviceValueMultiPosition();
 
 		IScannableDeviceService scannableDeviceService = getScannableDeviceService();
 		for (ChildNode childNode : getChildNodes()) {
 			final String scannableName = childNode.getScannableName();
-			try {
-				final IScannable<?> scannable = scannableDeviceService.getScannable(scannableName);
-				if (scannable instanceof CompositeNexusScannable) {
-					((CompositeNexusScannable<?>) scannable).getPosition().getValues().forEach((k,v) -> position.put(scannableName+"."+k, v));
-				} else {
-					position.put(scannableName, (double)scannable.getPosition());
-				}
-			} catch (ScanningException e) {
-				throw new NexusException(e);
+			final IScannable<?> scannable = scannableDeviceService.getScannable(scannableName);
+			if (scannable instanceof CompositeNexusScannable) {
+				((CompositeNexusScannable<?>) scannable).getPosition().getValues().forEach((k,v) -> position.put(scannableName+"."+k, v));
+			} else {
+				position.put(scannableName, (double)scannable.getPosition());
 			}
 		}
 		return position;
 	}
 
 	@Override
-	public DeviceValueMultiPosition setPosition(DeviceValueMultiPosition value, IPosition position) throws Exception {
+	public DeviceValueMultiPosition setPosition(DeviceValueMultiPosition value, IPosition position) throws ScanningException {
 		logger.warn("setPosition({}, {}) called on {}", value, position, this);
 		throw new UnsupportedOperationException("A CompositeNexusScannable should only be used as a per-scan monitor");
 	}

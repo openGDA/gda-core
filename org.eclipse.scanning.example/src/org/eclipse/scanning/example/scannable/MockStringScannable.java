@@ -15,6 +15,7 @@ import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 public class MockStringScannable extends AbstractScannable<String> implements INameable {
 
@@ -28,12 +29,12 @@ public class MockStringScannable extends AbstractScannable<String> implements IN
 	}
 
 	@Override
-	public String getPosition() throws Exception {
+	public String getPosition() throws ScanningException {
 		return value;
 	}
 
 	@Override
-	public String setPosition(String value, IPosition position) throws Exception {
+	public String setPosition(String value, IPosition position) throws ScanningException {
 		this.value = value;
 		delegate.firePositionChanged(getLevel(), new Scalar<String>(getName(), -1, value));
 		return value;

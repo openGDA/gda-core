@@ -1,6 +1,7 @@
 package org.eclipse.scanning.example.scannable;
 
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 public class MockCountingPositionScannable extends MockScannable {
 
@@ -12,7 +13,7 @@ public class MockCountingPositionScannable extends MockScannable {
 	}
 
 	@Override
-	public Number setPosition(Number value, IPosition loc) throws Exception {
+	public Number setPosition(Number value, IPosition loc) throws ScanningException {
         count(Thread.currentThread().getStackTrace());
         Number ret = super.setPosition(value, loc);
         return returnPosition ? ret : null;

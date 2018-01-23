@@ -31,6 +31,7 @@ import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
@@ -117,21 +118,26 @@ public class MockNeXusSlit extends MockScannable implements INexusDevice<NXslit>
 	}
 
 	@Override
-	public Number setPosition(Number initialValue, IPosition position) throws Exception {
+	public Number setPosition(Number initialValue, IPosition position) throws ScanningException {
 		Number value = initialValue;
 
-		if (value!=null) {
-			int index = position!=null ? position.getIndex(getName()) : -1;
-			if (isRealisticMove()) {
-				value = doRealisticMove(value, index, -1);
+		try {
+			if (value!=null) {
+				int index = position!=null ? position.getIndex(getName()) : -1;
+				if (isRealisticMove()) {
+					value = doRealisticMove(value, index, -1);
+				}
+				this.position = value;
+				delegate.firePositionPerformed(-1, new Scalar<>(getName(), index, value.doubleValue()));
 			}
-			this.position = value;
-			delegate.firePositionPerformed(-1, new Scalar(getName(), index, value.doubleValue()));
+
+			if (position!=null) {
+				write(value, getPosition(), position);
+			}
+		} catch (Exception e) {
+			throw new ScanningException("Could not set position of scannable " + getName(), e);
 		}
 
-		if (position!=null) {
-			write(value, getPosition(), position);
-		}
 		return this.position;
 	}
 

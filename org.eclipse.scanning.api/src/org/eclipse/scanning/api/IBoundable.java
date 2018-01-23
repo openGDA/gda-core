@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api;
 
+import org.eclipse.scanning.api.scan.ScanningException;
+
 /**
  *
  * Interface which, if implemented, will provide information
@@ -33,9 +35,9 @@ public interface IBoundable<T> {
 	 * 3. One of the permitted values, if they are not null.
 	 *
 	 * @return
-	 * @throws Exception
+	 * @throws ScanningException if the position cannot be read for any reason
 	 */
-	T getPosition() throws Exception;
+	T getPosition() throws ScanningException;
 
 
 	/**

@@ -11,12 +11,14 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 
@@ -52,19 +54,23 @@ public class MockStringNexusScannable extends MockStringScannable implements INe
 	}
 
 	@Override
-	public String setPosition(String value, IPosition position) throws Exception {
+	public String setPosition(String value, IPosition position) throws ScanningException {
 		if (position != null) {
 			write(value, getPosition(), position);
 		}
 		return value;
 	}
 
-	private void write(String demand, String actual, IPosition pos) throws Exception {
+	private void write(String demand, String actual, IPosition pos) throws ScanningException {
 		if (actual != null) {
 			final Dataset newActualValueData = DatasetFactory.createFromObject(actual);
 			IScanSlice rslice = IScanRankService.getScanRankService().createScanSlice(pos);
 			SliceND sliceND = new SliceND(lzValue.getShape(), lzValue.getMaxShape(), rslice.getStop(), rslice.getStep());
-			lzValue.setSlice(null,  newActualValueData, sliceND);
+			try {
+				lzValue.setSlice(null,  newActualValueData, sliceND);
+			} catch (DatasetException e) {
+				throw new ScanningException("Could not write value for scannable " + getName(), e);
+			}
 		}
 		// NOTE: we don't write the demand position as this class is currently only used as a monitor
 	}

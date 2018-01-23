@@ -19,6 +19,7 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.Location;
@@ -242,13 +243,13 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 	public static final <T> IScannable<T> empty() {
 		return new AbstractScannable<T>() {
 			@Override
-			public T getPosition() throws Exception {
+			public T getPosition() throws ScanningException {
 				return null;
 			}
 
 			@Override
-			public T setPosition(T value, IPosition position) throws Exception {
-				throw new Exception("Cannot set position, scannable is empty!");
+			public T setPosition(T value, IPosition position) throws ScanningException {
+				throw new ScanningException("Cannot set position, scannable is empty!");
 			}
 		};
 	}

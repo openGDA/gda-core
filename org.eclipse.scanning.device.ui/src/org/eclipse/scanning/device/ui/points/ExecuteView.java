@@ -647,28 +647,28 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	}
 
 	@SuppressWarnings("squid:S00112")
-	private Map<String,Object> getDetectors() throws Exception {
-
-		Map<String,Object> detectors = new HashMap<>();
+	private Map<String, Object> getDetectors() throws Exception {
+		Map<String, Object> detectors = new HashMap<>();
 		Collection<DeviceInformation<?>> infos = getDeviceInformation();
 		Collection<DeviceInformation<?>> activated = new ArrayList<>();
-	for (Iterator<DeviceInformation<?>> it = infos.iterator(); it.hasNext();) {
+		for (Iterator<DeviceInformation<?>> it = infos.iterator(); it.hasNext();) {
 			DeviceInformation<?> deviceInformation = it.next();
-			if (deviceInformation.isActivated()) activated.add(deviceInformation);
-	}
-	for (Iterator<DeviceInformation<?>> it = activated.iterator(); it.hasNext();) {
-		DeviceInformation<?> info = it.next();
-		detectors.put(info.getName(), info.getModel());
-	}
+			if (deviceInformation.isActivated())
+				activated.add(deviceInformation);
+		}
+		for (Iterator<DeviceInformation<?>> it = activated.iterator(); it.hasNext();) {
+			DeviceInformation<?> info = it.next();
+			detectors.put(info.getName(), info.getModel());
+		}
 
-	return detectors;
+		return detectors;
 	}
 
 	@SuppressWarnings("squid:S00112")
 	private List<String> getMonitors(MonitorRole monitorRole) throws Exception {
 
 		final Collection<DeviceInformation<?>> scannables = cservice.getDeviceInformation();
-		final List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<>();
 		for (DeviceInformation<?> info : scannables) {
 			if (info.isActivated() && info.getMonitorRole() == monitorRole) ret.add(info.getName());
 		}

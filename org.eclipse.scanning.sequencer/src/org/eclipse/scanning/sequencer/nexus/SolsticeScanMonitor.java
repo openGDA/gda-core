@@ -304,7 +304,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 	}
 
 	@Override
-	public Object getPosition() throws Exception {
+	public Object getPosition() throws ScanningException {
 		return null;
 	}
 

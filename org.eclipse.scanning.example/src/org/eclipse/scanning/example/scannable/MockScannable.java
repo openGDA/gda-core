@@ -137,7 +137,7 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 		return position;
 	}
 	@Override
-	public Number setPosition(Number position) throws Exception {
+	public Number setPosition(Number position) throws ScanningException {
 		return setPosition(position, null);
 	}
 
@@ -146,7 +146,7 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 	}
 
 	@Override
-	public Number setPosition(Number value, IPosition loc) throws Exception {
+	public Number setPosition(Number value, IPosition loc) throws ScanningException {
 
 		int index = loc!=null ? loc.getIndex(getName()) : -1;
 		double val = value!=null ? value.doubleValue() : Double.NaN;
@@ -160,7 +160,12 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 			if (isRealisticMove()) {
 				value = doRealisticMove(value, index, waitTime); // Might get cancelled while moving.
 			} else if (isRequireSleep()) {
-				Thread.sleep(waitTime);
+				try {
+					Thread.sleep(waitTime);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new ScanningException("move of scannble " + getName() + " was interrupted", e);
+				}
 			}
 		}
 		this.position = value;
@@ -193,7 +198,7 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 	private TerminationPreference terminate;
 	private CountDownLatch        latch;
 
-	protected Number doRealisticMove(Number pos, int index, long minimumWaitTime) throws InterruptedException, ScanningException {
+	protected Number doRealisticMove(Number pos, int index, long minimumWaitTime) throws ScanningException {
 
 		if (pos==null) return pos;
 
@@ -224,7 +229,7 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 					waitedTime+=pauseTime;
 					currentPosition+=increment;
 					this.position = currentPosition;
-					delegate.firePositionChanged(getLevel(), new Scalar(getName(), index, currentPosition));
+					delegate.firePositionChanged(getLevel(), new Scalar<>(getName(), index, currentPosition));
 					if (terminate==TerminationPreference.CONTROLLED) break;
 				}
 				//System.out.println("Realistic move of "+getName()+" from "+orig+" to "+currentPosition+" complete");
@@ -233,7 +238,9 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 				Thread.sleep(minimumWaitTime-waitedTime);
 			}
 			return this.position;
-
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ScanningException("move of scannble " + getName() + " was interrupted", e);
 		} finally {
 			terminate = null;
 			if (latch!=null) latch.countDown();
