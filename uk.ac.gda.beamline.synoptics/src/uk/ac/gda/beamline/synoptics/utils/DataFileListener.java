@@ -18,16 +18,18 @@
 
 package uk.ac.gda.beamline.synoptics.utils;
 
-import gda.data.PathConstructor;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileChangeEvent;
@@ -39,6 +41,12 @@ import org.apache.commons.vfs2.VFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 
 
@@ -53,8 +61,8 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 	 * A flag used to determine if adding files to be monitored should be recursive.
 	 */
 	private boolean recursive = false;
-	
-	private List<FileObject> dataFileCollected = Collections.synchronizedList(new ArrayList<FileObject>());
+
+	private Set<FileObject> dataFileCollected = Collections.synchronizedSet(new LinkedHashSet<FileObject>());
 	/**
 	 * set the list of directories not to be monitored
 	 */
@@ -67,11 +75,11 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 //	private DefaultFileMonitor fm;
 	private String name;
 	private FileObject listendir;
-	
+
 	public DataFileListener() {
-		
+
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -99,11 +107,11 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 				for (FileObject file : getDataFileCollected()) {
 					logger.debug("initialize detector file {}: {} in the list", i, file.getName());
 					i++;
-				}				
+				}
 			} catch (FileSystemException e) {
 				logger.error("Cannot resolve file " + getDirectory(), e);
 				throw new FactoryException("Failed to resolve directory "+getDirectory(), e);
-			} 
+			}
 			setConfigured(true);
 			if (!getDataFileCollected().isEmpty()) {
 				int index = getDataFileCollected().size()-1;
@@ -117,7 +125,7 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 	public void dispose() {
 		fm.stop();
 	}
-	
+
 	@Override
 	public void fileChanged(FileChangeEvent arg0) throws Exception {
 		FileObject file = arg0.getFile();
@@ -141,7 +149,7 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 		FileObject file = arg0.getFile();
 		if (!getDataFileCollected().contains(file)){
 			if (FilenameUtils.isExtension(file.getName().getBaseName(), getFilenameExtensions())) {
-				getDataFileCollected().add(file);
+				dataFileCollected.add(file);
 				logger.debug("File {} created, add it to the detector file list", file.getName().getPath());
 				observableComponent.notifyIObservers(this, new LatestFilenameEvent(getDataFileCollected().size()-1, file.getName().getPath()));
 			} else {
@@ -168,7 +176,7 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 			}
 		}
 	}
-	
+
 	@Override
 	public void addIObserver(IObserver observer) {
 		observableComponent.addIObserver(observer);
@@ -238,11 +246,30 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 	}
 
 	public List<FileObject> getDataFileCollected() {
-		return dataFileCollected;
+		return new ArrayList<>(dataFileCollected);
 	}
 
 	public void setDataFileCollected(List<FileObject> dataFileCollected) {
-		this.dataFileCollected = dataFileCollected;
+		// Default comparator compares alphabetically (so 1, 10, 11, 2 etc)
+		// Files should be compared by modification time but cache results
+		Map<FileObject, FileTime> fileTimes = new HashMap<>();
+		Function<FileObject, FileTime> time = f -> {
+			try {
+				return Files.getLastModifiedTime(Paths.get(f.getURL().getPath()));
+			} catch (IOException e) {
+				throw new IllegalStateException("Couldn't read times");
+			}
+		};
+		dataFileCollected.sort((a, b) -> {
+			try {
+				FileTime t1 = fileTimes.computeIfAbsent(a, time);
+				FileTime t2 = fileTimes.computeIfAbsent(b, time);
+				return t1.compareTo(t2);
+			} catch (IllegalStateException e) {
+				return a.compareTo(b);
+			}
+		});
+		this.dataFileCollected = new LinkedHashSet<>(dataFileCollected);
 	}
 
 
