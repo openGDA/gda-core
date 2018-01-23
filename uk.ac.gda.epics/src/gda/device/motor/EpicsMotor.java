@@ -130,6 +130,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	protected Channel velo = null; // Velocity (EGU/s) .VELO, FLOAT
 
+	protected Channel vmax; // Max Velocity
+
 	protected Channel accl;
 
 	protected Channel lvio = null; // Limit Violation, .LVIO, SHORT
@@ -418,6 +420,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 			stop = channelManager.createChannel(pvName + ".STOP", false);
 			velo = channelManager.createChannel(pvName + ".VELO", false);
+			vmax = channelManager.createChannel(pvName + ".VMAX", false);
 			accl = channelManager.createChannel(pvName + ".ACCL", false);
 			dmov = channelManager.createChannel(pvName + ".DMOV", statusMonitor, false);
 			lvio = channelManager.createChannel(pvName + ".LVIO");
@@ -504,6 +507,14 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			return currentSpeed;
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to get speed", ex);
+		}
+	}
+
+	public double getMaxSpeed() throws MotorException {
+		try {
+			return controller.cagetDouble(vmax);
+		} catch (Throwable ex) {
+			throw new MotorException(getStatus(), "failed to get max speed", ex);
 		}
 	}
 
