@@ -1028,6 +1028,10 @@
          id="uk.ac.gda.client.datadispenserCommands"
          name="Data Dispenser Commands">
    </category>
+   <command
+         id="uk.ac.gda.client.script.run"
+         name="RunScript">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.commandImages">
@@ -1057,6 +1061,10 @@
             </iterate>
          </and>
       </activeWhen>
+   </handler>
+   <handler
+         class="uk.ac.gda.client.actions.RunScriptHandler"
+         commandId="uk.ac.gda.client.script.run">
    </handler>
 </extension>
 <extension
@@ -1152,6 +1160,16 @@
               label="Preferences..."
               style="push"
               tooltip="Open preferences.">
+        </command>
+     </menuContribution>
+     <menuContribution
+           allPopups="true"
+           locationURI="popup:org.python.pydev.editor.PythonEditor.EditorContext?before=additions">
+        <command
+              commandId="uk.ac.gda.client.script.run"
+              icon="icons/script_go.png"
+              label="Run Script"
+              style="push">
         </command>
      </menuContribution>
   </extension>
