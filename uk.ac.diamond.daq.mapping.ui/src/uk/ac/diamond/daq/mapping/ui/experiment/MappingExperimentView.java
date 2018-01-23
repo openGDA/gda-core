@@ -182,6 +182,7 @@ public class MappingExperimentView implements IAdaptable {
 			// create the controls for sections that should be shown
 			createSections(mainComposite, SCROLLED_SECTION_CLASSES, part.getPersistedState());
 			createSections(alwaysVisible, UNSCROLLED_SECTION_CLASSES, part.getPersistedState());
+			recalculateMinimumSize();
 		}
 
 		mainComposite.pack();
