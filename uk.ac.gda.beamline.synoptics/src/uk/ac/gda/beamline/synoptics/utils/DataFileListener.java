@@ -147,11 +147,11 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 	@Override
 	public void fileCreated(FileChangeEvent arg0) throws Exception {
 		FileObject file = arg0.getFile();
-		if (!getDataFileCollected().contains(file)){
+		if (!dataFileCollected.contains(file)){
 			if (FilenameUtils.isExtension(file.getName().getBaseName(), getFilenameExtensions())) {
 				dataFileCollected.add(file);
 				logger.debug("File {} created, add it to the detector file list", file.getName().getPath());
-				observableComponent.notifyIObservers(this, new LatestFilenameEvent(getDataFileCollected().size()-1, file.getName().getPath()));
+				observableComponent.notifyIObservers(this, new LatestFilenameEvent(dataFileCollected.size()-1, file.getName().getPath()));
 			} else {
 				logger.debug("File {} created, don't add to the detector file list", file.getName().getPath());
 			}
