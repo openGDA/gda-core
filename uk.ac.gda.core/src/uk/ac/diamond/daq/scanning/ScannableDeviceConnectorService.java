@@ -86,19 +86,31 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		@Override
-		public Object getPosition() throws Exception {
-			return scannable.getPosition();
+		public Object getPosition() throws ScanningException {
+			try {
+				return scannable.getPosition();
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not get position of scannable " + getName(), e);
+			}
 		}
 
 		@Override
-		public Object setPosition(Object value) throws Exception {
-			scannable.moveTo(value);
+		public Object setPosition(Object value) throws ScanningException {
+			try {
+				scannable.moveTo(value);
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not set position of scannable " + getName(), e);
+			}
 			return null; // Since we did not read position as part of the move, we return null
 		}
 
 		@Override
-		public Object setPosition(Object value, IPosition position) throws Exception {
-			scannable.moveTo(value);
+		public Object setPosition(Object value, IPosition position) throws ScanningException {
+			try {
+				scannable.moveTo(value);
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not set position of scannable " + getName(), e);
+			}
 			return null; // Since we did not read position as part of the move, we return null
 		}
 	}

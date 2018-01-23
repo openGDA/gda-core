@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.NexusRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -39,6 +40,7 @@ import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
@@ -64,15 +66,19 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 	// implements IScannable<DeviceValueMultiPosition>
 
 	@Override
-	public DeviceValueMultiPosition getPosition() throws Exception {
+	public DeviceValueMultiPosition getPosition() throws ScanningException {
 		DeviceValueMultiPosition position = new DeviceValueMultiPosition();
-		position.put(NXslit.NX_X_GAP, (double)x_gap.getPosition());
-		position.put(NXslit.NX_Y_GAP, (double)y_gap.getPosition());
-		return position;
+		try {
+			position.put(NXslit.NX_X_GAP, (double)x_gap.getPosition());
+			position.put(NXslit.NX_Y_GAP, (double)y_gap.getPosition());
+			return position;
+		} catch (DeviceException e) {
+			throw new ScanningException("Could not get position of scannable: " + getName(), e);
+		}
 	}
 
 	@Override
-	public DeviceValueMultiPosition setPosition(DeviceValueMultiPosition value, IPosition position) throws Exception {
+	public DeviceValueMultiPosition setPosition(DeviceValueMultiPosition value, IPosition position) throws ScanningException {
 		logger.debug("setPosition({}, {}) called on {}", value, position, getName());
 
 		if (value!=null) {
@@ -80,14 +86,18 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 		}
 
 		if (position!=null) {
-			DeviceValueMultiPosition currentLocation = getPosition();
-			write(value, currentLocation, position);
-			return currentLocation;
+			try {
+				DeviceValueMultiPosition currentLocation = getPosition();
+				write(value, currentLocation, position);
+				return currentLocation;
+			} catch (DatasetException e) {
+				throw new ScanningException("Could not set position of scannable: " + getName(), e);
+			}
 		}
 		return null;
 	}
 
-	private void write(DeviceValueMultiPosition demand, DeviceValueMultiPosition actual, IPosition loc) throws Exception {
+	private void write(DeviceValueMultiPosition demand, DeviceValueMultiPosition actual, IPosition loc) throws ScanningException, DatasetException {
 
 		// There may be actual values when there aren't demand values, but there should never be demand values when
 		// there are no actual values.
@@ -113,7 +123,7 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 		if (demand!=null) {
 			int index = loc.getIndex(getName());
 			if (index<0) {
-				throw new Exception("Incorrect data index for scan for value of '"+getName()+"'. The index is "+index);
+				throw new ScanningException("Incorrect data index for scan for value of '"+getName()+"'. The index is "+index);
 			}
 			final int[] startPos = new int[] { index };
 			final int[] stopPos = new int[] { index + 1 };
