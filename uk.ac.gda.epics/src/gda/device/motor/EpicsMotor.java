@@ -1275,9 +1275,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 
-	@SuppressWarnings("unused")
-	// TODO Not sure if this will be used in future
-	private double getTargetPosition() throws MotorException {
+	public double getTargetPosition() throws MotorException {
 		try {
 			return controller.cagetDouble(val);
 		} catch (Throwable e) {
