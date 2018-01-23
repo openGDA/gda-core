@@ -25,7 +25,7 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
-import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
@@ -314,9 +314,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (highestExistingFileMonitor != null) {
 			// remove the 2 %s from the fileTemplate to get to part after fileNameUsed
 			String postFileName = fileTemplateUsed.replaceFirst("%s", "").replaceFirst("%s", "");
-			HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = new HighestExitingFileMonitorSettings(
+			HighestExistingFileMonitorSettings highestExistingFileMonitorSettings = new HighestExistingFileMonitorSettings(
 					filePathUsed, fileNameUsed + postFileName, (int) nextExpectedFileNumber);
-			highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
+			highestExistingFileMonitor.setHighestExistingFileMonitorSettings(highestExistingFileMonitorSettings);
 			highestExistingFileMonitor.setRunning(true);
 		}
 
