@@ -22,15 +22,15 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * Settings that are use by the HighestExitingFileMonitor interface
+ * Settings that are use by the HighestExistingFileMonitor interface
  * 
  * Implementations look for files that match String.format(fileTemplatePrefix + fileTemplate, startNumber)
  */
-public class HighestExitingFileMonitorSettings implements Serializable{
+public class HighestExistingFileMonitorSettings implements Serializable{
 
 	@Override
 	public String toString() {
-		return "HighestExitingFileMonitorSettings [fileTemplatePrefix=" + fileTemplatePrefix + ", fileTemplate="
+		return "HighestExistingFileMonitorSettings [fileTemplatePrefix=" + fileTemplatePrefix + ", fileTemplate="
 				+ fileTemplate + ", startNumber=" + startNumber + "]";
 	}
 
@@ -38,7 +38,7 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 	public String fileTemplate; 
 	public int startNumber;
 
-	public HighestExitingFileMonitorSettings(String fileTemplatePrefix, String fileTemplate, int startNumber) {
+	public HighestExistingFileMonitorSettings(String fileTemplatePrefix, String fileTemplate, int startNumber) {
 		super();
 		if( fileTemplate == null )
 			throw new IllegalArgumentException("fileTemplate  is null ");
@@ -80,7 +80,7 @@ public class HighestExitingFileMonitorSettings implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HighestExitingFileMonitorSettings other = (HighestExitingFileMonitorSettings) obj;
+		HighestExistingFileMonitorSettings other = (HighestExistingFileMonitorSettings) obj;
 		if (fileTemplate == null) {
 			if (other.fileTemplate != null)
 				return false;

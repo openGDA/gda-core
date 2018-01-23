@@ -20,7 +20,7 @@ package gda.device.detectorfilemonitor.impl;
 
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitorData;
-import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.factory.Findable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -44,17 +44,17 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 	public SimpleHighestExistingFileMonitor(){}
 	private long delay = 1000; // in ms
 
-	HighestExitingFileMonitorSettings highestExitingFileMonitorSettings = null;
+	HighestExistingFileMonitorSettings highestExistingFileMonitorSettings = null;
 	HighestExistingFileMonitorData highestExistingFileMonitorData = null;
 
 	@Override
-	public HighestExitingFileMonitorSettings getHighestExitingFileMonitorSettings() {
-		return highestExitingFileMonitorSettings;
+	public HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings() {
+		return highestExistingFileMonitorSettings;
 	}
 
 	@Override
-	public void setHighestExitingFileMonitorSettings(HighestExitingFileMonitorSettings highestExitingFileMonitorSettings) {
-		this.highestExitingFileMonitorSettings = highestExitingFileMonitorSettings;
+	public void setHighestExistingFileMonitorSettings(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings) {
+		this.highestExistingFileMonitorSettings = highestExistingFileMonitorSettings;
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 
 		int numberToLookFor;
 		String fileToLookFor;
-		HighestExitingFileMonitorSettings highestExitingFileMonitorSettings_InUse = null;
+		HighestExistingFileMonitorSettings highestExistingFileMonitorSettings_InUse = null;
 		Integer numberFound = null;
 		String templateInUse="";
 
@@ -86,13 +86,13 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 			try {
 				if (!running)
 					return;
-				if (highestExitingFileMonitorSettings_InUse != highestExitingFileMonitorSettings) {
+				if (highestExistingFileMonitorSettings_InUse != highestExistingFileMonitorSettings) {
 					latestNumberFound = null;
-					highestExitingFileMonitorSettings_InUse = highestExitingFileMonitorSettings;
-					numberToLookFor = highestExitingFileMonitorSettings_InUse.startNumber;
-					templateInUse = highestExitingFileMonitorSettings_InUse.getFullTemplate();
+					highestExistingFileMonitorSettings_InUse = highestExistingFileMonitorSettings;
+					numberToLookFor = highestExistingFileMonitorSettings_InUse.startNumber;
+					templateInUse = highestExistingFileMonitorSettings_InUse.getFullTemplate();
 					numberFound = null;
-					if (highestExitingFileMonitorSettings_InUse == null) {
+					if (highestExistingFileMonitorSettings_InUse == null) {
 						running = false;
 						fileToLookFor = null;
 					} else {
@@ -109,7 +109,7 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 				setLatestNumberFound(numberFound);
 			} catch (Throwable th) {
 				logger.error("Error looking for file using template `"
-						+ highestExitingFileMonitorSettings_InUse.fileTemplate + "` number=" + numberToLookFor, th);
+						+ highestExistingFileMonitorSettings_InUse.fileTemplate + "` number=" + numberToLookFor, th);
 			} finally{
 				if (running) {
 					scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
@@ -180,7 +180,7 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 		if (numberFound != latestNumberFound){
 			if (numberFound == null || !numberFound.equals(latestNumberFound)) {
 				latestNumberFound = numberFound;
-				obsComp.notifyIObservers(this, new HighestExistingFileMonitorData(highestExitingFileMonitorSettings,
+				obsComp.notifyIObservers(this, new HighestExistingFileMonitorData(highestExistingFileMonitorSettings,
 						latestNumberFound));
 			}
 		}
@@ -212,7 +212,7 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 
 	@Override
 	public HighestExistingFileMonitorData getHighestExistingFileMonitorData() {
-		return new HighestExistingFileMonitorData(highestExitingFileMonitorSettings, latestNumberFound);
+		return new HighestExistingFileMonitorData(highestExistingFileMonitorSettings, latestNumberFound);
 	}
 
 }

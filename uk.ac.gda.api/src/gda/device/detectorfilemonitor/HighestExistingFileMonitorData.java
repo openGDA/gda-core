@@ -24,16 +24,16 @@ import java.io.Serializable;
  * Interface which is part of the HighestExistingFileMonitorDataProvider interface
  */
 public class HighestExistingFileMonitorData implements Serializable{
-	HighestExitingFileMonitorSettings highestExitingFileMonitorSettings;//null if not set
+	HighestExistingFileMonitorSettings highestExistingFileMonitorSettings;//null if not set
 	Integer foundIndex; //null if not found
-	public HighestExistingFileMonitorData(HighestExitingFileMonitorSettings highestExitingFileMonitorSettings,
+	public HighestExistingFileMonitorData(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings,
 			Integer foundIndex) {
 		super();
-		this.highestExitingFileMonitorSettings = highestExitingFileMonitorSettings;
+		this.highestExistingFileMonitorSettings = highestExistingFileMonitorSettings;
 		this.foundIndex = foundIndex;
 	}
-	public HighestExitingFileMonitorSettings getHighestExitingFileMonitorSettings() {
-		return highestExitingFileMonitorSettings;
+	public HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings() {
+		return highestExistingFileMonitorSettings;
 	}
 	public Integer getFoundIndex() {
 		return foundIndex;
