@@ -646,18 +646,17 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 
 	@Override
 	public String toString() {
-		String result = "Unable to get Data!";
 		try {
-			result = String.format(
+			return String.format(
 					"%s  %8d  %8.3f  %8.3f  %8.3f  %8.3f  %8.3f  %8.5f  %8.5f  %8.5f  %8.5f  %8.3f  %8.3f  %8.3f",
 					getName(), getBaseLength(), getBaseThreshold(), getBinWidth(), getDynamicRange(),
 					getEnergyThreshold(), getGapTime(), getMaxWidth(), getPeakTime(), getPreampGain(), getResetDelay(),
 					getTriggerGapTime(), getTriggerPeakTime(), getTriggerThreshold());
 
-		} catch (DeviceException e) {
-
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting values", getName(), e);
+			return valueUnavailableString();
 		}
-		return result;
 	}
 
 	public void setQ(double[] q) {

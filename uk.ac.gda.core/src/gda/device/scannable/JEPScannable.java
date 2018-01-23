@@ -18,11 +18,6 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +26,13 @@ import java.util.Map.Entry;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 /**
  * Wraps a Scannable and/or an expression based on Scannables and/or values in the Jythonnamespace and/or parts of the
@@ -41,6 +43,7 @@ import org.nfunk.jep.SymbolTable;
  */
 public class JEPScannable extends ScannableBase {
 
+	private static final Logger logger = LoggerFactory.getLogger(JEPScannable.class);
 
 	public static JEPScannable createJEPScannable(String label,String scannableName, String format, String variableName, String expression) throws ParseException{
 		JEPScannable newOne = new JEPScannable();
@@ -148,8 +151,9 @@ public class JEPScannable extends ScannableBase {
 			Double dblPosition = Double.valueOf((String) currentPosition);
 			return label + " : " + String.format(outputFormat[0], dblPosition);
 
-		} catch (DeviceException e) {
-			return label;
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 

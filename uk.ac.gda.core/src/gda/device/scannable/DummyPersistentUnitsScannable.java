@@ -18,13 +18,13 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
 
 // TODO: Partially implemented class, does not extend
 public class DummyPersistentUnitsScannable extends DummyPersistentScannable implements ScannableMotionUnits {
@@ -110,12 +110,6 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		double toReturn = Double.parseDouble((String) super.rawGetPosition());
-		return toReturn;
-	}
-
-	@Override
-	public String toString() {
-		String toReturn = super.toString();
 		return toReturn;
 	}
 
