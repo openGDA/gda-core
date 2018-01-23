@@ -28,7 +28,7 @@ import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
-import gda.device.detectorfilemonitor.HighestExitingFileMonitorSettings;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.device.lima.LimaCCD;
 import gda.device.lima.LimaCCD.AcqTriggerMode;
 import gda.device.lima.LimaCCD.SavingMode;
@@ -508,9 +508,9 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 				int startNumber=0;
 				limaCCD.setSavingNextNumber(startNumber);
 				if( highestExistingFileMonitor != null){
-					HighestExitingFileMonitorSettings highestExitingFileMonitorSettings =
-							new HighestExitingFileMonitorSettings(getSavingDirectory(), getSavingFileTemplate(), startNumber);
-					highestExistingFileMonitor.setHighestExitingFileMonitorSettings(highestExitingFileMonitorSettings);
+					HighestExistingFileMonitorSettings highestExistingFileMonitorSettings =
+							new HighestExistingFileMonitorSettings(getSavingDirectory(), getSavingFileTemplate(), startNumber);
+					highestExistingFileMonitor.setHighestExistingFileMonitorSettings(highestExistingFileMonitorSettings);
 				}
 				Thread.sleep(1000);
 			} catch (DevFailed e1) {
