@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.hrpd.typedpvscannables;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
@@ -32,17 +34,19 @@ import gov.aps.jca.event.PutListener;
  * Base class representing a single EPICS PV as a {@link Scannable}.
  * <p>
  * Subclass must <b>override {@link #asynchronousMoveTo(Object)}</b> method and the overriding method
- * must call <code>super.asynchronousMoveTo(Object)}</code> method first as it enforces read-only 
- * property of the scannable. 
+ * must call <code>super.asynchronousMoveTo(Object)}</code> method first as it enforces read-only
+ * property of the scannable.
  * <p>
  * When the {@link #readOnly} property is set to true, set to PV is disabled.
- * 
- * Subclass is also required to set @ {@link #isBusy} property to ture before sending request to EPICS PV, 
- * and the put callback is designed to set this property to false when the PV process is completed. 
- * 
+ *
+ * Subclass is also required to set @ {@link #isBusy} property to ture before sending request to EPICS PV,
+ * and the put callback is designed to set this property to false when the PV process is completed.
+ *
  */
 public abstract class EpicsPVScannable extends ScannableBase implements PutListener, InitializingBean {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(EpicsPVScannable.class);
+
 	protected boolean isBusy = false;
 	protected boolean readOnly=false;
 	protected String pvName = "";
@@ -96,7 +100,7 @@ public abstract class EpicsPVScannable extends ScannableBase implements PutListe
 	public boolean isBusy() throws DeviceException {
 		return isBusy;
 	}
-	
+
 	/**
 	 * @see gov.aps.jca.event.PutListener#putCompleted(gov.aps.jca.event.PutEvent)
 	 */
@@ -112,14 +116,14 @@ public abstract class EpicsPVScannable extends ScannableBase implements PutListe
 			throw new IllegalStateException("PV name must be set.");
 		}
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		try {
-			String tostring = ScannableUtils.getFormattedCurrentPosition(this);
-			return tostring;
-		} catch (DeviceException e) {
-			return getName();
+			return ScannableUtils.getFormattedCurrentPosition(this);
+		} catch (Exception e) {
+			logger.warn("{}: exception while getting value", getName(), e);
+			return valueUnavailableString();
 		}
 	}
 
