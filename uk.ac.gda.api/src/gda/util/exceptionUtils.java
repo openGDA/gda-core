@@ -18,28 +18,29 @@
 
 package gda.util;
 
-import gda.device.corba.CorbaDeviceException;
-
 import org.python.core.PyException;
 
+import gda.device.corba.CorbaDeviceException;
+
 /**
- * 
+ * @deprecated DAQ-934 This should not be used in new code use the logger directly.
  */
+@Deprecated
 public class exceptionUtils {
 
 	/**
 	 * Returns an appropriate message from the supplied throwable, with special
-	 * handling of {@link CorbaDeviceException}s 
-	 * 
+	 * handling of {@link CorbaDeviceException}s
+	 *
 	 * @param e the throwable
 	 * @return the message
-	 * 
+	 *
 	 * This method should only be used to create a string representation of the exception for display to the user
 	 */
 	public static String getMessage(Throwable e) {
 		if (e instanceof gda.device.corba.CorbaDeviceException) {
 			return ((gda.device.corba.CorbaDeviceException) e).message;
-		} 
+		}
 		return e.toString();
 	}
 
@@ -47,10 +48,10 @@ public class exceptionUtils {
 	 * Returns a string containing the message of the supplied throwable plus
 	 * the messages of its nested causes. For {@link PyException}s, also
 	 * includes the stack trace of the throwable.
-	 * 
+	 *
 	 * @param e the throwable
 	 * @return full stack message
-	 * 
+	 *
 	 * This method should only be used to create a string representation of the exception for display to the user
 	 */
 	public static String getFullStackMsg(Throwable e) {
@@ -72,7 +73,7 @@ public class exceptionUtils {
 	/**
 	 * Uses a logger to log a throwable as an error. Uses
 	 * {@code getFullStackMsg} to construct a message for the log entry.
-	 * 
+	 *
 	 * @param logger the logger
 	 * @param e the throwable to log
 	 */
@@ -83,7 +84,7 @@ public class exceptionUtils {
 	/**
 	 * Uses a logger to log a throwable as an error. Appends the output from
 	 * {@code getFullStackMsg} to the supplied message.
-	 * 
+	 *
 	 * @param logger the logger
 	 * @param msg a message
 	 * @param e the throwable to log
