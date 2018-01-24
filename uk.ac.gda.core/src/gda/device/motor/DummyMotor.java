@@ -72,6 +72,8 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	private double speed = 0;
 
+	private double maxSpeed = Double.MAX_VALUE;
+
 	private double timeToVelocity = 0.1;
 
 	private double targetPosition;
@@ -315,6 +317,14 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	@Override
 	public double getSpeed() throws MotorException {
 		return speed;
+	}
+
+	public double getMaxSpeed() {
+		return maxSpeed;
+	}
+
+	public void setMaxSpeed(double maxSpeed) {
+		this.maxSpeed = maxSpeed;
 	}
 
 	@Override
