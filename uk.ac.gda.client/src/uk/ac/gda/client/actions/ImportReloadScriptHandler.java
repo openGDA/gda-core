@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,49 +16,47 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.scripting;
+package uk.ac.gda.client.actions;
 
 import java.io.File;
 
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorActionDelegate;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
+import gda.jython.JythonServerFacade;
 
-public class ImportOrReloadScriptActionDelegate implements IEditorActionDelegate {
+public class ImportReloadScriptHandler extends ScriptHandler {
 
-	private IEditorPart ePart;
-	private ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
-
-	@Override
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor != null){
-			ePart = targetEditor;
-		}
-	}
+	private static final Logger logger = LoggerFactory.getLogger(ImportReloadScriptHandler.class);
+	private static final ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 
 	@Override
-	public void run(IAction action) {
-		if (ePart != null){
-			String module = getModuleName();
-			if (isImported(module)) {
-				reloadModule(module);
+	void run(File script) {
+		if (canImport(script)) {
+			String moduleName = FilenameUtils.removeExtension(script.getName());
+			if (isImported(moduleName)) {
+				reloadModule(moduleName);
 			} else {
-				importModule(module);
+				importModule(moduleName);
 			}
+		} else {
+			logger.warn("Could not import script '{}'", script);
+			InterfaceProvider.getTerminalPrinter().print("Could not import " + script);
 		}
 	}
 
-	private String getModuleName() {
-		final IEditorInput input = ePart.getEditorInput();
-		final File fileToRun = EclipseUtils.getFile(input);
-		final String name = fileToRun.getName();
-		return name.substring(0, name.lastIndexOf('.'));
+	private boolean canImport(File module) {
+		try {
+			return JythonServerFacade.getCurrentInstance()
+					.getAllScriptProjectFolders()
+					.stream()
+					.anyMatch(p -> module.getParent().equals(p));
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	private boolean isImported(String module) {
@@ -66,16 +64,14 @@ public class ImportOrReloadScriptActionDelegate implements IEditorActionDelegate
 	}
 
 	private void reloadModule(String module) {
+		logger.info("Reloading script '{}' from UI", module);
 		commandRunner.runCommand("print 'reloading " + module + "'");
 		commandRunner.evaluateCommand("reload(" + module + ")");
 	}
 
 	private void importModule(String module) {
+		logger.info("Importing script '{}' from UI", module);
 		commandRunner.runCommand("print 'importing " + module + "'");
 		commandRunner.runCommand("import " + module);
-	}
-
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
 	}
 }
