@@ -646,4 +646,8 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		this.unitString = unitString;
 	}
 
+	public double getTargetPosition() {
+		return targetPosition;
+	}
+
 }
