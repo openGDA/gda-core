@@ -46,14 +46,13 @@ public class DummyParkerMotor extends DummyMotor {
 
 	private int axisNo;
 
-	private double maxSpeed;
-
 	private double minSpeed;
 
 	/**
 	 * Constructor
 	 */
 	public DummyParkerMotor() {
+		setMaxSpeed(0); // Reflects the old default in this class, before maxSpeed was added to DummyMotor
 	}
 
 	@Override
@@ -101,25 +100,6 @@ public class DummyParkerMotor extends DummyMotor {
 	 */
 	public double getMinSpeed() {
 		return minSpeed;
-	}
-
-	/**
-	 * Sets the maximum speed (steps/sec?).
-	 *
-	 * @param maxSpeed
-	 *            the maximum speed
-	 */
-	public void setMaxSpeed(double maxSpeed) {
-		this.maxSpeed = maxSpeed;
-	}
-
-	/**
-	 * Get the maximum speed
-	 *
-	 * @return the maximum speed
-	 */
-	public double getMaxSpeed() {
-		return maxSpeed;
 	}
 
 	/**
