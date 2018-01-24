@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.data.metadata.Metadata;
+import gda.factory.FactoryException;
 
 public class IcatXMLCreatorTest {
 
@@ -39,6 +40,17 @@ public class IcatXMLCreatorTest {
 	@Before
 	public void setUp() throws Exception {
 		xmlCreator = new IcatXMLCreatorForTest();
+	}
+
+	@Test(expected = FactoryException.class)
+	public void testConfigureFailsIfNoDirectorySet() throws Exception {
+		xmlCreator.configure();
+	}
+
+	@Test
+	public void testConfigureSucceedsIfDirectorySet() throws Exception {
+		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
+		xmlCreator.configure();
 	}
 
 	@Test

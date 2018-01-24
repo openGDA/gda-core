@@ -55,42 +55,42 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	 */
 	private static final String VERSION = "9.7";
 
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
-	private static final String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			+ "<icat version=\"1.0 RC6\" xsi:noNamespaceSchemaLocation=\"icatXSD.xsd\" "
 			+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "<study> <investigation> \n";
-	private static final String xmlFooter = "</investigation>\n</study>\n</icat>\n";
-	private static final String datasetStart = " <dataset>\n";
-	private static final String datasetEnd = " </dataset>\n";
+	private static final String XML_FOOTER = "</investigation>\n</study>\n</icat>\n";
+	private static final String DATASET_START = " <dataset>\n";
+	private static final String DATASET_END = " </dataset>\n";
 
 	private static final String TOPLEVEL_DATASET_NAME = "topdir";
+	private static final String UNKNOWN = "unknown";
 
-	private String directory = "/tmp/bar-";
+	private String directory;
 	private Metadata metadata;
 	protected Writer fileWriter;
 
-	private boolean useDirForDatasetName = true;
+	private static class InvestigationInfo {
+		private String investigationNumber;
+		private String visitId;
+		private String instrument;
+		private String title;
+		private String investigationType = "experiment";
 
-	private class IvestigationInfo {
-		private String inv_number, visit_id, instrument, title;
-		private String inv_type = "experiment";
-
-		public IvestigationInfo() throws DeviceException {
+		public InvestigationInfo(Metadata metadata) throws DeviceException {
 			instrument = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
 			instrument = xmlSanitize(instrument);
 			title = metadata.getMetadataValue("title");
 			title = xmlSanitize(title);
-			visit_id = metadata.getMetadataValue("visit");
-			if (visit_id == null || visit_id.isEmpty()) {
-				visit_id = "0-0";
+			visitId = metadata.getMetadataValue("visit");
+			if (visitId == null || visitId.isEmpty()) {
+				visitId = "0-0";
 			}
-			visit_id = visit_id.toUpperCase();
-			inv_number = visit_id.substring(0, visit_id.indexOf('-'));
+			visitId = visitId.toUpperCase();
+			investigationNumber = visitId.substring(0, visitId.indexOf('-'));
 		}
 
 		public String getVisitId() {
-			return visit_id;
+			return visitId;
 		}
 
 		/**
@@ -98,96 +98,101 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		 * @return string with various delimiters removed
 		 */
 		private String xmlSanitize(String string) {
-			if (string == null || string.isEmpty())
-				return "unknown";
-			string = string.replace(">", "");
-			string = string.replace("<", "");
-			string = string.replace("&", "");
-			string = string.replace("/", "");
-			string = string.replace("'", "");
-			string = string.replace("\"", "");
-			string = string.replace("\\", "");
-			return string;
+			if (string == null || string.isEmpty()) {
+				return UNKNOWN;
+			}
+			return string.replaceAll("[<>&/'\"\\\\]", "");
 		}
 
 		@Override
 		public String toString() {
-			String s = "";
-			s += " <inv_number>" + inv_number + "</inv_number>\n";
-			s += " <visit_id>" + visit_id + "</visit_id>\n";
-			s += " <instrument>" + instrument + "</instrument>\n";
-			s += " <title>" + title + "</title>\n";
-			s += " <inv_type>" + inv_type + "</inv_type>\n";
-
-			return s;
+			final StringBuilder result = new StringBuilder();
+			result.append(" <inv_number>" + investigationNumber + "</inv_number>\n");
+			result.append(" <visit_id>" + visitId + "</visit_id>\n");
+			result.append(" <instrument>" + instrument + "</instrument>\n");
+			result.append(" <title>" + title + "</title>\n");
+			result.append(" <inv_type>" + investigationType + "</inv_type>\n");
+			return result.toString();
 		}
 	}
 
-	private class FileInfo {
-		private String name, location, description, datafile_version, datafile_create_time, datafile_modify_time, datafile_size;
+	private static class FileInfo {
+		private String name;
+		private String location;
+		private String description;
+		private String datafileVersion;
+		private String datafileCreateTime;
+		private String datafileModifyTime;
+		private String datafileSize;
+
+		private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 		public FileInfo(String location) {
-			this.description = "unknown";
-			File handle = new File(location);
+			this.description = UNKNOWN;
+			final File handle = new File(location);
 			this.location = handle.getAbsolutePath();
 			this.name = handle.getName();
 			Date filedate;
 			if (!handle.isFile()) {
-				logger.warn("file " + location + " not (yet) found or is no file");
+				logger.warn("file {} not (yet) found or is not a file", location);
 				filedate = new Date();
 			} else {
 				filedate = new Date(handle.lastModified());
-				this.datafile_size = String.valueOf(handle.length());
+				this.datafileSize = String.valueOf(handle.length());
 			}
-			String formattedFileDate = dateFormatter.format(filedate);
-			this.datafile_version = "1.0";
-			this.datafile_modify_time = formattedFileDate;
-			this.datafile_create_time = formattedFileDate;
+			final String formattedFileDate = dateFormatter.format(filedate);
+			this.datafileVersion = "1.0";
+			this.datafileModifyTime = formattedFileDate;
+			this.datafileCreateTime = formattedFileDate;
 		}
 
 		@Override
 		public String toString() {
-			StringBuilder s = new StringBuilder();
+			final StringBuilder s = new StringBuilder();
 			s.append("   <datafile>\n");
 			s.append("      <name>" + name + "</name>\n");
 			s.append("      <location>" + location + "</location>\n");
 			s.append("      <description>" + description + "</description>\n");
-			s.append("      <datafile_version>" + datafile_version + "</datafile_version>\n");
-			s.append("      <datafile_create_time>" + datafile_create_time + "</datafile_create_time>\n");
-			s.append("      <datafile_modify_time>" + datafile_modify_time + "</datafile_modify_time>\n");
-            if (this.datafile_size != null) s.append("      <file_size>" + this.datafile_size + "</file_size>\n");
+			s.append("      <datafile_version>" + datafileVersion + "</datafile_version>\n");
+			s.append("      <datafile_create_time>" + datafileCreateTime + "</datafile_create_time>\n");
+			s.append("      <datafile_modify_time>" + datafileModifyTime + "</datafile_modify_time>\n");
+			if (this.datafileSize != null) {
+				s.append("      <file_size>" + this.datafileSize + "</file_size>\n");
+			}
 			s.append("   </datafile>\n");
 
 			return s.toString();
 		}
 	}
 
-	private class DatasetInfo {
-		private String name, dataset_type, description;
+	private static class DatasetInfo {
+		private String name;
+		private String datasetType;
+		private String description;
 
 		public DatasetInfo(String name) {
 			this.name = name;
-			this.dataset_type = "EXPERIMENT_RAW";
-			this.description = "unknown";
+			this.datasetType = "EXPERIMENT_RAW";
+			this.description = UNKNOWN;
 		}
 
 		@Override
 		public String toString() {
-			String s = "";
-			s += "   <name>" + name + "</name>\n";
-			s += "   <dataset_type>" + dataset_type + "</dataset_type>\n";
-			s += "   <description>" + description + "</description>\n";
+			final StringBuilder s = new StringBuilder();
+			s.append("   <name>" + name + "</name>\n");
+			s.append("   <dataset_type>" + datasetType + "</dataset_type>\n");
+			s.append("   <description>" + description + "</description>\n");
 
-			return s;
+			return s.toString();
 		}
 	}
 
-	private class AtomicWriter extends OutputStreamWriter {
+	private static class AtomicWriter extends OutputStreamWriter {
 		private String finalFileName;
 		private File file;
 
 		public AtomicWriter(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-			this(new File(fileName+"."));
+			this(new File(fileName + "."));
 			this.finalFileName = fileName;
 		}
 
@@ -199,13 +204,18 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		@Override
 		public void close() throws IOException {
 			super.close();
-			boolean success = file.renameTo(new File(finalFileName));
-			if (!success) throw new IOException("could not rename file to final destination");
+			final boolean success = file.renameTo(new File(finalFileName));
+			if (!success) {
+				throw new IOException("could not rename file to final destination");
+			}
 		}
 	}
 
 	@Override
 	public void configure() throws FactoryException {
+		if (directory == null) {
+			throw new FactoryException("Drop file directory not set");
+		}
 		logger.info("DLSICAT:IcatXMLCreator version {} writing to {}", VERSION, directory);
 	}
 
@@ -223,12 +233,17 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		logger.debug("registering {} file(s) for dataset {}", files.length, datasetId);
 
 		if (metadata == null) {
-			getMetadataObject();
+			try {
+				getMetadataObject();
+			} catch (DeviceException e) {
+				logger.error("Error getting metadata", e);
+				return;
+			}
 		}
 
-		IvestigationInfo investigationInfo = null;
+		InvestigationInfo investigationInfo = null;
 		try {
-			investigationInfo = new IvestigationInfo();
+			investigationInfo = new InvestigationInfo(metadata);
 		} catch (DeviceException e) {
 			logger.error("Error getting Metadata, will NOT archive files! ", e);
 			return;
@@ -237,24 +252,16 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		try {
 			createFile();
 			writeData(investigationInfo);
-			if (useDirForDatasetName) {
-				// Each file is added as separate <dataset> entry, with dataset directory location providing the dataset name
-				for (String file : files) {
-					String datasetName = getDatasetNameFromPath(file, investigationInfo.getVisitId());
-					logger.debug("Writing dropfile dataset for file {} : scan = {}, dataset = {}", file, getScanNumberFromPath(file), datasetName);
-					writeData(datasetStart);
-					writeData(new DatasetInfo(datasetName));
-					writeData(new FileInfo(file));
-					writeData(datasetEnd);
-				}
-			} else {
-				writeData(datasetStart);
-				writeData(new DatasetInfo(datasetId));
-				for (String file : files) {
-					logger.debug("Writing info for file " + file);
-					writeData(new FileInfo(file));
-				}
-				writeData(datasetEnd);
+			// Each file is added as separate <dataset> entry, with dataset directory location
+			// providing the dataset name
+			for (String file : files) {
+				final String datasetName = getDatasetNameFromPath(file, investigationInfo.getVisitId());
+				logger.debug("Writing dropfile dataset for file {} : scan = {}, dataset = {}", file,
+						getScanNumberFromPath(file), datasetName);
+				writeData(DATASET_START);
+				writeData(new DatasetInfo(datasetName));
+				writeData(new FileInfo(file));
+				writeData(DATASET_END);
 			}
 		} catch (Exception e) {
 			logger.error("Cannot write XML drop file ", e);
@@ -269,8 +276,8 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	 * @return Scan number
 	 */
 	private String getScanNumberFromPath(String fullFilePath) {
-		String filename = FilenameUtils.getBaseName(fullFilePath);
-		int underScorePos = filename.indexOf("_");
+		final String filename = FilenameUtils.getBaseName(fullFilePath);
+		final int underScorePos = filename.indexOf('_');
 		if (underScorePos > 0) {
 			return filename.substring(0, underScorePos);
 		} else {
@@ -285,10 +292,10 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	 */
 	private String getDatasetNameFromPath(String fullFilePath, String visitId) {
 		// Get path to folder containing data
-		String fileDirectory = FilenameUtils.getFullPathNoEndSeparator(fullFilePath);
+		final String fileDirectory = FilenameUtils.getFullPathNoEndSeparator(fullFilePath);
 
 		// Get path to visit folder
-		int visitEndIndex = fullFilePath.toLowerCase().indexOf(visitId.toLowerCase());
+		final int visitEndIndex = fullFilePath.toLowerCase().indexOf(visitId.toLowerCase());
 		if (visitEndIndex == -1 ) {
 			logger.warn("Path for file {} does not contain visit id {}. Using directory {} instead", fullFilePath, visitId, fileDirectory);
 			return fileDirectory;
@@ -306,51 +313,12 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		}
 	}
 
-	/**
-	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data file information
-	 *
-	 * @param files
-	 *            list of absolute paths
-	 */
-	public void registerFiles(String[] files) {
-
-		String datasetId = "scan-" + getScanNumberFromPath(files[0]);
-
-		if (metadata == null) {
-			getMetadataObject();
-		}
-
-		IvestigationInfo investigationInfo = null;
-		try {
-			investigationInfo = new IvestigationInfo();
-		} catch (DeviceException e) {
-			logger.error("Error getting Metadata, will NOT archive files! ", e);
-			return;
-		}
-
-		try {
-			createFile();
-			writeData(investigationInfo);
-			writeData(datasetStart);
-			writeData(new DatasetInfo(datasetId));
-			for (String file : files) {
-				logger.debug("Writing info for file {}", file);
-				writeData(new FileInfo(file));
-			}
-			writeData(datasetEnd);
-		} catch (Exception e) {
-			logger.error("Cannot write XML drop file", e);
-		} finally {
-			closeFile();
-		}
-	}
-
-	private void getMetadataObject() {
-		Map<String, Metadata> findables = Finder.getInstance().getFindablesOfType(Metadata.class);
+	private void getMetadataObject() throws DeviceException {
+		final Map<String, Metadata> findables = Finder.getInstance().getFindablesOfType(Metadata.class);
 
 		if (findables.size() == 0) {
 			logger.error("cannot find a metadata object");
-			throw new RuntimeException("cannot register files when metadata object cannot be found");
+			throw new DeviceException("cannot register files when metadata object cannot be found");
 		}
 		if (findables.size() != 1) {
 			logger.warn("multiple metadata objects found, using first found");
@@ -363,7 +331,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 			return;
 		}
 		try {
-			fileWriter.write(xmlFooter);
+			fileWriter.write(XML_FOOTER);
 		} catch (IOException e) {
 			logger.error("Cannot write the very last bit.", e);
 		}
@@ -387,7 +355,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	protected void createFile() throws IOException {
 		fileWriter = new AtomicWriter(directory + new Date().getTime() + ".xml");
-		fileWriter.write(xmlHeader);
+		fileWriter.write(XML_HEADER);
 	}
 
 	/**
@@ -406,13 +374,5 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	protected void setMetadata(Metadata metadata) {
 		this.metadata = metadata;
-	}
-
-	public boolean getUseDirForDatasetName() {
-		return useDirForDatasetName;
-	}
-
-	public void setUseDirForDatasetName(boolean useDirForDatasetName) {
-		this.useDirForDatasetName = useDirForDatasetName;
 	}
 }
