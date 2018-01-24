@@ -1,13 +1,10 @@
 package uk.ac.diamond.daq.server;
 
-import gda.jython.GDAJythonClassLoader;
-import gda.util.ObjectServer;
-import gda.util.SpringObjectServer;
-import gda.util.Version;
+import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.EVENT;
+import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
+import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.NAME;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -19,10 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
+import gda.jython.GDAJythonClassLoader;
+import gda.jython.InterfaceProvider;
+import gda.util.ObjectServer;
+import gda.util.SpringObjectServer;
+import gda.util.Version;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
-import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.*;
 
 /**
  * This class controls all aspects of the application's execution
@@ -103,6 +104,9 @@ public class GDAServerApplication implements IApplication {
 	 */
 	public void stop() {
 		logger.info("GDA application stopping");
+		// Notify via Jython console this is useful as dead clients will display the message
+		InterfaceProvider.getTerminalPrinter().print("GDA server is shutting down");
+
 		if (objectServers.size() > 0) {
 
 			// Shutdown using the SpringObjectServer shutdown which waits for Corba unbind
