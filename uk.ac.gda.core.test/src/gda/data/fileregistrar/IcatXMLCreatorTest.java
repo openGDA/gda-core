@@ -37,84 +37,87 @@ public class IcatXMLCreatorTest {
 	private IcatXMLCreatorForTest xmlCreator;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		xmlCreator = new IcatXMLCreatorForTest();
 	}
 
 	@Test
 	public void testRegisterSingleFile() throws Exception {
 		// A file in the visit directory is given a dataset name "topdir"
-		final String expected = "<inv_number>CM19664</inv_number>"
-				+ "<visit_id>CM19664-1</visit_id>"
-				+ "<instrument>ixx</instrument>"
-				+ "<title>Test scan</title>"
-				+ "<inv_type>experiment</inv_type>"
-				+ "<dataset>"
-				+ "<name>topdir</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766.nxs</name>"
-				+ "<location>/scratch/temp/cm19664-1/ixx-766.nxs</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>";
+		final StringBuilder expected = new StringBuilder();
+		expected.append(" <inv_number>CM19664</inv_number>\n");
+		expected.append(" <visit_id>CM19664-1</visit_id>\n");
+		expected.append(" <instrument>ixx</instrument>\n");
+		expected.append(" <title>Test scan</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>topdir</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
 
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
 
-		assertEquals(expected, normaliseResultString());
+		assertEquals(expected.toString(), normaliseResultString());
 	}
 
 	@Test
 	public void testRegisterFilesInSubdirectories() throws Exception {
 		// Files in subdirectories: dataset name is path relative to visit directory
-		final String expected = "<inv_number>CM19664</inv_number>"
-				+ "<visit_id>CM19664-1</visit_id>"
-				+ "<instrument>ixx</instrument>"
-				+ "<title>Test scan</title>"
-				+ "<inv_type>experiment</inv_type>"
-				+ "<dataset>"
-				+ "<name>topdir</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile><name>ixx-766.nxs</name>"
-				+ "<location>/scratch/temp/cm19664-1/ixx-766.nxs</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>"
-				+ "<dataset>"
-				+ "<name>files/panda</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766-panda.hdf</name>"
-				+ "<location>/scratch/temp/cm19664-1/files/panda/ixx-766-panda.hdf</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>"
-				+ "<dataset>"
-				+ "<name>files</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766.hdf</name>"
-				+ "<location>/scratch/temp/cm19664-1/files/ixx-766.hdf</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>";
+		final StringBuilder expected = new StringBuilder();
+		expected.append(" <inv_number>CM19664</inv_number>\n");
+		expected.append(" <visit_id>CM19664-1</visit_id>\n");
+		expected.append(" <instrument>ixx</instrument>\n");
+		expected.append(" <title>Test scan</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>topdir</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>files/panda</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766-panda.hdf</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/files/panda/ixx-766-panda.hdf</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>files</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.hdf</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/files/ixx-766.hdf</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
 
 		final String[] files = new String[] {
 				"/scratch/temp/cm19664-1/ixx-766.nxs",
@@ -124,104 +127,104 @@ public class IcatXMLCreatorTest {
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", files);
 
-		assertEquals(expected, normaliseResultString());
+		assertEquals(expected.toString(), normaliseResultString());
 	}
 
 	@Test
 	public void testRegisterFileNotUnderVisit() throws Exception {
 		// A file not in the visit directory hierarchy: dataset name is full path
 		// (This should never happen.)
-		final String expected = "<inv_number>CM19664</inv_number>"
-				+ "<visit_id>CM19664-1</visit_id>"
-				+ "<instrument>ixx</instrument>"
-				+ "<title>Test scan</title>"
-				+ "<inv_type>experiment</inv_type>"
-				+ "<dataset>"
-				+ "<name>/scratch/temp/elsewhere</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766.nxs</name>"
-				+ "<location>/scratch/temp/elsewhere/ixx-766.nxs</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>";
+		final StringBuilder expected = new StringBuilder();
+		expected.append(" <inv_number>CM19664</inv_number>\n");
+		expected.append(" <visit_id>CM19664-1</visit_id>\n");
+		expected.append(" <instrument>ixx</instrument>\n");
+		expected.append(" <title>Test scan</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>/scratch/temp/elsewhere</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/elsewhere/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
 
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/elsewhere/ixx-766.nxs" });
 
-		assertEquals(expected, normaliseResultString());
+		assertEquals(expected.toString(), normaliseResultString());
 	}
 
 	@Test
 	public void testRegisterFileNoMetadata() throws Exception {
 		// If metadata is missing, title & instrument default to "unknown",
 		// visit defaults to "0-0"
-		final String expected = "<inv_number>0</inv_number>"
-				+ "<visit_id>0-0</visit_id>"
-				+ "<instrument>unknown</instrument>"
-				+ "<title>unknown</title>"
-				+ "<inv_type>experiment</inv_type>"
-				+ "<dataset>"
-				+ "<name>/scratch/temp/cm19664-1</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766.nxs</name>"
-				+ "<location>/scratch/temp/cm19664-1/ixx-766.nxs</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>";
+		final StringBuilder expected = new StringBuilder();
+		expected.append(" <inv_number>0</inv_number>\n");
+		expected.append(" <visit_id>0-0</visit_id>\n");
+		expected.append(" <instrument>unknown</instrument>\n");
+		expected.append(" <title>unknown</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>/scratch/temp/cm19664-1</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
 
 		xmlCreator.setMetadata(createMetadata(null, null, null));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
 
-		assertEquals(expected, normaliseResultString());
+		assertEquals(expected.toString(), normaliseResultString());
 	}
 
 	@Test
 	public void testSanitiseMetadata() throws Exception {
 		// Certain non-alphanumerics will be removed from instrument & title fields
-		final String expected = "<inv_number>CM19664</inv_number>"
-				+ "<visit_id>CM19664-1</visit_id>"
-				+ "<instrument>ixx</instrument>"
-				+ "<title>Test scan</title>"
-				+ "<inv_type>experiment</inv_type>"
-				+ "<dataset>"
-				+ "<name>topdir</name>"
-				+ "<dataset_type>EXPERIMENT_RAW</dataset_type>"
-				+ "<description>unknown</description>"
-				+ "<datafile>"
-				+ "<name>ixx-766.nxs</name>"
-				+ "<location>/scratch/temp/cm19664-1/ixx-766.nxs</location>"
-				+ "<description>unknown</description>"
-				+ "<datafile_version>1.0</datafile_version>"
-				+ "<datafile_create_time>created</datafile_create_time>"
-				+ "<datafile_modify_time>modified</datafile_modify_time>"
-				+ "</datafile>"
-				+ "</dataset>";
+		final StringBuilder expected = new StringBuilder();
+		expected.append(" <inv_number>CM19664</inv_number>\n");
+		expected.append(" <visit_id>CM19664-1</visit_id>\n");
+		expected.append(" <instrument>ixx</instrument>\n");
+		expected.append(" <title>Test scan</title>\n");
+		expected.append(" <inv_type>experiment</inv_type>\n");
+		expected.append(" <dataset>\n");
+		expected.append("   <name>topdir</name>\n");
+		expected.append("   <dataset_type>EXPERIMENT_RAW</dataset_type>\n");
+		expected.append("   <description>unknown</description>\n");
+		expected.append("   <datafile>\n");
+		expected.append("      <name>ixx-766.nxs</name>\n");
+		expected.append("      <location>/scratch/temp/cm19664-1/ixx-766.nxs</location>\n");
+		expected.append("      <description>unknown</description>\n");
+		expected.append("      <datafile_version>1.0</datafile_version>\n");
+		expected.append("      <datafile_create_time>created</datafile_create_time>\n");
+		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
+		expected.append("   </datafile>\n");
+		expected.append(" </dataset>\n");
 
 		// Special characters in instrument & title will be removed
 		xmlCreator.setMetadata(createMetadata("i&x<x", "<Te\'st> &s\\c/a\"n", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
 
-		assertEquals(expected, normaliseResultString());
+		assertEquals(expected.toString(), normaliseResultString());
 	}
 
 	/**
-	 * Get the result string, removing carriage returns & trailing spaces and replacing file times with a defined string
+	 * Get the result string, replacing file times with a defined string
 	 */
 	private String normaliseResultString() {
 		return xmlCreator.getStringWriter().toString()
-				.replaceAll("[\\n]", "")
-				.replaceAll(">[\\s]*", ">")
-				.replaceAll("[\\s]*<", "<")
 				.replaceAll("<datafile_create_time>.*?</datafile_create_time>", "<datafile_create_time>created</datafile_create_time>")
 				.replaceAll("<datafile_modify_time>.*?</datafile_modify_time>", "<datafile_modify_time>modified</datafile_modify_time>");
 	}
@@ -248,7 +251,7 @@ public class IcatXMLCreatorTest {
 
 		@Override
 		protected void closeFile() {
-			// We don't want the file writer to be disposed
+			// We don't want the string writer to be disposed
 		}
 
 		public StringWriter getStringWriter() {
