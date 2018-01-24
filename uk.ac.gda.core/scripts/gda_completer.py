@@ -28,7 +28,7 @@ TYPE_ATTR = 3  # Green Circle
 TYPE_BUILTIN = 4  # Gray Circle
 TYPE_PARAM = 5  # No icon, This doesn't have support in the Java side
 
-CAMEL_REG = re.compile('([A-Z][a-z]*|_[a-z]*)')
+CAMEL_REG = re.compile('([A-Z][a-z0-9]*|_[a-z0-9]*)')
 # String contains either upper case or underscore - should use camel_match
 AUTO_REG = re.compile('.*([A-Z]|_)')
 
@@ -49,7 +49,7 @@ def camel_snake_match(partial):
     if not sub_text and keys:
         # make sure that the match starts with the start of the partial text
         sub_text = keys.pop(0)
-    match_regex = '^' + sub_text + '[a-z]*' + '[a-z_]*'.join(keys)
+    match_regex = '^' + sub_text + '[a-z0-9]*' + '[a-z0-9_]*'.join(keys)
     logger.debug('Matching against regex: {}', match_regex)
     return re.compile(match_regex).match
 
