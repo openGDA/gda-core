@@ -18,11 +18,15 @@
 
 package uk.ac.gda.client.actions;
 
+import static org.eclipse.jface.dialogs.MessageDialog.openQuestion;
+
 import java.io.File;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
@@ -42,9 +46,13 @@ public abstract class ScriptHandler extends AbstractHandler {
 		File script = null;
 		try {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
-			script = EclipseUtils.getFile(editor.getEditorInput());
-			if (script != null) {
-				run(script);
+			if (saved(editor)) {
+				script = EclipseUtils.getFile(editor.getEditorInput());
+				if (script != null) {
+					run(script);
+				}
+			} else {
+				logger.debug("Not handling unsaved script");
 			}
 		} catch (Exception e) {
 			logger.error("Could not handle script '{}' from UI", script, e);
@@ -57,6 +65,24 @@ public abstract class ScriptHandler extends AbstractHandler {
 	public boolean isEnabled() {
 		IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		return (activePart instanceof PyEdit);
+	}
+
+	public static boolean saved(IEditorPart editor) {
+		if (editor.isDirty()) {
+			final String filename = editor.getEditorInput().getName();
+			if (openQuestion(null,
+					"Save changes?",
+					String.format("'%s' has been modified. Save and continue?", filename))) {
+				IProgressMonitor monitor = new NullProgressMonitor();
+				editor.doSave(monitor);
+				if (monitor.isCanceled()) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
