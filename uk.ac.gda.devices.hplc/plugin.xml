@@ -5,7 +5,7 @@
         point="uk.ac.diamond.daq.jython.api.scriptLocations">
      <location
            folder="uk.ac.gda.devices.hplc/scripts"
-           name="Scripts: HPLCC">
+           name="Scripts: HPLC">
      </location>
   </extension>
 </plugin>
