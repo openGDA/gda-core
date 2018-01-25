@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
 import org.eclipse.scanning.api.annotation.scan.LevelStart;
@@ -174,7 +173,6 @@ public class AnnotationScanTest extends NexusTest {
 
 		public InjectionMonitor() {
 			setName("injectionMonitor");
-			setMonitorRole(MonitorRole.PER_POINT);
 		}
 
 		@Override

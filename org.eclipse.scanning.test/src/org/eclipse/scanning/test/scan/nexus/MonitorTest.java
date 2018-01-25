@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -45,7 +44,6 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -65,6 +63,9 @@ import org.junit.Test;
 
 public class MonitorTest extends NexusTest {
 
+	private enum MonitorScanRole {
+		PER_SCAN, PER_POINT
+	}
 
 	private static IWritableDetector<ConstantVelocityModel> detector;
 
@@ -93,20 +94,20 @@ public class MonitorTest extends NexusTest {
 
 	@Test
 	public void testPerPoint() throws Exception {
-		testScan(MonitorRole.PER_POINT, MonitorRole.PER_POINT, 2); // They all are anyway
+		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_POINT, 2); // They all are anyway
 	}
 	@Test
 	public void testPerPointIsPerScanToo() throws Exception {
-		testScan(MonitorRole.PER_POINT, MonitorRole.PER_SCAN, 2); // They all are anyway
+		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_SCAN, 2); // They all are anyway
 	}
 
 	@Test
 	public void testPerScan() throws Exception {
-		testScan(MonitorRole.PER_SCAN, MonitorRole.PER_SCAN, 2);
+		testScan(MonitorScanRole.PER_SCAN, MonitorScanRole.PER_SCAN, 2);
 	}
 	@Test(expected=AssertionError.class)
 	public void testPerScanIsNotPerPoint() throws Exception {
-		testScan(MonitorRole.PER_SCAN, MonitorRole.PER_POINT, 2);
+		testScan(MonitorScanRole.PER_SCAN, MonitorScanRole.PER_POINT, 2);
 	}
 
 	@Test
@@ -114,12 +115,9 @@ public class MonitorTest extends NexusTest {
 
 	    // NOTE That they must be MockNeXusScannables which we test.
 		List<String> perPoint = Arrays.asList("monitor0", "monitor3");
-		for (String monName : perPoint) connector.getScannable(monName).setMonitorRole(MonitorRole.PER_POINT);
-
 		List<String> perScan = Arrays.asList("z", "monitor1");
-		for (String monName : perScan) connector.getScannable(monName).setMonitorRole(MonitorRole.PER_SCAN);
 
-		IRunnableDevice<ScanModel> scanner = runScan(Arrays.asList("monitor3", "monitor0"), Arrays.asList("monitor1", "z"), 5);
+		IRunnableDevice<ScanModel> scanner = runScan(perPoint, perScan, 5);
 
         assertPerPointMonitors(scanner, perPoint, 5);
         assertPerScanMonitors(scanner, perScan);
@@ -143,16 +141,14 @@ public class MonitorTest extends NexusTest {
 
 	private void testScan(int... shape) throws Exception {
 
-		testScan(MonitorRole.PER_POINT, MonitorRole.PER_POINT, shape);
+		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_POINT, shape);
 	}
 
 
-	private void testScan(MonitorRole mrole, MonitorRole testedRole, int... shape) throws Exception {
-		final List<String>        monitors = Arrays.asList("monitor1", "monitor2");
-		for (String monName : monitors) connector.getScannable(monName).setMonitorRole(mrole);
-
+	private void testScan(MonitorScanRole mrole, MonitorScanRole testedRole, int... shape) throws Exception {
+		final List<String> monitors = Arrays.asList("monitor1", "monitor2");
 		IRunnableDevice<ScanModel> scanner;
-		if (mrole == MonitorRole.PER_POINT) {
+		if (mrole == MonitorScanRole.PER_POINT) {
 			scanner = runScan(monitors, null, shape);
 		} else {
 			scanner = runScan(null, monitors, shape);
@@ -170,7 +166,7 @@ public class MonitorTest extends NexusTest {
 	    return scanner;
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, List<String> monitorNames, MonitorRole role, int... sizes) throws Exception {
+	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, List<String> monitorNames, MonitorScanRole role, int... sizes) throws Exception {
 
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>)scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
@@ -212,9 +208,9 @@ public class MonitorTest extends NexusTest {
 			Collections.nCopies(3, ".").stream()).toArray(String[]::new);
         assertAxes(nxData, expectedAxesNames);
 
-        if (role == MonitorRole.PER_POINT) {
+        if (role == MonitorScanRole.PER_POINT) {
             assertPerPointMonitors(scanner, monitorNames, sizes);
-        } else if (role == MonitorRole.PER_SCAN) {
+        } else if (role == MonitorScanRole.PER_SCAN) {
 		assertPerScanMonitors(scanner, monitorNames);
         }
 	}

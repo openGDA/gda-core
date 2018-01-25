@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,7 +49,6 @@ import org.eclipse.dawnsci.nexus.builder.data.PrimaryDataDevice;
 import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
@@ -330,33 +331,18 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		// setting them to be per scan monitors
 		if (!scannablesToAdd.isEmpty()) {
 			final List<IScannable<?>> monitorsPerScan = new ArrayList<>(model.getMonitorsPerScan());
-			monitorsPerScan.addAll(perScanMonitorNames.stream()
-				.map(name -> getPerScanMonitor(name)).collect(Collectors.toList()));
-
+			monitorsPerScan.addAll(perScanMonitorNames.stream().map(this::getPerScanMonitor).collect(toList()));
 			model.setMonitorsPerScan(monitorsPerScan);
 		}
 	}
 
 	private IScannable<?> getPerScanMonitor(String monitorName) {
-		IScannable<?> scannable = null;
 		try {
-			scannable = scanDevice.getConnectorService().getScannable(monitorName);
+			return scanDevice.getConnectorService().getScannable(monitorName);
 		} catch (ScanningException e) {
 			logger.error("No such scannable ''{}''", monitorName);
 			return null;
 		}
-
-		try {
-			if (scannable.getMonitorRole() != MonitorRole.PER_SCAN) {
-				logger.warn("Setting {} DefaultMonitorRole to {}, currently {}", scannable.getName(), MonitorRole.PER_SCAN, scannable.getMonitorRole());
-			}
-			scannable.setMonitorRole(MonitorRole.PER_SCAN);
-		} catch (IllegalArgumentException | ScanningException e) {
-			logger.error("Could not set scannable ''{}'' as per scan", scannable.getName(), e);
-			return null;
-		}
-
-		return scannable;
 	}
 
 	private List<String> getScannableNames(Iterable<IPosition> gen) {

@@ -18,8 +18,6 @@ import java.util.Set;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.Location;
@@ -54,7 +52,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 	private int                 level;
 	private String              name;
 	private boolean             activated;
-	private MonitorRole         monitorRole=MonitorRole.PER_POINT;
 	private long                timeout=-1;
 
 	/**
@@ -180,7 +177,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 		deviceInfo.setLower(getMinimum());
 		deviceInfo.setPermittedValues(deviceInfo.getPermittedValues());
 		deviceInfo.setActivated(isActivated());
-		deviceInfo.setMonitorRole(getMonitorRole());
 
 		return deviceInfo;
 	}
@@ -240,20 +236,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 		return was;
 	}
 
-	public static final <T> IScannable<T> empty() {
-		return new AbstractScannable<T>() {
-			@Override
-			public T getPosition() throws ScanningException {
-				return null;
-			}
-
-			@Override
-			public T setPosition(T value, IPosition position) throws ScanningException {
-				throw new ScanningException("Cannot set position, scannable is empty!");
-			}
-		};
-	}
-
 	@SuppressWarnings("unchecked")
 	public <M> M getModel() {
 		return (M)model;
@@ -269,19 +251,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 
 	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		this.scannableDeviceService = scannableDeviceService;
-	}
-
-	@Override
-	public MonitorRole getMonitorRole() {
-		return monitorRole;
-	}
-
-	@Override
-	public MonitorRole setMonitorRole(MonitorRole monitorRole) {
-		logger.trace("setMonitorRole({}) was {} ({})", monitorRole, this.monitorRole, this);
-		MonitorRole orig = this.monitorRole;
-		this.monitorRole = monitorRole;
-		return orig;
 	}
 
 	@Override

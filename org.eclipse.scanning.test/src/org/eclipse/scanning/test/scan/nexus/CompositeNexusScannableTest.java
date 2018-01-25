@@ -30,7 +30,6 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -347,7 +346,6 @@ public class CompositeNexusScannableTest extends NexusTest {
 		final ScanModel smodel = new ScanModel();
 		smodel.setPositionIterable(gen);
 		if (perScanMonitor != null) {
-			perScanMonitor.setMonitorRole(MonitorRole.PER_SCAN);
 			perScanMonitor.setActivated(true);
 		}
 		smodel.setDetectors(detector);

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api;
 
+import org.eclipse.scanning.api.device.IActivatable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -37,7 +38,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 public interface IScannable<T> extends
 						           /* A list of mostly defaulted and vanilla interfaces optionally used for scannables */
 						           ILevel, INameable, ITimeoutable,
-						           IBoundable<T>, ITolerable<T>, IMonitoredDevice {
+						           IBoundable<T>, ITolerable<T>, IActivatable {
 
 	/**
 	 * Returns the current position of the Scannable. Called by ConcurentScan at the end of the point.

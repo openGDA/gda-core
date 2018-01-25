@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.slf4j.Logger;
@@ -121,12 +120,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	private boolean busy;
 
 	private DeviceRole deviceRole;
-
-	/**
-	 * For devices that may be used as monitors, they
-	 * have a specific role in the system.
-	 */
-	private MonitorRole monitorRole;
 
 	/**
 	 *
@@ -244,7 +237,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + level;
 		result = prime * result + ((lower == null) ? 0 : lower.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
-		result = prime * result + ((monitorRole == null) ? 0 : monitorRole.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + Arrays.hashCode(permittedValues);
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
@@ -302,8 +294,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.model != null)
 				return false;
 		} else if (!model.equals(other.model))
-			return false;
-		if (monitorRole != other.monitorRole)
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -434,16 +424,5 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	public void setAlive(boolean alive) {
 		this.alive = alive;
 	}
-
-	public MonitorRole getMonitorRole() {
-		return monitorRole;
-	}
-
-	public void setMonitorRole(MonitorRole monitorRole) {
-		logger.trace("setMonitorRole({}) was {} ({})", monitorRole, this.monitorRole, this);
-		this.monitorRole = monitorRole;
-	}
-
-
 
 }

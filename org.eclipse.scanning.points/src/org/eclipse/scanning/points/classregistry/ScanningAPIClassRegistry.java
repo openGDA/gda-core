@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.GenericModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
@@ -77,6 +76,7 @@ import org.eclipse.scanning.api.scan.ui.ControlFileNode;
 import org.eclipse.scanning.api.scan.ui.ControlGroup;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.script.ScriptResponse;
@@ -98,7 +98,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 
 		// event.scan
 		registerClass(tmp, DeviceRequest.class);
-		registerClass(tmp, MonitorRole.class);  // TODO Is this wrong? Should enums not need explicit registration.
 		registerClass(tmp, PositionerRequest.class);
 		registerClass(tmp, AcquireRequest.class);
 		registerClass(tmp, ScanBean.class);
@@ -141,6 +140,7 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, ControlGroup.class);
 		registerClass(tmp, ControlNode.class);
 		registerClass(tmp, ControlTree.class);
+		registerClass(tmp, MonitorScanUIElement.class);
 		registerClass(tmp, AxisConfiguration.class);
 
 		// event.alive

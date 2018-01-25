@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.ITerminatable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -245,18 +244,4 @@ class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, I
 		return wasactivated;
 	}
 
-	@Override
-	public MonitorRole getMonitorRole() {
-		if (info==null) update();
-		return info.getMonitorRole();
-	}
-
-	@Override
-	public MonitorRole setMonitorRole(MonitorRole role) throws ScanningException {
-		if (info==null) update();
-		MonitorRole oldRole = info.getMonitorRole();
-		logger.info("setMonitorRole({}) was {} ({})", role, oldRole, this);
-		method(new DeviceRequest(info.getName(), DeviceType.SCANNABLE, DeviceAction.SET, role));
-		return oldRole;
-	}
 }

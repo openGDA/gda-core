@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.device.ui.points;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.text.DecimalFormat;
@@ -19,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,14 +44,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
-import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -64,6 +65,8 @@ import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.AbstractControl;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.ui.CommandConstants;
@@ -73,6 +76,7 @@ import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
 import org.eclipse.scanning.device.ui.ScanningPerspective;
 import org.eclipse.scanning.device.ui.ServiceHolder;
+import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
 import org.eclipse.swt.SWT;
@@ -120,10 +124,9 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	private Label      timeEstimate;
 
 	// Services
-	private IPointGeneratorService  pservice; // Used to create a compound generator
-	private IValidatorService       vservice; // Used to validate a selection
-	private IRunnableDeviceService  dservice;
-	private IScannableDeviceService cservice;
+	private IPointGeneratorService  pointGeneratorService; // Used to create a compound generator
+	private IValidatorService       validatorService; // Used to validate a selection
+	private IRunnableDeviceService  runnableDeviceService;
 
 	// Job
 	private Job updateJob;
@@ -137,16 +140,14 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_SCAN_CMD,  true);
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_VERBOSE_SCAN_CMD,  false);
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_SCAN_TIME,  true);
-		this.pservice = ServiceHolder.getGeneratorService();
-		this.vservice = ServiceHolder.getValidatorService();
+		this.pointGeneratorService = ServiceHolder.getGeneratorService();
+		this.validatorService = ServiceHolder.getValidatorService();
 		try {
-			this.dservice = ServiceHolder.getRemote(IRunnableDeviceService.class);
-			this.cservice = ServiceHolder.getRemote(IScannableDeviceService.class);
-
+			this.runnableDeviceService = ServiceHolder.getRemote(IRunnableDeviceService.class);
 		} catch (Exception e) {
 			logger.error("Unable to get remote device service!", e);
 		}
-		updateJob = new Job("Update Scna Information") {
+		updateJob = new Job("Update Scan Information") {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
 				update(monitor);
@@ -347,17 +348,18 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			}
 		}
 
-		if (modelAdaptable==null) {
+		if (modelAdaptable == null) {
 			// We see if there is a view with a compound model adaptable
 			// TODO Replace with IScanBuilderService to make e4 compatible
 			IViewReference[] refs = PageUtil.getPage().getViewReferences();
 			for (IViewReference iViewReference : refs) {
 				IViewPart part = iViewReference.getView(false);
-				if (part==null) continue;
-                CompoundModel<IROI> cm = part.getAdapter(CompoundModel.class);
-                if (cm !=null) {
-			modelAdaptable = part;
-                }
+				if (part == null)
+					continue;
+				CompoundModel<IROI> cm = part.getAdapter(CompoundModel.class);
+				if (cm != null) {
+					modelAdaptable = part;
+				}
 			}
 		}
 		if (modelAdaptable==null) return null; // Nothing to update, no view gives us a CompoundModel!
@@ -377,11 +379,12 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		ret.setBefore(req[0]);
 		ret.setAfter(req[1]);
 
-		ret.setMonitorNamesPerPoint(getMonitors(MonitorRole.PER_POINT));
-		ret.setMonitorNamesPerScan(getMonitors(MonitorRole.PER_SCAN));
+		final Collection<MonitorScanUIElement> monitors = getMonitors();
+		ret.setMonitorNamesPerPoint(getMonitorNamesByRole(monitors, MonitorScanRole.PER_POINT));
+		ret.setMonitorNamesPerScan(getMonitorNamesByRole(monitors, MonitorScanRole.PER_SCAN));
 		ret.setDetectors(getDetectors());
 		ret.setSampleData(sampleData);
-        vservice.validate(ret);
+		validatorService.validate(ret);
 
 		return ret;
 	}
@@ -418,8 +421,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		if (ob == null)                        return true; // Something deleted.
 		if (ob instanceof GeneratorDescriptor) return true; // Generator changed.
 		if (ob instanceof FieldValue)          return true; // Model changed.
-		if (ob instanceof DeviceInformation)   return true; // Device changed.
-		if (ob instanceof IScannable<?>)       return true; // Device changed.
+		if (ob instanceof DeviceInformation)   return true; // Detector changed.
+		if (ob instanceof MonitorScanUIElement) return true;// Monitor changed.
 		if (ob instanceof ScanRegion)          return true; // Region changed.
 		if (ob instanceof IROI)                return true; // Region changed.
 		if (ob instanceof AbstractControl)     return true; // Position changed.
@@ -448,14 +451,14 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	        CompoundModel<IROI> cm = req.getCompoundModel();
 	        if (cm != null) {
 			// Validate
-			vservice.validate(cm);
+			validatorService.validate(cm);
 				setThreadSafeEnabled(true);
 
 			StyledString styledString = new StyledString();
 
 			// Create generator for points
 				if (monitor.isCanceled()) return;
-			final IPointGenerator<?> gen = pservice.createCompoundGenerator(cm);
+			final IPointGenerator<?> gen = pointGeneratorService.createCompoundGenerator(cm);
 			styledString.append("A scan of ");
 			styledString.append((new DecimalFormat()).format(gen.size()), StyledString.COUNTER_STYLER);
 			styledString.append(" points, scanning motors: ");
@@ -500,12 +503,17 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 				styledString.append(getScanRegions(cm.getRegions()), StyledString.QUALIFIER_STYLER);
 
 					if (monitor.isCanceled()) return;
+					Collection<MonitorScanUIElement> monitors = getMonitors();
 					styledString.append("\nPer point monitors: ");
-					styledString.append(getMonitorNames(MonitorRole.PER_POINT), StyledString.DECORATIONS_STYLER);
+					String perPointMonitorsStr = getMonitorNamesByRole(monitors, MonitorScanRole.PER_POINT)
+							.stream().collect(joining(", "));
+					styledString.append(perPointMonitorsStr, StyledString.DECORATIONS_STYLER);
 
 					if (monitor.isCanceled()) return;
 					styledString.append("\nPer scan monitors: ");
-					styledString.append(getMonitorNames(MonitorRole.PER_SCAN), StyledString.DECORATIONS_STYLER);
+					String perScanMonitorsStr = getMonitorNamesByRole(monitors, MonitorScanRole.PER_SCAN)
+							.stream().collect(joining(", "));
+					styledString.append(perScanMonitorsStr, StyledString.DECORATIONS_STYLER);
 
 					if (monitor.isCanceled()) return;
 				if (sampleData!=null && sampleData.getName()!=null && sampleData.getName().length()>0) {
@@ -635,7 +643,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		final StringBuilder buf = new StringBuilder();
 	for (Iterator<DeviceInformation<?>> it = activated.iterator(); it.hasNext();) {
 		DeviceInformation<?> info = it.next();
-		IRunnableDevice<Object> device = dservice.getRunnableDevice(info.getName());
+		IRunnableDevice<Object> device = runnableDeviceService.getRunnableDevice(info.getName());
 		device.validate(info.getModel());
 		buf.append(info.getName());
 		if(it.hasNext()) buf.append(",");
@@ -665,31 +673,26 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	}
 
 	@SuppressWarnings("squid:S00112")
-	private List<String> getMonitors(MonitorRole monitorRole) throws Exception {
-
-		final Collection<DeviceInformation<?>> scannables = cservice.getDeviceInformation();
-		final List<String> ret = new ArrayList<>();
-		for (DeviceInformation<?> info : scannables) {
-			if (info.isActivated() && info.getMonitorRole() == monitorRole) ret.add(info.getName());
+	private Collection<MonitorScanUIElement> getMonitors() throws Exception {
+		final IViewReference monitorViewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
+		if (monitorViewRef == null) return Collections.emptyList();
+		IViewPart part = monitorViewRef.getView(false);
+		if (part==null) return Collections.emptyList();
+		Object obj = part.getAdapter(MonitorScanUIElement.class);
+		if (obj != null && obj instanceof Collection) {
+			@SuppressWarnings("unchecked")
+			Collection<MonitorScanUIElement> monitors = (Collection<MonitorScanUIElement>) obj;
+			return monitors;
 		}
-		return ret;
+		return Collections.emptyList();
 	}
 
-	private String getMonitorNames(MonitorRole monitorRole) throws Exception {
-
-		List<String> mons = getMonitors(monitorRole);
-		if (mons.isEmpty()) return "None";
-
-		final StringBuilder buf = new StringBuilder();
-	for (Iterator<String> it = mons.iterator(); it.hasNext();) {
-		String name = it.next();
-		buf.append(name);
-		if(it.hasNext()) buf.append(",");
-		buf.append(" ");
+	private List<String> getMonitorNamesByRole(Collection<MonitorScanUIElement> monitors, MonitorScanRole monitorRole) {
+		return monitors.stream()
+				.filter(mon -> mon.getMonitorScanRole() == monitorRole)
+				.map(MonitorScanUIElement::getName)
+				.collect(toList());
 	}
-        return buf.toString();
-	}
-
 
 	private Collection<DeviceInformation<?>> getDeviceInformation() throws ScanningException {
 
@@ -705,7 +708,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 		// We cannot find a part which has the temp information so
         // we use the server information.
-		return dservice.getDeviceInformation();
+		return runnableDeviceService.getDeviceInformation();
 	}
 
 	private String getMotorNames(IPointGenerator<?> gen) {

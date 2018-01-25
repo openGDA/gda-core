@@ -14,19 +14,18 @@ package org.eclipse.scanning.device.ui.device;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +38,22 @@ import org.slf4j.LoggerFactory;
  * scan is generated.
  *
  * @author Matthew Gerring
- *
+ * @author Matthew Dickie
  */
 public class MonitorView extends ViewPart {
 
 	public static final String ID = "org.eclipse.scanning.device.ui.device.MonitorView"; //$NON-NLS-1$
+
+	public static final String SHOW_ENABLED_MONITORS_ONLY = "showEnabledMonitorsOnly";
+
 	private static final Logger logger = LoggerFactory.getLogger(MonitorView.class);
 
-	private ScannableViewer viewer;
+	private MonitorViewer viewer;
+
+	// TODO: convert this view to be an e4 view
 
 	public MonitorView() {
-		this.viewer = new ScannableViewer();
+		this.viewer = new MonitorViewer();
 	}
 
 	/**
@@ -58,11 +62,8 @@ public class MonitorView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-
-		viewer.createPartControl(parent);
-
+		viewer.createControl(parent); // note: viewer automatically restores its previous state
 		getSite().setSelectionProvider(viewer.getSelectionProvider());
-
 		createActions(getViewSite().getActionBars().getToolBarManager(), getViewSite().getActionBars().getMenuManager());
 	}
 
@@ -70,82 +71,33 @@ public class MonitorView extends ViewPart {
 	 * Create the actions.
 	 */
 	private void createActions(IContributionManager... managers) {
-
 		List<IContributionManager> mans = new ArrayList<>(Arrays.asList(managers));
-		MenuManager     rightClick     = new MenuManager();
+		MenuManager rightClick = new MenuManager();
 		mans.add(rightClick);
 
-		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_ACTIVATED_ONLY, true);
-        IAction showActivated = createPreferenceAction("Show only active monitors", DevicePreferenceConstants.SHOW_ACTIVATED_ONLY, "icons/funnel--minus.png");
-
-        ViewUtil.addGroups("view", mans, showActivated);
-
-
-		// Action to add a new ControlNode
-		final IAction addNode = new Action("Add monitor", Activator.getImageDescriptor("icons/ui-toolbar--plus.png")) {
-			@Override
-			public void run() {
-				viewer.addScannable();
-			}
-		};
-
-		// Action to remove the currently selected ControlNode or ControlGroup
-		final IAction removeNode = new Action("Remove monitor", Activator.getImageDescriptor("icons/ui-toolbar--minus.png")) {
+		final IAction toggleShowEnabledOnlyAction = new Action("Show enabled only", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				try {
-					viewer.removeScannable();
-				} catch (ScanningException e) {
-					logger.error("Problem removing monitor from "+getClass().getSimpleName(), e);
-				}
-			}
-		};
-		removeNode.setEnabled(false);
-
-		ViewUtil.addGroups("add", mans, addNode, removeNode);
-
-		viewer.getControl().setMenu(rightClick.createContextMenu(viewer.getControl()));
-
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				IScannable<?> scannable = viewer.getSelection();
-				removeNode.setEnabled(scannable != null); // can only remove node if one is selected
-			}
-		});
-
-		IAction refresh = new Action("Refresh", Activator.getImageDescriptor("icons/recycle.png")) {
-			@Override
-			public void run() {
-				try {
-					viewer.refresh();
-				} catch (Exception e) {
-					logger.error("Problem refreshing from server!", e);
-				}
-			}
-		};
-
-		ViewUtil.addGroups("refresh", mans, refresh);
-	}
-
-
-	private IAction createPreferenceAction(String label, String preference, String icon) {
-		IAction ret = new Action(label, IAction.AS_CHECK_BOX) {
-			@Override
-			public void run() {
-				Activator.getDefault().getPreferenceStore().setValue(preference, isChecked());
-				try {
-					viewer.reset();
+					viewer.setShowEnabledOnly(!viewer.isShowEnabledOnly());
 				} catch (Exception e) {
 					logger.error("Cannot refresh scannable viewer!", e);
 				}
 			}
 		};
-		ret.setImageDescriptor(Activator.getImageDescriptor(icon));
-		ret.setChecked(Activator.getDefault().getPreferenceStore().getBoolean(preference));
-		return ret;
+
+		toggleShowEnabledOnlyAction.setImageDescriptor(Activator.getImageDescriptor("icons/funnel--minus.png"));
+		ViewUtil.addGroups("view", mans, toggleShowEnabledOnlyAction);
+
+		viewer.getControl().setMenu(rightClick.createContextMenu(viewer.getControl()));
+		toggleShowEnabledOnlyAction.setChecked(viewer.isShowEnabledOnly());
 	}
 
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+		viewer.saveState();
+	}
 
 	@Override
 	public void setFocus() {
@@ -156,4 +108,17 @@ public class MonitorView extends ViewPart {
 	public void dispose() {
 		viewer.dispose();
 	}
+
+	public Map<String, MonitorScanRole> getEnabledMonitors() {
+		return viewer.getEnabledMonitors();
+	}
+
+	@Override
+	public Object getAdapter(Class clazz) {
+		if (clazz == MonitorScanUIElement.class || clazz == MonitorScanUIElement[].class) {
+			return viewer.getEnabledMonitorItems();
+		}
+		return super.getAdapter(clazz);
+	}
+
 }

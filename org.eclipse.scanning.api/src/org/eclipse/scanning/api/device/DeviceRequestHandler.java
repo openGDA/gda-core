@@ -20,7 +20,6 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.ITerminatable;
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -108,21 +107,15 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 			IScannable<Object> device = cservice.getScannable(request.getDeviceName());
 			DeviceAction action = request.getDeviceAction();
 			if (action==DeviceAction.SET && request.getDeviceValue()!=null) {
-
-				// Not sure if using type is a good design idea.
-				if (request.getDeviceValue() instanceof MonitorRole) {
-					device.setMonitorRole((MonitorRole)request.getDeviceValue());
-				} else {
-					device.setPosition(request.getDeviceValue(), request.getPosition());
-					/* This thread is executing to set position, while it does that it
-					 * sends events over AMQ. These events queue up with no higher priority
-					 * than this call. Therefore if we return immediately it is possible
-					 * for this call to return before position events are sent out.
-					 * FUDGE warning
-					 */
-					Thread.sleep(10);
-					 /* End warning */
-				}
+				device.setPosition(request.getDeviceValue(), request.getPosition());
+				/* This thread is executing to set position, while it does that it
+				 * sends events over AMQ. These events queue up with no higher priority
+				 * than this call. Therefore if we return immediately it is possible
+				 * for this call to return before position events are sent out.
+				 * FUDGE warning
+				 */
+				Thread.sleep(10);
+				 /* End warning */
 			} else if (action==DeviceAction.ACTIVATE) {
 				device.setActivated((Boolean)request.getDeviceValue());
 			}
@@ -160,11 +153,10 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 	private static void merge(DeviceInformation<?> info, IScannable<?> device) throws Exception {
 		info.setLevel(device.getLevel());
 		info.setUnit(device.getUnit());
-        info.setUpper(device.getMaximum());
-        info.setLower(device.getMinimum());
-        info.setPermittedValues(device.getPermittedValues());
-        info.setActivated(device.isActivated());
-        info.setMonitorRole(device.getMonitorRole());
+		info.setUpper(device.getMaximum());
+		info.setLower(device.getMinimum());
+		info.setPermittedValues(device.getPermittedValues());
+		info.setActivated(device.isActivated());
 	}
 
 	private static void processRunnables(DeviceRequest request, IRunnableDeviceService dservice) throws Exception {

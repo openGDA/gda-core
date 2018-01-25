@@ -39,7 +39,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -248,7 +247,6 @@ public class BasicScanTest extends NexusTest {
 		final ScanModel  smodel = new ScanModel();
 		smodel.setPositionIterable(gen);
 		if (monitorPerScan != null) {
-			monitorPerScan.setMonitorRole(MonitorRole.PER_SCAN);
 			monitorPerScan.setActivated(true);
 		}
 		smodel.setMonitorsPerPoint(monitorPerPoint);

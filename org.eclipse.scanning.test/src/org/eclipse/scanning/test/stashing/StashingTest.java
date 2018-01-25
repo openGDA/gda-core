@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.stashing.IStashingService;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.util.StashingService;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
@@ -69,24 +70,27 @@ public class StashingTest {
 
 		stash.stash('c');
 		Object value = stash.unstash(Character.class);
-		assertTrue(value.equals('c'));
+		assertEquals('c', value);
 
 		stash.stash(1);
 		value = stash.unstash(Integer.class);
-		assertTrue(value.equals(1));
+		assertEquals(1, value);
 
 		stash.stash(1L);
 		value = stash.unstash(Long.class);
-		assertTrue(value.equals(1L));
+		assertEquals(1L, value);
 
 		stash.stash(1.1f);
 		value = stash.unstash(Float.class);
-		assertTrue(value.equals(1.1f));
+		assertEquals(1.1f, value);
 
 		stash.stash(1.1d);
 		value = stash.unstash(Double.class);
-		assertTrue(value.equals(1.1d));
+		assertEquals(1.1d, value);
 
+		stash.stash(true);
+		value = stash.unstash(Boolean.class);
+		assertEquals(true, value);
 	}
 
 	@Test

@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -162,21 +161,19 @@ public class MockScannableConnector implements IScannableDeviceService, IDisconn
 	    }
 		for (int i = 0; i < 10; i++) {
 			MockNeXusScannable perScanMonitor = new MockNeXusScannable("perScanMonitor"+i, 0d, 3);
-			perScanMonitor.setMonitorRole(MonitorRole.PER_SCAN);
 			perScanMonitor.setInitialPosition(i * 10.0);
 			register(perScanMonitor);
 		}
 		MockStringNexusScannable stringPerScanMonitor = new MockStringNexusScannable("stringPerScanMonitor",
 				"three", "one", "two", "three", "four", "five");
-		stringPerScanMonitor.setMonitorRole(MonitorRole.PER_SCAN);
 		register(stringPerScanMonitor);
 	}
 
 	public void register(INameable mockScannable) {
 		cache.put(mockScannable.getName(), mockScannable);
 		if (mockScannable instanceof AbstractScannable) {
-			((AbstractScannable)mockScannable).setPublisher(positionPublisher);
-			((AbstractScannable)mockScannable).setScannableDeviceService(this);
+			((AbstractScannable<?>)mockScannable).setPublisher(positionPublisher);
+			((AbstractScannable<?>)mockScannable).setScannableDeviceService(this);
 		}
 	}
 
@@ -184,7 +181,7 @@ public class MockScannableConnector implements IScannableDeviceService, IDisconn
 	public <T> IScannable<T> getScannable(String name) throws ScanningException {
 
 		if (name==null) throw new ScanningException("Invalid scannable "+name);
-		if (cache==null) cache = new HashMap<String, INameable>(3);
+		if (cache==null) cache = new HashMap<>(3);
 		if (cache.containsKey(name)) return (IScannable<T>)cache.get(name);
 		if (createIfNotThere) {
 			register(new MockScannable(name, 0d));
