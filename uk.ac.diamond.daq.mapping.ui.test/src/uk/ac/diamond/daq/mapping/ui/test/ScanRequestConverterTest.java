@@ -34,8 +34,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -112,6 +114,9 @@ public class ScanRequestConverterTest {
 		mappingBean.getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
 
 		mappingBean.setDetectorParameters(Collections.emptyList());
+
+		mappingBean.setPerScanMonitorNames(new HashSet<>(Arrays.asList("perScan1", "perScan2")));
+		mappingBean.setPerPointMonitorNames(new HashSet<>(Arrays.asList("perPoint1", "perPoint2", "perPoint3")));
 
 		newMappingBean = new MappingExperimentBean();
 	}
@@ -199,11 +204,11 @@ public class ScanRequestConverterTest {
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert - these are the monitors that are set as active in MockScannableConnector
-		String[] expectedMonitorNamesPerPoint = new String[] { "a", "p", "monitor0", "monitor3", "monitor6", "monitor9" };
+		String[] expectedMonitorNamesPerPoint = new String[] { "perPoint1", "perPoint2", "perPoint3" };
 		assertThat(scanRequest.getMonitorNamesPerPoint(), hasItems(expectedMonitorNamesPerPoint));
 		assertThat(scanRequest.getMonitorNamesPerPoint().size(), CoreMatchers.is(expectedMonitorNamesPerPoint.length));
 
-		String[] expectedMonitorNamesPerScan = new String[] { };
+		String[] expectedMonitorNamesPerScan = new String[] { "perScan1", "perScan2" };
 		assertThat(scanRequest.getMonitorNamesPerScan(), hasItems(expectedMonitorNamesPerScan));
 		assertThat(scanRequest.getMonitorNamesPerScan().size(), CoreMatchers.is(expectedMonitorNamesPerScan.length));
 	}
@@ -473,6 +478,20 @@ public class ScanRequestConverterTest {
 		SimpleSampleMetadata sampleMetadata = newMappingBean.getSampleMetadata();
 		assertEquals(sampleName, sampleMetadata.getSampleName());
 		assertEquals(sampleDescription, sampleMetadata.getDescription());
+	}
+
+	@Test
+	public void testMonitorNameSetCorrectly() throws Exception {
+		// Arrange
+		final Set<String> perPointMonitorNames = mappingBean.getPerPointMonitorNames();
+		final Set<String> perScanMonitorNames = mappingBean.getPerScanMonitorNames();
+
+		// Act - convert mapping bean to scan request
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+
+		// Assert
+		assertEquals(perPointMonitorNames, scanRequest.getMonitorNamesPerPoint());
+		assertEquals(perScanMonitorNames, scanRequest.getMonitorNamesPerScan());
 	}
 
 }

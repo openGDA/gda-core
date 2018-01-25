@@ -18,10 +18,15 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,6 +41,9 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
+import org.eclipse.scanning.device.ui.device.MonitorView;
+import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -46,6 +54,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,6 +188,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private ScanBean createScanBean() throws ScanningException {
 		IMappingExperimentBean mappingBean = getMappingBean();
+		addMonitors(mappingBean);
+
 		ScanBean scanBean = new ScanBean();
 		String sampleName = mappingBean.getSampleMetadata().getSampleName();
 		if (sampleName == null || sampleName.length() == 0) {
@@ -193,6 +204,21 @@ public class SubmitScanSection extends AbstractMappingSection {
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
+	}
+
+	private void addMonitors(IMappingExperimentBean mappingBean) {
+		final IViewReference viewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
+		if (viewRef == null) return;
+		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
+
+		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
+				(map, role) -> map.entrySet().stream()
+									.filter(entry -> entry.getValue() == role)
+									.map(Map.Entry::getKey).collect(toSet());
+
+		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
+		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
+		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
 	}
 
 	private void copyScanToClipboard() {

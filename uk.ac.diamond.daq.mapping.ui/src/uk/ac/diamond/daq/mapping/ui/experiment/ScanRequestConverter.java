@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
@@ -43,12 +41,10 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
@@ -185,9 +181,9 @@ public class ScanRequestConverter {
 			}
 		}
 
-		// add the activated monitors. Note: these do not come from the mapping bean
-		scanRequest.setMonitorNamesPerPoint(getMonitorNamesSet(MonitorRole.PER_POINT));
-		scanRequest.setMonitorNamesPerScan(getMonitorNamesSet(MonitorRole.PER_SCAN));
+		// set the per-scan and per-point monitors according to the mapping bean
+		scanRequest.setMonitorNamesPerPoint(mappingBean.getPerPointMonitorNames());
+		scanRequest.setMonitorNamesPerScan(mappingBean.getPerScanMonitorNames());
 
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
@@ -501,15 +497,6 @@ public class ScanRequestConverter {
 		}
 
 		return scannableDeviceService;
-	}
-
-	private Set<String> getMonitorNamesSet(MonitorRole monitorRole) throws ScanningException {
-		final Collection<DeviceInformation<?>> scannableInfos = getScannableDeviceService().getDeviceInformation();
-		return scannableInfos.stream().
-			filter(DeviceInformation::isActivated).
-			filter(info -> info.getMonitorRole() == monitorRole).
-			map(DeviceInformation::getName).
-			collect(Collectors.toSet());
 	}
 
 }

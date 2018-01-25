@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -221,7 +220,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			 */
 			if (getGlobalPerScanMonitorNames().contains(iscannable.getName())){
 				iscannable.setActivated(true);
-				iscannable.setMonitorRole(MonitorRole.PER_SCAN);
 			}
 
 			if (iscannable instanceof AbstractScannable) {
