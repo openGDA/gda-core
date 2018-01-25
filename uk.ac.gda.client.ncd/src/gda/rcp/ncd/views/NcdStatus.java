@@ -357,7 +357,9 @@ public class NcdStatus extends ViewPart {
 		shutters.setLayout(new GridLayout());
 		shutters.setLayoutData(gdf.grab(false, false).create());
 		for (EnumPositioner posn : Finder.getInstance().listFindablesOfType(EnumPositioner.class)) {
-			new ShutterGroup(shutters, SWT.NONE, posn);
+			if (posn.getName() != null && posn.getName().contains("shutter")) {
+				new ShutterGroup(shutters, SWT.NONE, posn);
+			}
 		}
 
 		Composite controls = new NcdScanControlComposite(parent, SWT.NONE);
