@@ -237,6 +237,9 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IS
 		//TODO check performance with PC Chang (iterates over array twice)
 		dr.maxCounts = ds.max().floatValue();
 		dr.integratedCounts = ((Number) ds.sum()).floatValue();
+		if (dr.maxCounts > DetectorRates.getThreshold(dr.detName)) {
+			dr.setHighCounts(ds);
+		}
 
 		// correct for masked (negative) numbers
 		String detspec = dr.detName + Arrays.toString(ds.getShape());
