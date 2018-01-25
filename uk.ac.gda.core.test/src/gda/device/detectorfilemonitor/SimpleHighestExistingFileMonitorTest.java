@@ -38,7 +38,7 @@ public class SimpleHighestExistingFileMonitorTest {
 		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
 		int startNumber = 5;
 		String fileTemplate = "/file_%04d.tif";
-		simpleDetectorFileMonitor.setHighestExitingFileMonitorSettings(new HighestExitingFileMonitorSettings(scratchFolder, fileTemplate,startNumber));
+		simpleDetectorFileMonitor.setHighestExistingFileMonitorSettings(new HighestExistingFileMonitorSettings(scratchFolder, fileTemplate,startNumber));
 		int delay = 1000;
 		simpleDetectorFileMonitor.setDelayInMS(delay);
 		simpleDetectorFileMonitor.afterPropertiesSet();
@@ -76,7 +76,7 @@ public class SimpleHighestExistingFileMonitorTest {
 		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
 		int startNumber = 5;
 		String fileTemplate = "/file_%04d.tif";
-		simpleDetectorFileMonitor.setHighestExitingFileMonitorSettings(new HighestExitingFileMonitorSettings(scratchFolder, fileTemplate,startNumber));
+		simpleDetectorFileMonitor.setHighestExistingFileMonitorSettings(new HighestExistingFileMonitorSettings(scratchFolder, fileTemplate,startNumber));
 		int delay = 1000;
 		simpleDetectorFileMonitor.setDelayInMS(delay);
 		simpleDetectorFileMonitor.setRunning(true);

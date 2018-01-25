@@ -35,9 +35,9 @@ package gda.device.detectorfilemonitor;
  * updates observers with HighestExistingFileMonitorData
  */
 public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDataProvider{
-	public HighestExitingFileMonitorSettings getHighestExitingFileMonitorSettings();
+	public HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings();
 
-	public void setHighestExitingFileMonitorSettings(HighestExitingFileMonitorSettings highestExitingFileMonitorSettings);
+	public void setHighestExistingFileMonitorSettings(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings);
 
 
 	
