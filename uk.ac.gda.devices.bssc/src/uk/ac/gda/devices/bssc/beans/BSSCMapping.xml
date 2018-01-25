@@ -56,7 +56,7 @@
 			<bind-xml name="mode" node="element" />
 		</field>
 		<field name="move" type="boolean">
-			<bind-xml name="mode" node="element" />
+			<bind-xml name="move" node="element" />
 		</field>
 		<field name="sampleVolume" type="double">
 			<bind-xml name="sampleVolume" node="element" />
