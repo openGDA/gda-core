@@ -95,9 +95,6 @@
             name="gda.device.bpm.corba.impl">
          </package>
          <package
-            name="gda.device.camac">
-         </package>
-         <package
             name="gda.device.continuouscontroller">
          </package>
          <package
