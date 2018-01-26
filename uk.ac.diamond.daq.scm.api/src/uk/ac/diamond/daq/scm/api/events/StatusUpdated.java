@@ -21,4 +21,5 @@ package uk.ac.diamond.daq.scm.api.events;
 import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 
 public class StatusUpdated extends Msg {
+	private static final long serialVersionUID = -7318455849334532314L;
 }

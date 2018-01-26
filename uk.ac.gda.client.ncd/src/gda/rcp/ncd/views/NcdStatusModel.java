@@ -21,6 +21,9 @@ package gda.rcp.ncd.views;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FileType;
 
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
@@ -36,6 +39,9 @@ import uk.ac.diamond.daq.scm.api.events.StatusUpdated;
 public class NcdStatusModel implements IObserver {
 
 	private static final String THICKNESS_METADATA = "sample_thickness";
+	private static final String BACKGROUND_METADATA = "sample_background";
+
+	private final Metadata meta;
 
 	@FieldDescriptor(label="SAXS Mask", file=FileType.EXISTING_FILE)
 	private String saxsMask;
@@ -51,6 +57,9 @@ public class NcdStatusModel implements IObserver {
 
 	@FieldDescriptor(label="Sample Thickness", unit="mm", hint="Thickness of sample", minimum=0.0, numberFormat="#0.0")
 	private double sampleThickness;
+
+	@FieldDescriptor(label="Sample Background", file=FileType.EXISTING_FILE)
+	private String sampleBackground = "";
 
 	@FieldDescriptor(visible=false)
 	private Scannable thicknessScannable;
@@ -68,16 +77,36 @@ public class NcdStatusModel implements IObserver {
 		} catch (DeviceException e) {
 		}
 	}
+	public String getSampleBackground() {
+		try {
+			return meta.getMetadataValue(BACKGROUND_METADATA);
+		} catch (DeviceException e) {
+			return "";
+		}
+	}
+	public void setSampleBackground(String backgroundPath) {
+		try {
+			if (backgroundPath == null) {
+				backgroundPath = "";
+			}
+			meta.setMetadataValue(BACKGROUND_METADATA, backgroundPath);
+		} catch (DeviceException e) {
+		}
+	}
 	private NcdMsgFactory saxsCalMsg = new NcdMsgFactory("SAXS", NcdMetaType.CALIBRATION);
 	private NcdMsgFactory waxsCalMsg = new NcdMsgFactory("WAXS", NcdMetaType.CALIBRATION);
 	private NcdMsgFactory saxsMaskMsg = new NcdMsgFactory("SAXS", NcdMetaType.MASK);
 	private NcdMsgFactory waxsMaskMsg = new NcdMsgFactory("WAXS", NcdMetaType.MASK);
 
 	public NcdStatusModel() {
-		Findable find = Finder.getInstance().find(THICKNESS_METADATA);
-		if (find instanceof ScannableAdapter) {
-			setThicknessScannable(((Scannable) find));
+		Findable thickness = Finder.getInstance().find(THICKNESS_METADATA);
+		if (thickness instanceof ScannableAdapter) {
+			setThicknessScannable(((Scannable) thickness));
 		} else {
+		}
+		meta = GDAMetadataProvider.getInstance();
+		if (meta != null) {
+			meta.addIObserver(this);
 		}
 		MsgBus.subscribe(this);
 		MsgBus.publish(saxsCalMsg.refresh());
@@ -160,6 +189,9 @@ public class NcdStatusModel implements IObserver {
 		if (thicknessScannable != null) {
 			thicknessScannable.deleteIObserver(this);
 		}
+		if (meta != null) {
+			meta.deleteIObserver(this);
+		}
 	}
 	@Override
 	public void update(Object source, Object arg) {
@@ -167,6 +199,12 @@ public class NcdStatusModel implements IObserver {
 			ScannablePositionChangeEvent e = (ScannablePositionChangeEvent)arg;
 			if (((Scannable)source).getName().equals(thicknessScannable.getName())) {
 				sampleThickness = (double)e.newPosition;
+				MsgBus.publish(new StatusUpdated());
+			}
+		} else if (source instanceof IMetadataEntry){
+			IMetadataEntry me = (IMetadataEntry)source;
+			if (me.getName().equals(BACKGROUND_METADATA)) {
+				sampleBackground = String.valueOf(arg);
 				MsgBus.publish(new StatusUpdated());
 			}
 		}
