@@ -76,14 +76,14 @@ public class FileRegistrarUnitTest {
 	private IcatXMLCreator icatXmlCreator;
 	private ScanObserver scanObserver;
 	private IFilePathService filePathService;
-	private ArgumentCaptor<String> datasetIdCaptor;
+	private ArgumentCaptor<String> scanIdCaptor;
 	private ArgumentCaptor<String[]> fileArrayCaptor;
 
 	@Before
 	public void setUp() {
 		icatXmlCreator = mock(IcatXMLCreator.class);
 		scanObserver = new ScanObserver();
-		datasetIdCaptor = ArgumentCaptor.forClass(String.class);
+		scanIdCaptor = ArgumentCaptor.forClass(String.class);
 		fileArrayCaptor = ArgumentCaptor.forClass(String[].class);
 
 		filePathService = mock(IFilePathService.class);
@@ -114,8 +114,8 @@ public class FileRegistrarUnitTest {
 		scanObserver.waitUntilNotified();
 
 		// Dataset id will be constructed from the value returned by the file path service
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("scan-123", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("scan-123", scanIdCaptor.getValue());
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(1, fileArray.length);
 		assertEquals(SCAN_FILE, fileArray[0]);
@@ -137,8 +137,8 @@ public class FileRegistrarUnitTest {
 		fileRegistrar.scanEnd();
 		scanObserver.waitUntilNotified();
 
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("scan-123", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("scan-123", scanIdCaptor.getValue());
 		final List<String> fileArray = Arrays.asList(fileArrayCaptor.getValue());
 		assertEquals(3, fileArray.size());
 		for (int i = 0; i < SCAN_FILES.length; i++) {
@@ -158,8 +158,8 @@ public class FileRegistrarUnitTest {
 		scanObserver.waitUntilNotified();
 
 		// Dataset id will be constructed from the value returned by the file path service
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("scan-123", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("scan-123", scanIdCaptor.getValue());
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(1, fileArray.length);
 		assertEquals(SCAN_FILE, fileArray[0]);
@@ -179,8 +179,8 @@ public class FileRegistrarUnitTest {
 		scanObserver.waitUntilNotified();
 
 		// Dataset id will be constructed from the value returned by the file path service
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("scan-123", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("scan-123", scanIdCaptor.getValue());
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(3, fileArray.length);
 		for (int i = 0; i < SCAN_FILES.length; i++) {
@@ -202,8 +202,8 @@ public class FileRegistrarUnitTest {
 		scanObserver.waitUntilNotified();
 
 		// If file path service cannot provide scan number, get dataset id from the first file name
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("ixx-444.nxs", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("ixx-444.nxs", scanIdCaptor.getValue());
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(3, fileArray.length);
 		for (int i = 0; i < SCAN_FILES.length; i++) {
@@ -244,8 +244,8 @@ public class FileRegistrarUnitTest {
 		scanObserver.waitUntilNotified();
 
 		// Dataset id will be constructed from the last data point
-		verify(icatXmlCreator).registerFiles(datasetIdCaptor.capture(), fileArrayCaptor.capture());
-		assertEquals("scan-654", datasetIdCaptor.getValue());
+		verify(icatXmlCreator).registerFiles(scanIdCaptor.capture(), fileArrayCaptor.capture());
+		assertEquals("scan-654", scanIdCaptor.getValue());
 		final String[] fileArray = fileArrayCaptor.getValue();
 		assertEquals(1, fileArray.length);
 		assertEquals(SCAN_FILE, fileArray[0]);

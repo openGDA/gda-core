@@ -28,13 +28,8 @@ public class DummyIcatXMLCreator implements ArchiveFileCreator {
 	private static final Logger logger = LoggerFactory.getLogger(DummyIcatXMLCreator.class);
 
 	@Override
-	public void registerFiles(String datasetId, String[] files) {
-		logger.info("Registering datasetId: {}, files: {}", datasetId, Arrays.asList(files));
-	}
-
-	@Override
-	public void setDirectory(String directory) {
-		// Not required to do anything
+	public void registerFiles(String scanId, String[] files) {
+		logger.info("Registering scan: {}, files: {}", scanId, Arrays.asList(files));
 	}
 
 }

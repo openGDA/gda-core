@@ -24,18 +24,11 @@ public interface ArchiveFileCreator {
 	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data
 	 * file information
 	 *
-	 * @param datasetId
-	 *            name that will allow to group related files
+	 * @param scanId
+	 *            identifier of the scan
 	 * @param files
 	 *            list of absolute paths
 	 */
-	void registerFiles(String datasetId, String[] files);
-
-	/**
-	 * the directory to create the XML in
-	 *
-	 * @param directory
-	 */
-	void setDirectory(String directory);
+	void registerFiles(String scanId, String[] files);
 
 }

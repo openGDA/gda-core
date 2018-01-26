@@ -24,8 +24,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -66,6 +68,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	private static final String UNKNOWN = "unknown";
 
 	private String directory;
+	private String filePrefix;
 	private Metadata metadata;
 	protected Writer fileWriter;
 
@@ -187,18 +190,39 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		}
 	}
 
+	/**
+	 * Manages an output stream writer that writes the data to a temporary path, which is then renamed to the "real"
+	 * path when the file is closed.
+	 * <p>
+	 * Always call the create() method - do not call the constructor directly
+	 */
 	private static class AtomicWriter extends OutputStreamWriter {
 		private String finalFileName;
 		private File file;
 
-		public AtomicWriter(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
-			this(new File(fileName + "."));
-			this.finalFileName = fileName;
+		/**
+		 * Factory method to create the writer
+		 * @param filePath The final destination of the drop file
+		 * @return An AtomicWriter which initially writes to a temporary location
+		 * @throws FileNotFoundException
+		 */
+		public static AtomicWriter create(Path filePath) throws FileNotFoundException {
+			final String finalFileName = filePath.toAbsolutePath().toString();
+			final File tempFile = new File(finalFileName + ".");
+			return new AtomicWriter(tempFile, finalFileName);
 		}
 
-		private AtomicWriter(File file) throws UnsupportedEncodingException, FileNotFoundException {
-			super(new FileOutputStream(file), "UTF-8");
+		/**
+		 * Do not call this constructor directly - call create() instead
+		 *
+		 * @param file Temporary location of the output file
+		 * @param finalFileName The final destination of the drop file
+		 * @throws FileNotFoundException
+		 */
+		private AtomicWriter(File file, String finalFileName) throws FileNotFoundException {
+			super(new FileOutputStream(file), StandardCharsets.UTF_8);
 			this.file = file;
+			this.finalFileName = finalFileName;
 		}
 
 		@Override
@@ -213,8 +237,15 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (directory == null) {
+		if (directory == null || directory.isEmpty()) {
 			throw new FactoryException("Drop file directory not set");
+		}
+		if (filePrefix == null || filePrefix.isEmpty()) {
+			try {
+				filePrefix = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
+			} catch (DeviceException e) {
+				throw new FactoryException("File prefix not set and cannot get from metadata", e);
+			}
 		}
 		logger.info("DLSICAT:IcatXMLCreator version {} writing to {}", VERSION, directory);
 	}
@@ -223,14 +254,14 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data
 	 * file information
 	 *
-	 * @param datasetId
-	 *            name that will allow to group related files
+	 * @param scanId
+	 *            identifier of the scan
 	 * @param files
 	 *            list of absolute paths
 	 */
 	@Override
-	public void registerFiles(String datasetId, String[] files) {
-		logger.debug("registering {} file(s) for dataset {}", files.length, datasetId);
+	public void registerFiles(String scanId, String[] files) {
+		logger.debug("registering {} file(s) for scan {}", files.length, scanId);
 
 		if (metadata == null) {
 			try {
@@ -250,7 +281,9 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		}
 
 		try {
-			createFile();
+			final String fileName = String.format("%s-%d.xml", filePrefix, new Date().getTime());
+			final Path outputFilePath = Paths.get(directory, fileName);
+			createFile(outputFilePath);
 			fileWriter.write(XML_HEADER);
 			writeData(investigationInfo);
 			// Each file is added as separate <dataset> entry, with dataset directory location
@@ -347,8 +380,8 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 		}
 	}
 
-	protected void createFile() throws IOException {
-		fileWriter = new AtomicWriter(directory + new Date().getTime() + ".xml");
+	protected void createFile(Path outputFilePath) throws IOException {
+		fileWriter = AtomicWriter.create(outputFilePath);
 	}
 
 	/**
@@ -356,9 +389,12 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	 *
 	 * @param directory
 	 */
-	@Override
 	public void setDirectory(String directory) {
 		this.directory = directory;
+	}
+
+	public void setFilePrefix(String filePrefix) {
+		this.filePrefix = filePrefix;
 	}
 
 	protected Metadata getMetadata() {

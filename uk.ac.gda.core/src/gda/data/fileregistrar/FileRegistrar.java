@@ -203,7 +203,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private void kickOff() {
 		final String[] fileArr;
-		final String datasetId;
+		final String scanId;
 
 		synchronized (files) {
 			if (files.isEmpty()) {
@@ -211,7 +211,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			}
 
 			if (lastScanDataPoint != null) {
-				datasetId = "scan-" + lastScanDataPoint.getScanIdentifier();
+				scanId = "scan-" + lastScanDataPoint.getScanIdentifier();
 			} else {
 				final IFilePathService pathService = FileRegistrarServiceHolder.getFilePathService();
 				String id; // to get over the fact the datasetId is final
@@ -222,7 +222,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 					logger.warn("Cannot get scan number from FilePathService, using file name instead");
 					id = new File(files.iterator().next()).getName();
 				}
-				datasetId = id;
+				scanId = id;
 			}
 			fileArr = files.toArray(new String[0]);
 			files.clear();
@@ -230,8 +230,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 		threadPoolExecutor.submit(() -> {
 			try {
-				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", datasetId);
-				icatXMLCreator.registerFiles(datasetId, fileArr);
+				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", scanId);
+				icatXMLCreator.registerFiles(scanId, fileArr);
 				if (clientFileAnnouncer != null)
 					clientFileAnnouncer.notifyIObservers(clientFileAnnouncer, fileArr);
 			} catch (Exception e) {
@@ -241,7 +241,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		});
 
 		logger.debug("kicked off for datasetId {} registering {} file{}",
-				datasetId,
+				scanId,
 				fileArr.length,
 				fileArr.length == 1 ? "" : "s");
 	}

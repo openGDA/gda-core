@@ -19,6 +19,7 @@
 package gda.data.fileregistrar;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -26,11 +27,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
 import gda.factory.FactoryException;
 
 public class IcatXMLCreatorTest {
@@ -53,8 +56,39 @@ public class IcatXMLCreatorTest {
 	}
 
 	@Test
-	public void testConfigureSucceedsIfDirectorySet() throws Exception {
+	public void testOutputFilePath() throws Exception {
 		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
+		xmlCreator.setFilePrefix("ixx");
+
+		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
+		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
+
+		// Output file path should be constructed from the directory, filePrefix
+		// and the creation time (as a long - to test for string of digits).
+		final String outputFilePath = xmlCreator.getOutputFilePath().toString();
+		assertTrue(outputFilePath.matches("/scratch/temp/cm19664-1/ixx-[0-9]+.xml"));
+	}
+
+	@Test
+	public void testFilePrefixReadFromMetadataIfNotSet() throws Exception {
+		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
+		xmlCreator.setMetadata(createMetadata("iyy", "Test scan", "cm19664-1"));
+		xmlCreator.configure();
+
+		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
+
+		final String outputFilePath = xmlCreator.getOutputFilePath().toString();
+		assertTrue(outputFilePath.matches("/scratch/temp/cm19664-1/iyy-[0-9]+.xml"));
+	}
+
+	@Test(expected = FactoryException.class)
+	public void testFilePrefixNotSetAndMetadataFails() throws Exception {
+		final Metadata metadata = createMetadata("ixx", "Test scan", "cm19664-1");
+		when(metadata.getMetadataValue(eq("instrument"), anyString(), anyString()))
+				.thenThrow(new DeviceException("Metadata error"));
+
+		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
+		xmlCreator.setMetadata(metadata);
 		xmlCreator.configure();
 	}
 
@@ -266,8 +300,11 @@ public class IcatXMLCreatorTest {
 	 */
 	private class IcatXMLCreatorForTest extends IcatXMLCreator {
 
+		private Path outputFilePath;
+
 		@Override
-		protected void createFile() throws IOException {
+		protected void createFile(Path outputFilePath) throws IOException {
+			this.outputFilePath = outputFilePath;
 			fileWriter = new StringWriter();
 		}
 
@@ -278,6 +315,10 @@ public class IcatXMLCreatorTest {
 
 		public StringWriter getStringWriter() {
 			return (StringWriter) fileWriter;
+		}
+
+		public Path getOutputFilePath() {
+			return outputFilePath;
 		}
 	}
 }
