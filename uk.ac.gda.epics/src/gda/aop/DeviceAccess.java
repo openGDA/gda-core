@@ -19,13 +19,13 @@
 package gda.aop;
 
 import gda.device.DeviceException;
-import gda.device.enumpositioner.EpicsSimpleMbbinary;
+import gda.device.EnumPositioner;
 
 public class DeviceAccess {
 	/**
 	 * access to EPICS CONTROLLER PV
 	 */
-	private EpicsSimpleMbbinary controller;
+	private EnumPositioner controller;
 
 	private String endStation;
 
@@ -44,11 +44,11 @@ public class DeviceAccess {
 
 	}
 
-	public EpicsSimpleMbbinary getController() {
+	public EnumPositioner getController() {
 		return controller;
 	}
 
-	public void setController(EpicsSimpleMbbinary controller) {
+	public void setController(EnumPositioner controller) {
 		this.controller = controller;
 	}
 
