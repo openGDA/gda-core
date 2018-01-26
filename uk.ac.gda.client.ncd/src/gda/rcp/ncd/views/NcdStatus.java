@@ -411,7 +411,7 @@ public class NcdStatus extends ViewPart {
 	}
 
 	@Subscribe
-	public void refresh(StatusUpdated upd) {
+	public void refresh(@SuppressWarnings("unused") StatusUpdated upd) {
 		logger.debug("Refreshing model viewer");
 		Display.getDefault().asyncExec(() -> modelView.refresh());
 	}
