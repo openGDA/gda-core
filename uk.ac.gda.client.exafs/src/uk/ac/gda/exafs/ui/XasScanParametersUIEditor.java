@@ -75,6 +75,8 @@ import uk.ac.gda.util.schema.SchemaReader;
  * extends RichBeanEditorPart which provides the link between the editor and the bean. Only fields which implement
  * IFieldWidget will be synchronised with the bean automatically. Any field which is both an IFieldWidget and named the
  * same as a field in the bean will find its way into the bean and from the bean when the editor is opened.
+ *
+ * SWTBot test: uk.ac.gda.exafs.ui.XasScanParametersUIEditorTest
  */
 public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPropertyChangeListener {
 	private static final Logger logger = LoggerFactory.getLogger(XasScanParametersUIEditor.class);

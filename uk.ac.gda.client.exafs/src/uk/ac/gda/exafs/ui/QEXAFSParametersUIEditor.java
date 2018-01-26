@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
-
 import org.eclipse.richbeans.api.widget.IFieldWidget;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.richbeans.widgets.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -39,11 +36,16 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Converter;
+import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
+/**
+ * Test for this UI part: uk.ac.gda.exafs.ui.QexafsParametersUIEditorTest
+ */
 public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 	private QEXAFSParametersComposite beanComposite;
 	private static Logger logger = LoggerFactory.getLogger(QEXAFSParametersUIEditor.class);

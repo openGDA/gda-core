@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,7 +38,7 @@ import uk.ac.gda.exafs.ui.ionchambers.IonChamber;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-
+@Ignore("These are slow tests. Run them manually after editing GUIs")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class IonChamberUITest extends ShellTest {
 

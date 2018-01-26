@@ -18,10 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
-
 import java.util.List;
 
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
@@ -38,6 +34,9 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -47,6 +46,8 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 /**
  * An editor part designed to be a page in a multipage editor. This part can be entirely auto-generated and extends
  * RichBeanEditorPart which provides the link between the editor and the bean.
+ *
+ * SWTBot test: uk.ac.gda.exafs.ui.XanesScanParametersUIEditorTest
  */
 public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 

@@ -43,6 +43,7 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.python.core.PyObject;
@@ -54,7 +55,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
-
+@Ignore("These are slow tests. Run them manually after editing GUIs")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class XasScanParametersUIEditorTest extends ShellTest {
 

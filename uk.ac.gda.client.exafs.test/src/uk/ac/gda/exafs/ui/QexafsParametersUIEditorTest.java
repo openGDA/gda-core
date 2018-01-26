@@ -37,6 +37,7 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,6 +45,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
+@Ignore("These are slow tests. Run them manually after editing GUIs")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class QexafsParametersUIEditorTest extends ShellTest {
 

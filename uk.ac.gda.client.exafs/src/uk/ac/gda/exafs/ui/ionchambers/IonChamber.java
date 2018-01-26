@@ -38,6 +38,9 @@ import org.eclipse.swt.widgets.Text;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.IonChambersBean;
 
+/**
+ * SWTBot test: uk.ac.gda.exafs.ui.IonChamberUITest
+ */
 public class IonChamber {
 
 	private Combo ionChamberListCombo;
