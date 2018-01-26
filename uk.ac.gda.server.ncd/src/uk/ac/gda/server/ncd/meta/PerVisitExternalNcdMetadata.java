@@ -94,7 +94,12 @@ public abstract class PerVisitExternalNcdMetadata extends NcdMetaBaseProvider im
 	 */
 	private void setExternalFile(String filepath, String internal, boolean modification) {
 		if (filepath != null) {
-			checkFile(filepath, internal);
+			try {
+				checkFile(filepath, internal);
+			} catch (IllegalArgumentException iae) {
+				logger.warn("Invalid file path {} (internal={})", filepath, internal, iae);
+				return;
+			}
 		}
 		this.filepath = filepath;
 		this.internalPath = filepath == null ? null : internal;
