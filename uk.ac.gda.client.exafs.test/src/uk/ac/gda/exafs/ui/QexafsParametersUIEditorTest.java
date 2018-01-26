@@ -23,13 +23,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Random;
 
 import org.eclipse.richbeans.test.ui.ShellTest;
 import org.eclipse.richbeans.widgets.scalebox.NumberBox;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -52,29 +49,16 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 	private QEXAFSParametersEditor beanEd;
 	private QEXAFSParametersUIEditor ui;
 	private QEXAFSParameters bean;
-	private List<NumberBox> editableNumberBoxes;
-	private Color black, grey, red;
 	private final double tolerance = 1e-6;
 
 	@BeforeClass
 	public static void setUp() {
 		LocalProperties.set("gda.beamline.name", "");
-
 	}
 
 	@Before
-	public void getComponents() throws Exception {
+	public void getComponents() {
 		bean = (QEXAFSParameters) ui.fetchEditingBean();
-		editableNumberBoxes = Arrays.asList(
-				ui.getEdgeEnergy(),
-				(NumberBox) ui.getInitialEnergy(),
-				(NumberBox) ui.getFinalEnergy(),
-				(NumberBox) ui.getSpeed(),
-				(NumberBox) ui.getStepSize()
-				);
-		black = synchExec(()->Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
-		red = synchExec(()->Display.getDefault().getSystemColor(SWT.COLOR_RED));
-		grey = synchExec(()->Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
 	}
 
 	@Override
@@ -122,7 +106,7 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 	}
 
 	@Test
-	public void testInitialParametersFromBean() throws Exception {
+	public void testBinding() throws Exception {
 
 		assertEquals(bean.getInitialEnergy(), synchExec(()->ui.getInitialEnergy().getValue()));
 		assertEquals(bean.getFinalEnergy(), synchExec(()->ui.getFinalEnergy().getValue()));
@@ -134,13 +118,23 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 
 	}
 
+	private String[] randomElementEdgeCombination() {
+		SWTBotCombo elements = bot.comboBoxWithLabel("Element");
+		SWTBotCombo edges = bot.comboBoxWithLabel("Edge");
+
+		Random random = new Random();
+		String element = elements.items()[random.nextInt(elements.itemCount())];
+		elements.setSelection(element);
+
+		String edge = edges.items()[random.nextInt(edges.itemCount())];
+		edges.setSelection(edge);
+
+		return new String[] {element, edge};
+	}
+
 
 	@Test
 	public void testDefaultParams() throws Exception {
-
-		SWTBotCombo elements = bot.comboBoxWithLabel("Element");
-		SWTBotCombo edges = bot.comboBoxWithLabel("Edge");
-		String[] elementArray = {"Fe", "Cl", "Au", "Mo", "Hf", "Pd", "La", "Ag", "Cs"};
 
 
 		final DecimalFormat numberFormat = new DecimalFormat();
@@ -148,27 +142,20 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 		numberFormat.setMinimumFractionDigits(2);
 		numberFormat.setGroupingUsed(false);
 
-		for (String element : elementArray) {
+		String[] selection = randomElementEdgeCombination();
+		String element = selection[0];
+		String edge = selection[1];
 
-			elements.setSelection(element);
+		bot.button("Load defaults").click();
 
-			for (String edge : edges.items()) {
+		Element elem = Element.getElement(element);
 
-				edges.setSelection(edge);
+		assertEquals(elem.getEdgeEnergy(edge), synchExec( () -> ui.getEdgeEnergy().getNumericValue()), tolerance);
+		assertEquals(elem.getInitialEnergy(edge),(double) synchExec( () -> ui.getInitialEnergy().getValue()), tolerance);
+		assertEquals(numberFormat.format(elem.getFinalEnergy(edge)), numberFormat.format( synchExec( () -> ((NumberBox)ui.getFinalEnergy()).getNumericValue())));
+		assertEquals(formatCoreHoleEnergy(elem.getCoreHole(edge)), synchExec( () -> ui.getCoreHole().getValue()));
 
-				bot.button("Load defaults").click();
-
-				Element elem = Element.getElement(element);
-
-				assertEquals(elem.getEdgeEnergy(edge), synchExec( () -> ui.getEdgeEnergy().getNumericValue()), tolerance);
-				assertEquals(elem.getInitialEnergy(edge),(double) synchExec( () -> ui.getInitialEnergy().getValue()), tolerance);
-				assertEquals(numberFormat.format(elem.getFinalEnergy(edge)), numberFormat.format( synchExec( () -> ((NumberBox)ui.getFinalEnergy()).getNumericValue())));
-				assertEquals(formatCoreHoleEnergy(elem.getCoreHole(edge)), synchExec( () -> ui.getCoreHole().getValue()));
-			}
-
-		}
 	}
-
 
 
 	@Test
@@ -221,61 +208,6 @@ public class QexafsParametersUIEditorTest extends ShellTest {
 
 		synchExec( ()->((NumberBox) ui.getFinalEnergy()).setNumericValue(finalEnergy));
 		assertEquals(finalEnergy, bean.getFinalEnergy(), tolerance);
-	}
-
-	@Test
-	public void testInvalidInput() throws Exception {
-
-		NumberBox nb = (NumberBox) ui.getInitialEnergy();
-
-		// (Default) valid input
-		assertEquals(black,synchExec( () -> nb.getForeground()));
-
-		// invalid input (too low)
-		synchExec( () -> nb.setNumericValue(nb.getMinimum()-0.1));
-		assertEquals(red,synchExec( () -> nb.getForeground()));
-
-		// invalid input (too high)
-		synchExec( () -> nb.setNumericValue(nb.getMaximum()+0.1));
-		assertEquals(red, synchExec( () -> nb.getForeground()));
-	}
-
-	@Test
-	public void testNumberBoxBounds() {
-		bot.comboBoxWithLabel("Element").setSelection("Ac");
-		bot.button().click();
-		editableNumberBoxes.forEach(this::checkBounds);
-	}
-
-	private void checkBounds(NumberBox nb) {
-
-		try {
-			double hi = synchExec( () -> nb.getMaximum());
-			double lo = synchExec( () -> nb.getMinimum());
-
-			if (synchExec(()->nb.isEnabled()) && synchExec(()->nb.isEditable())) {
-
-				synchExec( () -> nb.setNumericValue(hi));
-				if (nb.isEditable()) checkColour(black,nb);
-				else checkColour(grey, nb);
-
-				synchExec( () -> nb.setNumericValue(hi+0.01));
-				checkColour(red,nb);
-
-				synchExec( () -> nb.setNumericValue(lo-0.05));
-				checkColour(red,nb);
-			}
-		} catch (Exception e) {
-		}
-
-		bot.button().click(); // reset
-	}
-
-	private void checkColour(Color expected, NumberBox numberbox) throws Exception {
-
-		Color foreground = synchExec( () -> numberbox.getForeground() );
-		assertEquals(numberbox.getFieldName(),expected, foreground);
-
 	}
 
 	private static String formatCoreHoleEnergy(double d)	{

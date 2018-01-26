@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.richbeans.test.ui.ShellTest;
 import org.eclipse.swt.layout.FillLayout;
@@ -59,64 +60,62 @@ public class XanesScanParametersUIEditorTest extends ShellTest {
 		bean = (XanesScanParameters) ui.fetchEditingBean();
 	}
 
-	private void setElementAndEdge(String element, String edge) {
-		bot.comboBoxWithLabel("Element").setSelection(element);
-		bot.comboBoxWithLabel("Edge").setSelection(edge);
+	private String[] randomElementEdgeCombination() {
+		SWTBotCombo elements = bot.comboBoxWithLabel("Element");
+		SWTBotCombo edges = bot.comboBoxWithLabel("Edge");
+
+		Random random = new Random();
+		String element = elements.items()[random.nextInt(elements.itemCount())];
+		elements.setSelection(element);
+
+		String edge = edges.items()[random.nextInt(edges.itemCount())];
+		edges.setSelection(edge);
+
+		return new String[] {element, edge};
 	}
 
 	@Test
 	public void testDefaultRegions() throws Exception {
-		SWTBotCombo elements = bot.comboBoxWithLabel("Element");
-		SWTBotCombo edges = bot.comboBoxWithLabel("Edge");
-		String[] elementArray = {"Fe", "Cl", "Au", "Mo", "Hf", "Pd", "La", "Ag", "Cs"};
 
 		DecimalFormat numberFormat = new DecimalFormat();
 		numberFormat.setMaximumFractionDigits(2);
 		numberFormat.setMinimumFractionDigits(2);
 		numberFormat.setGroupingUsed(false);
 
-		for (final String element : elementArray) {
+		String[] selection = randomElementEdgeCombination();
+		String element = selection[0];
+		String edge = selection[1];
 
-			elements.setSelection(element);
+		double edgeVal = Element.getElement(element).getEdgeEnergy(edge);
+		double coreHole = Element.getElement(element).getCoreHole(edge);
 
-			for (final String edge : edges.items()) {
-
-				edges.setSelection(edge);
-
-					double edgeVal = Element.getElement(element).getEdgeEnergy(edge);
-					double coreHole = Element.getElement(element).getCoreHole(edge);
-
-					bot.button("             Get Defaults            ").click();
-					for (int region = 0; region < bean.getRegions().size(); region ++) {
-						if (region==0) {
-							assertEquals("Failed with "+element+" "+edge,String.valueOf(edgeVal-100*coreHole),bot.table().cell(region, 1));
-							assertEquals(String.valueOf(5 * coreHole),bot.table().cell(region, 2));
-						}
-						else if (region==1) {
-							assertEquals(String.valueOf(edgeVal-20*coreHole),bot.table().cell(region, 1));
-							assertEquals(String.valueOf(coreHole),bot.table().cell(region, 2));
-						}
-						else if (region==2) {
-							assertEquals(String.valueOf(edgeVal-10*coreHole),bot.table().cell(region, 1));
-							assertEquals(String.valueOf(coreHole/5),bot.table().cell(region, 2));
-						}
-						else if (region==3) {
-							assertEquals(String.valueOf(edgeVal+10*coreHole),bot.table().cell(region, 1));
-							assertEquals(String.valueOf(coreHole),bot.table().cell(region, 2));
-						}
-						else if (region ==4) {
-							assertEquals(String.valueOf(edgeVal+20*coreHole),bot.table().cell(region, 1));
-							assertEquals(String.valueOf(coreHole*2),bot.table().cell(region, 2));
-						}
-					}
-
-
-					// Additionally, check that the final energy is loaded correctly.
-					assertEquals("Failed with "+element+" "+edge,numberFormat.format(Element.getElement(element).getFinalEnergy(edge)), numberFormat.format(synchExec( ()-> ui.getFinalEnergy().getNumericValue())));
-
-
+		bot.button("             Get Defaults            ").click();
+		for (int region = 0; region < bean.getRegions().size(); region ++) {
+			if (region==0) {
+				assertEquals("Failed with "+element+" "+edge,String.valueOf(edgeVal-100*coreHole),bot.table().cell(region, 1));
+				assertEquals(String.valueOf(5 * coreHole),bot.table().cell(region, 2));
+			}
+			else if (region==1) {
+				assertEquals(String.valueOf(edgeVal-20*coreHole),bot.table().cell(region, 1));
+				assertEquals(String.valueOf(coreHole),bot.table().cell(region, 2));
+			}
+			else if (region==2) {
+				assertEquals(String.valueOf(edgeVal-10*coreHole),bot.table().cell(region, 1));
+				assertEquals(String.valueOf(coreHole/5),bot.table().cell(region, 2));
+			}
+			else if (region==3) {
+				assertEquals(String.valueOf(edgeVal+10*coreHole),bot.table().cell(region, 1));
+				assertEquals(String.valueOf(coreHole),bot.table().cell(region, 2));
+			}
+			else if (region ==4) {
+				assertEquals(String.valueOf(edgeVal+20*coreHole),bot.table().cell(region, 1));
+				assertEquals(String.valueOf(coreHole*2),bot.table().cell(region, 2));
 			}
 		}
+
+		// Additionally, check that the final energy is loaded correctly.
+		assertEquals("Failed with "+element+" "+edge,numberFormat.format(Element.getElement(element).getFinalEnergy(edge)), numberFormat.format(synchExec( ()-> ui.getFinalEnergy().getNumericValue())));
+
 	}
 
 
@@ -137,7 +136,7 @@ public class XanesScanParametersUIEditorTest extends ShellTest {
 	}
 
 	@Test
-	public void loadFromBean() throws Exception {
+	public void checkBinding() throws Exception {
 
 		assertEquals(bean.getElement(), synchExec(()->ui.getElement().getValue()));
 		assertEquals(bean.getEdge(), synchExec(()->ui.getEdge().getValue()));
@@ -155,9 +154,9 @@ public class XanesScanParametersUIEditorTest extends ShellTest {
 	@Test
 	public void updateElementAndEdgeEnergies() throws Exception {
 
-		final String element = "Au";
-		final String edge = "L2";
-		setElementAndEdge(element, edge);
+		String[] selection = randomElementEdgeCombination();
+		String element = selection[0];
+		String edge = selection[1];
 
 		assertEquals(Element.getElement(element).getEdgeEnergy(edge),synchExec( ()-> ui.getEdgeEnergy().getNumericValue()),0);
 		assertNotNull(bot.label(formatCoreHoleEnergy( Element.getElement(element).getCoreHole(edge) )+ " eV"));
@@ -166,7 +165,7 @@ public class XanesScanParametersUIEditorTest extends ShellTest {
 
 	@Test
 	public void testAddRemoveButtons() {
-		int hi = 10;
+		int hi = 2;
 		for (int i=0; i<hi;i++) {
 			bot.button("           Add Region           ").click();
 		}
