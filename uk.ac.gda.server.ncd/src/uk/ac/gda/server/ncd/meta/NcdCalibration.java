@@ -53,7 +53,7 @@ public class NcdCalibration extends PerVisitExternalNcdMetadata {
 			if (dp == null) {
 				throw new IllegalArgumentException("Could not get detector properties from file");
 			}
-		} catch (DatasetException e) {
+		} catch (NullPointerException | DatasetException e) {
 			logger.error("Could not get diffraction metadata from file", e);
 			throw new IllegalArgumentException("Could not get metadata from file");
 		}
