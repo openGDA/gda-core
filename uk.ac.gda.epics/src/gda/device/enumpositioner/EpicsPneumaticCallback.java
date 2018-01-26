@@ -38,7 +38,6 @@ import gda.epics.interfaces.PneumaticCallbackType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -397,7 +396,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 					positionerStatus = EnumPositionerStatus.IDLE;
 				}
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
+				logger.error("Error in putCompleted for {}", getName(), ex);
 			}
 		}
 	}

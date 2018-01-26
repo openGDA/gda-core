@@ -37,7 +37,6 @@ import gda.epics.connection.EpicsController;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.Channel;
@@ -326,7 +325,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 			} else
 				controller.caput(channel, value.toString());
 		} catch (Exception e) {
-			exceptionUtils.logException(logger, "EpicsDevice.setValueInNewThread " + pvName, e);
+			logger.error("EpicsDevice.setValueInNewThread, pv: {}, value: {}", pvName, value, e);
 		} finally {
 			// logger.info(" observer thread setValueInNewThread - out " +
 			// pvName);
@@ -753,8 +752,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 								// throw new DeviceException("AddObserver", e);
 								// }
 							} catch (Exception e) {
-								exceptionUtils.logException(logger, "EpicsDevice.setAttribute:addObserver fails "
-										+ fpvName, e);
+								logger.error("EpicsDevice.setAttribute:addObserver failed for '{}'", fpvName, e);
 							}
 						}
 					});
@@ -993,7 +991,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 					try {
 						elemCount = getElementCount(name, "");
 					} catch (Exception e) {
-						exceptionUtils.logException(logger, "EpicsDevice.__findattr__ " + name, e);
+						logger.error("{}.__getattr__({}) ", getName(), name, e);
 					}
 				}
 				if (elemCount > 1)

@@ -18,6 +18,11 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -25,7 +30,6 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
-import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -37,11 +41,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class maps onto the EPICS PneumaticCallback template.
@@ -262,7 +261,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 				}
 
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
+				logger.error("Error in putCompleted for {}", getName(), ex);
 			}
 		}
 	}

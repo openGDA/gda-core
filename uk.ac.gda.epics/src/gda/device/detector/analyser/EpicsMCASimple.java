@@ -42,7 +42,6 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import gda.util.exceptionUtils;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
@@ -833,8 +832,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 										logger.debug("Requesting read");
 										setIntFieldValue(readField, 1);
 									} catch (Exception e) {
-										exceptionUtils.logException(logger,
-												"Error setting read to 1 in response to acquisition done", e);
+										logger.error("Error setting read to 1 in response to acquisition done", e);
 									}
 								}
 							}).start();
@@ -1102,7 +1100,7 @@ final class RegisterForEpicsUpdates implements Runnable {
 				chans.add(chan);
 			}
 		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "Error in RegisterForEpicsUpdates", ex);
+			logger.error("Error in RegisterForEpicsUpdates", ex);
 		}
 	}
 

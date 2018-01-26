@@ -50,7 +50,6 @@ import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -640,7 +639,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, ms, STATUSCHANGE_REASON.NEWSTATUS);
 			}
 		} catch (Throwable th) {
-			exceptionUtils.logException(logger, "Motor : " + getName(), th);
+			logger.error("Could not refresh motor status for {}", getName(), th);
 		}
 	}
 
@@ -1124,7 +1123,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 		try {
 			moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, MotorStatus.READY, STATUSCHANGE_REASON.INITIALISE);
 		} catch (Exception ex) {
-			exceptionUtils.logException(logger, "initializationCompleted exception ", ex);
+			logger.error("{} - Could not add move complete event to queue", getName(), ex);
 		}
 	}
 
@@ -1157,7 +1156,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 				}
 
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, ex);
+				logger.error("{} - Error in RBVMonitor", getName(), ex);
 			}
 		}
 	}
@@ -1267,7 +1266,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 					}
 				}
 			} catch (Exception e) {
-				exceptionUtils.logException(logger, "Error in DMOV monitor for " + getName(), e);
+				logger.error("{} - Error in DMOV monitor", getName(), e);
 			}
 		}
 	}
@@ -1395,7 +1394,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 					logger.error("Error: .RBV should return DOUBLE type value.");
 				}
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, ex);
+				logger.error("{} - Error in MSTA monitor", getName(), ex);
 			}
 		}
 	}
@@ -1603,7 +1602,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 				}
 
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, "Error in putCompleted for " + getName(), ex);
+				logger.error("Error in putCompleted for {}", getName(), ex);
 			}
 		}
 
