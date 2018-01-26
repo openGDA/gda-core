@@ -32,6 +32,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +75,13 @@ public class ChannelServer {
 
 		ORB orb = ORB.init(args, PROPS);
 		ChannelServer channelServer = new ChannelServer(eventChannelName, orb);
-		channelServer.createAndBindEventChannel();
-		Runtime.getRuntime().addShutdownHook(new UnbindEventServerShutdownHook(channelServer));
-		orb.run();
+		final boolean alreadyExists = channelServer.createAndBindEventChannel();
+		if (!alreadyExists) {
+			Runtime.getRuntime().addShutdownHook(new UnbindEventServerShutdownHook(channelServer));
+			orb.run();
+		} else {
+			logger.info("Exiting because event channel already exists");
+		}
 	}
 
 	private String eventChannelName;
@@ -125,8 +130,10 @@ public class ChannelServer {
 
 	/**
 	 * Creates the event channel and binds it in the naming service.
+	 *
+	 * @return {@code true} if the event channel already exists
 	 */
-	public void createAndBindEventChannel() {
+	public boolean createAndBindEventChannel() {
 		logger.info("Creating event channel with name '{}'", eventChannelName);
 
 		try {
@@ -139,7 +146,12 @@ public class ChannelServer {
 					Integer.valueOf(PROPS.getProperty(EVENT_CHANNEL_THREAD_POOL_SIZE, "0")));
 
 			org.omg.CORBA.Object o = poa.servant_to_reference(channel);
-			nc.rebind(nc.to_name(eventChannelName), o);
+			try {
+				nc.bind(nc.to_name(eventChannelName), o);
+			} catch (AlreadyBound e) {
+				logger.info("Event channel \"{}\" already exists", eventChannelName);
+				return true;
+			}
 
 			logger.info("Event channel initialisation complete");
 			String fileDir = PROPS.getProperty(STARTUP_COMPLETE_FOLDER);
@@ -159,11 +171,13 @@ public class ChannelServer {
 				}
 			}
 			createStartupFileIfNotPresent(fileDir);
+			return false;
 		} catch (org.omg.CORBA.TRANSIENT ct) {
 			logger.error("NameServer not started: {}", ct);
 		} catch (Exception e) {
 			logger.error("Couldn't create event channel", e);
 		}
+		return false;
 	}
 
 	private void createStartupFileIfNotPresent(final String fileDir) {
