@@ -36,6 +36,11 @@ import gda.factory.FactoryException;
 public class IcatXMLCreatorTest {
 
 	private IcatXMLCreatorForTest xmlCreator;
+	private static final String EXPECTED_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+			+ "<icat version=\"1.0 RC6\" xsi:noNamespaceSchemaLocation=\"icatXSD.xsd\" "
+			+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+			+ "<study> <investigation> \n";
+	private static final String EXPECTED_FOOTER = "</investigation>\n</study>\n</icat>\n";
 
 	@Before
 	public void setUp() throws Exception {
@@ -56,7 +61,7 @@ public class IcatXMLCreatorTest {
 	@Test
 	public void testRegisterSingleFile() throws Exception {
 		// A file in the visit directory is given a dataset name "topdir"
-		final StringBuilder expected = new StringBuilder();
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -75,6 +80,7 @@ public class IcatXMLCreatorTest {
 		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
 		expected.append("   </datafile>\n");
 		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
 
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
@@ -85,7 +91,7 @@ public class IcatXMLCreatorTest {
 	@Test
 	public void testRegisterFilesInSubdirectories() throws Exception {
 		// Files in subdirectories: dataset name is path relative to visit directory
-		final StringBuilder expected = new StringBuilder();
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -130,6 +136,7 @@ public class IcatXMLCreatorTest {
 		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
 		expected.append("   </datafile>\n");
 		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
 
 		final String[] files = new String[] {
 				"/scratch/temp/cm19664-1/ixx-766.nxs",
@@ -146,7 +153,7 @@ public class IcatXMLCreatorTest {
 	public void testRegisterFileNotUnderVisit() throws Exception {
 		// A file not in the visit directory hierarchy: dataset name is full path
 		// (This should never happen.)
-		final StringBuilder expected = new StringBuilder();
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -165,6 +172,7 @@ public class IcatXMLCreatorTest {
 		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
 		expected.append("   </datafile>\n");
 		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
 
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/elsewhere/ixx-766.nxs" });
@@ -176,7 +184,7 @@ public class IcatXMLCreatorTest {
 	public void testRegisterFileNoMetadata() throws Exception {
 		// If metadata is missing, title & instrument default to "unknown",
 		// visit defaults to "0-0"
-		final StringBuilder expected = new StringBuilder();
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
 		expected.append(" <inv_number>0</inv_number>\n");
 		expected.append(" <visit_id>0-0</visit_id>\n");
 		expected.append(" <instrument>unknown</instrument>\n");
@@ -195,6 +203,7 @@ public class IcatXMLCreatorTest {
 		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
 		expected.append("   </datafile>\n");
 		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
 
 		xmlCreator.setMetadata(createMetadata(null, null, null));
 		xmlCreator.registerFiles("scan-766", new String[] { "/scratch/temp/cm19664-1/ixx-766.nxs" });
@@ -205,7 +214,7 @@ public class IcatXMLCreatorTest {
 	@Test
 	public void testSanitiseMetadata() throws Exception {
 		// Certain non-alphanumerics will be removed from instrument & title fields
-		final StringBuilder expected = new StringBuilder();
+		final StringBuilder expected = new StringBuilder(EXPECTED_HEADER);
 		expected.append(" <inv_number>CM19664</inv_number>\n");
 		expected.append(" <visit_id>CM19664-1</visit_id>\n");
 		expected.append(" <instrument>ixx</instrument>\n");
@@ -224,6 +233,7 @@ public class IcatXMLCreatorTest {
 		expected.append("      <datafile_modify_time>modified</datafile_modify_time>\n");
 		expected.append("   </datafile>\n");
 		expected.append(" </dataset>\n");
+		expected.append(EXPECTED_FOOTER);
 
 		// Special characters in instrument & title will be removed
 		xmlCreator.setMetadata(createMetadata("i&x<x", "<Te\'st> &s\\c/a\"n", "cm19664-1"));

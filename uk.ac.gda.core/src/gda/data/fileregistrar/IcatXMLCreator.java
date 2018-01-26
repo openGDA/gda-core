@@ -251,6 +251,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 		try {
 			createFile();
+			fileWriter.write(XML_HEADER);
 			writeData(investigationInfo);
 			// Each file is added as separate <dataset> entry, with dataset directory location
 			// providing the dataset name
@@ -258,11 +259,12 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 				final String datasetName = getDatasetNameFromPath(file, investigationInfo.getVisitId());
 				logger.debug("Writing dropfile dataset for file {} : scan = {}, dataset = {}", file,
 						getScanNumberFromPath(file), datasetName);
-				writeData(DATASET_START);
+				fileWriter.write(DATASET_START);
 				writeData(new DatasetInfo(datasetName));
 				writeData(new FileInfo(file));
-				writeData(DATASET_END);
+				fileWriter.write(DATASET_END);
 			}
+			fileWriter.write(XML_FOOTER);
 		} catch (Exception e) {
 			logger.error("Cannot write XML drop file ", e);
 		} finally {
@@ -327,14 +329,6 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 	}
 
 	protected void closeFile() {
-		if (fileWriter == null) {
-			return;
-		}
-		try {
-			fileWriter.write(XML_FOOTER);
-		} catch (IOException e) {
-			logger.error("Cannot write the very last bit.", e);
-		}
 		try {
 			fileWriter.close();
 		} catch (IOException e) {
@@ -355,7 +349,6 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 
 	protected void createFile() throws IOException {
 		fileWriter = new AtomicWriter(directory + new Date().getTime() + ".xml");
-		fileWriter.write(XML_HEADER);
 	}
 
 	/**
