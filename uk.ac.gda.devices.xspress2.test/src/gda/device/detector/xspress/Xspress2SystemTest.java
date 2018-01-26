@@ -42,7 +42,6 @@ import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -60,14 +59,10 @@ public class Xspress2SystemTest {
 	private Xspress2DAServerController controller;
 
 	@BeforeClass
-	public static void setUpBeforeClass() {
+	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(Xspress2SystemTest.class
 				.getCanonicalName());
-		try {
-			TestUtils.makeScratchDirectory(testScratchDirectoryName);
-		} catch (Exception e) {
-			fail(exceptionUtils.getFullStackMsg(e));
-		}
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
 	@Before
