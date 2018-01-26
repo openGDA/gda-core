@@ -21,14 +21,14 @@ package gda.device.memory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gda.device.DeviceException;
 import gda.device.detector.DummyDAServer;
 import gda.factory.FactoryException;
 import gda.util.TestUtils;
-import gda.util.exceptionUtils;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * Memory test case
@@ -38,17 +38,10 @@ public class GdhistTest {
 	private Gdhist memory = new Gdhist();
 	private DummyDAServer dummyDAServer = new DummyDAServer();
 
-	/**
-	 *
-	 */
 	@BeforeClass
-	public static void setUpBeforeClass() {
+	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(GdhistTest.class.getCanonicalName());
-		try {
-			TestUtils.makeScratchDirectory(testScratchDirectoryName);
-		} catch (Exception e) {
-			fail(exceptionUtils.getFullStackMsg(e));
-		}
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
 	/**

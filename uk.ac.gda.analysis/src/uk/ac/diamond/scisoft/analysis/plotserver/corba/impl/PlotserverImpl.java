@@ -98,8 +98,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 			java.lang.Object obj = plotServer.getGuiState(arg0);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -111,8 +110,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 			java.lang.Object obj = plotServer.getData(arg0);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -122,8 +120,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 		try {
 			plotServer.setData(arg0, (DataBean) arg1.extract_Value());
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -133,8 +130,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 		try {
 			plotServer.updateGui(arg0, (GuiBean) arg1.extract_Value());
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -145,8 +141,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 		try {
 			plotServer.setAttribute(attributeName, any.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -158,8 +153,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 			java.lang.Object obj = plotServer.getAttribute(attributeName);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -217,8 +211,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 			java.lang.Object obj = plotServer.getGuiNames();
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils
-					.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}

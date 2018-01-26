@@ -24,7 +24,6 @@ import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.scannable.corba.CorbaScannablePOA;
 import gda.factory.corba.CorbaFactoryException;
-import gda.util.exceptionUtils;
 
 import java.io.Serializable;
 
@@ -99,7 +98,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.asynchronousMoveTo(arg0.extract_Value());
 		} catch (Throwable e) {
 			logger.error("asynchronousMoveTo error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -109,7 +108,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atPointEnd();
 		} catch (Throwable e) {
 			logger.error("atPointEnd error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -119,7 +118,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atLevelMoveStart();
 		} catch (Throwable e) {
 			logger.error("atLevelMoveStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -129,7 +128,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atLevelStart();
 		} catch (Throwable e) {
 			logger.error("atLevelStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -139,7 +138,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atLevelEnd();
 		} catch (Throwable e) {
 			logger.error("atLevelEnd error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -149,7 +148,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atPointStart();
 		} catch (Throwable e) {
 			logger.error("atPointStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -159,7 +158,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atScanEnd();
 		} catch (Throwable e) {
 			logger.error("atScanEnd error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -169,7 +168,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atScanLineEnd();
 		} catch (Throwable e) {
 			logger.error("atScanLineEnd error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -179,7 +178,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atScanLineStart();
 		} catch (Throwable e) {
 			logger.error("atScanLineStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -189,7 +188,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atScanStart();
 		} catch (Throwable e) {
 			logger.error("atScanStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -216,7 +215,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			any.insert_Value((Serializable) obj);
 		} catch (Throwable e) {
 			logger.error("getPosition error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 		return any;
 	}
@@ -227,7 +226,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			return this.scannable.isBusy();
 		} catch (Throwable e) {
 			logger.error("isBusy error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -237,7 +236,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.moveTo(arg0.extract_Value());
 		} catch (Throwable e) {
 			logger.error("moveTo error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -262,7 +261,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.stop();
 		} catch (Throwable e) {
 			logger.error("stop error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -272,7 +271,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.waitWhileBusy();
 		} catch (Throwable e) {
 			logger.error("waitWhileBusy error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -313,7 +312,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			}
 			return any;
 		} catch (Exception e) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -323,7 +322,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			return this.scannable.isAt(arg0.extract_Value());
 		} catch (DeviceException e) {
 			logger.error("isAt error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -340,7 +339,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atEnd();
 		} catch (Throwable e) {
 			logger.error("atEnd error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -351,7 +350,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			this.scannable.atStart();
 		} catch (Throwable e) {
 			logger.error("atStart error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -372,7 +371,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			scannable.atCommandFailure();
 		} catch (DeviceException e) {
 			logger.error("atCommandFailure error", e);
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 

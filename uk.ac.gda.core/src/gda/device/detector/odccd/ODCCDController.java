@@ -34,7 +34,6 @@ import gda.device.ODCCD;
 import gda.device.detector.DetectorBase;
 import gda.factory.Configurable;
 import gda.factory.Findable;
-import gda.util.exceptionUtils;
 
 /**
  * <p>
@@ -442,7 +441,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 				getODCCDNativeSock().disconnect();
 			}
 			catch(IOException ex){
-				exceptionUtils.logException(logger, ex);
+				logger.error("Error reading from socket", ex);
 			}
 			finally{
 				logger.trace("Flushed: {}", sb.toString());

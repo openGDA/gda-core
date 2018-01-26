@@ -88,7 +88,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.startAcquisition();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -98,7 +98,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.stopAcquisition();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -110,7 +110,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			analyser
 					.addRegionOfInterest(regionIndex, regionLow, regionHigh, regionBackground, regionPreset, regionName);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -120,7 +120,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.deleteRegionOfInterest(regionIndex);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -130,7 +130,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.clear();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -142,7 +142,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.getCalibrationParameters();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 
@@ -155,7 +155,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.getData();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 
@@ -168,7 +168,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.getElapsedParameters();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 
@@ -181,7 +181,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.getPresets();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 
@@ -194,7 +194,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			return analyser.getRegionsOfInterestCount();
 
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -205,7 +205,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.getRegionsOfInterest();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 
@@ -218,7 +218,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			return (int) analyser.getSequence();
 
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -228,7 +228,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setCalibration(calibrate.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -238,7 +238,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setData(data.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -247,7 +247,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setPresets(data.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -257,7 +257,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setRegionsOfInterest(lowHigh.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -267,7 +267,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setSequence(seq);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -277,7 +277,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.collectData();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -299,7 +299,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			return analyser.getStatus();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -310,7 +310,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			java.lang.Object obj = analyser.readout();
 			any.insert_Value((Serializable) obj);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -334,7 +334,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			return analyser.getNumberOfRegions();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -343,7 +343,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setNumberOfRegions(seq);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -354,7 +354,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 			int[] dimension = detectorImpl.getDataDimensions();
 			return dimension;
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -363,7 +363,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			return (int) analyser.getNumberOfChannels();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -372,7 +372,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.setNumberOfChannels(channels);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -382,7 +382,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			return analyser.createsOwnFiles();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -391,7 +391,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.endCollection();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -400,7 +400,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		try {
 			analyser.prepareForCollection();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 

@@ -104,7 +104,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 			java.lang.Object obj = phantom.retrieveData(arg0, arg1, arg2);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -123,7 +123,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.collectData();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -133,7 +133,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.createsOwnFiles();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -142,7 +142,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.endCollection();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -152,7 +152,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getDataDimensions();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -161,7 +161,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getDescription();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -170,7 +170,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getDetectorID();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -179,7 +179,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getDetectorType();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -188,7 +188,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getStatus();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -197,7 +197,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.prepareForCollection();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -209,7 +209,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 			java.lang.Object obj = phantom.readout();
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -219,7 +219,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.setCollectionTime(arg0);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -246,7 +246,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.asynchronousMoveTo(arg0);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -256,7 +256,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atPointEnd();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -266,7 +266,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atPointStart();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -276,7 +276,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atScanEnd();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -286,7 +286,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atScanLineEnd();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -296,7 +296,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atScanLineStart();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -306,7 +306,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.atScanStart();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -338,7 +338,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 			java.lang.Object obj = phantom.getPosition();
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -348,7 +348,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.isAt(arg0);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -357,7 +357,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.isBusy();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -373,7 +373,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 			}
 			return any;
 		} catch (DeviceException e) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
 
@@ -382,7 +382,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.moveTo(arg0);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -419,7 +419,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.stop();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -429,9 +429,9 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.waitWhileBusy();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		} catch (InterruptedException e) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(e));
+			throw new CorbaDeviceException(e.getMessage());
 		}
 
 	}
@@ -441,7 +441,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.close();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -453,7 +453,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 			java.lang.Object obj = phantom.getAttribute(arg0);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
@@ -463,7 +463,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			return phantom.getProtectionLevel();
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -472,7 +472,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.setAttribute(arg0, arg1);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -481,7 +481,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.setProtectionLevel(arg0);
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -491,7 +491,7 @@ public class PhantomImpl extends CorbaPhantomPOA {
 		try {
 			phantom.reconfigure();
 		} catch (FactoryException e) {
-			throw new CorbaFactoryException(gda.util.exceptionUtils.getFullStackMsg(e));
+			throw new CorbaFactoryException(e.getMessage());
 		}
 
 	}

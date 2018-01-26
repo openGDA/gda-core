@@ -22,13 +22,12 @@ package gda.jython.authoriser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
+import gda.util.TestUtils;
 
 /**
  * Test case for the FileAuthoriser class
@@ -44,11 +43,7 @@ public class FileAuthoriserTest {
 	public static void setUp() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(FileAuthoriserTest.class
 				.getCanonicalName());
-		try {
-			TestUtils.makeScratchDirectory(testScratchDirectoryName + "xml");
-		} catch (Exception e) {
-			fail(exceptionUtils.getFullStackMsg(e));
-		}
+		TestUtils.makeScratchDirectory(testScratchDirectoryName + "xml");
 		System.setProperty(LocalProperties.GDA_CONFIG, testScratchDirectoryName);
 		LocalProperties.set(Authoriser.AUTHORISERCLASS_PROPERTY, "gda.jython.authoriser.FileAuthoriser");
 		fileAuthoriser = (FileAuthoriser) AuthoriserProvider.getAuthoriser();

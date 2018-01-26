@@ -19,6 +19,11 @@
 
 package gda.device.detector.odccd.corba.impl;
 
+import java.io.IOException;
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.ODCCD;
 import gda.device.corba.CorbaDeviceException;
@@ -26,12 +31,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.odccd.ODCCDImage;
 import gda.device.detector.odccd.corba.CorbaODCCDPOA;
 import gda.factory.corba.CorbaFactoryException;
-import gda.util.exceptionUtils;
-
-import java.io.IOException;
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed ODCCDController class
@@ -85,7 +84,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.connect(host);
 		} catch (IOException ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 
 		}
 
@@ -96,7 +95,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.disconnect();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -106,7 +105,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.isConnected();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -115,7 +114,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.getDataName();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -124,7 +123,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.temperature();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -133,7 +132,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.waterTemperature();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -143,7 +142,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.runScript(command);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -153,7 +152,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.shutter();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -162,7 +161,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.openShutter();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -171,7 +170,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.closeShutter();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -183,7 +182,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 			any.insert_Value(image);
 			return any;
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -192,7 +191,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.collectData();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -201,7 +200,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.setCollectionTime(time);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 
 	}
@@ -220,7 +219,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.getStatus();
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -232,7 +231,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 			any.insert_Value((Serializable) obj);
 			return any;
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -261,7 +260,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			return odccd.createsOwnFiles();
 		} catch (DeviceException de) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(de));
+			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
 
@@ -270,7 +269,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.endCollection();
 		} catch (DeviceException de) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(de));
+			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
 
@@ -279,7 +278,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		try {
 			odccd.prepareForCollection();
 		} catch (DeviceException de) {
-			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(de));
+			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
 

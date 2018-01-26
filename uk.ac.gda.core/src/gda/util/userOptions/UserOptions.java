@@ -34,7 +34,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.util.VisitPath;
-import gda.util.exceptionUtils;
 import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 

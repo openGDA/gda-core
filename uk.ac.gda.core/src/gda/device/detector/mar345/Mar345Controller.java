@@ -19,9 +19,6 @@
 
 package gda.device.detector.mar345;
 
-import gda.configuration.properties.LocalProperties;
-import gda.util.exceptionUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +28,8 @@ import java.util.Observable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * MAR345 Controller Class.
@@ -116,7 +115,7 @@ public class Mar345Controller extends Observable implements Runnable {
 				logDir = logDir + "/";
 			}
 		} catch (NullPointerException ex) {
-			exceptionUtils.logException(logger, "Error accessing mar directory path in Mar345Controller", ex);
+			logger.error("Error accessing mar directory path in Mar345Controller", ex);
 			return;
 		}
 		statusFileName = logDir + statusFileName;
@@ -139,8 +138,8 @@ public class Mar345Controller extends Observable implements Runnable {
 		try {
 			commandFile = new BufferedWriter(new FileWriter(commandFileName, false));
 		} catch (IOException ex) {
-			exceptionUtils.logException(logger, "Error opening writer for mar command file in Mar345Controller "
-					+ commandFileName, ex);
+			logger.error("Error opening writer for mar command file in Mar345Controller, command: '{}'",
+					commandFileName, ex);
 		}
 	}
 
@@ -169,7 +168,7 @@ public class Mar345Controller extends Observable implements Runnable {
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException ex) {
-				exceptionUtils.logException(logger, "Error trying to sleep in mar status monitor", ex);
+				logger.error("Error trying to sleep in mar status monitor", ex);
 			}
 			try {
 				updateCurrentStep(statusReader.getDetectorStatus());
@@ -181,7 +180,7 @@ public class Mar345Controller extends Observable implements Runnable {
 					step = ControllerStep.UNKNOWN;
 				}
 			} catch (Exception ex) {
-				exceptionUtils.logException(logger, "IOException reading - " + statusReader.statusFileName, ex);
+				logger.error("IOException reading - {}", statusReader.statusFileName, ex);
 			}
 		} while (true);
 	}

@@ -40,7 +40,6 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 
 /**
  *
@@ -50,17 +49,10 @@ public class TfgTest {
 	private Tfg tfg = new Tfg();
 	private DummyDAServer daserver = new DummyDAServer();
 
-	/**
-	 *
-	 */
 	@BeforeClass
-	public static void setUpBeforeClass() {
+	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(TfgTest.class.getCanonicalName());
-		try {
-			TestUtils.makeScratchDirectory(testScratchDirectoryName);
-		} catch (Exception e) {
-			fail(exceptionUtils.getFullStackMsg(e));
-		}
+		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
 	/**

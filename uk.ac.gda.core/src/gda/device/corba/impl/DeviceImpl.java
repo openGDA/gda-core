@@ -19,6 +19,12 @@
 
 package gda.device.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.PortableServer.POA;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
@@ -28,12 +34,6 @@ import gda.factory.corba.CorbaFactoryException;
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
 import gda.observable.IObserver;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
 
 /**
  * A server side implementation for a distributed Device class
@@ -104,7 +104,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 		try {
 			device.setAttribute(attributeName, any.extract_Value());
 		} catch (DeviceException ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
 
@@ -115,7 +115,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 			Object obj = device.getAttribute(attributeName);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
-			throw new CorbaDeviceException(gda.util.exceptionUtils.getFullStackMsg(ex));
+			throw new CorbaDeviceException(ex.getMessage());
 		}
 		return any;
 	}
