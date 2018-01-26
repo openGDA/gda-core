@@ -24,6 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.IPCODiverController;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.Findable;
@@ -38,7 +39,7 @@ import gov.aps.jca.TimeoutException;
  * it only requires an instance of {@link ADBase} to support PCO specific {@link PCOTriggerMode}.
  *
  */
-public class PCODriverController implements Findable {
+public class PCODriverController implements Findable, IPCODiverController {
 	private static final Logger logger = LoggerFactory.getLogger(PCODriverController.class);
 	// PCO specific EPICS interface element and PV fields
 	private static final String PIX_RATE = "PIX_RATE";
@@ -153,6 +154,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getADCMode() throws TimeoutException, CAException, InterruptedException, Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("ADC_MODE_RBV", ADC_MODE_RBV));
@@ -162,6 +164,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setADCMode(int value) throws Exception {
 		try {
 			EPICS_CONTROLLER.caputWait(getChannel("ADC_MODE", ADC_MODE), value);
@@ -172,6 +175,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setADCMode(PCOADCMode value) throws Exception {
 		try {
 			EPICS_CONTROLLER.caputWait(getChannel("ADC_MODE", ADC_MODE), value.ordinal());
@@ -182,6 +186,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getPixRate() throws TimeoutException, CAException, InterruptedException, Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("PIX_RATE_RBV", PIX_RATE_RBV));
@@ -191,6 +196,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setPixRate(int value) throws Exception {
 		try {
 				EPICS_CONTROLLER.caput(getChannel("PIX_RATE", PIX_RATE), value);
@@ -201,6 +207,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public double getCamRamUsage() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel("CAM_RAM_USE_RBV", CAM_RAM_USE_RBV));
@@ -210,6 +217,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public double getElectronicTemperature() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel("ELEC_TEMP_RBV", ELEC_TEMP_RBV));
@@ -219,6 +227,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public double getPowerSupplyTemperature() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel("POWER_TEMP_RBV", POWER_TEMP_RBV));
@@ -228,6 +237,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getStorageMode() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("STORAGE_MODE_RBV", STORAGE_MODE_RBV));
@@ -237,6 +247,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setStorageMode(int value) throws Exception {
 		if (value != 0 && value != 1) {
 			throw new IllegalArgumentException(getName()
@@ -251,6 +262,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getRecorderMode() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("RECORDER_MODE_RBV", RECORDER_MODE_RBV));
@@ -260,6 +272,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setRecorderMode(int value) throws Exception {
 		if (value != 0 && value != 1) {
 			throw new IllegalArgumentException(getName()
@@ -274,6 +287,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getTimestampMode() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("TIMESTAMP_MODE_RBV", TIMESTAMP_MODE_RBV));
@@ -283,6 +297,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setTimestampMode(int value) throws Exception {
 		if (value < 0 && value > 3) {
 			throw new IllegalArgumentException(getName()
@@ -297,6 +312,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getAcquireMode() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel("ACQUIRE_MODE_RBV", ACQUIRE_MODE_RBV));
@@ -306,6 +322,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setAcquireMode(int value) throws Exception {
 		if (value < 0 && value > 2) {
 			throw new IllegalArgumentException(getName()
@@ -320,6 +337,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public int getArmMode() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetInt(getChannel(ARM_MODE_RBV, ARM_MODE_RBV));
@@ -329,14 +347,17 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void armCamera() throws Exception {
 		setArmMode(1);
 	}
 
+	@Override
 	public void disarmCamera() throws Exception {
 		setArmMode(0);
 	}
 
+	@Override
 	public void setArmMode(int value) throws Exception {
 		if (value != 0 && value != 1) {
 			throw new IllegalArgumentException(getName() + ": Input must be 0 - Disarmed, 1 - Armed");
@@ -350,6 +371,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public double getDelayTime() throws Exception {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel(DELAY_TIME_RBV, DELAY_TIME_RBV));
@@ -359,6 +381,7 @@ public class PCODriverController implements Findable {
 		}
 	}
 
+	@Override
 	public void setDelayTime(double value) throws Exception {
 		try {
 			EPICS_CONTROLLER.caput(getChannel(DELAY_TIME, DELAY_TIME), value);
@@ -413,6 +436,7 @@ public class PCODriverController implements Findable {
 		return channel;
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (getPvName() == null) {
 			throw new IllegalArgumentException("'pvName' needs to be declared");

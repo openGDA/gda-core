@@ -21,9 +21,9 @@ package gda.device.detector.pco.collectionstrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.IPCODiverController;
 import gda.device.detector.addetector.collectionstrategy.AbstractADCollectionStrategyDecorator;
 import gda.device.detector.addetector.collectionstrategy.SoftwareStartStop;
-import gda.device.detector.pco.PCODriverController;
 import gda.scan.ScanInformation;
 
 /**
@@ -36,7 +36,7 @@ import gda.scan.ScanInformation;
  */
 public class PCOArmDecorator extends AbstractADCollectionStrategyDecorator {
 	private static final Logger logger = LoggerFactory.getLogger(PCOArmDecorator.class);
-	private PCODriverController pcoController;
+	private IPCODiverController pcoController;
 	private boolean restoreArm = false;
 
 	private int armSaved;
@@ -87,12 +87,12 @@ public class PCOArmDecorator extends AbstractADCollectionStrategyDecorator {
 		this.restoreArm = restoreArm;
 	}
 
-	public PCODriverController getPcoController() {
+	public IPCODiverController getPcoController() {
 		return pcoController;
 	}
 
 
-	public void setPcoController(PCODriverController pcoparameters) {
+	public void setPcoController(IPCODiverController pcoparameters) {
 		this.pcoController = pcoparameters;
 	}
 }
