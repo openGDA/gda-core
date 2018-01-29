@@ -24,3 +24,4 @@ Require-Bundle: uk.ac.gda.api,
  org.eclipse.dawnsci.nexus
 Import-Package: org.apache.commons.io,
  org.jacorb.config
+Export-Package: uk.ac.gda.devices.detector.xspress4
