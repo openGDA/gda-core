@@ -67,6 +67,8 @@ public class Application implements IApplication {
 
 	private static final String PROP_EXIT_CODE = "eclipse.exitcode";
 
+	private final ServerAvailableWatchdog serverAvailableWatchdog = new ServerAvailableWatchdog();
+
 	@Override
 	public Object start(IApplicationContext context) {
 
@@ -76,6 +78,12 @@ public class Application implements IApplication {
 			// encapsulated in their own method.
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
+
+			// Start watchdog checking whether the server can be reached.
+			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
+				// Could not connect to the server - dialog has been displayed to the user.
+				return EXIT_OK; // Exit the client can't start
+			}
 
 			authenticateUser(display);
 
