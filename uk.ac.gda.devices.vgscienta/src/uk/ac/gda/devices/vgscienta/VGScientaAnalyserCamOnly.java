@@ -318,7 +318,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		Dataset dataset = data.getData(getName(), "data", NexusExtractor.SDSClassName).asDouble().toDataset();
 
 		// Calculate the total CPS in the ROI if it exists otherwise over the whole image
-		if (cpsRoi != null) { // Take the ROI out of the dataset
+		if (cpsRoi != null && roiWithinDataBounds()) { // If ROI exists check that it is within dataset, ignore if not
 			dataset = ROIProfile.box(dataset, cpsRoi)[0];
 		}
 
@@ -335,6 +335,20 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 		addDoubleItem(data, "cps", sum / acquireTimeRBV, "Hz");
 	}
+
+	/**
+	 * Method to check that ROI is within bounds of
+	 * the dataset
+	 */
+	private boolean roiWithinDataBounds() {
+
+		double[] roiBottomLeft = cpsRoi.getPoint(); // cpsRoi point is in form [X, Y]
+		double[] roiTopRight = cpsRoi.getEndPoint();
+
+		return roiBottomLeft[0] >= 0 && roiBottomLeft[1] >= 0
+				&& roiTopRight[0] <= dataShape[1] && roiTopRight[1] <= dataShape[0]; // dataShape is [yChannels, energyChannels]
+	}
+
 
 	protected void addDoubleItem(NXDetectorData data, String name, double d, String units) {
 		INexusTree valdata = data.addData(getName(), name, new NexusGroupData(d), units, null, null, true);
