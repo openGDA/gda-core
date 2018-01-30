@@ -94,7 +94,6 @@ look like this excerpt from the example configuration's ``server.xml`` file::
         <property name="startupScript" value="${gda.config}/scripts/localStation.py" />
       </bean>
     </property>
-    <property name="remotePort" value="9999" />
   </bean>
  
 Adding a Script Queue to the Configuration
