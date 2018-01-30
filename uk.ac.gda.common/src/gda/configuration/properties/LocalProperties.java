@@ -822,6 +822,7 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.jython.gdaScriptDir", "script paths are defined in the Spring configuration for the command_server");
 		obsoletePropertyToReason.put("gda.jython.userScriptDir", "script paths are defined in the Spring configuration for the command_server");
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault", "it is not used any more");
+		obsoletePropertyToReason.put("gda.jython.socket", "It was associated with telnet access which has been deprecated");
 	}
 
 	public static void checkForObsoleteProperties() {
