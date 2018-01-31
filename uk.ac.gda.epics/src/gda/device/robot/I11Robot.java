@@ -378,7 +378,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	 * check if error code is empty, print error message to users, then terminate.
 	 */
 	private void error() {
-		if (!err.equalsIgnoreCase("OK")) {
+		if (!"OK".equalsIgnoreCase(err)) {
 			JythonServerFacade.getInstance().print("Error : " + err + ", Report to Engineer.");
 			throw new IllegalStateException("EPICS Robot controller report error code " + err);
 		}
