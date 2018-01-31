@@ -33,24 +33,24 @@ public class RandomOffsetGridPathComposite extends AbstractPathComposite {
 		(new Label(this, SWT.NONE)).setText("Offset (%)");
 		Text offset = new Text(this, SWT.BORDER);
 		gdControls.applyTo(offset);
-		bindTextBox(offset, "offset", path);
+		bind(offset, "offset", path);
 
 		(new Label(this, SWT.NONE)).setText("Seed");
 		Text seed = new Text(this, SWT.BORDER);
 		gdControls.applyTo(seed);
-		bindTextBox(seed, "seed", path);
+		bind(seed, "seed", path);
 
 		(new Label(this, SWT.NONE)).setText(getFastAxisName() + " Points");
 		Spinner fastPoints = new Spinner(this, SWT.BORDER);
 		fastPoints.setMinimum(1);
 		gdControls.applyTo(fastPoints);
-		bindSelection(fastPoints, "fastAxisPoints", path);
+		bind(fastPoints, "fastAxisPoints", path);
 
 		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Points");
 		Spinner slowPoints = new Spinner(this, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		gdControls.applyTo(slowPoints);
-		bindSelection(slowPoints, "slowAxisPoints", path);
+		bind(slowPoints, "slowAxisPoints", path);
 
 		makeSnakeControl(this, path);
 		makeContinuousControl(this, path);

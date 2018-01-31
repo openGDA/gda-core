@@ -34,18 +34,17 @@ public class GridPathComposite extends AbstractPathComposite {
 		fastPoints.setMinimum(1);
 		fastPoints.setMaximum(Integer.MAX_VALUE);
 		gdControls.applyTo(fastPoints);
-		bindSelection(fastPoints, "fastAxisPoints", path);
+		bind(fastPoints, "fastAxisPoints", path);
 
 		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Points");
 		Spinner slowPoints = new Spinner(this, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		slowPoints.setMaximum(Integer.MAX_VALUE);
 		gdControls.applyTo(slowPoints);
-		bindSelection(slowPoints, "slowAxisPoints", path);
+		bind(slowPoints, "slowAxisPoints", path);
 
 		makeSnakeControl(this, path);
 		makeContinuousControl(this, path);
-
 	}
 
 }

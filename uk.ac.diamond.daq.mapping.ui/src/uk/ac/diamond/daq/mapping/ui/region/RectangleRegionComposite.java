@@ -18,6 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.validation.MultiValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -36,28 +41,57 @@ public class RectangleRegionComposite extends AbstractRegionAndPathComposite {
 		xStartLabel.setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStart);
-		bindNumberUnits(xStart, "xStart", region);
 
 		// X Stop
 		Label xStopLabel = new Label(this, SWT.NONE);
 		xStopLabel.setText(getFastAxisName() + " Stop");
 		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xStop);
-		bindNumberUnits(xStop, "xStop", region);
 
 		// Y Start
 		Label yStartLabel = new Label(this, SWT.NONE);
 		yStartLabel.setText(getSlowAxisName() + " Start");
 		NumberAndUnitsComposite yStart = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStart);
-		bindNumberUnits(yStart, "yStart", region);
 
 		// Y Stop
 		Label yStopLabel = new Label(this, SWT.NONE);
 		yStopLabel.setText(getSlowAxisName() + " Stop");
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yStop);
-		bindNumberUnits(yStop, "yStop", region);
+
+		bindAndValidate(xStart, "xStart", xStop, "xStop", region);
+		bindAndValidate(yStart, "yStart", yStop, "yStop", region);
+
 	}
 
+	private void bindAndValidate(NumberAndUnitsComposite firstWidget,
+										 String firstProperty,
+										 NumberAndUnitsComposite secondWidget,
+										 String secondProperty,
+										 Object bean) {
+
+
+		IObservableValue targetStart = getObservableValue(firstWidget);
+		IObservableValue targetStop  = getObservableValue(secondWidget);
+
+		IObservableValue modelStart = getObservableValue(firstProperty, bean);
+		IObservableValue modelStop  = getObservableValue(secondProperty, bean);
+
+		MultiValidator validator = new MultiValidator() {
+
+			@Override
+			protected IStatus validate() {
+				double start = (double) targetStart.getValue();
+				double stop  = (double) targetStop.getValue();
+				if (Math.abs(start-stop) > 0.0) return ValidationStatus.ok();
+				return ValidationStatus.error("Length must be greater than zero!");
+			}
+		};
+
+		bind(validator.observeValidatedValue(targetStart), modelStart);
+		bind(validator.observeValidatedValue(targetStop),  modelStop);
+
+		ControlDecorationSupport.create(validator, SWT.LEFT);
+	}
 }
