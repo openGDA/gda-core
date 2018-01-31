@@ -24,14 +24,6 @@ package gda.device;
  */
 
 public interface EnumPositioner extends Scannable {
-	/** Possible status value, indicates device is idle. */
-	public static final int IDLE = 0;
-
-	/** Possible status value, indicates device is moving. */
-	public static final int MOVING = IDLE + 1;
-
-	/** Possible status value, indicates device has an error. */
-	public static final int ERROR = MOVING + 1;
 
 	/**
 	 * Returns an array of the positions which this device can be moved to.
