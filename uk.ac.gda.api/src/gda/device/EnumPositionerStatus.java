@@ -19,65 +19,42 @@
 
 package gda.device;
 
-import java.io.Serializable;
-
 /**
  * A Enum Positioner Status class - provides a set of allowed status values
  */
-final public class EnumPositionerStatus implements Serializable {
-	private static EnumPositionerStatus[] values_ = new EnumPositionerStatus[3];
-	private int value_;
+public enum EnumPositionerStatus {
+	IDLE,
+	MOVING,
+	ERROR;
 
-	/** Possible status value, indicates device is idle. */
-	public static final int _IDLE = 0;
-	/** Possible status value, indicates device is moving. */
-	public static final int _MOVING = _IDLE + 1;
-	/** Possible status value, indicates device has an error. */
-	public static final int _ERROR = _MOVING + 1;
-
-	/**
-	 * 
-	 */
-	public static final EnumPositionerStatus IDLE = new EnumPositionerStatus(_IDLE);
-	/**
-	 * 
-	 */
-	public static final EnumPositionerStatus MOVING = new EnumPositionerStatus(_MOVING);
-	/**
-	 * 
-	 */
-	public static final EnumPositionerStatus ERROR = new EnumPositionerStatus(_ERROR);
-
-	protected EnumPositionerStatus(int value) {
-		values_[value] = this;
-		value_ = value;
-	}
+	// Cache values for efficiency
+	private static final EnumPositionerStatus[] values = EnumPositionerStatus.values();
 
 	/**
 	 * @return the internal value
 	 */
 	public int value() {
-		return value_;
+		return this.ordinal();
 	}
 
 	/**
 	 * @param value
 	 * @return the EnumPositionerStatus instance corresponding to value
 	 */
-	public static EnumPositionerStatus from_int(int value) {
-		return values_[value];
+	public static EnumPositionerStatus fromInt(int value) {
+		return values[value];
 	}
-	
+
 	@Override
 	public String toString() {
-		if (value_ == _IDLE){
+		switch (this) {
+		case IDLE:
 			return "idle";
-		} else if (value_ == _MOVING){
+		case MOVING:
 			return "moving";
-		} else if (value_ ==_ERROR){
+		case ERROR:
 			return "error";
 		}
 		return "undefined";
 	}
-
 }

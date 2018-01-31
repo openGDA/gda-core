@@ -78,7 +78,7 @@ public class EnumpositionerAdapter extends ScannableAdapter implements EnumPosit
 	public EnumPositionerStatus getStatus() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				return EnumPositionerStatus.from_int(corbaEnumpositioner.getStatus().value());
+				return EnumPositionerStatus.fromInt(corbaEnumpositioner.getStatus().value());
 			} catch (COMM_FAILURE cf) {
 				corbaEnumpositioner = CorbaEnumPositionerHelper.narrow(netService.reconnect(name));
 			} catch (TRANSIENT ct) {

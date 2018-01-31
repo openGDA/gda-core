@@ -33,19 +33,19 @@ public class EnumPositionerStatusTest {
 
 	@Test
 	public void testFromInt() {
-		assertEquals(EnumPositionerStatus.IDLE, EnumPositionerStatus.from_int(0));
-		assertEquals(EnumPositionerStatus.MOVING, EnumPositionerStatus.from_int(1));
-		assertEquals(EnumPositionerStatus.ERROR, EnumPositionerStatus.from_int(2));
+		assertEquals(EnumPositionerStatus.IDLE, EnumPositionerStatus.fromInt(0));
+		assertEquals(EnumPositionerStatus.MOVING, EnumPositionerStatus.fromInt(1));
+		assertEquals(EnumPositionerStatus.ERROR, EnumPositionerStatus.fromInt(2));
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
 	public void testFromIntTooHigh() {
-		EnumPositionerStatus.from_int(3);
+		EnumPositionerStatus.fromInt(3);
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
 	public void testFromIntTooLow() {
-		EnumPositionerStatus.from_int(-1);
+		EnumPositionerStatus.fromInt(-1);
 	}
 
 	@Test
