@@ -242,8 +242,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	}
 
-	@Override
-	public String[] getPositions() throws DeviceException {
+	public String[] getEpicsPositions() throws DeviceException {
 		try {
 			return controller.cagetLabels(pv);
 		} catch (Exception e) {
@@ -253,16 +252,10 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = getPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				positions.add(position[i]);
-				logger.info("{} has available position: {}", getName(), position[i]);
-			}
-		}
+		String[] position = getEpicsPositions();
+		setPositions(position);
 		initialised = true;
 		logger.info("{} is initialised. Number of positions: {} ", getName(), positions.size());
-
 	}
 
 	/**
@@ -278,7 +271,12 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 				DBR dbr = arg0.getDBR();
 				if (dbr.isENUM()) {
 					value = ((DBR_Enum) dbr).getEnumValue()[0];
-					position = EpicsSimpleMbbinary.this.positions.get(value);
+					try {
+						position = EpicsSimpleMbbinary.this.getPositions()[value];
+					} catch (DeviceException e) {
+						logger.error("Could not read Enum Positions. New value: {}", value, e);
+						return;
+					}
 					positionerStatus = EnumPositionerStatus.IDLE;
 					notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
 					logger.info("{} is at {}", getName(), position);
