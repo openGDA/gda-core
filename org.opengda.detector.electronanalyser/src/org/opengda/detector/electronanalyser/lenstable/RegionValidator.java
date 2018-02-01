@@ -19,22 +19,24 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 
 /**
- * validate a given region against analyser's energy range for specified element set.
- * object of this class requires a map of element set name to its corresponding look up table file.
- * @author fy65
+ * Validate a given region against analyser's energy range for specified element set.
+ * This class of objects requires a map of element set name to its
+ * corresponding look up table file.
  *
+ * @author fy65
  */
 public class RegionValidator implements Findable {
-	private static final Logger logger=LoggerFactory.getLogger(RegionValidator.class);
-	private Map<String, String> lookupTablePathMap = new HashMap<String, String>();
+	private static final Logger logger = LoggerFactory.getLogger(RegionValidator.class);
+	private Map<String, String> lookupTablePathMap = new HashMap<>();
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Scannable pgmEnergy;
 	private Scannable dcmEnergy;
 
 	/**
-	 * Check if a given region is valid or not for a given element set.
-	 * The region's excitation energy is used to convert binding energy to kinetic energy before performing validation.
+	 * Check if a given region is valid or not for a given element set. The region's excitation energy is used to convert binding energy to kinetic energy
+	 * before performing validation.
+	 *
 	 * @param region
 	 * @param elementset
 	 * @return boolean true or false
@@ -63,8 +65,10 @@ public class RegionValidator implements Findable {
 			return true; // Fail by allowing region
 		}
 	}
+
 	/**
 	 * check if the given region is valid or not for the given element_set and required excitation energy.
+	 *
 	 * @param elementset
 	 * @param region
 	 * @return
@@ -77,15 +81,15 @@ public class RegionValidator implements Findable {
 		final double lowerKeLimit = Double.parseDouble(limits.get(0));
 		final double upperKeLimit = Double.parseDouble(limits.get(1));
 		logger.debug("For lens mode = {} and pass energy = {} Limits are {} to {}", region.getLensMode(), region.getPassEnergy(), lowerKeLimit, upperKeLimit);
-		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
+		if (region.getEnergyMode() == ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy() >= lowerKeLimit && region.getHighEnergy() <= upperKeLimit)) {
 				logger.error("Start energy = {}, End energy = {}", region.getLowEnergy(), region.getHighEnergy());
 				return false;
 			}
 		} else {
-			double startEnergy=excitationEnergy-region.getHighEnergy();
-			double endEnergy=excitationEnergy-region.getLowEnergy();
-			if (startEnergy<endEnergy) {
+			double startEnergy = excitationEnergy - region.getHighEnergy();
+			double endEnergy = excitationEnergy - region.getLowEnergy();
+			if (startEnergy < endEnergy) {
 				if (!(startEnergy >= lowerKeLimit && endEnergy <= upperKeLimit)) {
 					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
 					return false;
@@ -102,8 +106,8 @@ public class RegionValidator implements Findable {
 
 	public String getEnergyRange(Region region, String elementset) {
 		Table<String, String, String> lookupTable = getLookupTable(elementset);
-		if (lookupTable==null) {
-			logger.warn("Analyser Kinetic energy range lookup table for '{}' element set is not available.",elementset);
+		if (lookupTable == null) {
+			logger.warn("Analyser Kinetic energy range lookup table for '{}' element set is not available.", elementset);
 			return "No lookup table";
 		}
 		final String energyrange = lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
@@ -112,18 +116,19 @@ public class RegionValidator implements Findable {
 
 	/**
 	 * create an energy range look up table for specified element set.
+	 *
 	 * @param elementset
 	 * @return Table<String, String, String> of <LensMode, Pass_Energy, Energy_range>
 	 */
 	public Table<String, String, String> getLookupTable(String elementset) {
-		String tablePath=lookupTablePathMap.get(elementset);
-		if (tablePath==null || tablePath.isEmpty()) {
-			logger.error("Lookup table for Element Set '{}' is not specified.",elementset);
-			throw new IllegalStateException("Lookup table for Element Set '"+elementset+"' is not specified.");
+		String tablePath = lookupTablePathMap.get(elementset);
+		if (tablePath == null || tablePath.isEmpty()) {
+			logger.error("Lookup table for Element Set '{}' is not specified.", elementset);
+			throw new IllegalStateException("Lookup table for Element Set '" + elementset + "' is not specified.");
 		}
 		File file = new File(tablePath);
 		if (!file.exists()) {
-			logger.error("Cannot find the lookup table : {} ",tablePath);
+			logger.error("Cannot find the lookup table : {} ", tablePath);
 			throw new IllegalStateException("Cannot find the lookup table : " + tablePath);
 		} else {
 			return new TwoDimensionalLookupTable().createTable(file);
@@ -133,13 +138,16 @@ public class RegionValidator implements Findable {
 	public Map<String, String> getLookupTablePathMap() {
 		return lookupTablePathMap;
 	}
+
 	public void setLookupTablePathMap(Map<String, String> lookupTablePathMap) {
 		this.lookupTablePathMap = lookupTablePathMap;
 	}
+
 	@Override
 	public void setName(String name) {
-		this.name=name;
+		this.name = name;
 	}
+
 	@Override
 	public String getName() {
 		return name;

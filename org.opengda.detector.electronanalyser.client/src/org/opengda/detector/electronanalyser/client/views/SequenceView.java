@@ -138,7 +138,6 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -169,19 +168,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private int nameCount;
 
 	private final String columnHeaders[] = { SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
-			SequenceTableConstants.LENS_MODE, SequenceTableConstants.PASS_ENERGY, SequenceTableConstants.X_RAY_SOURCE,
-			SequenceTableConstants.ENERGY_MODE, SequenceTableConstants.LOW_ENERGY, SequenceTableConstants.HIGH_ENERGY,
-			SequenceTableConstants.ENERGY_STEP, SequenceTableConstants.STEP_TIME, SequenceTableConstants.STEPS, SequenceTableConstants.TOTAL_TIME,
-			SequenceTableConstants.X_CHANNEL_FROM, SequenceTableConstants.X_CHANNEL_TO, SequenceTableConstants.Y_CHANNEL_FROM,
-			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE };
+			SequenceTableConstants.LENS_MODE, SequenceTableConstants.PASS_ENERGY, SequenceTableConstants.X_RAY_SOURCE, SequenceTableConstants.ENERGY_MODE,
+			SequenceTableConstants.LOW_ENERGY, SequenceTableConstants.HIGH_ENERGY, SequenceTableConstants.ENERGY_STEP, SequenceTableConstants.STEP_TIME,
+			SequenceTableConstants.STEPS, SequenceTableConstants.TOTAL_TIME, SequenceTableConstants.X_CHANNEL_FROM, SequenceTableConstants.X_CHANNEL_TO,
+			SequenceTableConstants.Y_CHANNEL_FROM, SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true),
-			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, true), new ColumnWeightData(40, 50, true),
-			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(50, 70, true),
-			new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
-			new ColumnWeightData(50, 50, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true),
-			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true),
-			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 120, true) };
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true), new ColumnWeightData(80, 100, true),
+			new ColumnWeightData(70, 90, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true),
+			new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
+			new ColumnWeightData(50, 50, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true), new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 120, true) };
 
 	private TableViewer sequenceTableViewer;
 	private List<Region> regions;
@@ -218,8 +214,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
-			TableViewerColumn tableViewerColumn = new TableViewerColumn(
-					tableViewer, SWT.None);
+			TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.None);
 			TableColumn column = tableViewerColumn.getColumn();
 			column.setResizable(columnLayouts[i].resizable);
 			column.setText(columnHeaders[i]);
@@ -238,8 +233,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					public String getToolTipText(Object element) {
 						Region region = (Region) element;
 						if (!isValidRegion(region, false)) {
-							return region.getName()
-									+ " setting is outside energy range permitted.";
+							return region.getName() + " setting is outside energy range permitted.";
 						} else {
 							return null;
 						}
@@ -319,32 +313,32 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			resource.eAdapters().add(notifyListener);
 			sequenceTableViewer.setInput(resource);
 		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: "+regionDefinitionResourceUtil.getFileName(), e2);
+			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
 		}
 
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		controlArea.setLayout(new GridLayout(3, false));
 
-		if (getHardShutterPV()!=null || getSoftShutterPV()!=null) {
-			Group grpShutters=new Group(controlArea, SWT.BORDER);
+		if (getHardShutterPV() != null || getSoftShutterPV() != null) {
+			Group grpShutters = new Group(controlArea, SWT.BORDER);
 			GridDataFactory.fillDefaults().span(3, 1).grab(true, false).applyTo(grpShutters);
 			grpShutters.setText("Fast Shutters");
 			grpShutters.setLayout(new GridLayout(2, true));
 			grpShutters.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-			if (getHardShutterPV()!=null) {
-				Group grpHardShutter=new Group(grpShutters, SWT.NONE);
+			if (getHardShutterPV() != null) {
+				Group grpHardShutter = new Group(grpShutters, SWT.NONE);
 				GridData gd_grpHardShutter = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 				grpHardShutter.setLayoutData(gd_grpHardShutter);
 				grpHardShutter.setLayout(new GridLayout(3, false));
 				grpHardShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-				Label lblHardXray=new Label(grpHardShutter, SWT.None);
+				Label lblHardXray = new Label(grpHardShutter, SWT.None);
 				lblHardXray.setText("Hard X-Ray: ");
 
 				/* Composite to contain the status composite so that a border can be displayed. */
-				Composite borderComposite =  new Composite(grpHardShutter, SWT.NONE);
+				Composite borderComposite = new Composite(grpHardShutter, SWT.NONE);
 				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 				FillLayout fillLayout = new FillLayout();
 				fillLayout.marginWidth = 2;
@@ -358,18 +352,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				btnHardShutter.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent event) {
-						if (event.getSource()==btnHardShutter) {
+						if (event.getSource() == btnHardShutter) {
 							if (btnHardShutter.getText().equalsIgnoreCase("Open")) {
 								try {
 									EpicsController.getInstance().caput(hardShutterChannel, 0);
 								} catch (CAException | InterruptedException e) {
-									logger.error("Failed to open fast shutter for hard X-ray",e);
+									logger.error("Failed to open fast shutter for hard X-ray", e);
 								}
 							} else if (btnHardShutter.getText().equalsIgnoreCase("Close")) {
 								try {
 									EpicsController.getInstance().caput(hardShutterChannel, 1);
 								} catch (CAException | InterruptedException e) {
-									logger.error("Failed to close fast shutter for hard X-ray",e);
+									logger.error("Failed to close fast shutter for hard X-ray", e);
 								}
 							}
 						}
@@ -380,14 +374,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				new Label(grpShutters, SWT.None);
 			}
 
-			if (getSoftShutterPV()!=null) {
-				Group grpSoftShutter=new Group(grpShutters, SWT.NONE);
+			if (getSoftShutterPV() != null) {
+				Group grpSoftShutter = new Group(grpShutters, SWT.NONE);
 				GridData gd_grpSoftShutter = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
 				grpSoftShutter.setLayoutData(gd_grpSoftShutter);
 				grpSoftShutter.setLayout(new GridLayout(3, false));
 				grpSoftShutter.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-				Label lblSoftXray=new Label(grpSoftShutter, SWT.None);
+				Label lblSoftXray = new Label(grpSoftShutter, SWT.None);
 				lblSoftXray.setText("Soft X-Ray: ");
 
 				/* Composite to contain the status composite so that a border can be displayed. */
@@ -405,18 +399,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				btnSoftShutter.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent event) {
-						if (event.getSource()==btnSoftShutter) {
+						if (event.getSource() == btnSoftShutter) {
 							if (btnSoftShutter.getText().equalsIgnoreCase("Open")) {
 								try {
 									EpicsController.getInstance().caput(softShutterChannel, 0);
 								} catch (CAException | InterruptedException e) {
-									logger.error("Failed to open fast shutter for soft X-ray",e);
+									logger.error("Failed to open fast shutter for soft X-ray", e);
 								}
 							} else if (btnSoftShutter.getText().equalsIgnoreCase("Close")) {
 								try {
 									EpicsController.getInstance().caput(softShutterChannel, 1);
 								} catch (CAException | InterruptedException e) {
-									logger.error("Failed to close fast shutter for soft X-ray",e);
+									logger.error("Failed to close fast shutter for soft X-ray", e);
 								}
 							}
 						}
@@ -432,7 +426,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		grpElementset.setText("Element Set");
 		grpElementset.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		comboElementSet = new Combo(grpElementset, SWT.READ_ONLY);
-		comboElementSet.setItems(new String[] {"Low","High"});
+		comboElementSet.setItems(new String[] { "Low", "High" });
 		comboElementSet.setToolTipText("Select an element set");
 		comboElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		comboElementSet.setText(comboElementSet.getItem(0));
@@ -474,25 +468,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtDataFilePath.setEditable(false);
 		txtDataFilePath.setText("Data file to be collected");
 
-		Group grpScanProgress=new Group(controlArea, SWT.BORDER);
+		Group grpScanProgress = new Group(controlArea, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(grpScanProgress);
 		grpScanProgress.setText("Analyser Scan Progress");
 		grpScanProgress.setLayout(new GridLayout(4, false));
 		grpScanProgress.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		Label lblScanNumber=new Label(grpScanProgress, SWT.None);
+		Label lblScanNumber = new Label(grpScanProgress, SWT.None);
 		lblScanNumber.setText("Current Scan Number: ");
 
 		txtScanNumberValue = new Text(grpScanProgress, SWT.BORDER);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(50, SWT.DEFAULT).applyTo(txtScanNumberValue);
 		txtScanNumberValue.setEditable(false);
 		try {
-			txtScanNumberValue.setText(String.format("%d",new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
+			txtScanNumberValue.setText(String.format("%d", new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
 		} catch (IOException e) {
 			logger.warn("Failed to get scan number tracker");
 		}
 
-		Label lblPoint=new Label(grpScanProgress, SWT.None);
+		Label lblPoint = new Label(grpScanProgress, SWT.None);
 		lblPoint.setText("Scan Point Number: ");
 
 		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
@@ -536,12 +530,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		contributeToActionBars();
 	}
 
-	private void setShutterState(Composite shutterState,int status) {
+	private void setShutterState(Composite shutterState, int status) {
 		setColourControl(shutterState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_RED);
 	}
 
-	private void setColourControl(final Control control, final int statusInt, final int openColour,
-			final int closeColour) {
+	private void setColourControl(final Control control, final int statusInt, final int openColour, final int closeColour) {
 		if (control != null && !control.isDisposed()) {
 			control.getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -557,13 +550,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			});
 		}
 	}
+
 	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
-		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'+ String.valueOf(totalActiveRegions));
+		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/' + String.valueOf(totalActiveRegions));
 	}
 
-	private void updateScanPointNumber(int currentPointNumber,
-			int totalNumberOfPoints) {
-		txtPointValue.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
+	private void updateScanPointNumber(int currentPointNumber, int totalNumberOfPoints) {
+		txtPointValue.setText(String.valueOf(currentPointNumber) + '/' + String.valueOf(totalNumberOfPoints));
 	}
 
 	private void makeActions() {
@@ -579,9 +572,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						nameCount++;
 						newRegion.setName(newRegion.getName() + nameCount);
 					}
-					editingDomain.getCommandStack().execute(
-							AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-									RegiondefinitionPackage.eINSTANCE.getSequence_Region(), newRegion));
+					editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
+							RegiondefinitionPackage.eINSTANCE.getSequence_Region(), newRegion));
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -605,9 +597,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 							largestIntInNames++;
 							copy.setName(regionNamePrefix + largestIntInNames);
 						}
-						editingDomain.getCommandStack().execute(
-								AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-										RegiondefinitionPackage.eINSTANCE.getSequence_Region(), copy));
+						editingDomain.getCommandStack().execute(AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), copy));
 					} else {
 						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
 								"You have not selected a region to duplicate.", MessageDialog.ERROR, new String[] { "OK" }, 0);
@@ -629,9 +620,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				try {
 					Region selectedRegion = getSelectedRegion();
 					if (selectedRegion != null) {
-						editingDomain.getCommandStack().execute(
-								RemoveCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
-										RegiondefinitionPackage.eINSTANCE.getSequence_Region(), selectedRegion));
+						editingDomain.getCommandStack().execute(RemoveCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
+								RegiondefinitionPackage.eINSTANCE.getSequence_Region(), selectedRegion));
 					} else {
 						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
 								"You have not selected a region to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
@@ -661,7 +651,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		undoAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_UNDO_EDIT));
 		undoAction.setToolTipText("Undo");
 
-
 		redoAction = new Action() {
 
 			@Override
@@ -678,6 +667,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		redoAction.setToolTipText("Redo");
 
 	}
+
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
@@ -777,10 +767,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (selection instanceof TotalTimeSelection) {
 				updateCalculatedData();
 			} else if (selection instanceof EnergyChangedSelection) {
-				Region region=((EnergyChangedSelection)selection).getRegion();
+				Region region = ((EnergyChangedSelection) selection).getRegion();
 				if (region.isEnabled()) {
 					try {
-						if(isValidRegion(region, true)) {
+						if (isValidRegion(region, true)) {
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
 						} else {
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
@@ -814,7 +804,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private String hardShutterPV;
 	private String softShutterPV;
 
-
 	private Channel analyserStateChannel;
 	private Channel analyserTotalTimeRemainingChannel;
 	private Channel hardShutterChannel;
@@ -845,7 +834,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (e.getSource().equals(comboElementSet)) {
 				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
 				if (!isAllRegionsValid()) {
-					openMessageBox("Invalid Regions", "There are invalid active regions in the Sequence Editor. \nCorrect and validate all active regions by de-select and re-select them." , SWT.ICON_WARNING);
+					openMessageBox("Invalid Regions", "There are invalid active regions in the Sequence Editor. \nCorrect"
+							+ " and validate all active regions by de-select and re-select them.", SWT.ICON_WARNING);
 					return;
 				}
 			}
@@ -899,7 +889,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 		// initialise region list
-		regions= sequence.getRegion();
+		regions = sequence.getRegion();
 		// add drag and drop support,must ensure editing domain not null at this
 		// point.
 		sequenceTableViewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },
@@ -909,15 +899,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
 
 		updateCalculatedData();
-		//server event admin or handler
+		// server event admin or handler
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
-		//EPICS monitor to update current region status
+		// EPICS monitor to update current region status
 		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
-		analyserTotalTimeRemainingListener=new AnalyserTotalTimeRemainingListener();
-		hardShutterStateListener=new HardShutterStateListener();
-		softShutterStateListener=new SoftShutterStateListener();
+		analyserTotalTimeRemainingListener = new AnalyserTotalTimeRemainingListener();
+		hardShutterStateListener = new HardShutterStateListener();
+		softShutterStateListener = new SoftShutterStateListener();
 		try {
 			createChannels();
 		} catch (CAException | TimeoutException e1) {
@@ -957,17 +947,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void createChannels() throws CAException, TimeoutException {
 		first = true;
-		if (getDetectorStatePV()!=null) {
+		if (getDetectorStatePV() != null) {
 			analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
 		}
-		if (getAnalyserTotalTimeRemianingPV()!=null) {
-			analyserTotalTimeRemainingChannel=channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,MonitorType.NATIVE, false);
+		if (getAnalyserTotalTimeRemianingPV() != null) {
+			analyserTotalTimeRemainingChannel = channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,
+					MonitorType.NATIVE, false);
 		}
-		if (getHardShutterPV()!=null) {
-			hardShutterChannel=channelmanager.createChannel(getHardShutterPV(), hardShutterStateListener,MonitorType.NATIVE, false);
+		if (getHardShutterPV() != null) {
+			hardShutterChannel = channelmanager.createChannel(getHardShutterPV(), hardShutterStateListener, MonitorType.NATIVE, false);
 		}
-		if (getSoftShutterPV()!=null) {
-			softShutterChannel=channelmanager.createChannel(getSoftShutterPV(), softShutterStateListener,MonitorType.NATIVE, false);
+		if (getSoftShutterPV() != null) {
+			softShutterChannel = channelmanager.createChannel(getSoftShutterPV(), softShutterStateListener, MonitorType.NATIVE, false);
 		}
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
@@ -986,9 +977,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					numActives++;
 					if (region.getAcquisitionMode() == ACQUISITION_MODE.SWEPT) {
 						totalTimes += region.getStepTime()
-								* RegionStepsTimeEstimation.calculateTotalSteps((region.getHighEnergy() - region.getLowEnergy()),
-										region.getEnergyStep(), camera.getEnergyResolution() * region.getPassEnergy()
-												* (region.getLastXChannel() - region.getFirstXChannel() + 1));
+								* RegionStepsTimeEstimation.calculateTotalSteps((region.getHighEnergy() - region.getLowEnergy()), region.getEnergyStep(),
+										camera.getEnergyResolution() * region.getPassEnergy() * (region.getLastXChannel() - region.getFirstXChannel() + 1));
 					} else if (region.getAcquisitionMode() == ACQUISITION_MODE.FIXED) {
 						totalTimes += region.getStepTime() * 1;
 					}
@@ -997,8 +987,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		txtNumberActives.setText(String.format("%d", numActives));
 		txtEstimatedTime.setText(String.format("%.3f", totalTimes));
-		this.totalTimes=totalTimes;
-		this.numActives=numActives;
+		this.totalTimes = totalTimes;
+		this.numActives = numActives;
 	}
 
 	@Override
@@ -1091,11 +1081,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		@Override
 		protected void setValue(Object element, Object value) {
 			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
-				Region region = (Region)element;
+				Region region = (Region) element;
 				if (value instanceof Boolean) {
 					try {
 						if ((boolean) value) {
-							if(isValidRegion(region, true)) {
+							if (isValidRegion(region, true)) {
 								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
 							} else {
 								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
@@ -1140,23 +1130,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
-			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
-			InterfaceProvider.getScriptController().pauseCurrentScript();
-//			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
-//					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
-//			int result = msgDialog.open();
-//			if (result == 0) {
-//				doSave(new NullProgressMonitor());
-//			} else {
-//				isDirty = false;
-//				firePropertyChange(PROP_DIRTY);
-//			}
 			doSave(new NullProgressMonitor());
-			InterfaceProvider.getScriptController().resumeCurrentScript();
-			InterfaceProvider.getCurrentScanController().restartCurrentScan();
 		}
-		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName)==0) {
-			//same file no need refresh
+		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName) == 0) {
+			// same file no need to refresh
 			return;
 		}
 
@@ -1187,16 +1164,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					} else {
 						currentExcitationEnergy = hardXRayEnergy;
 					}
-					if (currentExcitationEnergy != 0.0
-							&& currentExcitationEnergy != region
-									.getExcitationEnergy()) {
-						updateFeature(region,
-								RegiondefinitionPackage.eINSTANCE
-										.getRegion_ExcitationEnergy(),
-								currentExcitationEnergy);
-					}
-					if (!isValidRegion(region, false)) {
-						updateFeature(region,RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false);
+					if (currentExcitationEnergy != 0.0 && currentExcitationEnergy != region.getExcitationEnergy()) {
+						updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
 					}
 				}
 			}
@@ -1210,7 +1179,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						break;
 					}
 				}
-				if (currentRegion==null) {
+				if (currentRegion == null) {
 					fireSelectionChanged(regions.get(0));
 				} else {
 					fireSelectionChanged(currentRegion);
@@ -1258,7 +1227,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (valid) {
 					boolean validRegion = isValidRegion(region, true);
 					if (!validRegion) {
-						invalidRegionName=region.getName();
+						invalidRegionName = region.getName();
 					}
 					valid = valid && validRegion;
 				}
@@ -1266,8 +1235,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		return valid;
 	}
+
 	/**
 	 * update the data model Status field according to region valid or not
+	 *
 	 * @param region
 	 * @return
 	 */
@@ -1363,9 +1334,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
 			// analyserStateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
-//			if (animation != null) {
-//				animation.cancelAnimation();
-//			}
+			// if (animation != null) {
+			// animation.cancelAnimation();
+			// }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1385,6 +1356,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
+
 	AnimationEngine animation = null;
 	private double hardXRayEnergy;
 	private double softXRayEnergy;
@@ -1397,8 +1369,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						logger.debug("Sequence file changed to {}",((SequenceFileChangeEvent) arg).getFilename());
-						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false);
+						logger.debug("Sequence file changed to {}", ((SequenceFileChangeEvent) arg).getFilename());
+						refreshTable(((SequenceFileChangeEvent) arg).getFilename(), false);
 					}
 				});
 			}
@@ -1406,7 +1378,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						logger.debug("region update to {}",((RegionChangeEvent) arg).getRegionName());
+						logger.debug("region update to {}", ((RegionChangeEvent) arg).getRegionName());
 						String regionId = ((RegionChangeEvent) arg).getRegionId();
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
@@ -1418,13 +1390,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 						fireSelectionChanged(currentRegion);
 						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-						if (animation!=null) {
+						if (animation != null) {
 							animation.cancelAnimation();
 						}
 						try {
 							TableItem tableItem = sequenceTableViewer.getTable().getItem(regions.indexOf(currentRegion));
-							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(sequenceTableViewer.getControl().getShell(),images, tableItem,SequenceTableConstants.COL_STATUS);
-							animation= new AnimationEngine(feedback,-1,100);
+							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(sequenceTableViewer.getControl().getShell(), images, tableItem,
+									SequenceTableConstants.COL_STATUS);
+							animation = new AnimationEngine(feedback, -1, 100);
 							animation.schedule();
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -1436,23 +1409,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				final String regionId = ((RegionStatusEvent) arg).getRegionId();
 				final STATUS status = ((RegionStatusEvent) arg).getStatus();
 				currentRegionNumber = ((RegionStatusEvent) arg).getRegionNumber();
-				if (status==STATUS.RUNNING) {
-					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber);
-				} else if (status==STATUS.COMPLETED) {
-					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber+1);
+				if (status == STATUS.RUNNING) {
+					time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber);
+				} else if (status == STATUS.COMPLETED) {
+					time4RegionsToDo = getRemainingRegionsTimeTotal(currentRegionNumber + 1);
 				}
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						updateRegionNumber(currentRegionNumber, numActives);
-						logger.debug("region {} update to {}",regionId, status);
+						logger.debug("region {} update to {}", regionId, status);
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
 								updateRegionStatus(region, status);
 							}
 						}
 
-						if (status==STATUS.COMPLETED) {
+						if (status == STATUS.COMPLETED) {
 							fireSelectionChanged(new RegionRunCompletedSelection());
 						}
 					}
@@ -1463,12 +1436,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				totalNumberOfPoints = evt.getNumberOfPoints();
 				final String scanFilename = evt.getScanFilename();
 				final int scanNumber = evt.getScanNumber();
-				totalScanTime=totalNumberOfPoints*totalTimes;
+				totalScanTime = totalNumberOfPoints * totalTimes;
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 						txtDataFilePath.setText(scanFilename);
 						txtScanNumberValue.setText(String.valueOf(scanNumber));
 					}
@@ -1483,30 +1456,30 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 							@Override
 							public void run() {
 								double scanTimeRemaining = totalScanTime - time4ScanPointsDone + time4RegionsToDo + currentregiontimeremaining;
-								if (scanTimeRemaining<1) {
-									scanTimeRemaining=0;
+								if (scanTimeRemaining < 1) {
+									scanTimeRemaining = 0;
 								}
 								if (firstTime) {
-									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
-									firstTime=false;
-								} else if (scanTimeRemaining<Double.valueOf(txtTimeRemaining.getText().trim())) {
-									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+									txtTimeRemaining.setText(String.format("%.3f", scanTimeRemaining));
+									firstTime = false;
+								} else if (scanTimeRemaining < Double.valueOf(txtTimeRemaining.getText().trim())) {
+									txtTimeRemaining.setText(String.format("%.3f", scanTimeRemaining));
 								}
-								progressBar.setSelection((int)(100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
+								progressBar.setSelection((int) (100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
 							}
 						});
 					}
 				}, 1000, 2000);
 			}
 			if (arg instanceof ScanPointStartEvent) {
-				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
-				time4ScanPointsDone=currentPointNumber*totalTimes;
-				time4RegionsToDo=getRemainingRegionsTimeTotal(0);
+				currentPointNumber = ((ScanPointStartEvent) arg).getCurrentPointNumber();
+				time4ScanPointsDone = currentPointNumber * totalTimes;
+				time4RegionsToDo = getRemainingRegionsTimeTotal(0);
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 					}
 				});
 			}
@@ -1520,7 +1493,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								updateRegionStatus(region, STATUS.READY);
 							}
 						}
-						if (animation!=null) {
+						if (animation != null) {
 							animation.cancelAnimation();
 						}
 						taskTimer.cancel();
@@ -1546,6 +1519,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 
 	}
+
 	private Image[] loadAnimatedGIF(Display display, String imagePath) {
 		URL url = FileLocator.find(ElectronAnalyserClientPlugin.getDefault().getBundle(), new Path(imagePath), null);
 		ImageLoader imageLoader = new ImageLoader();
@@ -1575,7 +1549,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Combo comboElementSet;
 	private Image[] images;
 	private double currentregiontimeremaining;
-	private Timer taskTimer=new Timer();
+	private Timer taskTimer = new Timer();
 	private boolean firstTime;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
@@ -1589,29 +1563,29 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-				logger.debug("iteration time remaining changed to {}",currentregiontimeremaining);
+				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
 			}
 		}
 	}
 
 	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
 		double timeToGo = 0.0;
-		int i=0;
+		int i = 0;
 		for (Region region : regions) {
 			if (region.isEnabled()) {
 				i++;
-				if (i>currentRegionNumber2) {
+				if (i > currentRegionNumber2) {
 					timeToGo += region.getTotalTime();
 				}
 			}
 		}
-		logger.warn("=========regions to do time {}, current region number {}", timeToGo,currentRegionNumber2);
+		logger.warn("=========regions to do time {}, current region number {}", timeToGo, currentRegionNumber2);
 		return timeToGo;
 	}
 
 	private class AnalyserStateListener implements MonitorListener {
 
-		private boolean running=false;
+		private boolean running = false;
 
 		@Override
 		public void monitorChanged(final MonitorEvent arg0) {
@@ -1630,7 +1604,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				case 0:
 					if (running) {
 						updateRegionStatus(currentRegion, STATUS.COMPLETED);
-						running=false;
+						running = false;
 						logger.debug("analyser is in completed state for current region: {}", currentRegion.toString());
 					} else {
 						updateRegionStatus(currentRegion, STATUS.READY);
@@ -1638,18 +1612,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 					break;
 				case 1:
-//					updateRegionStatus(currentRegion, STATUS.RUNNING);
-					running=true;
+					// updateRegionStatus(currentRegion, STATUS.RUNNING);
+					running = true;
 					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
 					break;
 				case 6:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					running=false;
+					running = false;
 					logger.error("analyser in error state for region; {}", currentRegion.toString());
 					break;
 				case 10:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
-					running=false;
+					running = false;
 					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
 					break;
 				default:
@@ -1671,7 +1645,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			short state = 0;
 			if (dbr.isENUM()) {
 				state = ((DBR_Enum) dbr).getEnumValue()[0];
-				setShutterState(hardShutterState,state);
+				setShutterState(hardShutterState, state);
 				setShutterControlButtonText(btnHardShutter, state);
 			}
 		}
@@ -1685,11 +1659,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			short state = 0;
 			if (dbr.isENUM()) {
 				state = ((DBR_Enum) dbr).getEnumValue()[0];
-				setShutterState(softShutterState,state);
+				setShutterState(softShutterState, state);
 				setShutterControlButtonText(btnSoftShutter, state);
 			}
 		}
 	}
+
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
@@ -1701,9 +1676,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				@Override
 				public void run() {
 					if (!btnShutter.isDisposed()) {
-						if (state==0) {
+						if (state == 0) {
 							btnShutter.setText("Close");
-						} else if (state==1) {
+						} else if (state == 1) {
 							btnShutter.setText("Open");
 						} else {
 							btnShutter.setText("Unknown");
@@ -1727,14 +1702,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		return analyserTotalTimeRemianingPV;
 	}
 
-	public void setAnalyserTotalTimeRemianingPV(
-			String analyserTotalTimeRemianingPV) {
+	public void setAnalyserTotalTimeRemianingPV(String analyserTotalTimeRemianingPV) {
 		this.analyserTotalTimeRemianingPV = analyserTotalTimeRemianingPV;
 	}
 
 	public void setRegionValidator(RegionValidator regionValidator) {
-		this.regionValidator=regionValidator;
+		this.regionValidator = regionValidator;
 	}
+
 	public RegionValidator getRegionValidator() {
 		return regionValidator;
 	}
@@ -1754,6 +1729,5 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void setSoftShutterPV(String softShutterPV) {
 		this.softShutterPV = softShutterPV;
 	}
-
 
 }
