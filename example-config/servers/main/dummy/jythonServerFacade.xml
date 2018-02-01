@@ -27,7 +27,6 @@
 				<property name="startupScript" value="${gda.config}/scripts/localStation.py" />
 			</bean>
 		</property>
-		<property name="remotePort" value="${gda.jython.socket}" />
 	</bean>
 
 

@@ -107,6 +107,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 */
 	public static final String SERVERNAME = "command_server";
 	public static final String NULL = String.valueOf((char)0);
+
+	@Deprecated
+	public static final String TELNET_PORT_PROPERTY = "gda.jython.socket";
+	public static final String SSH_PORT_PROPERTY = "gda.server.ssh.port";
+
 	private boolean atStartup = true;
 
 	// the Jython interpreter
@@ -158,7 +163,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private ScriptPaths jythonScriptPaths;
 
-	private int remotePort = -1;
+	@Deprecated
+	private int telnetPort = LocalProperties.getAsInt(TELNET_PORT_PROPERTY, -1);
+	private final int sshPort = LocalProperties.getAsInt(SSH_PORT_PROPERTY, -1);
 
 	private String gdaStationScript;
 
@@ -224,13 +231,16 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	/**
-	 * Sets the port number that will accept connections to this server.
+	 * Sets the port number that will accept telnet connections to this server.
 	 *
-	 * @param remotePort
-	 *            the port number
+	 * @param remotePort the port number
+	 *
+	 * @deprecated Set the {@value #SSH_PORT_PROPERTY} property instead to allow SSH access
 	 */
+	@Deprecated
 	public void setRemotePort(int remotePort) {
-		this.remotePort = remotePort;
+		telnetPort = remotePort;
+		logger.error("remotePort should not be set via Spring. Use the property {} for ssh", SSH_PORT_PROPERTY);
 	}
 
 	/**
@@ -309,10 +319,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 
 			// open a socket for communication, if a port has been defined - not during reset_namespace
-			int port = determineRemotePortNumber();
-			if (port != -1 && atStartup) {
-				JlineTelnetConnectionManager.runServer(port);
-				JlineSshServer.runServer(port-1);
+			if (atStartup) {
+				if (telnetPort != -1) {
+					JlineTelnetConnectionManager.runServer(telnetPort);
+				}
+				if (sshPort != -1) {
+					JlineSshServer.runServer(sshPort);
+				}
 				atStartup = false;
 			}
 
@@ -320,22 +333,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 			configured = true;
 		}
-	}
-
-	private int determineRemotePortNumber() {
-		// Use remotePort property if it has been set
-		if (remotePort != -1) {
-			return remotePort;
-		}
-
-		// Use property if it has been set
-		String port = LocalProperties.get("gda.jython.socket");
-		if (port != null) {
-			return Integer.parseInt(port);
-		}
-
-		// No port number set
-		return -1;
 	}
 
 	private boolean isConfigured() {
