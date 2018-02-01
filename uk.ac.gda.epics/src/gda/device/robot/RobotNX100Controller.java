@@ -18,6 +18,18 @@
 
 package gda.device.robot;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -40,17 +52,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * RobotNX100Controller Class
@@ -214,35 +215,31 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 	 */
 	public void readTheFile() {
 		errorMap.clear();
-
-		BufferedReader br;
 		String nextLine;
 		String[] header = null;
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			logger.debug("{} loading file: {} ", getName(), RobotNX100Controller.class.getResource("motoman_error_code.txt").getPath());
-
-			br = new BufferedReader(new FileReader(RobotNX100Controller.class.getResource("motoman_error_code.txt").getPath()));
-			while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
-				if (nextLine.startsWith("Code")) {
-					header = nextLine.split("[, \t][, \t]*");
-				} else if (!nextLine.startsWith("#"))
-					lines.add(nextLine);
+			try (InputStream in = RobotNX100Controller.class.getResourceAsStream("motoman_error_code.txt");
+					BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+				while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
+					if (nextLine.startsWith("Code")) {
+						header = nextLine.split("[, \t][, \t]*");
+					} else if (!nextLine.startsWith("#"))
+						lines.add(nextLine);
+				}
 			}
-			br.close();
 		} catch (FileNotFoundException fnfe) {
 			// we do not want to interrupt processing because error map file not set.
 			logger.warn("Can not find the Error Message file {} for {}. Only Error code will be reported.",
 					getErrorCodeFilename(), getName());
 			logger.warn("caused by " + fnfe.getMessage(), fnfe);
-			br = null;
 			return;
 		} catch (IOException ioe) {
 			// we do not want to interrupt processing because error map file not set.
 			logger.warn("Can not find the Error Message file {} for {}. Only Error code will be reported.",
 					getErrorCodeFilename(), getName());
 			logger.error("caused by " + ioe.getMessage(), ioe);
-			br = null;
 			return;
 		}
 
