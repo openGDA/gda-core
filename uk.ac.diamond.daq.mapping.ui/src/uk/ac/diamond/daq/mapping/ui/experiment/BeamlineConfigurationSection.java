@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +34,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ISubmitter;
-import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -120,7 +114,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void configureFocus() {
-		if (!isSubmissionQueueEmpty()) {
+		if (!new SubmissionQueueReporter().isQueueEmpty()) {
+			MessageDialog.openError(getShell(), "Focus Scan",
+					"Cannot configure focus while there are submitted or running scans. "
+					+ "These scans should be cancelled or allowed to complete before focus can be configured.");
 			return;
 		}
 
@@ -129,40 +126,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		wizardDialog.setPageSize(focusScanWizard.getPreferredPageSize());
 		wizardDialog.open();
 		// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
-	}
-
-	/**
-	 * Returns whether the submission queue is empty, i.e. there are no currently running or submitted scans.
-	 * @return <code>true</code> if there are running or submitted scans, <code>false</code> otherwise
-	 */
-	private boolean isSubmissionQueueEmpty() {
-		final IEventService eventService = getService(IEventService.class);
-		try {
-			final URI queueUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			final ISubmitter<StatusBean> queueConnection = eventService.createSubmitter(queueUri, EventConstants.SUBMISSION_QUEUE);
-
-			// first check if there are submitted scans which haven't been run yet
-			final boolean noSubmittedScans = queueConnection.getQueue(EventConstants.SUBMISSION_QUEUE, null).isEmpty();
-			boolean queueClear = noSubmittedScans;
-			if (noSubmittedScans) {
-				// if not check if any scans that have been run are complete (or some other final state)
-				List<StatusBean> runningOrCompletedScans = queueConnection.getQueue(EventConstants.STATUS_SET, null);
-				queueClear = runningOrCompletedScans.stream().map(StatusBean::getStatus).allMatch(Status::isFinal);
-			}
-
-			// show an error dialog if the queue is not clear
-			if (!queueClear) {
-				MessageDialog.openError(getShell(), "Focus Scan",
-						"Cannot configure focus while there are submitted or running scans. "
-						+ "These scans should be cancelled or allowed to complete before focus can be configured.");
-			}
-			return queueClear;
-		} catch (URISyntaxException | EventException e) {
-			LOGGER.error("Could not read submission queue", e);
-			MessageDialog.openError(getShell(), "Error", "Could not read the submission queue in order to determine "
-					+ "if any scans are currently running or submitted");
-		}
-		return false;
 	}
 
 	private IScannableDeviceService getScannableDeviceService() throws Exception {

@@ -161,6 +161,16 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void acquireData() {
 		setPageComplete(false);
+
+		// to prevent AcquireRequest interrupting a running scan,
+		// we'll check that no running/submitted scans are currently in the queue
+		if (!new SubmissionQueueReporter().isQueueEmpty()) {
+			String msg = "Cannot take snapshot while there are submitted or running scans.";
+			logger.warn("{}\nAcquireRequest aborted",msg);
+			MessageDialog.openInformation(getShell(), "Snapshot", msg);
+			return;
+		}
+
 		try {
 			final AcquireRequest response = MappingExperimentUtils.acquireData(acquireDetectorModel, getRequestor());
 			if (response.getStatus() == Status.COMPLETE) {
