@@ -198,7 +198,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 		String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
-		scanBean.setProperty(MappingExperimentView.PROPERTY_NAME_MAPPING_SCAN, Boolean.TRUE.toString());
 
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);

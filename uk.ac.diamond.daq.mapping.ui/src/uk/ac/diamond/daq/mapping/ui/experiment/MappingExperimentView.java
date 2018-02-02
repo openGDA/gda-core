@@ -34,6 +34,8 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -56,8 +58,6 @@ import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
  * service cannot be obtained without breaking encapsulation or running in an OSGi framework.
  */
 public class MappingExperimentView implements IAdaptable {
-
-	public static final String PROPERTY_NAME_MAPPING_SCAN = "mappingScan";
 
 	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
 
@@ -274,8 +274,14 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	private boolean isMappingScanBean(StatusBean statusBean) {
-		return statusBean instanceof ScanBean &&
-				Boolean.TRUE.toString().equals(statusBean.getProperty(PROPERTY_NAME_MAPPING_SCAN));
+		if (!(statusBean instanceof ScanBean)) return false;
+		List<Object> models = ((ScanBean) statusBean).getScanRequest().getCompoundModel().getModels();
+		boolean innerPathIs2D = models.get(models.size()-1) instanceof IMapPathModel;
+		boolean outerPathsHave1Scannable = models.subList(0, models.size()-1).stream()
+											.map(path -> ((IScanPathModel) path).getScannableNames())
+											.allMatch(scannables -> scannables.size() == 1);
+
+		return innerPathIs2D && outerPathsHave1Scannable;
 	}
 
 	/**
