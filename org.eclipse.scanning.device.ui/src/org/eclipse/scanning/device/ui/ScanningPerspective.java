@@ -11,13 +11,16 @@
  *******************************************************************************/
 package org.eclipse.scanning.device.ui;
 
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.queues.QueueViews;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.ui.CommandConstants;
+import org.eclipse.scanning.device.ui.device.ControlView;
 import org.eclipse.scanning.device.ui.device.DetectorView;
+import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.model.ModelView;
+import org.eclipse.scanning.device.ui.points.ExecuteView;
 import org.eclipse.scanning.device.ui.points.ScanRegionView;
+import org.eclipse.scanning.device.ui.points.ScanView;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
 import org.eclipse.scanning.device.ui.vis.VisualiseView;
 import org.eclipse.ui.IFolderLayout;
@@ -39,10 +42,9 @@ public class ScanningPerspective implements IPerspectiveFactory {
 		addPerspectiveShortcuts(layout);
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.RIGHT, 0.7f, IPageLayout.ID_EDITOR_AREA);
-			folderLayout.addView("org.eclipse.scanning.device.ui.scanEditor");
-			final String detectorId = DetectorView.createId(getUriString(), IEventService.DEVICE_REQUEST_TOPIC, IEventService.DEVICE_RESPONSE_TOPIC);
-			folderLayout.addView(detectorId);
-			folderLayout.addView("org.eclipse.scanning.device.ui.device.MonitorView");
+			folderLayout.addView(ScanView.ID);
+			folderLayout.addView(DetectorView.ID);
+			folderLayout.addView(MonitorView.ID);
 		}
 
 		IFolderLayout folder = layout.createFolder("folder_3", IPageLayout.LEFT, 0.22f, IPageLayout.ID_EDITOR_AREA);
@@ -58,13 +60,13 @@ public class ScanningPerspective implements IPerspectiveFactory {
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.26f, "org.eclipse.scanning.device.ui.scanEditor");
-			folderLayout.addView("org.eclipse.scanning.device.ui.modelEditor");
-			folderLayout.addView("org.eclipse.scanning.device.ui.device.ControlView");
-			folderLayout.addView("org.eclipse.scanning.device.ui.points.scanRegionView");
+			folderLayout.addView(ModelView.ID);
+			folderLayout.addView(ControlView.ID);
+			folderLayout.addView(ScanRegionView.ID);
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.54f, "org.eclipse.scanning.device.ui.modelEditor");
-			folderLayout.addView("org.eclipse.scanning.device.ui.scan.executeView");
+			folderLayout.addView(ExecuteView.ID);
 			folderLayout.addView(getConsumerViewId());
 		}
 	}

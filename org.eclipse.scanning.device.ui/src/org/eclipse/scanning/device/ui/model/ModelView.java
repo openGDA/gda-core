@@ -25,6 +25,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.richbeans.widgets.internal.GridUtils;
 import org.eclipse.richbeans.widgets.table.ISeriesItemDescriptor;
+import org.eclipse.scanning.api.IModelProvider;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
@@ -113,7 +115,7 @@ public class ModelView extends ViewPart implements ISelectionListener {
 		if (!getViewSite().getPage().isPartVisible(this)) return;
 		if (selection instanceof IStructuredSelection) {
 			Object ob = ((IStructuredSelection)selection).getFirstElement();
-			String       name = null;
+			String name = null;
 
 			if (ob instanceof ISeriesItemDescriptor) {
 				ISeriesItemDescriptor des = (ISeriesItemDescriptor)ob;
@@ -132,6 +134,16 @@ public class ModelView extends ViewPart implements ISelectionListener {
 				GridUtils.setVisible(treeViewer.getControl(), false);
 				getSite().setSelectionProvider((ISelectionProvider)modelEditor);
 				setActionsVisible(false);
+			} else if (ob instanceof IModelProvider<?>) {
+				Object model = null;
+				try {
+					model = ((IModelProvider<?>) ob).getModel();
+				} catch (Exception e) {
+					logger.error("Could not get model from element", e);
+					return;
+				}
+				if (ob instanceof INameable) name = ((INameable) ob).getName();
+				else if (model instanceof INameable) name = ((INameable) model).getName();
 
 			} else if (ob instanceof ControlTree) {
 				ControlTree tree = (ControlTree)ob;
@@ -139,8 +151,8 @@ public class ModelView extends ViewPart implements ISelectionListener {
 				treeViewer.refresh();
 				GridUtils.setVisible(modelEditor.getControl(), false);
 				GridUtils.setVisible(treeViewer.getControl(), true);
-			    getSite().setSelectionProvider(treeViewer.getSelectionProvider());
-			    name = tree.getDisplayName();
+				getSite().setSelectionProvider(treeViewer.getSelectionProvider());
+				name = tree.getDisplayName();
 				setActionsVisible(true);
 			} else {
 				// Other selections will come in, we ignore these as we cannot edit them.

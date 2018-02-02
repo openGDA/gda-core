@@ -13,6 +13,7 @@ package org.eclipse.scanning.device.ui.points;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -24,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +65,7 @@ import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.AbstractControl;
+import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -76,6 +77,7 @@ import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
 import org.eclipse.scanning.device.ui.ScanningPerspective;
 import org.eclipse.scanning.device.ui.ServiceHolder;
+import org.eclipse.scanning.device.ui.device.DetectorView;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
@@ -421,7 +423,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		if (ob == null)                        return true; // Something deleted.
 		if (ob instanceof GeneratorDescriptor) return true; // Generator changed.
 		if (ob instanceof FieldValue)          return true; // Model changed.
-		if (ob instanceof DeviceInformation)   return true; // Detector changed.
+		if (ob instanceof DetectorScanUIElement) return true; // Detector changed.
 		if (ob instanceof MonitorScanUIElement) return true;// Monitor changed.
 		if (ob instanceof ScanRegion)          return true; // Region changed.
 		if (ob instanceof IROI)                return true; // Region changed.
@@ -632,44 +634,42 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	@SuppressWarnings("squid:S00112")
 	private String getDetectorNames() throws Exception {
-
-		Collection<DeviceInformation<?>> infos = getDeviceInformation();
-		Collection<DeviceInformation<?>> activated = new ArrayList<>();
-	for (Iterator<DeviceInformation<?>> it = infos.iterator(); it.hasNext();) {
-			DeviceInformation<?> deviceInformation = it.next();
-			if (deviceInformation.isActivated()) activated.add(deviceInformation);
-	}
-
+		final Collection<DetectorScanUIElement<?>> elements = getDetectorElements();
 		final StringBuilder buf = new StringBuilder();
-	for (Iterator<DeviceInformation<?>> it = activated.iterator(); it.hasNext();) {
-		DeviceInformation<?> info = it.next();
-		IRunnableDevice<Object> device = runnableDeviceService.getRunnableDevice(info.getName());
-		device.validate(info.getModel());
-		buf.append(info.getName());
-		if(it.hasNext()) buf.append(",");
-		buf.append(" ");
-	}
-
-	if (buf.length()>0) return buf.toString();
-	return "None";
-	}
-
-	@SuppressWarnings("squid:S00112")
-	private Map<String, Object> getDetectors() throws Exception {
-		Map<String, Object> detectors = new HashMap<>();
-		Collection<DeviceInformation<?>> infos = getDeviceInformation();
-		Collection<DeviceInformation<?>> activated = new ArrayList<>();
-		for (Iterator<DeviceInformation<?>> it = infos.iterator(); it.hasNext();) {
-			DeviceInformation<?> deviceInformation = it.next();
-			if (deviceInformation.isActivated())
-				activated.add(deviceInformation);
-		}
-		for (Iterator<DeviceInformation<?>> it = activated.iterator(); it.hasNext();) {
-			DeviceInformation<?> info = it.next();
-			detectors.put(info.getName(), info.getModel());
+		for (Iterator<DetectorScanUIElement<?>> it = elements.iterator(); it.hasNext();) {
+			DetectorScanUIElement<?> element = it.next();
+			IRunnableDevice<Object> device = runnableDeviceService.getRunnableDevice(element.getName());
+			device.validate(element.getModel());
+			buf.append(element.getName());
+			if (it.hasNext())
+				buf.append(",");
+			buf.append(" ");
 		}
 
-		return detectors;
+		if (buf.length() > 0)
+			return buf.toString();
+		return "None";
+	}
+
+	private Map<String, Object> getDetectors() {
+		Collection<DetectorScanUIElement<?>> infos = getDetectorElements();
+		return infos.stream()
+			.collect(toMap(DetectorScanUIElement::getName, DetectorScanUIElement::getModel));
+	}
+
+	private Collection<DetectorScanUIElement<?>> getDetectorElements() {
+		final IViewReference monitorViewRef = PageUtil.getPage().findViewReference(DetectorView.ID);
+		if (monitorViewRef == null) return Collections.emptyList();
+		IViewPart part = monitorViewRef.getView(false);
+		if (part==null) return Collections.emptyList();
+		Object obj = part.getAdapter(DetectorScanUIElement.class);
+		if (obj != null && obj instanceof Collection) { // A collection of device information
+			@SuppressWarnings("unchecked")
+			Collection<DetectorScanUIElement<?>> elements = (Collection<DetectorScanUIElement<?>>)obj;
+			return elements;
+		}
+
+		return Collections.emptyList();
 	}
 
 	@SuppressWarnings("squid:S00112")

@@ -18,16 +18,12 @@
 
 package org.eclipse.scanning.api.ui;
 
+import org.eclipse.scanning.api.INameable;
+
 /**
  * Represents an UI element with an enablement, a name and an icon path.
  */
-public interface IScanUIElement {
-
-	/**
-	 * Get the name of the scan element.
-	 * @return name
-	 */
-	public String getName();
+public interface IScanUIElement extends INameable {
 
 	/**
 	 * Get the icon path of the scan element.

@@ -44,6 +44,7 @@ public class ScanUIElement implements IScanUIElement {
 		return name;
 	}
 
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}

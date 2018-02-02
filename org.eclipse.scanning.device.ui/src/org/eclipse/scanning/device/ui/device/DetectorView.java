@@ -11,12 +11,19 @@
  *******************************************************************************/
 package org.eclipse.scanning.device.ui.device;
 
-import java.io.IOException;
+import static java.util.stream.Collectors.toList;
+
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -25,24 +32,29 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.scanning.api.ValidationException;
-import org.eclipse.scanning.api.device.IActivatable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
+import org.eclipse.scanning.api.stashing.IStashing;
+import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
-import org.eclipse.scanning.device.ui.EventConnectionView;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.points.ValidateResults;
 import org.eclipse.scanning.device.ui.points.ValidateResultsView;
@@ -58,9 +70,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,49 +84,67 @@ import org.slf4j.LoggerFactory;
  * They may click on one and configure it.
  *
  * @author Matthew Gerring
+ * @author Matthew Dickie
  *
  */
-public class DetectorView extends EventConnectionView {
+public class DetectorView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(DetectorView.class);
-	public  static final String ID     = "org.eclipse.scanning.device.ui.detectorView";
+	public  static final String ID     = "org.eclipse.scanning.device.ui.device.detectorView";
 
+	public static final String STASH_ID_ENABLED_DETECTOR_NAMES = "org.eclipse.scanning.device.ui.scan.detectors.enabledDetectorNames";
 	// UI
-	private TableViewer       viewer;
-	private Image             ticked, unticked, defaultIcon;
+	private TableViewer viewer;
+	private Image ticked;
+	private Image unticked;
+	private Image defaultIcon;
 	private Map<String,Image> iconMap;
-	private DelegatingSelectionProvider       selectionProvider;
+	private DelegatingSelectionProvider selectionProvider;
+	private DetectorViewerFilter filter;
+	private IRunnableDeviceService runnableDeviceService;
 
-	// Services
-	private IRunnableDeviceService dservice;
+	private List<DetectorScanUIElement<?>> detectorUIElements;
 
 	public DetectorView() {
-
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_HARDWARE, true);
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_MALCOLM, true);
 		Activator.getDefault().getPreferenceStore().setDefault(DevicePreferenceConstants.SHOW_PROCESSING, true);
 		try {
-		    this.defaultIcon = Activator.getImageDescriptor("icons/camera-lens.png").createImage();
-		    this.ticked      = Activator.getImageDescriptor("icons/ticked.png").createImage();
-		    this.unticked    = Activator.getImageDescriptor("icons/unticked.gif").createImage();
-		} catch (Throwable ne) {
-			ne.printStackTrace(); // Should not happen
+			this.defaultIcon = Activator.getImageDescriptor("icons/camera-lens.png").createImage();
+			this.ticked = Activator.getImageDescriptor("icons/ticked.png").createImage();
+			this.unticked = Activator.getImageDescriptor("icons/unticked.gif").createImage();
+		} catch (Exception e) {
+			logger.error("Could not create images", e);
 		}
-		this.iconMap     = new HashMap<>(7);
+		this.iconMap = new HashMap<>(7);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getAdapter(Class clazz) {
-		if (clazz == DeviceInformation.class || clazz == DeviceInformation[].class) {
-			DetectorContentProvider prov = (DetectorContentProvider)viewer.getContentProvider();
-			return prov.getInfo();
+		if (clazz == DetectorScanUIElement.class) {
+			return getEnabledItems();
 		}
-        return super.getAdapter(clazz);
+
+		return super.getAdapter(clazz);
+	}
+
+	private List<DetectorScanUIElement<?>> getEnabledItems() {
+		return detectorUIElements.stream()
+				.filter(DetectorScanUIElement::isEnabled)
+				.collect(toList());
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
+		try {
+			runnableDeviceService = ServiceHolder.getEventService().createRemoteService(
+					new URI(CommandConstants.getScanningBrokerUri()), IRunnableDeviceService.class);
+			detectorUIElements = createDetectorItems();
+			restorePreviouslyEnabledElements(detectorUIElements);
+		} catch (Exception e) {
+			logger.error("Cannot get available detectors", e);
+		}
 
 		viewer = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
 
@@ -120,27 +152,75 @@ public class DetectorView extends EventConnectionView {
 		viewer.getTable().setHeaderVisible(false);
 		viewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		createColumns(viewer, "", "Name");
+		createColumns(viewer, "Name");
 
-
-		try {
-			this.dservice = ServiceHolder.getEventService().createRemoteService(getUri(), IRunnableDeviceService.class);
-			viewer.setContentProvider(new DetectorContentProvider(dservice));
-		} catch (Exception e) {
-			logger.error("Cannot create content provider", e);
-		}
-		viewer.setInput(new Object());
+		viewer.setContentProvider(new ArrayContentProvider());
+		filter = new DetectorViewerFilter();
+		viewer.addFilter(filter);
+		viewer.setInput(detectorUIElements);
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
 		getSite().setSelectionProvider(selectionProvider);
 
 		createActions();
-		initializeToolBar();
-		initializeMenu();
-
 	}
 
-	private void createColumns(TableViewer tableViewer, String icon, String name) {
+	private void restorePreviouslyEnabledElements(List<DetectorScanUIElement<?>> detectorUIElements) {
+		final IStashing detectorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_ENABLED_DETECTOR_NAMES);
+		try {
+			@SuppressWarnings("unchecked")
+			Set<String> previouslyEnabledDetectorNames = detectorsStash.unstash(Set.class);
+			if (previouslyEnabledDetectorNames != null) {
+				for (DetectorScanUIElement<?> element : detectorUIElements) {
+					if (previouslyEnabledDetectorNames.contains(element.getName())) {
+						element.setEnabled(true);
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Could not restore previously enabled detectors", e);
+		}
+	}
+
+	private List<DetectorScanUIElement<?>> createDetectorItems() {
+		try {
+			final List<DeviceInformation<?>> infos = new ArrayList<>(runnableDeviceService.getDeviceInformation());
+			// Since infos will be iterated through in an arbitrary order (from a user perspective), return a sorted
+			// list for display
+			infos.sort(Comparator.comparing(DeviceInformation::getLabel));
+			return infos.stream()
+//				.map(DetectorScanUIElement::new) // TODO reinstate this line when Jenkins builds with Oxygen
+				.map(info -> new DetectorScanUIElement<>(info)) // the Eclipse Mars compiler has a bug which makes it not compile
+				.collect(Collectors.toList());
+		} catch (Exception e) {
+			logger.error("Could not get detector information", e);
+			return Collections.emptyList();
+		}
+	}
+
+	private static final class DetectorViewerFilter extends ViewerFilter {
+
+		private final Map<DeviceRole, Boolean> rolesToShowMap = new EnumMap<>(DeviceRole.class);
+
+		public DetectorViewerFilter() {
+			update();
+		}
+
+		public void update() {
+			final IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+			rolesToShowMap.put(DeviceRole.HARDWARE, prefs.getBoolean(DevicePreferenceConstants.SHOW_HARDWARE));
+			rolesToShowMap.put(DeviceRole.MALCOLM, prefs.getBoolean(DevicePreferenceConstants.SHOW_MALCOLM));
+			rolesToShowMap.put(DeviceRole.PROCESSING, prefs.getBoolean(DevicePreferenceConstants.SHOW_PROCESSING));
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			final DeviceRole deviceRole = ((DetectorScanUIElement<?>) element).getDeviceRole();
+			return rolesToShowMap.get(deviceRole);
+		}
+	}
+
+	private void createColumns(TableViewer tableViewer, String name) {
 
 		TableViewerColumn tickedColumn = new TableViewerColumn(tableViewer, SWT.CENTER);
 		tickedColumn.getColumn().setWidth(24);
@@ -148,11 +228,8 @@ public class DetectorView extends EventConnectionView {
 		tickedColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public Image getImage(Object element) {
-
-				if (!(element instanceof DeviceInformation)) return null;
-				DeviceInformation<?> info = (DeviceInformation<?>)element;
-
-				return info.isActivated() ? ticked : unticked;
+				DetectorScanUIElement<?> info = (DetectorScanUIElement<?>) element;
+				return info.isEnabled() ? ticked : unticked;
 			}
 			@Override
 			public String getText(Object element) {
@@ -160,30 +237,21 @@ public class DetectorView extends EventConnectionView {
 			}
 		});
 
-        MouseAdapter mouseClick = new MouseAdapter() {
+		MouseAdapter mouseClick = new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-			    Point pt = new Point(e.x, e.y);
+				Point pt = new Point(e.x, e.y);
 				TableItem item = viewer.getTable().getItem(pt);
 				if (item == null) return;
 				Rectangle rect = item.getBounds(0);
 				if (rect.contains(pt)) {
-					final DeviceInformation<?> info = (DeviceInformation<?>)item.getData();
-					try {
-						IActivatable device = (IActivatable)dservice.getRunnableDevice(info.getName());
-						device.setActivated(!info.isActivated());
-						info.setActivated(!info.isActivated());
-						getViewSite().getActionBars().getStatusLineManager().setErrorMessage(null);
-					} catch (ScanningException e1) {
-						logger.error("Unable to set activated state!", e1);
-						getViewSite().getActionBars().getStatusLineManager().setErrorMessage("Server is not available: "+e1.getLocalizedMessage());
-					}
-					tableViewer.refresh(info);
+					final DetectorScanUIElement<?> element = (DetectorScanUIElement<?>)item.getData();
+					element.setEnabled(!element.isEnabled());
+					tableViewer.refresh(element);
 				}
 			}
-        };
+		};
 		tableViewer.getTable().addMouseListener(mouseClick);
-
 
 		TableViewerColumn iconColumn = new TableViewerColumn(tableViewer, SWT.CENTER);
 		iconColumn.getColumn().setWidth(24);
@@ -191,15 +259,9 @@ public class DetectorView extends EventConnectionView {
 		iconColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public Image getImage(Object element) {
-				if (!(element instanceof DeviceInformation)) return null;
-				DeviceInformation<?> info = (DeviceInformation<?>)element;
-				if (info.getIcon()==null) return defaultIcon;
-				try {
-					return getIcon(info.getIcon());
-				} catch (IOException e) {
-					e.printStackTrace();
-					return null;
-				}
+				DetectorScanUIElement<?> item = (DetectorScanUIElement<?>) element;
+				if (item.getIconPath()==null) return defaultIcon;
+				return getIcon(item.getIconPath());
 			}
 			@Override
 			public String getText(Object element) {
@@ -214,35 +276,30 @@ public class DetectorView extends EventConnectionView {
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (!(element instanceof DeviceInformation)) return null;
-				DeviceInformation<?> info = (DeviceInformation<?>)element;
-				String label = info.getLabel();
-				if (label==null) label = info.getName();
-				if (label==null) label = info.getId();
-				if (label==null) label = "Unamed Device "+info;
+				DetectorScanUIElement<?> item = (DetectorScanUIElement<?>) element;
+				String label = item.getLabel();
+				if (label==null) label = item.getName();
+				if (label==null) label = item.getId();
+				if (label==null) label = "Unamed Device";
 				return label;
 			}
 		});
 
 	}
 
-	protected Image getIcon(String fullPath) throws IOException {
-
-		if (fullPath==null)      return defaultIcon;
-		if ("".equals(fullPath)) return defaultIcon;
+	protected Image getIcon(String fullPath) {
+		if (fullPath == null || fullPath.equals("")) return defaultIcon;
 
 		try {
 			if (iconMap.containsKey(fullPath)) return iconMap.get(fullPath);
 			final String[] sa = fullPath.split("/");
 			final Bundle bundle = Platform.getBundle(sa[0]);
 			if (bundle==null) return defaultIcon;
-			if (bundle!=null) {
-				Image image = new Image(null, bundle.getResource(sa[1]+"/"+sa[2]).openStream());
-				iconMap.put(fullPath, image);
-			}
+			Image image = new Image(null, bundle.getResource(sa[1]+"/"+sa[2]).openStream());
+			iconMap.put(fullPath, image);
 			return iconMap.get(fullPath);
-		} catch (Exception ne) {
-			logger.debug("Cannot get icon for "+fullPath, ne);
+		} catch (Exception e) {
+			logger.debug("Cannot get icon for "+fullPath, e);
 			return defaultIcon;
 		}
 	}
@@ -252,14 +309,6 @@ public class DetectorView extends EventConnectionView {
 		viewer.getTable().setFocus();
 	}
 
-	public static String createId(final String uri, final String requestName, final String responseName) {
-
-		final StringBuilder buf = new StringBuilder();
-		buf.append(ID);
-		buf.append(":");
-		buf.append(createSecondaryId(uri, requestName, responseName));
-		return buf.toString();
-	}
 	/**
 	 * Create the actions.
 	 */
@@ -268,8 +317,8 @@ public class DetectorView extends EventConnectionView {
 		IMenuManager popup = new MenuManager();
 		List<IContributionManager> mans = Arrays.asList(getViewSite().getActionBars().getToolBarManager(), getViewSite().getActionBars().getMenuManager(), popup);
 
-		IAction showHardware   = createPreferenceAction("Show Devices",   DevicePreferenceConstants.SHOW_HARDWARE,   "icons/camera-lens.png");
-		IAction showMalcolm   = createPreferenceAction("Show Malcolm Devices",   DevicePreferenceConstants.SHOW_MALCOLM,   "icons/alarm-clock-select.png");
+		IAction showHardware = createPreferenceAction("Show Devices", DevicePreferenceConstants.SHOW_HARDWARE, "icons/camera-lens.png");
+		IAction showMalcolm = createPreferenceAction("Show Malcolm Devices", DevicePreferenceConstants.SHOW_MALCOLM, "icons/alarm-clock-select.png");
 		IAction showProcessing = createPreferenceAction("Show Processing", DevicePreferenceConstants.SHOW_PROCESSING, "icons/processing.png");
 		ViewUtil.addGroups("visibility", mans, showHardware, showMalcolm, showProcessing);
 
@@ -288,8 +337,7 @@ public class DetectorView extends EventConnectionView {
 				configure();
 			}
 		};
-		ViewUtil.addGroups("camera", mans, configure);
-
+		ViewUtil.addGroups("configure", mans, configure);
 	}
 
 	private IAction createPreferenceAction(String label, String preference, String icon) {
@@ -297,6 +345,7 @@ public class DetectorView extends EventConnectionView {
 			@Override
 			public void run() {
 				Activator.getDefault().getPreferenceStore().setValue(preference, isChecked());
+				filter.update();
 				viewer.refresh();
 			}
 		};
@@ -307,63 +356,41 @@ public class DetectorView extends EventConnectionView {
 
 
 	protected void refresh() {
-
-		DeviceInformation<?> info = getSelection();
-
 		boolean ok = MessageDialog.openQuestion(getViewSite().getShell(), "Confirm Refresh",
-				                "This action will go to the devices and re-read their models.\n"+
-				                "It will mean that if you have made local edits, they could be lost.\n\n"+
-				                "Are you sure you want continue?\n\n"+
-				                "(If not the 'Configure' action can be used to send your local edits to a device.)");
-		if (!ok) return;
-
-		if (info!=null) {
-			try {
-			    Collection<DeviceInformation<?>> devices = dservice.getDeviceInformationIncludingNonAlive();
-				viewer.setInput(new Object());
-			    for (DeviceInformation<?> di : devices) {
-					if (di.getName()!=null && info.getName()!=null && di.getName().equals(info.getName())) {
-						viewer.setSelection(new StructuredSelection(di));
-						break;
-					}
-				}
-			} catch (ScanningException se) {
-				logger.error("Problem getting device information", se);
-			}
+						"This action will go to the devices and re-read their models.\n"+
+						"It will mean that if you have made local edits, they could be lost.\n\n"+
+						"Are you sure you want continue?\n\n"+
+						"(If not the 'Configure' action can be used to send your local edits to a device.)");
+		if (ok) {
+			viewer.refresh();
 		}
 	}
 
-
 	protected void configure() {
+		final DetectorScanUIElement<?> element = getSelection();
+		if (element==null) return; // Nothing to configure
+		final String detectorName = element.getName();
 
-		DeviceInformation<?> info = getSelection();
-		if (info==null) return; // Nothing to configure
-
-		boolean ok = MessageDialog.openQuestion(getViewSite().getShell(), "Confirm Configure", "Are you sure you want to configure '"+info.getName()+"' now?\n\n"+
-		                                             "If the device is active or being used this will change its behaviour.");
+		boolean ok = MessageDialog.openQuestion(getViewSite().getShell(), "Confirm Configure",
+				"Are you sure you want to configure '"+detectorName+"' now?\n\n"+
+				"If the device is active or being used this will change its behaviour.");
 		if (!ok) return;
 
 		try {
-			IRunnableDevice<Object> device = dservice.getRunnableDevice(info.getName());
-			Object model = info.getModel();
+			final IRunnableDevice<Object> device = runnableDeviceService.getRunnableDevice(detectorName);
+			final Object model = element.getModel();
 
 			// Pass null to 'clear' the validation results view
-			selectionProvider.fireSelection(new StructuredSelection(new ValidateResults(info.getName(), null)));
-
+			selectionProvider.fireSelection(new StructuredSelection(new ValidateResults(detectorName, null)));
 			Object validateReturn = device.validateWithReturn(model);
-
-			ValidateResults validateResults = new ValidateResults(info.getName(), validateReturn);
-
+			ValidateResults validateResults = new ValidateResults(detectorName, validateReturn);
 			showValidationResultsView(validateResults);
-
 			selectionProvider.fireSelection(new StructuredSelection(validateResults));
-
 			device.configure(model);
-
 		} catch (ScanningException|ValidationException ne) {
-			ErrorDialog.openError(getViewSite().getShell(), "Configure Failed", "The configure of '"+info.getName()+"' failed",
-                                            new Status(IStatus.ERROR, "org.eclipse.scanning.device.ui", ne.getMessage(), ne));
-			logger.error("Cannot configure '"+info.getName()+"'", ne);
+			ErrorDialog.openError(getViewSite().getShell(), "Configure Failed", "The configure of '"+detectorName+"' failed",
+					new Status(IStatus.ERROR, "org.eclipse.scanning.device.ui", ne.getMessage(), ne));
+			logger.error("Cannot configure '"+detectorName+"'", ne);
 		}
 	}
 
@@ -385,29 +412,24 @@ public class DetectorView extends EventConnectionView {
 		});
 	}
 
-	private DeviceInformation<?> getSelection() {
+	private DetectorScanUIElement<?> getSelection() {
 		if (viewer.getSelection() == null || viewer.getSelection().isEmpty()) return null;
-		return (DeviceInformation<?>)((IStructuredSelection)viewer.getSelection()).getFirstElement();
+		return (DetectorScanUIElement<?>)((IStructuredSelection)viewer.getSelection()).getFirstElement();
 	}
 
-	/**
-	 * Initialize the toolbar.
-	 */
-	private void initializeToolBar() {
-		@SuppressWarnings("unused")
-		IToolBarManager toolbarManager = getViewSite().getActionBars()
-				.getToolBarManager();
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+		final Set<String> enabledDetectorNames = getEnabledItems().stream()
+				.map(DetectorScanUIElement::getName)
+				.collect(Collectors.toSet());
+		final IStashing detectorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_ENABLED_DETECTOR_NAMES);
+		try {
+			detectorsStash.stash(enabledDetectorNames);
+		} catch (Exception e) {
+			logger.error("Could not save selected detectors", e);
+		}
 	}
-
-	/**
-	 * Initialize the menu.
-	 */
-	private void initializeMenu() {
-		@SuppressWarnings("unused")
-		IMenuManager menuManager = getViewSite().getActionBars()
-				.getMenuManager();
-	}
-
 
 	@Override
 	public void dispose() {

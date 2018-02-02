@@ -474,7 +474,7 @@ class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionP
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        processWorkbenchSelection(selection);
+		processWorkbenchSelection(selection);
 	}
 
 	private void processWorkbenchSelection(ISelection selection) {
