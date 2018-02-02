@@ -18,6 +18,8 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +79,11 @@ public class EpicsEditablePositionerCallback extends EpicsPositionerCallback imp
 		} catch (Exception e) {
 			logger.error("failed to get position from " + select.getName());
 		}
+	}
+
+	@Override
+	public void setPositions(Collection<String> positions) {
+		setPositions(positions.toArray(new String[positions.size()]));
 	}
 
 	/**

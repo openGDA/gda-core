@@ -95,8 +95,8 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 				configured = true;
 			} // end of if(!configured)
 
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create channel " + pvName, th);
+		} catch (Exception e) {
+			throw new FactoryException("failed to create channel " + pvName, e);
 		}
 	}
 
@@ -116,8 +116,8 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 
 			return getName() + " : NOT Available.";
 
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get status position from " + control.getName(), th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get status position from " + control.getName(), e);
 		}
 	}
 
@@ -129,8 +129,8 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 		}
 
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				if (getStatus() == EnumPositionerStatus.MOVING) {
 					logger.warn("{} is busy", getName());
@@ -141,10 +141,10 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 				controller.caput(control, target, pcl);
 			} catch (CAException e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! Epics Channel Access problem: " + e.getMessage(), e);
-			} catch (Throwable th) {
+				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! Epics Channel Access problem", e);
+			} catch (Exception e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! " + th.getMessage(), th);
+				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! ", e);
 			}
 			return;
 		}
@@ -165,6 +165,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 	 * @return the available positions from this device.
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("sync-override")
 	@Override
 	public String[] getPositions() throws DeviceException {
 		try {
@@ -194,7 +195,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 		String[] statusposition = getControlPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 		for (int i = 0; i < statusposition.length; i++) {

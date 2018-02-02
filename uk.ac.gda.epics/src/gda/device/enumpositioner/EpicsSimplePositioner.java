@@ -83,8 +83,8 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 				configured = true;
 			} // end of if(!configured)
 
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create channel " + pvName, th);
+		} catch (Exception e) {
+			throw new FactoryException("failed to create channel " + pvName, e);
 		}
 	}
 
@@ -99,9 +99,9 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			positionerStatus=EnumPositionerStatus.MOVING;
 			try {
 				controller.caput(currentPositionChnl, value, pcbl);
-			} catch (Throwable th) {
+			} catch (Exception e) {
 				positionerStatus=EnumPositionerStatus.ERROR;
-				throw new DeviceException("failed to moveTo", th);
+				throw new DeviceException("failed to moveTo", e);
 			}
 
 		} else {
@@ -116,8 +116,8 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			// int position = controller.cagetInt(currentPositionChnl);
 			String value = controller.cagetString(currentPositionChnl);
 			return reverseValues.get(value);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position", e);
 		}
 	}
 
@@ -164,7 +164,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 					monitorInstalledSet.add(ch);
 				}
 
-			} catch (Throwable ex) {
+			} catch (Exception ex) {
 				logger.error("Add Monitor failed for Channel: " + ch.getName() + " : " + ex);
 				return;
 			}
@@ -193,13 +193,13 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			status = value.getStatus();
 		}
 		try {
-			if (currentPositionChnl != null && positions != null) {
-				notifyIObservers(positions.get(position), getStatus());
+			if (currentPositionChnl != null && getNumberOfPositions() > 0) {
+				notifyIObservers(getPosition(position), getStatus());
 			} else {
 				notifyIObservers(null, getStatus());
 			}
 		} catch (DeviceException e) {
-			logger.debug(e.getClass() + " while updating EpicsPositioner " + getName() + " : " + e.getMessage());
+			logger.debug("Exception while updating EpicsPositioner {}", getName(), e);
 		}
 
 	}
@@ -227,8 +227,8 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	 */
 	public void setValues(Map<String, String> values) {
 		this.values = values;
-		positions.addAll(values.keySet());
-		reverseValues = new HashMap<String, String>(3);
+		addPositions(values.keySet());
+		reverseValues = new HashMap<>(3);
 		for (String key : values.keySet()) {
 			final String value = values.get(key);
 			reverseValues.put(value, key);

@@ -18,6 +18,8 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,9 +149,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -160,9 +162,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -172,9 +174,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -182,9 +184,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	public Object rawGetPosition() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(pv);
-			return positions.get(test);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position from " + pv.getName(), th);
+			return getPosition(test);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position from " + pv.getName(), e);
 		}
 	}
 
@@ -225,14 +227,14 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			return;
 		}
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(pv, target, pcbl);
-			} catch (Throwable th) {
+			} catch (Exception e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(pv.getName() + " failed to moveTo " + position.toString(), th);
+				throw new DeviceException(pv.getName() + " failed to moveTo " + position.toString(), e);
 			}
 			return;
 		}
@@ -252,10 +254,9 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = getEpicsPositions();
-		setPositions(position);
+		setPositionsInternal(Arrays.asList(getEpicsPositions()));
 		initialised = true;
-		logger.info("{} is initialised. Number of positions: {} ", getName(), positions.size());
+		logger.info("{} is initialised. Number of positions: {} ", getName(), getNumberOfPositions());
 	}
 
 	/**

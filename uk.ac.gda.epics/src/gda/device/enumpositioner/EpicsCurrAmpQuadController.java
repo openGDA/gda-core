@@ -181,9 +181,9 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			current4Ch = channelManager.createChannel(currAmpConfig.getI4().getPv(), false);
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -193,7 +193,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 
@@ -263,7 +263,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	@Override
 	public String[] getPositions() throws DeviceException{
-		String[] positionLabels = new String[positions.size()];
+		String[] positionLabels = new String[getNumberOfPositions()];
 		try {
 			positionLabels = controller.cagetLabels(range);
 		} catch (Exception e) {
@@ -291,12 +291,12 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// EpicsPositioner moveTo
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				controller.caput(range, target, channelManager);
-			} catch (Throwable th) {
-				throw new DeviceException(range.getName() + " failed to moveTo " + position.toString(), th);
+			} catch (Exception e) {
+				throw new DeviceException(range.getName() + " failed to moveTo " + position.toString(), e);
 			}
 			return;
 		}
@@ -399,18 +399,18 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	public String getRangeValue() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(range);
-			return positions.get(test);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position from " + range.getName(), th);
+			return getPosition(test);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position from " + range.getName(), e);
 		}
 	}
 
 	public String getRangeReadbackValue() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(range_rbv);
-			return positions.get(test);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position from " + range_rbv.getName(), th);
+			return getPosition(test);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position from " + range_rbv.getName(), e);
 		}
 	}
 	/**

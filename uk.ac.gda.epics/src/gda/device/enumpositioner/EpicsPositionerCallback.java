@@ -18,15 +18,15 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A version of EpicsPositioner which does not use DMOV at all but relies on the callback mecnanism to determine when
@@ -63,8 +63,8 @@ public class EpicsPositionerCallback extends EpicsPositioner {
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				if (getStatus() == EnumPositionerStatus.MOVING) {
 					logger.warn("{} is busy", getName());
@@ -72,9 +72,9 @@ public class EpicsPositionerCallback extends EpicsPositioner {
 				}
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(select, target, putCallbackListener);
-			} catch (Throwable th) {
+			} catch (Exception e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(select.getName() + " failed to moveTo " + position, th);
+				throw new DeviceException(select.getName() + " failed to moveTo " + position, e);
 			}
 		}
 	}

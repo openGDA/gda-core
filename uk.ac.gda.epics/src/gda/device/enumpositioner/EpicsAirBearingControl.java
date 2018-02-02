@@ -79,25 +79,25 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {
-			short test = controller.cagetEnum(readChannel);
+			final short test = controller.cagetEnum(readChannel);
 			//refresh currentPosition to ensure it is up to date. I21 something the monitor listener fails to update this - reason not known.
-			currentPosition=positions.get(test);
+			currentPosition=getPosition(test);
 			return currentPosition;
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position from " + readChannel.getName(), th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position from " + readChannel.getName(), e);
 		}
 	}
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		if (positions.contains(position.toString())) {
+		if (containsPosition(position.toString())) {
 			targetPosition=position.toString();
-			int target = positions.indexOf(targetPosition);
+			int target = getPositionIndex(targetPosition);
 			try {
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(setChannel, target, pcbl);
-			} catch (Throwable th) {
+			} catch (Exception e) {
 				positionerStatus = EnumPositionerStatus.ERROR;
-				throw new DeviceException(readChannel.getName() + " failed to moveTo " + position.toString(), th);
+				throw new DeviceException(readChannel.getName() + " failed to moveTo " + position.toString(), e);
 			}
 		} else {
 			// if get here then wrong position name supplied
@@ -131,8 +131,8 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
-			throw new FactoryException("failed to connect to all channels", th);
+		} catch (Exception e) {
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -141,12 +141,12 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 				logger.info("{} has available position: {}", getName(), position[i]);
 			}
 		}
 		currentPosition=(String)rawGetPosition();
-		logger.info("{} is initialised. Number of positions: {} ", getName(), positions.size());
+		logger.info("{} is initialised. Number of positions: {} ", getName(), getNumberOfPositions());
 		String[] readposition = getReadPositions();
 		for (int i = 0; i < readposition.length; i++) {
 			if (readposition[i] != null || readposition[i] != "") {

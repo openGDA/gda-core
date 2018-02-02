@@ -248,7 +248,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	public String getPosition() throws DeviceException {
 		try {
 			final short test = controller.cagetEnum(select);
-			return positions.get(test);
+			return getPosition(test);
 		} catch (Exception e) {
 			throw new DeviceException("failed to get position from " + select.getName(), e);
 		}
@@ -257,8 +257,8 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			final int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			final int target = getPositionIndex(position.toString());
 			try {
 				if (getStatus() == EnumPositionerStatus.MOVING) {
 					if (acceptNewMoveToPositionWhileMoving) {
@@ -336,7 +336,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		final String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 
@@ -350,13 +350,13 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			if (basePV != null) {
 				final String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(':')) + ":P:VAL";
 				final CharSequence positionValueChannelNameSuffixes = "ABCDEFGHIJKLMNOP";
-				for (int i = 0; i < super.positions.size(); i++) {
+				for (int i = 0; i < getNumberOfPositions(); i++) {
 					final char letter = positionValueChannelNameSuffixes.charAt(i);
 					final String positionValueChannelName = positionValueChannelNamePrefix + letter;
 					try {
 						final Channel positionValueChannel = channelManager.createChannel(positionValueChannelName, false);
 						Thread.sleep(100);
-						positionValueChannels.put(super.positions.get(i), positionValueChannel);
+						positionValueChannels.put(getPosition(i), positionValueChannel);
 					}
 					catch (CAException e) {
 						logger.error("could not create channel {}", positionValueChannelName);

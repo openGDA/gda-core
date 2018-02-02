@@ -72,7 +72,7 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 		String[] statusposition = super.getStatusPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 		for (int i = 0; i < statusposition.length; i++) {
@@ -102,8 +102,8 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 	public String getPosition() throws DeviceException {
 		try {
 			return statusValues.get(super.getPosition());
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position", e);
 		}
 	}
 

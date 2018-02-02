@@ -89,7 +89,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 
 					// if the string is not "" then save it to the array
 					if (positionName.compareTo("") != 0) {
-						super.positions.add(positionName);
+						addPosition(positionName);
 					}
 				}
 			} catch (Exception e) {
@@ -103,15 +103,15 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
 			// check top ensure a correct string has been supplied
-			if (positions.contains(position.toString())) {
+			if (containsPosition(position.toString())) {
 				controller.caput(currentPositionChnl, position.toString(), channelManager);
 				return;
 			}
 			// if get here then wrong position name supplied
 			throw new DeviceException(getName() + ": demand position " + position.toString()
-					+ " not acceptable. Should be one of: " + ArrayUtils.toString(positions));
-		} catch (Throwable th) {
-			throw new DeviceException("failed to move to" + position.toString(), th);
+					+ " not acceptable. Should be one of: " + ArrayUtils.toString(getPositionsList()));
+		} catch (Exception e) {
+			throw new DeviceException("failed to move to" + position.toString(), e);
 		}
 	}
 
@@ -129,8 +129,8 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 			} else {
 				return "UNKNOWN"; // or throw an error
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position", e);
 		}
 	}
 
@@ -152,8 +152,8 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 			} else {
 				return EnumPositionerStatus.ERROR;
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get status", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get status", e);
 		}
 	}
 
@@ -187,7 +187,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 			EnumPositionerStatus status = getStatus();
 			notifyIObservers(this, status);
 
-			if (status == EnumPositionerStatus.IDLE && currentPositionChnl != null && positions != null) {
+			if (status == EnumPositionerStatus.IDLE && currentPositionChnl != null && getNumberOfPositions() > 0) {
 				notifyIObservers(this, getPosition());
 			}
 		} catch (DeviceException e) {

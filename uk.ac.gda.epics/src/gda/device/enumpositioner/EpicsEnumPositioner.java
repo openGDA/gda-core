@@ -114,8 +114,8 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 				// + "SELECT.SEVR");
 
 				stopChnl = controller.createChannel(pvBase + ":STOP.VAL", this);
-			} catch (Throwable th) {
-				throw new FactoryException("failed to crate chanenl", th);
+			} catch (Exception e) {
+				throw new FactoryException("failed to create channel", e);
 			}
 
 			// get the list of positions from the SELECT record and fill the
@@ -129,10 +129,10 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 					// if the string is not "" then save it to the array
 					if (positionName.compareTo("") != 0) {
-						super.positions.add(positionName);
+						addPosition(positionName);
 					}
-				} catch (Throwable th) {
-					logger.error("failed to get position name for " + this.getName());
+				} catch (Exception e) {
+					logger.error("failed to get position name for {}", this.getName());
 				}
 			}
 
@@ -161,13 +161,13 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				// update the VAL field of the SELECT record asynchronously
 				controller.caput(currentPositionChnl, target, channelManager);
-			} catch (Throwable th) {
-				throw new DeviceException("failed to moveTo", th);
+			} catch (Exception e) {
+				throw new DeviceException("failed to moveTo", e);
 			}
 			return;
 		}
@@ -181,7 +181,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 	public void monitorChanged(MonitorEvent arg0) {
 		// no matter what message is received, send observers latest status
 		try {
-			if (currentPositionChnl != null && positions != null) {
+			if (currentPositionChnl != null && getNumberOfPositions() > 0) {
 				notifyIObservers(getPosition(), getStatus());
 			} else {
 				notifyIObservers(null, getStatus());
@@ -225,8 +225,8 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 	public void stop() throws DeviceException {
 		try {
 			controller.caput(stopChnl, 1);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to stop", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to stop", e);
 		}
 	}
 
@@ -235,9 +235,9 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 		try {
 			// int position = controller.cagetInt(currentPositionChnl);
 			short test = controller.cagetEnum(currentPositionChnl);
-			return positions.get(test);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position", th);
+			return getPosition(test);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position", e);
 		}
 	}
 
@@ -277,7 +277,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 					monitorInstalledSet.add(ch);
 				}
 
-			} catch (Throwable ex) {
+			} catch (Exception ex) {
 				logger.error("Add Monitor failed for Channel: " + ch.getName() + " : " + ex);
 				return;
 			}

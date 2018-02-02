@@ -180,8 +180,8 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 			try {
 				createChannelAccess();
-			} catch (Throwable th) {
-				throw new FactoryException("failed to connect to all channels", th);
+			} catch (Exception e) {
+				throw new FactoryException("failed to connect to all channels", e);
 			}
 
 			configured = true;
@@ -211,20 +211,20 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 			return getName() + " : NOT Available.";
 
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get status position from " + status.getName(), th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get status position from " + status.getName(), e);
 		}
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 				controller.caput(control, target,channelManager);
-			} catch (Throwable th) {
-				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString(), th);
+			} catch (Exception e) {
+				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString(), e);
 			}
 			return;
 		}
@@ -274,7 +274,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 		String[] statusposition = getStatusPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 		for (int i = 0; i < statusposition.length; i++) {

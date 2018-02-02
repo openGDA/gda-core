@@ -121,8 +121,8 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 			channelManager.tryInitialize(100);
 
 
-		} catch (Throwable th) {
-			throw new FactoryException("failed to connect to all channels", th);
+		} catch (Exception e) {
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
-				super.positions.add(position[i]);
+				addPosition(position[i]);
 			}
 		}
 	}
@@ -160,14 +160,14 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// find in the positionNames array the index of the string
-		if (positions.contains(position.toString())) {
-			int target = positions.indexOf(position.toString());
+		if (containsPosition(position.toString())) {
+			int target = getPositionIndex(position.toString());
 			try {
 //				controller.caput(chRange, target, channelManager);
 //				Thread.sleep(1000);
 				controller.caput(chRange, target, 10);
-			} catch (Throwable th) {
-				throw new DeviceException(chRange.getName() + " failed to moveTo " + position.toString(), th);
+			} catch (Exception e) {
+				throw new DeviceException(chRange.getName() + " failed to moveTo " + position.toString(), e);
 			}
 
 			return;
@@ -216,9 +216,9 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 	public String getRangeValue() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(chRangeRBV);
-			return positions.get(test);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get position from " + chRangeRBV.getName(), th);
+			return getPosition(test);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get position from " + chRangeRBV.getName(), e);
 		}
 
 	}

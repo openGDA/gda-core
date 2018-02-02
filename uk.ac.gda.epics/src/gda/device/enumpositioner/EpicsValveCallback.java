@@ -18,6 +18,10 @@
 
 package gda.device.enumpositioner;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -28,10 +32,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Version of EpicsValve which uses callback for the status rather than looking at the status PV.
@@ -50,18 +50,18 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
 			// check top ensure a correct string has been supplied
-			if (positions.contains(position.toString())) {
+			if (containsPosition(position.toString())) {
 				controller.caput(currentPositionChnl, position.toString(), putCallbackListener);
 				positionerStatus = EnumPositionerStatus.MOVING;
 				return;
 			}
-		} catch (Throwable th) {
+		} catch (Exception e) {
 			positionerStatus = EnumPositionerStatus.ERROR;
-			throw new DeviceException("failed to move to" + position.toString(), th);
+			throw new DeviceException("failed to move to" + position.toString(), e);
 		}
 		// if get here then wrong position name supplied
 		throw new DeviceException(getName() + ": demand position " + position.toString()
-				+ " not acceptable. Should be one of: " + ArrayUtils.toString(positions));
+				+ " not acceptable. Should be one of: " + ArrayUtils.toString(getPositionsList()));
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 				positionerStatus = status;
 				notifyIObservers(this, status);
 
-				if (status == EnumPositionerStatus.IDLE && currentPositionChnl != null && positions != null) {
+				if (status == EnumPositionerStatus.IDLE && currentPositionChnl != null && getNumberOfPositions() > 0) {
 					notifyIObservers(this, getPosition());
 				}
 			}

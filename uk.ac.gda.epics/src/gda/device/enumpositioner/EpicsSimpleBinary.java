@@ -18,7 +18,9 @@
 
 package gda.device.enumpositioner;
 
-import org.apache.commons.lang.ArrayUtils;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
+import gda.device.EditableEnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
@@ -52,7 +54,7 @@ import gov.aps.jca.event.PutListener;
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
-public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositioner, MonitorListener, Scannable,
+public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, MonitorListener, Scannable,
 		InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
@@ -61,24 +63,16 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 
 	private String deviceName;
 
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
 	private EpicsController controller;
 
 	private EpicsChannelManager channelManager;
-
-	private String[] positions = new String[] { "Out", "In" };
 
 	// the channel to change between 0 and 1
 	private Channel controlChnl;
 
 	private boolean readonly = false;
+
+	private String pvName;
 
 	private PutCallbackListener pcbl;
 
@@ -87,12 +81,11 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 	 */
 	public EpicsSimpleBinary() {
 		super();
+		super.setPositionsInternal(Arrays.asList("Out", "In"));
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		pcbl = new PutCallbackListener();
 	}
-
-	private String pvName;
 
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
@@ -175,14 +168,6 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 	}
 
 	/**
-	 * @see gda.device.EnumPositioner#getPositions()
-	 */
-	@Override
-	public String[] getPositions() throws DeviceException {
-		return positions;
-	}
-
-	/**
 	 * The defaults are { "Out", "In" }. Use this method to override.
 	 *
 	 * @param newPositions
@@ -199,7 +184,13 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 			throw new IllegalArgumentException("Positions array cannot have empty elements");
 		}
 
-		positions = newPositions;
+		super.setPositionsInternal(Arrays.asList(newPositions));
+	}
+
+	@Override
+	public void setPositions(Collection<String> positions) {
+		setPositions(positions.toArray(new String[positions.size()]));
+
 	}
 
 	@Override
@@ -215,7 +206,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 		throwExceptionIfInvalidTarget(positionString);
 
 		try {
-			if (ArrayUtils.contains(positions, positionString)) {
+			if (containsPosition(positionString)) {
 				controller.caput(controlChnl, positionString, pcbl);
 			}
 		} catch (Exception e) {
@@ -249,8 +240,9 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 		if (!(position instanceof String) && !(position instanceof PyString)) {
 			return "position not a string";
 		}
-		if (!ArrayUtils.contains(positions, position)) {
-			return position.toString() + "not in array of acceptable strings";
+		final String posString = position.toString();
+		if (!containsPosition(posString)) {
+			return posString + "not in array of acceptable strings";
 		}
 		return null;
 	}
@@ -283,6 +275,13 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EnumPositio
 		this.readonly = readonly;
 	}
 
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 
 	private class PutCallbackListener implements PutListener {
 		volatile PutEvent event = null;
