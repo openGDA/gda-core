@@ -92,9 +92,9 @@ public class CollectionSetterTest {
 	@Test
 	public void testDummyEnumPositioner() {
 		DummyEnumPositioner dep = new DummyEnumPositioner();
-		assertEquals(0, dep.getPositionArrayList().size());
+		assertEquals(0, dep.getPositionsList().size());
 		dep.setPositions(arrayOf("1", "2", "3"));
-		assertEquals(3, dep.getPositionArrayList().size());
+		assertEquals(3, dep.getPositionsList().size());
 	}
 
 	@Test

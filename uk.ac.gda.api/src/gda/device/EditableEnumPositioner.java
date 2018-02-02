@@ -18,12 +18,26 @@
 
 package gda.device;
 
+import java.util.Collection;
 
 /**
  * For positioners who wish to allow the users to dynamically change the position labels at runtime.
  */
 public interface EditableEnumPositioner extends EnumPositioner {
-	
-	public void setPositions(String[] newPositions) throws DeviceException;
 
+	/**
+	 * Sets the positions of this positioner.
+	 *
+	 * @param positions
+	 *            the positions
+	 */
+	public void setPositions(String[] positions);
+
+	/**
+	 * Sets the positions from a collection
+	 *
+	 * @param positions
+	 *            the positions
+	 */
+	public void setPositions(Collection<String> positions);
 }

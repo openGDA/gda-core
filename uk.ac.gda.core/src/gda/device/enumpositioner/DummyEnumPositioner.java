@@ -19,25 +19,20 @@
 
 package gda.device.enumpositioner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
 
 /**
  * A dummy class implementing the EnumPositioner for testing.
  */
-public class DummyEnumPositioner extends EnumPositionerBase implements EnumPositioner {
+public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	private int currentPositionIndex = 0;
 
 	@Override
 	public void configure() {
 		this.inputNames = new String[]{getName()};
-		if (!positions.isEmpty()) {
+		if (getNumberOfPositions() > 0) {
 			currentPositionIndex = 0;
 		}
 	}
@@ -47,21 +42,11 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EnumPosit
 	 *
 	 * @param position
 	 */
-	public void addPosition(String position) {
-		if (!positions.contains(position)) {
-			positions.add(position);
+	@Override
+	public synchronized void addPosition(String position) {
+		if (!containsPosition(position)) {
+			super.addPosition(position);
 		}
-	}
-
-	/**
-	 * @return List<String> the positions this device can move to.
-	 */
-	public List<String> getPositionArrayList() {
-		return new ArrayList<>(positions);
-	}
-
-	public void setPositions(List<String> positionsArray ) {
-		this.positions = new Vector<String>(positionsArray);
 	}
 
 	@Override
@@ -71,7 +56,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public String getPosition() throws DeviceException {
-		return positions.get(currentPositionIndex);
+		return getPosition(currentPositionIndex);
 	}
 
 	@Override
@@ -90,9 +75,9 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EnumPosit
 		final String positionString = position.toString();
 
 		// find in the positionNames array the index of the string
-		if (positions.contains(positionString) ) {
+		if (containsPosition(positionString) ) {
 			if( !getPosition().equals(positionString)){
-				currentPositionIndex = positions.indexOf(positionString);
+				currentPositionIndex = getPositionIndex(positionString);
 				this.notifyIObservers(this, getStatus());
 				this.notifyIObservers(this, getPosition());
 				this.notifyIObservers(this, new ScannablePositionChangeEvent(getPosition()));

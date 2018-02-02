@@ -19,6 +19,8 @@
 
 package gda.device;
 
+import java.util.List;
+
 /**
  * Interface for devices which have an enumerated set of positions, for example a valve which can be open or closed.
  */
@@ -32,6 +34,14 @@ public interface EnumPositioner extends Scannable {
 	 * @throws DeviceException
 	 */
 	public String[] getPositions() throws DeviceException;
+
+	/**
+	 * Returns a list of the positions which this device can be moved to.
+	 *
+	 * @return a list of positions
+	 * @throws DeviceException
+	 */
+	public List<String> getPositionsList() throws DeviceException;
 
 	/**
 	 * Returns the current status

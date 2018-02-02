@@ -16,7 +16,7 @@
         <property name="motorName" value="testLinearMotorX"/>
         <property name="hardwareUnitString" value="mm"/>
     </bean>
-	
+
 	<bean id="simpleScannable" class="gda.org.myls.scannable.SimpleScannable">
 		<property name="name" value="simpleScannable" />
 		<property name="position" value="0.0" />
@@ -43,7 +43,7 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<!-- instantiate a ScannableGaussian with all properties defined -->
     <bean id="scannableGaussian0" class="gda.org.myls.scannable.ScannableGaussian">
     	<property name="name" value="scannableGaussian0" />
@@ -77,7 +77,7 @@
 		<property name="width" value="1.0" />
 		<property name="noise" value="0.1" />
      </bean>
-    
+
     <!-- Instantiate a ScannableGaussian using named Gaussian properties -->
     <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
     <bean id="scannableGaussian1" class="gda.org.myls.scannable.ScannableGaussian">
@@ -88,37 +88,37 @@
    		<property name="height" value="1.0" />
    		<property name="noise" value="0.1" />
      </bean>
-     
+
      <!--  instantiate a scannableSine, setting sine-specific properties here -->
      <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
      <bean id="scannableSine" class="gda.org.myls.scannable.ScannableSine">
      	<property name="name" value="scannableSine"/>
-     	<property name="period" value="1.0"/> 
-     	<property name="phase" value="0.0"/> 
-     	<property name="magnitude" value="1.0"/> 
-     	<property name="offset" value="0.0"/> 
+     	<property name="period" value="1.0"/>
+     	<property name="phase" value="0.0"/>
+     	<property name="magnitude" value="1.0"/>
+     	<property name="offset" value="0.0"/>
      	<property name="noise" value="0.0"/>
      </bean>
-     
+
      <!-- test sine wave -->
      <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
      <bean id="testSineWave" class="gda.org.myls.scannable.SineWave">
      	<!-- property name="name" value="scannableSine"/ -->
-     	<property name="period" value="1.0"/> 
-     	<property name="phase" value="0.0"/> 
-     	<property name="magnitude" value="1.0"/> 
-     	<property name="offset" value="0.0"/> 
+     	<property name="period" value="1.0"/>
+     	<property name="phase" value="0.0"/>
+     	<property name="magnitude" value="1.0"/>
+     	<property name="offset" value="0.0"/>
      	<property name="noise" value="0.2"/>
      </bean>
-     
+
      <!-- instantiate a scannableSine, using default properties defined in the testSineWave bean -->
      <!-- Other Scannable properties, such as input and out names, and formats, are set by the Java class constructor -->
      <bean id="scannableSine1" class="gda.org.myls.scannable.ScannableSine">
      	<property name="name" value="scannableSine1"/>
-     	<property name="sineWave" ref="testSineWave"/> 
+     	<property name="sineWave" ref="testSineWave"/>
      </bean>
 
-	<bean id="attenuator" class="gda.device.enumpositioner.DummyPositioner">
+	<bean id="attenuator" class="gda.device.enumpositioner.DummyEnumPositioner">
 		<property name="positions">
 			<list>
 				<value>Empty</value>
@@ -133,8 +133,8 @@
 			</list>
 		</property>
 	</bean>
-	
-	<bean id="m3_stripe" class="gda.device.enumpositioner.DummyPositioner">
+
+	<bean id="m3_stripe" class="gda.device.enumpositioner.DummyEnumPositioner">
 		<property name="positions">
 			<list>
 				<value>Rhodium</value>
@@ -149,7 +149,7 @@
 		<property name="motor" ref="m3_y_motor" />
 	</bean>
 	<bean id="m3_x" class="gda.device.scannable.ScannableMotor">
-		<property name="motor" ref="m3_x_motor" />		
+		<property name="motor" ref="m3_x_motor" />
 	</bean>
 
 	<bean id="shutter1" class="gda.device.enumpositioner.DummyValve">
@@ -159,7 +159,7 @@
 	<bean id="ringCurrent" class="gda.device.monitor.DummyMonitor">
 		<property name="value" value="300" />
 	</bean>
-	
+
 	<bean id="ringEnergy" class="gda.device.monitor.DummyMonitor">
 		<property name="value" value="3.00088" />
 	</bean>

@@ -19,6 +19,9 @@
 
 package gda.device.enumpositioner.corba.impl;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 import org.slf4j.Logger;
@@ -72,6 +75,11 @@ public class EnumpositionerAdapter extends ScannableAdapter implements EnumPosit
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
+	}
+
+	@Override
+	public List<String> getPositionsList() throws DeviceException {
+		return Arrays.asList(getPositions());
 	}
 
 	@Override

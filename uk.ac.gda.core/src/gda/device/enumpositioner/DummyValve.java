@@ -19,6 +19,8 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Arrays;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -26,26 +28,24 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 
-import java.util.Vector;
-
 /**
  * A dummy class for valves. If positions is not set then it has two possible positions: Open and Close.
  * Provide a list of positions to make it a general dummy positioner
  */
 public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
 
-	String currentPosition;
+	private String currentPosition;
 
 	@Override
 	public void configure() throws FactoryException{
 		if(!configured){
 			super.configure();
-			if(positions == null || positions.size() ==0 ){
-				this.positions = new Vector<String>();
-				this.positions.add(OPEN);
-				this.positions.add(CLOSE);
+			if (getPositionsList().isEmpty()) {
+				setPositionsInternal(Arrays.asList(OPEN, CLOSE));
 			}
-			if (currentPosition==null) this.currentPosition = positions.get(0);
+			if (currentPosition==null) {
+				this.currentPosition = getPosition(0);
+			}
 			configured = true;
 		}
 	}
@@ -64,7 +64,7 @@ public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 
 		String positionString = position.toString();
-		if( (currentPosition == null || !currentPosition.equals(positionString)) && positions.contains(positionString)){
+		if( (currentPosition == null || !currentPosition.equals(positionString)) && containsPosition(positionString)){
 			currentPosition = positionString;
 			this.notifyIObservers(this, this.currentPosition);
 			this.notifyIObservers(this, new ScannablePositionChangeEvent(this.currentPosition));

@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council Daresbury Laboratory
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,13 +18,20 @@
 
 package gda.device.enumpositioner;
 
-import gda.device.EnumPositioner;
-import gda.device.Scannable;
+import java.util.Arrays;
+import java.util.Collection;
 
-/**
- * A dummy class for valves. It has two positions: Open and Close.
- */
-public class DummyPositioner extends DummyValve implements EnumPositioner, Scannable {
+import gda.device.EditableEnumPositioner;
 
+public abstract class EditableEnumPositionerBase extends EnumPositionerBase implements EditableEnumPositioner {
 
+	@Override
+	public void setPositions(String[] positions) {
+		super.setPositionsInternal(Arrays.asList(positions));
+	}
+
+	@Override
+	public void setPositions(Collection<String> positions) {
+		super.setPositionsInternal(positions);
+	}
 }

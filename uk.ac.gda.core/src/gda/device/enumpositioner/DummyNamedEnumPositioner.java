@@ -19,17 +19,18 @@
 
 package gda.device.enumpositioner;
 
-import gda.device.DeviceException;
-import gda.device.NamedEnumPositioner;
-import gda.device.scannable.ScannablePositionChangeEvent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.NamedEnumPositioner;
+import gda.device.scannable.ScannablePositionChangeEvent;
 
 /**
  * Be able to move to a position whose name is not necessarily the position name
@@ -54,23 +55,16 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 		}
 	}
 
-
-	public ArrayList<String> getPositionNameArrayList() {
-		ArrayList<String> positionNamearray = new ArrayList<String>();
-
-		for (String position : positionsMap.keySet()) {
-			positionNamearray.add(position);
-		}
-		return positionNamearray;
+	public List<String> getPositionNamesList() {
+		return new ArrayList<>(positionsMap.keySet());
 	}
 
 	@Override
-	public ArrayList<String> getPositionArrayList() {
-		ArrayList<String> positionArray = new ArrayList<String>();
+	public synchronized List<String> getPositionsList() {
+		final List<String> positionArray = new ArrayList<>();
 
-		ArrayList<Object> values = (ArrayList<Object>) positionsMap.values();
-		for (Object value : values) {
-			positionArray.add(value.toString());
+		for (Object value : positionsMap.values()) {
+			positionArray.add((String) value);
 		}
 		return positionArray;
 	}
@@ -78,7 +72,7 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 	public void setValues(Map<String, Object> values) {
 		for (Entry<String, Object> entry : values.entrySet()) {
 			positionsMap.put(entry.getKey(), entry.getValue());
-			positions.add(entry.getKey());
+			addPosition(entry.getKey());
 		}
 	}
 

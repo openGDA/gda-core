@@ -19,8 +19,9 @@
 
 package gda.device.enumpositioner;
 
-import java.util.Arrays;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.python.core.PyString;
 import org.slf4j.Logger;
@@ -39,8 +40,8 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 
 	private static final Logger logger = LoggerFactory.getLogger(EnumPositionerBase.class);
 
-	protected Vector<String> positions = new Vector<String>();
-	public volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
+	private List<String> positions = new ArrayList<>();
+	protected volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
 	protected String name;
 	/**
 	 * sets the OutputFormat
@@ -50,20 +51,49 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	}
 
 	@Override
-	public String[] getPositions() throws DeviceException{
-		String[] array = new String[positions.size()];
-		return positions.toArray(array);
+	public synchronized String[] getPositions() throws DeviceException{
+		return positions.toArray(new String[positions.size()]);
 	}
 
-	/**
-	 * Sets the positions of this positioner.
-	 *
-	 * @param positions
-	 *            the positions
-	 */
-	public void setPositions(String[] positions) {
-		this.positions = new Vector<String>(Arrays.asList(positions));
+	@Override
+	public synchronized List<String> getPositionsList() {
+		return new ArrayList<>(positions);
+	}
+
+	protected synchronized String getPosition(int index) {
+		return positions.get(index);
+	}
+
+	protected synchronized boolean containsPosition(String position) {
+		return positions.contains(position);
+	}
+
+	protected synchronized int getPositionIndex(String position) {
+		return positions.indexOf(position);
+	}
+
+	protected synchronized int getNumberOfPositions() {
+		return positions.size();
+	}
+
+	protected synchronized void clearPositions() {
+		positions.clear();
+	}
+
+	// Some superclasses currently set their own positions
+	// We may wish to review this in future.
+	protected synchronized void setPositionsInternal(Collection<String> positions) {
+		this.positions.clear();
+		this.positions.addAll(positions);
 		this.notifyIObservers(this, positions);
+	}
+
+	protected synchronized void addPosition(String position) {
+		positions.add(position);
+	}
+
+	protected synchronized void addPositions(Collection<String> positions) {
+		positions.addAll(positions);
 	}
 
 	@Override
