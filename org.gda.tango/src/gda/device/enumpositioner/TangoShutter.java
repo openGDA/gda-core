@@ -18,7 +18,7 @@
 
 package gda.device.enumpositioner;
 
-import java.util.Vector;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,8 @@ public class TangoShutter extends ValveBase implements EnumPositioner {
 	@Override
 	public void configure() throws FactoryException{
 		if(!configured){
-			if(positions == null || positions.size() == 0 ){
-				this.positions = new Vector<String>();
-				this.positions.add(OPEN);
-				this.positions.add(CLOSE);
+			if(getNumberOfPositions() == 0 ){
+				setPositionsInternal(Arrays.asList(OPEN, CLOSE));
 			}
 			configured = true;
 		}
@@ -66,9 +64,9 @@ public class TangoShutter extends ValveBase implements EnumPositioner {
 		try {
 			switch (dev.state().value()) {
 			case DevState._OPEN:
-				return positions.get(0);
+				return getPosition(0);
 			case DevState._CLOSE:
-				return positions.get(1);
+				return getPosition(1);
 			default:
 				return "UNKNOWN";
 			}
@@ -103,15 +101,15 @@ public class TangoShutter extends ValveBase implements EnumPositioner {
 		try {
 			// check top ensure a correct string has been supplied
 			String cmd = position.toString();
-			if (positions.contains(cmd)) {
+			if (containsPosition(cmd)) {
 				dev.command_inout(cmd);
 			} else {
 				// if get here then wrong position name supplied
 				throw new DeviceException(getName() + ": demand position " + position.toString()
 					+ " is not acceptable");
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to move to" + position.toString(), th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to move to" + position.toString(), e);
 		}
 		notifyIObservers(this, getPosition());
 	}
