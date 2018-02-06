@@ -190,8 +190,8 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	 * @return a {@link ScannableNexusWrapper} wrapping the {@link Scannable}
 	 * @throws ScanningException
 	 */
-	private <T> IScannable<T> createScannableWrapper(String name, Scannable scannable, boolean jythonScannable)
-			throws ScanningException {
+	@SuppressWarnings("unchecked")
+	private <T> IScannable<T> createScannableWrapper(String name, Scannable scannable, boolean jythonScannable) {
 		IScannable<T> iscannable = null;
 		if (scannable instanceof IScannable) {
 			/**
@@ -214,12 +214,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 				iscannable = (IScannable<T>) new JythonScannableNexusWrapper<>(name);
 			} else {
 				iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
-			}
-			/**
-			 * to support metadata scannable defined in GDA 8
-			 */
-			if (getGlobalPerScanMonitorNames().contains(iscannable.getName())){
-				iscannable.setActivated(true);
 			}
 
 			if (iscannable instanceof AbstractScannable) {
