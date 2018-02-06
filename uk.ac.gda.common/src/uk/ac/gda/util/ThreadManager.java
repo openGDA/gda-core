@@ -20,6 +20,8 @@ package uk.ac.gda.util;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This class is used to ensure that in GDA all 'uk.ac.gda.util.ThreadManager.getThread(' lines are
@@ -29,7 +31,10 @@ import java.util.HashSet;
  *
  * Later this central point for Threads might be upgraded to use ThreadGroups or
  * to use ExecutorService.
+ *
+ * @deprecated DAQ-1176 Replace by using {@link ExecutorService} and {@link Executors}
  */
+@Deprecated // DAQ-1176
 public class ThreadManager {
 
 	protected static Collection<String> takenNames = new HashSet<String>(89);
