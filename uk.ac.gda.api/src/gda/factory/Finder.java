@@ -20,10 +20,11 @@
 package gda.factory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public enum Finder {
 
 	private static final Logger logger = LoggerFactory.getLogger(Finder.class);
 
-	private final List<Factory> factories = Collections.synchronizedList(new ArrayList<Factory>());
+	private final Set<Factory> factories = new CopyOnWriteArraySet<>();
 
 	/**
 	 * Getter to construct and/or return single instance of the finder.
@@ -61,12 +62,6 @@ public enum Finder {
 	 */
 	public static Finder getInstance() {
 		return INSTANCE;
-	}
-
-	private Iterable<Factory> getCopyOfFactories() {
-		// using a copy prevent ConcurrentModificationException if the list of factories
-		// is modified during iteration
-		return new ArrayList<>(factories);
 	}
 
 	/**
@@ -138,12 +133,13 @@ public enum Finder {
 	 */
 	private <T extends Findable> T findObjectByName(String name, boolean local, boolean warn) {
 		T findable = null;
-		for (Factory factory : getCopyOfFactories()) {
+		for (Factory factory : factories) {
 			if (local && !factory.isLocal()) {
 				continue;
 			}
 			try {
 				if ((findable = factory.getFindable(name)) != null) {
+					logger.debug("Found '{}' using factory '{}' (local={})", name, factory, local);
 					break;
 				}
 			} catch (FactoryException e) {
@@ -167,10 +163,12 @@ public enum Finder {
 	 */
 	public void addFactory(Factory factory) {
 		factories.add(factory);
+		logger.debug("Added factory '{}' now have {} factories", factory, factories.size());
 	}
 
 	public void removeAllFactories(){
 		factories.clear();
+		logger.debug("Cleared factories");
 	}
 
 
@@ -253,7 +251,7 @@ public enum Finder {
 
 		List<Findable> objectRefs = new ArrayList<>();
 		// loop through all factories
-		for (Factory factory : getCopyOfFactories()) {
+		for (Factory factory : factories) {
 
 			if (localObjectsOnly && !factory.isLocal()){
 				continue;
@@ -332,7 +330,7 @@ public enum Finder {
 	 */
 	private List<Findable> listAllObjects() {
 		List<Findable> allFindables = new ArrayList<>();
-		for (Factory factory : getCopyOfFactories()) {
+		for (Factory factory : factories) {
 			allFindables.addAll(factory.getFindables());
 		}
 		return allFindables;
@@ -371,7 +369,7 @@ public enum Finder {
 	 */
 	private <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
 		Map<String, T> findables = new HashMap<>();
-		for (Factory factory : getCopyOfFactories()) {
+		for (Factory factory : factories) {
 			if (local && !factory.isLocal()) {
 				continue;
 			}
