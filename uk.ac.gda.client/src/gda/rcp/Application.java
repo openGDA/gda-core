@@ -43,9 +43,6 @@ import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.factory.ObjectFactory;
-import gda.factory.corba.util.AdapterFactory;
-import gda.factory.corba.util.NetService;
 import gda.jython.InterfaceProvider;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
@@ -81,18 +78,6 @@ public class Application implements IApplication {
 			LogbackUtils.configureLoggingForClientProcess("rcp");
 
 			authenticateUser(display);
-
-			// get access to distributed metadata object needed for identifying Visit
-			ObjectFactory objectFactory = new ObjectFactory();
-			objectFactory.setName(LocalProperties.get(LocalProperties.GDA_FACTORY_NAME));
-			Finder finder = Finder.getInstance();
-			finder.addFactory(objectFactory);
-			NetService netService = NetService.getInstance();
-			// Add an adapter factory to the finder to allow access to
-			// objects created elsewhere. eg. in a standalone object server.
-			AdapterFactory adapterFactory = new AdapterFactory(objectFactory.getName(), netService);
-			finder.addFactory(adapterFactory);
-			objectFactory.configure();
 
 			if (identifyVisitID(display) == EXIT_OK) {
 				return EXIT_OK;
