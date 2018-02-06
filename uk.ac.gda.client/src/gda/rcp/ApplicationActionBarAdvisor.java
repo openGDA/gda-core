@@ -332,11 +332,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 			fileToolBar.add(new Separator(IWorkbenchActionConstants.BUILD_GROUP));
 			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.BUILD_EXT));
-			fileToolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
 			// Add to the cool bar manager
 			coolBar.add(actionBarConfigurer.createToolBarContributionItem(fileToolBar,
 					IWorkbenchActionConstants.TOOLBAR_FILE));
+			coolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+			coolBar.add(new GroupMarker("gda.script.actions"));
 		}
 
 		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
