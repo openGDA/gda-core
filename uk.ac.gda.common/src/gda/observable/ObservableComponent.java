@@ -137,7 +137,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	 * @param changeCode
 	 *            The event to be updated about
 	 */
-	protected void sendEventToObserver(final IObserver anIObserver, final Object theObserved, final Object changeCode) {
+	private void sendEventToObserver(final IObserver anIObserver, final Object theObserved, final Object changeCode) {
 		// Store the start time
 		final long startMills = System.currentTimeMillis();
 
