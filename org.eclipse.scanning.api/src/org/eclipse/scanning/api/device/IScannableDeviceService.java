@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.scanning.api.AbstractScannable;
@@ -123,6 +122,8 @@ public interface IScannableDeviceService {
 	 * Returns the set of global per-scan monitors that should be added to all scans.
 	 * This is used to support legacy (GDA8) spring configurations. Should not be called
 	 * by client code.
+	 * @deprecated use {@link IDefaultScanConfiguratiosn} instead
+	 *  TODO this method should eventually be removed
 	 * @return global per-scan monitor names
 	 */
 	@Deprecated
@@ -135,6 +136,8 @@ public interface IScannableDeviceService {
 	 * This is used to support legacy (GDA8) spring configurations. Should not be called
 	 * by client code.
 	 * @param scannableName scannable to get required per-scan monitor names for
+	 * @deprecated this feature should not be used for new code,
+	 *    if this behaviour is required we should add a GDA9 way to do define scannable dependencies
 	 * @return names of required per-scan monitors for the scannable with the given name
 	 */
 	@Deprecated

@@ -49,6 +49,8 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanServlet.class);
 
+	private DefaultScanConfiguration defaultScanConfiguration;
+
 	public ScanServlet() {
 		setPauseOnStart(true);
 	}
@@ -65,9 +67,17 @@ public class ScanServlet extends AbstractConsumerServlet<ScanBean> {
 
 		debug("Accepting bean", scanBean, response);
 		preprocess(scanBean);
-		debug("After processing bean (normally no change)", scanBean, response);
+		debug("After processing bean", scanBean, response);
 
 		return new ScanProcess(scanBean, response, isBlocking());
+	}
+
+	public void setDefaultScanConfiguration(DefaultScanConfiguration defaultScanConfiguration) {
+		this.defaultScanConfiguration = defaultScanConfiguration;
+	}
+
+	public DefaultScanConfiguration getDefaultScanConfiguration() {
+		return defaultScanConfiguration;
 	}
 
 	private void debug(String message, ScanBean scanBean, IPublisher<ScanBean> response) {

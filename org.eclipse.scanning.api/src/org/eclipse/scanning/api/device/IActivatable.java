@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device;
 
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
@@ -32,10 +33,20 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * to those activated. It is perfectly possible to run non-activated devices
  * by putting them in the scan request.
  *
+ * TODO: this interface is now deprecated and should be removed at some future point.
+ *   This can only be done when the {@code <activated>} property has been removed
+ *   from all beamline configuration files
  *
  * @author Matthew Gerring
+ * @deprecated whether monitors (i.e. scannables) will be included in the next scan
+ *   or not should not be a property of the monitor on the server. Instead this
+ *   should be configured in the client and used to determine the {@link ScanRequest}.
+ *   Configuring this on the server caused a large number of client-server requests
+ *   to build the ScanRequest by asking the server which monitors were activated.
+ *   Default monitors can be configured by setting.
  *
  */
+@Deprecated
 public interface IActivatable {
 
 	/**

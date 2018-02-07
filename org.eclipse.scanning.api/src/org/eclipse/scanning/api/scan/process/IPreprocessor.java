@@ -15,13 +15,9 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 /**
  *
-<pre>
-<b>pre·proc·es·sor</b>
-<i>noun</i>
-A computer program that modifies data to conform with the input requirements of another program.
-</pre>
  * <p>
- * A preprocessor which makes a ScanRequest into one which matches the available hardware for a given beamline.
+ * A preprocessor which can make changes to a {@link ScanRequest} before it is processed.
+ * For example this may transform the scan request according to the particular hardware of a beamline.
  * <p>
  * Preprocessors can be registered as OSGi services (perhaps in Spring config files, using the OSGiServiceRegister
  * class) and will then be used by the ScanServlet to process scan requests before they are run.
@@ -34,17 +30,16 @@ public interface IPreprocessor {
 	/**
 	 * Preprocessor name.
 	 *
-	 * @return
+	 * @return name
 	 */
-	// TODO decide if this is still useful when not using extension points
 	String getName();
 
 	/**
-	 * Call to run the preprocessor, read the available hardware and construct a legal
-	 * ScanRequest
+	 * Runs the preprocessor on the given {@link ScanRequest}. This may modify the {@link ScanRequest}
+	 * in place or return an entirely new {@link ScanRequest} object.
 	 *
 	 * @param req The request sent by the user interface
-	 * @return The processed request. The processor might modify the ScanRequest in place and return it or return an entirely new request.
+	 * @return the processed {@link ScanRequest}
 	 */
 	<T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException;
 }

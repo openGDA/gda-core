@@ -12,6 +12,8 @@
 package org.eclipse.scanning.test.scan.servlet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -20,8 +22,11 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.process.IPreprocessor;
+import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
+import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Test;
 
 public class ScanServletTest extends AbstractServletTest {
@@ -98,6 +103,48 @@ public class ScanServletTest extends AbstractServletTest {
 
 		ScanBean bean = createStepGridScan(5);
 		runAndCheck(bean, 500);
+	}
+
+	private static class MockPreprocessor implements IPreprocessor {
+
+		private boolean executed = false;
+
+		@Override
+		public String getName() {
+			return "Mock";
+		}
+
+		@Override
+		public <T> ScanRequest<T> preprocess(ScanRequest<T> req) throws ProcessingException {
+			executed = true;
+			return req;
+		}
+
+		public boolean wasExecuted() {
+			return executed;
+		}
+
+	}
+
+	@Test
+	public void testPreprocessor() throws Exception {
+		MockPreprocessor preprocessor = new MockPreprocessor();
+		Services.addPreprocessor(preprocessor);
+
+		ScanBean bean = createStepScan();
+		runAndCheck(bean, 60);
+		assertTrue(preprocessor.wasExecuted());
+	}
+
+	@Test
+	public void testPreprocessor_setIgnorePreprocess() throws Exception {
+		MockPreprocessor preprocessor = new MockPreprocessor();
+		Services.addPreprocessor(preprocessor);
+
+		ScanBean bean = createStepScan();
+		bean.getScanRequest().setIgnorePreprocess(true);
+		runAndCheck(bean, 60);
+		assertFalse(preprocessor.wasExecuted());
 	}
 
 }
