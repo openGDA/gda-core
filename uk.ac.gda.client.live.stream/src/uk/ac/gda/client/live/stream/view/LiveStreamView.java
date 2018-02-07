@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
+import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
 import uk.ac.gda.client.live.stream.LiveStreamException;
@@ -100,6 +101,7 @@ public class LiveStreamView extends ViewPart {
 	private Text errorText;
 	private String cameraName;
 	private long frameCounter = 0;
+	private ScriptingConnection scriptingConnection;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
 
@@ -259,7 +261,8 @@ public class LiveStreamView extends ViewPart {
 		// Setup the plotting system
 		try {
 			plottingSystem = getService(IPlottingService.class).createPlottingSystem();
-			plottingSystem.createPlotPart(parent, camConfig.getUrl(), actionBars, PlotType.IMAGE, this);
+			plottingSystem.createPlotPart(parent, getPartName(), actionBars, PlotType.IMAGE, this);
+			createScriptingConnection(getPartName());
 		} catch (Exception e) {
 			displayAndLogError(parent, "Could not create plotting system", e);
 			return;
@@ -299,6 +302,13 @@ public class LiveStreamView extends ViewPart {
 		iTrace.setRescaleHistogram(false);
 		// Plot the new trace.
 		plottingSystem.addTrace(iTrace);
+	}
+
+	private void createScriptingConnection(String partName) {
+		if( plottingSystem != null){
+			scriptingConnection = new ScriptingConnection(partName);
+			scriptingConnection.setPlottingSystem(plottingSystem);
+		}
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
