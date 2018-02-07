@@ -850,6 +850,17 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
+	public int getPointInIteration() {
+		try {
+			return controller.getPointInIteration();
+		} catch (Exception e) {
+			final String msg = "Error getting point in interation";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
+
 	private void processEpicsUpdate(Object source, Object arg) {
 		// TODO The performance could be improved here the update from EPICS already contains the current point so
 		// We could use it but improvement would be minor and we would need an EPICS dependency here.
@@ -888,6 +899,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 				.positionString(positionString)
 				.totalPoints(getTotalPoints())
 				.currentPoint(getCurrentPoint())
+				.totalIterations(getIterations())
+				.currentPointInIteration(getPointInIteration())
 				.spectrum(getSpectrum())
 				.image(getImage())
 				.keEnergyAxis(keEnergyAxis)
@@ -895,7 +908,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 				.yAxis(getYAxis())
 				.build();
 	}
-
 
 	private int getRegionIndex(List<SpecsPhoibosRegion> regions, String regionName) {
 		int i = 1;

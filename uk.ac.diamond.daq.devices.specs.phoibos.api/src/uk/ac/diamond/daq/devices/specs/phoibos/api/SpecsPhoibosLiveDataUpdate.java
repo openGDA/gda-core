@@ -37,6 +37,8 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 	private final String positionString;
 	private final int totalPoints;
 	private final int currentPoint;
+	private final int totalIterations;
+	private final int currentPointInIteration;
 	private final double[] spectrum;
 	private final double[][] image;
 	private final double[] keEnergyAxis;
@@ -49,6 +51,8 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		private String positionString;
 		private int totalPoints;
 		private int currentPoint;
+		private int totalIterations;
+		private int currentPointInIteration;
 		private double[] spectrum;
 		private double[][] image;
 		private double[] keEnergyAxis;
@@ -72,6 +76,16 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 
 		public Builder currentPoint(int val) {
 			currentPoint = val;
+			return this;
+		}
+
+		public Builder totalIterations(int val) {
+			totalIterations = val;
+			return this;
+		}
+
+		public Builder currentPointInIteration(int val) {
+			currentPointInIteration = val;
 			return this;
 		}
 
@@ -111,6 +125,8 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		positionString = builder.positionString;
 		totalPoints = builder.totalPoints;
 		currentPoint = builder.currentPoint;
+		totalIterations = builder.totalIterations;
+		currentPointInIteration = builder.currentPointInIteration;
 		spectrum = builder.spectrum;
 		image = builder.image;
 		keEnergyAxis = builder.keEnergyAxis;
@@ -132,6 +148,14 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 
 	public int getCurrentPoint() {
 		return currentPoint;
+	}
+
+	public int getTotalIterations() {
+		return totalIterations;
+	}
+
+	public int getcurrentPointInIteration() {
+		return currentPointInIteration;
 	}
 
 	public double[] getSpectrum() {

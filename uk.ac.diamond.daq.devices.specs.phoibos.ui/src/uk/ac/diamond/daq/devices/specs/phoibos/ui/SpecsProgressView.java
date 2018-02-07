@@ -40,13 +40,20 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 
+/**
+ * Class to show the current progress of the SPECS analyser with bars for
+ * overall region progress and for progress in the current iteration
+ */
+
 public class SpecsProgressView implements IObserver {
 
-	private ProgressBar progressBar;
+	private ProgressBar regionProgressBar;
+	private ProgressBar iterationProgressBar;
 	private ISpecsPhoibosAnalyser analyser;
 
 	private Text positionText;
 	private Text regionNameText;
+	private Text iterationNumberText;
 
 	@PostConstruct
 	void createView(Composite parent) {
@@ -69,18 +76,32 @@ public class SpecsProgressView implements IObserver {
 		positionLabel.setText("Position in Sequence:");
 		positionText = new Text(controlArea, SWT.BORDER);
 		positionText.setEditable(false);
+		positionText.setEnabled(false);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(positionText);
 
 		Label regionNameLabel = new Label(controlArea, SWT.NONE);
 		regionNameLabel.setText("Region Name:");
 		regionNameText = new Text(controlArea, SWT.BORDER);
 		regionNameText.setEditable(false);
+		regionNameText.setEnabled(false);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(regionNameText);
 
-		Label lblProgress = new Label(controlArea, SWT.NONE);
-		lblProgress.setText("Progress in Region:");
-		progressBar = new ProgressBar(controlArea, SWT.HORIZONTAL);
-		GridDataFactory.fillDefaults().span(3, 1).applyTo(progressBar);
+		Label lblRegionProgress = new Label(controlArea, SWT.NONE);
+		lblRegionProgress.setText("Region Progress:");
+		regionProgressBar = new ProgressBar(controlArea, SWT.HORIZONTAL);
+		GridDataFactory.fillDefaults().span(3, 1).applyTo(regionProgressBar);
+
+		Label iterationNumberLabel = new Label(controlArea, SWT.NONE);
+		iterationNumberLabel.setText("Iteration Number:");
+		iterationNumberText = new Text(controlArea, SWT.BORDER);
+		iterationNumberText.setEditable(false);
+		iterationNumberText.setEnabled(false);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationNumberText);
+
+		Label lblIterProgress = new Label(controlArea, SWT.NONE);
+		lblIterProgress.setText("Iteration Progress:");
+		iterationProgressBar = new ProgressBar(controlArea, SWT.HORIZONTAL);
+		GridDataFactory.fillDefaults().span(1, 1).applyTo(iterationProgressBar);
 	}
 
 	@Override
@@ -88,11 +109,17 @@ public class SpecsProgressView implements IObserver {
 
 		if (arg instanceof SpecsPhoibosLiveDataUpdate) {
 			SpecsPhoibosLiveDataUpdate evt = (SpecsPhoibosLiveDataUpdate) arg;
+			final int pointsPerIter = evt.getTotalPoints() / evt.getTotalIterations();
+			final int iterationNumber = (evt.getCurrentPoint() -  1) / pointsPerIter + 1;
+			final String iterationString = iterationNumber + " of " + evt.getTotalIterations();
 			Display.getDefault().asyncExec(() -> {
-				progressBar.setMaximum(evt.getTotalPoints());
-				progressBar.setSelection(evt.getCurrentPoint());
+				regionProgressBar.setMaximum(evt.getTotalPoints());
+				regionProgressBar.setSelection(evt.getCurrentPoint());
 				regionNameText.setText(evt.getRegionName());
 				positionText.setText(evt.getPositionString());
+				iterationProgressBar.setMaximum(pointsPerIter);
+				iterationProgressBar.setSelection(evt.getcurrentPointInIteration());
+				iterationNumberText.setText(iterationString);
 			});
 		}
 	}

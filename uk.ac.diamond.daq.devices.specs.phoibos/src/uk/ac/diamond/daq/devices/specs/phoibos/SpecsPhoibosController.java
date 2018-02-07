@@ -62,28 +62,29 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 	// Values internal to the object for Channel Access
 	private final EpicsController epicsController = EpicsController.getInstance();
 	private String basePVName = null;
-	// Map that stores the channel against the PV name
+	/** Map that stores the channel against the PV name */
 	private final Map<String, Channel> channelMap = new HashMap<>();
-	// Used to hold and notify observers
+	/** Used to hold and notify observers */
 	private final ObservableComponent observableComponent = new ObservableComponent();
 
-	// PV to see if the IOC is connected to the SpecsLab software
+	/** PV to see if the IOC is connected to the SpecsLab software */
 	private static final String CONNECTED_RBV = "CONNECTED_RBV";
 
-	// PSU mode defines the current energy range accessable
-	// SPECS refer to this as scan range but PSU mode is clearer and more general so its used here
+	/**
+	 * PSU mode defines the current energy range accessible
+	 * SPECS refer to this as scan range but PSU mode is clearer and more general so its used here
+	 */
 	private static final String PSU_MODE = "SCAN_RANGE";
 	private static final String PSU_MODE_RBV = "SCAN_RANGE_RBV";
 
-	// Lens mode
 	private static final String LENS_MODE = "LENS_MODE";
 	private static final String LENS_MODE_RBV = "LENS_MODE_RBV";
-	// Acquisition mode is fixed or swept
+	/** Acquisition mode is fixed or swept */
 	private static final String ACQUISITION_MODE = "ACQ_MODE";
 	private static final String ACQUISITION_MODE_RBV = "ACQ_MODE_RBV";
 
 	// Scan energy settings
-	// The pass energy can be seen as a energy resolution setting. Small pass energy -> high energy resolution
+	/** The pass energy can be seen as a energy resolution setting. Small pass energy -> high energy resolution */
 	private static final String PASS_ENERGY = "PASS_ENERGY";
 	private static final String PASS_ENERGY_RBV = "PASS_ENERGY_RBV";
 	// In swept mode the energy range is defined by start, stop and step
@@ -94,53 +95,58 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 	// Energy step
 	private static final String ENERGY_STEP = "STEP_SIZE";
 	private static final String ENERGY_STEP_RBV = "STEP_SIZE_RBV";
-	// Centre Energy - This is only used in "Fixed Energy" mode where the detector is used as a point detector
+	/** Centre Energy - This is only used in "Fixed Energy" mode where the detector is used as a point detector */
 	private static final String CENTRE_ENERGY = "KINETIC_ENERGY";
 	private static final String CENTRE_ENERGY_RBV = "KINETIC_ENERGY_RBV";
-	// Retard Ratio (Defined as RR = KE/PE) - This is only used in "Fixed Retarding Ratio" mode to define the PE
+	/** Retard Ratio (Defined as RR = KE/PE) - This is only used in "Fixed Retarding Ratio" mode to define the PE */
 	private static final String RETARDING_RATIO = "RETARDING_RATIO";
 	private static final String RETARDING_RATIO_RBV = "RETARDING_RATIO";
-	// Values - In "Snapshot" mode this is used to define how many fixed mode regions the range will be broken into.
+	/** Values - In "Snapshot" mode this is used to define how many fixed mode regions the range will be broken into. */
 	private static final String VALUES = "VALUES";
 	private static final String VALUES_RBV = "VALUES_RBV";
 
 	// Scan exposure settings
 	private static final String EXPOSURE_TIME = "AcquireTime";
 	private static final String EXPOSURE_TIME_RBV = "AcquireTime_RBV";
-	// Number of repeats to be summed in SES (Mirroring a standard AD PV)
+	/** Number of repeats to be summed in SES (Mirroring a standard AD PV) */
 	private static final String ITERATIONS = "NumExposures";
 	private static final String ITERATIONS_RBV = "NumExposures_RBV";
 
-	// Slices define the number of y channels, can be used to reduce the data.
-	// SPECS seem to require this to be a factor of the detector size
+	/**
+	 *  Slices define the number of y channels, can be used to reduce the data.
+	 *  SPECS seem to require this to be a factor of the detector size
+	 */
 	private static final String SLICES = "SLICES";
 	private static final String SLICES_RBV = "SLICES_RBV";
 
-	// Pause for suspending the analyser mid scan
+	/** Pause for suspending the analyser mid scan */
 	private static final String PAUSE = "PAUSE";
 	private static final String PAUSE_RBV = "PAUSE_RBV";
 
-	// Safe state = false disables voltage ramping between scans improving performance
+	/** Safe state = false disables voltage ramping between scans improving performance */
 	private static final String SAFE_STATE = "SAFE_STATE";
 	private static final String SAFE_STATE_RBV = "SAFE_STATE_RBV";
 	public static final double SAFE_STATE_DELAY = 30.0; // sec The time to wait for the HV to be ramped down
 
 	// TODO Check status and progress PVs
-	// Number of points in the pre scan only for swept mode
+	/** Number of points in the pre scan only for swept mode */
 	private static final String TOTAL_LEAD_POINTS_RBV = "TOTAL_LEAD_POINTS_RBV";
 	private static final String TOTAL_POINTS_ITERATION_RBV = "TOTAL_POINTS_ITERATION_RBV";
 	private static final String TOTAL_POINTS_RBV = "TOTAL_POINTS_RBV";
+	/** CURRENT_CHANNEL_RBV refers to current point in the whole region */
 	private static final String CURRENT_CHANNEL_RBV = "CURRENT_CHANNEL_RBV";
+	/** CURRENT_POINT_RBV refers to current point in the iteration being run */
+	private static final String CURRENT_POINT_RBV = "CURRENT_POINT_RBV";
 
-	//Y scale is the angle or position in deg or mm
+	/** Y scale is the angle or position in deg or mm */
 	private static final String Y_MIN_RBV = "Y_MIN_RBV";
 	private static final String Y_MAX_RBV = "Y_MAX_RBV";
 	private static final String Y_UNITS_RBV = "Y_UNITS_RBV";
 
 	// Data PVs
-	// Image is the full 2D data the size will be TOTAL_DATA_POINTS_RBV * SLICES_RBV
+	/** Image is the full 2D data the size will be TOTAL_DATA_POINTS_RBV * SLICES_RBV */
 	private static final String IMAGE_DATA = "IMAGE";
-	// Spectrum is the integrated energy spectrum (sum of all y channels) the size is TOTAL_DATA_POINTS_RBV
+	/** Spectrum is the integrated energy spectrum (sum of all y channels) the size is TOTAL_DATA_POINTS_RBV */
 	private static final String SPECTRUM_DATA = "INT_SPECTRUM";
 
 	// Lists for holding valid values of the enum PVs
@@ -879,6 +885,10 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 
 	public int getCurrentPoint() throws Exception {
 		return epicsController.cagetInt(getChannel(CURRENT_CHANNEL_RBV));
+	}
+
+	public int getPointInIteration() throws Exception {
+		return epicsController.cagetInt(getChannel(CURRENT_POINT_RBV));
 	}
 }
 
