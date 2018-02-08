@@ -26,6 +26,8 @@ import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,12 @@ public class MonitorView extends ViewPart {
 
 	public MonitorView() {
 		this.viewer = new MonitorViewer();
+	}
+
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		viewer.init(memento);
 	}
 
 	/**
@@ -96,7 +104,7 @@ public class MonitorView extends ViewPart {
 	@Override
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
-		viewer.saveState();
+		viewer.saveState(memento);
 	}
 
 	@Override

@@ -51,7 +51,6 @@ import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
@@ -72,6 +71,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -92,7 +92,7 @@ public class DetectorView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(DetectorView.class);
 	public  static final String ID     = "org.eclipse.scanning.device.ui.device.detectorView";
 
-	public static final String STASH_ID_ENABLED_DETECTOR_NAMES = "org.eclipse.scanning.device.ui.scan.detectors.enabledDetectorNames";
+	public static final String MEMENTO_KEY_ENABLED_DETECTOR_NAMES = "enabledDetectorNames";
 	// UI
 	private TableViewer viewer;
 	private Image ticked;
@@ -119,6 +119,37 @@ public class DetectorView extends ViewPart {
 		this.iconMap = new HashMap<>(7);
 	}
 
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		try {
+			// get the available detectors
+			runnableDeviceService = ServiceHolder.getEventService().createRemoteService(
+					new URI(CommandConstants.getScanningBrokerUri()), IRunnableDeviceService.class);
+			detectorUIElements = createDetectorItems();
+		} catch (Exception e) {
+			logger.error("Cannot get available detectors", e);
+			detectorUIElements = Collections.emptyList();
+		}
+
+		// restore the enablement state of the detectors
+		if (memento != null && !detectorUIElements.isEmpty()) {
+			String detectorsJson = memento.getString(MEMENTO_KEY_ENABLED_DETECTOR_NAMES);
+			try {
+				@SuppressWarnings("unchecked")
+				Set<String> previouslyEnabledDetectorNames =
+						ServiceHolder.getMarshallerService().unmarshal(detectorsJson, Set.class);
+				for (DetectorScanUIElement<?> element : detectorUIElements) {
+					if (previouslyEnabledDetectorNames.contains(element.getName())) {
+						element.setEnabled(true);
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Could not restore previously enabled detectors", e);
+			}
+		}
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getAdapter(Class clazz) {
@@ -137,15 +168,6 @@ public class DetectorView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		try {
-			runnableDeviceService = ServiceHolder.getEventService().createRemoteService(
-					new URI(CommandConstants.getScanningBrokerUri()), IRunnableDeviceService.class);
-			detectorUIElements = createDetectorItems();
-			restorePreviouslyEnabledElements(detectorUIElements);
-		} catch (Exception e) {
-			logger.error("Cannot get available detectors", e);
-		}
-
 		viewer = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
 
 		viewer.getTable().setLinesVisible(true);
@@ -163,23 +185,6 @@ public class DetectorView extends ViewPart {
 		getSite().setSelectionProvider(selectionProvider);
 
 		createActions();
-	}
-
-	private void restorePreviouslyEnabledElements(List<DetectorScanUIElement<?>> detectorUIElements) {
-		final IStashing detectorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_ENABLED_DETECTOR_NAMES);
-		try {
-			@SuppressWarnings("unchecked")
-			Set<String> previouslyEnabledDetectorNames = detectorsStash.unstash(Set.class);
-			if (previouslyEnabledDetectorNames != null) {
-				for (DetectorScanUIElement<?> element : detectorUIElements) {
-					if (previouslyEnabledDetectorNames.contains(element.getName())) {
-						element.setEnabled(true);
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Could not restore previously enabled detectors", e);
-		}
 	}
 
 	private List<DetectorScanUIElement<?>> createDetectorItems() {
@@ -423,9 +428,9 @@ public class DetectorView extends ViewPart {
 		final Set<String> enabledDetectorNames = getEnabledItems().stream()
 				.map(DetectorScanUIElement::getName)
 				.collect(Collectors.toSet());
-		final IStashing detectorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_ENABLED_DETECTOR_NAMES);
 		try {
-			detectorsStash.stash(enabledDetectorNames);
+			final String detectorsJson = ServiceHolder.getMarshallerService().marshal(enabledDetectorNames);
+			memento.putString(MEMENTO_KEY_ENABLED_DETECTOR_NAMES, detectorsJson);
 		} catch (Exception e) {
 			logger.error("Could not save selected detectors", e);
 		}

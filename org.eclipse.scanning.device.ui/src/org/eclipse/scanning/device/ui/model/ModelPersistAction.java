@@ -13,12 +13,12 @@ package org.eclipse.scanning.device.ui.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
 import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Display;
@@ -35,9 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelPersistAction<T> extends Action {
 
-	private static final Logger logger = LoggerFactory.getLogger(ModelPersistAction.class);
-
-	public static final String[] IDS = new String[]{"SAVE", "LOAD"};
 	/**
 	 * The action has two types, save and load.
 	 *
@@ -65,6 +62,14 @@ public class ModelPersistAction<T> extends Action {
 			return descriptor;
 		}
 	}
+
+	public static final String[] IDS = new String[]{"SAVE", "LOAD"};
+	private static final String[] FILE_EXTENSIONS = new String[]{"json", "*.*"};
+
+	private static final String[] FILE_TYPE_LABELS = new String[]{"Model Files (json)", "All Files"};
+	private static final Logger logger = LoggerFactory.getLogger(ModelPersistAction.class);
+
+	private static String previousFile = System.getProperty("GDA/gda.var", System.getProperty("user.home"));
 
 	private final PersistType      type;
 	private final IModelProvider<T> provider;
@@ -101,15 +106,20 @@ public class ModelPersistAction<T> extends Action {
 	}
 
 	private void doSave() throws Exception {
-		IStashing stash = chooseFile(type);
-		if (stash==null) return; // They cancelled it
-		stash.save(provider.getModel());
+		File file = chooseFile(type);
+		if (file == null) return; // They cancelled it
+
+		final String modelJson = ServiceHolder.getMarshallerService().marshal(provider.getModel());
+		Files.write(file.toPath(), modelJson.getBytes());
 	}
 
-	private void doLoad() throws IOException {
-		IStashing stash = chooseFile(type);
-		if (stash==null) return; // They cancelled it
-		T path = stash.load(modelClass);
+	private void doLoad() throws Exception {
+		File file = chooseFile(type);
+		if (file == null) return; // They cancelled it
+
+		final String modelJson = new String(Files.readAllBytes(file.toPath()));
+
+		final T path = ServiceHolder.getMarshallerService().unmarshal(modelJson, modelClass);
 		try {
 			provider.updateModel(path); // Ensures that validate and events are fired.
 		} catch (Exception e) {
@@ -117,29 +127,24 @@ public class ModelPersistAction<T> extends Action {
 		}
 	}
 
-	private static String previousFile = System.getProperty("GDA/gda.var", System.getProperty("user.home"));
-	private final static String[] extensions = new String[]{"json", "*.*"};
-	private final static String[] files = new String[]{"Model Files (json)", "All Files"};
-
-	private static final IStashing chooseFile(PersistType type) throws IOException {
+	private static final File chooseFile(PersistType type) throws IOException {
 
 		FileSelectionDialog dialog = new FileSelectionDialog(Display.getCurrent().getActiveShell(), previousFile);
-		dialog.setExtensions(extensions);
-		dialog.setFiles(files);
+		dialog.setExtensions(FILE_EXTENSIONS);
+		dialog.setFiles(FILE_TYPE_LABELS);
 		dialog.setNewFile(type==PersistType.SAVE);
 		dialog.setFolderSelector(false);
 		dialog.create();
-		if (dialog.open() != Dialog.OK) return null;
+		if (dialog.open() != Window.OK) return null;
 
 		String path = dialog.getPath();
-		if (!path.endsWith(extensions[0])) { //should always be saved to .json
-			path = path.concat("." + extensions[0]);
+		if (!path.endsWith(FILE_EXTENSIONS[0])) { //should always be saved to .json
+			path = path.concat("." + FILE_EXTENSIONS[0]);
 		}
 
 		final File file = new File(path);
 		previousFile    = file.getCanonicalPath();
-		IStashing stash = ServiceHolder.getStashingService().createStash(file);
-		return stash;
+		return file;
 	}
 
 	public Class<T> getModelClass() {

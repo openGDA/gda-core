@@ -56,6 +56,7 @@ public class ControlTreeUtils {
 	public static final <T> T clone(T tree) throws Exception {
 		IMarshallerService mservice = ServiceHolder.getMarshallerService();
 		String      json = mservice.marshal(tree);
+		@SuppressWarnings("unchecked")
 		T clone = mservice.unmarshal(json, (Class<T>)tree.getClass());
 		return clone;
 	}

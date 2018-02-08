@@ -55,7 +55,6 @@ import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.AxisConfiguration;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;
 import org.eclipse.scanning.device.ui.Activator;
@@ -106,11 +105,14 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	private PathInfoCalculatorJob job;
 
 
+	private AxisConfiguration axisConfig;
+
+
 	public PlottingController(IPlottingSystem<?> system, IViewSite site) {
 
 		this.system         = system;
 		this.site           = site;
-		this.listeners      = new HashSet<ISelectionChangedListener>(11);
+		this.listeners      = new HashSet<>(11);
 		this.job            = new PathInfoCalculatorJob(this);
 		this.scanPathColour = new Color(null, 160, 32, 240); // purple
 
@@ -151,7 +153,6 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	}
 
 
-	private AxisConfiguration axisConfig;
 	/**
 	 * Actions in addition to the standard plotting actions which
 	 * should be shown on the plot.
@@ -202,7 +203,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		if (conf.isApplyRegions()) {
 			List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
 			List<String> axes = Arrays.asList(conf.getFastAxisName(), conf.getSlowAxisName());
-			if (regions!=null) for (ScanRegion<IROI> region : regions) {
+			for (ScanRegion<IROI> region : regions) {
 				region.setScannables(axes);
 			}
 		}
@@ -212,41 +213,35 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 			IViewReference[] refs = PageUtil.getPage().getViewReferences();
 			for (IViewReference iViewReference : refs) {
 				IViewPart part = iViewReference.getView(false);
-				if (part==null) continue;
+				if (part == null)
+					continue;
 				IPointGenerator<?>[] pa = part.getAdapter(IPointGenerator[].class);
-                if (pa !=null) {
-			for (int i = 0; i < pa.length; i++) {
-			final Object model = pa[i].getModel();
-			if (model instanceof IBoundingBoxModel) {
-				IBoundingBoxModel bmodel = (IBoundingBoxModel)model;
-				bmodel.setFastAxisName(conf.getFastAxisName());
-				bmodel.setSlowAxisName(conf.getSlowAxisName());
-			}
+				if (pa != null) {
+					for (int i = 0; i < pa.length; i++) {
+						final Object model = pa[i].getModel();
+						if (model instanceof IBoundingBoxModel) {
+							IBoundingBoxModel bmodel = (IBoundingBoxModel) model;
+							bmodel.setFastAxisName(conf.getFastAxisName());
+							bmodel.setSlowAxisName(conf.getSlowAxisName());
+						}
 					}
-                }
+				}
 			}
 		}
 
-		send(conf);
-
-		IStashing stash = ServiceHolder.getStashingService().createStash("org.eclipse.scanning.device.ui.axis.configuation.json");
-		try {
-			stash.stash(conf);
-		} catch (Exception ne) {
-		    logger.error("Cannot save to "+stash.getFile(), ne);
-		}
-
+		sendAxisConfiguration(conf);
 	}
 
-	private void send(AxisConfiguration conf) {
+	private void sendAxisConfiguration(AxisConfiguration conf) {
 		try {
 			IEventService eservice = ServiceHolder.getEventService();
-            IPublisher<AxisConfiguration> publisher = eservice.createPublisher(new URI(CommandConstants.getScanningBrokerUri()), EventConstants.AXIS_CONFIGURATION_TOPIC);
-            publisher.broadcast(axisConfig);
-            publisher.disconnect();
+			IPublisher<AxisConfiguration> publisher = eservice.createPublisher(
+					new URI(CommandConstants.getScanningBrokerUri()), EventConstants.AXIS_CONFIGURATION_TOPIC);
+			publisher.broadcast(conf);
+			publisher.disconnect();
 
 		} catch (Exception ne) {
-		    logger.error("Cannot publish "+axisConfig, ne);
+			logger.error("Cannot publish " + conf, ne);
 		}
 	}
 
@@ -332,7 +327,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	}
 
 
-	void plot(PathInfo info) {
+	protected void plot(PathInfo info) {
 
 		boolean newTrace = false;
 		//Remove the previous trace
@@ -340,7 +335,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 
 		// If there are no scan regions at all, no trace to draw
 		// If the model is not one we draw scan paths for, no trace to draw.
-		if (!isScanPathModel() || ScanRegions.getScanRegions(system)==null) {
+		if (!isScanPathModel() || ScanRegions.getScanRegions(system).isEmpty()) {
 			if (pathTrace!=null) pathTrace.setVisible(false);
 			return;
 		}
@@ -378,7 +373,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 
 		List<ScanRegion<IROI>> sregions = ScanRegions.getScanRegions(system);
 		if (drawPath) {
-			if (sregions==null) {
+			if (sregions.isEmpty()) {
 				setPathVisible(false);
 			} else {
 				job.schedule(model, sregions);
@@ -426,8 +421,7 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 		job.schedule(model, ScanRegions.getScanRegions(system));
 	}
 
-	public void setModel(Object model) throws Exception {
-
+	public void setModel(Object model) {
 		this.model = model;
 		if (isScanPathModel()) {
 			job.schedule(model, ScanRegions.getScanRegions(system));
@@ -443,48 +437,30 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 
 	void setPathVisible(boolean vis) {
 		ILineTrace pathTrace = (ILineTrace)system.getTrace(MAPPING_PATH_NAME);
-        if (pathTrace!=null) pathTrace.setVisible(vis);
+		if (pathTrace!=null) pathTrace.setVisible(vis);
 	}
 
 	public void dispose() {
 		clear();
-		if (system!=null) {
-		    system.removeRegionListener(regionListener);
-		    for (IRegion region : system.getRegions()) {
-			if (region.getUserObject() instanceof ScanRegion) region.removeROIListener(roiListener);
+		if (system != null) {
+			system.removeRegionListener(regionListener);
+			for (IRegion region : system.getRegions()) {
+				if (region.getUserObject() instanceof ScanRegion)
+					region.removeROIListener(roiListener);
 			}
 			system.dispose();
 		}
 		scanPathColour.dispose();
 	}
 
-	public void connect() {
-
-	    connectRegions();
-	    connectAxes();
-	}
-
-	private void connectAxes() {
-
-		IStashing stash = ServiceHolder.getStashingService().createStash("org.eclipse.scanning.device.ui.axis.configuation.json");
-		if (stash.isStashed()) {
-			try {
-				this.axisConfig = stash.unstash(AxisConfiguration.class);
-			} catch (Exception e) {
-				logger.error("Cannot unstash axis configuration!", e);
-			}
-			setAxisConfiguration(axisConfig);
-		}
-
-	}
-
-	private void connectRegions() {
+	protected void connectRegions() {
 		for (IRegion region : system.getRegions()) {
-		if (region.getUserObject() instanceof ScanRegion) region.addROIListener(roiListener);
+			if (region.getUserObject() instanceof ScanRegion) region.addROIListener(roiListener);
 		}
-        system.addRegionListener(regionListener);
+		system.addRegionListener(regionListener);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (PlottingController.class == adapter) return (T)this;

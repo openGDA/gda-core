@@ -11,15 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.device.ui.device;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -38,7 +41,6 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.ServiceHolder;
@@ -53,6 +55,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IMemento;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +71,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MonitorViewer {
 
-	private static final String STASH_ID_MONITORS_STATE = "org.eclipse.scanning.device.ui.scan.monitors.json";
+	private static final String MEMENTO_KEY_MONITORS_STATE = "monitorsState";
 
-	private static final String STASH_ID_SHOW_ENABLED_ONLY = "org.eclipse.scanning.device.ui.scan.monitors.showEnabledOnly";
+	private static final String MEMENTO_KEY_SHOW_ENABLED_ONLY = "showEnabledOnly";
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitorViewer.class);
 
@@ -80,6 +83,8 @@ public class MonitorViewer {
 
 	private Image enabledIcon;
 	private Image disabledIcon;
+
+	private IMemento memento;
 
 	public MonitorViewer() {
 		IEventService eservice = ServiceHolder.getEventService();
@@ -93,10 +98,14 @@ public class MonitorViewer {
 		}
 	}
 
+	public void init(IMemento memento) {
+		this.memento = memento;
+	}
+
 	/**
 	 * Create the contents of the viewer.
 	 *
-	 * @param parent
+	 * @param parent parent composite
 	 */
 	public void createControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
@@ -109,69 +118,77 @@ public class MonitorViewer {
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setInput(createMonitorItems());
 
-		restoreState();
+		if (memento != null) {
+			final Boolean showEnabledOnly = memento.getBoolean(MEMENTO_KEY_SHOW_ENABLED_ONLY);
+			setShowEnabledOnly(showEnabledOnly == Boolean.TRUE);
+		}
 	}
 
 	private List<MonitorScanUIElement> createMonitorItems() {
 		try {
-			List<String> monitorNames = new ArrayList<>(scannableDeviceService.getScannableNames());
+			// get the previous monitor items, indexed by name
+			final Map<String, MonitorScanUIElement> oldMonitorItems = getOldMonitorItems();
+
+			// a consumer to restore the state (enablement and scan role) or a monitor
+			// based on the corresponding item in the map above. Note that we don't
+			// simply use the previous items as the monitors (i.e. scannables) on the server
+			// may have changed
+			final Consumer<MonitorScanUIElement> restoreMonitorState = monitorItem -> {
+				if (oldMonitorItems.containsKey(monitorItem.getName())) {
+					final MonitorScanUIElement oldMonitorItem = oldMonitorItems.get(monitorItem.getName());
+					monitorItem.setEnabled(oldMonitorItem.isEnabled());
+					monitorItem.setMonitorScanRole(oldMonitorItem.getMonitorScanRole());
+				}
+			};
+
+			// get the list of monitor from the server and sort them
+			final List<String> monitorNames = new ArrayList<>(scannableDeviceService.getScannableNames());
 			monitorNames.sort(new SortNatural<>(false));
 
+			// convert the list of names to a list of monitor items, restoring the items to
+			// their previous state
 			return monitorNames.stream()
 				.map(MonitorScanUIElement::new)
-				.collect(Collectors.toList());
+				.peek(restoreMonitorState)
+				.collect(toList());
 		} catch (ScanningException e) {
 			logger.error("Could not get available monitors", e);
-			return Collections.emptyList();
+			return emptyList();
 		}
 	}
 
-	public void saveState() {
+	private Map<String, MonitorScanUIElement> getOldMonitorItems() {
+		if (memento != null) {
+			final String monitorsJson = memento.getString(MEMENTO_KEY_MONITORS_STATE);
+			try {
+				@SuppressWarnings("unchecked")
+				final List<MonitorScanUIElement> monitorItems =
+						ServiceHolder.getMarshallerService().unmarshal(monitorsJson, List.class);
+				return monitorItems.stream().collect(toMap(
+						MonitorScanUIElement::getName, identity()));
+			} catch (Exception e) {
+				logger.error("Could not restore previous state of monitors", e);
+			}
+		}
+
+		return emptyMap();
+	}
+
+
+	public void saveState(IMemento memento) {
 		try {
-			final IStashing monitorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_MONITORS_STATE);
 			@SuppressWarnings("unchecked")
 			final List<MonitorScanUIElement> viewItems = (List<MonitorScanUIElement>) viewer.getInput();
-			monitorsStash.stash(viewItems);
+			final String itemsJson = ServiceHolder.getMarshallerService().marshal(viewItems);
+			memento.putString(MEMENTO_KEY_MONITORS_STATE, itemsJson);
 		} catch (Exception e) {
 			logger.error("Could not save monitors setup", e);
 		}
 
 		try {
-			final IStashing showEnabledOnlyStash = ServiceHolder.getStashingService().createStash(STASH_ID_SHOW_ENABLED_ONLY);
-			showEnabledOnlyStash.stash(isShowEnabledOnly());
+			memento.putBoolean(MEMENTO_KEY_SHOW_ENABLED_ONLY, isShowEnabledOnly());
 		} catch (Exception e) {
 			logger.error("Could not save show enabled only filter state", e);
-		}
-	}
-
-	public void restoreState() {
-		try {
-			final IStashing monitorsStash = ServiceHolder.getStashingService().createStash(STASH_ID_MONITORS_STATE);
-			@SuppressWarnings("unchecked")
-			final List<MonitorScanUIElement> oldMonitorItems = monitorsStash.unstash(List.class);
-			if (oldMonitorItems != null) {
-				final Map<String, MonitorScanUIElement> oldItemMap = oldMonitorItems.stream().collect(toMap(MonitorScanUIElement::getName, Function.identity()));
-				@SuppressWarnings("unchecked")
-				final List<MonitorScanUIElement> newItems = (List<MonitorScanUIElement>) viewer.getInput();
-				for (MonitorScanUIElement newItem : newItems) {
-					final MonitorScanUIElement oldItem = oldItemMap.get(newItem.getName());
-					if (oldItem != null) {
-						newItem.setEnabled(oldItem.isEnabled());
-						newItem.setMonitorScanRole(oldItem.getMonitorScanRole());
-					}
-				}
-				viewer.refresh();
-			}
-		} catch (Exception e) {
-			logger.error("Could not restore previous monitors state", e);
-		}
-
-		try {
-			final IStashing showEnabledOnlyStash = ServiceHolder.getStashingService().createStash(STASH_ID_SHOW_ENABLED_ONLY);
-			final Boolean showEnabledOnly = showEnabledOnlyStash.unstash(Boolean.class); // can be null
-			setShowEnabledOnly(showEnabledOnly == Boolean.TRUE);
-		} catch (Exception e) {
-			logger.error("Could not restore show enabled only filter state", e);
 		}
 	}
 

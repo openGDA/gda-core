@@ -25,7 +25,6 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
-import org.eclipse.scanning.api.stashing.IStashingService;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IInterfaceService;
 import org.osgi.framework.BundleContext;
@@ -46,7 +45,6 @@ public class ServiceHolder {
 	private static IRemoteDatasetService  remoteDatasetService;
 	private static IParserService         parserService;
 	private static IInterfaceService      interfaceService;
-	private static IStashingService       stashingService;
 	private static EventAdmin             eventAdmin;
 
 	private static BundleContext context;
@@ -184,15 +182,6 @@ public class ServiceHolder {
 
 	public static void setInterfaceService(IInterfaceService interfaceService) {
 		ServiceHolder.interfaceService = interfaceService;
-	}
-
-	public static IStashingService getStashingService() {
-		if (stashingService==null) stashingService = getService(IStashingService.class);
-		return stashingService;
-	}
-
-	public static void setStashingService(IStashingService stashingService) {
-		ServiceHolder.stashingService = stashingService;
 	}
 
 	private static IFilePathService filePathService;

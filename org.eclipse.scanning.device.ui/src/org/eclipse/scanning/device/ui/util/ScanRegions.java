@@ -72,8 +72,8 @@ public class ScanRegions {
 			final List<String>     axes    = Arrays.asList(system.getSelectedXAxis().getTitle(),
 	                                                       system.getSelectedYAxis().getTitle());
 			List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system, axes);
-			if (regions==null || regions.isEmpty()) return null;
-			rois = regions.stream().map(obj -> obj.getRoi()).collect(Collectors.toList());
+			if (regions.isEmpty()) return null;
+			rois = regions.stream().map(ScanRegion::getRoi).collect(Collectors.toList());
 		}
 
 		return bounds(rois);
@@ -100,11 +100,12 @@ public class ScanRegions {
 	 * @throws Exception
 	 */
 	public static void createRegions(IPlottingSystem<?> system, List<ScanRegion<IROI>> regions) throws Exception {
-
 		if (regions!=null && !regions.isEmpty()) {
 			for (ScanRegion<IROI> scanRegion : regions) {
 				IRegion region = createRegion(system, (RegionType)scanRegion.getType(), scanRegion.getRoi());
-				region.setUserObject(scanRegion); // Override default because we know it.
+				if (region != null) {
+					region.setUserObject(scanRegion); // Override default because we know it.
+				}
 			}
 		}
 	}
@@ -139,7 +140,7 @@ public class ScanRegions {
 	 * active over the current regions.
 	 *
 	 * @param system
-	 * @return
+	 * @return scan regions, never <code>null</code>
 	 */
 	public static List<ScanRegion<IROI>> getScanRegions(IPlottingSystem<?> system) {
         return getScanRegions(system, null);
@@ -149,23 +150,24 @@ public class ScanRegions {
 	 * Search for and return the regions which are to be involved in a scan.
 	 *
 	 * @param system
-	 * @return
+	 * @return regions, never <code>null</code>
 	 */
 	public static List<ScanRegion<IROI>> getScanRegions(IPlottingSystem<?> system, List<String> axes) {
 
 		final Collection<IRegion> regions = system.getRegions();
-		if (regions==null || regions.isEmpty()) return null;
+		if (regions==null || regions.isEmpty()) return Collections.emptyList();
 
-		final List<ScanRegion<IROI>> ret = new ArrayList<ScanRegion<IROI>>();
+		final List<ScanRegion<IROI>> ret = new ArrayList<>();
 		for (IRegion region : regions) {
 			if (region.getUserObject() instanceof ScanRegion) {
+				@SuppressWarnings("unchecked")
 				ScanRegion<IROI> sr = (ScanRegion<IROI>)region.getUserObject();
 				if (axes!=null && !sr.getScannables().equals(axes)) continue;
 				sr.setRoi(region.getROI());
 				ret.add(sr);
 			}
 		}
-		if (ret.isEmpty()) return null;
+
 		return ret;
 	}
 

@@ -69,7 +69,6 @@ import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.api.ui.auto.IModelDialog;
 import org.eclipse.scanning.api.ui.auto.InterfaceInvalidException;
@@ -101,6 +100,7 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
@@ -118,6 +118,7 @@ import org.slf4j.LoggerFactory;
 public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	public static final String ID = "org.eclipse.scanning.device.ui.scan.executeView"; //$NON-NLS-1$
+	private static final String MEMENTO_KEY_SAMPLE_INFO = "sampleInfo";
 	private static final Logger logger = LoggerFactory.getLogger(ExecuteView.class);
 
 	// UI
@@ -159,14 +160,21 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		updateJob.setUser(false);
 		updateJob.setSystem(true);
 		updateJob.setPriority(Job.INTERACTIVE);
+	}
 
-		final IStashing stash = ServiceHolder.getStashingService().createStash("org.eclipse.scanning.device.ui.scan.execute.sample.json");
-		sampleData = new SampleData();
-		if (stash.isStashed()) {
-			try {
-				sampleData = stash.unstash(SampleData.class);
-			} catch (Exception e) {
-				logger.error("Cannot unstash sample data!", e);
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+
+		if (memento != null) {
+			final String sampleInfoJson = memento.getString(MEMENTO_KEY_SAMPLE_INFO);
+			if (sampleInfoJson != null) {
+				try {
+					sampleData = ServiceHolder.getMarshallerService().unmarshal(sampleInfoJson, SampleData.class);
+				} catch (Exception e) {
+					logger.error("Cannot retrieve sample data", e);
+					sampleData = new SampleData();
+				}
 			}
 		}
 	}
@@ -175,10 +183,10 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
     public void saveState(IMemento memento) {
 		super.saveState(memento);
 		try {
-			final IStashing stash = ServiceHolder.getStashingService().createStash("org.eclipse.scanning.device.ui.scan.execute.sample.json");
-			stash.stash(sampleData);
+			final String sampleInfoJson = ServiceHolder.getMarshallerService().marshal(sampleData);
+			memento.putString(MEMENTO_KEY_SAMPLE_INFO, sampleInfoJson);
 		} catch (Exception ne) {
-			logger.error("Cannot save sample information!", ne);
+			logger.error("Cannot save sample information", ne);
 		}
     }
 

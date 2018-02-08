@@ -38,7 +38,7 @@ class ScanRegionContentProvider implements IStructuredContentProvider {
 	@Override
 	public Object[] getElements(Object inputElement) {
 		List<ScanRegion<IROI>> regions = ScanRegions.getScanRegions(system);
-		if (regions==null) return new ScanRegion[]{new ScanRegion<IROI>()};
+		if (regions.isEmpty()) return new ScanRegion[]{new ScanRegion<IROI>()};
 		return regions.toArray(new ScanRegion[regions.size()]);
 	}
 

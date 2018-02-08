@@ -22,11 +22,15 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
 import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.scan.AxisConfiguration;
 import org.eclipse.scanning.device.ui.ScanningPerspective;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,47 +46,59 @@ public class VisualiseView extends ViewPart implements IAdaptable, ISelectionLis
 
 	public static final String ID = "org.eclipse.scanning.device.ui.vis.visualiseView";
 
+	private static final String MEMENTO_KEY_AXIS_CONFIGURATION = "axisConfiguration";
+
 	private static final Logger logger = LoggerFactory.getLogger(VisualiseView.class);
 
 	// Delegated control
-	private   PlottingController      controller;
+	private PlottingController controller;
 
 	// The plot
-	private   IPlottingSystem<Object> system;
+	private IPlottingSystem<Object> system;
+
+	private AxisConfiguration initialAxisConfiguration;
+
 
 	public VisualiseView() {
-
 		try {
 			IPlottingService service = ServiceHolder.getPlottingService();
 			system = service.createPlottingSystem();
 			system.getPlotActionSystem().setShowCustomPlotActions(false); // Disable the custom plot actions.
-
-
 		} catch (Exception ne) {
 			logger.error("Unable to make plotting system", ne);
 			system = null; // It creates the view but there will be no plotting system
 		}
+	}
 
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		if (memento != null) {
+			String axisConfigJson = memento.getString(MEMENTO_KEY_AXIS_CONFIGURATION);
+			try {
+				initialAxisConfiguration = ServiceHolder.getMarshallerService().unmarshal(axisConfigJson, AxisConfiguration.class);
+			} catch (Exception e) {
+				logger.error("Could not retrieve axis configuration", e);
+			}
+		}
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 
-        controller = new PlottingController(system, getViewSite());
+		controller = new PlottingController(system, getViewSite());
 
 		system.createPlotPart(parent, getPartName(), getViewSite().getActionBars(), PlotType.IMAGE, this);
 		system.getSelectedXAxis().setTitle("stage_x");
 		system.getSelectedYAxis().setTitle("stage_y");
 
 		// Connect to existing regions, although they might not be desirable ones
-		controller.connect();
+		controller.connectRegions();
+		controller.setAxisConfiguration(initialAxisConfiguration);
 
-        getSite().setSelectionProvider(controller);
-
-        getSite().getPage().addSelectionListener(this);
-
+		getSite().setSelectionProvider(controller);
+		getSite().getPage().addSelectionListener(this);
 		ScanningPerspective.createKeyPlayers();
-
 	}
 
 	@Override
@@ -101,6 +117,19 @@ public class VisualiseView extends ViewPart implements IAdaptable, ISelectionLis
 			}
 		} else if (object instanceof ScanRegion) {
 			if (controller!=null) controller.refresh(); // Axes might have changed
+		}
+	}
+
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+
+		final AxisConfiguration axisConfig = controller.getAxisConfiguration();
+		try {
+			final String axisConfigJson = ServiceHolder.getMarshallerService().marshal(axisConfig);
+			memento.putString(MEMENTO_KEY_AXIS_CONFIGURATION, axisConfigJson);
+		} catch (Exception e) {
+			logger.error("Could not serialize axis configuration", e);
 		}
 	}
 

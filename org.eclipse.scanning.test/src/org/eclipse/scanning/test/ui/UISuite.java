@@ -19,7 +19,6 @@ import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.device.ui.util.StashingService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
@@ -78,7 +77,6 @@ public class UISuite {
 		Services.setConnector(new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC)));
 		Services.setEventService(eservice);
 		org.eclipse.scanning.device.ui.ServiceHolder.setEventService(eservice);
-		org.eclipse.scanning.device.ui.ServiceHolder.setStashingService(new StashingService());
 
 		// Servlet to provide access to the remote scannables.
 		dservlet = new DeviceServlet();
