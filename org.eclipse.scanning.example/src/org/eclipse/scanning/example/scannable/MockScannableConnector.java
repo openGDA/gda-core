@@ -92,13 +92,11 @@ public class MockScannableConnector implements IScannableDeviceService, IDisconn
 		register(new MockScannable("bpos",  0.001,  -1));
 
 		MockScannable a = new MockScannable("a", 10d, 1, "mm");
-		a.setActivated(true);
 		register(a);
 		register(new MockScannable("b", 10d, 1, "mm"));
 		register(new MockScannable("c", 10d, 1, "mm"));
 
 		MockScannable p = new MockScannable("p", 10d, 2, "µm");
-		p.setActivated(true);
 		register(p);
 		register(new MockScannable("q", 10d, 2, "µm"));
 		register(new MockScannable("r", 10d, 2, "µm"));
@@ -156,7 +154,6 @@ public class MockScannableConnector implements IScannableDeviceService, IDisconn
 	    }
 		for (int i = 0; i < 10; i++) {
 			MockNeXusScannable mon = new MockNeXusScannable("monitor"+i, 0d,  3);
-			mon.setActivated(i%3==0);
 			register(mon);
 	    }
 		for (int i = 0; i < 10; i++) {
