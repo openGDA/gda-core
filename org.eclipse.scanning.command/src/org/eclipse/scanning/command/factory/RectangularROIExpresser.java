@@ -19,10 +19,10 @@ class RectangularROIExpresser extends PyModelExpresser<RectangularROI> {
 	public String pyExpress(RectangularROI rroi, boolean verbose) {
 		return new StringBuilder("rect(")
 					.append((verbose?"origin=":"")+"(")
-					.append(rroi.getPointX()+", "+rroi.getPointY())
+					.append(formatValue(rroi.getPointX())+", "+formatValue(rroi.getPointY()))
 					.append("), ")
 					.append((verbose?"size=":"")+"(")
-					.append(rroi.getLengths()[0]+", "+rroi.getLengths()[1])
+					.append(formatValue(rroi.getLengths()[0])+", "+formatValue(rroi.getLengths()[1]))
 					.append("))")
 					.toString();
 	}

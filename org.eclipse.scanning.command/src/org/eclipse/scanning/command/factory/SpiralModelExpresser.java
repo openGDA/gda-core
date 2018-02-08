@@ -39,11 +39,11 @@ public class SpiralModelExpresser extends PyModelExpresser<SpiralModel> {
 
 		// start
 		sb.append(verbose?"start=":"");
-		sb.append("("+model.getBoundingBox().getFastAxisStart()+", "+model.getBoundingBox().getSlowAxisStart()+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getFastAxisStart())+", "+formatValue(model.getBoundingBox().getSlowAxisStart())+"), ");
 
 		// stop
 		sb.append(verbose?"stop=":"");
-		sb.append("("+model.getBoundingBox().getFastAxisEnd()+", "+model.getBoundingBox().getSlowAxisEnd()+"), ");
+		sb.append("("+formatValue(model.getBoundingBox().getFastAxisEnd())+", "+formatValue(model.getBoundingBox().getSlowAxisEnd())+"), ");
 
 		// scale
 		sb.append(verbose?"scale=":"");

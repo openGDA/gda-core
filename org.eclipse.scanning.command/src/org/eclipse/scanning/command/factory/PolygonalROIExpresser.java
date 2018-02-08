@@ -26,9 +26,9 @@ class PolygonalROIExpresser extends PyModelExpresser<PolygonalROI> {
 		for (IROI p : proi.getPoints()) {
 			if (pointListPartiallyWritten) fragment.append(", ");
 			fragment.append("(")
-					.append(((PointROI) p).getPointX())
+					.append(formatValue(((PointROI) p).getPointX()))
 					.append(", ")
-					.append(((PointROI) p).getPointY())
+					.append(formatValue(((PointROI) p).getPointY()))
 					.append(")");
 			pointListPartiallyWritten |= true;
 		}

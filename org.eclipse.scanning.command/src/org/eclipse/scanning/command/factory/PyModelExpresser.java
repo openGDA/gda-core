@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.command.factory;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -81,5 +83,25 @@ abstract class PyModelExpresser<T> {
 			return sb.toString();
 		}
 		return "";
+	}
+
+	/** Used to format when the absolute number in the current units is <=1e-3 or >=1e3 */
+	private final NumberFormat scientificFormat = new DecimalFormat("0.#####E0");
+	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
+	private final NumberFormat decimalFormat = new DecimalFormat("0.#####");
+
+	/**
+	 * Uses a decimal format with 5 decimal places when 1e-3 <= |value| <= 1e3 (or value == zero),
+	 * otherwise a scientific format.
+	 * @param value with full precision
+	 * @return sensibly-formatted String representation of the value
+	 */
+	protected String formatValue(double value) {
+		final double absoluteValue = Math.abs(value);
+		if (absoluteValue != 0.0 && (absoluteValue <= 1e-3 || absoluteValue >= 1e3)) {
+			return scientificFormat.format(value);
+		} else {
+			return decimalFormat.format(value);
+		}
 	}
 }

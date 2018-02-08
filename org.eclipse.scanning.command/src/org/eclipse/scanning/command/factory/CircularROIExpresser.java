@@ -19,9 +19,9 @@ class CircularROIExpresser extends PyModelExpresser<CircularROI> {
 	public String pyExpress(CircularROI croi, boolean verbose) {
 		return new StringBuilder().append("circ(")
 				.append(verbose?"origin=":"")
-				.append("("+croi.getCentre()[0]+", "+croi.getCentre()[1]+"), ")
+				.append("("+formatValue(croi.getCentre()[0])+", "+formatValue(croi.getCentre()[1])+"), ")
 				.append(verbose?"radius=":"")
-				.append(croi.getRadius())
+				.append(formatValue(croi.getRadius()))
 				.append(")")
 				.toString();
 	}
