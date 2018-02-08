@@ -36,21 +36,21 @@ public class CircleRegionComposite extends AbstractRegionAndPathComposite {
 		xCentreLabel.setText(getFastAxisName() + " Centre");
 		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(xCentre);
-		bindNumberUnits(xCentre, "xCentre", region);
+		bind(xCentre, "xCentre", region);
 
 		// Y Centre
 		Label yCentreLabel = new Label(this, SWT.NONE);
 		yCentreLabel.setText(getSlowAxisName() + " Centre");
 		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(yCentre);
-		bindNumberUnits(yCentre, "yCentre", region);
+		bind(yCentre, "yCentre", region);
 
 		// Radius
 		Label radiusLabel = new Label(this, SWT.NONE);
 		radiusLabel.setText("Radius");
 		NumberAndUnitsComposite radius = new NumberAndUnitsComposite(this, SWT.NONE);
 		gdControls.applyTo(radius);
-		bindNumberUnits(radius, "radius", region);
+		bind(radius, "radius", region, GREATER_THAN_ZERO);
 	}
 
 }

@@ -32,7 +32,8 @@ public class OneDStepModelPathComposite extends AbstractPathComposite {
 		(new Label(this, SWT.NONE)).setText("Step");
 		Text step = new Text(this, SWT.BORDER);
 		gdControls.applyTo(step);
-		bindTextBox(step, "step", path);
+
+		bind(step, "step", path, GREATER_THAN_ZERO);
 
 		makeContinuousControl(this, path);
 	}

@@ -33,7 +33,7 @@ public class OneDEqualSpacingPathComposite extends AbstractPathComposite {
 		Spinner points = new Spinner(this, SWT.BORDER);
 		points.setMinimum(1);
 		gdControls.applyTo(points);
-		bindSelection(points, "points", path);
+		bind(points, "points", path);
 
 		makeContinuousControl(this, path);
 	}

@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -33,7 +34,7 @@ public class FermatSpiralPathComposite extends AbstractPathComposite {
 		Text scaleText = new Text(this, SWT.BORDER);
 		gdControls.applyTo(scaleText);
 
-		bindTextBox(scaleText, "scale", path);
+		bind(scaleText, "scale", path, val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
 
 		makeContinuousControl(this, path);
 	}
