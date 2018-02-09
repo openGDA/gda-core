@@ -11,14 +11,18 @@ Export-Package: uk.ac.gda.tomography.scan.editor,
 Require-Bundle: org.eclipse.emf.edit.ui;visibility:=reexport,
  uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.client;bundle-version="1.0.0",
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
  org.eclipse.core.databinding,
  org.eclipse.jface.databinding,
  org.eclipse.core.databinding.property,
  org.eclipse.core.databinding.beans,
- org.eclipse.scanning.api,
  org.eclipse.scanning.device.ui,
- uk.ac.gda.tomography.scan
+ uk.ac.gda.tomography.scan,
+ org.eclipse.dawnsci.analysis.api,
+ uk.ac.gda.common
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  com.ibm.icu.text
+Bundle-Activator: uk.ac.gda.tomography.scan.editor.Activator

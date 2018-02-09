@@ -18,6 +18,9 @@
 
 package uk.ac.gda.tomography.scan.editor;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.PojoProperties;
@@ -27,8 +30,8 @@ import org.eclipse.core.databinding.conversion.StringToNumberConverter;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -45,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import com.ibm.icu.text.NumberFormat;
 
 import gda.commandqueue.JythonCommandCommandProvider;
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.tomography.scan.TomoScanParameters;
@@ -53,7 +58,8 @@ import uk.ac.gda.tomography.scan.presentation.ParametersComposite;
 public class ScanParameterDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanParameterDialog.class);
-	private static final String STASH_NAME = "uk.ac.gda.tomography.scan.editor.tomographyscanmodel.json";
+	private static final String DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL = "tomographyScanModel";
+
 	/**
 	 * Used for converter in bindings to doubles
 	 */
@@ -186,20 +192,29 @@ public class ScanParameterDialog extends Dialog {
 				IDialogConstants.CANCEL_LABEL, false);
 	}
 
+	private String getModelFilePath() {
+		String gdaVar = PathConstructor.createFromProperty(LocalProperties.GDA_VAR_DIR);
+		return gdaVar + "/" + DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL + ".json";
+	}
+
 	@Override
 	protected void okPressed() {
-		final IStashing stash = ServiceHolder.getStashingService().createStash(STASH_NAME);
+		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
+		final String modelFilePath = getModelFilePath();
 		try {
-			stash.stash(model);
+			final String modelJson = ServiceHolder.getMarshallerService().marshal(model);
+			dialogSettings.put(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL, modelJson);
+			Files.write(Paths.get(getModelFilePath()), modelJson.getBytes());
 		} catch (Exception e) {
 			logger.error("Error saving parameters", e);
+			return;
 		}
 
-		final String command = "tomographyScan.parameters_from_json('" + stash.getFile().getAbsolutePath() + "')";
+		final String command = "tomographyScan.parameters_from_json('" + modelFilePath + "')";
 		final String jobLabel = "TomoScan Scan: " + model.getTitle();
 
 		try {
-			CommandQueueViewFactory.getQueue().addToTail(new JythonCommandCommandProvider(command, jobLabel, stash.getFile().getAbsolutePath()));
+			CommandQueueViewFactory.getQueue().addToTail(new JythonCommandCommandProvider(command, jobLabel, modelFilePath));
 			CommandQueueViewFactory.showView();
 		} catch (Exception e) {
 			logger.error("Error submitting tomoscan to queue", e);
@@ -209,10 +224,11 @@ public class ScanParameterDialog extends Dialog {
 	}
 
 	private TomoScanParameters getModel() {
-		final IStashing stash = ServiceHolder.getStashingService().createStash(STASH_NAME);
-		if (stash.isStashed()) {
+		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
+		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
+		if (modelJson != null) {
 			try {
-				return stash.unstash(TomoScanParameters.class);
+				return ServiceHolder.getMarshallerService().unmarshal(modelJson, TomoScanParameters.class);
 			} catch (Exception e) {
 				logger.warn("Cannot retrieve saved parameters; using defaults", e);
 			}

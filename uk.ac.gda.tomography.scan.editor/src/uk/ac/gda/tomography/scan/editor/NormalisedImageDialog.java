@@ -23,9 +23,9 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.stashing.IStashing;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -44,7 +44,7 @@ import uk.ac.gda.tomography.scan.NormalisedImageParameters;
 public class NormalisedImageDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormalisedImageDialog.class);
-	private static final String STASH_NAME = "uk.ac.gda.tomography.scan.editor.normalisedimagemodel.json";
+	private static final String DIALOG_SETTINGS_KEY_NORMALIZED_IMAGE_MODEL = "normalizedImageModel";
 
 	private NormalisedImageParameters model;
 
@@ -121,10 +121,11 @@ public class NormalisedImageDialog extends Dialog {
 	}
 
 	private NormalisedImageParameters getModel() {
-		final IStashing stash = ServiceHolder.getStashingService().createStash(STASH_NAME);
-		if (stash.isStashed()) {
+		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
+		String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_NORMALIZED_IMAGE_MODEL);
+		if (modelJson != null) {
 			try {
-				return stash.unstash(NormalisedImageParameters.class);
+				return ServiceHolder.getMarshallerService().unmarshal(modelJson, NormalisedImageParameters.class);
 			} catch (Exception e) {
 				logger.warn("Cannot retrieve saved parameters; using defaults", e);
 			}
@@ -133,9 +134,10 @@ public class NormalisedImageDialog extends Dialog {
 	}
 
 	private void saveModel() {
-		final IStashing stash = ServiceHolder.getStashingService().createStash(STASH_NAME);
+		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		try {
-			stash.stash(model);
+			String modelJson = ServiceHolder.getMarshallerService().marshal(model);
+			dialogSettings.put(DIALOG_SETTINGS_KEY_NORMALIZED_IMAGE_MODEL, modelJson);
 		} catch (Exception e) {
 			logger.error("Error saving parameters", e);
 		}
