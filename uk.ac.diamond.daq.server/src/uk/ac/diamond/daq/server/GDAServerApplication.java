@@ -4,7 +4,9 @@ import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.Se
 import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
 import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.NAME;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -24,6 +26,7 @@ import gda.util.Version;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
+import uk.ac.diamond.daq.services.PropertyService;
 
 /**
  * This class controls all aspects of the application's execution
@@ -33,11 +36,13 @@ public class GDAServerApplication implements IApplication {
 	private static final Logger logger = LoggerFactory.getLogger(GDAServerApplication.class);
 
 	private static IGDAConfigurationService configurationService;
-	protected static int SERVER_WAIT_MILLIS = 4000;
+	private static int SERVER_WAIT_MILLIS = 4000;
 
 	private final Map<ServerType, Process> processes = new HashMap<>();
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
-	private final Map<String, ObjectServer> objectServers = new HashMap<String, ObjectServer>();
+	private final Map<String, ObjectServer> objectServers = new HashMap<>();
+
+	private ServerSocket statusPort;
 
 	/**
 	 * Application start method invoked when it is launched. Loads the required configuration via  the external OSGI configuration service.
@@ -91,11 +96,50 @@ public class GDAServerApplication implements IApplication {
 			ex.printStackTrace();
 			stop();
 		}
+
+		// Once we are here all the servers have started
+		openStatusPort();
+
 		if (!objectServers.isEmpty()) {
 			awaitShutdown();
 			logger.info("GDA server application ended");
 		}
 		return IApplication.EXIT_OK;
+	}
+
+	/**
+	 * This opens a port on the server. The presence of this open port can be used
+	 * by the client to ensure the server is running. It would be possible to extend
+	 * this to offer information such as server uptime, connected clients etc.
+	 *
+	 * @Since GDA 9.7
+	 */
+	private void openStatusPort() {
+		// TODO Here use the PropertyService for now but once backed by sys properties will not be needed.
+		final int serverPort = getPropertyService().getAsInt("gda.server.statusPort", 19999);
+		try {
+			statusPort = new ServerSocket(serverPort);
+			logger.debug("Opened status port on: {}", serverPort);
+		} catch (IOException e) {
+			logger.error("Opening status port on {} failed", serverPort, e);
+		}
+	}
+
+	/**
+	 * This closes the port on the server opened by the {@link #openStatusPort()}
+	 * method
+	 *
+	 * @Since GDA 9.7
+	 */
+	private void closeStatusPort() {
+		if (statusPort != null) { // Will be null if server fails to start fully
+			try {
+				statusPort.close();
+				logger.debug("Closed status port");
+			} catch (IOException e) {
+				logger.error("Error closing status port", e);
+			}
+		}
 	}
 
 	/**
@@ -106,6 +150,8 @@ public class GDAServerApplication implements IApplication {
 		logger.info("GDA application stopping");
 		// Notify via Jython console this is useful as dead clients will display the message
 		InterfaceProvider.getTerminalPrinter().print("GDA server is shutting down");
+
+		closeStatusPort();
 
 		if (objectServers.size() > 0) {
 
@@ -146,16 +192,16 @@ public class GDAServerApplication implements IApplication {
 	 * @throws InterruptedException if the shutdwonHook thread is interrupted
 	 */
 	protected void awaitShutdown() throws InterruptedException {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				stop();
-			}
-		}));
+		Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 		shutdownLatch.await();
 	}
 
 	public static void setConfigurationService(IGDAConfigurationService service) {
 		configurationService = service;
+	}
+
+	// TODO Once LocalProperties is backed by System properties remove this
+	private PropertyService getPropertyService() {
+		return GDAServerActivator.getService(PropertyService.class);
 	}
 }

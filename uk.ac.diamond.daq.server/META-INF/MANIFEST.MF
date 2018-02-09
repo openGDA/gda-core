@@ -5,7 +5,8 @@ Bundle-SymbolicName: uk.ac.diamond.daq.server;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: uk.ac.gda.core;bundle-version="8.50.0",
  com.google.guava;bundle-version="16.0.1",
- uk.ac.diamond.daq.server.configuration;bundle-version="1.0.0"
+ uk.ac.diamond.daq.server.configuration;bundle-version="1.0.0",
+ uk.ac.gda.api;bundle-version="9.7.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: ch.qos.logback.classic;version="[1.1.6,2.0.0)",
  ch.qos.logback.core;version="[1.1.6,2.0.0)",
