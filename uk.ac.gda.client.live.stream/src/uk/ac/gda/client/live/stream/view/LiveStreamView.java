@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
@@ -100,7 +101,7 @@ public class LiveStreamView extends ViewPart {
 	private LiveStreamConnection liveStreamConnection;
 	private Text errorText;
 	private String cameraName;
-	private long frameCounter = 0;
+	private AtomicLong frameCounter=new AtomicLong();
 	private ScriptingConnection scriptingConnection;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
@@ -123,7 +124,7 @@ public class LiveStreamView extends ViewPart {
 				updateAxes();
 			}
 			// Update the frame count in the UI thread
-			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + liveStreamConnection.getStreamType() + " - Frame: " + Long.toString(frameCounter++)));
+			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + liveStreamConnection.getStreamType() + " - Frame: " + Long.toString(frameCounter.incrementAndGet())));
 		}
 	};
 
@@ -442,6 +443,8 @@ public class LiveStreamView extends ViewPart {
 	private void setupStream(StreamType streamType) {
 		if (liveStreamConnection != null) {
 			try {
+				liveStreamConnection.getStream().removeDataListener(shapeListener);
+				liveStreamConnection.removeAxisMoveListener(axisChangeListener);
 				liveStreamConnection.disconnect();
 			} catch (LiveStreamException e) {
 				logger.error("Error disconnecting from live stream", e);
@@ -453,7 +456,6 @@ public class LiveStreamView extends ViewPart {
 		final IDatasetConnector dataset;
 		try {
 			dataset = liveStreamConnection.connect();
-			dataset.addDataListener(shapeListener);
 		} catch (LiveStreamException e) {
 			displayAndLogError(parent, e.getMessage(), e);
 			return;
@@ -473,7 +475,7 @@ public class LiveStreamView extends ViewPart {
 		dataset.addDataListener(shapeListener);
 
 		// Reset the frame counter
-		frameCounter = 0;
+		frameCounter.set(0);
 
 		// Setup the ROI provider if configured
 		if (camConfig.getRoiProvider() != null) {
@@ -503,6 +505,11 @@ public class LiveStreamView extends ViewPart {
 				@Override
 				public void regionAdded(RegionEvent evt) {
 					evt.getRegion().addROIListener(roiListener);
+					updateServerRois();
+				}
+
+				@Override
+				public void regionNameChanged(RegionEvent evt, String oldName) {
 					updateServerRois();
 				}
 			});
