@@ -34,16 +34,16 @@
 
 	<import resource="file://${gda.core.dir}/servers/_common/plot_server.xml" />
 
-	<import resource="det.xml"/>
-	<import resource="mic.xml"/>
-	<import resource="constantVelocityDevice.xml"/>
-	<import resource="darkImageDetector.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/det.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/mic.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/constantVelocityDevice.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/darkImageDetector.xml"/>
 	<import resource="dummyMalcolmDetector.xml"/>
-	<import resource="mandelbrotDetector.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/mandelbrotDetector.xml"/>
 	<import resource="command_queue_processor.xml"/>
 	<import resource="jython_server_facade.xml" />
-	<import resource="mapping_motors.xml"/>
-	<import resource="mandelbrot_detectors.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/mapping_motors.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/_common/mandelbrot_detectors.xml"/>
 	<import resource="aop.xml"/>
 	<import resource="logging_script_controller.xml"/>
 	<import resource="toplink_persistence.xml"/>
