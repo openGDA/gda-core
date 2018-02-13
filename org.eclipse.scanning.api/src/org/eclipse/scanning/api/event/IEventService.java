@@ -73,7 +73,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
  * @author Matthew Gerring
  *
  */
-public interface IEventService extends EventConstants {
+public interface IEventService {
 
 
     /**

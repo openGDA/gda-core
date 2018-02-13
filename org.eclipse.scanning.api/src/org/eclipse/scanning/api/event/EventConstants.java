@@ -13,11 +13,16 @@ package org.eclipse.scanning.api.event;
 
 
 /**
- * This class represents
+ * A class with constants for the names of JMS queues and topics used by the
+ * {@link IEventService} and its related classes.
  *
  * @author Matthew Gerring
  */
-public interface EventConstants {
+public class EventConstants {
+
+	private EventConstants() {
+		// private constructor to prevent instantiation
+	}
 
     /**
      * A topic which may be used for scan events.

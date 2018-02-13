@@ -165,7 +165,7 @@ class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, I
 	@Override
 	public void addPositionListener(IPositionListener listener) {
 		addListener();
-		if (listeners==null) listeners = new LinkedHashSet<IPositionListener>(3);
+		if (listeners==null) listeners = new LinkedHashSet<>();
 		listeners.add(listener);
 	}
 

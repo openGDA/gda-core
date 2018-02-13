@@ -26,7 +26,7 @@ public class ScanningTestClassRegistry implements IClassRegistry {
 
 	private static final Map<String, Class<?>> idToClassMap;
 	static {
-		Map<String, Class<?>> tmp = new HashMap<String, Class<?>>();
+		Map<String, Class<?>> tmp = new HashMap<>();
 
 		// scan.mock
 		registerClass(tmp, AnnotatedMockDetectorModel.class);

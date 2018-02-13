@@ -40,7 +40,7 @@ class _ScannableDeviceService extends AbstractRemoteService implements IScannabl
 
 	@Override
 	public void init() throws EventException {
-		requester = eservice.createRequestor(uri, IEventService.DEVICE_REQUEST_TOPIC, IEventService.DEVICE_RESPONSE_TOPIC);
+		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		long timeout = Long.getLong("org.eclipse.scanning.event.remote.scannableServiceTimeout", 100);
 	    logger.debug("Setting timeout {} {}" , timeout , " ms");
 	    requester.setTimeout(timeout, TimeUnit.MILLISECONDS);

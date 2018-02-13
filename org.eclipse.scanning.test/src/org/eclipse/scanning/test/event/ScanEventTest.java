@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
-import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.junit.Before;
@@ -36,8 +36,8 @@ public class ScanEventTest extends AbstractScanEventTest{
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		publisher  = eservice.createPublisher(uri, IEventService.SCAN_TOPIC);
-		subscriber = eservice.createSubscriber(uri, IEventService.SCAN_TOPIC);
+		publisher  = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC);
+		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC);
 	}
 
 }

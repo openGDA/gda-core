@@ -12,11 +12,11 @@
 package org.eclipse.scanning.event;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 
@@ -28,44 +28,36 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
  */
 class HeartbeatChecker {
 
-	private URI    uri;
+	private URI uri;
 	private String consumerName;
-	private long   listenTime;
-	private volatile boolean ok = false;
+	private long listenTime;
 	private IEventService eventService;
 
 	public HeartbeatChecker(IEventService eventService, URI uri, String consumerName, long listenTime) {
-		this.eventService          = eventService;
-		this.uri          = uri;
+		this.eventService = eventService;
+		this.uri = uri;
 		this.consumerName = consumerName;
-		this.listenTime   = listenTime;
+		this.listenTime = listenTime;
 	}
 
 	public void checkPulse() throws EventException, InterruptedException {
+		ISubscriber<IHeartbeatListener> subscriber = eventService.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
+		final AtomicBoolean heartBeatReceived = new AtomicBoolean(false);
 
-		ISubscriber<IHeartbeatListener>	subscriber = eventService.createSubscriber(uri, IEventService.HEARTBEAT_TOPIC);
-        ok = false;
-
-        try {
-		subscriber.addListener(new IHeartbeatListener() {
-			@Override
-			public void heartbeatPerformed(HeartbeatEvent evt) {
-				HeartbeatBean bean = evt.getBean();
-				if (!consumerName.equals(bean.getConsumerName())) {
-					return;
+		try {
+			subscriber.addListener(event -> {
+				if (consumerName.equals(event.getBean().getConsumerName())) {
+					heartBeatReceived.compareAndSet(false, true);
 				}
-				ok = true;
-			}
-		});
+			});
+			Thread.sleep(listenTime);
 
-            Thread.sleep(listenTime);
-
-            if (!ok) throw new EventException(consumerName+" Consumer heartbeat absent.\nIt is either stopped or unresponsive.\nPlease contact your support representative.");
-
-
-        } finally {
-		subscriber.disconnect();
-        }
+			if (!heartBeatReceived.get())
+				throw new EventException(consumerName
+						+ " Consumer heartbeat absent.\nIt is either stopped or unresponsive.\nPlease contact your support representative.");
+		} finally {
+			subscriber.disconnect();
+		}
 	}
 
 }

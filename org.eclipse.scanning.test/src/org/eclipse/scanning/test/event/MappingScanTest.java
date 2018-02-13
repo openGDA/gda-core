@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -57,8 +58,8 @@ public class MappingScanTest extends BrokerTest{
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		publisher = eservice.createPublisher(uri, IEventService.SCAN_TOPIC); // Do not copy this leave as null!
-		subscriber = eservice.createSubscriber(uri, IEventService.SCAN_TOPIC); // Do not copy this leave as null!
+		publisher = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
+		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
 	}
 
 	@After

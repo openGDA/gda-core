@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.junit.After;
@@ -36,18 +37,18 @@ public class MConsumerPluginTest extends AbstractMConsumerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		submitter  = eservice.createSubmitter(uri, IEventService.SUBMISSION_QUEUE);
-		consumer   = eservice.createConsumer(uri, IEventService.SUBMISSION_QUEUE, IEventService.STATUS_SET, IEventService.STATUS_TOPIC, IEventService.HEARTBEAT_TOPIC, IEventService.CMD_TOPIC);
+		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer 1");
-		consumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-		consumer.clearQueue(IEventService.STATUS_SET);
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
 	}
 
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
-		consumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-		consumer.clearQueue(IEventService.STATUS_SET);
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
 		consumer.disconnect();
 	}
 

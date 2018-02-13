@@ -15,10 +15,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -53,8 +53,8 @@ public class HeartbeatTest extends BrokerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		publisher  = eservice.createPublisher(uri, IEventService.HEARTBEAT_TOPIC);
-		subscriber = eservice.createSubscriber(uri, IEventService.HEARTBEAT_TOPIC);
+		publisher  = eservice.createPublisher(uri, EventConstants.HEARTBEAT_TOPIC);
+		subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
 	}
 
 	@After
@@ -88,13 +88,7 @@ public class HeartbeatTest extends BrokerTest {
 		publisher.setAlive(true);
 
 		final List<HeartbeatBean> gotBack = new ArrayList<>(3);
-		subscriber.addListener(new IHeartbeatListener() {
-			@Override
-			public void heartbeatPerformed(HeartbeatEvent evt) {
-				gotBack.add(evt.getBean());
-				//System.out.println("The heart beated at "+((new SimpleDateFormat()).format(new Date(evt.getBean().getPublishTime()))));
-			}
-		});
+		subscriber.addListener(event -> gotBack.add(event.getBean()));
 
 		Thread.sleep(2000);
 
@@ -113,7 +107,7 @@ public class HeartbeatTest extends BrokerTest {
 
 		try {
 			final URI uri = new URI("tcp://rubbish:5600");
-			publisher = eservice.createPublisher(uri, IEventService.HEARTBEAT_TOPIC);
+			publisher = eservice.createPublisher(uri, EventConstants.HEARTBEAT_TOPIC);
 			publisher.setAlive(true);
 
 		} catch (EventException required) {

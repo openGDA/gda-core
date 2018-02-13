@@ -36,7 +36,7 @@ import org.junit.BeforeClass;
  * @author Matthew Gerring.
  *
  */
-public class BrokerTest extends TmpTest {
+public abstract class BrokerTest extends TmpTest {
 
 	protected static URI uri;
 
@@ -77,14 +77,14 @@ public class BrokerTest extends TmpTest {
 				Arrays.asList(new PointsModelMarshaller()));
 	}
 
-//	public final IMarshallerService createNonOSGIActivemqMarshaller(Class<?>... extras) {
-//		return new MarshallerService(
-//				Arrays.asList(new ScanningAPIClassRegistry(),
-//						new ScanningExampleClassRegistry(),
-//						new XcenBeanClassRegistry(),
-//						new ScanningTestClassRegistry(extras)),
-//				Arrays.asList(new PointsModelMarshaller()));
-//	}
+	public final IMarshallerService createNonOSGIActivemqMarshaller(Class<?>... extras) {
+		return new MarshallerService(
+				Arrays.asList(new ScanningAPIClassRegistry(),
+						new ScanningExampleClassRegistry(),
+						new XcenBeanClassRegistry(),
+						new ScanningTestClassRegistry(extras)),
+				Arrays.asList(new PointsModelMarshaller()));
+	}
 
 	@AfterClass
 	public final static void stopBroker() throws Exception {

@@ -14,6 +14,7 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -53,20 +54,18 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void submit(T bean) throws EventException {
-        submit(bean, true);
+		submit(bean, true);
 	}
 
 	@Override
 	public void submit(T bean, boolean prepareBean) throws EventException {
-
-		Connection      send     = null;
-		Session         session  = null;
+		Connection send = null;
+		Session session  = null;
 		MessageProducer producer = null;
 
 		try {
-
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-			send              = connectionFactory.createConnection();
+			send = connectionFactory.createConnection();
 
 			session = send.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Queue queue = session.createQueue(getSubmitQueueName());
@@ -75,8 +74,8 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
 			if (bean.getSubmissionTime()<1) bean.setSubmissionTime(System.currentTimeMillis());
-			if (getPriority()<1)  setPriority(1);
-			if (getLifeTime()<1)  setLifeTime(7*24*60*60*1000); // 7 days in ms
+			if (getPriority()<1) setPriority(1);
+			if (getLifeTime()<1) setLifeTime(TimeUnit.DAYS.toMillis(7));
 
 			if (uniqueId==null) {
 				uniqueId = bean.getUniqueId()!=null ? bean.getUniqueId() : UUID.randomUUID().toString();
@@ -117,14 +116,12 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 				logger.error("Problem publishing to "+getStatusTopicName());
 			}
 
-
 		} catch (Exception e) {
 			throw new EventException("Problem opening connection to queue! ", e);
-
 		} finally {
 			try {
-				if (send!=null)     send.close();
-				if (session!=null)  session.close();
+				if (send!=null) send.close();
+				if (session!=null) session.close();
 				if (producer!=null) producer.close();
 			} catch (Exception e) {
 				throw new EventException("Cannot close connection as expected!", e);
@@ -135,7 +132,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException {
-
 		String topic = getTopicName();
 		if (topic == null) {
 			// We can't block if we don't know what topic to listen to.
@@ -180,25 +176,13 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public boolean remove(T bean) throws EventException {
-        return remove(bean, getSubmitQueueName());
+		return remove(bean, getSubmitQueueName());
 	}
 
 	@Override
 	public boolean replace(T bean) throws EventException {
-        return replace(bean, getSubmitQueueName());
+		return replace(bean, getSubmitQueueName());
 	}
-
-	@Override
-	public String getUniqueId() {
-		return uniqueId;
-	}
-
-
-	@Override
-	public void setUniqueId(String uniqueId) {
-		this.uniqueId = uniqueId;
-	}
-
 
 	@Override
 	public int getPriority() {

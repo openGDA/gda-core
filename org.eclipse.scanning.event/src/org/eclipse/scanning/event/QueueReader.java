@@ -11,22 +11,17 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
@@ -34,8 +29,8 @@ import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
 
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
@@ -68,120 +63,77 @@ public final class QueueReader<T> {
 
 
 	/**
-	 * Read the status beans from any queue.
+	 * Read beans from any queue.
 	 * Returns a list of optionally date-ordered beans in the queue.
 	 *
 	 * @param uri
 	 * @param queueName
-	 * @param clazz
-	 * @param monitor
-	 * @return
+	 * @param beanClass bean class
+	 * @return list of beans in the queue
 	 * @throws Exception
 	 */
-	public List<T> getBeans(final URI uri, final String queueName, final Class<T> beanClass) throws Exception {
-
-		QueueConnection qCon = null;
+	public List<T> getBeans(final URI uri, final String queueName, final Class<T> beanClass) throws EventException {
+		QueueConnection connection = null;
 		try {
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-			qCon  = connectionFactory.createQueueConnection(); // This times out when the server is not there.
-			QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue   = qSes.createQueue(queueName);
-			qCon.start();
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
+			connection = connectionFactory.createQueueConnection(); // This times out when the server is not there.
+			QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+			Queue queue = session.createQueue(queueName);
+			connection.start();
 
-			QueueBrowser qb = qSes.createBrowser(queue);
+			QueueBrowser qb = session.createBrowser(queue);
 			@SuppressWarnings("rawtypes")
-			Enumeration  e  = qb.getEnumeration();
-
+			Enumeration e  = qb.getEnumeration();
 
 			final Collection<T> list;
-			if (comparator!=null) {
-				list = new TreeSet<T>(comparator);
+			if (comparator != null) {
+				list = new TreeSet<>(comparator);
 			} else {
-				list = new ArrayList<T>(17);
+				list = new ArrayList<>();
 			}
 
-			while(e.hasMoreElements()) {
+			while (e.hasMoreElements()) {
 				Message m = (Message)e.nextElement();
-				if (m==null) continue;
 				if (m instanceof TextMessage) {
-					TextMessage t = (TextMessage)m;
-					String json   = t.getText();
-					@SuppressWarnings("unchecked")
-					final Class<T> statusBeanClass = (Class<T>) StatusBean.class;
-					try {
-						final T bean = (T)service.unmarshal(json, beanClass != null ? beanClass : statusBeanClass);
-						list.add(bean);
-
-					} catch (Exception unmarshallable) {
-						logger.error("Removing old message {}", json, unmarshallable);
-						String jMSMessageID = m.getJMSMessageID();
-						if (jMSMessageID!=null) {
-							MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-							Message ignored = consumer.receive(1000);
-							consumer.close();
-							logger.trace("Removed {}", ignored.getJMSMessageID());
-						}
-
-					}
+					processMessage(beanClass, session, queue, list, (TextMessage) m);
 				}
 			}
-			return list instanceof List ? (List<T>)list : new ArrayList<T>(list);
-
+			return list instanceof List ? (List<T>)list : new ArrayList<>(list);
+		} catch (JMSException e) {
+			throw new EventException("Could not read beans from queue", e);
 		} finally {
-			if (qCon!=null) qCon.close();
+			closeConnection(connection);
 		}
-
 	}
 
-	/**
-	 *
-	 * @param uri
-	 * @param topicName
-	 * @param clazz
-	 * @param monitorTime
-	 * @return
-	 */
-	public Map<String, T> getHeartbeats(final URI uri, final String topicName, final Class<T> clazz, final long monitorTime) throws Exception {
+	private void closeConnection(QueueConnection connection) throws EventException {
+		if (connection != null) {
+			try {
+				connection.close();
+			} catch (JMSException e) {
+				throw new EventException("Could not close queue", e);
+			}
+		}
+	}
 
-		final Map<String, T> ret = new HashMap<String, T>(3);
-		Connection topicConnection = null;
+	private void processMessage(final Class<T> beanClass, QueueSession qSes, Queue queue, final Collection<T> list,
+			TextMessage message) throws JMSException {
+		String json   = message.getText();
+		@SuppressWarnings("unchecked")
+		final Class<T> statusBeanClass = (Class<T>) StatusBean.class;
 		try {
-			ConnectionFactory connectionFactory  = (ConnectionFactory)service.createConnectionFactory(uri);
-			topicConnection = connectionFactory.createConnection();
-			topicConnection.start();
-
-			Session session = topicConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-			final Topic           topic    = session.createTopic(topicName);
-			final MessageConsumer consumer = session.createConsumer(topic);
-
-
-			MessageListener listener = new MessageListener() {
-				@Override
-				public void onMessage(Message message) {
-					try {
-						if (message instanceof TextMessage) {
-							TextMessage t = (TextMessage) message;
-							final T bean = (T)service.unmarshal(t.getText(), clazz);
-							Method nameMethod = bean.getClass().getMethod("getName");
-							ret.put((String)nameMethod.invoke(bean), bean);
-						}
-					} catch (Exception e) {
-						logger.error("Updating changed bean from topic", e);
-					}
-				}
-			};
-			consumer.setMessageListener(listener);
-			Thread.sleep(monitorTime);
-
-			return ret;
-
-		} catch (Exception ne) {
-			logger.error("Cannot listen to topic changes because command server is not there", ne);
-			return null;
-		} finally {
-			topicConnection.close();
+			final T bean = service.unmarshal(json, beanClass != null ? beanClass : statusBeanClass);
+			list.add(bean);
+		} catch (Exception unmarshallable) {
+			logger.error("Removing old message {}", json, unmarshallable);
+			String jMSMessageID = message.getJMSMessageID();
+			if (jMSMessageID != null) {
+				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
+				Message ignored = consumer.receive(1000);
+				consumer.close();
+				logger.trace("Removed {}", ignored.getJMSMessageID());
+			}
 		}
-
 	}
+
 }

@@ -22,8 +22,8 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IDisconnectable;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
@@ -47,9 +47,9 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 
 	@Override
 	public void init() throws EventException {
-		requester = eservice.createRequestor(uri, IEventService.DEVICE_REQUEST_TOPIC, IEventService.DEVICE_RESPONSE_TOPIC);
+		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		long timeout = Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceServiceTimeout", 500);
-	    logger.debug("Setting timeout {} {}" , timeout , " ms");
+		logger.debug("Setting timeout {} ms" , timeout);
 		requester.setResponseConfiguration(new ResponseConfiguration(ResponseType.ONE, timeout, TimeUnit.MILLISECONDS));
 		runnables = new HashMap<>();
 	}

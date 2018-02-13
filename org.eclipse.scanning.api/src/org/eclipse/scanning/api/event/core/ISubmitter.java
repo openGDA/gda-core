@@ -128,14 +128,6 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	boolean replace(T bean) throws EventException;
 
 	/**
-     * Unique id for the message.
-     * @return
-     */
-	String getUniqueId();
-	void setUniqueId(String uniqueId);
-
-
-	/**
 	 * Priority of the submission
 	 * @return
 	 */

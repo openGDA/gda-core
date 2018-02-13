@@ -48,7 +48,7 @@ from java.net import URI
 from java.util import HashMap, ArrayList
 from org.eclipse.dawnsci.analysis.dataset.roi import (
     CircularROI, RectangularROI, PolygonalROI, PolylineROI, PointROI)
-from org.eclipse.scanning.api.event.IEventService import (
+from org.eclipse.scanning.api.event.EventConstants import (
     SUBMISSION_QUEUE, STATUS_TOPIC)
 from org.eclipse.scanning.api.event.scan import (ScanBean, ScanRequest)
 

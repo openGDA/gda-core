@@ -22,9 +22,9 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,21 +33,22 @@ abstract class AbstractConnection {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractConnection.class);
 
-	protected final URI              uri;
-	protected String                 topicName;
+	protected final URI uri;
+	protected String topicName;
 
-	protected String                 submitQueueName  = IEventService.SUBMISSION_QUEUE;
-	protected String                 statusQueueName  = IEventService.STATUS_SET;
-	protected String                 statusTopicName  = IEventService.STATUS_TOPIC;
-	protected String                 commandTopicName = IEventService.CMD_TOPIC;
+	// set the queue and topic names to their defaults
+	protected String submitQueueName  = EventConstants.SUBMISSION_QUEUE;
+	protected String statusQueueName  = EventConstants.STATUS_SET;
+	protected String statusTopicName  = EventConstants.STATUS_TOPIC;
+	protected String commandTopicName = EventConstants.CMD_TOPIC;
 
 	protected IEventConnectorService service;
 
-	protected QueueConnection        connection;
-	protected QueueSession           qSession;
-	protected Session                session;
+	protected QueueConnection connection;
+	protected QueueSession qSession;
+	protected Session session;
 
-	private boolean disconnected;
+	private boolean disconnected = false;
 
 	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
 		this.uri = uri;
@@ -55,12 +56,13 @@ abstract class AbstractConnection {
 		this.service = service;
 	}
 
-	AbstractConnection(URI uri, String submitQName, String statusQName, String statusTName, String commandTName, IEventConnectorService service) {
+	AbstractConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
+			String commandTopicName, IEventConnectorService service) {
 		this.uri = uri;
-		this.submitQueueName = submitQName;
-		this.statusQueueName = statusQName;
-		this.statusTopicName = statusTName;
-		this.commandTopicName = commandTName;
+		this.submitQueueName = submitQueueName;
+		this.statusQueueName = statusQueueName;
+		this.statusTopicName = statusTopicName;
+		this.commandTopicName = commandTopicName;
 		this.service = service;
 	}
 
@@ -70,23 +72,22 @@ abstract class AbstractConnection {
 
 	/**
 	 * Deals with reconnecting or if broker gone down, fails
+	 * TODO consolidate these two methods. Note, they use different sessions
 	 *
 	 * @param topicName
 	 * @return
 	 * @throws JMSException
 	 */
 	protected Topic createTopic(String topicName) throws JMSException {
-
 		// Deals with reconnecting or if broker gone down, fails
 		try {
 			if (connection==null) createConnection();
 			if (session == null)  createSession();
 
 			return session.createTopic(topicName);
-
 		} catch (Exception ne) {
 			createConnection();
-			createQSession();
+			createQueueSession();
 
 			return (session!=null) ? session.createTopic(topicName) : null;
 		}
@@ -100,17 +101,15 @@ abstract class AbstractConnection {
 	 * @throws JMSException
 	 */
 	protected Queue createQueue(String queueName) throws JMSException {
-
 		// Deals with reconnecting or if broker gone down, fails
 		try {
 			if (connection==null) createConnection();
-			if (qSession == null) createQSession();
+			if (qSession == null) createQueueSession();
 
 			return qSession.createQueue(queueName);
-
 		} catch (Exception ne) {
 			createConnection();
-			createQSession();
+			createQueueSession();
 
 			return qSession.createQueue(queueName);
 		}
@@ -118,11 +117,11 @@ abstract class AbstractConnection {
 
 
 	protected void createSession() throws JMSException {
-		this.session      = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
-	private void createQSession() throws JMSException {
-		this.qSession     = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+	private void createQueueSession() throws JMSException {
+		this.qSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
 	protected void createConnection() throws JMSException {
@@ -134,13 +133,11 @@ abstract class AbstractConnection {
 
 	public void disconnect() throws EventException {
 		try {
-			if (connection!=null)        connection.close();
-			if (session!=null)           session.close();
-			if (qSession!=null)          qSession.close();
-
+			if (connection!=null) connection.close();
+			if (session!=null) session.close();
+			if (qSession!=null) qSession.close();
 		} catch (JMSException ne) {
 			logger.error("Internal error - unable to close connection!", ne);
-
 		} finally {
 			connection = null;
 			session = null;
@@ -149,70 +146,16 @@ abstract class AbstractConnection {
 		setDisconnected(true);
 	}
 
-
 	public String getTopicName() {
 		return topicName;
 	}
 
-	public void setTopicName(String topic) throws EventException {
-		if (!isListenersEmpty()) throw new EventException("Cannot change the topic while listeners are still added! They would not function correctly.");
+	public void setTopicName(String topic) {
 		this.topicName = topic;
-		disconnect();
 	}
-
-	private boolean isListenersEmpty() {
-		return true;
-	}
-
 
 	public URI getUri() {
 		return uri;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((statusQueueName == null) ? 0 : statusQueueName.hashCode());
-		result = prime * result
-				+ ((submitQueueName == null) ? 0 : submitQueueName.hashCode());
-		result = prime * result
-				+ ((topicName == null) ? 0 : topicName.hashCode());
-		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AbstractConnection other = (AbstractConnection) obj;
-		if (statusQueueName == null) {
-			if (other.statusQueueName != null)
-				return false;
-		} else if (!statusQueueName.equals(other.statusQueueName))
-			return false;
-		if (submitQueueName == null) {
-			if (other.submitQueueName != null)
-				return false;
-		} else if (!submitQueueName.equals(other.submitQueueName))
-			return false;
-		if (topicName == null) {
-			if (other.topicName != null)
-				return false;
-		} else if (!topicName.equals(other.topicName))
-			return false;
-		if (uri == null) {
-			if (other.uri != null)
-				return false;
-		} else if (!uri.equals(other.uri))
-			return false;
-		return true;
 	}
 
 	public String getSubmitQueueName() {
@@ -243,12 +186,11 @@ abstract class AbstractConnection {
 		return commandTopicName;
 	}
 
-	public void setCommandTopicName(String terminateTopicName) {
-		this.commandTopicName = terminateTopicName;
+	public void setCommandTopicName(String commandTopicName) {
+		this.commandTopicName = commandTopicName;
 	}
 
 	protected boolean isSame(Object qbean, Object bean) {
-
 		Object id1 = getUniqueId(qbean);
 		if (id1==null) return qbean.equals(bean); // Probably it won't because we are updating it but they might have transient fields.
 
@@ -259,7 +201,6 @@ abstract class AbstractConnection {
 	}
 
 	private Object getUniqueId(Object bean) {
-
 		if (bean instanceof StatusBean) {
 			return ((StatusBean)bean).getUniqueId();
 		}

@@ -15,9 +15,7 @@ import org.eclipse.scanning.api.event.bean.IBeanClassListener;
 
 public interface IHeartbeatListener extends IBeanClassListener<HeartbeatBean> {
 
-	default void heartbeatPerformed(HeartbeatEvent evt) {
-		// default implementation does nothing, subclasses should override as necessary
-	}
+	public void heartbeatPerformed(HeartbeatEvent evt);
 
 	@Override
 	default Class<HeartbeatBean> getBeanClass() {

@@ -11,11 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
+import static org.eclipse.scanning.api.event.EventConstants.CMD_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.HEARTBEAT_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.STATUS_SET;
+import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
+
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -48,8 +55,8 @@ public class EventServiceImpl implements IEventService {
 
 	// For tests
 	public EventServiceImpl(IEventConnectorService serviceToUse) {
+		Objects.requireNonNull(serviceToUse);
 		eventConnectorService = serviceToUse;
-		if (eventConnectorService==null) throw new NullPointerException("No '"+IEventConnectorService.class.getSimpleName()+"' was found!");
 	}
 
 	public static void setEventConnectorService(IEventConnectorService eventService) {
@@ -58,13 +65,13 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <T extends EventListener> ISubscriber<T> createSubscriber(URI uri, String topicName) {
-		return new SubscriberImpl<T>(uri, topicName, eventConnectorService);
+		return new SubscriberImpl<>(uri, topicName, eventConnectorService);
 	}
 
 
 	@Override
 	public <U> IPublisher<U> createPublisher(URI uri, String topicName) {
-		return new PublisherImpl<U>(uri, topicName, eventConnectorService);
+		return new PublisherImpl<>(uri, topicName, eventConnectorService);
 	}
 
 	@Override
@@ -80,23 +87,17 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri,
-			                               String submissionQName,
-			                               String statusQName,
-			                               String statusTName) throws EventException {
-		return createConsumer(uri, submissionQName, statusQName, statusTName, HEARTBEAT_TOPIC, CMD_TOPIC);
+	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
+			String statusQueueName, String statusTopicName) throws EventException {
+		return createConsumer(uri, submissionQueueName, statusQueueName, statusTopicName, HEARTBEAT_TOPIC, CMD_TOPIC);
 	}
 
 
 	@Override
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri,
-			                               String submissionQName,
-			                               String statusQName,
-			                               String statusTName,
-			                               String heartbeatTName,
-			                               String commandTName) throws EventException {
-
-		return new ConsumerImpl<U>(uri, submissionQName, statusQName, statusTName, heartbeatTName, commandTName, eventConnectorService, this);
+	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName, String statusQueueName,
+			String statusTopicName, String heartbeatTopicName, String commandTopicName) throws EventException {
+		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName,
+				commandTopicName, eventConnectorService, this);
 
 	}
 
@@ -108,18 +109,18 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <T extends INameable> void checkTopic(URI uri, String patientName, long listenTime, String topicName, Class<T> beanClass) throws EventException, InterruptedException {
-		TopicChecker<T> checker = new TopicChecker<T>(this, uri, patientName, listenTime, topicName, beanClass);
+		TopicChecker<T> checker = new TopicChecker<>(this, uri, patientName, listenTime, topicName, beanClass);
 		checker.checkPulse();
 	}
 
 	@Override
 	public <T extends IdBean> IRequester<T> createRequestor(URI uri, String requestTopic, String responseTopic) throws EventException {
-		return new RequesterImpl<T>(uri, requestTopic, responseTopic, this);
+		return new RequesterImpl<>(uri, requestTopic, responseTopic, this);
 	}
 
 	@Override
 	public <T extends IdBean> IResponder<T> createResponder(URI uri, String requestTopic, String responseTopic) throws EventException {
-		return new ResponderImpl<T>(uri, requestTopic, responseTopic, this);
+		return new ResponderImpl<>(uri, requestTopic, responseTopic, this);
 	}
 
 	@Override
@@ -129,18 +130,18 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <T> IQueueReader<T> createQueueReader(URI uri, String queueName) {
-	    return new QueueReaderImpl<T>(uri, queueName, this);
+		return new QueueReaderImpl<>(uri, queueName, this);
 	}
 
 	private Map<String, SoftReference<?>> cachedServices;
 
 	@Override
 	public synchronized <T> T createRemoteService(URI uri, Class<T> serviceClass) throws EventException {
-
 		if (cachedServices==null) cachedServices = new HashMap<>(7);
 		try {
 			String key = ""+uri+serviceClass.getName();
 			if (cachedServices.containsKey(key)) {
+				@SuppressWarnings("unchecked")
 				SoftReference<T> ref = (SoftReference<T>)cachedServices.get(key);
 				if (ref.get()!=null) {
 					T service = ref.get();
@@ -160,7 +161,6 @@ public class EventServiceImpl implements IEventService {
 			T service = RemoteServiceFactory.getRemoteService(uri, serviceClass, this);
 			cachedServices.put(key, new SoftReference<T>(service));
 			return service;
-
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new EventException("There problem creating service for "+serviceClass, e);
 		}

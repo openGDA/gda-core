@@ -92,8 +92,8 @@ public class ThreadScanTest extends BrokerTest {
 
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html
-		subscriber = eservice.createSubscriber(uri, IEventService.SCAN_TOPIC); // Create an in memory consumer of messages.
-		publisher  = eservice.createPublisher(uri, IEventService.SCAN_TOPIC);
+		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC); // Create an in memory consumer of messages.
+		publisher  = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC);
 	}
 
 	@After

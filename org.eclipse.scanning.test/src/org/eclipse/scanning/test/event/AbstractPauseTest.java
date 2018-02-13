@@ -22,6 +22,7 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.PauseBean;
@@ -50,9 +51,9 @@ public class AbstractPauseTest extends BrokerTest{
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
-		consumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-		consumer.clearQueue(IEventService.STATUS_SET);
-		consumer.clearQueue(IEventService.CMD_SET);
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearQueue(EventConstants.CMD_SET);
 		consumer.disconnect();
 	}
 
@@ -66,8 +67,8 @@ public class AbstractPauseTest extends BrokerTest{
 
 		Thread.sleep(200);
 
-		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), IEventService.CMD_TOPIC);
-		pauser.setStatusSetName(IEventService.CMD_SET);
+		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		pauser.setStatusSetName(EventConstants.CMD_SET);
 		pauser.setStatusSetAddRequired(true);
 
 		PauseBean pbean = new PauseBean();
@@ -97,8 +98,8 @@ public class AbstractPauseTest extends BrokerTest{
 
 		Thread.sleep(200);
 
-		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), IEventService.CMD_TOPIC);
-		pauser.setStatusSetName(IEventService.CMD_SET);
+		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		pauser.setStatusSetName(EventConstants.CMD_SET);
 		pauser.setStatusSetAddRequired(true);
 
 		PauseBean pbean = new PauseBean();
@@ -136,8 +137,8 @@ public class AbstractPauseTest extends BrokerTest{
 			submitter.submit(bean);
 		}
 
-		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), IEventService.CMD_TOPIC);
-		pauser.setStatusSetName(IEventService.CMD_SET);
+		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		pauser.setStatusSetName(EventConstants.CMD_SET);
 		pauser.setStatusSetAddRequired(true);
 
 		PauseBean pbean = new PauseBean();
@@ -209,8 +210,8 @@ public class AbstractPauseTest extends BrokerTest{
 		consumer.start();
 
 		Thread.sleep(500);
-		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), IEventService.CMD_TOPIC);
-		pauser.setStatusSetName(IEventService.CMD_SET);
+		IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		pauser.setStatusSetName(EventConstants.CMD_SET);
 		pauser.setStatusSetAddRequired(true);
 
 		PauseBean pbean = new PauseBean();

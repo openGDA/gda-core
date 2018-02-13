@@ -59,9 +59,7 @@ public class SubmissionTest extends AbstractJythonTest {
 		consumer.setRunner(new IProcessCreator<ScanBean>() {
 			@Override
 			public IConsumerProcess<ScanBean> createProcess(
-					ScanBean bean, IPublisher<ScanBean> statusNotifier)
-							throws EventException {
-
+					ScanBean bean, IPublisher<ScanBean> statusNotifier) throws EventException {
 				return new AbstractLockingPausableProcess<ScanBean>(bean, statusNotifier) {
 
 					@Override

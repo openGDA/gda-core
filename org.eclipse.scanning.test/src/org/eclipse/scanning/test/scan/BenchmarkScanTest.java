@@ -217,9 +217,9 @@ public class BenchmarkScanTest extends BrokerTest {
 	private long benchmarkNexusWithEvents(int imageSize, long max)  throws Exception {
 
 		// We create a publisher and subscriber for the scan.
-		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, IEventService.STATUS_TOPIC);
+		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, IEventService.STATUS_TOPIC);
+		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 		final Set<DeviceState> states = new HashSet<DeviceState>(5);
 		subscriber.addListener(new IScanListener() {
 			@Override

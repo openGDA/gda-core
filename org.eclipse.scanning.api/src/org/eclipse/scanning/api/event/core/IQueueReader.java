@@ -19,7 +19,7 @@ public interface IQueueReader<T> extends IURIConnection, IBeanClass<T> {
 
 	/**
 	 * The queue of beans type T, unordered
-	 * @return
+	 * @return queue of beans
 	 * @throws EventException
 	 */
 	public List<T> getQueue() throws EventException;

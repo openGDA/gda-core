@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -27,9 +30,9 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.KillBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -59,23 +62,21 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Before
 	public void start() throws Exception {
-
 		Constants.setNotificationFrequency(200); // Normally 2000
 		Constants.setReceiveFrequency(100);
 	}
 
 	@After
 	public void stop() throws Exception {
-
-	Constants.setNotificationFrequency(2000); // Normally 2000
+		Constants.setNotificationFrequency(2000); // Normally 2000
 		submitter.disconnect();
-		consumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-		consumer.clearQueue(IEventService.STATUS_SET);
-		consumer.clearQueue(IEventService.CMD_SET);
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearQueue(EventConstants.CMD_SET);
 		consumer.disconnect();
 	}
 
-    @Test
+	@Test
 	public void testSimpleSubmission() throws Exception {
 
 		StatusBean bean = doSubmit();
@@ -86,7 +87,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		try {
 			Session   session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue = session.createQueue(IEventService.SUBMISSION_QUEUE);
+			Queue queue = session.createQueue(EventConstants.SUBMISSION_QUEUE);
 
 			final MessageConsumer consumer = session.createConsumer(queue);
 			connection.start();
@@ -104,9 +105,8 @@ public class AbstractConsumerTest extends BrokerTest {
 		}
 	}
 
-    @Test
+	@Test
 	public void testSimpleConsumer() throws Exception {
-
 		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
@@ -120,51 +120,47 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		StatusBean complete = stati.get(0);
 
-	if (complete.equals(bean)) {
-		throw new Exception("The bean from the status queue was the same as that submitted! It should have a different status. q="+complete+" submit="+bean);
+		if (complete.equals(bean)) {
+			throw new Exception("The bean from the status queue was the same as that submitted! It should have a different status. q="+complete+" submit="+bean);
+		}
+		assertEquals("The bean in the queue is not complete!", Status.COMPLETE, complete.getStatus());
+		if (complete.getPercentComplete()<100) {
+			throw new Exception("The percent complete is less than 100!"+complete);
+		}
 	}
 
-	if (complete.getStatus()!=Status.COMPLETE) {
-		throw new Exception("The bean in the queue is not complete!"+complete);
-	}
-	if (complete.getPercentComplete()<100) {
-		throw new Exception("The percent complete is less than 100!"+complete);
-	}
-    }
-
-
-    @Test
-    public void testBeanClass() throws Exception {
-
-		IConsumer<StatusBean> fconsumer   = eservice.createConsumer(this.consumer.getUri(), IEventService.SUBMISSION_QUEUE, IEventService.STATUS_SET, IEventService.STATUS_TOPIC, IEventService.HEARTBEAT_TOPIC, IEventService.CMD_TOPIC);
+	@Test
+	public void testBeanClass() throws Exception {
+		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
+				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
+				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
 			fconsumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.cleanQueue(consumer.getSubmitQueueName());
 			fconsumer.start(); // No bean!
 
-		FredStatusBean bean = new FredStatusBean();
+			FredStatusBean bean = new FredStatusBean();
 			bean.setName("Frederick");
 
 			dynamicBean(bean, fconsumer, 1);
-
 		} finally {
-			fconsumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-			fconsumer.clearQueue(IEventService.STATUS_SET);
+			fconsumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+			fconsumer.clearQueue(EventConstants.STATUS_SET);
 			fconsumer.disconnect();
 		}
-
-    }
+	}
 
 	@Test
-    public void testBeanClass2Beans() throws Exception {
-
-		IConsumer<StatusBean> fconsumer   = eservice.createConsumer(this.consumer.getUri(), IEventService.SUBMISSION_QUEUE, IEventService.STATUS_SET, IEventService.STATUS_TOPIC, IEventService.HEARTBEAT_TOPIC, IEventService.CMD_TOPIC);
+	public void testBeanClass2Beans() throws Exception {
+		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
+				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
+				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
 			fconsumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.cleanQueue(consumer.getSubmitQueueName());
 			fconsumer.start();// It's going now, we can submit
 
-		FredStatusBean fred = new FredStatusBean();
+			FredStatusBean fred = new FredStatusBean();
 			fred.setName("Frederick");
 			dynamicBean(fred, fconsumer, 1);
 
@@ -173,16 +169,14 @@ public class AbstractConsumerTest extends BrokerTest {
 			dynamicBean(bill, fconsumer, 2);
 
 		} finally {
-			fconsumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-			fconsumer.clearQueue(IEventService.STATUS_SET);
+			fconsumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+			fconsumer.clearQueue(EventConstants.STATUS_SET);
 			fconsumer.disconnect();
 		}
+	}
 
-    }
-
-    private void dynamicBean(final StatusBean bean, IConsumer<StatusBean> fconsumer, int statusSize) throws Exception {
-
-	// Hard code the service for the test
+	private void dynamicBean(final StatusBean bean, IConsumer<StatusBean> fconsumer, int statusSize) throws Exception {
+		// Hard code the service for the test
 		ISubscriber<EventListener> sub = eservice.createSubscriber(fconsumer.getUri(), fconsumer.getStatusTopicName());
 		sub.addListener(new IBeanListener<StatusBean>() {
 			@Override
@@ -198,39 +192,36 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(500);
 
-		List<StatusBean> stati = fconsumer.getStatusSet();
-		if (stati.size()!=statusSize) throw new Exception("Unexpected status size in queue! Size "+stati.size()+" expected "+statusSize+". Might not have status or have forgotten to clear at end of test!");
+		List<StatusBean> statusBeans = fconsumer.getStatusSet();
+		assertEquals("Unexpected status size in queue! Size "+statusBeans.size()+" expected "+statusSize+". Might not have status or have forgotten to clear at end of test!",
+				statusSize, statusBeans.size());
 
-		StatusBean complete = stati.get(0); // The queue is date sorted.
+		StatusBean complete = statusBeans.get(0); // The queue is date sorted.
 
-	if (complete.equals(bean)) {
-		throw new Exception("The bean from the status queue was the same as that submitted! It should have a different status. q="+complete+" submit="+bean);
+		assertNotEquals("The bean from the status queue was the same as that submitted! It should have a different status. q="+complete+" submit="+bean,
+				complete, bean);
+
+		assertEquals("The bean in the queue is not complete!"+complete, Status.COMPLETE, complete.getStatus());
+		assertEquals("The percent complete is not 100!", 100, complete.getPercentComplete(), 1e-15);
+
+		sub.disconnect();
 	}
 
-	if (complete.getStatus()!=Status.COMPLETE) {
-		throw new Exception("The bean in the queue is not complete!"+complete);
-	}
-	if (complete.getPercentComplete()<100) {
-		throw new Exception("The percent complete is less than 100!"+complete);
-	}
-
-	sub.disconnect();
-	}
-
-    @Ignore("TODO Figure out why noit reliable in travis, works locally")
-    @Test
+	@Ignore("TODO Figure out why noit reliable in travis, works locally")
+	@Test
 	public void testConsumerStop() throws Exception {
-        testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
-    }
-    @Ignore("TODO Figure out why noit reliable in travis, works locally")
-    @Test
+		testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
+	}
+
+	@Ignore("TODO Figure out why noit reliable in travis, works locally")
+	@Test
 	public void testConsumerStopNonBlockingProcess() throws Exception {
-        testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, false));
-    }
+		testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, false));
+	}
 
-    private void testStop(IProcessCreator<StatusBean> dryRunCreator) throws Exception {
-
+	private void testStop(IProcessCreator<StatusBean> dryRunCreator) throws Exception {
 		consumer.setRunner(dryRunCreator);
+
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -242,14 +233,11 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(1000);
 		checkTerminatedProcess(bean);
-
 	}
 
-
-    @Test
-    public void testKillingAConsumer() throws Exception {
-
-	consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
+	@Test
+	public void testKillingAConsumer() throws Exception {
+		consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -257,7 +245,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(1000); // 10 points
 
-		IPublisher<KillBean> killer = eservice.createPublisher(submitter.getUri(), IEventService.CMD_TOPIC);
+		IPublisher<KillBean> killer = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		KillBean kbean = new KillBean();
 		kbean.setConsumerId(consumer.getConsumerId());
 		kbean.setExitProcess(false); // Or tests would exit!
@@ -266,8 +254,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(2500);
 		checkTerminatedProcess(bean);
-
-    }
+	}
 
 	@Test
 	public void testAbortingAJobRemotely() throws Exception {
@@ -280,11 +267,11 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(200);
 
-		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), IEventService.STATUS_TOPIC);
-        bean.setStatus(Status.REQUEST_TERMINATE);
-        terminator.broadcast(bean);
+		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), EventConstants.STATUS_TOPIC);
+		bean.setStatus(Status.REQUEST_TERMINATE);
+		terminator.broadcast(bean);
 
-        Thread.sleep(1000);
+		Thread.sleep(1000);
 		checkTerminatedProcess(bean);
 	}
 
@@ -299,86 +286,80 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(200);
 
-		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), IEventService.STATUS_TOPIC);
-        bean.setStatus(Status.REQUEST_TERMINATE);
-        terminator.broadcast(bean);
+		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), EventConstants.STATUS_TOPIC);
+		bean.setStatus(Status.REQUEST_TERMINATE);
+		terminator.broadcast(bean);
 
-        Thread.sleep(2000);
+		Thread.sleep(2000);
 		checkTerminatedProcess(bean);
 	}
 
-
 	private void checkTerminatedProcess(StatusBean bean) throws Exception {
-
 		List<StatusBean> stati = consumer.getStatusSet();
-		if (stati.size()!=1) throw new Exception("Unexpected status size ("+stati.size()+") in queue!  Might not have status or have forgotten to clear at end of test!");
+		if (stati.size() != 1)
+			throw new Exception("Unexpected status size (" + stati.size()
+					+ ") in queue!  Might not have status or have forgotten to clear at end of test!");
 
 		StatusBean complete = stati.get(0);
 
-	if (complete.equals(bean)) {
-		throw new Exception("The bean from the status queue was the same as that submitted! It should have a different status. q="+complete+" submit="+bean);
+		if (complete.equals(bean)) {
+			throw new Exception(
+					"The bean from the status queue was the same as that submitted! It should have a different status. q="
+							+ complete + " submit=" + bean);
+		}
+
+		if (complete.getStatus() != Status.TERMINATED) {
+			throw new Exception("The bean in the queue should be terminated after a stop! It was " + complete);
+		}
+		if (complete.getPercentComplete() == 100) {
+			throw new Exception("The percent complete should not be 100!" + complete);
+		}
 	}
 
-	if (complete.getStatus()!=Status.TERMINATED) {
-		throw new Exception("The bean in the queue should be terminated after a stop! It was "+complete);
-	}
-	if (complete.getPercentComplete()==100) {
-		throw new Exception("The percent complete should not be 100!"+complete);
-	}
-	}
-
-    @Test
-    public void testHeartbeat() throws Exception {
-
-	ISubscriber<IHeartbeatListener> subscriber=null;
-	try {
+	@Test
+	public void testHeartbeat() throws Exception {
+		ISubscriber<IHeartbeatListener> subscriber = null;
+		try {
 			consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
 			consumer.cleanQueue(consumer.getSubmitQueueName());
 			consumer.start();
 
-			subscriber = eservice.createSubscriber(consumer.getUri(), IEventService.HEARTBEAT_TOPIC);
+			subscriber = eservice.createSubscriber(consumer.getUri(), EventConstants.HEARTBEAT_TOPIC);
 			final List<HeartbeatBean> gotBack = new ArrayList<>(3);
-			subscriber.addListener(new IHeartbeatListener() {
-				@Override
-				public void heartbeatPerformed(HeartbeatEvent evt) {
-					gotBack.add(evt.getBean());
-					//System.out.println("The heart beated at "+((new SimpleDateFormat()).format(new Date(evt.getBean().getPublishTime()))));
-				}
-			});
+			subscriber.addListener(evt -> gotBack.add(evt.getBean()));
 
 			Thread.sleep(800);
-			if (gotBack.size()<1) throw new Exception("No hearbeat the paitent might be dead!");
+			if (gotBack.size() < 1)
+				throw new Exception("No hearbeat the paitent might be dead!");
 
 			doSubmit();
 			Thread.sleep(500);
-			consumer.stop();  // Should also stop heartbeat within 2s
+			consumer.stop(); // Should also stop heartbeat within 2s
 			Thread.sleep(300);
 
 			final int sizeBeforeSleep = gotBack.size();
-			if (sizeBeforeSleep<2) throw new Exception("No hearbeat the paitent might be dead!");
+			if (sizeBeforeSleep < 2)
+				throw new Exception("No hearbeat the paitent might be dead!");
 
 			Thread.sleep(400); // Should beat again if not dead
-
 			final int sizeAfterSleep = gotBack.size();
-			if (sizeAfterSleep!=sizeBeforeSleep) {
-				throw new Exception("The pulse continues to beat after death. Ahhhhhh! Is it a vampir? Do we need the garlic?!");
-			}
-	} finally {
+			assertEquals("Got a heartbean after stopping the consumer", sizeBeforeSleep, sizeAfterSleep);
+		} finally {
 			subscriber.disconnect();
+		}
 	}
-   }
 
-   private StatusBean doSubmit() throws Exception {
-	   return doSubmit("Test");
-   }
-   private StatusBean doSubmit(String name) throws Exception {
+	private StatusBean doSubmit() throws Exception {
+		return doSubmit("Test");
+	}
 
+	private StatusBean doSubmit(String name) throws Exception {
 		StatusBean bean = new StatusBean();
 		bean.setName(name);
 		return doSubmit(bean);
-   }
-   private StatusBean doSubmit(StatusBean bean) throws Exception {
+	}
 
+	private StatusBean doSubmit(StatusBean bean) throws Exception {
 		bean.setStatus(Status.SUBMITTED);
 		bean.setHostName(InetAddress.getLocalHost().getHostName());
 		bean.setMessage("Hello World");
@@ -389,11 +370,10 @@ public class AbstractConsumerTest extends BrokerTest {
 		return bean;
 	}
 
-    @Ignore("Test gives unpredicatable errors on travis.")
-    @Test
-    public void testMultipleSubmissions() throws Exception {
-
-	consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 100L, false));
+	@Ignore("Test gives unpredicatable errors on travis.")
+	@Test
+	public void testMultipleSubmissions() throws Exception {
+		consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 100L, false));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -407,11 +387,9 @@ public class AbstractConsumerTest extends BrokerTest {
 		Thread.sleep(1000);
 
 		checkStatus(submissions);
+	}
 
-    }
-
-    private void checkStatus(List<StatusBean> submissions) throws Exception {
-
+	private void checkStatus(List<StatusBean> submissions) throws Exception {
 	List<StatusBean> stati = consumer.getStatusSet();
 		if (stati.size()!=10) throw new Exception("Unexpected status size in queue! Should be 10 size is "+stati.size());
 
@@ -437,8 +415,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	}
 
 	@Test
-    public void testMultipleSubmissionsUsingThreads() throws Exception {
-
+	public void testMultipleSubmissionsUsingThreads() throws Exception {
 		consumer.setRunner(new FastRunCreator<StatusBean>(100L, false));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
@@ -467,8 +444,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		Thread.sleep(2500);
 
 		checkStatus(submissions);
-
-    }
+	}
 
 
 }

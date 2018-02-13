@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IDisconnectable;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -342,9 +343,9 @@ public class AbstractScanTest extends BrokerTest {
 
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html
-		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, IEventService.STATUS_TOPIC);
+		final IPublisher<ScanBean> publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, IEventService.STATUS_TOPIC);
+		final ISubscriber<IScanListener> subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 		final List<ScanBean>    events = new ArrayList<ScanBean>(11);
 		final List<DeviceState> states = new ArrayList<DeviceState>(11);
 		subscriber.addListener(new IScanListener() {

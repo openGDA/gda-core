@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
-import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.junit.Before;
@@ -36,10 +36,10 @@ public class PauseTest extends AbstractPauseTest{
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		submitter  = eservice.createSubmitter(uri, IEventService.SUBMISSION_QUEUE);
-		consumer   = eservice.createConsumer(uri, IEventService.SUBMISSION_QUEUE, IEventService.STATUS_SET, IEventService.STATUS_TOPIC);
+		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
 		consumer.setName("Test Consumer");
-		consumer.clearQueue(IEventService.SUBMISSION_QUEUE);
-		consumer.clearQueue(IEventService.STATUS_SET);
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
 	}
 }

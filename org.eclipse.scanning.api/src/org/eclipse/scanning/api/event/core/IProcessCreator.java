@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.event.EventException;
  *
  * @param <T>
  */
+@FunctionalInterface
 public interface IProcessCreator<T> {
 
 	IConsumerProcess<T> createProcess(T bean, IPublisher<T> statusNotifier) throws EventException;

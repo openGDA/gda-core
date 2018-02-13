@@ -17,12 +17,10 @@ import java.net.URISyntaxException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IConsumerProcess;
-import org.eclipse.scanning.api.event.core.IProcessCreator;
-import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.servlet.IConsumerServlet;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
@@ -50,32 +48,32 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Gerring
  *
- * @param <T>
+ * @param <T> the type of bean consumed by this servlet
  */
-public abstract class AbstractConsumerServlet<B extends StatusBean> implements IConsumerServlet<B> {
+public abstract class AbstractConsumerServlet<T extends StatusBean> implements IConsumerServlet<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractConsumerServlet.class);
 
 	protected IEventService eventService;
-	protected String        broker;
+	protected String broker;
 
 	// Property to specify if one scan at a time or more are completed.
-	private boolean         blocking = true;
-	private boolean         durable  = true;
-	private boolean         purgeQueue = true;
-	private boolean         pauseOnStart = false;
+	private boolean blocking = true;
+	private boolean durable  = true;
+	private boolean purgeQueue = true;
+	private boolean pauseOnStart = false;
 
 	// Recommended to configure these as
-	protected String        submitQueue = IEventService.SUBMISSION_QUEUE;
-	protected String        statusSet   = IEventService.STATUS_SET;
-	protected String        statusTopic = IEventService.STATUS_TOPIC;
+	protected String submitQueue = EventConstants.SUBMISSION_QUEUE;
+	protected String statusSet   = EventConstants.STATUS_SET;
+	protected String statusTopic = EventConstants.STATUS_TOPIC;
 
 	// Recommended not to change these because easier for UI to inspect consumer created
-	protected String        heartbeatTopic = IEventService.HEARTBEAT_TOPIC;
-	protected String        killTopic      = IEventService.CMD_TOPIC;
+	protected String heartbeatTopic = EventConstants.HEARTBEAT_TOPIC;
+	protected String killTopic      = EventConstants.CMD_TOPIC;
 
-	protected IConsumer<B> consumer;
-	private boolean        isConnected;
+	protected IConsumer<T> consumer;
+	private boolean isConnected;
 
 	protected AbstractConsumerServlet() {
 		this.eventService = Services.getEventService();
@@ -89,45 +87,39 @@ public abstract class AbstractConsumerServlet<B extends StatusBean> implements I
 	}
 
 	@Override
-	@PostConstruct  // Requires spring 3 or better
-    public void connect() throws EventException, URISyntaxException {
+	@PostConstruct // Requires spring 3 or better
+	public void connect() throws EventException, URISyntaxException {
+		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusSet(), getStatusTopic(),
+				getHeartbeatTopic(), getKillTopic());
+		consumer.setName(getName());
+		consumer.setDurable(isDurable());
+		consumer.setRunner(AbstractConsumerServlet.this::createProcess);
+		consumer.setPauseOnStart(pauseOnStart);
 
-	consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusSet(), getStatusTopic(), getHeartbeatTopic(), getKillTopic());
-	consumer.setName(getName());
-	consumer.setDurable(isDurable());
-	consumer.setRunner(new DoObjectCreator<B>());
-	consumer.setPauseOnStart(pauseOnStart);
+		// Purge old jobs, we wouldn't want those running.
+		// This suggests that DAQ should have one
+		// AbstractConsumerServlet for each queue or when
+		// another one starts, it might purge the old one.
+		// Use setPurgeQueue(false) to stop it.
+		if (isPurgeQueue())
+			consumer.cleanQueue(getStatusSet());
 
-	// Purge old jobs, we wouldn't want those running.
-	// This suggests that DAQ should have one
-	// AbstractConsumerServlet for each queue or when
-	// another one starts, it might purge the old one.
-	// Use setPurgeQueue(false) to stop it.
-	if (isPurgeQueue()) consumer.cleanQueue(getStatusSet());
-
-	consumer.start();
-	isConnected = true;
-	logger.info("Started "+getClass().getSimpleName());
-
-   }
+		consumer.start();
+		isConnected = true;
+		logger.info("Started " + getClass().getSimpleName());
+	}
 
 	protected abstract String getName();
 
-	class DoObjectCreator<T> implements IProcessCreator<B> {
-		@Override
-		public IConsumerProcess<B> createProcess(B bean, IPublisher<B> response) throws EventException {
-			return AbstractConsumerServlet.this.createProcess(bean, response);
-		}
-	}
-
 	@Override
 	@PreDestroy
-    public void disconnect() throws EventException {
-		if (!isConnected) return; // Nothing to disconnect
-	consumer.disconnect();
-    }
+	public void disconnect() throws EventException {
+		if (!isConnected)
+			return; // Nothing to disconnect
+		consumer.disconnect();
+	}
 
-	public IConsumer<B> getConsumer() {
+	public IConsumer<T> getConsumer() {
 		return consumer;
 	}
 
@@ -207,7 +199,7 @@ public abstract class AbstractConsumerServlet<B extends StatusBean> implements I
 		this.purgeQueue = purgeQueue;
 	}
 
-	public void setConsumer(IConsumer<B> consumer) {
+	public void setConsumer(IConsumer<T> consumer) {
 		this.consumer = consumer;
 	}
 

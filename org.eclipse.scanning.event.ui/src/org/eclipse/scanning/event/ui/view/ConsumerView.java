@@ -35,11 +35,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerBean;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.KillBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -114,7 +114,7 @@ public class ConsumerView extends EventConnectionView {
 	/**
 	 * Listens to a topic
 	 */
-	private void createTopicListener(final URI uri) throws Exception {
+	private void createTopicListener(final URI uri) {
 
 		// Use job because connection might timeout.
 		final Job topicJob = new Job("Create topic listener") {
@@ -123,17 +123,13 @@ public class ConsumerView extends EventConnectionView {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					heartMonitor = service.createSubscriber(uri, IEventService.HEARTBEAT_TOPIC);
-					heartMonitor.addListener(new IHeartbeatListener() {
-						@Override
-						public void heartbeatPerformed(HeartbeatEvent evt) {
-
+					heartMonitor = service.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
+					heartMonitor.addListener(evt -> {
 							HeartbeatBean bean = evt.getBean();
-						bean.setLastAlive(System.currentTimeMillis());
-						sync(bean);
+							bean.setLastAlive(System.currentTimeMillis());
+							sync(bean);
 						}
-
-					});
+					);
 
 					// This subscriber should be removed around DAWN 2.2 please. There will not be
 					// any more old consumers doing this then.
@@ -144,14 +140,15 @@ public class ConsumerView extends EventConnectionView {
 						public void beanChangePerformed(BeanEvent<ConsumerBean> evt) {
 
 							ConsumerBean cbean = evt.getBean();
-							HeartbeatBean bean  = cbean.toHeartbeat();
-						bean.setLastAlive(System.currentTimeMillis());
-						sync(bean);
+							HeartbeatBean bean = cbean.toHeartbeat();
+							bean.setLastAlive(System.currentTimeMillis());
+							sync(bean);
 						}
-                        @Override
+
+						@Override
 						public Class<ConsumerBean> getBeanClass() {
-				return ConsumerBean.class;
-                        }
+							return ConsumerBean.class;
+						}
 					});
 
 					return Status.OK_STATUS;
@@ -270,7 +267,7 @@ public class ConsumerView extends EventConnectionView {
 		               "Runs yet to be started will be picked up when\n"+
 		               "'"+bean.getConsumerName()+"' restarts.");
 		try {
-			final IPublisher<AdministratorMessage> send = service.createPublisher(new URI(Activator.getJmsUri()), IEventService.ADMIN_MESSAGE_TOPIC);
+			final IPublisher<AdministratorMessage> send = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.ADMIN_MESSAGE_TOPIC);
 			send.broadcast(msg);
 			} catch (Exception e) {
 				logger.error("Cannot notify of shutdown!", e);
@@ -318,7 +315,7 @@ public class ConsumerView extends EventConnectionView {
 	private void send(HeartbeatBean bean, KillBean kbean) {
 
 		try {
-			final IPublisher<KillBean> send = service.createPublisher(new URI(Activator.getJmsUri()), IEventService.CMD_TOPIC);
+			final IPublisher<KillBean> send = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.CMD_TOPIC);
 			send.broadcast(kbean);
 		} catch (Exception e) {
 			logger.error("Cannot terminate consumer "+bean.getConsumerName(), e);

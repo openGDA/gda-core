@@ -36,7 +36,6 @@ import org.eclipse.scanning.api.event.EventException;
  *
  * <b>Listen to specific events for a given scan:</b>
  *
- * <pre>
  * {@code
  * IScanListener listener2 = new IScanListener() {
  * 		{@literal @}Override
@@ -45,7 +44,7 @@ import org.eclipse.scanning.api.event.EventException;
  *  		}
  * sub.addListener(<b>id</b>, listener2);
  * }
- * </pre>
+ * }
  *
  * NOTE: If a listener is registered it will then be associated with the scan it
  * is registered with only. It should be unregistered and readded. So for

@@ -107,8 +107,8 @@ public class LinearScanTest extends BrokerTest{
 		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		org.eclipse.scanning.sequencer.ServiceHolder.setTestServices(new LoaderServiceMock(), new DefaultNexusBuilderFactory(), null);
 
-		this.publisher = eservice.createPublisher(uri, IEventService.STATUS_TOPIC);
-		this.subscriber = eservice.createSubscriber(uri, IEventService.STATUS_TOPIC);
+		this.publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
+		this.subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
 		tmp = File.createTempFile("testAScan_", ".nxs");
 		tmp.deleteOnExit();

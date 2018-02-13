@@ -74,14 +74,14 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 		dservlet = new DeviceServlet();
 		dservlet.setBroker(uri.toString());
-		dservlet.setRequestTopic(IEventService.DEVICE_REQUEST_TOPIC);
-		dservlet.setResponseTopic(IEventService.DEVICE_RESPONSE_TOPIC);
+		dservlet.setRequestTopic(EventConstants.DEVICE_REQUEST_TOPIC);
+		dservlet.setResponseTopic(EventConstants.DEVICE_RESPONSE_TOPIC);
 		dservlet.connect();
 
 		pservlet = new PositionerServlet();
 		pservlet.setBroker(uri.toString());
-		pservlet.setRequestTopic(IEventService.POSITIONER_REQUEST_TOPIC);
-		pservlet.setResponseTopic(IEventService.POSITIONER_RESPONSE_TOPIC);
+		pservlet.setRequestTopic(EventConstants.POSITIONER_REQUEST_TOPIC);
+		pservlet.setResponseTopic(EventConstants.POSITIONER_RESPONSE_TOPIC);
 		pservlet.connect();
 		System.out.println("Made Servlets");
 

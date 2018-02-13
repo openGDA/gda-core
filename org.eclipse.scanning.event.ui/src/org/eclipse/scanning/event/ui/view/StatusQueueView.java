@@ -227,7 +227,7 @@ public class StatusQueueView extends EventConnectionView {
 							}
 						});
 
-					adminMonitor = service.createSubscriber(uri, IEventService.ADMIN_MESSAGE_TOPIC);
+					adminMonitor = service.createSubscriber(uri, EventConstants.ADMIN_MESSAGE_TOPIC);
 					adminMonitor.addListener(evt -> {
 							final AdministratorMessage bean = evt.getBean();
 							getSite().getShell().getDisplay().syncExec(() -> {
@@ -434,8 +434,8 @@ public class StatusQueueView extends EventConnectionView {
 		try {
 			pauseConsumer.setChecked(!currentState); // We are toggling it.
 
-			IPublisher<PauseBean> pauser = service.createPublisher(getUri(), IEventService.CMD_TOPIC);
-			pauser.setStatusSetName(IEventService.CMD_SET); // The set that other clients may check
+			IPublisher<PauseBean> pauser = service.createPublisher(getUri(), EventConstants.CMD_TOPIC);
+			pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
 			pauser.setStatusSetAddRequired(true);
 
 			PauseBean pbean = new PauseBean();

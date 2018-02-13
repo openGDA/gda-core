@@ -43,13 +43,14 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 	// JMS things, these are null when not running and
 	// are cleaned up at the end of a run.
-	private MessageProducer scanProducer, heartbeatProducer;
-	private boolean         alive;
-	private String          queueName;
+	private MessageProducer scanProducer;
+	private MessageProducer heartbeatProducer;
+	private boolean alive;
+	private String queueName;
 
 	private IConsumer<?> consumer;
 
-	private PrintStream     out;
+	private PrintStream out;
 
 	public PublisherImpl(URI uri, String topic, IEventConnectorService service) {
 		super(uri, topic, service);
@@ -57,35 +58,29 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 	@Override
 	public synchronized void broadcast(T bean) throws EventException {
-
 		try {
-		    if (getTopicName()!=null) {
-			if (scanProducer==null) {
+			if (scanProducer == null && getTopicName() != null) {
 				scanProducer = createProducer(getTopicName());
 			}
-		    }
-		    try {
-			    if (queueName!=null) {
-				updateSet(bean);
-			    }
-		    } catch (Throwable notFatal) {
-			// Updating the set is not a fatal error
-			logger.error("Did not update the set", notFatal);
-		    }
-			if (getTopicName()!=null) {
+			try {
+				if (queueName != null) {
+					updateSet(bean);
+				}
+			} catch (Throwable notFatal) {
+				// Updating the set is not a fatal error
+				logger.error("Did not update the set", notFatal);
+			}
+			if (getTopicName() != null) {
 				send(scanProducer, bean, Constants.getPublishLiveTime());
 			}
-
 		} catch (JMSException ne) {
-			throw new EventException("Unable to start the scan producer using uri "+uri+" and topic "+getTopicName(), ne);
-
+			throw new EventException("Unable to start the scan producer using uri " + uri + " and topic " + getTopicName(), ne);
 		} catch (Exception neOther) {
-			throw new EventException("Unable to prepare and send the event "+bean, neOther);
+			throw new EventException("Unable to prepare and send the event " + bean, neOther);
 		}
 	}
 
 	protected void send(MessageProducer producer, Object message, long messageLifetime)  throws Exception {
-
 		int priority = message instanceof ConsumerCommandBean ? 8 : 4;
 
 		String json = service.marshal(message);
@@ -251,16 +246,14 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 	 * @throws Exception
 	 */
 	private boolean updateSet(T bean) throws Exception {
-
-
-		Queue     queue = createQueue(getStatusSetName());
-		QueueBrowser qb = qSession.createBrowser(queue);
+		final Queue queue = createQueue(getStatusSetName());
+		final QueueBrowser qb = qSession.createBrowser(queue);
 
 		@SuppressWarnings("rawtypes")
-		Enumeration  e  = qb.getEnumeration();
+		final Enumeration e = qb.getEnumeration();
 
 		String jMSMessageID = null;
-		while(e.hasMoreElements()) {
+		while (e.hasMoreElements()) {
 			Message m = (Message)e.nextElement();
 			if (m==null) continue;
 			if (m instanceof TextMessage) {
@@ -290,7 +283,7 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 			MessageConsumer consumer = qSession.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
 			Message m = consumer.receive(Constants.getReceiveFrequency());
 			consumer.close();
-			if (m!=null && m instanceof TextMessage) {
+			if (m instanceof TextMessage) {
 				MessageProducer producer = qSession.createProducer(queue);
 				try {
 					TextMessage t = qSession.createTextMessage(service.marshal(bean));
@@ -302,7 +295,7 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 					producer.send(t);
 				} finally {
-				    producer.close();
+					producer.close();
 				}
 
 				return true;
@@ -327,7 +320,7 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 				producer.close();
 			}
 
-            return true;
+			return true;
 		}
 
 		return false;
@@ -335,22 +328,23 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 	@Override
 	protected boolean isSame(Object qbean, Object bean) {
+		if (qbean instanceof PauseBean && bean instanceof PauseBean) {
+			PauseBean q = (PauseBean) qbean;
+			PauseBean b = (PauseBean) bean;
 
-        if (qbean instanceof PauseBean && bean instanceof PauseBean) {
-		PauseBean q = (PauseBean)qbean;
-		PauseBean b = (PauseBean)bean;
-
-		if (q.getConsumerId()!=null && q.getConsumerId().equals(b.getConsumerId())) return true;
-		if (q.getQueueName()!=null  && q.getQueueName().equals(b.getQueueName()))   return true;
-        }
+			if (q.getConsumerId() != null && q.getConsumerId().equals(b.getConsumerId()))
+				return true;
+			if (q.getQueueName() != null && q.getQueueName().equals(b.getQueueName()))
+				return true;
+		}
 		return super.isSame(qbean, bean);
 	}
 
 	@Override
 	public void setLoggingStream(PrintStream stream) {
 		this.out = stream;
-		if (out!=null) {
-			if (consumer!=null) out.println("Publisher for consumer name "+consumer.getName());
+		if (out != null && consumer != null) {
+			out.println("Publisher for consumer name " + (consumer == null ? "<unknown>" : consumer.getName()));
 		}
 	}
 

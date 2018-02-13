@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -43,7 +44,7 @@ public class AbstractScanEventTest extends BrokerTest{
 	public void badURITest() throws Exception {
 		try {
 			final URI uri = new URI("tcp://rubbish:5600");
-			publisher = eservice.createPublisher(uri, IEventService.SCAN_TOPIC);
+			publisher = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC);
 			final ScanBean bean = new ScanBean();
 			publisher.broadcast(bean);
 

@@ -51,14 +51,12 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractQueueConnection<U extends StatusBean> extends AbstractConnection implements IQueueConnection<U>{
 
+	protected static final long TWO_DAYS = TimeUnit.DAYS.toMillis(2); // ms
+	protected static final long A_WEEK = TimeUnit.DAYS.toMillis(7); // ms
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractQueueConnection.class);
 
-	protected static final long TWO_DAYS = TimeUnit.DAYS.toMillis(2); // ms
-
-	protected static final long A_WEEK   = TimeUnit.DAYS.toMillis(7); // ms
-
-	protected IEventService          eservice;
+	protected IEventService eservice;
 
 	private Class<U> beanClass;
 
@@ -84,7 +82,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public List<U> getQueue() throws EventException {
-
 		QueueReader<U> reader = new QueueReader<>(getConnectorService(), null);
 		try {
 			return reader.getBeans(uri, getSubmitQueueName(), beanClass);
@@ -95,19 +92,17 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public List<U> getQueue(String qName, String fieldName) throws EventException {
+		Comparator<U> comparator = null;
 
-		Comparator<U> c = null;
+		if (fieldName!=null) comparator = getComparator(fieldName);
 
-		if (fieldName!=null) c = getComparator(fieldName);
-
-		QueueReader<U> reader = new QueueReader<>(service, c);
+		QueueReader<U> reader = new QueueReader<>(service, comparator);
 		try {
 			return reader.getBeans(uri, qName, beanClass);
 		} catch (Exception e) {
 			throw new EventException("Cannot get the beans for queue " + qName, e);
 		}
 	}
-
 
 	private Comparator<U> getComparator(final String fieldName) {
 
@@ -118,16 +113,15 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				@Override
 				public int compare(U o1, U o2) {
 					// Newest first!
-			        long t1 = o1.getSubmissionTime();
-			        long t2 = o2.getSubmissionTime();
-			        if (t1>t2) return -1;
-			        if (t1==t2) return o1.equals(o2) ? 1 : 0;
-			        return 1;
+					long t1 = o1.getSubmissionTime();
+					long t2 = o2.getSubmissionTime();
+					if (t1 > t2) return -1;
+					if (t1 == t2) return o1.equals(o2) ? 1 : 0;
+					return 1;
 				}
 			};
 
 		} else {
-
 			return new Comparator<U>() {
 				@Override
 				public int compare(U o1, U o2) {
@@ -152,9 +146,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 					}
 				}
 			};
-
 		}
 	}
+
 	private static String getGetterName(final String fieldName) {
 		if (fieldName == null)
 			return null;
@@ -166,8 +160,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	public static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
 		return fieldName.substring(0, 1).toUpperCase(Locale.US) + fieldName.substring(1);
 	}
-
-
 
 	protected Map<String, U> getMap(String queueName) throws EventException {
 
@@ -253,7 +245,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 				// We fail the non-started jobs now - otherwise we could
 				// actually start them late. TODO check this
-				final List<String> ids = new ArrayList<String>();
+				final List<String> ids = new ArrayList<>();
 				ids.addAll(failIds.keySet());
 				ids.addAll(removeIds);
 
@@ -391,8 +383,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	@Override
 	public boolean remove(U bean, String queueName) throws EventException {
 
-		QueueConnection send     = null;
-		QueueSession    session  = null;
+		QueueConnection send = null;
+		QueueSession session = null;
 
 		PauseBean pbean = new PauseBean(queueName);
 		pbean.setMessage("Pause to remove '"+bean.getName()+"' ");
@@ -414,7 +406,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			Enumeration  e  = qb.getEnumeration();
 
 			String jMSMessageID = null;
-			while(e.hasMoreElements()) {
+			while (e.hasMoreElements()) {
 				Message m = (Message)e.nextElement();
 				if (m==null) continue;
 				if (m instanceof TextMessage) {
@@ -431,15 +423,14 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 			qb.close();
 
-			if (jMSMessageID!=null) {
+			if (jMSMessageID != null) {
 				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
 				Message m = consumer.receive(1000);
 				consumer.close();
-				return m!=null; // It might have been removed ok
+				return m != null; // It might have been removed ok
 			}
 
 			return false; // It was not removed
-
 		} catch (Exception ne) {
 			throw new EventException("Cannot remove item "+bean, ne);
 
