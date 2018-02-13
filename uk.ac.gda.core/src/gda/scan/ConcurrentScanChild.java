@@ -20,7 +20,6 @@ package gda.scan;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -230,18 +229,14 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			}
 
 			// pause here until all the scannables at this level have finished moving
-			for (Entry<Integer, Scannable[]> entriesByLevel : devicesToMoveByLevel.entrySet()) {
-				Scannable[] scannablesAtLevel = entriesByLevel.getValue();
-				for (int i = 0; i < scannablesAtLevel.length; i++) {
-					Scannable scn = scannablesAtLevel[i];
-					scn.waitWhileBusy();
-				}
+			for (Scannable scannable : scannablesAtThisLevel) {
+				scannable.waitWhileBusy();
 			}
+
 			for (Scannable scannable : scannablesAtThisLevel) {
 				scannable.atLevelEnd();
 			}
 		}
-
 	}
 
 	TreeMap<Integer, Scannable[]> generateDevicesToMoveByLevel(TreeMap<Integer, Scannable[]> scannableLevels,
