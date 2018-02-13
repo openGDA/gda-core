@@ -18,12 +18,12 @@
 
 package gda.device.zebra.controller;
 
+import java.io.IOException;
+
 import gda.device.zebra.LogicGateConfiguration;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.observable.Observable;
-
-import java.io.IOException;
 
 public interface Zebra {
 
@@ -168,6 +168,8 @@ public interface Zebra {
 	void setPCNumberOfPointsCaptured(int val) throws Exception;
 
 	int getPCNumberOfPointsCaptured() throws Exception;
+
+	int getPCNumberOfPointsDownloaded() throws Exception;
 
 	String getZebraPrefix();
 
