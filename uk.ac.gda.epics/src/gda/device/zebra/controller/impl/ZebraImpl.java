@@ -453,6 +453,11 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public int getPCNumberOfPointsDownloaded() throws Exception {
+		return pvFactory.getIntegerPVValueCache(PCNumberOfPointsDownloaded).get();
+	}
+
+	@Override
 	public String getZebraPrefix() {
 		return zebraPrefix;
 	}

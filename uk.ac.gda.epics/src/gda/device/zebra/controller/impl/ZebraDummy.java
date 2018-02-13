@@ -18,6 +18,14 @@
 
 package gda.device.zebra.controller.impl;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.zebra.LogicGateConfiguration;
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
@@ -28,14 +36,6 @@ import gda.factory.Findable;
 import gda.observable.Observable;
 import gda.observable.Observer;
 import gda.observable.Predicate;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 
 public class ZebraDummy implements Zebra, Findable, InitializingBean {
@@ -331,6 +331,11 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public int getPCNumberOfPointsCaptured() throws Exception {
+		return pcNumberOfPointsCaptured;
+	}
+
+	@Override
+	public int getPCNumberOfPointsDownloaded() throws Exception {
 		return pcNumberOfPointsCaptured;
 	}
 
