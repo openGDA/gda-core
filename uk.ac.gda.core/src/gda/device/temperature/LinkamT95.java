@@ -30,7 +30,6 @@ import gda.device.SerialReaderWriter;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
-import gda.util.PollerEvent;
 
 /**
  * Class to control a LinkamCI Those computer interface boxes control the Linkam range of heating/freezing stages. They
@@ -122,7 +121,6 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	public void close() throws DeviceException {
 		serialReaderWriter.close();
 		stopPoller();
-		poller = null;
 		probeNameList.clear();
 		setConfigured(false);
 	}
@@ -302,23 +300,21 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	}
 
 	/**
-	 * Called each time the poller goes round. Implements PollerListener interface.
-	 *
-	 * @param pe a PollerEvent constructed by the Poller which calls this
+	 * Called each time the poller goes round.
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 		try {
-			logger.debug("pollDone called");
+			logger.debug("temperatureUpdate called");
 			String statusString = getStatusString();
 			if (statusString != null && statusString.length() > 1) {
 				checkError(statusString.charAt(1));
 				changeState(statusString.charAt(0));
 				currentTemp = extractTemperature(statusString.substring(6, 10));
 			}
-			stage.pollDone(pe);
+			stage.pollDone();
 		} catch (DeviceException de) {
-			logger.error("Error responding to poll event in pollDone", de);
+			logger.error("Error responding to poll event in temperatureUpdate", de);
 		}
 	}
 

@@ -30,7 +30,6 @@ import gda.device.Serial;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.PollerEvent;
 
 /**
  * Class to control the Marlow SE50100 series controller. The Marlow expects even parity, 1 stop bit and 7 data bits
@@ -350,12 +349,9 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Executes when poll timer fires
-	 *
-	 * @param pe
-	 *            the polling event
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 		String stateString = null;
 		String dataString = null;
 
@@ -363,14 +359,14 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
 
-		logger.debug("Marlow pollDone called");
+		logger.debug("Marlow temperatureUpdate called");
 
 		try {
 			logger.debug("Marlow pollDone: stopFlag is {}", stopFlag);
 			if (isAtTargetTemperature() || stopFlag) {
 				busy = false;
 				stopFlag = false;
-				logger.debug("pollDone: stop flag should be false, is: {}"
+				logger.debug("temperatureUpdate: stop flag should be false, is: {}"
 						+ "::: busy flag should be false, is: {}", stopFlag, busy);
 			}
 			logger.debug("busy is {}", busy);
@@ -381,7 +377,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.error("Error in pollDone", de);
+			logger.error("Error in temperatureUpdate", de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();

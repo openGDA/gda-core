@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.TemperatureStatus;
-import gda.util.PollerEvent;
 
 /**
  * Dummy temperature class designed to simulate the temperature interface and TemperatureBase, without threads, for unit
@@ -53,7 +52,7 @@ public class DummyTemperature extends TemperatureBase {
 
 		targetTemp = target;
 		logger.debug("setTargetTemperature: about to startTowardsTarget: {}", targetTemp);
-		poller.setPollTime(pollTime);
+		setUpdatePeriod(pollTime);
 		startTowardsTarget();
 	}
 
@@ -160,8 +159,8 @@ public class DummyTemperature extends TemperatureBase {
 	}
 
 	@Override
-	public void pollDone(PollerEvent pe) {
-		logger.debug("pollDone: nothing happening.");
+	public void temperatureUpdate() {
+		logger.trace("temperatureUpdate: nothing happening.");
 		// Deliberately do nothing
 	}
 

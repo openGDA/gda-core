@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
 
 /**
  * Default Linkam Stage. (i.e. one with no commands of its own) FIXME what is a stage ?
@@ -84,12 +83,9 @@ public class DefaultStageT95 implements LinkamStage {
 
 	/**
 	 * Executes when poll timer fires
-	 *
-	 * @param pe
-	 *            the polling event
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void pollDone() {
 		String dataString;
 
 		NumberFormat n = NumberFormat.getInstance();

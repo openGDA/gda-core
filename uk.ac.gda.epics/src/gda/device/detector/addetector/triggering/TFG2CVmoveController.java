@@ -69,7 +69,10 @@ public class TFG2CVmoveController extends DeviceBase implements ConstantVelocity
 	@Override
 	public void setEnd(double end) throws DeviceException {
 		// TODO Auto-generated method stub
+	}
 
+	public void temperatureUpdate() {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

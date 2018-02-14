@@ -32,7 +32,6 @@ import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.PollerEvent;
 
 /**
  * Class to control the Lauda Compact Low-Temperature Thermostat.
@@ -526,7 +525,7 @@ public class Lauda extends TemperatureBase {
 	}
 
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 		String stateString = null;
 		String dataString = null;
 
@@ -534,7 +533,7 @@ public class Lauda extends TemperatureBase {
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
 
-		logger.debug("Lauda pollDone called");
+		logger.debug("Lauda temperatureUpdate called");
 
 		try {
 			if (isAtTargetTemperature()) {

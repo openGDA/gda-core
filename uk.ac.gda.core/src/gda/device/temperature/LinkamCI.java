@@ -28,7 +28,6 @@ import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.PollerEvent;
 
 /**
  * Class to control a LinkamCI Those computer interface boxes control the Linkam range of heating/freezing stages. They
@@ -323,22 +322,19 @@ public class LinkamCI extends TemperatureBase {
 	}
 
 	/**
-	 * Called each time the poller goes round. Implements PollerListener interface.
-	 *
-	 * @param pe
-	 *            a PollerEvent constructed by the Poller which calls this
+	 * Called each time the poller goes round.
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 		try {
-			logger.debug("pollDone called");
+			logger.debug("temperatureUpdate called");
 			String statusString = getStatusString();
 			checkError(statusString.charAt(1));
 			changeState(statusString.charAt(0));
 			currentTemp = extractTemperature(statusString.substring(6, 10));
-			stage.pollDone(pe);
+			stage.pollDone();
 		} catch (DeviceException de) {
-			logger.error("Error in {}.pollDone()", getName(), de);
+			logger.error("Error in {}.temperatureUpdate()", getName(), de);
 		}
 	}
 
@@ -523,10 +519,10 @@ public class LinkamCI extends TemperatureBase {
 	private void setPumpAuto(boolean value) {
 		if (value) {
 			arw.handleCommand("Pa");
-			poller.setPollTime(LONG_POLL_TIME);
+			setUpdatePeriod(LONG_POLL_TIME);
 		} else {
 			arw.handleCommand("Pm");
-			poller.setPollTime(pollTime);
+			setUpdatePeriod(pollTime);
 		}
 	}
 

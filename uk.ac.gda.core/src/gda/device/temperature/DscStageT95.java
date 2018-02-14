@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.SerialReaderWriter;
 import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
 
 /**
  * A Linkam DSC device is used as a temperature controlled sample stage here. It connects to a LinkamT95 which controls
@@ -145,14 +144,8 @@ public class DscStageT95 implements LinkamStage {
 
 	// Start of methods implementing interface LinkamStage
 
-	/**
-	 * Called by controlling LinkamT95 from within its own pollDone.
-	 *
-	 * @param pe
-	 *            the PollerEvent which caused the LinkamT95 pollDone to be called
-	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void pollDone() {
 		getDscData();
 	}
 

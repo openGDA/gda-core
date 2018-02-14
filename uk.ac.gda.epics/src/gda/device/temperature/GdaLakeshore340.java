@@ -36,8 +36,6 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.util.Poller;
-import gda.util.PollerEvent;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -81,10 +79,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	public void configure() throws FactoryException {
 
 		if (!isConfigured()) {
-			poller = new Poller();
-			poller.setPollTime(LONG_POLL_TIME);
-			// register this as listener to poller for update temperature values.
-			poller.addListener(this);
 
 			String filePrefix = InterfaceProvider.getPathConstructor().createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
@@ -115,7 +109,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 				}
 			} else {
 				// if controller does not exist, unregister this listener as no data source is available
-				poller.deleteListener(this);
 				logger.error("Cryo controller {} not found", epicsLakeshore340ControllerName);
 				throw new FactoryException("Cryo controller " + epicsLakeshore340ControllerName + " not found");
 			}
@@ -334,11 +327,9 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 
 	/**
 	 * Temperature GUI update. {@inheritDoc}
-	 *
-	 * @see gda.util.PollerListener#pollDone(gda.util.PollerEvent)
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 
 		NumberFormat n = NumberFormat.getInstance();
 		n.setMaximumFractionDigits(2);
@@ -357,7 +348,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.warn("pollDone throw exception on isAtTargetTemperature() call", de);
+			logger.warn("{}.temperatureUpdate() threw exception on isAtTargetTemperature() call", getName(), de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();

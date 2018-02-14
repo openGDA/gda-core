@@ -29,7 +29,6 @@ import gda.device.DeviceException;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
-import gda.util.PollerEvent;
 
 /**
  * Simulator device for temperature controllers
@@ -88,7 +87,6 @@ public class DummyTemp extends TemperatureBase {
 		logger.debug("Dummy temperature {} closed", getName());
 		setConfigured(false);
 		stopPoller();
-		poller = null;
 	}
 
 	@Override
@@ -415,13 +413,10 @@ public class DummyTemp extends TemperatureBase {
 
 	/**
 	 * Method for the poller (started in TemperatureBase)
-	 *
-	 * @param pe
-	 *            the polling event
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
-		logger.trace("DummyTemp.pollDone() currentTemp is {}", currentTemp);
+	public void temperatureUpdate() {
+		logger.trace("{}.temperatureUpdate() currentTemp is {}", getName(), currentTemp);
 
 		String stateString = null;
 		String dataString = null;
@@ -444,7 +439,7 @@ public class DummyTemp extends TemperatureBase {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.error("Error handling pollerEvent in pollDone", de);
+			logger.error("{} - Error updating temperature in temperatureUpdate", getName(), de);
 		}
 
 		if (timeSinceStart >= 0.0 || lastPoint) {

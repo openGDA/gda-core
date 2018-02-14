@@ -19,8 +19,11 @@
 
 package gda.device.temperature;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +39,13 @@ import gda.device.scannable.ScannableMotionBase;
 import gda.factory.FactoryException;
 import gda.util.Alarm;
 import gda.util.AlarmListener;
-import gda.util.Poller;
-import gda.util.PollerListener;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * A base implementation for all temperature controllers. Handles the basic parts of all operations wherever possible.
  * The actual commands are sent to hardware by the template methods which are implemented by the sub-classes.
  */
-public abstract class TemperatureBase extends ScannableMotionBase implements AlarmListener, Temperature, PollerListener {
+public abstract class TemperatureBase extends ScannableMotionBase implements AlarmListener, Temperature {
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureBase.class);
 	protected static final long LONG_POLL_TIME = 5000;
@@ -59,7 +61,6 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected volatile double currentTemp = 0.0;
 	protected double setPoint;
 	protected List<TemperatureRamp> rampList = new ArrayList<>();
-	protected Poller poller;
 	private boolean running = false;
 	protected volatile boolean busy = false;
 	protected int currentRamp = -1;
@@ -70,6 +71,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected DataWriter dataWriter = null;
 	protected ArrayList<double[]> bufferedData = new ArrayList<>();
 	protected String fileSuffix = null;
+	private ScheduledFuture<?> updatingProcess;
 
 	@Override
 	public void configure() throws FactoryException{
@@ -78,10 +80,6 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		}
 		this.setInputNames(new String[] {"temperature"});
 		this.setOutputFormat(new String[] {"%5.2f"});
-
-		poller = new Poller();
-		poller.setPollTime(longPollTime);
-		poller.addListener(this);
 
 		String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
 		if ((filePrefix != null) && (fileSuffix != null)) {
@@ -187,19 +185,24 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 * starts a poller thread to check and update temperature
 	 */
 	public void startPoller() {
-		if (poller != null && !poller.isPollerRunning()) {
-			logger.info("start a temperature poller thread for '{}' object.", getName());
-			poller.start();
-		}
+		logger.info("start a temperature poller thread for '{}' object.", getName());
+		updatingProcess = Async.scheduleWithFixedDelay(this::temperatureUpdate, 0, longPollTime, MILLISECONDS, "%s (temp update)", getName());
 	}
 	/**
 	 * interrupt poller thread to stop updating temperature
 	 */
 	public void stopPoller() {
-		if (poller != null) {
-			logger.info("{} stop the temperature poller thread.", getName());
-			poller.stop();
+		logger.info("{} stop the temperature poller thread.", getName());
+		updatingProcess.cancel(false);
+	}
+
+	protected void setUpdatePeriod(long delay) {
+		long remaining = delay;
+		if (updatingProcess != null && !updatingProcess.isDone()) {
+			remaining = updatingProcess.getDelay(MILLISECONDS);
+			updatingProcess.cancel(false);
 		}
+		updatingProcess = Async.scheduleAtFixedRate(this::temperatureUpdate, remaining, delay, MILLISECONDS, "%s (temp update)", getName());
 	}
 
 	/**
@@ -341,10 +344,9 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 		this.targetTemp = targetTemp;
 		logger.debug("{} setTargetTemperature targetTemp {}", getName(), targetTemp);
-		poller.setPollTime(SHORT_POLL_TIME);
+		setUpdatePeriod(SHORT_POLL_TIME);
 		startTowardsTarget();
 	}
-
 
 	/**
 	 * Sets the array of ramps.
@@ -379,7 +381,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				bufferedData.clear();
 				sendRamp(currentRamp);
 				doStart();
-				poller.setPollTime(pollTime);
+				setUpdatePeriod(pollTime);
 			} catch (DeviceException de) {
 				logger.error("Error starting {}", getName(), de);
 				running = false;
@@ -420,7 +422,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		try {
 			running = false;
 			doStop();
-			poller.setPollTime(LONG_POLL_TIME);
+			setUpdatePeriod(LONG_POLL_TIME);
 			currentRamp = -1;
 			// reset time as this stops the graph plotting. see bug #377
 			timeSinceStart = -1000;
@@ -479,6 +481,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	// Template methods to be implemented by the sub-classes
 
+	protected abstract void temperatureUpdate();
 	// Should send hardware commands which will start ramping
 	protected abstract void doStart() throws DeviceException;
 

@@ -20,7 +20,6 @@
 package gda.device.temperature;
 
 import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
 
 /**
  * Stages connected to LinkamCI controllers must implement this interface
@@ -55,11 +54,10 @@ public interface LinkamStage {
 	public void stop();
 
 	/**
-	 * LinkamCI will call this from within its own pollDone
+	 * LinkamCI will call this from within its own temperatureUpdate
 	 *
-	 * @param pe
 	 */
-	public void pollDone(PollerEvent pe);
+	public void pollDone();
 
 	/**
 	 * LinkamCI will used this if asked for a file name for the temperature data

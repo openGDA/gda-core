@@ -36,8 +36,6 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
-import gda.util.Poller;
-import gda.util.PollerEvent;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -114,12 +112,6 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 			} else {
 				cryoController.configure();
 			}
-
-			poller = new Poller();
-			poller.setPollTime(LONG_POLL_TIME);
-			// register this as listener to poller for update temperature values.
-			poller.addListener(this);
-
 
 			if (cryoController.isConfigured() && cryoController.isConnected()) {
 				try {
@@ -325,11 +317,9 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 
 	/**
 	 * Temperature GUI update. {@inheritDoc}
-	 *
-	 * @see gda.util.PollerListener#pollDone(gda.util.PollerEvent)
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void temperatureUpdate() {
 
 		NumberFormat n = NumberFormat.getInstance();
 		n.setMaximumFractionDigits(2);
@@ -348,7 +338,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.warn("pollDone throw exception on isAtTargetTemperature() call", de);
+			logger.warn("{} - temperatureUpdate threw exception on isAtTargetTemperature() call", getName(), de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();

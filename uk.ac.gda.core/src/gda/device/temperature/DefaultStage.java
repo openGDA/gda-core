@@ -19,14 +19,13 @@
 
 package gda.device.temperature;
 
-import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
-
 import java.text.NumberFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.TemperatureRamp;
 
 /**
  * Default Linkam Stage. (i.e. one with no commands of its own) FIXME what is a stage ?
@@ -87,12 +86,9 @@ public class DefaultStage implements LinkamStage {
 
 	/**
 	 * Executes when poll timer fires
-	 *
-	 * @param pe
-	 *            the polling event
 	 */
 	@Override
-	public void pollDone(PollerEvent pe) {
+	public void pollDone() {
 		String dataString;
 
 		NumberFormat n = NumberFormat.getInstance();

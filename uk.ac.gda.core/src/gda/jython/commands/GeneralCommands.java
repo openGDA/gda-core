@@ -138,7 +138,6 @@ public final class GeneralCommands {
 			availableInterfaces.remove("Hashtable");
 			availableInterfaces.remove("Map");
 			availableInterfaces.remove("Cloneable");
-			availableInterfaces.remove("PollerListener");
 			availableInterfaces.remove("Findable");
 			availableInterfaces.remove("MonitorListener");
 			availableInterfaces.remove("PutListener");
