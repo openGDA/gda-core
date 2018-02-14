@@ -33,14 +33,12 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	protected EDXDMappingController edxdController;
 	protected int numberOfElements;
-	protected String edxdControllerName;
 	protected int actualNumberOfROIs;
 
 	@Override
 	public void configure() throws FactoryException {
-		if (edxdController == null && edxdControllerName == null) {
-			throw new FactoryException(getName()
-					+ " (EpicsXmapControllerROI) must be given the EDXD object or object name to be able to configure");
+		if (edxdController == null) {
+			throw new FactoryException(String.format("EDXD controller not set in %s", getName()));
 		}
 		numberOfElements = edxdController.getNumberOfElements();
 	}
@@ -53,7 +51,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
-
+		throw new UnsupportedOperationException("Cannot delete ROIs");
 	}
 
 	@Override
@@ -63,9 +61,9 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public int[] getData(int mcaNumber) throws DeviceException {
-		int numberOfBins = getNumberOfBins();
-		int[] returnArray = new int[numberOfBins];
-		int[] replyArray = edxdController.getSubDetector(mcaNumber).readoutInts();
+		final int numberOfBins = getNumberOfBins();
+		final int[] returnArray = new int[numberOfBins];
+		final int[] replyArray = edxdController.getSubDetector(mcaNumber).readoutInts();
 		System.arraycopy(replyArray, 0, returnArray, 0, numberOfBins);
 		return returnArray;
 	}
@@ -74,8 +72,8 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	public int[][] getData() throws DeviceException {
 		// should write data to a file
 		// bespoke scan scripts write data at the moment
-		int numberOfBins = getNumberOfBins();
-		int[][] data = new int[numberOfElements][numberOfBins];
+		final int numberOfBins = getNumberOfBins();
+		final int[][] data = new int[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++) {
 			data[i] = getData(i);
 		}
@@ -118,9 +116,9 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	 */
 	@Override
 	public double[] getROICounts(int roiIndex) throws DeviceException {
-		double[] roiCounts = new double[numberOfElements];
+		final double[] roiCounts = new double[numberOfElements];
 		for (int j = 0; j < numberOfElements; j++) {
-			double individualMCARois[] = this.getROIs(j);
+			final double individualMCARois[] = this.getROIs(j);
 			roiCounts[j] = individualMCARois[roiIndex];
 		}
 		return roiCounts;
@@ -141,9 +139,9 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	 */
 	@Override
 	public double[] getROIsSum() throws DeviceException {
-		double[] roiSum = new double[actualNumberOfROIs];
+		final double[] roiSum = new double[actualNumberOfROIs];
 		for (int j = 0; j < numberOfElements; j++) {
-			double individualMCARois[] = this.getROIs(j);
+			final double individualMCARois[] = this.getROIs(j);
 			for (int i = 0; i < actualNumberOfROIs; i++) {
 				roiSum[i] = roiSum[i] + individualMCARois[i];
 			}
@@ -153,24 +151,12 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public double getReadRate() throws DeviceException {
-		// Not implemented in the new Interface
-		return 0;
+		throw new UnsupportedOperationException("Cannot get read rate");
 	}
 
 	@Override
 	public double getRealTime() throws DeviceException {
-		return getRealTime(0);
-	}
-
-	/**
-	 * Get the real time for the mca element
-	 *
-	 * @param mcaNumber
-	 * @return real time
-	 * @throws DeviceException
-	 */
-	public double getRealTime(int mcaNumber) throws DeviceException {
-		return edxdController.getSubDetector(mcaNumber).getRealTime();
+		return edxdController.getSubDetector(0).getRealTime();
 	}
 
 	@Override
@@ -180,8 +166,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public double getStatusRate() throws DeviceException {
-		// Not implemented in the new Interface
-		return 0;
+		throw new UnsupportedOperationException("Cannot get status rate");
 	}
 
 	@Override
@@ -201,20 +186,14 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 		actualNumberOfROIs = roiIndex + 1;
 	}
 
-	/**
-	 * @param roi
-	 * @param roiIndex
-	 * @param mcaIndex
-	 * @throws DeviceException
-	 */
 	private void setNthROI(double[] roi, int roiIndex, int mcaIndex) throws DeviceException {
 		if (roiIndex >= edxdController.getMaxAllowedROIs()) {
 			logger.error("Not a valid roi index");
 			return;
 		}
-		EDXDElement element = edxdController.getSubDetector(mcaIndex);
-		double roiLow[] = element.getLowROIs();
-		double roiHigh[] = element.getHighROIs();
+		final EDXDElement element = edxdController.getSubDetector(mcaIndex);
+		final double[] roiLow = element.getLowROIs();
+		final double[] roiHigh = element.getHighROIs();
 		if (roi[0] <= roi[1]) {
 			roiLow[roiIndex] = roi[0];
 			roiHigh[roiIndex] = roi[1];
@@ -229,12 +208,12 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public void setNumberOfElements(int numberOfElements) throws DeviceException {
+		throw new UnsupportedOperationException("Cannot set number of elements");
 	}
 
 	@Override
 	public void setNumberOfROIs(int numberOfROIs) {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("Cannot set number of ROIs");
 	}
 
 	/**
@@ -250,9 +229,10 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 			rois[i][0] = actualRois[i][0];
 			rois[i][1] = actualRois[i][1];
 		}
-		EDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
-		if (subDetector != null)
+		final EDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
+		if (subDetector != null) {
 			subDetector.setROIs(rois);
+		}
 		edxdController.activateROI();
 		actualNumberOfROIs = actualRois.length;
 	}
@@ -265,29 +245,26 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 
 	@Override
 	public void setReadRate(double readRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-
+		throw new UnsupportedOperationException("Cannot set read rate");
 	}
 
 	@Override
 	public void setReadRate(String readRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
+		throw new UnsupportedOperationException("Cannot set read rate");
 	}
 
 	@Override
 	public void setStatusRate(double statusRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
+		throw new UnsupportedOperationException("Cannot set status rate");
 	}
 
 	@Override
 	public void setStatusRate(String statusRate) throws DeviceException {
-		// Not implemented in new xmap epics interface
-
+		throw new UnsupportedOperationException("Cannot set status rate");
 	}
 
 	@Override
 	public void start() throws DeviceException {
-		// edxdController.setResume(true);
 		edxdController.start();
 	}
 
@@ -325,27 +302,19 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	// This should really be called getROIs, as it is the reverse of setROIs
 	@Override
 	public double[][] getROIParameters(int mcaIndex) throws DeviceException {
-		EDXDElement element = edxdController.getSubDetector(mcaIndex);
+		final EDXDElement element = edxdController.getSubDetector(mcaIndex);
 		if (element == null) {
-			throw new IndexOutOfBoundsException("No subelement for index " + mcaIndex + "exists.");
+			throw new IndexOutOfBoundsException("No subelement for index " + mcaIndex + " exists.");
 		}
-		double[] lows = element.getLowROIs();
-		double[] highs = element.getHighROIs();
-		int length = Math.min(lows.length, highs.length); // these should never be different
-		double[][] rois = new double[length][2];
+		final double[] lows = element.getLowROIs();
+		final double[] highs = element.getHighROIs();
+		final int length = Math.min(lows.length, highs.length); // these should never be different
+		final double[][] rois = new double[length][2];
 		for (int i = 0; i < length; i++) {
 			rois[i][0] = lows[i];
 			rois[i][1] = highs[i];
 		}
 		return rois;
-	}
-
-	public String getEdxdControllerName() {
-		return edxdControllerName;
-	}
-
-	public void setEdxdControllerName(String edxdControllerName) {
-		this.edxdControllerName = edxdControllerName;
 	}
 
 	public EDXDMappingController getEdxdController() {
@@ -357,13 +326,12 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	}
 
 	public double[] getEnergyBins(int mcaNumber) throws DeviceException {
-		double[] replyArray = edxdController.getSubDetector(mcaNumber).getEnergyBins();
-		return replyArray;
+		return edxdController.getSubDetector(mcaNumber).getEnergyBins();
 	}
 
 	public double[][] getEnergyBins() throws DeviceException {
-		int numberOfBins = getNumberOfBins();
-		double[][] data = new double[numberOfElements][numberOfBins];
+		final int numberOfBins = getNumberOfBins();
+		final double[][] data = new double[numberOfElements][numberOfBins];
 		for (int i = 0; i < numberOfElements; i++)
 			data[i] = getEnergyBins(i);
 		return data;

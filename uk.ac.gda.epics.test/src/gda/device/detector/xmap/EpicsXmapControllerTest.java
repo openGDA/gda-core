@@ -113,14 +113,6 @@ public class EpicsXmapControllerTest {
 		xmapControllerUnconfigured.configure();
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void testConfigureControllerNameSet() throws Exception {
-		// This is incorrect behaviour and will be removed in refactoring
-		final EpicsXmapController xmapControllerUnconfigured = new EpicsXmapController();
-		xmapControllerUnconfigured.setEdxdControllerName("edxdController");
-		xmapControllerUnconfigured.configure();
-	}
-
 	@Test
 	public void testNumberOfElementsSet() throws Exception {
 		assertEquals(NUMBER_OF_ELEMENTS, xmapController.getNumberOfElements());
@@ -133,10 +125,9 @@ public class EpicsXmapControllerTest {
 		verify(edxdController).start();
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testDeleteROIs() throws Exception {
 		xmapController.deleteROIs(0);
-		verifyZeroInteractions(edxdController);
 	}
 
 	@Test
@@ -224,10 +215,9 @@ public class EpicsXmapControllerTest {
 		assertArrayEquals(expectedSum, roiSum, 0.001);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testGetReadRate() throws Exception {
 		assertEquals(0, xmapController.getReadRate(), 0.001);
-		verifyZeroInteractions(edxdController);
 	}
 
 	@Test
@@ -244,10 +234,9 @@ public class EpicsXmapControllerTest {
 		assertEquals(status, xmapController.getStatus());
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testGetStatusRate() throws Exception {
 		assertEquals(0, xmapController.getStatusRate(), 0.001);
-		verifyZeroInteractions(edxdController);
 	}
 
 	@Test
@@ -281,16 +270,14 @@ public class EpicsXmapControllerTest {
 		verify(edxdController, times(2)).activateROI();
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetNumberOfElements() throws Exception {
 		xmapController.setNumberOfElements(3);
-		verifyZeroInteractions(edxdController);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetNumberOfROIs() {
 		xmapController.setNumberOfROIs(6);
-		verifyZeroInteractions(edxdController);
 	}
 
 	@Test
@@ -343,28 +330,24 @@ public class EpicsXmapControllerTest {
 		}
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetReadRateDouble() throws Exception {
 		xmapController.setReadRate(1.1);
-		verifyZeroInteractions(edxdController);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetReadRateString() throws Exception {
 		xmapController.setReadRate("1.1");
-		verifyZeroInteractions(edxdController);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetStatusRateDouble() throws Exception {
 		xmapController.setStatusRate(4.2);
-		verifyZeroInteractions(edxdController);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void testSetStatusRateString() throws Exception {
 		xmapController.setStatusRate("4.2");
-		verifyZeroInteractions(edxdController);
 	}
 
 	@Test
