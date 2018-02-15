@@ -18,19 +18,17 @@
 
 package uk.ac.gda.epics.dxp.client.views;
 
-import gov.aps.jca.TimeoutException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.epics.dxp.client.views.model.DXPModel;
 
 /**
@@ -92,8 +90,7 @@ public class StatusViewController implements InitializingBean {
 	/**
 	 */
 	public Future<Boolean> updateAllFields() {
-		ExecutorService executorService = Executors.newFixedThreadPool(3);
-		return executorService.submit(updateFields);
+		return Async.submit(updateFields);
 	}
 
 	private Callable<Boolean> updateFields = new Callable<Boolean>() {
