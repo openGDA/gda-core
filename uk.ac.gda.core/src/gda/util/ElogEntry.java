@@ -47,7 +47,7 @@ public class ElogEntry {
 	private static final String IMG_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logonlyimageupload_ext_bl.php";
 	private static final String POST_UPLOAD_URL = "http://rdb.pri.diamond.ac.uk/devl/php/elog/cs_logentryext_bl.php";
 
-	private static final Logger elogger = LoggerFactory.getLogger(ElogEntry.class);
+	private static final Logger logger = LoggerFactory.getLogger(ElogEntry.class);
 
 	private String targetPostURL;
 	private String imagePostURL;
@@ -127,7 +127,7 @@ public class ElogEntry {
 				if (httpClient != null) httpClient.close();
 				if (response != null) response.close();
 			} catch (IOException e) {
-				elogger.error("Could not close connections", e);
+				logger.error("Could not close connections", e);
 			}
 		}
 
@@ -161,7 +161,7 @@ public class ElogEntry {
 				try {
 					post();
 				} catch (Exception e) {
-					elogger.error("Error posting ElogEntry", e);
+					logger.error("Error posting ElogEntry", e);
 				}
 			}
 		}, "ElogEntry: "+title);
@@ -362,7 +362,7 @@ public class ElogEntry {
 				try {
 					ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations);
 				} catch (Exception e) {
-					elogger.error("Error posting ElogEntry", e);
+					logger.error("Error posting ElogEntry", e);
 				}
 			}
 		}, "ElogEntry: "+title);
@@ -385,7 +385,7 @@ public class ElogEntry {
 		} catch (DeviceException e) {
 			visit = "unknown";
 		}
-		elogger.info(visit + "%%" + title + "%%" + content);
+		logger.info("{}%%{}%%{}", visit, title, content);
 	}
 
 	public void setTitle(String title) {
@@ -501,7 +501,7 @@ public class ElogEntry {
 					if (httpClient != null) httpClient.close();
 					if (response != null) response.close();
 				} catch (IOException e) {
-					elogger.error("Could not close connections", e);
+					logger.error("Could not close connections", e);
 				}
 			}
 		}
