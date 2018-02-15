@@ -37,7 +37,7 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.factory.FactoryException;
-import gda.observable.Observer;
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
@@ -54,7 +54,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
  * available here, like the available {@link #getLensModes()}. It also provides the logic for BE <-> KE conversion using
  * the photon energy.
  * </p>
- * The GUI can be an {@link Observer} of this class to receive live updates of the scan as it is received from EPICS,
+ * The GUI can be an {@link IObserver} of this class to receive live updates of the scan as it is received from EPICS,
  * see {@link SpecsPhoibosLiveDataUpdate}
  *
  * @author James Mudd
