@@ -92,7 +92,7 @@ public class MappingExperimentUtils {
 		return new SliceInformation(new SliceND(dataset.getShape()),
 				new SliceND(dataset.getShape()),
 				new SliceND(dataset.getShape()),
-				dataDimensions, 1, 1);
+				dataDimensions, 1, 0);
 	}
 
 	public static Control createDataPlotControl(final Composite parent, final IPlottingSystem<Composite> plottingSystem, final String title) {
