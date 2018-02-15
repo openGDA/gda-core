@@ -668,7 +668,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 			//Default - EPICS driver return averaged value only
 			voltage = getAverageVoltage();
 		} else {
-			//FIXME remove this once EPICS driver give integrated value
+			//EPICS driver give integrated value
 			voltage = getIntegralVoltage();
 		}
 		final double gain = getGain();
