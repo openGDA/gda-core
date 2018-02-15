@@ -18,17 +18,18 @@
 
 package gda.device.detector.hardwaretriggerable;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.SimulatedTriggerObserver;
-import gda.jython.ITerminalPrinter;
-import gda.jython.InterfaceProvider;
-
 import java.text.MessageFormat;
 import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.SimulatedTriggerObserver;
+import gda.jython.ITerminalPrinter;
+import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTriggerableDetectorBase implements SimulatedTriggerObserver {
 	private static final Logger logger = LoggerFactory.getLogger(DummyHardwareTriggerableDetectorBase.class);
@@ -48,7 +49,7 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 			terminal.print(MessageFormat.format("{0}.arm() collecting {1} hardware triggered images ...\n", getName(),
 					getNumberImagesToCollect()));
 			simulatedCollectionComplete = new CountDownLatch(getNumberImagesToCollect());
-			new Thread(new MakeIdleWhenSimulatedCollectionComplete(getName())).start();
+			Async.execute(new MakeIdleWhenSimulatedCollectionComplete(getName()));
 		} else {
 			terminal.print(MessageFormat.format(
 					"{0}.arm() called while configured to collect {1} hardware triggered images over {2}s ...\n",

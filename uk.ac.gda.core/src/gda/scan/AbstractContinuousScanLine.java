@@ -27,7 +27,6 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +40,7 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  *
@@ -327,16 +327,15 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 
 		// Arm each detector in a new thread
-		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<FutureTask<Void>>();
+		LinkedList<Future<?>> futureTasks = new LinkedList<>();
 		for (HardwareTriggeredDetector det : detectors) {
-			futureTasks.add(new FutureTask<Void>(new ArmDetector(det)));
-			(new Thread(futureTasks.getLast(), "AbstractContinuousScanLine.ArmDetector-" + det.getName())).start();
+			futureTasks.add(Async.submit(new ArmDetector(det), "AbstractContinuousScanLine.ArmDetector-%s", det.getName()));
 		}
 
 		// Wait for each detector to arm (cancelling other arm-tasks and stopping all detectors on a failure.
 		try {
 			while(!futureTasks.isEmpty()) {
-				FutureTask<Void> task = futureTasks.pop();
+				Future<?> task = futureTasks.pop();
 				task.get();
 			}
 		} catch (ExecutionException e) {
@@ -352,9 +351,9 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 	}
 
-	private void cancelRemainingTasks(List<FutureTask<Void>> futures) {
+	private void cancelRemainingTasks(List<Future<?>> futures) {
 		logger.info("cancelling remaining detector preparation tasks");
-		for (Future<Void> future : futures) {
+		for (Future<?> future : futures) {
 			future.cancel(true);
 		}
 	}

@@ -18,10 +18,11 @@
 
 package gda.device.detector.hardwaretriggerable;
 
+import java.text.MessageFormat;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
-
-import java.text.MessageFormat;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerableDetectorBase implements
 		HardwareTriggerableDetector {
@@ -92,21 +93,18 @@ public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerab
 	private void triggerSingleImageCollection() throws DeviceException {
 		final double deltaT = getCollectionTime();
 		setStatus(Detector.BUSY);
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep((long) (deltaT * 1000));
-					fileNumber += 1;
-				} catch (InterruptedException e) {
-					terminal.print("DummyHardwareTriggerableAreaDetector interupted while collecting single image\n");
-				} finally {
-					terminal.print(MessageFormat.format("{0} {1}s --> {2}\n", getName(), deltaT,
-							generateFilePath(fileNumber)));
-					setStatus(Detector.IDLE);
-				}
+		Async.execute(() -> {
+			try {
+				Thread.sleep((long) (deltaT * 1000));
+				fileNumber += 1;
+			} catch (InterruptedException e) {
+				terminal.print("DummyHardwareTriggerableAreaDetector interupted while collecting single image\n");
+			} finally {
+				terminal.print(MessageFormat.format("{0} {1}s --> {2}\n", getName(), deltaT,
+						generateFilePath(fileNumber)));
+				setStatus(Detector.IDLE);
 			}
-		}.start();
+		});
 	}
 
 	@Override

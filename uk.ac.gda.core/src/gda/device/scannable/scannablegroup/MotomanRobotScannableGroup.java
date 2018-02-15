@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * This scannable group represents a Motoman robot. It has two particular characteristics:
@@ -137,7 +138,7 @@ public class MotomanRobotScannableGroup extends ScannableGroup {
 
 		// Start the sequential moves
 		performingSequentialMoves = true;
-		(new Thread(new MoveRunner(sequentialMoves))).start();
+		Async.execute(new MoveRunner(sequentialMoves));
 	}
 
 	@Override

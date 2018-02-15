@@ -40,7 +40,7 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 
 import org.python.core.Py;
 import org.python.core.PyList;
@@ -86,6 +86,7 @@ import gda.messages.MessageHandler;
 import gda.observable.IObserver;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
+import uk.ac.diamond.daq.concurrent.Async;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -962,15 +963,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 		}
 		// Don't use an executor or thread pool so that we can name the threads with the motor name
-		LinkedList<FutureTask<Void>> futureTasks = new LinkedList<>();
+		LinkedList<Future<Void>> futureTasks = new LinkedList<>();
 
 		List<Motor> motors = Finder.getInstance().listFindablesOfType(Motor.class);
 		logger.info("Stopping the {} Motor instances registered in Finder", motors.size());
 
 		for (Motor motor : motors) {
-			futureTasks.add(new FutureTask<Void>(new StopMotor(motor)));
 			String threadName = format("{0}-JythonServer.StopMotor({1})", Thread.currentThread().getName(), motor.getName());
-			(new Thread(futureTasks.getLast(), threadName)).start();
+			futureTasks.add(Async.submit(new StopMotor(motor), threadName));
 		}
 		while(!futureTasks.isEmpty()) {
 			try {

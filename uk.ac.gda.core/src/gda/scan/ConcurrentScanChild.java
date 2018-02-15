@@ -461,7 +461,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			}
 		});
 
-		new Thread(detectorReadoutTask, threadName).start();
+		Async.execute(detectorReadoutTask);
 	}
 
 	/**
