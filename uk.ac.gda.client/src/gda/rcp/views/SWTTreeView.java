@@ -212,8 +212,6 @@ public class SWTTreeView extends ViewPart {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
 		}
 	}
-	class NameSorter extends ViewerSorter {
-	}
 
 	/**
 	 * The constructor.
@@ -231,7 +229,7 @@ public class SWTTreeView extends ViewPart {
 		drillDownAdapter = new DrillDownAdapter(viewer);
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
-		viewer.setSorter(new NameSorter());
+		viewer.setSorter(new ViewerSorter());
 		viewer.setInput(getViewSite());
 		makeActions();
 		hookContextMenu();
