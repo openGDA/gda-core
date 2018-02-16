@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.epics.client.EPICSClientActivator;
 import uk.ac.gda.epics.client.ImageConstants;
 
@@ -254,7 +255,7 @@ public class StatusView extends ViewPart implements InitializingBean {
 		registerToolBar();
 		/* Calls the update fields in a separate thread - so that the UI is not blocked. */
 		Future<Boolean> isSuccessful = statusViewController.updateAllFields();
-		new Thread(new RunUpdateAllFields(isSuccessful)).start();
+		Async.execute(new RunUpdateAllFields(isSuccessful));
 		statusViewController.addListener(this);
 	}
 

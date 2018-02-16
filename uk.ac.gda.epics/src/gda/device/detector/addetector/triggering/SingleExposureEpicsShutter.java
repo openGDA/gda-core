@@ -18,6 +18,14 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
@@ -28,14 +36,7 @@ import gda.scan.ScanInformation;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class SingleExposureEpicsShutter extends SimpleAcquire {
 
@@ -127,8 +128,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 		}
 		closeShutterTask = new FutureTask<Void>(new CloseShutterAfterCollectionTime());
 
-		(new Thread(closeShutterTask, "SingleExposureEpicsShutter."+
-			"CloseShutterAfterCollectionTime-" + shutterPV)).start();
+		Async.execute(closeShutterTask, "SingleExposureEpicsShutter.CloseShutterAfterCollectionTime-%s", shutterPV);
 	}
 
 	private void checkForCloseShutterTaskErrors() throws DeviceException, InterruptedException {

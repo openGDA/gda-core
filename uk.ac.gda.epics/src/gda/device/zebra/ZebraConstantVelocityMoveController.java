@@ -51,6 +51,7 @@ import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.device.zebra.controller.Zebra;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
 						PositionCallableProvider<Double>, PositionStreamIndexerProvider<Double>,
@@ -518,8 +519,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 		pointBeingPrepared++; // This is the first point in the scan when we know all prepareForCollections for the current scan point
 		// will have been called, but none for the next point will have been.
-		moveFuture = new FutureTask<Void>(new ExecuteMoveTask());
-		new Thread(moveFuture, getName() + "_execute_move").start(); // FutureTask implements Runnable
+		moveFuture = new FutureTask<>(new ExecuteMoveTask());
+		Async.execute(moveFuture, "%s_execute_move", getName()); // FutureTask implements Runnable
 	}
 
 	@Override

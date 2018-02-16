@@ -32,6 +32,7 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Abstract decorator class for {@link EpicsMotor} that initialises and monitors IOC status PV.
@@ -104,21 +105,16 @@ public abstract class MotorIocDecorator extends MotorBase implements Initializin
 			if (value==0) {
 				setIocRunning(true);
 				if (decoratedMotor instanceof EpicsMotor) {
-					new Thread(new Runnable() {
-
-						@Override
-						public void run() {
-							EpicsMotor decoratedMotor2 = (EpicsMotor)decoratedMotor;
-							if (!decoratedMotor2.isConfigured()) {
-								try {
-									decoratedMotor.reconfigure();
-								} catch (FactoryException e) {
-									logger.error("reconfigure motor "+decoratedMotor.getName()+"failed.", e);
-								}
+					Async.execute(() -> {
+						EpicsMotor decoratedMotor2 = (EpicsMotor)decoratedMotor;
+						if (!decoratedMotor2.isConfigured()) {
+							try {
+								decoratedMotor.reconfigure();
+							} catch (FactoryException e) {
+								logger.error("reconfigure motor {} failed.", decoratedMotor.getName(), e);
 							}
-
 						}
-					}).start();
+					});
 				}
 			} else {
 				setIocRunning(false);

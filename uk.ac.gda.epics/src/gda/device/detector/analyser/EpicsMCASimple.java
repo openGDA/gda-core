@@ -48,6 +48,7 @@ import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multichannel analyser
@@ -793,7 +794,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 							readingDone = false;
 							logger.debug("readingDone set to false");
 							// don't do the CA put on the JCA event dispatch thread
-							new Thread(() -> {
+							Async.execute(() -> {
 								try {
 									// now ask for a read and set ReadingDone false
 									logger.debug("Requesting read");
@@ -801,7 +802,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 								} catch (Exception e) {
 									logger.error("Error setting read to 1 in response to acquisition done", e);
 								}
-							}).start();
+							});
 						}
 					}
 				} else if (((EpicsRegistrationRequest) theObserved).field.equals(READING_FIELD) && dbr.isENUM()) {
