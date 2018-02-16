@@ -241,6 +241,16 @@ public class EditDetectorParametersDialog extends Dialog {
 
 	private void takeSnapshot(final IDetectorModelWrapper detectorParameters) {
 		final String messageTitle = "Snapshot";
+
+		// to prevent AcquireRequest interrupting a running scan,
+		// we'll check that no running/submitted scans are currently in the queue
+		if (!new SubmissionQueueReporter().isQueueEmpty()) {
+			String msg = "Cannot take snapshot while there are submitted or running scans.";
+			logger.warn("{}\nAcquireRequest aborted",msg);
+			MessageDialog.openInformation(getShell(), messageTitle, msg);
+			return;
+		}
+
 		try {
 			final IRequester<AcquireRequest> acquireRequestor = MappingExperimentUtils.getAcquireRequestor(context);
 			acquireRequestor.setTimeout(5, TimeUnit.SECONDS);
