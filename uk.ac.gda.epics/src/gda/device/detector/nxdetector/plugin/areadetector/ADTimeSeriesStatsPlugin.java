@@ -18,6 +18,13 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v18.NDStatsPVs;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
@@ -33,12 +40,6 @@ import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.epics.ReadOnlyPV;
 import gda.scan.ScanInformation;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountingNXPlugin {
 
@@ -65,6 +66,11 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 	private boolean oneTimeSeriesCollectionPerLine = true;
 
+	private final List<String> inputStreamNames = new ArrayList<>();
+	private final List<String> inputStreamFormats = new ArrayList<>();
+
+	private boolean enabled;
+
 	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = statsPVs;
 		this.name = name;
@@ -72,11 +78,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 	}
 
 	public boolean isEnabled() {
-		try {
-			return ((this.roiProvider.getRoi() != null) && (!getEnabledStats().isEmpty()));
-		} catch (Exception e) {
-			throw new RuntimeException("Problem getting ROI", e);
-		}
+		return enabled;
 	}
 
 	public boolean isOneTimeSeriesCollectionPerLine() {
@@ -184,6 +186,9 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 			throw new NullPointerException("scanInfo is required");
 		}
 		this.scanInfo = scanInfo;
+
+		updateEnabled();
+
 		if (isEnabled()) {
 			if (getInputNDArrayPort() != null) {
 				pvs.getPluginBasePVs().getNDArrayPortPVPair().putWait(getInputNDArrayPort());
@@ -196,6 +201,36 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 		if (!isOneTimeSeriesCollectionPerLine()){
 			startNewTimeSeriesCollectionIfRequested();
+		}
+
+		prepareInputStreamNames();
+		prepareInputStreamFormats();
+	}
+
+	private void updateEnabled() {
+		try {
+			enabled = this.roiProvider.getRoi() != null && !getEnabledStats().isEmpty();
+		} catch (Exception e) {
+			throw new RuntimeException("Problem getting ROI", e);
+		}
+	}
+
+	private void prepareInputStreamNames() {
+		inputStreamNames.clear();
+		if (isEnabled()) {
+			for (BasicStat stat : getEnabledBasicStats()) {
+				inputStreamNames.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
+			}
+			for (CentroidStat stat : getEnabledCentroidStats()) {
+				inputStreamNames.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
+			}
+		}
+	}
+
+	private void prepareInputStreamFormats() {
+		inputStreamFormats.clear();
+		if (isEnabled()) {
+			inputStreamFormats.addAll(Collections.nCopies(getEnabledStats().size(), "%f"));
 		}
 	}
 
@@ -297,26 +332,12 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin, FrameCountin
 
 	@Override
 	public List<String> getInputStreamNames() {
-		List<String> names = new ArrayList<String>();
-		if (isEnabled()) {
-			for (BasicStat stat : getEnabledBasicStats()) {
-				names.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
-			}
-			for (CentroidStat stat : getEnabledCentroidStats()) {
-				names.add(getInputStreamNamesPrefix() + stat.name().toLowerCase());
-			}
-		}
-		return names;
+		return inputStreamNames;
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		if (isEnabled()) {
-			String[] formats = new String[getEnabledStats().size()];
-			Arrays.fill(formats, "%f");
-			return Arrays.asList(formats);
-		}
-		return Arrays.asList();
+		return inputStreamFormats;
 	}
 
 	public String getInputStreamNamesPrefix() {

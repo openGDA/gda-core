@@ -18,14 +18,14 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.io.IOException;
+
 import gda.device.detector.areadetector.v17.NDROIPVs;
 import gda.device.detector.areadetector.v17.impl.NDROIPVsImpl;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
 import gda.device.detector.nxdetector.roi.RectangularROI;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.scan.ScanInformation;
-
-import java.io.IOException;
 
 public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 
@@ -44,6 +44,9 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 
 	private String ndInputArrayPort;
 
+	/** This holds the ROI in use for the current scan it is updated by {@link #updateRoi()} in {@link #prepareForCollection(int, ScanInformation)} */
+	private RectangularROI<Integer> roi;
+
 	private boolean EnablePVPairSupported = true; //this flag is introduced because xmap detector used an old EPICs version
 
 	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String pluginName, RectangularROIProvider<Integer> roiProvider) {
@@ -52,8 +55,8 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 		this.pluginName = pluginName;
 	}
 
-	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
-		return roiProvider.getRoi();
+	public RectangularROI<Integer> getRoi() {
+		return roi;
 	}
 
 	@Override
@@ -72,6 +75,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
+		updateRoi();
 		if (getRoi() != null) {
 			if (getInputNDArrayPort() != null) {
 				pvs.getPluginBasePVs().getNDArrayPortPVPair().putWait(getInputNDArrayPort());
@@ -102,6 +106,10 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 			pvs.getYDimension().getMinPVPair().putWait(0);
 			pvs.getYDimension().getSizePVPair().putWait(0);
 		}
+	}
+
+	private void updateRoi() throws Exception {
+		roi = roiProvider.getRoi();
 	}
 
 	/**
