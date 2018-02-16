@@ -30,13 +30,12 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 
 /**
  * Base class for the EnumPositioner interface
  */
-public abstract class EnumPositionerBase extends ScannableBase implements EnumPositioner, Scannable {
+public abstract class EnumPositionerBase extends ScannableBase implements EnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EnumPositionerBase.class);
 
@@ -51,12 +50,20 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	}
 
 	@Override
-	public synchronized String[] getPositions() throws DeviceException{
+	public String[] getPositions() throws DeviceException {
+		return getPositionsInternal();
+	}
+
+	private synchronized String[] getPositionsInternal(){
 		return positions.toArray(new String[positions.size()]);
 	}
 
 	@Override
-	public synchronized List<String> getPositionsList() {
+	public List<String> getPositionsList() {
+		return getPositionsListInternal();
+	}
+
+	private synchronized List<String> getPositionsListInternal() {
 		return new ArrayList<>(positions);
 	}
 

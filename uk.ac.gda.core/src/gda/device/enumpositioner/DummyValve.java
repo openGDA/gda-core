@@ -22,9 +22,7 @@ package gda.device.enumpositioner;
 import java.util.Arrays;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 
@@ -32,7 +30,7 @@ import gda.factory.FactoryException;
  * A dummy class for valves. If positions is not set then it has two possible positions: Open and Close.
  * Provide a list of positions to make it a general dummy positioner
  */
-public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
+public class DummyValve extends ValveBase {
 
 	private String currentPosition;
 
@@ -40,7 +38,7 @@ public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
 	public void configure() throws FactoryException{
 		if(!configured){
 			super.configure();
-			if (getPositionsList().isEmpty()) {
+			if (getNumberOfPositions() == 0) {
 				setPositionsInternal(Arrays.asList(OPEN, CLOSE));
 			}
 			if (currentPosition==null) {
