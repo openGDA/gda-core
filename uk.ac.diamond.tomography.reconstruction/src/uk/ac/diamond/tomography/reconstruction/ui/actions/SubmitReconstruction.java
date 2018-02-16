@@ -79,9 +79,9 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
     		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
 
 			final IEventService service = ActiveMQServiceHolder.getEventService();
-			final ISubmitter<TomoBean> factory = service.createSubmitter(new URI(uri), queueName);
+			final ISubmitter<TomoBean> submitter = service.createSubmitter(new URI(uri), queueName);
 
-    		factory.submit(tBean, true);
+    		submitter.submit(tBean);
 
     		final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE", "scisoft.tomo.STATUS_TOPIC", "scisoft.tomo.SUBMISSION_QUEUE");
 		    EclipseUtils.getPage().showView(StatusQueueView.ID, secondId, IWorkbenchPage.VIEW_VISIBLE);
