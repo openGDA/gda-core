@@ -948,11 +948,11 @@ public class StatusQueueView extends EventConnectionView {
 					monitor.worked(1);
 
 					queueConnection.setBeanClass(getBeanClass());
-					List<StatusBean> runningList = queueConnection.getQueue(getQueueName(), null);
+					List<StatusBean> runningList = queueConnection.getQueue(getQueueName());
 					Collections.reverse(runningList); // The list comes out with the head @ 0 but we have the last submitted at 0 in our table.
 					monitor.worked(1);
 
-					List<StatusBean> submittedList = queueConnection.getQueue(getSubmissionQueueName(), null);
+					List<StatusBean> submittedList = queueConnection.getQueue(getSubmissionQueueName());
 					Collections.reverse(submittedList); // The list comes out with the head @ 0 but we have the last submitted at 0 in our table.
 					monitor.worked(1);
 

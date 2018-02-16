@@ -14,10 +14,8 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.TreeSet;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -48,19 +46,11 @@ public final class QueueReader<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(QueueReader.class);
 
-	private Comparator<? super T> comparator;
-
-	private IEventConnectorService service;
+	private final IEventConnectorService service;
 
 	public QueueReader(IEventConnectorService service) {
-		this(service, null);
-	}
-
-	public QueueReader(IEventConnectorService service, Comparator<? super T> comparator) {
 		this.service    = service;
-		this.comparator = comparator;
 	}
-
 
 	/**
 	 * Read beans from any queue.
@@ -70,7 +60,7 @@ public final class QueueReader<T> {
 	 * @param queueName
 	 * @param beanClass bean class
 	 * @return list of beans in the queue
-	 * @throws Exception
+	 * @throws EventException
 	 */
 	public List<T> getBeans(final URI uri, final String queueName, final Class<T> beanClass) throws EventException {
 		QueueConnection connection = null;
@@ -85,20 +75,15 @@ public final class QueueReader<T> {
 			@SuppressWarnings("rawtypes")
 			Enumeration e  = qb.getEnumeration();
 
-			final Collection<T> list;
-			if (comparator != null) {
-				list = new TreeSet<>(comparator);
-			} else {
-				list = new ArrayList<>();
-			}
+			final List<T> beans = new ArrayList<>();
 
 			while (e.hasMoreElements()) {
 				Message m = (Message)e.nextElement();
 				if (m instanceof TextMessage) {
-					processMessage(beanClass, session, queue, list, (TextMessage) m);
+					processMessage(beanClass, session, queue, beans, (TextMessage) m);
 				}
 			}
-			return list instanceof List ? (List<T>)list : new ArrayList<>(list);
+			return beans;
 		} catch (JMSException e) {
 			throw new EventException("Could not read beans from queue", e);
 		} finally {

@@ -29,7 +29,7 @@ public class QueueReaderImpl<T> extends AbstractConnection implements IQueueRead
 
 	@Override
 	public List<T> getQueue() throws EventException {
-		QueueReader<T> reader = new QueueReader<>(getConnectorService(), null);
+		QueueReader<T> reader = new QueueReader<>(getConnectorService());
 		try {
 			return reader.getBeans(uri, getSubmitQueueName(), beanClass);
 		} catch (Exception e) {

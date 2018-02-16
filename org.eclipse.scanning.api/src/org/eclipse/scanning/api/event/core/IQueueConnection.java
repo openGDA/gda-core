@@ -43,13 +43,12 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	 * @throws EventException
 	 */
 	public void setSubmitQueueName(String queueName) throws EventException;
+
 	/**
-	 * This method will read a queue or a set from ActiveMQ into a list.
-	 * @param queueName
-	 * @param fieldName
-	 *   If field is set, it will be used to order the beans in the list by making a comparitor using it.
+	 * Read the beans from the queue with the given name into a list.
+	 * @param queueName name of queue to get
 	 */
-	public List<T> getQueue(String queueName, String fieldName) throws EventException;
+	public List<T> getQueue(String queueName) throws EventException;
 
 	/**
 	 * This method will purge the queue

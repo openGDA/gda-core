@@ -292,12 +292,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
-		return getQueue(getSubmitQueueName(), null);
+		return getQueue(getSubmitQueueName());
 	}
 
 	@Override
 	public List<U> getStatusSet() throws EventException {
-		return getQueue(getStatusSetName(), "submissionTime");
+		final List<U> statusSet = getQueue(getStatusSetName());
+		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
+		return statusSet;
 	}
 
 	@Override

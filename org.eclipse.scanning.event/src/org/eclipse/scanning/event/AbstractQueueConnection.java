@@ -19,7 +19,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -82,7 +81,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public List<U> getQueue() throws EventException {
-		QueueReader<U> reader = new QueueReader<>(getConnectorService(), null);
+		QueueReader<U> reader = new QueueReader<>(getConnectorService());
 		try {
 			return reader.getBeans(uri, getSubmitQueueName(), beanClass);
 		} catch (Exception e) {
@@ -91,12 +90,10 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 	@Override
-	public List<U> getQueue(String qName, String fieldName) throws EventException {
+	public List<U> getQueue(String qName) throws EventException {
 		Comparator<U> comparator = null;
 
-		if (fieldName!=null) comparator = getComparator(fieldName);
-
-		QueueReader<U> reader = new QueueReader<>(service, comparator);
+		QueueReader<U> reader = new QueueReader<>(service);
 		try {
 			return reader.getBeans(uri, qName, beanClass);
 		} catch (Exception e) {
@@ -104,66 +101,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	private Comparator<U> getComparator(final String fieldName) {
-
-		if (fieldName==null) return null;
-		if ("submissionTime".equals(fieldName)) { // Short cu no reflection
-
-			return new Comparator<U>() {
-				@Override
-				public int compare(U o1, U o2) {
-					// Newest first!
-					long t1 = o1.getSubmissionTime();
-					long t2 = o2.getSubmissionTime();
-					if (t1 > t2) return -1;
-					if (t1 == t2) return o1.equals(o2) ? 1 : 0;
-					return 1;
-				}
-			};
-
-		} else {
-			return new Comparator<U>() {
-				@Override
-				public int compare(U o1, U o2) {
-					try {
-						Object val1 = o1.getClass().getMethod(getGetterName(fieldName)).invoke(o1);
-						Object val2 = o2.getClass().getMethod(getGetterName(fieldName)).invoke(o2);
-
-						if (val1 instanceof Number && val2 instanceof Number) {
-							Number n1 = (Number)val1;
-							Number n2 = (Number)val2;
-					        double t1 = n1.doubleValue();
-					        double t2 = n2.doubleValue();
-					        if (t1<t2) return -1;
-					        if (t1==t2) return o1.equals(o2) ? 0 : 1;
-					        return 1;
-						}
-
-						return val1.toString().compareTo(val2.toString());
-
-					} catch (Exception ne) {
-						return o1.toString().compareTo(o2.toString());
-					}
-				}
-			};
-		}
-	}
-
-	private static String getGetterName(final String fieldName) {
-		if (fieldName == null)
-			return null;
-		return getName("get", fieldName);
-	}
-	private static String getName(final String prefix, final String fieldName) {
-		return prefix + getFieldWithUpperCaseFirstLetter(fieldName);
-	}
-	public static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
-		return fieldName.substring(0, 1).toUpperCase(Locale.US) + fieldName.substring(1);
-	}
-
 	protected Map<String, U> getMap(String queueName) throws EventException {
 
-		final List<U> queue = getQueue(queueName, null);
+		final List<U> queue = getQueue(queueName);
 		if (queue==null || queue.isEmpty()) return null;
 		final HashMap<String, U> id = new HashMap<>(queue.size());
 		for (U u : queue) id.put(u.getUniqueId(), u);
@@ -325,7 +265,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		try {
 
 			// We are paused, read the queue
-			List<U> submitted = getQueue(queueName, null);
+			List<U> submitted = getQueue(queueName);
 			if (submitted==null || submitted.isEmpty())
 				throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
@@ -463,7 +403,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		try {
 
 			// We are paused, read the queue
-			List<U> submitted = getQueue(queueName, null);
+			List<U> submitted = getQueue(queueName);
 			if (submitted==null || submitted.size()<1) throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
 			boolean found = false;
