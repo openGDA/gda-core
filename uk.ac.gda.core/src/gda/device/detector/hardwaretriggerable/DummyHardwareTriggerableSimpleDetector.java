@@ -18,18 +18,21 @@
 
 package gda.device.detector.hardwaretriggerable;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionInputStream;
-import gda.device.scannable.PositionStreamIndexer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionInputStream;
+import gda.device.scannable.PositionStreamIndexer;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTriggerableDetectorBase implements
 		PositionCallableProvider<Double>, PositionInputStream<Double> {
@@ -58,7 +61,7 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 
 	private volatile int totalRead;
 
-	private Thread singleReadoutThread;
+	private Future<?> singleReadout;
 
 	public DummyHardwareTriggerableSimpleDetector(String name) {
 		setName(name);
@@ -127,8 +130,7 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 	//
 	private void collectSingleReadoutValue() throws DeviceException {
 		setStatus(Detector.BUSY);
-		singleReadoutThread = new Thread(new SingleReadoutTask(getCollectionTime(), getName()));
-		singleReadoutThread.start();
+		singleReadout = Async.submit(new SingleReadoutTask(getCollectionTime(), getName()));
 	}
 
 	class SingleReadoutTask implements Runnable {
@@ -157,8 +159,12 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		if (singleReadoutThread != null) {
-			singleReadoutThread.join();
+		if (singleReadout != null) {
+			try {
+				singleReadout.get();
+			} catch (ExecutionException e) {
+				throw new DeviceException("Error running single readout", e);
+			}
 		}
 	}
 
