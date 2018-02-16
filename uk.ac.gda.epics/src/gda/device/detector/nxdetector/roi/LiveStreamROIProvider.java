@@ -36,12 +36,12 @@ public class LiveStreamROIProvider implements RemoteRectangularROIsProvider {
 	/** The list of ROIs which will be updated via RMI by calling the {@link #updateRois(List)} method */
 	private final List<RectangularROI<Integer>> roisList = new ArrayList<>();
 
-	public List<RectangularROI<Integer>> getRois() {
+	public synchronized List<RectangularROI<Integer>> getRois() {
 		return roisList;
 	}
 
 	@Override
-	public void updateRois(final List<RectangularROI<Integer>> rois) {
+	public synchronized void updateRois(final List<RectangularROI<Integer>> rois) {
 		roisList.clear();
 		roisList.addAll(rois);
 		logger.debug("Updated ROIs list. Contains {} ROIs", roisList.size());
