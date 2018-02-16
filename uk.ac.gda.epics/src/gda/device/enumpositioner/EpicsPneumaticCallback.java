@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
@@ -51,7 +50,7 @@ import gov.aps.jca.event.PutListener;
 /**
  * This class maps onto the EPICS PneumaticCallback template.
  */
-public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPositioner, InitializationListener {
+public class EpicsPneumaticCallback extends EnumPositionerBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumaticCallback.class);
 
@@ -291,7 +290,6 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 	 *
 	 * @return the available positions from this device.
 	 */
-	@SuppressWarnings("sync-override")
 	@Override
 	public String[] getPositions() throws DeviceException {
 		try {
