@@ -107,6 +107,12 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private ILazyDataset dataset;
 	private String[] colourModes;
 
+	private Monitor dim0ChMonitor;
+	private Monitor dim1ChMonitor;
+	private Monitor dim2ChMonitor;
+	private Monitor colourModeChMonitor;
+	private Monitor numDimChMonitor;
+
 	/**
 	 * Constructor, takes the name of the base plugin name
 	 *
@@ -239,11 +245,11 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 			dataChannelMonitorListener = new EpicsMonitorListener();
 			dataChannelMonitor = EPICS_CONTROLLER.setMonitor(dataChannel, dataChannelMonitorListener, dataSize);
-			EPICS_CONTROLLER.setMonitor(dim0Ch, new EpicsMonitorListener());
-			EPICS_CONTROLLER.setMonitor(dim1Ch, new EpicsMonitorListener());
-			EPICS_CONTROLLER.setMonitor(dim2Ch, new EpicsMonitorListener());
-			EPICS_CONTROLLER.setMonitor(colourModeCh, new EpicsMonitorListener());
-			EPICS_CONTROLLER.setMonitor(numDimCh, new EpicsMonitorListener());
+			dim0ChMonitor = EPICS_CONTROLLER.setMonitor(dim0Ch, dataChannelMonitorListener);
+			dim1ChMonitor = EPICS_CONTROLLER.setMonitor(dim1Ch, dataChannelMonitorListener);
+			dim2ChMonitor = EPICS_CONTROLLER.setMonitor(dim2Ch, dataChannelMonitorListener);
+			colourModeChMonitor = EPICS_CONTROLLER.setMonitor(colourModeCh, dataChannelMonitorListener);
+			numDimChMonitor = EPICS_CONTROLLER.setMonitor(numDimCh, dataChannelMonitorListener);
 		} catch (Exception e) {
 			logger.error("Error connecting to EPICS stream", e);
 			throw new DatasetException(e);
@@ -254,23 +260,36 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	@Override
 	public void disconnect() throws DatasetException {
 		if (null != dataChannel) {
+			dataChannelMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(dataChannel);
+			dataChannelMonitor=null;
 		}
 		if (null != dim0Ch) {
+			dim0ChMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(dim0Ch);
+			dim0ChMonitor=null;
 		}
 		if (null != dim1Ch) {
+			dim1ChMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(dim1Ch);
+			dim1ChMonitor=null;
 		}
 		if (null != dim2Ch) {
+			dim2ChMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(dim2Ch);
+			dim2ChMonitor=null;
 		}
 		if (null != colourModeCh) {
+			colourModeChMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(colourModeCh);
+			colourModeChMonitor=null;
 		}
 		if (null != numDimCh) {
+			numDimChMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(numDimCh);
+			numDimChMonitor=null;
 		}
+		dataChannelMonitorListener=null;
 	}
 
 	@Override
