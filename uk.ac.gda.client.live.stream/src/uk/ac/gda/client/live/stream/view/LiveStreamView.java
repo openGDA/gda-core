@@ -109,6 +109,7 @@ public class LiveStreamView extends ViewPart {
 	private final IDataListener shapeListener = new IDataListener() {
 
 		private int[] oldShape;
+		private long lastUpdateTime= System.nanoTime(); // Initialise to prevent NPE
 
 		@Override
 		public void dataChangePerformed(DataEvent evt) {
@@ -123,8 +124,23 @@ public class LiveStreamView extends ViewPart {
 				});
 				updateAxes();
 			}
-			// Update the frame count in the UI thread
-			display.asyncExec(() -> plottingSystem.setTitle(cameraName + ": " + liveStreamConnection.getStreamType() + " - Frame: " + Long.toString(frameCounter.incrementAndGet())));
+
+			// Build the new title while not in the UI thread
+			final String newTitle = buildTitle();
+			// Update the plot title in the UI thread
+			display.asyncExec(() -> plottingSystem.setTitle(newTitle));
+		}
+
+		private String buildTitle() {
+			final double fps = getFps();
+			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(), frameCounter.incrementAndGet(), fps);
+		}
+
+		private double getFps() {
+			final long now = System.nanoTime();
+			final long timeDiff = now - lastUpdateTime;
+			lastUpdateTime = now; // Cache for next frame
+			return 1 / (timeDiff * 1e-9);
 		}
 	};
 
