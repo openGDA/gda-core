@@ -226,15 +226,17 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			description = (String) value;
 		} else if (value != null) {
 			attributeMap.put(attributeName, value);
-			if (configuration != null)
+			if (configuration != null) {
 				logger.trace("{}.setAttribute - setting xml {} to {}", getName(), attributeName, value);
 				configuration.setProperty(attributeName, value);
+			}
 		} else if (attributeMap.containsKey(attributeName)) {
 			logger.trace("{}.setAttribute - value is null, removing {} from attributes", getName(), attributeName);
 			attributeMap.remove(attributeName);
-			if (configuration != null)
+			if (configuration != null) {
 				logger.trace("{} - value is null, removing from xml configuration", getName());
 				configuration.clearProperty(attributeName);
+			}
 		}
 		logger.trace("{}.setAttribute - After set {} is {} in map, {} in configuration", getName(),
 				attributeName,
