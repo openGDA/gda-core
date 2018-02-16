@@ -28,7 +28,7 @@ public class RerunHandler extends XcenHandler implements IRerunHandler<XcenBean>
         if (ok) {
             ISubmitter<XcenBean> submitter = eventService.createSubmitter(conf.getUri(), conf.getSubmissionQueue());
             copy.setName("Copy of "+copy.getName());
-            submitter.submit(copy, true);
+            submitter.submit(copy);
             submitter.disconnect(); // Not really required for submitters.
         }
         return true; // We handled it

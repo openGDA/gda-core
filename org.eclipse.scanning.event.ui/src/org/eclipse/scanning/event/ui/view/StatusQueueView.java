@@ -834,7 +834,7 @@ public class StatusQueueView extends EventConnectionView {
 			copy.setPercentComplete(0.0);
 			copy.setSubmissionTime(System.currentTimeMillis());
 
-			queueConnection.submit(copy, true);
+			queueConnection.submit(copy);
 
 			reconnect();
 

@@ -41,11 +41,9 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitterImpl.class);
 
-	// Message things
-	private String uniqueId;
-	private int    priority;
-	private long   lifeTime;
-	private long   timestamp;
+	// Properties to set for each message
+	private int priority = 4; // Default priority is 4, see javadoc for MessageProducer.setPriority()
+	private long lifeTime = TimeUnit.DAYS.toMillis(7); // default message time to live of 7 days
 
 	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eservice) {
 		super(uri, null, service, eservice);
@@ -54,11 +52,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void submit(T bean) throws EventException {
-		submit(bean, true);
-	}
-
-	@Override
-	public void submit(T bean, boolean prepareBean) throws EventException {
 		Connection send = null;
 		Session session  = null;
 		MessageProducer producer = null;
@@ -72,19 +65,12 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 			producer = session.createProducer(queue);
 			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+			producer.setPriority(priority);
+			producer.setTimeToLive(lifeTime);
 
 			if (bean.getSubmissionTime()<1) bean.setSubmissionTime(System.currentTimeMillis());
-			if (getPriority()<1) setPriority(1);
-			if (getLifeTime()<1) setLifeTime(TimeUnit.DAYS.toMillis(7));
-
-			if (uniqueId==null) {
-				uniqueId = bean.getUniqueId()!=null ? bean.getUniqueId() : UUID.randomUUID().toString();
-			}
-			if (prepareBean) {
-				if (bean.getUserName()==null) bean.setUserName(System.getProperty("user.name"));
-				if (bean.getUniqueId()==null) bean.setUniqueId(uniqueId);
-				if (getTimestamp()>0) bean.setSubmissionTime(getTimestamp());
-			}
+			if (bean.getUserName()==null) bean.setUserName(System.getProperty("user.name"));
+			if (bean.getUniqueId()==null) bean.setUniqueId(UUID.randomUUID().toString());
 
 			String json = null;
 			try {
@@ -97,9 +83,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 			message.setJMSMessageID(bean.getUniqueId());
 			message.setJMSExpiration(getLifeTime());
-			message.setJMSTimestamp(getTimestamp());
-			message.setJMSPriority(getPriority());
-
 			producer.send(message);
 
 			try {
@@ -192,6 +175,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void setPriority(int priority) {
+		if (priority < 0) throw new IllegalArgumentException("Priority must be at least 0");
 		this.priority = priority;
 	}
 
@@ -204,19 +188,8 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void setLifeTime(long lifeTime) {
+		if (lifeTime < 0) throw new IllegalArgumentException("Time to live must be at least 0ms");
 		this.lifeTime = lifeTime;
-	}
-
-
-	@Override
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-
-	@Override
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
 	}
 
 }

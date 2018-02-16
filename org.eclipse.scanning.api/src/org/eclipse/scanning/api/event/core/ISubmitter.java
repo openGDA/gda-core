@@ -29,12 +29,6 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	void submit(T bean) throws EventException;
 
 	/**
-	 * Send a submission on to the queue.
-	 * @param bean
-	 */
-	void submit(T bean, boolean prepareBean) throws EventException;
-
-	/**
 	 * Send a submission on to the queue. Blocks until bean is
 	 * updated with "final" status.
 	 *
@@ -128,24 +122,32 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	boolean replace(T bean) throws EventException;
 
 	/**
-	 * Priority of the submission
-	 * @return
+	 * @return the priority of messages submitted by this submitter.
 	 */
 	int getPriority();
+
+	/**
+	 * Sets the priority of messages submitted by this submitter.
+	 * From the Javadoc from the underlying JMS implementation
+	 * (javax.jms.MessageProducer#setPriority):
+	 * <P>The JMS API defines ten levels of priority value, with 0 as the
+	 * lowest priority and 9 as the highest. Clients should consider priorities
+	 * 0-4 as gradations of normal priority and priorities 5-9 as gradations
+	 * of expedited priority. Priority is set to 4 by default.
+	 * @param priority
+	 */
 	void setPriority(int priority);
 
 	/**
-	 * Lifetime that the event should be active for
-	 * @return
+	 * @return the lifetime of messages
 	 */
 	long getLifeTime();
-	void setLifeTime(long lifeTime);
 
 
 	/**
-	 * Timestamp used for the event
-	 * @return
+	 * Sets the lifetime of messages.
+	 * @param lifetime
 	 */
-	long getTimestamp();
-	void setTimestamp(long timestamp);
+	void setLifeTime(long lifetime);
+
 }
