@@ -414,6 +414,9 @@ public class LiveStreamView extends ViewPart {
 				liveStreamConnection = null;
 			}
 		}
+		if (scriptingConnection != null) {
+			scriptingConnection.dispose();
+		}
 		super.dispose();
 	}
 
