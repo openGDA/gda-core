@@ -30,16 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
-import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.interfaceSpec.Field;
 import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
 import gda.epics.xml.EpicsRecord;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gov.aps.jca.event.PutListener;
 
@@ -50,7 +47,7 @@ import gov.aps.jca.event.PutListener;
  * This is essentially a list of pv's held on the finder under a common name.
  */
 @ExposedType(name="findableepicsdevice")
-public class FindableEpicsDevice extends DeviceBase implements Device, Configurable, Localizable, IEpicsDevice {
+public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(FindableEpicsDevice.class);
 
@@ -126,6 +123,11 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 
 	public void setRecordPVs(Map<String, String> recordPVs) {
 		this.recordPVs = recordPVs;
+	}
+
+	@Override
+	public String getRecordPV(String mcaName) {
+		return recordPVs.get(mcaName);
 	}
 
 	public void setDummy(boolean dummy) {
@@ -264,11 +266,13 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		return null;
 	}
 
+	@Override
 	public Object getValue(ReturnType returnType, String record, String field) throws DeviceException {
 		checkConfigured();
 		return epicsDevice.getValue(returnType, record, field);
 	}
 
+	@Override
 	public String getValueAsString(String record, String field) throws DeviceException {
 		checkConfigured();
 		return epicsDevice.getValueAsString(record, field);
@@ -284,23 +288,25 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		return epicsDevice.getValue(ReturnType.DBR_CTRL, "", "");
 	}
 
+	@Override
 	public void setValue(Object type, String record, String field, Object val, double putTimeout)
 			throws DeviceException {
 		checkConfigured();
 		epicsDevice.setValue(type, record, field, val, putTimeout);
 	}
 
-	public void setValue(String record, String field, Object val, double connection_timeout, PutListener listener)
-	throws DeviceException {
+	public void setValue(String record, String field, Object val, double connectionTimeout, PutListener listener) throws DeviceException {
 		checkConfigured();
-		epicsDevice.setValue(record, field, val, connection_timeout, listener );
+		epicsDevice.setValue(record, field, val, connectionTimeout, listener );
 	}
 
+	@Override
 	public void setValue(String record, String field, Object val) throws DeviceException {
 		checkConfigured();
 		epicsDevice.setValue(null, record, field, val, 5.0);
 	}
 
+	@Override
 	public void setValueNoWait(String record, String field, Object val) throws DeviceException {
 		checkConfigured();
 		epicsDevice.setValue(null, record, field, val, -1.0);

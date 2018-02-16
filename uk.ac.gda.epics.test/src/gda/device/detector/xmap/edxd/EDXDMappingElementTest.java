@@ -27,9 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +36,12 @@ import org.mockito.ArgumentCaptor;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.EpicsMCASimple;
-import gda.device.epicsdevice.FindableEpicsDevice;
+import gda.device.epicsdevice.XmapEpicsDevice;
 import gda.factory.FactoryException;
 
 public class EDXDMappingElementTest {
 
-	private FindableEpicsDevice xmapDevice;
+	private XmapEpicsDevice xmapDevice;
 	private EpicsMCASimple simpleMca;
 
 	// In this test, we work with 4 "real" ROIS and let the rest default to zero
@@ -68,13 +66,10 @@ public class EDXDMappingElementTest {
 			newRois[i][0] = NEW_LOW_ROIS[i];
 			newRois[i][1] = NEW_HIGH_ROIS[i];
 		}
-		final Map<String, String> pvs = new HashMap<>();
-		pvs.put("MCA1", "BLXXI-EA-DET-01:MCA1");
-		pvs.put("MCA2", "BLXXI-EA-DET-01:MCA2");
-		pvs.put("MCA3", "BLXXI-EA-DET-01:MCA3");
 
-		xmapDevice = mock(FindableEpicsDevice.class);
-		when(xmapDevice.getRecordPVs()).thenReturn(pvs);
+		xmapDevice = mock(XmapEpicsDevice.class);
+		when(xmapDevice.getRecordPV("MCA1")).thenReturn("BLXXI-EA-DET-01:MCA1");
+		when(xmapDevice.getRecordPV("MCA2")).thenReturn("BLXXI-EA-DET-01:MCA2");
 
 		simpleMca = mock(EpicsMCASimple.class);
 		when(simpleMca.isConfigured()).thenReturn(true);

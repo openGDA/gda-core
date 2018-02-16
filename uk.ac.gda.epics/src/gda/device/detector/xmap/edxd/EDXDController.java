@@ -31,6 +31,7 @@ import gda.device.epicsdevice.EpicsMonitorEvent;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
+import gda.device.epicsdevice.XmapEpicsDevice;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -52,7 +53,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	private IEpicsChannel statusChannel;
 
 	protected int numberOfElements = 24;
-	protected FindableEpicsDevice xmap = null;
+	protected XmapEpicsDevice xmap = null;
 	protected final List<EDXDElement> subDetectors = new ArrayList<>();
 	protected DeviceException collectDataException;
 
@@ -85,10 +86,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 		// for backwards compatibility, is created here if necessary.
 		// TODO Please be aware that use of the finder prevents others from understanding how the code flows!
 		if (xmap == null) {
-			xmap = new FindableEpicsDevice();
-			xmap.setDeviceName(epicsDeviceName);
-			xmap.setName(epicsDeviceName);
-			xmap.configure();
+			final FindableEpicsDevice xmapFindable = new FindableEpicsDevice();
+			xmapFindable.setDeviceName(epicsDeviceName);
+			xmapFindable.setName(epicsDeviceName);
+			xmapFindable.configure();
+			xmap = xmapFindable;
 		}
 		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, ACQUIRING , "");
 		statusChannel.addIObserver(new IObserver(){
@@ -602,11 +604,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 		return subDetectors.get(mcaNumber).getOutputCountRate();
 	}
 
-	public FindableEpicsDevice getXmap() {
+	public XmapEpicsDevice getXmap() {
 		return xmap;
 	}
 
-	public void setXmap(FindableEpicsDevice xmap) {
+	public void setXmap(XmapEpicsDevice xmap) {
 		this.xmap = xmap;
 	}
 

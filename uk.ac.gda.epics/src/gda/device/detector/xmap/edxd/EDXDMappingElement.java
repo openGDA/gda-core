@@ -27,7 +27,7 @@ import gda.data.nexus.INeXusInfoWriteable;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.EpicsMCASimple;
-import gda.device.epicsdevice.FindableEpicsDevice;
+import gda.device.epicsdevice.XmapEpicsDevice;
 import gda.factory.FactoryException;
 
 /**
@@ -43,11 +43,11 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
-	public EDXDMappingElement(FindableEpicsDevice xmapDevice, int elementNumber, EpicsMCASimple simpleMca) {
+	public EDXDMappingElement(XmapEpicsDevice xmapDevice, int elementNumber, EpicsMCASimple simpleMca) {
 		super(xmapDevice, elementNumber);
 
 		final String mcaName = MCA + elementNumber;
-		final String pvName = xmap.getRecordPVs().get(mcaName);
+		final String pvName = xmap.getRecordPV(mcaName);
 
 		this.simpleMca = simpleMca;
 		this.simpleMca.setName(mcaName);
