@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,6 +44,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoViewController;
@@ -218,8 +217,7 @@ public class TomoAlignmentController extends TomoViewController {
 	 * @return {@link Future}
 	 */
 	public Future<Boolean> getStreamUrl() {
-		ExecutorService executorService = Executors.newFixedThreadPool(3);
-		return executorService.submit(streamUrlCallable);
+		return Async.submit(streamUrlCallable);
 	}
 
 	/**
@@ -288,19 +286,14 @@ public class TomoAlignmentController extends TomoViewController {
 		logger.debug("Stop acquiring");
 
 		if (iocDownException == null) {
-			Thread stopAcqThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					logger.debug("Stop acquisition request");
-					try {
-						cameraHandler.stopAcquiring();
-					} catch (Exception e) {
-						logger.error("Error stopping acquire", e);
-					}
+			Async.execute(() -> {
+				logger.debug("Stop acquisition request");
+				try {
+					cameraHandler.stopAcquiring();
+				} catch (Exception e) {
+					logger.error("Error stopping acquire", e);
 				}
 			});
-			stopAcqThread.setPriority(Thread.MAX_PRIORITY);
-			stopAcqThread.start();
 		}
 	}
 
@@ -313,8 +306,7 @@ public class TomoAlignmentController extends TomoViewController {
 
 	public Future<Boolean> init() {
 		super.initialize();
-		ExecutorService executorService = Executors.newFixedThreadPool(3);
-		return executorService.submit(initThread);
+		return Async.submit(initThread);
 	}
 
 	public CAMERA_MODULE getModule() throws DeviceException {
