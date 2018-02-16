@@ -26,6 +26,7 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.concurrent.Async;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -308,22 +309,19 @@ public class I05Apple extends ScannableBase {
 		final List<PGMove> moveLst;
 		moveLst = solver.getGapPhaseOrder(new Line2D.Double(currentPhase, currentGap, newphase, newgap), 0);
 		if (!moveLst.isEmpty()) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						runPast(moveLst);
-					} catch (InterruptedException ie) {
-						threadException = new DeviceException("interrupted while moving undulator", ie);
-					} catch (DeviceException e) {
-						threadException = e;
-					} catch (TimeoutException e) {
-						threadException = new DeviceException("timeout while talking to undulator", e);
-					} catch (CAException e) {
-						threadException = new DeviceException("ca exception while moving undulator", e);
-					}
+			Async.execute(() -> {
+				try {
+					runPast(moveLst);
+				} catch (InterruptedException ie) {
+					threadException = new DeviceException("interrupted while moving undulator", ie);
+				} catch (DeviceException e) {
+					threadException = e;
+				} catch (TimeoutException e) {
+					threadException = new DeviceException("timeout while talking to undulator", e);
+				} catch (CAException e) {
+					threadException = new DeviceException("ca exception while moving undulator", e);
 				}
-			}).start();
+			});
 			try {
 				Thread.sleep(250);
 			} catch (InterruptedException e) {
