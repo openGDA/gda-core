@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 
@@ -20,6 +21,8 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
 	private IScriptFiles scriptFiles = null;
+	private Set<String> perScanMonitorNames = null;
+	private Set<String> perPointMonitorNames = null;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new SimpleSampleMetadata();
@@ -57,6 +60,26 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
+	public Set<String> getPerScanMonitorNames() {
+		return perScanMonitorNames;
+	}
+
+	@Override
+	public void setPerScanMonitorNames(Set<String> perScanMonitorNames) {
+		this.perScanMonitorNames = perScanMonitorNames;
+	}
+
+	@Override
+	public Set<String> getPerPointMonitorNames() {
+		return this.perPointMonitorNames;
+	}
+
+	@Override
+	public void setPerPointMonitorNames(Set<String> perPointMonitorNames) {
+		this.perPointMonitorNames = perPointMonitorNames;
+	}
+
+	@Override
 	public Map<String, Object> getBeamlineConfiguration() {
 		return beamlineConfiguration;
 	}
@@ -78,13 +101,13 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 
 	@Override
 	public List<IOperationModel> getPostProcessingConfiguration() {
-		// TODO Auto-generated method stub
+		// TODO not yet implemented - remove this method?
 		return null;
 	}
 
 	@Override
 	public void setPostProcessingConfiguration(List<IOperationModel> postProcessingConfiguration) {
-		// TODO Auto-generated method stub
+		// TODO not yet implemented - remove this method
 	}
 
 	@Override
@@ -105,6 +128,8 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		result = prime * result
 				+ ((clusterProcessingConfiguration == null) ? 0 : clusterProcessingConfiguration.hashCode());
 		result = prime * result + ((detectorParameters == null) ? 0 : detectorParameters.hashCode());
+		result = prime * result + ((perPointMonitorNames == null) ? 0 : perPointMonitorNames.hashCode());
+		result = prime * result + ((perScanMonitorNames == null) ? 0 : perScanMonitorNames.hashCode());
 		result = prime * result + ((sampleMetadata == null) ? 0 : sampleMetadata.hashCode());
 		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
 		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
@@ -135,6 +160,16 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 				return false;
 		} else if (!detectorParameters.equals(other.detectorParameters))
 			return false;
+		if (perPointMonitorNames == null) {
+			if (other.perPointMonitorNames != null)
+				return false;
+		} else if (!perPointMonitorNames.equals(other.perPointMonitorNames))
+			return false;
+		if (perScanMonitorNames == null) {
+			if (other.perScanMonitorNames != null)
+				return false;
+		} else if (!perScanMonitorNames.equals(other.perScanMonitorNames))
+			return false;
 		if (sampleMetadata == null) {
 			if (other.sampleMetadata != null)
 				return false;
@@ -152,5 +187,6 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 			return false;
 		return true;
 	}
+
 
 }

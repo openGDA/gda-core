@@ -33,6 +33,7 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.PositionDelegate;
@@ -296,36 +297,44 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	}
 
 	@Override
-	public Object getPosition() throws Exception {
+	public Object getPosition() throws ScanningException {
 		if (canReadPosition()) {
-			return getScannable().getPosition();
+			try {
+				return getScannable().getPosition();
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not get position of scannable: " + getName(), e);
+			}
 		}
 		return null;
 	}
 
 	@Override
-	public Object setPosition(Object value) throws Exception {
+	public Object setPosition(Object value) throws ScanningException {
 		return setPosition(value, null);
 	}
 
 	@Override
-	public Object setPosition(Object value, IPosition scanPosition) throws Exception {
-		final Scannable scannable = getScannable();
-		if (value != null) {
-			final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
-			final IPosition position = new Scalar<Object>(getName(), index, value);
-			positionDelegate.firePositionWillPerform(position);
-			logger.debug("Moving scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
-			scannable.moveTo(value);
-			positionDelegate.firePositionPerformed(getLevel(), position);
-		} else {
-			logger.debug("Ignoring request to move scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
-		} // setPosition is called with a value==null if it is a monitor in a scan and doesn't need to be moved.
+	public Object setPosition(Object value, IPosition scanPosition) throws ScanningException {
+		try {
+			final Scannable scannable = getScannable();
+			if (value != null) {
+				final int index = (scanPosition == null ? -1 : scanPosition.getIndex(getName()));
+				final IPosition position = new Scalar<Object>(getName(), index, value);
+				positionDelegate.firePositionWillPerform(position);
+				logger.debug("Moving scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
+				scannable.moveTo(value);
+				positionDelegate.firePositionPerformed(getLevel(), position);
+			} else {
+				logger.debug("Ignoring request to move scannable {} to position {} at {}", scannable.getName(), value, scanPosition);
+			} // setPosition is called with a value==null if it is a monitor in a scan and doesn't need to be moved.
 
-		if (scanPosition != null && shouldWritePosition()) {
-			final Object position = scannable.getPosition();
-			write(value, getPositionArray(position), scanPosition);
-			return position; // It stops it being read again.
+			if (scanPosition != null && shouldWritePosition()) {
+				final Object position = scannable.getPosition();
+				write(value, getPositionArray(position), scanPosition);
+				return position; // It stops it being read again.
+			}
+		} catch (Exception e) {
+			throw new ScanningException("Could not set position of scannable " + getName(), e);
 		}
 
 		// We didn't read real position again when setting the value so we cannot provide the

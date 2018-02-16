@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -86,19 +85,31 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		@Override
-		public Object getPosition() throws Exception {
-			return scannable.getPosition();
+		public Object getPosition() throws ScanningException {
+			try {
+				return scannable.getPosition();
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not get position of scannable " + getName(), e);
+			}
 		}
 
 		@Override
-		public Object setPosition(Object value) throws Exception {
-			scannable.moveTo(value);
+		public Object setPosition(Object value) throws ScanningException {
+			try {
+				scannable.moveTo(value);
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not set position of scannable " + getName(), e);
+			}
 			return null; // Since we did not read position as part of the move, we return null
 		}
 
 		@Override
-		public Object setPosition(Object value, IPosition position) throws Exception {
-			scannable.moveTo(value);
+		public Object setPosition(Object value, IPosition position) throws ScanningException {
+			try {
+				scannable.moveTo(value);
+			} catch (DeviceException e) {
+				throw new ScanningException("Could not set position of scannable " + getName(), e);
+			}
 			return null; // Since we did not read position as part of the move, we return null
 		}
 	}
@@ -179,8 +190,8 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 	 * @return a {@link ScannableNexusWrapper} wrapping the {@link Scannable}
 	 * @throws ScanningException
 	 */
-	private <T> IScannable<T> createScannableWrapper(String name, Scannable scannable, boolean jythonScannable)
-			throws ScanningException {
+	@SuppressWarnings("unchecked")
+	private <T> IScannable<T> createScannableWrapper(String name, Scannable scannable, boolean jythonScannable) {
 		IScannable<T> iscannable = null;
 		if (scannable instanceof IScannable) {
 			/**
@@ -203,13 +214,6 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 				iscannable = (IScannable<T>) new JythonScannableNexusWrapper<>(name);
 			} else {
 				iscannable = (IScannable<T>) new ScannableNexusWrapper<>(scannable);
-			}
-			/**
-			 * to support metadata scannable defined in GDA 8
-			 */
-			if (getGlobalPerScanMonitorNames().contains(iscannable.getName())){
-				iscannable.setActivated(true);
-				iscannable.setMonitorRole(MonitorRole.PER_SCAN);
 			}
 
 			if (iscannable instanceof AbstractScannable) {

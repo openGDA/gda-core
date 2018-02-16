@@ -83,7 +83,6 @@ import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.MonitorRole;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -922,7 +921,6 @@ public class ScannableNexusWrapperScanTest {
 		scanModel.setDetectors(detector);
 
 		IScannable<?> attributeScannable = connector.getScannable("attributes");
-		attributeScannable.setMonitorRole(MonitorRole.PER_SCAN);
 		scanModel.setMonitorsPerScan(attributeScannable);
 
 		// Create a file to scan into
