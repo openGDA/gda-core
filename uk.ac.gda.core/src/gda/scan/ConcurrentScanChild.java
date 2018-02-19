@@ -36,6 +36,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Base class for scan classes which can act as a dimension in a multi-dimensional concurrentscan
@@ -411,12 +412,14 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					// if there are detectors then readout in parallel threads
 					if (detectors.size() != 0) {
 
-						readoutTasks = new ArrayList<Future<Object>>(detectors.size());
+						readoutTasks = new ArrayList<>(detectors.size());
 
 						// Start readout tasks
 						for (Detector detector : point.getDetectors()) {
-							FutureTask<Object> readoutTask = new FutureTask<Object>(new ReadoutDetector(detector));
-							new Thread(readoutTask, threadName + ": readout '" + detector.getName() + "'").start();
+							Future<Object> readoutTask = Async.submit(
+									new ReadoutDetector(detector),
+									"%s: readout '%s'", threadName, detector.getName() //thread name
+									);
 							readoutTasks.add(readoutTask);
 						}
 
@@ -426,7 +429,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 							Object data = readoutTasks.get(i).get();
 							point.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detectors.get(i)));
 						}
-
 					}
 
 					// Put point onto pipeline
