@@ -48,7 +48,6 @@ public class ParameterSelectionDialog extends Dialog {
 
 	protected ParameterSelectionDialog(Shell parentShell) {
 		super(parentShell);
-		parentShell.setText("Set measurement conditions");
 		setShellStyle(getShellStyle() | SWT.RESIZE);
 	}
 
@@ -57,6 +56,12 @@ public class ParameterSelectionDialog extends Dialog {
 		Composite container = (Composite) super.createDialogArea(parent);
 		createComposite(container);
 		return parent;
+	}
+
+	@Override
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Set measurement conditions");
 	}
 
 	public void setFromParameters(List<ParameterValuesForBean> paramsToSet) {
@@ -78,7 +83,7 @@ public class ParameterSelectionDialog extends Dialog {
 
 		for(ParameterConfig editableParam : parameterConfig) {
 			Boolean selected = paramSelectionMap.get(makeBeanTypeAndGetterString(editableParam));
-			if (selected) {
+			if (selected != null && selected) {
 				String beanType = editableParam.getBeanType();
 				ParameterValuesForBean overrideParams = paramForBeanType.get(beanType);
 				if (overrideParams == null) {
@@ -116,17 +121,19 @@ public class ParameterSelectionDialog extends Dialog {
 
 		paramSelectionButtonMap = new HashMap<>();
 		for(ParameterConfig param : parameterConfig) {
-			Label label = new Label(comp, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
+			if (param.getShowInParameterSelectionDialog()) {
+				Label label = new Label(comp, SWT.NONE);
+				GridDataFactory.fillDefaults().grab(true, false).applyTo(label);
 
-			label.setText(param.getDescription()+"     ");
-			label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
+				label.setText(param.getDescription()+"     ");
+				label.setToolTipText(param.getBeanType()+" : "+param.getFullPathToGetter());
 
-			final Button button = new Button(comp, SWT.CHECK);
-			GridDataFactory.fillDefaults().grab(true, false).hint(15,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
-			button.setSelection(false);
-			final String keyString = makeMapKey(param.getBeanType(), param.getFullPathToGetter());
-			paramSelectionButtonMap.put(keyString, button);
+				final Button button = new Button(comp, SWT.CHECK);
+				GridDataFactory.fillDefaults().grab(true, false).hint(15,SWT.NONE).applyTo(button); // sizehint to remove border around empty text next to checkbox (swt bug)
+				button.setSelection(false);
+				final String keyString = makeMapKey(param.getBeanType(), param.getFullPathToGetter());
+				paramSelectionButtonMap.put(keyString, button);
+			}
 		}
 	}
 

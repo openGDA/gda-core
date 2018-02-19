@@ -52,6 +52,7 @@ import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
+import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -125,11 +126,16 @@ public class SpreadsheetViewHelperClasses {
 	}
 
 	/**
-	 * Invoke named method on supplied object. The method name can chain together several method calls by separating the parts by dots.
-	 * (i.e. as would be typed on Jython console to invoke method)
-	 * {@code valueToSet} will be used to create a new Integer, Double or String object to pass to the method.
-	 * e.g. for a {@link DetectorParameters} object with {@code pathToMethod} = getSoftXRaysParameters.setConfigFileName, it will
-	 * first invoke getSoftXRaysParameters() and then setConfigName(valueToSet) on the returned object.
+	 * Invoke named method on the supplied object. The method name can chain together several method calls by separating the
+	 * parts by dots. (i.e. as would be typed on Jython console to invoke method)
+	 * <p>
+	 * If given, {@code valueToSet}, will be used to create a new Integer, Double or String object to pass to the final method
+	 * invoked. e.g. for a {@link DetectorParameters} object with {@code pathToMethod} = getSoftXRaysParameters.setConfigFileName,
+	 * the 'getSoftXRaysParameters()' method will be invoked first, followed by setConfigName(valueToSet) on the returned object.
+	 * <p>
+	 * The {@code pathToMethod} name may also contain a value in brackets e.g. getSampleParameterMotor(motor1).getDoMove
+	 * In this case, the value in brackets ('motor1') will be passed as parameter to the 'getSampleParameterMotor' method when
+	 * invoking it (as a string), before invoking the 'getDoMove' method on the returned object.
 	 *
 	 * @param obj
 	 * @param pathToMethod
@@ -141,29 +147,45 @@ public class SpreadsheetViewHelperClasses {
 	 * @throws IllegalArgumentException
 	 */
 	public static Object invokeMethodFromName(Object obj, String pathToMethod, Object valueToSet) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		Method method = null;
 		String[] splitPath = pathToMethod.split("[.]");
 		Object parentObject = obj;
-		Object returnValue = null;
-		for(int i=0; i<splitPath.length; i++) {
-			method = getMethodWithName(parentObject.getClass(), splitPath[i]);
-			if (method!=null) {
-				if(method.getParameterCount()==1 && valueToSet!=null) {
-					Object value = createNumberOrString(valueToSet, method.getParameterTypes()[0]);
-					returnValue = method.invoke(parentObject, value);
-				} else {
-					returnValue = method.invoke(parentObject);
+		for(String pathPart : splitPath) {
+
+			String methodName = pathPart;
+
+			// Extract method name and parameter from string if path part contains brackets : e.g. someMethod(someValue)
+			String paramValueFromPath = "";
+			if (pathPart.contains("(")) {
+				String[] splitMethodCall = pathPart.split("[()]");
+				methodName = splitMethodCall[0];
+				paramValueFromPath = splitMethodCall[1];
+			}
+
+			Method methodObj = getMethodWithName(parentObject.getClass(), methodName);
+			if (methodObj!=null) {
+				if (methodObj.getParameterCount()==1) {
+					//Method expects a parameter...
+					Object valueForMethod = null;
+					if (paramValueFromPath.length()>0) {
+						// Value extracted from brackets of part part
+						valueForMethod = paramValueFromPath;
+					} else if (valueToSet!=null) {
+						// Value passed in function call
+						valueForMethod = createNumberOrString(valueToSet, methodObj.getParameterTypes()[0]);
+					}
+					if (valueForMethod == null) {
+						logger.warn("Invoking {} with null parameter", pathPart);
+					}
+					parentObject = methodObj.invoke(parentObject, valueForMethod);
 				}
-				if (returnValue!=null) {
-					parentObject = returnValue;
+				else {
+					parentObject = methodObj.invoke(parentObject);
 				}
 			} else {
-				logger.warn("No method found {} in class {}", splitPath[i], parentObject.getClass());
-				break;
+				logger.warn("Unable to invoke {} ", pathPart);
 			}
 		}
-
-		return returnValue;
+		return parentObject;
 	}
 
 	/**
@@ -343,6 +365,7 @@ public class SpreadsheetViewHelperClasses {
 		SpreadsheetViewHelperClasses.setupBeansFactory();
 		// Iterate over each scan in the list...
 		boolean forceReplaceExistingFiles = false;
+		boolean useSampleNameForMultiscan = true; // include sample name in scan name (might want to set this from the GUI)
 
 		String multiScanFileContents = "";
 
@@ -366,6 +389,7 @@ public class SpreadsheetViewHelperClasses {
 			ParametersForScan parametersForScan  = parametersForAllScans.get(scanIndex);
 
 			String sampleFileName = "", scanFileName="", detFileName="", outputFileName="";
+			String sampleName = "";
 
 			//Loop over each parameter file for the scan
 			for(ParameterValuesForBean parameterForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
@@ -379,7 +403,10 @@ public class SpreadsheetViewHelperClasses {
 						// replace values in bean with user specified values
 						SpreadsheetViewHelperClasses.updateBeanWIthOverrides(beanObject, parameterForScanBean);
 					}
-
+					// Get sample name, so we can use it in the scan name in the multi-scan file
+					if (useSampleNameForMultiscan && beanObject instanceof ISampleParameters) {
+						sampleName = "_"+((ISampleParameters)beanObject).getName();
+					}
 					String baseName = FilenameUtils.getBaseName(fullXmlPath);
 					String extension = FilenameUtils.getExtension(fullXmlPath);
 					String fileName = String.format("%s_%d_%d.%s", baseName, scanIndex+1, counter, extension);
@@ -431,7 +458,7 @@ public class SpreadsheetViewHelperClasses {
 			if (sampleFileName.isEmpty() || detFileName.isEmpty() || scanFileName.isEmpty() || outputFileName.isEmpty()) {
 				logger.warn("Problem setting up multiscan for Scan_{} - parameter filename is empty!", scanIndex+1);
 			}
-			multiScanFileContents += String.format("Scan_%d %s %s %s %s %d\n", scanIndex+1, sampleFileName, scanFileName, detFileName, outputFileName, parametersForScan.getNumberOfRepetitions());
+			multiScanFileContents += String.format("Scan_%d%s %s %s %s %s %d\n", scanIndex+1, sampleName, sampleFileName, scanFileName, detFileName, outputFileName, parametersForScan.getNumberOfRepetitions());
 
 			// Create and store a ScanObject for the scan, so parameters can be validated
 			ScanObject scanObject = new ScanObject();
@@ -686,5 +713,94 @@ public class SpreadsheetViewHelperClasses {
 			}
 		}
 		return warningMessage;
+	}
+
+	/**
+	 * Get a list of ParameterConfigs for generic motor positions in the B18 sample parameter bean.
+	 * Adds 'demand position' and 'do move' parameter for each one.
+	 * @param paramsForScan
+	 * @return list of ParameterConfigs for generic motors.
+	 */
+	public static List<ParameterConfig> getSampleParameterMotorConfig(ParametersForScan paramsForScan) {
+		String beanTypeString = B18SampleParameters.class.getName();
+		for(ParameterValuesForBean paramValues : paramsForScan.getParameterValuesForScanBeans()) {
+			if (paramValues.getBeanType().equals(beanTypeString)) {
+				B18SampleParameters sampleParams;
+				try {
+					sampleParams = (B18SampleParameters)paramValues.getBeanObject();
+				} catch (Exception e) {
+					logger.error("Problem reading {} bean from xml file", beanTypeString, e);
+					continue;
+				}
+
+				String positionGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"(%s)."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
+				String activeGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"(%s)."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+
+				List<SampleParameterMotorPosition> motorPositions = sampleParams.getSampleParameterMotorPositions();
+				List<ParameterConfig> paramConfigs = new ArrayList<>();
+				for(SampleParameterMotorPosition motorPos : motorPositions) {
+					// Parameter with demandPosition
+					ParameterConfig paramConfig = new ParameterConfig();
+					paramConfig.setFullPathToGetter(String.format(positionGetterFormat, motorPos.getScannableName()));
+					paramConfig.setBeanType(beanTypeString);
+					paramConfig.setDescription(motorPos.getDescription());
+					paramConfigs.add(paramConfig);
+
+					// Parameter for moveTo (true/false) flag
+					// This is not shown in measurement conditions dialog - it is added to table if corresponding
+					// demandPosition has been selected by user.
+					paramConfig = new ParameterConfig();
+					paramConfig.setFullPathToGetter(String.format(activeGetterFormat, motorPos.getScannableName()));
+					paramConfig.setBeanType(beanTypeString);
+					paramConfig.setDescription("Move "+motorPos.getDescription());
+					paramConfig.setAllowedValuesFromBoolean(true);
+					paramConfig.setShowInParameterSelectionDialog(false);
+					paramConfigs.add(paramConfig);
+				}
+				return paramConfigs;
+			}
+		}
+		return null;
+	}
+	/**
+	 * Add 'do move' ParameterValue for sample parameter motor positions (true = move at scan start, false = don't move)
+	 * for selected SampleParameterMotors. <p>
+	 * i.e. if the parameter values contains demand position call {@code getSampleParameterMotorPosition(user1).getDemandPosition}
+	 * then insert new parameterValue for 'do move' function, {@code getSampleParameterMotorPosition(user1).getDoMove},
+	 * before demand position item in list.
+	 *
+	 *  @param paramValuesForBeans
+	 */
+	public static void addSampleParameterMotorMoveFlag(List<ParameterValuesForBean> paramValuesForBeans) {
+
+		// Positions in original paramValuesForBeans list where motor move true/false parameters should be inserted
+		Map<Integer, ParameterValue> motorMoveFlagForSampleParams = new HashMap<Integer, ParameterValue>();
+
+		ParameterValuesForBean sampleParams = null;
+		for (ParameterValuesForBean paramsForBean : paramValuesForBeans) {
+			int index = 0;
+			if (paramsForBean.getBeanType().equals(B18SampleParameters.class.getName())) {
+				sampleParams = paramsForBean;
+
+				for (ParameterValue paramValue : paramsForBean.getParameterValues()) {
+					String pathToGetter = paramValue.getFullPathToGetter();
+					// Create new ParameterValue with getter for 'do move' function:
+					if (pathToGetter.startsWith(B18SampleParameters.MOTOR_POSITION_GETTER_NAME)) {
+						String[] splitStr = pathToGetter.split("[.]");
+						String pathToTfGetter = splitStr[0] + "."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+						motorMoveFlagForSampleParams.put(index, new ParameterValue(pathToTfGetter, "true"));
+					}
+					index++;
+				}
+			}
+		}
+
+		if (sampleParams != null) {
+			int offset = 1;
+			for (Integer i : motorMoveFlagForSampleParams.keySet()) {
+				sampleParams.getParameterValues().add(i + offset, motorMoveFlagForSampleParams.get(i));
+				offset++;
+			}
+		}
 	}
 }

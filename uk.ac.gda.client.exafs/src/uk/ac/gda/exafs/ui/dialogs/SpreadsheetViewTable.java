@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.dialogs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -28,6 +29,7 @@ import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
@@ -43,12 +45,14 @@ import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class SpreadsheetViewTable {
@@ -165,10 +169,18 @@ public class SpreadsheetViewTable {
 		TableViewerColumn columnViewer = new TableViewerColumn(viewer, column);
 
 		if (paramConfig != null && paramConfig.getAllowedValues().length>0) {
-			// Combo box to select the allowed values from
-			columnViewer.setEditingSupport(new EnumValueEditingSupport(viewer, typeIndex, paramIndex, paramConfig.getAllowedValues()) );
-			columnViewer.setLabelProvider(new EnumValueLabelProvider(typeIndex, paramIndex, paramConfig.getAllowedValues()));
-
+			// Use combo box/check box to set the value
+			String[] allowedValues = paramConfig.getAllowedValues();
+			boolean booleanParam = Arrays.equals(allowedValues, new String[] {"true", "false"});
+			if (booleanParam) {
+				// Use tickable checkbox
+				columnViewer.setEditingSupport(new CheckboxEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new CheckboxLabelProvider(typeIndex, paramIndex));
+			} else {
+				// Use combo box with list of allowed values
+				columnViewer.setEditingSupport(new EnumValueEditingSupport(viewer, typeIndex, paramIndex, paramConfig.getAllowedValues()) );
+				columnViewer.setLabelProvider(new EnumValueLabelProvider(typeIndex, paramIndex, paramConfig.getAllowedValues()));
+			}
 		} else {
 			// Text box
 			columnViewer.setEditingSupport(new ParameterValueEditingSupport(viewer, typeIndex, paramIndex));
@@ -484,6 +496,76 @@ public class SpreadsheetViewTable {
 			// get value from model and convert to int to update combobox
 			ParametersForScan param = (ParametersForScan) element;
 			return param.getNumberOfRepetitions();
+		}
+	}
+
+	/**
+	 * Editing support for setting boolean true/false using checkbox
+	 */
+	private class CheckboxEditingSupport extends EditingSupport {
+		private int paramIndex;
+		private int typeIndex;
+
+		public CheckboxEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
+			super(viewer);
+			this.paramIndex = columnNumber;
+			this.typeIndex = typeIndex;
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return new CheckboxCellEditor(null, SWT.CHECK | SWT.READ_ONLY);
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			ParametersForScan param = (ParametersForScan)element;
+			String val = getDataForColumn(param, typeIndex, paramIndex).toString();
+			return Boolean.parseBoolean(val);
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			ParametersForScan param = (ParametersForScan)element;
+			setOverrideFromColumnData(param, value.toString(), typeIndex, paramIndex);
+			getViewer().update(param, null);
+		}
+	}
+
+	/**
+	 * Label provider support for tickable checkbox. Returns image for ticked, unticked checkbox as can't put
+	 * arbitrary widgets into Jface table.
+	 */
+	private class CheckboxLabelProvider extends  ColumnLabelProvider  {
+		private int paramIndex;
+		private int typeIndex;
+		private Image CHECKED = GDAClientActivator.getImageDescriptor("icons/checked.gif").createImage();
+		private Image UNCHECKED = GDAClientActivator.getImageDescriptor("icons/unchecked.gif").createImage();
+
+		public CheckboxLabelProvider(int typeIndex, int paramIndex) {
+			this.paramIndex = paramIndex;
+			this.typeIndex = typeIndex;
+		}
+
+		@Override
+		public Image getImage(Object element) {
+			ParametersForScan param = (ParametersForScan) element;
+			String val = getDataForColumn(param, typeIndex, paramIndex).toString();
+			if (val.equalsIgnoreCase("true")) {
+				return CHECKED;
+			} else {
+				return UNCHECKED;
+			}
+		}
+
+		@Override
+		public String getText(Object element) {
+			return null;
 		}
 	}
 

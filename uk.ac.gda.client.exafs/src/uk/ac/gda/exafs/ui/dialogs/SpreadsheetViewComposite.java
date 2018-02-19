@@ -27,9 +27,9 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -72,7 +72,7 @@ public class SpreadsheetViewComposite {
 
 	private SpreadsheetViewTable spreadsheetTable;
 	private SpreadsheetViewConfig viewConfig;
-
+	private SpreadsheetViewConfig viewConfigForSampleParameterMotors;
 
 	public SpreadsheetViewComposite(Composite parent) {
 		this.parent = parent;
@@ -87,6 +87,7 @@ public class SpreadsheetViewComposite {
 				break;
 			}
 		}
+		viewConfigForSampleParameterMotors = new SpreadsheetViewConfig();
 	}
 
 	public void setXmlDirectoryName(String xmlDirectoryName) {
@@ -99,6 +100,16 @@ public class SpreadsheetViewComposite {
 		if (xmlDirectoryNameText!=null && outputDirectoryNameText!=null) {
 			xmlDirectoryNameText.setText(xmlDirectoryName);
 			outputDirectoryNameText.setText(xmlDirectoryName);
+		}
+
+		// Update the XML file paths in the parameters for each scan, so they all point to the new XML base directory.
+		for(ParametersForScan paramsForScan : parameterValuesForScanFiles) {
+			for(ParameterValuesForBean paramForBean : paramsForScan.getParameterValuesForScanBeans()) {
+				String fullFileName = paramForBean.getBeanFileName();
+				String filename = FilenameUtils.getName(fullFileName);
+				String newFullFilename = FilenameUtils.normalize(xmlDirectoryName+"/"+filename);
+				paramForBean.setBeanFileName(newFullFilename);
+			}
 		}
 	}
 
@@ -309,6 +320,14 @@ public class SpreadsheetViewComposite {
 		});
 	}
 
+	/** Update the viewConfig to add parameters for generic sample parameter motors */
+	private void updateViewConfig() {
+		// Fist remove the previously added items...
+		viewConfig.getParameters().removeAll(viewConfigForSampleParameterMotors.getParameters());
+		viewConfigForSampleParameterMotors.setParameters(SpreadsheetViewHelperClasses.getSampleParameterMotorConfig(parameterValuesForScanFiles.get(0)));
+		viewConfig.getParameters().addAll(viewConfigForSampleParameterMotors.getParameters());
+	}
+
 	private void addLoadSaveControls(final Composite parent) {
 		Group comp = new Group(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(3, true));
@@ -351,6 +370,9 @@ public class SpreadsheetViewComposite {
 							MessageDialog.openWarning(parent.getShell(), "Warning", message);
 						}
 						spreadsheetTable.removeAllColumnsFromTable();
+
+						updateViewConfig();
+
 						spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
 						spreadsheetTable.refresh();
 						spreadsheetTable.adjustColumnWidths();
@@ -500,18 +522,21 @@ public class SpreadsheetViewComposite {
 			columnWidths.put(t.getText(), t.getWidth()); // store current width of column
 		}
 
-		List<ParameterValuesForBean> paramValuesForBean = new ArrayList<>();
+		List<ParameterValuesForBean> paramValuesForBeans = new ArrayList<>();
 		int returnCode;
 
 		if (viewConfig != null) {
 			// Display parameter selection dialog
+			updateViewConfig();
+
 			ParameterSelectionDialog paramSelectDialog = new ParameterSelectionDialog(parent.getShell());
 			paramSelectDialog.setParameterConfig(viewConfig.getParameters());
 			paramSelectDialog.create();
 			paramSelectDialog.setFromParameters(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
 			paramSelectDialog.setBlockOnOpen(true);
 			returnCode =  paramSelectDialog.open();
-			paramValuesForBean = paramSelectDialog.getOverrides();
+			paramValuesForBeans = paramSelectDialog.getOverrides();
+			SpreadsheetViewHelperClasses.addSampleParameterMotorMoveFlag(paramValuesForBeans);
 
 		} else {
 			// Display 'method tree view' dialog
@@ -528,17 +553,17 @@ public class SpreadsheetViewComposite {
 			methodTreeDialog.create();
 			methodTreeDialog.setFromOverrides(currentSelectedOverrides);
 			returnCode = methodTreeDialog.open();
-			paramValuesForBean.add(methodTreeDialog.getOverrideBean());
+			paramValuesForBeans.add(methodTreeDialog.getOverrideBean());
 		}
 
 		// Update selected overrides in template with new values selected from gui
-		if (returnCode == Dialog.OK) {
+		if (returnCode == Window.OK) {
 
 			// update the model to match newly selected parameters (add new parameters, remove ones from model that haven't been selected)
-			SpreadsheetViewHelperClasses.addRemoveParameters(parameterValuesForScanFiles, paramValuesForBean);
+			SpreadsheetViewHelperClasses.addRemoveParameters(parameterValuesForScanFiles, paramValuesForBeans);
 
 			// Sort into alphabetical order based on parameter name
-			SpreadsheetViewHelperClasses.sortModelModifiers(parameterValuesForScanFiles);
+			// SpreadsheetViewHelperClasses.sortModelModifiers(parameterValuesForScanFiles);
 
 			// remove all columns
 			spreadsheetTable.removeAllColumnsFromTable();

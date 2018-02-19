@@ -40,6 +40,12 @@ public class SampleParameterMotorPosition implements Serializable {
 	/** Whether scannable is to be moved at start of scan */
 	private boolean doMove;
 
+	/** name of 'getter' function for doMove field */
+	public static final String DO_MOVE_GETTER_NAME = "getDoMove";
+
+	/** name of 'getter' function for demandPosition field */
+	public static final String DEMAND_POSITION_GETTER_NAME = "getDemandPosition";
+
 	/** Position scannable is to be moved to */
 	private double demandPosition;
 

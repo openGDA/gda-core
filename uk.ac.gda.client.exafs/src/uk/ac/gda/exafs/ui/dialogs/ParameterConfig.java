@@ -30,12 +30,14 @@ public class ParameterConfig {
 	private String beanType;
 	private String fullPathToGetter;
 	private String[] allowedValues;
+	private boolean showInParameterSelectionDialog;
 
 	public ParameterConfig() {
 		description = "";
 		beanType = "";
 		fullPathToGetter = "";
 		allowedValues = new String[0];
+		showInParameterSelectionDialog = true;
 	}
 
 	public String getDescription() {
@@ -78,4 +80,42 @@ public class ParameterConfig {
 		setAllowedValues(new String[] { "true", "false" });
 	}
 
+	public boolean getShowInParameterSelectionDialog() {
+		return showInParameterSelectionDialog;
+	}
+
+	public void setShowInParameterSelectionDialog(boolean showInParameterSelectionDialog) {
+		this.showInParameterSelectionDialog = showInParameterSelectionDialog;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+		result = prime * result + ((fullPathToGetter == null) ? 0 : fullPathToGetter.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ParameterConfig other = (ParameterConfig) obj;
+		if (beanType == null) {
+			if (other.beanType != null)
+				return false;
+		} else if (!beanType.equals(other.beanType))
+			return false;
+		if (fullPathToGetter == null) {
+			if (other.fullPathToGetter != null)
+				return false;
+		} else if (!fullPathToGetter.equals(other.fullPathToGetter))
+			return false;
+		return true;
+	}
 }

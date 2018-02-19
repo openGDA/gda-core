@@ -59,6 +59,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	SampleWheelParameters sampleWheelParameters = new SampleWheelParameters();
 	UserStageParameters userStageParameters = new UserStageParameters();
 
+	public static final String MOTOR_POSITION_GETTER_NAME = "getSampleParameterMotorPosition";
 	private List<SampleParameterMotorPosition> sampleParameterMotorPositions = new ArrayList<>();
 
 	boolean shouldValidate = true;
