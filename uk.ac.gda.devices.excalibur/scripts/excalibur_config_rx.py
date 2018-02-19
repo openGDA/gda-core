@@ -141,13 +141,11 @@ def setBiasOff():
     dev.set('1:HK:BIAS_ON_OFF',0) #off
     if dev.getInteger('1:HK:BIAS_ON_OFF') != 0:
         handle_messages.log(None,"HV is ON", Raise=True)
-    
-    
-        
-def switch_on():
+
+def switch_on(vds=False):
     config= Finder.getInstance().find("excalibur_config")
     dev=config.get("excaliburDev")
-    
+
     handle_messages.log(None,"Checking interlocks")
     if dev.getInteger("1:HK:COOLANT_TEMP_STATUS") != 1:
         handle_messages.log(None,"Coolant temp is bad",Raise=True)
@@ -159,16 +157,16 @@ def switch_on():
         handle_messages.log(None,"Air flow is too high",Raise=True)
     if dev.getInteger("1:HK:FAN_FAULT") != 0:
         handle_messages.log(None,"Fan fault",Raise=True)
-        
+
     handle_messages.log(None,"Setting alarm limits")
-    excaliburConfigurator=ExcaliburConfigurator(fix=True)
+    excaliburConfigurator=ExcaliburConfigurator(fix=True, vds=vds)
     excaliburConfigurator.do_hklimits()
 
     if dev.getInteger('1:HK:HUMIDITY_MON.STAT') != 0:
         handle_messages.log(None,"HUMIDITY MON is in alarm", Raise=True)
 
     handle_messages.log(None,"Turning on LV")
-    
+
     dev.set('CONFIG:ACQUIRE:LvControl',1) #on
     if dev.getDouble('CONFIG:ACQUIRE:LvControl') != 1:
         handle_messages.log(None,"LV is OFF", Raise=True)
@@ -183,7 +181,6 @@ def switch_on():
     time.sleep(2) #slow things done to avoid problems
     excaliburConfigurator.setupPlugins()
 
-    
     handle_messages.log(None,"take image to initialise HDF5 plugin")
     time.sleep(2) #slow things done to avoid problems
     jns=beamline_parameters.JythonNameSpaceMapping()
@@ -193,20 +190,22 @@ def switch_on():
 
     setOperationModeToNormal(dev)
     time.sleep(1)
-    handle_messages.log(None,"Starting scan")
-    det.pluginList[1].enabled=False #turn off file saving as it will fail due to uninitialised PHDF5 plugin
-    try:
-        scan=RepeatScan.create_repscan([1, det, .01])
-        scan.runScan()
-    finally:
-        det.pluginList[1].enabled=True #turn on file saving
+    if not vds:
+        handle_messages.log(None,"Starting scan")
+        det.pluginList[1].enabled=False #turn off file saving as it will fail due to uninitialised PHDF5 plugin
+        try:
+            scan=RepeatScan.create_repscan([1, det, .01])
+            scan.runScan()
+        finally:
+            if not vds:
+                det.pluginList[1].enabled=True #turn on file saving
 
     loadDefaultConfig() #kw 30 June 2015
     #dev.set('1:FEM:GainMode',0) #Super High #kw 30 June 2015
     #dev.set('CONFIG:ACQUIRE:GainMode',1)    # 1 is for High Gain Mode kw 18 dec
 
     #measureTestPattern() #kw 30 June 2015
-    
+
     handle_messages.log(None,"Switch on done")
 
 def measureTestPattern():
@@ -293,7 +292,7 @@ def set_threshold_from_energy(energy, dryRun=False):
             if dryRun:
                 print "%d %d=%d" %(readoutNode, chip, threshold0)
             else:
-                nodes[readoutNode].getIndexedMpxiiiChipReg(chip).anper.setThreshold0(threshold0)    
+                nodes[readoutNode].getIndexedMpxiiiChipReg(chip).anper.setThreshold0(threshold0)
     """
     if energy < 3.5:
         print("WARNING: optimal energy threshold should normally be set to half of the beam energy, but some noise will appear below energy threshold of 3.5 keV!")
@@ -301,7 +300,8 @@ def set_threshold_from_energy(energy, dryRun=False):
 
 
 class ExcaliburConfigurator():
-    def __init__(self, fix=True, gap=True, arr=False, master=True, hdf5=False, phdf5=True ):
+    def __init__(self, fix=True, gap=True, arr=False, master=True, hdf5=False, phdf5=True, vds=False):
+        self.vds=vds
         self.config= Finder.getInstance().find("excalibur_config")
         self.dev=self.config.get("excaliburDev")
         self.configSync=self.config.get("sync")
@@ -316,10 +316,12 @@ class ExcaliburConfigurator():
         self.configMstBase = self.configMst.getPluginBase()
         self.configHdf=self.config.get("hdf")
         self.configHdfBase = self.configHdf.getFile().getPluginBase()
-        self.configPhdf=self.config.get("phdf")
-        self.configPhdfBase = self.configPhdf.getPluginBase()
+        if self.vds:
+            self.configPhdf=None
+        else:
+            self.configPhdf=self.config.get("phdf")
+            self.configPhdfBase = self.configPhdf.getPluginBase()
 
-        
         self.summ=Finder.getInstance().find("excalibur_summary")
         self.summFem=self.summ.get("fem")
         self.summProc=self.summ.get("proc")
@@ -328,9 +330,7 @@ class ExcaliburConfigurator():
         self.summArrBase = self.summArr.getPluginBase()
         self.summJpg=self.summ.get("mjpg")
         self.summJpgBase=self.summJpg.getPluginBase()
-        
 
-        
         self.configFix = fix
         self.gap = gap
         self.configArr = arr
@@ -345,12 +345,13 @@ class ExcaliburConfigurator():
         self.do_configArr()
         self.do_summary()
         self.do_hdf5()
-        self.do_phdf5()
+        if not self.vds:
+            self.do_phdf5()
 
     def setup(self):
         self.setupPlugins()
         self.do_hklimits()
-            
+
     '''Configures the excalibur detector in the basic mode setting the summ image to link with the configuration and enable a few other panels'''
     def do_configFem(self):
         self.configSync.resync()
