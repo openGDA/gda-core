@@ -279,7 +279,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="uk.ac.gda.actions.PauseScanHandler"
+            defaultHandler="uk.ac.gda.actions.PauseCommandHandler"
             id="uk.ac.gda.client.jython.PauseScan"
             name="Pause Scan">
       </command>
