@@ -109,6 +109,10 @@ public class JythonServerStatusHolder {
 
 			if (runningScript) {
 				runningScript = false;
+				if (paused) {
+					logger.warn("Script ended while paused");
+					paused = false;
+				}
 			}
 
 			final int statusAfter = getScriptStatus();
