@@ -50,6 +50,13 @@ public final class ServerAvailableWatchdog {
 	private static final String SERVER_HOST = LocalProperties.get("gda.server.host");
 	/** Server status port default 19999 */
 	private static final int SERVER_STATUS_PORT = LocalProperties.getAsInt("gda.server.statusPort", 19999);
+	/** Number of consecutive failed connection attempts before taking action */
+	private static final int FAILURES_BEFORE_ASSUMING_SERVER_DEAD = 5;
+	/** Time between attempts to connect to the server status port in sec */
+	private static final long POLLING_INTERVAL_SEC = 1;
+
+	/** Counter of the number of consecutive failed connection attempts */
+	private int failedAttempts;
 
 	/**
 	 * This checks that the server is still reachable from this client. It does it by checking whether the status port
@@ -88,7 +95,7 @@ public final class ServerAvailableWatchdog {
 		});
 
 		// Start scheduled execution of checking whether the server is reachable every second starting now
-		executorService.scheduleAtFixedRate(this::checkServerReachable, 0, 1, TimeUnit.SECONDS);
+		executorService.scheduleAtFixedRate(this::checkServerReachable, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS);
 
 		logger.info("Started server available watchdog");
 		return true;
@@ -111,28 +118,42 @@ public final class ServerAvailableWatchdog {
 	}
 
 	/**
-	 * This is called by the scheduled execution every second. It checks if the server is reachable. If it is do
-	 * nothing. If it's not prompt the user to inform them and ask how to proceed.
+	 * This is called by the scheduled execution every {@value #POLLING_INTERVAL_SEC} seconds. It checks if the server
+	 * is reachable.
+	 * <p>
+	 * If it is resets the {@link #failedAttempts} counter and returns.
+	 * <p>
+	 * If not it increments the {@link #failedAttempts} counter and then checks how many consecutive failed attempts
+	 * have been observed. After {@link #FAILURES_BEFORE_ASSUMING_SERVER_DEAD} failed attempts, the server is assumed
+	 * dead. The user is prompted to choose how to proceed.
 	 */
 	private void checkServerReachable() {
-		// If the server is reachable do nothing, if it's not inform the user.
-		if (!isServerReachable()) {
-			logger.debug("Server connection was lost asking user how to proceed");
-			// syncExec here because we throw after this and the thread dies so need to block this thread while the
-			// dialog is displayed.
-			PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-				final int userSelection = displayServerConnectionLostDialog();
-				if (userSelection == 1) { // 1 is the button index of "Exit Client"
-					logger.info("User chose to close client after server connection was lost");
-					// Close down the client
-					PlatformUI.getWorkbench().close();
-				} else { // User chose "Ignore" or closed the dialog
-					logger.warn("User ignored the loss of server connection");
-				}
-			});
-			// Throw because this causes the scheduled execution to be cancelled. Needed in the Ignore case to stop the
-			// dialog being redisplayed every second.
-			throw new IllegalStateException("Connection to the GDA server has been lost");
+		if (isServerReachable()) {
+			failedAttempts = 0; // We succeeded reaching the server so reset the counter
+		} else {
+			failedAttempts++;
+			logger.debug("Failed to reach server. Attempt {} of {}", failedAttempts,
+					FAILURES_BEFORE_ASSUMING_SERVER_DEAD);
+
+			// If there have been too many consecutive failed attempts assume the server is dead
+			if (failedAttempts == FAILURES_BEFORE_ASSUMING_SERVER_DEAD) {
+				logger.debug("Server connection was lost asking user how to proceed");
+				// syncExec here because we throw after this and the thread dies so need to block this thread while the
+				// dialog is displayed.
+				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+					final int userSelection = displayServerConnectionLostDialog();
+					if (userSelection == 1) { // 1 is the button index of "Exit Client"
+						logger.info("User chose to close client after server connection was lost");
+						// Close down the client
+						PlatformUI.getWorkbench().close();
+					} else { // User chose "Ignore" or closed the dialog
+						logger.warn("User ignored the loss of server connection");
+					}
+				});
+				// Throw because this causes the scheduled execution to be cancelled. Needed in the Ignore case to stop
+				// the dialog being redisplayed every second.
+				throw new IllegalStateException("Connection to the GDA server has been lost");
+			}
 		}
 	}
 
