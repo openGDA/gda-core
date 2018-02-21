@@ -164,11 +164,8 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 								ifile.refreshLocal(IResource.DEPTH_ZERO, null);
 							}
 						} catch (Exception e) {
-							logger.error("Error - RichBeanEditorPart.doSave() failed. Path=" + path + e.getMessage());
-							MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null, "Path=" + path, MessageDialog.ERROR,
-									new String[] {}, 0);
-							int result = dialog.open();
-							System.out.println(result);
+							logger.error("doSave() failed. Path='{}'", path, e);
+							MessageDialog.openError(getSite().getShell(), "File didn't save", "Path=" + path);
 							throw new InvocationTargetException(e);
 						}
 					}
@@ -180,12 +177,8 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 
 			} catch (Exception e) {
 				// Saving is very important as it saves the state of the editors when switching between editors, perspectives, etc.
-
-				logger.error("Error - RichBeanEditorPart.doSave() failed. Path=" + path + e.getMessage());
-				MessageDialog dialog = new MessageDialog(getSite().getShell(), "File didn't save", null, "Path=" + path, MessageDialog.ERROR, new String[] {},
-						0);
-				int result = dialog.open();
-				System.out.println(result);
+				logger.error("doSave() failed. Path='{}'", path, e);
+				MessageDialog.openError(getSite().getShell(), "File didn't save", "Path=" + path);
 			}
 		} finally {
 			monitor.done();
