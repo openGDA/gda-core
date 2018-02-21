@@ -32,13 +32,13 @@ public abstract class ScriptBase {
 	/**
 	 * allows UI/users to pause/resume scripts
 	 */
-	static public volatile boolean paused = false;
+	private static volatile boolean paused = false;
 
 	/**
 	 * @param paused - allows UI/users to pause/resume scripts
 	 */
 	public static void setPaused(boolean paused){
-		logger.info("paused flag set from " + ScriptBase.paused + " to " + paused + " by thread :'" + Thread.currentThread().getName() + "'");
+		logger.info("paused flag set from {} to {} by thread: '{}'", ScriptBase.paused, paused, Thread.currentThread().getName());
 		ScriptBase.paused = paused;
 	}
 
