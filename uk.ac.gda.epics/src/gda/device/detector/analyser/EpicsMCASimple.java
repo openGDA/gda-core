@@ -21,7 +21,7 @@ package gda.device.detector.analyser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jscience.physics.quantities.Quantity;
@@ -58,131 +58,120 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCASimple.class);
 
-	private static final String SingleRecord = "";
-
-	private static final String NM = "NM"; //$NON-NLS-1$
-
-	private static final String P = "P"; //$NON-NLS-1$
-
-	private static final String N = "N"; //$NON-NLS-1$
-
-	private static final String IP = "IP"; //$NON-NLS-1$
-
-	private static final String BG = "BG"; //$NON-NLS-1$
-
-	private static final String HI = "HI"; //$NON-NLS-1$
-
-	private static final String LO = "LO"; //$NON-NLS-1$
-
-	private static final String R = ".R"; //$NON-NLS-1$
-
-	private static final String readField = ".READ"; //$NON-NLS-1$
-
-	private static final String acquiringField = ".ACQG"; //$NON-NLS-1$
-
-	private static final String stopAcqField = ".STOP"; //$NON-NLS-1$
-
-	private static final String startAcqField = ".STRT"; //$NON-NLS-1$
-
-	private static final String eraseStartAcqField = ".ERST"; //$NON-NLS-1$
-
-	private static final String maxNumberOfChannelsToUseField = ".NMAX"; //$NON-NLS-1$
-
-	private static final String numberOfChannelsToUseField = ".NUSE"; //$NON-NLS-1$
-
-	private static final String procField = ".PROC"; //$NON-NLS-1$
-
-	private static final String readingField = ".RDNG"; //$NON-NLS-1$
-
-	private static final String seqField = ".SEQ"; //$NON-NLS-1$
-
-	private static final String elapsedLiveTimeField = ".ELTM"; //$NON-NLS-1$
-
-	private static final String elapsedRealTimeField = ".ERTM"; //$NON-NLS-1$
-
-	private static final String dataField = ".VAL"; //$NON-NLS-1$
-
-	private static final String twoThetaField = ".TTH"; //$NON-NLS-1$
-
-	private static final String calibrationQuadraticField = ".CALQ"; //$NON-NLS-1$
-
-	private static final String calibrationSlopeField = ".CALS"; //$NON-NLS-1$
-
-	private static final String calibrationOffsetField = ".CALO"; //$NON-NLS-1$
-
-	private static final String unitsField = ".EGU"; //$NON-NLS-1$
-
-	private static final String eraseField = ".ERAS"; //$NON-NLS-1$
-
-	private static final String presetSweepField = ".PSWP"; //$NON-NLS-1$
-
-	private static final String presetCountHighField = ".PCTH"; //$NON-NLS-1$
-
-	private static final String presetCountLowField = ".PCTL"; //$NON-NLS-1$
-
-	private static final String presetCountsField = ".PCT"; //$NON-NLS-1$
-
-	private static final String presetLiveTimeField = ".PLTM"; //$NON-NLS-1$
-
-	private static final String presetRealTimeField = ".PRTM"; //$NON-NLS-1$
-
-	private static final String dwellTimeField = ".DWEL"; //$NON-NLS-1$
-
 	private static final long serialVersionUID = 1L;
 
-	private static final int numOfBinsInDummyMode = 2048;
+	private static final String SINGLE_RECORD = "";
+
+	// Prefix & suffixes for the ROI fields
+	private static final String NAME_FIELD = "NM";
+	private static final String PRESET_COUNT_FIELD = "P";
+	private static final String NET_COUNT_FIELD = "N";
+	private static final String PRESET_FIELD = "IP";
+	private static final String BACKGROUND_FIELD = "BG";
+	private static final String HIGH_FIELD = "HI";
+	private static final String LOW_FIELD = "LO";
+	private static final String ROI_PREFIX = ".R";
+
+	private static final String READ_FIELD = ".READ";
+	private static final String ACQUIRING_FIELD = ".ACQG";
+	private static final String STOP_ACQ_FIELD = ".STOP";
+	private static final String START_ACQ_FIELD = ".STRT";
+	private static final String ERASE_START_ACQ_FIELD = ".ERST";
+	private static final String MAX_NUMBER_OF_CHANNELS_TO_USE_FIELD = ".NMAX";
+	private static final String NUMBER_OF_CHANNELS_TO_USE_FIELD = ".NUSE";
+	private static final String PROC_FIELD = ".PROC";
+	private static final String READING_FIELD = ".RDNG";
+	private static final String SEQ_FIELD = ".SEQ";
+
+	private static final String ELAPSED_LIVE_TIME_FIELD = ".ELTM";
+	private static final String ELAPSED_REAL_TIME_FIELD = ".ERTM";
+	private static final String DATA_FIELD = ".VAL";
+	private static final String TWO_THETA_FIELD = ".TTH";
+	private static final String CALIBRATION_QUADRATIC_FIELD = ".CALQ";
+	private static final String CALIBRATION_SLOPE_FIELD = ".CALS";
+	private static final String CALIBRATION_OFFSET_FIELD = ".CALO";
+	private static final String UNITS_FIELD = ".EGU";
+	private static final String ERASE_FIELD = ".ERAS";
+
+	private static final String PRESET_SWEEP_FIELD = ".PSWP";
+	private static final String PRESET_COUNT_HIGH_FIELD = ".PCTH";
+	private static final String PRESET_COUNT_LOW_FIELD = ".PCTL";
+	private static final String PRESET_COUNTS_FIELD = ".PCT";
+	private static final String PRESET_LIVE_TIME_FIELD = ".PLTM";
+	private static final String PRESET_REAL_TIME_FIELD = ".PRTM";
+	private static final String DWELL_TIME_FIELD = ".DWEL";
+
+	private static final String CHANNEL_TO_ENERGY_PREFIX = "channelToEnergy:";
+	private static final String NUMBER_OF_CHANNELS_ATTR = "NumberOfChannels";
+	private static final String ENERGY_TO_CHANNEL_PREFIX = "energyToChannel";
+
+	private static final int NUM_OF_BINS_IN_DUMMY_MODE = 2048;
+
+	private boolean readNetCounts = true;
+
+	/*
+	 * Lockable object that is used to inform the thread executing WaitWhileBusy that the
+	 * value of doneReading has been changed by an Epics monitor
+	 */
+	private Object doneLock= new Object();
+
+	/*
+	 * When first developed I found that in the ACQG callback I need to perform
+	 * a Read request to ensure the data was correct. However when using this class with the
+	 * Epics DXP module that also support MCA it was not needed. The default value
+	 * gives the old behaviour
+	 */
+	private boolean readingDoneIfNotAquiring=false;
+
+	private static final int INDEX_FOR_RAW_ROI = 0;
+
+	private String epicsDeviceName;
 
 	private IQuantitiesConverter channelToEnergyConverter = null;
 
-	private String converterName = "mca_roi_conversion"; //$NON-NLS-1$
+	private String converterName = "mca_roi_conversion";
 
 	private volatile boolean acquisitionDone = true;
 	private volatile boolean readingDone = true;
 
-	FindableEpicsDevice epicsDevice = null;
-	RegisterForEpicsUpdates registerForEpicsUpdates = null;
-	static private int maxNumberOfRegions = 32;
-	static String[] roiLowFields = new String[maxNumberOfRegions];
-	static String[] roiHighFields = new String[maxNumberOfRegions];
-	static String[] roiBackgroundFields = new String[maxNumberOfRegions];
-	static String[] roiPresetFields = new String[maxNumberOfRegions];
+	private FindableEpicsDevice epicsDevice = null;
+	private RegisterForEpicsUpdates registerForEpicsUpdates = null;
+	private static final int MAX_NUMBER_OF_REGIONS = 32;
 
-	static String[] roiCountFields = new String[maxNumberOfRegions];
-	private double[] roiCountValues = new double[maxNumberOfRegions];
-	static String[] roiNetCountFields = new String[maxNumberOfRegions];
-	private double[] roiNetCountValues = new double[maxNumberOfRegions];
-	static String[] roiPresetCountFields = new String[maxNumberOfRegions];
-	static String[] roiNameFields = new String[maxNumberOfRegions];
+	private final double[] roiCountValues = new double[MAX_NUMBER_OF_REGIONS];
+	private final double[] roiNetCountValues = new double[MAX_NUMBER_OF_REGIONS];
+
+	private static final String[] roiLowFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiHighFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiBackgroundFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiPresetFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiCountFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiNetCountFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiPresetCountFields = new String[MAX_NUMBER_OF_REGIONS];
+	private static final String[] roiNameFields = new String[MAX_NUMBER_OF_REGIONS];
 	static {
 		for (int i = 0; i < roiLowFields.length; i++) {
-			roiLowFields[i] = R + (i) + LO;
-			roiHighFields[i] = R + (i) + HI;
-			roiBackgroundFields[i] = R + (i) + BG;
-			roiPresetFields[i] = R + (i) + IP;
-			roiCountFields[i] = R + (i);
-			roiNetCountFields[i] = R + (i) + N;
-			roiPresetCountFields[i] = R + (i) + P;
-			roiNameFields[i] = R + (i) + NM;
+			roiLowFields[i] = ROI_PREFIX + i + LOW_FIELD;
+			roiHighFields[i] = ROI_PREFIX + i + HIGH_FIELD;
+			roiBackgroundFields[i] = ROI_PREFIX + i + BACKGROUND_FIELD;
+			roiPresetFields[i] = ROI_PREFIX + i + PRESET_FIELD;
+			roiCountFields[i] = ROI_PREFIX + i;
+			roiNetCountFields[i] = ROI_PREFIX + i + NET_COUNT_FIELD;
+			roiPresetCountFields[i] = ROI_PREFIX + i + PRESET_COUNT_FIELD;
+			roiNameFields[i] = ROI_PREFIX + i + NAME_FIELD;
 		}
 	}
 
 	private String mcaPV = null; // pv if not using a FindableEpicsDevice
 
-	private Integer numberOfRegions = maxNumberOfRegions;
-
-	/**
-	 * Constructor.
-	 */
-	public EpicsMCASimple() {
-		// do nothing
-	}
+	private Integer numberOfRegions = MAX_NUMBER_OF_REGIONS;
 
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
 			if (epicsDevice == null) {
 				if (epicsDeviceName != null) {
-					Findable object = Finder.getInstance().find(epicsDeviceName);
+					final Findable object = Finder.getInstance().find(epicsDeviceName);
 					if (object != null && object instanceof FindableEpicsDevice) {
 						epicsDevice = (FindableEpicsDevice) object;
 						epicsDevice.configure();
@@ -190,7 +179,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 				} else if (mcaPV != null) {
 					EpicsDevice mcaEpicsDevice;
 					try {
-						HashMap<String, String> recordPVs = new HashMap<String, String>();
+						final Map<String, String> recordPVs = new HashMap<>();
 						recordPVs.put("", mcaPV);
 						mcaEpicsDevice = new EpicsDevice(getName(), recordPVs, false);
 					} catch (DeviceException e) {
@@ -200,14 +189,14 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 				}
 			}
 			if (epicsDevice == null) {
-				throw new FactoryException("Unable to find epics device"); //$NON-NLS-1$
+				throw new FactoryException("Unable to find epics device");
 			}
 			if (!epicsDevice.getDummy()) {
-				ArrayList<EpicsRegistrationRequest> requests = new ArrayList<EpicsRegistrationRequest>();
-				requests.add(new EpicsRegistrationRequest(ReturnType.DBR_NATIVE, SingleRecord, acquiringField,
-						SingleRecord, 1.0, false));
-				requests.add(new EpicsRegistrationRequest(ReturnType.DBR_NATIVE, SingleRecord, readingField,
-						SingleRecord, 1.0, false));
+				final List<EpicsRegistrationRequest> requests = new ArrayList<>();
+				requests.add(new EpicsRegistrationRequest(ReturnType.DBR_NATIVE, SINGLE_RECORD, ACQUIRING_FIELD,
+						SINGLE_RECORD, 1.0, false));
+				requests.add(new EpicsRegistrationRequest(ReturnType.DBR_NATIVE, SINGLE_RECORD, READING_FIELD,
+						SINGLE_RECORD, 1.0, false));
 				registerForEpicsUpdates = new RegisterForEpicsUpdates(epicsDevice, requests, this);
 			}
 			if (epicsDevice.getDummy()) {
@@ -219,24 +208,24 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 						// value
 						// is set in dummy mode
 					}
-					setDoubleFieldValue(elapsedLiveTimeField, 1);
-					setDoubleFieldValue(elapsedRealTimeField, 1.1);
+					setDoubleFieldValue(ELAPSED_LIVE_TIME_FIELD, 1);
+					setDoubleFieldValue(ELAPSED_REAL_TIME_FIELD, 1.1);
 
-					EpicsMCACalibration calib = new EpicsMCACalibration(
-							"EGU", (float) 1.0, (float) 1.0, (float) 0., (float) 0.); //$NON-NLS-1$
+					final EpicsMCACalibration calib = new EpicsMCACalibration(
+							"EGU", (float) 1.0, (float) 1.0, (float) 0., (float) 0.);
 					setCalibration(calib);
 					setDwellTime(1.0);
-					EpicsMCAPresets preset = new EpicsMCAPresets((float) 1.0, (float) 1.0, 1, 1, 1, 1);
+					final EpicsMCAPresets preset = new EpicsMCAPresets((float) 1.0, (float) 1.0, 1, 1, 1, 1);
 					setPresets(preset);
 					setSequence(1);
-					setIntFieldValue(maxNumberOfChannelsToUseField, numOfBinsInDummyMode);
-					setNumberOfChannels(numOfBinsInDummyMode);
+					setIntFieldValue(MAX_NUMBER_OF_CHANNELS_TO_USE_FIELD, NUM_OF_BINS_IN_DUMMY_MODE);
+					setNumberOfChannels(NUM_OF_BINS_IN_DUMMY_MODE);
 
-					for (int i = 0; i < maxNumberOfRegions; i++) {
+					for (int i = 0; i < MAX_NUMBER_OF_REGIONS; i++) {
 						_setRegionsOfInterestCount(i, i * 1000.);
 						_setRegionsOfInterestNetCount(i, i * 1000.);
 					}
-					int[] data = new int[numOfBinsInDummyMode];
+					final int[] data = new int[NUM_OF_BINS_IN_DUMMY_MODE];
 					for (int i = 0; i < data.length; i++) {
 						data[i] = i;
 					}
@@ -260,7 +249,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	private void setDoubleFieldValue(String field, double value) throws DeviceException {
-		epicsDevice.setValue(SingleRecord, field, value);
+		epicsDevice.setValue(SINGLE_RECORD, field, value);
 	}
 
 	/**
@@ -273,11 +262,11 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	private void setIntFieldValue(String field, int value) throws DeviceException {
-		epicsDevice.setValue(SingleRecord, field, value);
+		epicsDevice.setValue(SINGLE_RECORD, field, value);
 	}
 
 	private void setIntFieldValueNoWait(String field, int value) throws DeviceException {
-		epicsDevice.setValueNoWait(SingleRecord, field, value);
+		epicsDevice.setValueNoWait(SINGLE_RECORD, field, value);
 	}
 
 	/**
@@ -290,11 +279,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	private void setShortFieldValue(String field, short value) throws DeviceException {
-		epicsDevice.setValue(SingleRecord, field, value);
-	}
-
-	private void setShortFieldValueNoWait(String field, short value) throws DeviceException {
-		epicsDevice.setValueNoWait(SingleRecord, field, value);
+		epicsDevice.setValue(SINGLE_RECORD, field, value);
 	}
 
 	/**
@@ -307,7 +292,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	private void setStringFieldValue(String field, String value) throws DeviceException {
-		epicsDevice.setValue(SingleRecord, field, value);
+		epicsDevice.setValue(SINGLE_RECORD, field, value);
 	}
 
 	/**
@@ -320,7 +305,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	private void setObjectFieldValue(String field, Object value) throws DeviceException {
-		epicsDevice.setValue(SingleRecord, field, value);
+		epicsDevice.setValue(SINGLE_RECORD, field, value);
 	}
 
 	/**
@@ -333,7 +318,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	private double getDoubleFromField(String field) throws DeviceException {
 		try {
-			return (Double) epicsDevice.getValue(ReturnType.DBR_NATIVE, SingleRecord, field);
+			return (double) epicsDevice.getValue(ReturnType.DBR_NATIVE, SINGLE_RECORD, field);
 		} catch (Exception e) {
 			throw new DeviceException("getDoubleFromField - error for " + field, e);
 		}
@@ -349,7 +334,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	private int getIntFromField(String field) throws DeviceException {
 		try {
-			return (Integer) epicsDevice.getValue(ReturnType.DBR_NATIVE, SingleRecord, field);
+			return (int) epicsDevice.getValue(ReturnType.DBR_NATIVE, SINGLE_RECORD, field);
 		} catch (Exception e) {
 			throw new DeviceException("getIntFromField - error for " + field, e);
 		}
@@ -365,7 +350,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	private short getShortFromField(String field) throws DeviceException {
 		try {
-			return (Short) epicsDevice.getValue(ReturnType.DBR_NATIVE, SingleRecord, field);
+			return (short) epicsDevice.getValue(ReturnType.DBR_NATIVE, SINGLE_RECORD, field);
 		} catch (Exception e) {
 			throw new DeviceException("getIntFromField - error for " + field, e);
 		}
@@ -381,9 +366,9 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	private String getStringFromField(String field) throws DeviceException {
 		if (epicsDevice.getDummy()) {
-			return (String) epicsDevice.getValue(ReturnType.DBR_NATIVE, SingleRecord, field);
+			return (String) epicsDevice.getValue(ReturnType.DBR_NATIVE, SINGLE_RECORD, field);
 		}
-		return epicsDevice.getValueAsString(SingleRecord, field);
+		return epicsDevice.getValueAsString(SINGLE_RECORD, field);
 	}
 
 	public FindableEpicsDevice getEpicsDevice() {
@@ -411,14 +396,14 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 				setStringFieldValue(roiNameFields[regionIndex], regionName);
 			}
 
-		} catch (Throwable th) {
-			throw new DeviceException("failed to add region of interest", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to add region of interest", e);
 		}
 	}
 
 	@Override
 	public void clear() throws DeviceException {
-		setIntFieldValue(eraseField, 1);
+		setIntFieldValue(ERASE_FIELD, 1);
 	}
 
 	/**
@@ -438,10 +423,9 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 			setShortFieldValue(roiBackgroundFields[regionIndex], (short)-1);
 			setIntFieldValue(roiPresetFields[regionIndex], 0);
 			setDoubleFieldValue(roiPresetCountFields[regionIndex], 0);
-			setStringFieldValue(roiNameFields[regionIndex], SingleRecord);
-
-		} catch (Throwable th) {
-			throw new DeviceException("failed to delete region of interest", th);
+			setStringFieldValue(roiNameFields[regionIndex], SINGLE_RECORD);
+		} catch (Exception e) {
+			throw new DeviceException("failed to delete region of interest", e);
 		}
 
 	}
@@ -449,26 +433,24 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public Object getCalibrationParameters() throws DeviceException {
 		try {
-
-			String egu = getStringFromField(unitsField);
-			double calo = getDoubleFromField(calibrationOffsetField);
-			double cals = getDoubleFromField(calibrationSlopeField);
-			double calq = getDoubleFromField(calibrationQuadraticField);
-			double tth = getDoubleFromField(twoThetaField);
+			final String egu = getStringFromField(UNITS_FIELD);
+			final double calo = getDoubleFromField(CALIBRATION_OFFSET_FIELD);
+			final double cals = getDoubleFromField(CALIBRATION_SLOPE_FIELD);
+			final double calq = getDoubleFromField(CALIBRATION_QUADRATIC_FIELD);
+			final double tth = getDoubleFromField(TWO_THETA_FIELD);
 
 			return new EpicsMCACalibration(egu, (float) calo, (float) cals, (float) calq, (float) tth);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get calibration parameters", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get calibration parameters", e);
 		}
 	}
 
 	@Override
 	public Object getData() throws DeviceException {
 		try {
-			Object val = epicsDevice.getValue(ReturnType.DBR_NATIVE, SingleRecord, dataField);
-			return val;
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get data", th);
+			return epicsDevice.getValue(ReturnType.DBR_NATIVE, SINGLE_RECORD, DATA_FIELD);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get data", e);
 		}
 	}
 
@@ -493,13 +475,12 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public Object getElapsedParameters() throws DeviceException {
 		try {
-
-			float[] elapsed = new float[2];
-			elapsed[0] = (float) getDoubleFromField(elapsedRealTimeField);
-			elapsed[1] = (float) getDoubleFromField(elapsedLiveTimeField);
+			final float[] elapsed = new float[2];
+			elapsed[0] = (float) getDoubleFromField(ELAPSED_REAL_TIME_FIELD);
+			elapsed[1] = (float) getDoubleFromField(ELAPSED_LIVE_TIME_FIELD);
 			return elapsed;
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get elapsed parameters", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get elapsed parameters", e);
 		}
 	}
 
@@ -510,7 +491,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * @throws DeviceException
 	 */
 	public double getDwellTime() throws DeviceException {
-		return getDoubleFromField(dwellTimeField);
+		return getDoubleFromField(DWELL_TIME_FIELD);
 	}
 
 	@Override
@@ -521,16 +502,15 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public Object getPresets() throws DeviceException {
 		try {
-
-			double prtm = getDoubleFromField(presetRealTimeField);
-			double pltm = getDoubleFromField(presetLiveTimeField);
-			int pct = getIntFromField(presetCountsField);
-			int pctl = getIntFromField(presetCountLowField);
-			int pcth = getIntFromField(presetCountHighField);
-			int pswp = getIntFromField(presetSweepField);
+			final double prtm = getDoubleFromField(PRESET_REAL_TIME_FIELD);
+			final double pltm = getDoubleFromField(PRESET_LIVE_TIME_FIELD);
+			final int pct = getIntFromField(PRESET_COUNTS_FIELD);
+			final int pctl = getIntFromField(PRESET_COUNT_LOW_FIELD);
+			final int pcth = getIntFromField(PRESET_COUNT_HIGH_FIELD);
+			final int pswp = getIntFromField(PRESET_SWEEP_FIELD);
 			return new EpicsMCAPresets((float) prtm, (float) pltm, pct, pctl, pcth, pswp);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to get presets", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to get presets", e);
 		}
 
 	}
@@ -540,30 +520,12 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		return getRegionsOfInterest(numberOfRegions);
 	}
 
-	boolean readNetCounts = true;
-
-	/*
-	 * Lockable object that is used to inform the thread executing WaitWhileBusy that the
-	 * value of doneReading has been changed by an Epics monitor
-	 */
-	private Object doneLock= new Object();
-
-	/*
-	 * When first developed I found that in the ACQG callback I need to perform
-	 * a Read request to ensure the data was correct. However when using this class with the
-	 * Epics DXP module that also support MCA it was not needed. The default value
-	 * gives the old behaviour
-	 */
-	private boolean readingDoneIfNotAquiring=false;
-
 	public int getNumberOfValsPerRegionOfInterest() {
 		return readNetCounts ? 2 : 1;
 	}
 
-	static int indexForRawROI = 0;
-
 	public int getIndexForRawROI() {
-		return indexForRawROI;
+		return INDEX_FOR_RAW_ROI;
 	}
 
 	public boolean isReadNetCounts() {
@@ -585,8 +547,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public double[][] getRegionsOfInterestCount() throws DeviceException {
 		try {
-
-			double[][] regionsCount = new double[numberOfRegions][getNumberOfValsPerRegionOfInterest()];
+			final double[][] regionsCount = new double[numberOfRegions][getNumberOfValsPerRegionOfInterest()];
 			for (int i = 0; i < regionsCount.length; i++) {
 				regionsCount[i][0] = getDoubleFromField(roiCountFields[i]);
 				roiCountValues[i] = regionsCount[i][0];
@@ -596,17 +557,17 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 				}
 			}
 			return regionsCount;
-		} catch (Throwable th) {
-			throw new DeviceException("EpicsMCA.getRegionsOfInterestCount:failed to get region of interest count", th);
+		} catch (Exception e) {
+			throw new DeviceException("EpicsMCA.getRegionsOfInterestCount:failed to get region of interest count", e);
 		}
 	}
 
 	@Override
 	public long getSequence() throws DeviceException {
 		try {
-			return getIntFromField(seqField);
-		} catch (Throwable th) {
-			throw new DeviceException("EpicsMCA.getSequence:failed to get sequence", th);
+			return getIntFromField(SEQ_FIELD);
+		} catch (Exception e) {
+			throw new DeviceException("EpicsMCA.getSequence:failed to get sequence", e);
 		}
 	}
 
@@ -614,10 +575,10 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	public int getStatus() throws DeviceException {
 		try {
 			// we need to fire the PROC to ensure the RDGN field is updated
-			setIntFieldValueNoWait(procField, 1);
+			setIntFieldValueNoWait(PROC_FIELD, 1);
 			return (acquisitionDone && readingDone) ? Detector.IDLE : Detector.BUSY;
-		} catch (Throwable th) {
-			throw new DeviceException("EpicsMCA.getStatus: failed to get status", th);
+		} catch (Exception e) {
+			throw new DeviceException("EpicsMCA.getStatus: failed to get status", e);
 		}
 	}
 
@@ -628,24 +589,23 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public void setCalibration(Object calibrate) throws DeviceException {
 		try {
-			EpicsMCACalibration calib = (EpicsMCACalibration) calibrate;
-			setStringFieldValue(unitsField, calib.getEngineeringUnits());
-			setDoubleFieldValue(calibrationOffsetField, calib.getCalibrationOffset());
-			setDoubleFieldValue(calibrationSlopeField, calib.getCalibrationSlope());
-			setDoubleFieldValue(calibrationQuadraticField, calib.getCalibrationQuadratic());
-			setDoubleFieldValue(twoThetaField, calib.getTwoThetaAngle());
-
-		} catch (Throwable th) {
-			throw new DeviceException("EpicsMCA.setCalibration: failed to set calibration", th);
+			final EpicsMCACalibration calib = (EpicsMCACalibration) calibrate;
+			setStringFieldValue(UNITS_FIELD, calib.getEngineeringUnits());
+			setDoubleFieldValue(CALIBRATION_OFFSET_FIELD, calib.getCalibrationOffset());
+			setDoubleFieldValue(CALIBRATION_SLOPE_FIELD, calib.getCalibrationSlope());
+			setDoubleFieldValue(CALIBRATION_QUADRATIC_FIELD, calib.getCalibrationQuadratic());
+			setDoubleFieldValue(TWO_THETA_FIELD, calib.getTwoThetaAngle());
+		} catch (Exception e) {
+			throw new DeviceException("EpicsMCA.setCalibration: failed to set calibration", e);
 		}
 	}
 
 	@Override
 	public void setData(Object data) throws DeviceException {
 		try {
-			setObjectFieldValue(dataField, data);
-		} catch (Throwable th) {
-			throw new DeviceException("EpicsMCA.setData: failed to set data", th);
+			setObjectFieldValue(DATA_FIELD, data);
+		} catch (Exception e) {
+			throw new DeviceException("EpicsMCA.setData: failed to set data", e);
 		}
 	}
 
@@ -657,15 +617,16 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	public void setDwellTime(double time) throws DeviceException {
 		// The dwell time appears to be changed automatically to 0
-		setDoubleFieldValue(dwellTimeField, time);
+		setDoubleFieldValue(DWELL_TIME_FIELD, time);
 	}
 
 	@Override
 	public void setNumberOfRegions(int numberOfRegions) throws DeviceException {
-		if (configured)
+		if (configured) {
 			throw new DeviceException("Unable to set numberOfRegions once configured");
-		if (numberOfRegions > maxNumberOfRegions || numberOfRegions < 1) {
-			throw new DeviceException("numberOfRegions must be between 1 and " + maxNumberOfRegions);
+		}
+		if (numberOfRegions > MAX_NUMBER_OF_REGIONS || numberOfRegions < 1) {
+			throw new DeviceException("numberOfRegions must be between 1 and " + MAX_NUMBER_OF_REGIONS);
 		}
 		this.numberOfRegions = numberOfRegions;
 	}
@@ -673,16 +634,15 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public void setPresets(Object data) throws DeviceException {
 		try {
-			EpicsMCAPresets preset = (EpicsMCAPresets) data;
-			setDoubleFieldValue(presetRealTimeField, preset.getPresetRealTime());
-			setDoubleFieldValue(presetLiveTimeField, preset.getPresetLiveTime());
-			setIntFieldValue(presetCountsField, (int) preset.getPresetCounts());
-			setIntFieldValue(presetCountLowField, (int) preset.getPresetCountlow());
-			setIntFieldValue(presetCountHighField, (int) preset.getPresetCountHigh());
-			setIntFieldValue(presetSweepField, (int) preset.getPresetSweeps());
-
-		} catch (Throwable th) {
-			throw new DeviceException("failed to set presets", th);
+			final EpicsMCAPresets preset = (EpicsMCAPresets) data;
+			setDoubleFieldValue(PRESET_REAL_TIME_FIELD, preset.getPresetRealTime());
+			setDoubleFieldValue(PRESET_LIVE_TIME_FIELD, preset.getPresetLiveTime());
+			setIntFieldValue(PRESET_COUNTS_FIELD, (int) preset.getPresetCounts());
+			setIntFieldValue(PRESET_COUNT_LOW_FIELD, (int) preset.getPresetCountlow());
+			setIntFieldValue(PRESET_COUNT_HIGH_FIELD, (int) preset.getPresetCountHigh());
+			setIntFieldValue(PRESET_SWEEP_FIELD, (int) preset.getPresetSweeps());
+		} catch (Exception e) {
+			throw new DeviceException("failed to set presets", e);
 		}
 	}
 
@@ -700,13 +660,13 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	@Override
 	public void setRegionsOfInterest(Object highLow) throws DeviceException {
 		try {
-			EpicsMCARegionOfInterest[] rois = (EpicsMCARegionOfInterest[]) highLow;
+			final EpicsMCARegionOfInterest[] rois = (EpicsMCARegionOfInterest[]) highLow;
 			for (int i = 0; i < rois.length; i++) {
-				int regionIndex = rois[i].getRegionIndex();
+				final int regionIndex = rois[i].getRegionIndex();
 				setIntFieldValue(roiLowFields[regionIndex], (int)rois[i].getRegionLow());
 				setIntFieldValue(roiHighFields[regionIndex], (int)rois[i].getRegionHigh());
 				setShortFieldValue(roiBackgroundFields[regionIndex], (short)rois[i].getRegionBackground());
-				double regionPreset = rois[i].getRegionPreset();
+				final double regionPreset = rois[i].getRegionPreset();
 				if (regionPreset <= 0)
 					setIntFieldValue(roiPresetFields[regionIndex], 0);
 				else {
@@ -715,18 +675,17 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 				setDoubleFieldValue(roiPresetCountFields[regionIndex], regionPreset);
 				setStringFieldValue(roiNameFields[regionIndex], rois[i].getRegionName());
 			}
-
-		} catch (Throwable th) {
-			throw new DeviceException("failed to set region of interest", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to set region of interest", e);
 		}
 	}
 
 	@Override
 	public void setSequence(long sequence) throws DeviceException {
 		try {
-			setIntFieldValue(seqField, (int) sequence);
-		} catch (Throwable th) {
-			throw new DeviceException("failed to set sequence", th);
+			setIntFieldValue(SEQ_FIELD, (int) sequence);
+		} catch (Exception e) {
+			throw new DeviceException("failed to set sequence", e);
 		}
 	}
 
@@ -740,40 +699,40 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		try {
 			readingDone = false;
 			acquisitionDone = false;
-			setIntFieldValueNoWait(eraseStartAcqField, 1);
+			setIntFieldValueNoWait(ERASE_START_ACQ_FIELD, 1);
 			if (epicsDevice.getDummy()) {
 				Thread.sleep((long) (getCollectionTime() * 1000));
 				_fireReadingDone();
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to start acquisition", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to start acquisition", e);
 		}
 	}
 
 	@Override
 	public void startAcquisition() throws DeviceException {
 		try {
-			setIntFieldValueNoWait(startAcqField, 1);
+			setIntFieldValueNoWait(START_ACQ_FIELD, 1);
 			acquisitionDone = false;
 			readingDone = false;
 			if (epicsDevice.getDummy()) {
 				Thread.sleep((long) (getCollectionTime() * 1000));
 				_fireReadingDone();
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to start acquisition", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to start acquisition", e);
 		}
 	}
 
 	@Override
 	public void stopAcquisition() throws DeviceException {
 		try {
-			setIntFieldValue(stopAcqField, 1);
+			setIntFieldValue(STOP_ACQ_FIELD, 1);
 			if (epicsDevice.getDummy()) {
 				_fireReadingDone();
 			}
-		} catch (Throwable th) {
-			throw new DeviceException("failed to stop acquisition", th);
+		} catch (Exception e) {
+			throw new DeviceException("failed to stop acquisition", e);
 		}
 
 	}
@@ -784,7 +743,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	public void _fireReadingDone() {
 		acquisitionDone = true;
 		setReadingDone(true);
-		notifyIObservers(this, (acquisitionDone & readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
+		notifyIObservers(this, (acquisitionDone && readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
 	}
 
 	/**
@@ -811,12 +770,12 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	public void update(Object theObserved, Object changeCode) {
 		if (theObserved instanceof EpicsRegistrationRequest && changeCode instanceof EpicsMonitorEvent
 				&& ((EpicsMonitorEvent) changeCode).epicsDbr instanceof DBR) {
-			EpicsMonitorEvent event = (EpicsMonitorEvent) changeCode;
-			DBR dbr = (DBR) event.epicsDbr;
+			final EpicsMonitorEvent event = (EpicsMonitorEvent) changeCode;
+			final DBR dbr = (DBR) event.epicsDbr;
 			if (dbr != null) {
-				if (((EpicsRegistrationRequest) theObserved).field.equals(acquiringField) && dbr.isENUM()) {
+				if (((EpicsRegistrationRequest) theObserved).field.equals(ACQUIRING_FIELD) && dbr.isENUM()) {
 					acquisitionDone = ((DBR_Enum) dbr).getEnumValue()[0] == 0;
-					logger.debug("update acquisitionDone =" + acquisitionDone);
+					logger.debug("update acquisitionDone = {}", acquisitionDone);
 					if (acquisitionDone) {
 						if(readingDoneIfNotAquiring){
 							setReadingDone(true);
@@ -824,24 +783,21 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 							readingDone = false;
 							logger.debug("readingDone set to false");
 							// don't do the CA put on the JCA event dispatch thread
-							new Thread(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										// now ask for a read and set ReadingDone false
-										logger.debug("Requesting read");
-										setIntFieldValue(readField, 1);
-									} catch (Exception e) {
-										logger.error("Error setting read to 1 in response to acquisition done", e);
-									}
+							new Thread(() -> {
+								try {
+									// now ask for a read and set ReadingDone false
+									logger.debug("Requesting read");
+									setIntFieldValue(READ_FIELD, 1);
+								} catch (Exception e) {
+									logger.error("Error setting read to 1 in response to acquisition done", e);
 								}
 							}).start();
 						}
 					}
-				} else if (((EpicsRegistrationRequest) theObserved).field.equals(readingField) && dbr.isENUM()) {
+				} else if (((EpicsRegistrationRequest) theObserved).field.equals(READING_FIELD) && dbr.isENUM()) {
 					setReadingDone(((DBR_Enum) dbr).getEnumValue()[0] == 0);
-					logger.debug("update readingDone =" + readingDone);
-					notifyIObservers(this, (acquisitionDone & readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
+					logger.debug("update readingDone = {}", readingDone);
+					notifyIObservers(this, (acquisitionDone && readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
 				}
 			}
 		}
@@ -849,31 +805,24 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	@Override
 	public EpicsMCARegionOfInterest getNthRegionOfInterest(int regionIndex) throws DeviceException {
-		EpicsMCARegionOfInterest rois = new EpicsMCARegionOfInterest();
-
+		final EpicsMCARegionOfInterest rois = new EpicsMCARegionOfInterest();
 		rois.setRegionIndex(regionIndex);
-
 		rois.setRegionLow(getIntFromField(roiLowFields[regionIndex]));
-
 		rois.setRegionHigh(getIntFromField(roiHighFields[regionIndex]));
-
 		rois.setRegionBackground(getShortFromField(roiBackgroundFields[regionIndex]));
-
 		rois.setRegionPreset(getDoubleFromField(roiPresetCountFields[regionIndex]));
-
 		rois.setRegionName(getStringFromField(roiNameFields[regionIndex]));
-
 		return rois;
 	}
 
 	private Object getRegionsOfInterest(int noOfRegions) throws DeviceException {
-		Vector<EpicsMCARegionOfInterest> roiVector = new Vector<EpicsMCARegionOfInterest>();
+		final List<EpicsMCARegionOfInterest> roiVector = new ArrayList<>();
 		for (int regionIndex = 0; regionIndex < noOfRegions; regionIndex++) {
-			EpicsMCARegionOfInterest rois = getNthRegionOfInterest(regionIndex);
+			final EpicsMCARegionOfInterest rois = getNthRegionOfInterest(regionIndex);
 			roiVector.add(rois);
 		}
-		if (roiVector.size() != 0) {
-			EpicsMCARegionOfInterest[] selectedrois = new EpicsMCARegionOfInterest[roiVector.size()];
+		if (!roiVector.isEmpty()) {
+			final EpicsMCARegionOfInterest[] selectedrois = new EpicsMCARegionOfInterest[roiVector.size()];
 			for (int j = 0; j < selectedrois.length; j++) {
 				selectedrois[j] = roiVector.get(j);
 			}
@@ -884,23 +833,23 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	@Override
 	public long getNumberOfChannels() throws DeviceException {
-		return getIntFromField(numberOfChannelsToUseField);
+		return getIntFromField(NUMBER_OF_CHANNELS_TO_USE_FIELD);
 	}
 
 	@Override
 	public void setNumberOfChannels(long channels) throws DeviceException {
-		long max = getIntFromField(maxNumberOfChannelsToUseField);
+		final long max = getIntFromField(MAX_NUMBER_OF_CHANNELS_TO_USE_FIELD);
 		if (channels > max) {
 			throw new DeviceException("Invalid number of channels," + " Maximum channels allowed is  " + max);
 		}
-		setIntFieldValue(numberOfChannelsToUseField, (int) channels);
+		setIntFieldValue(NUMBER_OF_CHANNELS_TO_USE_FIELD, (int) channels);
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
 		clear();
 
-		EpicsMCAPresets presets = (EpicsMCAPresets) getPresets();
+		final EpicsMCAPresets presets = (EpicsMCAPresets) getPresets();
 
 		if (presets.getPresetLiveTime() > 0.0 && this.collectionTime > 0.0) {
 			startAcquisition();
@@ -915,30 +864,17 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		return getData();
 	}
 
-	/**
-	 *
-	 */
-	public static final String channelToEnergyPrefix = "channelToEnergy:";
-	/**
-	 *
-	 */
-	public static final String numberOfChannelsAttr = "NumberOfChannels";
-	/**
-	 *
-	 */
-	public static final String energyToChannelPrefix = "energyToChannel";
-
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 
-		if (attributeName.startsWith(channelToEnergyPrefix)) {
+		if (attributeName.startsWith(CHANNEL_TO_ENERGY_PREFIX)) {
 			String energy = null;
 			if (channelToEnergyConverter == null && converterName != null) {
 				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				String channelString = attributeName.substring(channelToEnergyPrefix.length());
-				Quantity channel = Quantity.valueOf(channelString);
+				final String channelString = attributeName.substring(CHANNEL_TO_ENERGY_PREFIX.length());
+				final Quantity channel = Quantity.valueOf(channelString);
 				try {
 					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
 					return energy;
@@ -949,14 +885,14 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 			throw new DeviceException(
 					"EpicsMCA : unable to find suitable converter to convert channel to energy. converterName  "
 							+ (converterName == null ? "not given" : converterName));
-		} else if (attributeName.startsWith(energyToChannelPrefix)) {
+		} else if (attributeName.startsWith(ENERGY_TO_CHANNEL_PREFIX)) {
 			// String channel = null;
 			if (channelToEnergyConverter == null && converterName != null) {
 				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				String energyString = attributeName.substring(energyToChannelPrefix.length());
-				Quantity energy = Quantity.valueOf(energyString);
+				final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
+				final Quantity energy = Quantity.valueOf(energyString);
 				try {
 					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getAmount();
 					return Long.toString(Math.max(Math.min(ichannel, getNumberOfChannels() - 1), 0));
@@ -967,7 +903,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 			throw new DeviceException(
 					"EpicsTCA : unable to find suitable converter to convert energy to channel. converterName  "
 							+ (converterName == null ? "not given" : converterName));
-		} else if (attributeName.equals(numberOfChannelsAttr)) {
+		} else if (attributeName.equals(NUMBER_OF_CHANNELS_ATTR)) {
 			return getNumberOfChannels();
 		} else {
 			return super.getAttribute(attributeName);
@@ -988,8 +924,6 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		this.converterName = calibrationName;
 	}
 
-	private String epicsDeviceName;
-
 	/**
 	 * @return String
 	 */
@@ -1002,20 +936,6 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 */
 	public void setEpicsDeviceName(String deviceName) {
 		this.epicsDeviceName = deviceName;
-	}
-
-	/**
-	 * @return String
-	 */
-	public String getMCAPV() {
-		return mcaPV;
-	}
-
-	/**
-	 * @param mcaPV
-	 */
-	public void setMCAPV(String mcaPV) {
-		this.mcaPV = mcaPV;
 	}
 
 	/**
@@ -1056,8 +976,8 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
-		synchronized(doneLock){
-			while( !(acquisitionDone & readingDone)){
+		synchronized (doneLock) {
+			while (!(acquisitionDone && readingDone)) {
 				doneLock.wait();
 			}
 		}
@@ -1071,37 +991,36 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		this.readingDoneIfNotAquiring = readingDoneIfNotAquiring;
 	}
 
-}
+	private static final class RegisterForEpicsUpdates implements Runnable {
 
-final class RegisterForEpicsUpdates implements Runnable {
+		private static final Logger logger = LoggerFactory.getLogger(RegisterForEpicsUpdates.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(RegisterForEpicsUpdates.class);
+		private final List<EpicsRegistrationRequest> requests;
+		private final IEpicsDevice epicsDevice;
+		private final IObserver observer;
+		private List<IEpicsChannel> chans = new ArrayList<>();
 
-	final List<EpicsRegistrationRequest> requests;
-	final IEpicsDevice epicsDevice;
-	final IObserver observer;
-	ArrayList<IEpicsChannel> chans = new ArrayList<IEpicsChannel>();
-
-	RegisterForEpicsUpdates(IEpicsDevice epicsDevice, List<EpicsRegistrationRequest> requests, IObserver observer) {
-		this.epicsDevice = epicsDevice;
-		this.requests = requests;
-		this.observer = observer;
-		Thread t = uk.ac.gda.util.ThreadManager.getThread(this);
-		t.setPriority(java.lang.Thread.MIN_PRIORITY);
-		t.start();
-	}
-
-	@Override
-	public void run() {
-		try {
-			for (EpicsRegistrationRequest request : requests) {
-				IEpicsChannel chan = epicsDevice.createEpicsChannel(request.returnType, request.record, request.field);
-				chan.addIObserver(observer);
-				chans.add(chan);
-			}
-		} catch (Exception ex) {
-			logger.error("Error in RegisterForEpicsUpdates", ex);
+		private RegisterForEpicsUpdates(IEpicsDevice epicsDevice, List<EpicsRegistrationRequest> requests, IObserver observer) {
+			this.epicsDevice = epicsDevice;
+			this.requests = requests;
+			this.observer = observer;
+			final Thread t = uk.ac.gda.util.ThreadManager.getThread(this);
+			t.setPriority(java.lang.Thread.MIN_PRIORITY);
+			t.start();
 		}
-	}
 
+		@Override
+		public void run() {
+			try {
+				for (EpicsRegistrationRequest request : requests) {
+					IEpicsChannel chan = epicsDevice.createEpicsChannel(request.returnType, request.record, request.field);
+					chan.addIObserver(observer);
+					chans.add(chan);
+				}
+			} catch (Exception ex) {
+				logger.error("Error in RegisterForEpicsUpdates", ex);
+			}
+		}
+
+	}
 }
