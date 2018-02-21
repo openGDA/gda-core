@@ -14,7 +14,6 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -64,8 +63,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		this.eservice = eservice;
 	}
 
-	AbstractQueueConnection(URI uri, String submitQName, String statusQName, String statusTName, String commandTName, IEventConnectorService service, IEventService eservice) {
-		super(uri, submitQName, statusQName, statusTName, commandTName, service);
+	AbstractQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
+			String commandTopicName, IEventConnectorService service, IEventService eservice) {
+		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service);
 		this.eservice = eservice;
 	}
 
@@ -91,8 +91,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public List<U> getQueue(String qName) throws EventException {
-		Comparator<U> comparator = null;
-
 		QueueReader<U> reader = new QueueReader<>(service);
 		try {
 			return reader.getBeans(uri, qName, beanClass);
@@ -297,14 +295,14 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 			Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
+			@SuppressWarnings("unchecked")
 			ISubmitter<U> submitter = this instanceof ISubmitter
 					                ? (ISubmitter<U>)this
-					                : (ISubmitter<U>)eservice.createSubmitter(getUri(), queueName);
+					                : eservice.createSubmitter(getUri(), queueName);
 
-		    for (U u : submitted) submitter.submit(u);
+			for (U u : submitted) submitter.submit(u);
 
-		    return true; // It was reordered
-
+			return true; // It was reordered
 		} finally {
 			if (!isAlreadyPaused) {
 				pbean.setPause(false);

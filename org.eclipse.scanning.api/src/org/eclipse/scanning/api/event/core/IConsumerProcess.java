@@ -83,23 +83,17 @@ public interface IConsumerProcess<T> extends IPublishable<T>{
 	/**
 	 * Call to pause the running process.
 	 */
-	default void pause() throws EventException {
-
-	}
+	void pause() throws EventException;
 
 	/**
 	 * Call to resume the process.
 	 */
-	default void resume() throws EventException {
-
-	}
+	void resume() throws EventException;
 
 	/**
-	 * Should be implemented to provide paused status.
-	 * If using AbstractPausibleProcess, it will be automatically.
-	 * @return
+	 * Returns whether the process is paused.
+	 * If using {@link AbstractLockingPausableProcess}, it will be automatically.
+	 * @return <code>true</code> if the process is paused, <code>false</code> otherwise
 	 */
-	default boolean isPaused() {
-		return false;
-	}
+	boolean isPaused();
 }

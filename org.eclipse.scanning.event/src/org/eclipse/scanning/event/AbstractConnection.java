@@ -45,7 +45,7 @@ abstract class AbstractConnection {
 	protected IEventConnectorService service;
 
 	protected QueueConnection connection;
-	protected QueueSession qSession;
+	protected QueueSession queueSession;
 	protected Session session;
 
 	private boolean disconnected = false;
@@ -104,24 +104,23 @@ abstract class AbstractConnection {
 		// Deals with reconnecting or if broker gone down, fails
 		try {
 			if (connection==null) createConnection();
-			if (qSession == null) createQueueSession();
+			if (queueSession == null) createQueueSession();
 
-			return qSession.createQueue(queueName);
+			return queueSession.createQueue(queueName);
 		} catch (Exception ne) {
 			createConnection();
 			createQueueSession();
 
-			return qSession.createQueue(queueName);
+			return queueSession.createQueue(queueName);
 		}
 	}
-
 
 	protected void createSession() throws JMSException {
 		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
 	private void createQueueSession() throws JMSException {
-		this.qSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
 	protected void createConnection() throws JMSException {
@@ -135,13 +134,13 @@ abstract class AbstractConnection {
 		try {
 			if (connection!=null) connection.close();
 			if (session!=null) session.close();
-			if (qSession!=null) qSession.close();
+			if (queueSession!=null) queueSession.close();
 		} catch (JMSException ne) {
 			logger.error("Internal error - unable to close connection!", ne);
 		} finally {
 			connection = null;
 			session = null;
-			qSession = null;
+			queueSession = null;
 		}
 		setDisconnected(true);
 	}
@@ -190,6 +189,15 @@ abstract class AbstractConnection {
 		this.commandTopicName = commandTopicName;
 	}
 
+	/**
+	 * A utility method to test if a bean from the queue represents the same
+	 * bean as that given . This is done by comparing their uniqueIds, if present,
+	 * and falls back on using {@link Object#equals(Object)}
+	 * @param qbean
+	 * @param bean
+	 * @return <code>true</code> if the two beans represent the same object,
+	 *   <code>false</code> otherwise
+	 */
 	protected boolean isSame(Object qbean, Object bean) {
 		Object id1 = getUniqueId(qbean);
 		if (id1==null) return qbean.equals(bean); // Probably it won't because we are updating it but they might have transient fields.
@@ -209,12 +217,13 @@ abstract class AbstractConnection {
 		try {
 			Method method = bean.getClass().getDeclaredMethod("getUniqueId");
 			value = method.invoke(bean);
-		} catch (Exception e) {
+		} catch (Exception e) { // fall through
+		}
+		if (value == null) {
 			try {
 				Method method = bean.getClass().getDeclaredMethod("getName");
 				value = method.invoke(bean);
-			} catch (Exception e1) {
-				value = null;
+			} catch (Exception e1) { // fall through
 			}
 		}
 
@@ -225,7 +234,7 @@ abstract class AbstractConnection {
 		return disconnected;
 	}
 
-	public void setDisconnected(boolean disconnected) {
+	private void setDisconnected(boolean disconnected) {
 		this.disconnected = disconnected;
 	}
 

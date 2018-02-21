@@ -43,14 +43,10 @@ import org.eclipse.scanning.event.remote.RemoteServiceFactory;
 
 public class EventServiceImpl implements IEventService {
 
-	static {
-		System.out.println("Started "+IEventService.class.getSimpleName());
-	}
-
 	private static IEventConnectorService eventConnectorService;
 
 	public EventServiceImpl() {
-
+		System.out.println("Started "+IEventService.class.getSimpleName());
 	}
 
 	// For tests
@@ -76,7 +72,7 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <U extends StatusBean> ISubmitter<U> createSubmitter(URI uri, String queueName) {
-		SubmitterImpl<U> submitter = new SubmitterImpl<U>(uri, queueName, eventConnectorService, this);
+		SubmitterImpl<U> submitter = new SubmitterImpl<>(uri, queueName, eventConnectorService, this);
 		submitter.setStatusTopicName(EventConstants.STATUS_TOPIC); // They may always change it later.
 		return submitter;
 	}

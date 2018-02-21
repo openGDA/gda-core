@@ -85,20 +85,11 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 			message.setJMSExpiration(getLifeTime());
 			producer.send(message);
 
-			try {
-				// Deals with paused consumers by publishing something directly after submission.
-				// If there is a topic we tell everyone that we sent something to it in case the consumer is paused.
-				if (getStatusTopicName()!=null) {
-					TextMessage msg = session.createTextMessage(json);
-					Topic topic = session.createTopic(getStatusTopicName());
-					MessageProducer prod = session.createProducer(topic);
-					prod.send(msg);
-					prod.close();
-				}
-			} catch (Exception ne) {
-				logger.error("Problem publishing to "+getStatusTopicName());
+			// Deals with paused consumers by publishing something directly after submission.
+			// If there is a topic we tell everyone that we sent something to it in case the consumer is paused.
+			if (getStatusTopicName() != null) {
+				publishToStatusTopic(session, json);
 			}
-
 		} catch (Exception e) {
 			throw new EventException("Problem opening connection to queue! ", e);
 		} finally {
@@ -110,7 +101,18 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 				throw new EventException("Cannot close connection as expected!", e);
 			}
 		}
+	}
 
+	private void publishToStatusTopic(Session session, String json) {
+		try {
+			TextMessage msg = session.createTextMessage(json);
+			Topic topic = session.createTopic(getStatusTopicName());
+			MessageProducer prod = session.createProducer(topic);
+			prod.send(msg);
+			prod.close();
+		} catch (Exception ne) {
+			logger.error("Problem publishing to " + getStatusTopicName());
+		}
 	}
 
 	@Override

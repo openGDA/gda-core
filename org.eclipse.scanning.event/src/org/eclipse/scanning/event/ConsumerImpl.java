@@ -66,11 +66,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private String name;
 	private UUID consumerId;
-	private IPublisher<U> status;
-	private IPublisher<HeartbeatBean> alive;
-	private ISubscriber<IBeanListener<U>> manager;
-	private ISubscriber<IBeanListener<ConsumerCommandBean>> command;
-	private ISubmitter<U> mover;
+	private IPublisher<U> status; // a publisher to the status topic
+	private IPublisher<HeartbeatBean> alive; // a publisher to the heartbeat topic
+	private ISubscriber<IBeanListener<U>> manager; // a subscriber to the status topic
+	private ISubscriber<IBeanListener<ConsumerCommandBean>> command; // a subscriber to the command topic
+	private ISubmitter<U> mover; // a submitter to the status set
 
 	private boolean pauseOnStart = false;
 	private CountDownLatch latchStart;
@@ -370,13 +370,18 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		return null;
 	}
 
-	private void startJobManager() throws EventException {
+	private void startProcessManager() throws EventException {
 		if (manager!=null) manager.disconnect();
 		manager = eservice.createSubscriber(uri, getStatusTopicName());
-		manager.addListener(new TerminateListener());
+		manager.addListener(new ProcessManager());
 	}
 
-	protected class TerminateListener implements IBeanListener<U> {
+	/**
+	 * The process manager is a listener for bean changes that handles
+	 * the status of a bean being set to a request state, e.g. {@link Status#REQUEST_PAUSE}
+	 * and performs the appropriate action
+	 */
+	protected class ProcessManager implements IBeanListener<U> {
 		@Override
 		public void beanChangePerformed(BeanEvent<U> evt) {
 			U bean = evt.getBean();
@@ -440,7 +445,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void run() throws EventException {
-		startJobManager();
+		startProcessManager();
 		init();
 
 		while(isActive()) {
@@ -480,7 +485,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private void consume() throws Exception {
 
 		checkPaused(); // blocks until not paused.
-		if (!isActive()) return; // Might have pasued for a long time.
+		if (!isActive()) return; // Might have paused for a long time.
 
 		// Consumes messages from the queue.
 		Message m = getMessage(uri, getSubmitQueueName());
@@ -496,6 +501,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
+	/**
+	 * Processes an exception that occurred during the {@link #run()} loop.
+	 * @param e exception
+	 * @return <code>true</code> to keep processing messages, <code>false</code> to exit
+	 * @throws EventException
+	 */
 	private boolean processException(Throwable e) throws EventException {
 		LOGGER.debug("Processing error in consumer", e);
 
@@ -554,7 +565,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private void checkPaused() throws Exception {
 		if (!isActive())
-			throw new Exception("The consumer is not active and cannot be paused!");
+			throw new EventException("The consumer is not active and cannot be paused!");
 
 		// Check the locking using a condition
 		if (!lock.tryLock(1, TimeUnit.SECONDS)) {
@@ -562,10 +573,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 		try {
 			if (!isActive())
-				throw new Exception("The consumer is not active and cannot be paused!");
+				throw new EventException("The consumer is not active and cannot be paused!");
 			if (awaitPaused) {
 				setActive(false);
-				paused.await(); // Until unpaused
+				while (awaitPaused) {
+					paused.await(); // Until unpaused
+				}
 				setActive(true);
 			}
 		} finally {
@@ -587,7 +600,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			if (mconsumer!=null) mconsumer.close();
 			mconsumer = null; // Force unpaused consumers to make a new connection.
 			LOGGER.info("{} is paused", getName());
-			System.out.println(getName()+" is paused");
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
@@ -608,8 +620,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
 			paused.signalAll();
 			LOGGER.info("{} is running", getName());
-			System.out.println(getName()+" running");
-
 		} finally {
 			lock.unlock();
 		}

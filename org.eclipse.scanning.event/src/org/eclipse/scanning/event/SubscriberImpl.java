@@ -133,7 +133,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	private void schedule(DiseminateEvent event) {
 		if (isSynchronous()) {
-		    if (queue!=null) queue.add(event);
+			if (queue!=null) queue.add(event);
 		} else {
 			if (event==DiseminateEvent.STOP) return;
 			// TODO FIXME Might not be right...
@@ -162,12 +162,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 						DiseminateEvent event = queue.take();
 						if (event==DiseminateEvent.STOP) return;
 						diseminate(event);
-
 					} catch (RuntimeException e) {
 						e.printStackTrace();
 						logger.error("RuntimeException occured despatching event", e);
 						continue;
-
 					} catch (Exception e) {
 						e.printStackTrace();
 						logger.error("Stopping event despatch thread ", e);
@@ -176,7 +174,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 				}
 				System.out.println(Thread.currentThread().getName()+" disconnecting events.");
 			}
-		}, "Submitter despatch thread "+getSubmitQueueName());
+		}, "Subscriber despatch thread "+ getTopicName());
 		despatcher.setName("Subscriber despatcher");
 		despatcher.setDaemon(true);
 		despatcher.setPriority(Thread.NORM_PRIORITY+1);
@@ -191,7 +189,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 		protected final Object bean;
 
 		public DiseminateEvent(Object bean) {
-			this.bean      = bean;
+			this.bean = bean;
 		}
 
 		@Override

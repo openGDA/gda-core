@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
@@ -174,6 +175,16 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			// rethrow the exception as an EventException
 			if (ne instanceof EventException) throw (EventException)ne;
 			throw new EventException(ne);
+		}
+	}
+
+	@Override
+	public boolean isPaused() {
+		try {
+			return controller != null && controller.getDevice().getDeviceState() == DeviceState.PAUSED;
+		} catch (ScanningException e) {
+			logger.error("TODO put description of error here", e);
+			return false;
 		}
 	}
 

@@ -133,33 +133,33 @@ public interface IEventService {
 	 * Create a consumer with the submission queue, status queue, status topic and termination topic passed in.
 	 *
 	 * @param uri
-	 * @param submissionQName
-	 * @param statusQName
-	 * @param statusTName
+	 * @param submissionQueueName
+	 * @param statusQueueName
+	 * @param statusTopicName
 	 * @param terminateTName
 	 * @param service, may be null, should be null in the OSGi case
 	 * @return
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName,
-						                                        String statusQName,
-						                                        String statusTName) throws EventException;
+	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
+						                                        String statusQueueName,
+						                                        String statusTopicName) throws EventException;
 
 	/**
 	 * Create a consumer with the submission queue, status queue, status topic and termination topic passed in.
 	 *
 	 * @param uri
 	 * @param submissionQName
-	 * @param statusQName
-	 * @param statusTName
-	 * @param commandTName
+	 * @param statusQueueName
+	 * @param statusTopicName
+	 * @param commandTopicName
 	 * @param service, may be null, should be null in the OSGi case
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName,
-						                                        String statusQName,
-						                                        String statusTName,
-						                                        String heartbeatTName,
-						                                        String commandTName) throws EventException;
+						                                        String statusQueueName,
+						                                        String statusTopicName,
+						                                        String heartbeatTopicName,
+						                                        String commandTopicName) throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of
