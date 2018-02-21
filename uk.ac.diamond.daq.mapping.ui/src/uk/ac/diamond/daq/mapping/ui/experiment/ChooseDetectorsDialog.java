@@ -54,7 +54,7 @@ public class ChooseDetectorsDialog extends Dialog {
 	 */
 	protected ChooseDetectorsDialog(Shell parentShell, List<IDetectorModelWrapper> availableDetectors, List<IDetectorModelWrapper> selectedDetectors) {
 		super(parentShell);
-		setShellStyle(SWT.RESIZE);
+		setShellStyle(SWT.RESIZE | SWT.APPLICATION_MODAL);
 		originalList = availableDetectors;
 		selectedList = selectedDetectors == null ? new ArrayList<>() : selectedDetectors;
 		originalList.forEach(model -> labelMap.put(model.getName(), model));
