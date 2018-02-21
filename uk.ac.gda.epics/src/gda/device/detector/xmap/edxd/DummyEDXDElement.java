@@ -20,10 +20,10 @@ package gda.device.detector.xmap.edxd;
 
 import gda.device.DeviceException;
 
-public class DummyEDXDElement implements IEDXDElement {
+public class DummyEDXDElement implements IDummyEDXDElement {
 
-	double[] lowROIs;
-	double[] highROIs;
+	private double[] lowROIs;
+	private double[] highROIs;
 
 	@Override
 	public double[] getLowROIs() throws DeviceException {

@@ -27,17 +27,17 @@ import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
 
 public class DummyEDXDMappingController implements IEDXDMappingController {
 
-	private Map<Integer, IEDXDElement> subDetectors = new LinkedHashMap<>();
+	private Map<Integer, IDummyEDXDElement> subDetectors = new LinkedHashMap<>();
 	private COLLECTION_MODES collectionMode;
 	private boolean ignoreGate;
 	private PRESET_TYPES presetType;
 
-	public IEDXDElement getSubDetector(int index) {
+	public IDummyEDXDElement getSubDetector(int index) {
 		if (subDetectors.containsKey(index)) {
 			return subDetectors.get(index);
 		}
 		else {
-			IEDXDElement subDetector = new DummyEDXDElement();
+			IDummyEDXDElement subDetector = new DummyEDXDElement();
 			subDetectors.put(index, subDetector);
 			return subDetector;
 		}
