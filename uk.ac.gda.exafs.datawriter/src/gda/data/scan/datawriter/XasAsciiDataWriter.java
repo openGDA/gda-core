@@ -18,19 +18,19 @@
 
 package gda.data.scan.datawriter;
 
+import java.io.File;
+import java.util.List;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.xspress.XspressSystem;
 import gda.scan.IScanDataPoint;
-
-import java.io.File;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
@@ -130,11 +130,32 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	}
 
 	/**
+	 * Replace detector header names in datapoint using map from {@link AsciiDataWriterConfiguration#getColumnNameMap()}
+	 * @param dataPoint
+	 */
+	private void replaceDetectorHeaderNames(IScanDataPoint dataPoint) {
+		if (configuration!=null && configuration.getColumnNameMap()!=null) {
+			Vector<String> detectorHeader = dataPoint.getDetectorHeader();
+			String[] newDetectorHeader = new String[detectorHeader.size()];
+			int i=0;
+			for (String headerName : detectorHeader) {
+				if (configuration.getColumnNameMap().containsKey(headerName)) {
+					headerName = configuration.getColumnNameMap().get(headerName);
+				}
+				newDetectorHeader[i++]=headerName;
+			}
+			dataPoint.setDetectorHeader(newDetectorHeader);
+		}
+	}
+
+	/**
 	 * The Xas scan should have columns ordered as follows: Fluorescence: Energy I0 It Iref ln(I0/It) ln(I0/Iref) FF
 	 * FF/I0 time Transmission: Energy I0 It Iref ln(I0/It) ln(I0/Iref) time
 	 */
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
+
+		replaceDetectorHeaderNames(dataPoint);
 
 		try {
 			if (firstData) {

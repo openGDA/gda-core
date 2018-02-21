@@ -40,8 +40,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -101,19 +99,22 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 			Group regionsGroup = new Group(widgetComposite, SWT.NONE);
 			regionsGroup.setText("Regions");
-			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(regionsGroup);
+			GridLayoutFactory.fillDefaults().numColumns(3).applyTo(regionsGroup);
 
-			// Button to setup detector (i.e. TwoDArrayView) ROIs from GUI values
-			final Button setRoiButton = new Button(regionsGroup, SWT.NONE);
-			setRoiButton.setText("Set detector ROIs");
-
-			setRoiButton.addSelectionListener(new SelectionListener() {
-
+			// Button to open TwoDArrayView window for detector
+			final Button openRoiButton = new Button(regionsGroup, SWT.NONE);
+			openRoiButton.setText("Open ROI Region");
+			openRoiButton.setToolTipText("Open detector ROI window and apply ROI values to detector");
+			openRoiButton.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					addRoisToPlot(medipixParameters.getRegionList());
+					try {
+						showArrayView();
+						addRoisToPlot(medipixParameters.getRegionList());
+					} catch (PartInitException e1) {
+						logger.error("Problem opening Array view for Medipix", e1);
+					}
 				}
-
 				@Override
 				public void widgetDefaultSelected(SelectionEvent e) {
 				}
@@ -121,8 +122,8 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 			// Button to copy ROIs from TwoDArrayView into local parameters
 			final Button getRoiButton = new Button(regionsGroup, SWT.NONE);
-			getRoiButton.setText("Get detector ROIs");
-
+			getRoiButton.setText("Get ROI from Medipix");
+			getRoiButton.setToolTipText("Get ROIs currently set on detector and copy into table");
 			getRoiButton.addSelectionListener(new SelectionListener() {
 
 				@Override
@@ -131,6 +132,21 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 					medipixParameters.setRegionList(regionList);
 					updateRoiDetailsTable();
 					sendValueChangedEvent("medipix ROIs update from plot");
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+				}
+			});
+
+			// Button to setup detector (i.e. TwoDArrayView) ROIs from GUI values
+			final Button setRoiButton = new Button(regionsGroup, SWT.NONE);
+			setRoiButton.setText("Apply ROI from table");
+			setRoiButton.setToolTipText("Apply ROI values from table to detector");
+			setRoiButton.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					addRoisToPlot(medipixParameters.getRegionList());
 				}
 
 				@Override
@@ -369,19 +385,14 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 				if (e.character == SWT.CR) {
 					logger.debug("tableCursor text CR pressed");
 
-					// Get updated contents of Text box
-					String newText = text.getText();
-					if (newText==null || newText.length()==0) {
-						newText = "0";
-					}
-					// Update table with the new text
+					// update Table cell with updated contents of Text box
 					TableItem row = tableCursor.getRow();
 					int column = tableCursor.getColumn();
-					row.setText(column, newText);
+					row.setText(column, text.getText());
 
 					text.dispose();
 
-					// return keyboard focus to cursor (so keyboard can be used to move to another cell after editing has finished)
+					// return keyboard focus to cursor (so can use keyboard to move to another cell after editing has finished)
 					tableCursor.setFocus();
 
 					// Update ROI list with updated parameters
@@ -400,7 +411,6 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 				}
 			}
 		});
-
 		// close the text editor when the user clicks away
 		text.addFocusListener(new FocusAdapter() {
 			@Override
@@ -410,31 +420,6 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 			}
 		});
 
-		// Add verify listener to make sure input is an Integer
-		// (But not for column 0, the ROI name)
-		if (column>0) {
-			text.addVerifyListener(new VerifyListener() {
-				@Override
-				public void verifyText(VerifyEvent e) {
-					final String oldText = text.getText();
-					String newInput = oldText.substring(0, e.start) + e.text + oldText.substring(e.end);
-					if (newInput.length()==0) {
-						newInput="0";
-					}
-					try {
-						Integer intVal = new Integer(newInput);
-						if (intVal >= 0) {
-							e.doit = true;
-						} else {
-							e.doit = false;
-						}
-					} catch (final NumberFormatException numberFormatException) {
-						// value is not integer
-						e.doit = false;
-					}
-				}
-			});
-		}
 		return text;
 	}
 
@@ -565,12 +550,14 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void setFocus() {
-		// Show array view when editor gets focus
-		try {
-			showArrayView();
-		} catch (PartInitException e) {
-			logger.error("Problem setting focus", e);
-		}
+		// Don't open on focus - view can now be opened by 'Open ROI region' button.
+
+		// Show array view when editor gets focus.
+//		try {
+//			showArrayView();
+//		} catch (PartInitException e) {
+//			logger.error("Problem setting focus", e);
+//		}
 	}
 
 }

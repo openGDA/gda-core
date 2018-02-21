@@ -90,7 +90,8 @@ Require-Bundle: uk.ac.gda.exafs.api;bundle-version="1.0.0",
  uk.ac.gda.server.exafs;bundle-version="1.0.0",
  org.dawnsci.plotting.system,
  org.eclipse.nebula.visualization.xygraph;bundle-version="1.1.0",
- com.github.tschoonj.xraylib
+ com.github.tschoonj.xraylib,
+ org.dawnsci.common.widgets
 Export-Package: com.swtdesigner,
  gda.exafs.scan,
  uk.ac.gda.client.exafs,

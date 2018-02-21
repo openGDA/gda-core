@@ -15,12 +15,11 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.devices.xspress3,
  uk.ac.gda.devices.xspress3.epics,
  uk.ac.gda.nexus,
- org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
+ org.eclipse.dawnsci.analysis.api,
  log4j.over.slf4j,
  slf4j.api,
  org.apache.commons.lang,
  org.eclipse.dawnsci.analysis.dataset,
  org.eclipse.dawnsci.hdf5,
  org.eclipse.dawnsci.nexus
-Import-Package: org.apache.commons.io,
- org.jacorb.config
+Export-Package: uk.ac.gda.devices.detector.xspress4

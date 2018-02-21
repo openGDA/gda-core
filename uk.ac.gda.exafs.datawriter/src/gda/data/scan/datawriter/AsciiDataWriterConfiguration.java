@@ -19,6 +19,8 @@
 package gda.data.scan.datawriter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import gda.device.Detector;
 
@@ -33,6 +35,8 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	private String commentMarker = "#";
 	private String name = ""; // for Findable interface
 	private Detector fluorescenceDetector;
+	private Map<String, String> columnNameMap = new HashMap<>();
+
 	/**
 	 * @return Returns the columns.
 	 */
@@ -120,6 +124,14 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 
 	public void setFluorescenceDetector(Detector fluorescenceDetector) {
 		this.fluorescenceDetector = fluorescenceDetector;
+	}
+	
+	public Map<String, String> getColumnNameMap() {
+		return columnNameMap;
+	}
+
+	public void setColumnNameMap(Map<String, String> columnNameMap) {
+		this.columnNameMap = columnNameMap;
 	}
 
 }

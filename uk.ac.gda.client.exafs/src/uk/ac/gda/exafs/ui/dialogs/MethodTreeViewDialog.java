@@ -37,12 +37,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
-import uk.ac.gda.exafs.ui.dialogs.OverridesForParametersFile.ParameterOverride;
+import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class MethodTreeViewDialog extends Dialog {
 	private List<TreeItemData> treeItemDataList = new ArrayList<TreeItemData>();
 	private Class<?> classTypeForTree;
 	private Tree tree;
+	private static String suffixForParameterMethod = "Parameters";
+
 
 	protected MethodTreeViewDialog(Shell parentShell) {
 		super(parentShell);
@@ -59,33 +61,33 @@ public class MethodTreeViewDialog extends Dialog {
 		return container;
 	}
 
-	public OverridesForParametersFile getOverrideBean() {
+	public ParameterValuesForBean getOverrideBean() {
 		return getOverrideBean(treeItemDataList);
 	}
 
-	private OverridesForParametersFile getOverrideBean(List<TreeItemData> itemData) {
-		OverridesForParametersFile overrideParams = new OverridesForParametersFile();
-		overrideParams.setContainingClassType(classTypeForTree.getName());
+	private ParameterValuesForBean getOverrideBean(List<TreeItemData> itemData) {
+		ParameterValuesForBean overrideParams = new ParameterValuesForBean();
+		overrideParams.setBeanType(classTypeForTree.getName());
 		for(TreeItemData dataForItem : itemData) {
 			String fullPathToMethod = dataForItem.getFullPathToMethod();
-			if (dataForItem.isSelected() && !fullPathToMethod.endsWith("Parameters")) {
-				overrideParams.addOverride(dataForItem.getFullPathToMethod(), "");
+			if (dataForItem.isSelected() && !fullPathToMethod.endsWith(suffixForParameterMethod)) {
+				overrideParams.addParameterValue(dataForItem.getFullPathToMethod(), "");
 			}
 		}
 		return overrideParams;
 	}
 
 	// Setup the selected/de-selected state from override parameters
-	public void setFromOverrides(OverridesForParametersFile overrides) {
-		List<ParameterOverride> paramOverrides = overrides.getOverrides();
+	public void setFromOverrides(ParameterValuesForBean newBeanValues) {
+		List<ParameterValue> beanValues = newBeanValues.getParameterValues();
 
 		// Loop over all items in tree, set checked status to true for each one that is present in Override params
 		for (TreeItemData treeItemData : treeItemDataList) {
 			String methodName = treeItemData.getFullPathToMethod();
 			boolean selected = false;
 
-			for(int i=0; i<paramOverrides.size() && selected==false; i++) {
-				if (methodName.equals(paramOverrides.get(i).getFullPathToGetter())) {
+			for(int i=0; i<beanValues.size() && selected==false; i++) {
+				if (methodName.equals(beanValues.get(i).getFullPathToGetter())) {
 					selected = true;
 
 					// Make sure parent is checked and expanded.
@@ -113,10 +115,8 @@ public class MethodTreeViewDialog extends Dialog {
 		composite.setLayout(new GridLayout(1, false));
 
 		tree = new Tree(composite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		// tree.setLayout(new GridLayout(1, false));
 		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		// final B18SampleParameters sampleParams = new B18SampleParameters();
 		TreeItem treeItem0 = new TreeItem(tree, 0);
 		treeItem0.setText("Sample Parameters");
 		addMethodNamesToTree(classTypeForTree, treeItem0);
@@ -151,12 +151,22 @@ public class MethodTreeViewDialog extends Dialog {
 	}
 
 	// Comparator for sorting array of Methods by name
-    private class MethodComparator implements Comparator<Method> {
-        @Override
-        public int compare(Method e1, Method e2) {
-            return e1.getName().compareTo(e2.getName());
-        }
-    }
+	private class MethodComparator implements Comparator<Method> {
+		@Override
+		public int compare(Method e1, Method e2) {
+			String hackPrefix = "zzz";
+			// hack to make sure methods that have 'Parameters' in the name are at end of sorted list...
+			String name1 = e1.getName();
+			String name2 = e2.getName();
+			if (name1.endsWith(suffixForParameterMethod)) {
+				name1 = hackPrefix+name1;
+			}
+			if (name2.endsWith(suffixForParameterMethod)) {
+				name2 = hackPrefix+name2;
+			}
+			return name1.compareTo(name2);
+		}
+	}
 
 	private void addMethodNamesToTree(Class<?> clazz, TreeItem parentTreeItem) {
 		System.out.println("Methods for class " + clazz.getName() + " (" + clazz.getSimpleName() + ")");
@@ -170,17 +180,17 @@ public class MethodTreeViewDialog extends Dialog {
 			boolean getterMethod = false;
 			boolean parametersReturnType = false;
 			// method is a 'getter' ?
-			if (methodName.startsWith("get")) {
+			if (methodName.startsWith("get") || methodName.startsWith("is")) {
 				getterMethod = true;
 			}
 			// method returns some more parameters ?
-			if (methodName.endsWith("Parameters")) {
+			if (methodName.endsWith(suffixForParameterMethod)) {
 				parametersReturnType = true;
 			}
 
 			if (getterMethod) {
-				// Name of entry in tree view (remove 'get' from start)
-				String menuItemName = methodName.substring(3);
+				// Name of entry in tree view (remove 'get' or 'is' from start)
+				String menuItemName = methodName.startsWith("is") ? methodName.substring(2) : methodName.substring(3);
 
 				// Create TreeItem for entry
 				TreeItem treeItem = new TreeItem(parentTreeItem, 0);

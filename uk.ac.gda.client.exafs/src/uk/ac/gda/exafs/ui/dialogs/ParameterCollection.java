@@ -29,55 +29,55 @@ import java.util.List;
 import com.thoughtworks.xstream.XStream;
 
 
-public class OverrideCollection {
+public class ParameterCollection {
 
-	private List<OverridesForScan> overridesForScans;
+	private List<ParametersForScan> parametersForScans;
 
-	public OverrideCollection() {
-		overridesForScans = new ArrayList<OverridesForScan>();
+	public ParameterCollection() {
+		parametersForScans = new ArrayList<ParametersForScan>();
 	}
 
-	public OverrideCollection(List<OverridesForScan> overridesForScans) {
-		this.overridesForScans = overridesForScans;
+	public ParameterCollection(List<ParametersForScan> overridesForScans) {
+		this.parametersForScans = overridesForScans;
 	}
 
-	public List<OverridesForScan> getOverridesForScans() {
-		return overridesForScans;
+	public List<ParametersForScan> getOverridesForScans() {
+		return parametersForScans;
 	}
 
-	static public String toXML(List<OverridesForScan> overrideForScans) {
-		OverrideCollection scans = new OverrideCollection(overrideForScans);
+	static public String toXML(List<ParametersForScan> overrideForScans) {
+		ParameterCollection scans = new ParameterCollection(overrideForScans);
 		return getXStream().toXML(scans);
 	}
 
 	public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-	static public void saveToFile(List<OverridesForScan> overrideForScans, String filePath) throws IOException {
+	static public void saveToFile(List<ParametersForScan> overrideForScans, String filePath) throws IOException {
 		String xmlString = XML_HEADER+toXML(overrideForScans);
 		try(BufferedWriter bufWriter = new BufferedWriter(new FileWriter(filePath))) {
 			bufWriter.write( xmlString );
 		}
 	}
 
-	static public List<OverridesForScan> loadFromFile(String filePath) throws IOException {
+	static public List<ParametersForScan> loadFromFile(String filePath) throws IOException {
 		InputStream in = new FileInputStream(filePath);
 		XStream xstream = getXStream();
-		OverrideCollection newParams = (OverrideCollection)xstream.fromXML(in);
+		ParameterCollection newParams = (ParameterCollection)xstream.fromXML(in);
 		return newParams.getOverridesForScans();
 	}
 
 	static public XStream getXStream() {
 		XStream xstream = new XStream();
 		// set the class loader - this fixes 'class not found' exception when de-serialising inside gda client.
-		xstream.setClassLoader(OverrideCollection.class.getClassLoader());
+		xstream.setClassLoader(ParameterCollection.class.getClassLoader());
 
-		OverridesForParametersFile.addAliases(xstream);
+		ParameterValuesForBean.addAliases(xstream);
 
-		xstream.alias("OverridesForScan", OverridesForScan.class);
-		xstream.alias("OverrideCollection", OverrideCollection.class);
+		xstream.alias("ParametersForScan", ParametersForScan.class);
+		xstream.alias("OverrideCollection", ParameterCollection.class);
 
-		xstream.addImplicitCollection(OverridesForScan.class, "overridesForParametersFile");
-		xstream.addImplicitCollection(OverrideCollection.class, "overridesForScans");
+		xstream.addImplicitCollection(ParametersForScan.class, "valuesForBeans");
+		xstream.addImplicitCollection(ParameterCollection.class, "parametersForScans");
 		return xstream;
 	}
 
