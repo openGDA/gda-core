@@ -23,13 +23,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import gda.factory.Findable;
+
 /**
- * An annotation that specifies the service interface for the annotated class.
+ * An annotation that specifies the service interface for the annotated class. This is used for RMI exports.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceInterface {
 
-	Class<?> value();
+	Class<? extends Findable> value();
 
 }
