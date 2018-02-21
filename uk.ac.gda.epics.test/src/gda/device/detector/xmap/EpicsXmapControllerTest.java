@@ -36,8 +36,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.device.DeviceException;
-import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
+import gda.device.detector.xmap.edxd.IEDXDElement;
 import gda.factory.FactoryException;
 
 public class EpicsXmapControllerTest {
@@ -62,8 +62,8 @@ public class EpicsXmapControllerTest {
 
 	private EpicsXmapController xmapController;
 	private EDXDMappingController edxdController;
-	private EDXDElement subDetector0;
-	private EDXDElement subDetector1;
+	private IEDXDElement subDetector0;
+	private IEDXDElement subDetector1;
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -80,14 +80,14 @@ public class EpicsXmapControllerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		subDetector0 = mock(EDXDElement.class);
+		subDetector0 = mock(IEDXDElement.class);
 		when(subDetector0.readoutInts()).thenReturn(ELEMENT0_DATA);
 		when(subDetector0.getROICounts()).thenReturn(ELEMENT0_ROI_COUNTS);
 		when(subDetector0.getLowROIs()).thenReturn(ELEMENT0_LOW_ROIS);
 		when(subDetector0.getHighROIs()).thenReturn(ELEMENT0_HIGH_ROIS);
 		when(subDetector0.getEnergyBins()).thenReturn(ELEMENT0_ENERGY_BINS);
 
-		subDetector1 = mock(EDXDElement.class);
+		subDetector1 = mock(IEDXDElement.class);
 		when(subDetector1.readoutInts()).thenReturn(ELEMENT1_DATA);
 		when(subDetector1.getROICounts()).thenReturn(ELEMENT1_ROI_COUNTS);
 		when(subDetector1.getLowROIs()).thenReturn(ELEMENT1_LOW_ROIS);

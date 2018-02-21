@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
+import gda.device.detector.xmap.edxd.IEDXDElement;
 import gda.factory.FactoryException;
 
 public class EpicsXmapController extends DeviceBase implements XmapController {
@@ -191,7 +191,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 			logger.error("Not a valid roi index");
 			return;
 		}
-		final EDXDElement element = edxdController.getSubDetector(mcaIndex);
+		final IEDXDElement element = edxdController.getSubDetector(mcaIndex);
 		final double[] roiLow = element.getLowROIs();
 		final double[] roiHigh = element.getHighROIs();
 		if (roi[0] <= roi[1]) {
@@ -229,7 +229,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 			rois[i][0] = actualRois[i][0];
 			rois[i][1] = actualRois[i][1];
 		}
-		final EDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
+		final IEDXDElement subDetector = edxdController.getSubDetector(mcaIndex);
 		if (subDetector != null) {
 			subDetector.setROIs(rois);
 		}
@@ -302,7 +302,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 	// This should really be called getROIs, as it is the reverse of setROIs
 	@Override
 	public double[][] getROIParameters(int mcaIndex) throws DeviceException {
-		final EDXDElement element = edxdController.getSubDetector(mcaIndex);
+		final IEDXDElement element = edxdController.getSubDetector(mcaIndex);
 		if (element == null) {
 			throw new IndexOutOfBoundsException("No subelement for index " + mcaIndex + " exists.");
 		}

@@ -381,7 +381,7 @@ public class EDXDControllerTest {
 
 		// There should be 24 sub-detectors by default
 		for (int i = 0; i < NUM_ELEMENTS; i++) {
-			final EDXDElement subDetector = controller.getSubDetector(i);
+			final IEDXDElement subDetector = controller.getSubDetector(i);
 			assertNotNull(subDetector);
 			assertEquals(String.format("EDXD_Element_%02d", i + 1), subDetector.getName());
 		}

@@ -54,7 +54,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	protected int numberOfElements = 24;
 	protected XmapEpicsDevice xmap = null;
-	protected final List<EDXDElement> subDetectors = new ArrayList<>();
+	protected final List<IEDXDElement> subDetectors = new ArrayList<>();
 	protected DeviceException collectDataException;
 
 	// Keys to access xmap's PVs
@@ -494,7 +494,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	 * @param index
 	 * @return An the EDXDElement requested
 	 */
-	public EDXDElement getSubDetector(int index) {
+	public IEDXDElement getSubDetector(int index) {
 		// check that sub detectors exist before attempting to access any.
 		if (subDetectors.size() > 0)
 			return subDetectors.get(index);

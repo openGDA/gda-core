@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.INeXusInfoWriteable;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.EpicsMCASimple;
@@ -33,7 +32,7 @@ import gda.factory.FactoryException;
 /**
  * Each EDXDMappingElement wraps an EpicsMCASimple instance.
  */
-public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteable {
+public class EDXDMappingElement extends EDXDElement {
 	private static final String MCA = "MCA";
 	private static final int MAX_ROIS = 32;
 	private final EpicsMCASimple simpleMca;

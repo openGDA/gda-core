@@ -96,7 +96,7 @@ public class EDXDMappingControllerTest {
 
 		// Check that the sub-detectors are of the correct type
 		for (int i = 0; i < NUM_ELEMENTS; i++) {
-			final EDXDElement subDetector = controller.getSubDetector(i);
+			final IEDXDElement subDetector = controller.getSubDetector(i);
 			assertTrue(subDetector instanceof EDXDMappingElement);
 		}
 	}
