@@ -210,7 +210,7 @@ public class NudgePositionerComposite extends Composite {
 	 *            The demanded position
 	 */
 	private void move(double position) {
-		boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
+		boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
 		if (!batonHeld) {
 			MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
 					"You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
