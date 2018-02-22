@@ -45,8 +45,12 @@ import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.MetadataPlotUtils;
 import org.eclipse.e4.ui.di.UISynchronize;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.metadata.AxesMetadata;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -77,7 +81,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
-import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
@@ -89,11 +92,6 @@ import uk.ac.diamond.daq.mapping.ui.experiment.ScanBeanSubmitter;
  * visualize the results and select a focus (zone plate) setting.
  */
 public class FocusScanResultPage extends WizardPage {
-
-	private enum Orientation {
-		HORIZONTAL,
-		VERTICAL
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(FocusScanResultPage.class);
 
@@ -355,13 +353,29 @@ public class FocusScanResultPage extends WizardPage {
 			final IImageTrace existingTrace = (IImageTrace) plottingSystem.getTrace(mapDataset.getName());
 			plottingSystem.setKeepAspect(false);
 
-			// when line is horizontal, we need to add ranges to traces so the axes give the correct positions
-			// this isn't necessary when vertical as the axis we want to use is in the correct slot already
-			if (Orientation.HORIZONTAL.equals(getLineOrientation())) {
-				final AxesMetadata axesMetadata = mapDataset.getFirstMetadata(AxesMetadata.class);
-				ILazyDataset[] axisDataset = axesMetadata.getAxis(1);
-				axesMetadata.setAxis(1, axisDataset[1]);
-				mapDataset.setMetadata(axesMetadata);
+			final AxesMetadata axesMetadata = mapDataset.getFirstMetadata(AxesMetadata.class);
+			ILazyDataset[] axisDataset = axesMetadata.getAxis(1);
+
+			DoubleDataset lineLength = DatasetFactory.createRange(axisDataset[1].getSize());
+			lineLength.setName("Length along line in points");
+
+			//try and calculate hypotenuse for x axis
+
+			try {
+				IDataset s0 = axisDataset[0].getSlice();
+				IDataset s1 = axisDataset[1].getSlice();
+
+				if (!Arrays.equals(s0.getShape(), s1.getShape())) {
+					axesMetadata.setAxis(1, lineLength);
+				} else {
+					Dataset hypot = Maths.hypot(s0, s1);
+					hypot.setName("Distance along line");
+					axesMetadata.setAxis(1, hypot);
+				}
+
+			} catch (Exception e) {
+				logger.error("Couldn't calculate length");
+				axesMetadata.setAxis(1, lineLength);
 			}
 
 			// update the trace with the range
@@ -388,12 +402,6 @@ public class FocusScanResultPage extends WizardPage {
 	private double[] getRange(IDataset m) {
 		IDataset[] ax = MetadataPlotUtils.getAxesAsIDatasetArray(m);
 		return MappingUtils.calculateRangeFromAxes(new IDataset[]{ax[0],ax[1]});
-	}
-
-
-	private Orientation getLineOrientation() {
-		ILineMappingRegion line = focusScanBean.getLineRegion();
-		return line.getyStart() == line.getyStop() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
 	}
 
 	private String getSampleName() {

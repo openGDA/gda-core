@@ -93,7 +93,7 @@ import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
-import uk.ac.diamond.daq.mapping.region.SnappedLineMappingRegion;
+import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
 import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
 import uk.ac.diamond.daq.mapping.ui.experiment.EditDetectorParametersDialog;
@@ -154,7 +154,7 @@ class FocusScanSetupPage extends WizardPage {
 	private void initializePage() {
 		ILineMappingRegion lineRegion = focusScanBean.getLineRegion();
 		if (lineRegion == null) {
-			lineRegion = new SnappedLineMappingRegion();
+			lineRegion = new LineMappingRegion();
 			focusScanBean.setLineRegion(lineRegion);
 		}
 
