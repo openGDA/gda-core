@@ -63,7 +63,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	public static final String RMI_PORT_PROPERTY = "uk.ac.gda.remoting.rmiPort";
 
 	/** The port used to expose both the RMI registry and services */
-	private static final int RMI_PORT = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
+	private final int rmiPort = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
 
 	private ApplicationContext applicationContext;
 
@@ -123,8 +123,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	private void export(String name, Findable bean, Class<?> serviceInterface) {
 		logger.trace("Exporting '{}' with interface '{}'...", name, serviceInterface.getName());
 		final RmiServiceExporter serviceExporter = new RmiServiceExporter();
-		serviceExporter.setRegistryPort(RMI_PORT);
-		serviceExporter.setServicePort(RMI_PORT);
+		serviceExporter.setRegistryPort(rmiPort);
+		serviceExporter.setServicePort(rmiPort);
 		serviceExporter.setService(bean);
 		serviceExporter.setServiceName(AUTO_EXPORT_RMI_PREFIX + name);
 		serviceExporter.setServiceInterface(serviceInterface);
