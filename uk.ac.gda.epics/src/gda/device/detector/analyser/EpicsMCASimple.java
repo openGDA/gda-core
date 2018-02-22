@@ -36,12 +36,10 @@ import gda.device.epicsdevice.EpicsMonitorEvent;
 import gda.device.epicsdevice.EpicsRegistrationRequest;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.IEpicsChannel;
-import gda.device.epicsdevice.IEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.observable.IObserver;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
@@ -54,7 +52,7 @@ import gov.aps.jca.dbr.DBR_Enum;
  * Observers are notified of change of status - either MCAStatus.READY or MCAStatus.BUSY getStatus - returns either
  * Detector.IDLE or Detector.BUSY eraseStartAcquisition - starts acquisition
  */
-public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector, IObserver {
+public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCASimple.class);
 
@@ -135,7 +133,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	private volatile boolean readingDone = true;
 
 	private FindableEpicsDevice epicsDevice = null;
-	private RegisterForEpicsUpdates registerForEpicsUpdates = null;
+
 	private static final int MAX_NUMBER_OF_REGIONS = 32;
 
 	private final double[] roiCountValues = new double[MAX_NUMBER_OF_REGIONS];
@@ -197,9 +195,15 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 						SINGLE_RECORD, 1.0, false));
 				requests.add(new EpicsRegistrationRequest(ReturnType.DBR_NATIVE, SINGLE_RECORD, READING_FIELD,
 						SINGLE_RECORD, 1.0, false));
-				registerForEpicsUpdates = new RegisterForEpicsUpdates(epicsDevice, requests, this);
-			}
-			if (epicsDevice.getDummy()) {
+				try {
+					for (EpicsRegistrationRequest request : requests) {
+						final IEpicsChannel chan = epicsDevice.createEpicsChannel(request.returnType, request.record, request.field);
+						chan.addIObserver(this::update);
+					}
+				} catch (Exception ex) {
+					logger.error("Error registering for Epics updates", ex);
+				}
+			} else {
 				try {
 					// set configured so that we can use the set commands to initialise values
 					configured = true;
@@ -766,7 +770,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 			doneLock.notifyAll();
 		}
 	}
-	@Override
+
 	public void update(Object theObserved, Object changeCode) {
 		if (theObserved instanceof EpicsRegistrationRequest && changeCode instanceof EpicsMonitorEvent
 				&& ((EpicsMonitorEvent) changeCode).epicsDbr instanceof DBR) {
@@ -989,38 +993,5 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	public void setReadingDoneIfNotAquiring(boolean readingDoneIfNotAquiring) {
 		this.readingDoneIfNotAquiring = readingDoneIfNotAquiring;
-	}
-
-	private static final class RegisterForEpicsUpdates implements Runnable {
-
-		private static final Logger logger = LoggerFactory.getLogger(RegisterForEpicsUpdates.class);
-
-		private final List<EpicsRegistrationRequest> requests;
-		private final IEpicsDevice epicsDevice;
-		private final IObserver observer;
-		private List<IEpicsChannel> chans = new ArrayList<>();
-
-		private RegisterForEpicsUpdates(IEpicsDevice epicsDevice, List<EpicsRegistrationRequest> requests, IObserver observer) {
-			this.epicsDevice = epicsDevice;
-			this.requests = requests;
-			this.observer = observer;
-			final Thread t = uk.ac.gda.util.ThreadManager.getThread(this);
-			t.setPriority(java.lang.Thread.MIN_PRIORITY);
-			t.start();
-		}
-
-		@Override
-		public void run() {
-			try {
-				for (EpicsRegistrationRequest request : requests) {
-					IEpicsChannel chan = epicsDevice.createEpicsChannel(request.returnType, request.record, request.field);
-					chan.addIObserver(observer);
-					chans.add(chan);
-				}
-			} catch (Exception ex) {
-				logger.error("Error in RegisterForEpicsUpdates", ex);
-			}
-		}
-
 	}
 }
