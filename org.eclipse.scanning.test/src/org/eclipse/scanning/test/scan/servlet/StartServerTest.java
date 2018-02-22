@@ -1,7 +1,6 @@
 package org.eclipse.scanning.test.scan.servlet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.net.URISyntaxException;
 
@@ -36,13 +35,13 @@ public class StartServerTest extends AbstractServletTest {
 		try {
 			servlet.setBroker(uri.toString());
 			servlet.connect(); // Gets called by Spring automatically
+			servlet.getConsumer().awaitStart();
 
-			assertTrue(servlet.getConsumer().isActive());
+			assertEquals(ConsumerStatus.RUNNING, servlet.getConsumer().getConsumerStatus());
 
 		} finally {
 			servlet.disconnect();
 		}
-
 	}
 
 	@Test
@@ -60,10 +59,9 @@ public class StartServerTest extends AbstractServletTest {
 			servlet.getConsumer().awaitStart();
 
 			assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
-
 		} finally {
-			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+			servlet.getConsumer().clearQueue(servlet.getSubmitQueue());
+			servlet.getConsumer().clearQueue(servlet.getStatusSet());
 			servlet.disconnect();
 		}
 

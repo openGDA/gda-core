@@ -77,9 +77,9 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private IProcessCreator<U> runner;
 	private boolean durable;
-	private MessageConsumer mconsumer;
+	private MessageConsumer messageConsumer;
 
-	private volatile boolean active;
+	private volatile boolean active = false;
 	private volatile Map<String, WeakReference<IConsumerProcess<U>>>  processes;
 	private Map<String, U> overrideMap;
 
@@ -294,8 +294,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void setRunner(IProcessCreator<U> runner) throws EventException {
+		if (isActive()) throw new IllegalStateException("Cannot set runner while the consumer is active");
 		this.runner = runner;
-		this.active = runner!=null;
 	}
 
 	@Override
@@ -316,7 +316,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				}
 			}
 		};
-		setActive(true);
 		consumerThread.setDaemon(true);
 		consumerThread.setPriority(Thread.NORM_PRIORITY-1);
 		consumerThread.start();
@@ -438,15 +437,18 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void run() throws EventException {
-		startProcessManager();
 		init();
 
-		while(isActive()) {
+		// run the main event loop until setActive is false
+		while (isActive()) {
 			try {
-				consume();
-			} catch (Throwable ne) {
-				boolean stayAlive = processException(ne);
-				if (!stayAlive) break;
+				checkPaused(); // blocks until not paused.
+				if (isActive()) { // Might have paused for a long time.
+					consume();
+				}
+			} catch (Exception e) {
+				// if processException returns false, break out of the loop to exit the consumer
+				setActive(processException(e));
 			}
 		}
 	}
@@ -457,12 +459,15 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (runner!=null) {
 			alive.setAlive(true);
 		} else {
-			throw new EventException("Cannot start a consumer without a runner to run things!");
+			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
 		}
 
 		// We process the paused state
 		PauseBean pbean = getPauseBean(getSubmitQueueName());
 		if (pbean!=null) processPause(pbean); // Might set the pause lock and block on checkPaused().
+
+		startProcessManager();
+		setActive(true);
 
 		// We should pause if there are things in the queue
 		// This is because on a server restart the user will
@@ -476,10 +481,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private void consume() throws Exception {
-
-		checkPaused(); // blocks until not paused.
-		if (!isActive()) return; // Might have paused for a long time.
-
 		// Consumes messages from the queue.
 		Message m = getMessage(uri, getSubmitQueueName());
 		if (m != null) {
@@ -488,6 +489,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			// TODO FIXME Check if we have the max number of processes
 			// exceeded and wait until we don't...
 			TextMessage t = (TextMessage) m;
+
 			final String json = t.getText();
 			final U bean = service.unmarshal(json, getBeanClass());
 			executeBean(bean);
@@ -500,8 +502,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	 * @return <code>true</code> to keep processing messages, <code>false</code> to exit
 	 * @throws EventException
 	 */
-	private boolean processException(Throwable e) throws EventException {
-		LOGGER.debug("Processing error in consumer", e);
+	private boolean processException(Exception e) throws EventException {
+		LOGGER.debug("Processing exception in consumer", e);
 
 		// if error occurred deserializing the bean, log a specific message and don't fail even if not durable
 		if (e.getClass().getSimpleName().contains("Json") || e.getClass().getSimpleName().endsWith("UnrecognizedPropertyException")) {
@@ -518,7 +520,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		if (!isDurable()) return false;
 
-		// TODO: below assumes some conenction problem with activemq. why would any remaining
+		// TODO: below assumes some connection problem with activemq. why would any remaining
 		// exception be a connection problem?
 		LOGGER.warn("{} ActiveMQ connection to {} lost.", getName(), uri, e);
 		LOGGER.warn("We will check every 2 seconds for 24 hours, until it comes back.");
@@ -579,9 +581,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				throw new EventException("The consumer is not active and cannot be paused!");
 			if (awaitPaused) {
 				setActive(false);
+				LOGGER.info("Pausing consumer {}", getSubmitQueueName());
 				while (awaitPaused) {
 					paused.await(); // Until unpaused
 				}
+				LOGGER.info("Resuming consumer {}", getSubmitQueueName());
 				setActive(true);
 			}
 		} finally {
@@ -600,8 +604,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		try {
 			awaitPaused = true;
-			if (mconsumer!=null) mconsumer.close();
-			mconsumer = null; // Force unpaused consumers to make a new connection.
+			if (messageConsumer!=null) messageConsumer.close();
+			messageConsumer = null; // Force unpaused consumers to make a new connection.
 			LOGGER.info("{} is paused", getName());
 		} catch (Exception ne) {
 			throw new EventException(ne);
@@ -634,21 +638,17 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private void executeBean(U bean) throws EventException, InterruptedException {
-		// We record the bean in the status queue
+		// If the bean changed after being submitted to the submission queue, and that change was published to the
+		// status topic, the bean we've consumed from the submission queue will be out of date, but the override map will
+		// have the updated bean, so use that instead
 		if (overrideMap != null && overrideMap.containsKey(bean.getUniqueId())) {
 			U o = overrideMap.remove(bean.getUniqueId());
 			bean.setStatus(o.getStatus());
 		}
+
+		// We record the bean in the status queue
 		LOGGER.trace("Moving {} to {}", bean, mover.getSubmitQueueName());
 		mover.submit(bean);
-
-		// Run the process
-		if (runner == null) {
-			bean.setStatus(Status.FAILED);
-			bean.setMessage("No runner set for consumer "+getName()+". Nothing run");
-			status.broadcast(bean);
-			throw new EventException("You must set the runner before executing beans from the queue!");
-		}
 
 		if (processes.containsKey(bean.getUniqueId())) {
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
@@ -692,14 +692,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private Message getMessage(URI uri, String submitQName) throws JMSException {
 		try {
-			if (this.mconsumer == null) {
-				this.mconsumer = createMessageConsumer(uri, submitQName);
+			if (this.messageConsumer == null) {
+				this.messageConsumer = createMessageConsumer(uri, submitQName);
 			}
-			return mconsumer.receive(Constants.getReceiveFrequency());
+			return messageConsumer.receive(Constants.getReceiveFrequency());
 
 		} catch (Exception ne) {
 			if (Thread.interrupted()) return null;
-			mconsumer = null;
+			messageConsumer = null;
 			try {
 				connection.close();
 			} catch (Exception expected) {
@@ -748,7 +748,13 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		return active;
 	}
 
-	public void setActive(boolean active) {
+	/**
+	 * Sets the active flag. If this is called with <code>false</code> the main
+	 * event loop will exit if running. This method has been made private,
+	 * client code should call {@link #stop()} instead.
+	 * @param active
+	 */
+	private void setActive(boolean active) {
 		this.active = active;
 	}
 
