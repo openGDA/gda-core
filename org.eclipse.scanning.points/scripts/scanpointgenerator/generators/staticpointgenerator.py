@@ -13,8 +13,8 @@
 
 from scanpointgenerator.core import Generator
 
-@Generator.register_subclass("scanpointgenerator:generator/NullPointGenerator:1.0")
-class NullPointGenerator(Generator):
+@Generator.register_subclass("scanpointgenerator:generator/StaticPointGenerator:1.0")
+class StaticPointGenerator(Generator):
     """Generate 'empty' points with no axis information"""
 
     def __init__(self, size):
