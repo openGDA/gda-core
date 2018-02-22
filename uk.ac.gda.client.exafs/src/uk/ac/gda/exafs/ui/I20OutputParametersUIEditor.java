@@ -125,6 +125,8 @@ public class I20OutputParametersUIEditor extends OutputParametersUIEditor {
 
 		if(bean.isVortexSaveRawSpectrum() || bean.isXspressOnlyShowFF() || bean.isXspressSaveRawSpectrum() || bean.isXspressShowDTRawValues())
 			detectorsExpandableComposite.setExpanded(true);
+
+		GridUtils.layoutFull(detFoldersComp.getParent());
 	}
 
 	public TextWrapper getAsciiFileName() {

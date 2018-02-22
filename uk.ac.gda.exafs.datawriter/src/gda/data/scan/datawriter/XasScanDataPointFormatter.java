@@ -42,6 +42,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		XAS_SCAN_VARIABLES.add("Energy");
 		XAS_SCAN_VARIABLES.add("energy");
 		XAS_SCAN_VARIABLES.add("XES");
+		XAS_SCAN_VARIABLES.add("XESBragg");
 		XAS_SCAN_VARIABLES.add("I0");
 		XAS_SCAN_VARIABLES.add("It");
 		XAS_SCAN_VARIABLES.add("Iref");
@@ -78,6 +79,8 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			addColumnEntry(headerBuf, "energy");
 		if (data.get("XESEnergy") != null)
 			addColumnEntry(headerBuf, "Ef");
+		if (data.get("XESBragg") != null)
+			addColumnEntry(headerBuf, "XESBragg");
 		if (data.get("XES") != null)
 			addColumnEntry(headerBuf, "XESBragg");
 		if (data.get("I0") != null)
@@ -129,6 +132,8 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			addColumnEntry(dataBuf, data.get("energy"));
 		if (data.get("XESEnergy") != null)
 			addColumnEntry(dataBuf, data.get("XESEnergy"));
+		if (data.get("XESBragg") != null)
+			addColumnEntry(dataBuf, data.get("XESBragg"));
 		if (data.get("XES") != null)
 			addColumnEntry(dataBuf, data.get("XES"));
 		if (data.get("I0") != null)

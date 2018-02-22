@@ -86,13 +86,20 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private DetectorParameters detectorParameters;
 	private DetectorGroupTemplateConfiguration detectorConfigInformation = null;
 
-	public String[] getDetectorTypesFromConfig() {
+	public String[] getDetectorTypesFromConfig(boolean xesMode) {
 		if (detectorConfigInformation != null && detectorConfigInformation.getDetectorGroupsMap().size() > 0) {
-			String expType = detectorParameters.getExperimentType();
+			String expType;
+			if (xesMode) {
+				expType = DetectorParameters.XES_TYPE;
+			} else {
+				expType = DetectorParameters.FLUORESCENCE_TYPE;
+			}
 			List<String> detList = detectorConfigInformation.getDetectorGroupsMap().get(expType);
 			if (detList != null) {
 				logger.info("Using {} detector list from spring config : {}", expType, ArrayUtils.toString(detList));
 				return detList.toArray(new String[0]);
+			} else {
+				logger.info("No detector list for experiment type {} found in spring config", expType);
 			}
 		}
 		return null;
@@ -135,7 +142,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 
 		detectorConfigInformation = Finder.getInstance().findNoWarn(DetectorGroupTemplateConfiguration.NAME);
 
-		String[] items = getDetectorTypesFromConfig();
+		boolean xesMode = includeMedipix && includeVortex;
+		String[] items = getDetectorTypesFromConfig(xesMode);
 		if (items==null) {
 			items = getDetectorTypes(includeVortex, includeGermanium, includeXspress3, includeMedipix);
 		}
@@ -186,6 +194,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 					}
 					if (file.getParent().equals(editorFolder))
 						configFileName.setError(true, "Please choose a detector file in the same folder.");
+					else {
+						// file is ok,
+						setFileNameChangeRequired(false);
+					}
 				} catch (Exception e1) {
 					logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
 				}
@@ -368,10 +380,14 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			// Get list of detectors in currently selected detector group
 			String[] detList = new String[0];
 			for(DetectorGroup g : detectorParameters.getDetectorGroups()) {
-				if (g.getName().equals(detectorGroup)) {
+				if (g.getName().equalsIgnoreCase(detectorGroup)) {
 					detList = g.getDetector();
 					break;
 				}
+			}
+			if (detList.length==0) {
+				logger.warn("Detector group for {} not found in 'Detector Parameters' xml file", detectorGroup);
+				return "";
 			}
 			// Lookup name of the detector template settings file to use for detector in selected group
 			// (there should only be one match per group, only for fluorescence detector.)
@@ -440,8 +456,6 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 						logger.warn("Problem updating resource tree", e);
 					}
 				}
-			} else {
-				logger.info("");
 			}
 		}
 
