@@ -18,6 +18,11 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetector;
@@ -25,11 +30,6 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.plugin.NullNXPlugin;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 
 /**
  * Calculate FFI0 for an NXDetector (medipix) using ROI counts for FF and ionchambers for I0.
@@ -89,9 +89,12 @@ public class ADRoiCountsI0 extends NullNXPlugin {
 			double roiCounts = 0, i0Counts = 0;
 
 			try {
+				List<String> extraNames = Arrays.asList(data.getExtraNames());
+				int index = extraNames.indexOf("roi1_total");
 				Double[] values = data.getDoubleVals();
-				if ( values.length > 2 )
-					roiCounts = values[2];
+				// Get first value from detector data - should be total ROI counts
+				if (values.length > index)
+					roiCounts = values[index];
 				i0Counts = getI0();
 
 			} catch (Exception e) {
