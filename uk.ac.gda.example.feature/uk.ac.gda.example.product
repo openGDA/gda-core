@@ -42,7 +42,7 @@ See &lt;http://www.opengda.org/&gt;
 
    <splash
       location="uk.ac.gda.client" />
-   <launcher name="gda-example-config">
+   <launcher name="gda-example">
       <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
       <solaris/>
       <win useIco="false">
