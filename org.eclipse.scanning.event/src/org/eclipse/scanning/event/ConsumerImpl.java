@@ -13,7 +13,6 @@ package org.eclipse.scanning.event;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -130,23 +129,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	public void disconnect() throws EventException {
 		if (isActive()) stop();
 
-		super.disconnect();
 		setActive(false);
 		mover.disconnect();
 		status.disconnect();
 		if (alive!=null)   alive.disconnect();
 		if (command!=null) command.disconnect();
 		if (overrideMap!=null) overrideMap.clear();
-		try {
-			if (connection!=null) connection.close();
-		} catch (JMSException e) {
-			throw new EventException("Cannot close consumer connection!", e);
-		}
-	}
 
-	@Override
-	public boolean isDisconnected() {
-		return !isActive();
+		super.disconnect();
 	}
 
 	protected class CommandListener implements IBeanListener<ConsumerCommandBean> {
@@ -310,7 +300,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void start() throws EventException {
-
 		latchStart = new CountDownLatch(1);
 		final Thread consumerThread = new Thread("Consumer Thread "+getName()) {
 			@Override
@@ -343,6 +332,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (latchStart!=null) latchStart.await();
 	}
 
+	/**
+	 * Finds and returns the most recent pause bean sent to the command queue.
+	 * @param submissionQueueName name of submission queue
+	 * @return pause bean
+	 */
 	private PauseBean getPauseBean(String submissionQueueName) {
 
 		IQueueReader<PauseBean>   qr=null;
@@ -391,7 +385,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			try {
 				if (ref==null) { // Might be in submit queue still
 					updateQueue(bean);
-
 				} else {
 					IConsumerProcess<U> process = ref.get();
 					if (process!=null) {
@@ -543,6 +536,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		return true;
 	}
 
+	/**
+	 * Called by {@link #init()} when the consumer starts. If {@link #isPauseOnStart()} is set,
+	 * and the queue is not empty, we set the {@link #awaitPaused} flag and publish a
+	 * a PauseBean to the command topic.
+	 * @throws EventException
+	 */
 	private void checkStartPaused() throws EventException {
 		if (!isPauseOnStart()) {
 			return;
@@ -550,9 +549,9 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		List<U> items = getSubmissionQueue();
 		if (items != null && !items.isEmpty()) {
-			pause();
+			pause(); // note, sets the awaitPause flag, this thread continues
 
-			IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), EventConstants.CMD_TOPIC);
+			IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), getCommandTopicName());
 			pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
 			pauser.setStatusSetAddRequired(true);
 
@@ -563,6 +562,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
+	/**
+	 * Checks if the {@link #awaitPaused} flag is set, and if so waits until it is cleared.
+	 * @throws Exception
+	 */
 	private void checkPaused() throws Exception {
 		if (!isActive())
 			throw new EventException("The consumer is not active and cannot be paused!");
@@ -627,17 +630,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public ConsumerStatus getConsumerStatus() {
-		if (processes==null || processes.size()<1) {
-			return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
-		}
-
-		List<WeakReference<IConsumerProcess<U>>> refs = new ArrayList<>(processes.values());
-		for (WeakReference<IConsumerProcess<U>> ref : refs) {
-			IConsumerProcess<U> process = ref.get();
-			if (process!=null && process.isBlocking() && process.isPaused()) {
-				return ConsumerStatus.PAUSED;
-			}
-		}
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
 	}
 
@@ -701,7 +693,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private Message getMessage(URI uri, String submitQName) throws JMSException {
 		try {
 			if (this.mconsumer == null) {
-				this.mconsumer = createConsumer(uri, submitQName);
+				this.mconsumer = createMessageConsumer(uri, submitQName);
 			}
 			return mconsumer.receive(Constants.getReceiveFrequency());
 
@@ -717,7 +709,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
-	private MessageConsumer createConsumer(URI uri, String submitQName) throws JMSException {
+	private MessageConsumer createMessageConsumer(URI uri, String submitQName) throws JMSException {
 		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
 		this.connection = connectionFactory.createQueueConnection();
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

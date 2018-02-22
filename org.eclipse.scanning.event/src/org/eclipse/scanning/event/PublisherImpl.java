@@ -236,8 +236,10 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 	}
 
 	/**
-	 * Updates the given bean in the status set.
-	 * @param bean
+	 * Updates the given bean in the status set (a JMS queue). If {@link #setStatusSetAddRequired(boolean)}
+	 * has been called with <code>true</code>, it is added to the status set if not present.
+	 * @param bean bean to update
+	 * @return <code>true</code> if the bean was updated or added, <code>false</code> otherwise
 	 * @throws Exception
 	 */
 	private boolean updateStatusSet(T bean) throws Exception {
