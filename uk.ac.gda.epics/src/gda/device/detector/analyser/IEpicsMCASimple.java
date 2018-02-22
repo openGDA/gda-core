@@ -18,13 +18,12 @@
 
 package gda.device.detector.analyser;
 
-import gda.device.Analyser;
 import gda.device.DeviceException;
 
-/*
+/**
  * An interface to devices that support the EPICS MCA record
  */
-public interface IEpicsMCASimple extends Analyser {
+public interface IEpicsMCASimple extends IEpicsMCA {
 	/**
 	 * Get specified region of interest
 	 *
@@ -54,13 +53,6 @@ public interface IEpicsMCASimple extends Analyser {
 	void setCalibration(EpicsMCACalibration calibrate) throws DeviceException;
 
 	/**
-	 * Activates the MCA using the Erase & Start button.
-	 *
-	 * @throws DeviceException
-	 */
-	void eraseStartAcquisition() throws DeviceException;
-
-	/**
 	 * Counts for the specified channel
 	 *
 	 * @param index
@@ -79,4 +71,18 @@ public interface IEpicsMCASimple extends Analyser {
 	 * @throws DeviceException
 	 */
 	double getRoiNetCount(int index) throws DeviceException;
+
+	/**
+	 * Set PV for the MCA
+	 *
+	 * @param mcaPV
+	 */
+	void setMcaPV(String mcaPV);
+
+	/**
+	 * Checks to see if the object is already configured.
+	 *
+	 * @return boolean value of whether the device has been configured or not
+	 */
+	boolean isConfigured();
 }

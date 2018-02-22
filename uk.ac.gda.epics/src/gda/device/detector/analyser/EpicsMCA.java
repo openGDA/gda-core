@@ -18,7 +18,12 @@
 
 package gda.device.detector.analyser;
 
-import gda.device.Analyser;
+import java.util.Vector;
+
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
@@ -44,17 +49,11 @@ import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.util.Vector;
-
-import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multichannel analyser
  * (MCA).
  */
-public class EpicsMCA extends AnalyserBase implements Analyser, Detector, InitializationListener {
+public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCA.class);
 
@@ -359,6 +358,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	 *
 	 * @throws DeviceException
 	 */
+	@Override
 	public void clearWaitForCompletion() throws DeviceException {
 		try {
 			// you cannot call caPutWait unless the PROC field is being fired in
@@ -503,6 +503,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getDwellTime() throws DeviceException {
 		try {
 
@@ -670,6 +671,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	 * @param time
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setDwellTime(double time) throws DeviceException {
 		try {
 			controller.caput(dwellTimeChannel, time);
@@ -704,7 +706,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	 * {@inheritDoc}
 	 *
 	 * @see gda.device.Analyser#setRegionsOfInterest(java.lang.Object)
-	 * the intput parameter highLow object should actually be an array of EpicsMCARegionsOfInterest objects
+	 * the input parameter highLow object should actually be an array of EpicsMCARegionsOfInterest objects
 	 */
 	@Override
 	public void setRegionsOfInterest(Object highLow) throws DeviceException {
@@ -745,6 +747,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	 *
 	 * @throws DeviceException
 	 */
+	@Override
 	public void eraseStartAcquisition() throws DeviceException {
 		try {
 			controller.caput(eraseStartAcqChannel, 1);
