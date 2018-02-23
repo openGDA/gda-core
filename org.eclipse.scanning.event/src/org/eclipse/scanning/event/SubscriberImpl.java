@@ -232,8 +232,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	}
 
 	private boolean diseminate(Object bean, Collection<T> listeners) {
-		if (listeners==null) return false;
-		if (listeners.isEmpty()) return false;
+		if (listeners==null || listeners.isEmpty()) return false;
 		final EventListener[] ls = listeners.toArray(new EventListener[listeners.size()]);
 
 		boolean ret = true;
@@ -242,9 +241,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 			boolean diseminated = false;
 			for (Class<?> type : types) {
 				DiseminateHandler handler = handlers.get(type);
-				if (handler==null) continue;
-				handler.diseminate(bean, listener);
-				diseminated = true;
+				if (handler != null) {
+					handler.diseminate(bean, listener);
+					diseminated = true;
+				}
 			}
 			ret =  ret && diseminated;
 		}
