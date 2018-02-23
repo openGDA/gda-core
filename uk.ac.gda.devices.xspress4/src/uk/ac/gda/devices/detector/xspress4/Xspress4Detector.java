@@ -20,6 +20,8 @@ package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,6 +35,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -143,7 +146,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			detector.setController(controller);
 			detector.setFilePrefix(getName());
 			detector.setWriteHDF5Files(true);
-			detector.setFilePath("/dls/i20/data/2017/cm16762-4/spool/");
 			detector.configure();
 		}
 
@@ -161,6 +163,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		} else {
 			loadConfigurationFromFile(configFileName);
 		}
+		setConfigured(true);
 	}
 
 	public Xspress3Controller getController() {
@@ -193,6 +196,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 					pvRoiResGradeBin.putWait(newResGradeBin);
 					getMCAData(500); // collect frame of data (so that new bin setting is picked up by hdf writer)
 				}
+
+				// Set the hdf directory path if needed
+				if (StringUtils.isEmpty(detector.getFilePath())) {
+					detector.setFilePath(Paths.get(PathConstructor.createFromDefaultProperty(), "nexus").toAbsolutePath().toString());
+				}
 			}
 			detector.atScanStart();
 
@@ -222,14 +230,30 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		if (detector.isWriteHDF5Files()) {
 			String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
 			try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
-				URI hdfFile = new URI(controller.getFullFileName() + "#entry/data/data");
+				Path nexusFilePath = Paths.get(path).getParent();
+				Path hdfFilePath = Paths.get(controller.getFullFileName());
+				// Try to get relative path to hdf file from Nexus file
+				Path hdfFileRelativePath = hdfFilePath;
+				try{
+					hdfFileRelativePath = nexusFilePath.relativize(hdfFilePath);
+				}catch(IllegalArgumentException e) {
+					logger.warn("Cannot set relative path to hdf file {} from Nexus file {}. "+
+								"Using absolute path to hdf file instead.", hdfFilePath, nexusFilePath);
+				}
+
+				String relativeLink = hdfFileRelativePath + "#entry/data/data";
 				String nexusLinkName = "/entry1/" + getName() + "/MCAs";
-				nexusFile.linkExternal(hdfFile, nexusLinkName, false);
+				nexusFile.linkExternal(new URI(relativeLink), nexusLinkName, false);
 				nexusFile.close();
 			} catch (Exception e) {
 				logger.error("Problem creating link to hdf file in nexus", e);
 			}
 		}
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		atScanEnd();
 	}
 
 	@Override
@@ -300,6 +324,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	@Override
 	public void stop() throws DeviceException {
 		detector.stop();
+		atScanEnd();
 	}
 
 	@Override
@@ -309,7 +334,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void collectData() throws DeviceException {
-		// do nothing...
+		controller.doStop();
+		controller.setNumFramesToAcquire(1);
+		controller.doErase();
+		controller.doStart();
 	}
 
 	@Override
@@ -414,6 +442,14 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	public Map<String,Integer> getScalerNameIndexMap() {
 		return nexusScalerNameIndexMap;
+	}
+
+	public Map<String, Integer> getAsciiScalerNameIndexMap() {
+		return asciiScalerNameIndexMap;
+	}
+
+	public void setAsciiScalerNameIndexMap(Map<String, Integer> asciiScalerNameIndexMap) {
+		this.asciiScalerNameIndexMap = asciiScalerNameIndexMap;
 	}
 
 	public void loadConfigurationFromFile(String configFilename) {
@@ -652,7 +688,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 				allScalerData[i] = pvForScalerArray[i].get();
 			}
 		}
-		return DatasetFactory.createFromObject(allScalerData, Dataset.FLOAT64);
+		return DatasetFactory.createFromObject(allScalerData);
 	}
 
 	/**
@@ -697,8 +733,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 			// Index start for deadtime correction data is immediately after FF column
 			for(int i=0; i<numElements; i++) {
-				for(int scalerIndex : asciiScalerNameIndexMap.values()) {
-					frame.setPlottableValue(extraNames[nameIndex++], deadtimeScalerData.getDouble(i, scalerIndex));
+				if (!parameters.getDetector(i).isExcluded()) {
+					for (int scalerIndex : asciiScalerNameIndexMap.values()) {
+						frame.setPlottableValue(extraNames[nameIndex++], deadtimeScalerData.getDouble(i, scalerIndex));
+					}
 				}
 			}
 		}
@@ -731,7 +769,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 				resgradeForDetectorElement[i] = pvForResGradeArray[i][windowNumber].get();
 			}
 			// Make Dataset to add to nexustree (NexusGroup can't be created for Double[][])
-			thresholdData = DatasetFactory.createFromObject(resgradeForDetectorElement, Dataset.FLOAT64);
+			thresholdData = DatasetFactory.createFromObject(resgradeForDetectorElement);
 		}
 		return thresholdData;
 	}
@@ -751,6 +789,29 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			return vals;
 		} else {
 			return ArrayUtils.toPrimitive(pvDtcFactors.get());
+		}
+	}
+
+	/**	Return array used by {@link MonitorViewBase} to update view with latest data.
+	 * Need to return 2d array with 3 columns (total counts, deadtime correction factor, unused column)
+	 */
+	public Double[] getLiveStats() throws DeviceException {
+		try {
+			double[] dtcFactors = getDtcFactors();
+			Dataset scalerData = getDeadtimeScalerData();
+			int allEventTotalIndex = 3;
+
+			Double[] results = new Double[3 * dtcFactors.length];
+			for(int i=0; i<dtcFactors.length; i++) {
+				// Total counts (value from 'all events' scaler)
+				results[i*3] = scalerData.getDouble(i, allEventTotalIndex);
+				// dead time correction factor
+				results[i*3+1] = dtcFactors[i];
+				results[i*3+2] = 0.0;
+			}
+			return results;
+		}catch(IOException ioException) {
+			throw new DeviceException("Problem in getLiveStats for "+getName(), ioException);
 		}
 	}
 
@@ -788,7 +849,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 				sum[element] *= dtcFactors[element];
 			}
 		}
-		return DatasetFactory.createFromObject(sum, Dataset.FLOAT64);
+		return DatasetFactory.createFromObject(sum);
 	}
 
 	/**

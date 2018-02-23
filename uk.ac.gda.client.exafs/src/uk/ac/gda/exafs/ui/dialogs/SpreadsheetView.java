@@ -25,12 +25,11 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.util.VisitPath;
 
-public class ScanOverrideView extends ViewPart {
+public class SpreadsheetView extends ViewPart {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScanOverrideView.class);
+	private static final Logger logger = LoggerFactory.getLogger(SpreadsheetView.class);
 
 	private IPartListener partListener = new IPartListener() {
 		@Override
@@ -54,15 +53,15 @@ public class ScanOverrideView extends ViewPart {
 		}
 	};
 
-	public ScanOverrideView() {
+	public SpreadsheetView() {
 	}
 
-	ScanOverrideComposite scanOverrideComposite;
+	SpreadsheetViewComposite scanOverrideComposite;
 
 	@Override
 	public void createPartControl(Composite parent) {
-		scanOverrideComposite = new ScanOverrideComposite(parent);
-		scanOverrideComposite.setXmlDirectory(VisitPath.getVisitPath());
+		scanOverrideComposite = new SpreadsheetViewComposite(parent);
+		scanOverrideComposite.setXmlDirectoryName(VisitPath.getVisitPath()+"xml/Experiment_1");
 		scanOverrideComposite.createTableAndControls();
 
 		getSite().getPage().addPartListener(partListener);

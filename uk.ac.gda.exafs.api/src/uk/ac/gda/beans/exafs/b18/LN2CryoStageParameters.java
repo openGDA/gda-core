@@ -29,7 +29,7 @@ public class LN2CryoStageParameters  implements Serializable {
 	double calibHeight;
 	int sampleNumberA;
 	int sampleNumberB;
-	String cylinderType;
+	String cylinderType = "";
 
 
 

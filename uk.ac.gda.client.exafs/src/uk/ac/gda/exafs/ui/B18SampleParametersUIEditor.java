@@ -57,6 +57,7 @@ import uk.ac.gda.beans.exafs.b18.LN2CryoStageParameters;
 import uk.ac.gda.beans.exafs.b18.LakeshoreParameters;
 import uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters;
 import uk.ac.gda.beans.exafs.b18.SXCryoStageParameters;
+import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.SampleWheelParameters;
 import uk.ac.gda.beans.exafs.b18.UserStageParameters;
 import uk.ac.gda.beans.exafs.b18.XYThetaStageParameters;
@@ -103,6 +104,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private Composite scrolledContents;
 	private SampleWheelParametersComposite sampleWheelParametersComposite;
 	private Group grpSampleWheel;
+	private SampleParameterMotorPositionsComposite motorPositionComposite;
 
 	private ExpandableComposite sampleStageExpandableComposite;
 	private ExpandableComposite temperatureExpandableComposite;
@@ -436,6 +438,31 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			userStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
 			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.USER);
 
+			final ExpandableComposite motorPositionComp = addExpandableComposite( grpStage, "general motors");
+			grp = addGroup( motorPositionComp );
+			motorPositionComposite = new SampleParameterMotorPositionsComposite(grp, bean.getSampleParameterMotorPositions());
+			motorPositionComposite.setParentEditor(this);
+			motorPositionComposite.makeComposite();
+			motorPositionComp.setClient( grp );
+			// Expand the generic motor section and sample stage section if any motors are set to be moved
+			if (bean.getSampleParameterMotorPositions()!=null) {
+				for(SampleParameterMotorPosition pos : bean.getSampleParameterMotorPositions()) {
+					if (pos.getDoMove()) {
+						motorPositionComp.setExpanded(true);
+						sampleStageExpandableComposite.setExpanded(true);
+						break;
+					}
+				}
+			}
+			motorPositionComp.addExpansionListener(new ExpansionAdapter() {
+				@Override
+				public void expansionStateChanged(ExpansionEvent e) {
+					GridUtils.layoutFull(motorPositionComp);
+					scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+				}
+			});
+			GridUtils.layoutFull(motorPositionComp);
+
 			sampleStageExpandableComposite.setClient(stageComp);
 
 			if ( selectedSampleStages != null && selectedSampleStages.size() > 0 )
@@ -646,6 +673,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 				updateEnvironmentType();
 			}
 		} finally {
+			scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			GridUtils.endMultiLayout();
 		}
 	}
@@ -761,5 +789,9 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 
 	public SampleWheelParametersComposite getSampleWheelParameters() {
 		return sampleWheelParametersComposite;
+	}
+
+	public SampleParameterMotorPositionsComposite getSampleParameterMotorPositions() {
+		return motorPositionComposite;
 	}
 }

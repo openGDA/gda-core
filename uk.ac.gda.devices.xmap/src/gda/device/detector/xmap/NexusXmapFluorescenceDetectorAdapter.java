@@ -18,11 +18,6 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.DeviceException;
-import gda.factory.Findable;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +25,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
+import gda.factory.Findable;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
+/**
+ * This adapter class allows NexusXmap to be used as a FluorescenceDetector
+ * and use the same interface as {@link Xspress2Detector}, {@link Xspress3Detector} and {@link Xspress4Detector}.
+ * Detectors using this interface can be RMI exported from server to client and used in {@link FluorescenceDetectorComposite}.
+ *
+ */
 public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetector, InitializingBean, Findable, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmapFluorescenceDetectorAdapter.class);
@@ -172,4 +177,7 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 	public void deleteIObservers() {
 	}
 
+	public NexusXmap getXmap() {
+		return xmap;
+	}
 }

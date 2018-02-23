@@ -41,7 +41,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	/**
 	 * Valid sample stages.
 	 */
-	public static final String[] STAGE = new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage" };
+	public static final String[] STAGE = new String[] { "none", "xythetastage", "ln2cryostage", "sxcryostage", "userstage" };
 
 	String name = "";
 	String description1 = "";
@@ -59,6 +59,9 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	SampleWheelParameters sampleWheelParameters = new SampleWheelParameters();
 	UserStageParameters userStageParameters = new UserStageParameters();
 
+	public static final String MOTOR_POSITION_GETTER_NAME = "getSampleParameterMotorPosition";
+	private List<SampleParameterMotorPosition> sampleParameterMotorPositions = new ArrayList<>();
+
 	boolean shouldValidate = true;
 
 	@Override
@@ -72,6 +75,8 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((lheParameters == null) ? 0 : lheParameters.hashCode());
 		result = prime * result + ((ln2CryoStageParameters == null) ? 0 : ln2CryoStageParameters.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((sampleParameterMotorPositions == null) ? 0 : sampleParameterMotorPositions.hashCode());
 		result = prime * result + ((sampleWheelParameters == null) ? 0 : sampleWheelParameters.hashCode());
 		result = prime * result + ((selectedSampleStages == null) ? 0 : selectedSampleStages.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
@@ -126,6 +131,11 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (sampleParameterMotorPositions == null) {
+			if (other.sampleParameterMotorPositions != null)
+				return false;
+		} else if (!sampleParameterMotorPositions.equals(other.sampleParameterMotorPositions))
 			return false;
 		if (sampleWheelParameters == null) {
 			if (other.sampleWheelParameters != null)
@@ -299,5 +309,28 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 
 	public void clear() {
 		selectedSampleStages.clear();
+		sampleParameterMotorPositions.clear();
 	}
+
+	public SampleParameterMotorPosition getSampleParameterMotorPosition(String scannableName) {
+		for(SampleParameterMotorPosition sampleMotor : sampleParameterMotorPositions) {
+			if (sampleMotor.getScannableName().equalsIgnoreCase(scannableName)) {
+				return sampleMotor;
+			}
+		}
+		return null;
+	}
+
+	public List<SampleParameterMotorPosition> getSampleParameterMotorPositions() {
+		return sampleParameterMotorPositions;
+	}
+
+	public void setSampleParameterMotorPositions(List<SampleParameterMotorPosition> sampleParameterMotorPositions) {
+		this.sampleParameterMotorPositions = sampleParameterMotorPositions;
+	}
+
+	public void addSampleParameterMotorPosition(SampleParameterMotorPosition sampleParameterMotorPosition) {
+		sampleParameterMotorPositions.add(sampleParameterMotorPosition);
+	}
+
 }

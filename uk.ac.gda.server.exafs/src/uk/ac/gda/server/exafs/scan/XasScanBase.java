@@ -63,6 +63,7 @@ import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.DetectorGroup;
+import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
@@ -632,14 +633,15 @@ public abstract class XasScanBase implements XasScan {
 		String exptType = detectorBean.getExperimentType();
 
 		String detectorGroupName = "";
-		if (exptType.equalsIgnoreCase("fluorescence")) {
+		if (exptType.equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
 			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
-		} else if (exptType.equalsIgnoreCase("xes")) {
-			if (detectorBean.getXesParameters().getDetectorType().equals(FluorescenceParameters.MEDIPIX_DET_TYPE)) {
-				detectorGroupName = "xes_medipix";
-			} else {
-				detectorGroupName = "xes";
-			}
+		} else if (exptType.equalsIgnoreCase(DetectorParameters.XES_TYPE)) {
+			detectorGroupName = detectorBean.getXesParameters().getDetectorType();
+//			if (detectorBean.getXesParameters().getDetectorType().equals(FluorescenceParameters.MEDIPIX_DET_TYPE)) {
+//				detectorGroupName = "xes_medipix";
+//			} else {
+//				detectorGroupName = "xes";
+//			}
 		}
 		else {
 			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
