@@ -12,12 +12,13 @@ def runMapping():
     outputRoot = args.output
     
     beamlineDirectories = ['gda-dls-beamlines-b23.git',
-                           'gda-dls-beamlines-i09.git',
                            'gda-dls-beamlines-i11.git',
                            'gda-dls-beamlines-i12.git',
                            'gda-dls-beamlines-i13x.git',
                            'gda-dls-beamlines-i21.git',
- 
+
+                           'gda-diamond.git/configurations/i09-config',
+                           'gda-diamond.git/configurations/i09-2-config',
                            'gda-diamond.git/configurations/i15-1-config',
                            'gda-diamond.git/configurations/i15-config',
 
