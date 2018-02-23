@@ -242,6 +242,9 @@ public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreat
 		}
 		if (filePrefix == null || filePrefix.isEmpty()) {
 			try {
+				if (metadata==null) {
+					getMetadataObject();
+				}
 				filePrefix = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, null);
 			} catch (DeviceException e) {
 				throw new FactoryException("File prefix not set and cannot get from metadata", e);
