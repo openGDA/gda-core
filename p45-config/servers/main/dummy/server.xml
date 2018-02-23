@@ -4,9 +4,9 @@
 	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
 
 	<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
-	<import resource="det.xml" />
-	<import resource="mic.xml" />
-	<import resource="mapping_motors.xml"/>
+	<import resource="file://${gda.facility.dir}/servers/dummy/det.xml" />
+	<import resource="file://${gda.facility.dir}/servers/dummy/mic.xml" />
+	<import resource="file://${gda.facility.dir}/servers/dummy/mapping_motors.xml"/>
 
 <!-- Do not remove anything below here -->
 	<import resource="../../main/_common/server.xml" />
