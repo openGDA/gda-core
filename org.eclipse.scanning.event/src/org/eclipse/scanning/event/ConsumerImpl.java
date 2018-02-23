@@ -88,7 +88,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	 * Design requires these three fields.
 	 */
 	private ReentrantLock consumerStateChangeLock;
-	private Condition paused;
+	private Condition shouldResumeCondition;
 	private volatile boolean awaitPaused;
 	private final String heartbeatTopicName;
 
@@ -98,7 +98,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			throws EventException {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
 		this.consumerStateChangeLock = new ReentrantLock();
-		this.paused = consumerStateChangeLock.newCondition();
+		this.shouldResumeCondition = consumerStateChangeLock.newCondition();
 
 		durable = true;
 		consumerId = UUID.randomUUID();
@@ -582,13 +582,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			throw new EventException("Internal Error - Could not obtain lock to run device!");
 		}
 		try {
-			if (!isActive())
-				throw new EventException("The consumer is not active and cannot be paused!");
-			if (awaitPaused) {
+			if (isActive() && awaitPaused) {
 				setActive(false);
 				LOGGER.info("Pausing consumer {}", getSubmitQueueName());
 				while (awaitPaused) {
-					paused.await(); // Until unpaused
+					shouldResumeCondition.await(); // Until unpaused
 				}
 				LOGGER.info("Resuming consumer {}", getSubmitQueueName());
 				setActive(true);
@@ -631,7 +629,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		try {
 			awaitPaused = false;
 			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
-			paused.signalAll();
+			shouldResumeCondition.signalAll();
 			LOGGER.info("{} is running", getName());
 		} finally {
 			consumerStateChangeLock.unlock();
