@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -81,7 +80,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private volatile boolean active = false;
 	private volatile Map<String, WeakReference<IConsumerProcess<U>>> processMap;
-	private Map<String, U> overrideMap;
+	private Map<String, U> beanOverrideMap;
 
 	/**
 	 * Concurrency design recommended by Keith Ralphs after investigating
@@ -134,7 +133,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		statusTopicPublisher.disconnect();
 		if (heartbeatTopicPublisher!=null)   heartbeatTopicPublisher.disconnect();
 		if (commandTopicSubscriber!=null) commandTopicSubscriber.disconnect();
-		if (overrideMap!=null) overrideMap.clear();
+		if (beanOverrideMap!=null) beanOverrideMap.clear();
 
 		super.disconnect();
 	}
@@ -244,8 +243,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				if (b.getUniqueId().equals(bean.getUniqueId())) {
 					if (rem == null) {
 						// Something went wrong, not sure why it does this, TODO investigate
-						createOverrideMap();
-						overrideMap.put(b.getUniqueId(), bean);
+						addBeanOverride(bean);
 						continue;
 					}
 					b.setStatus(bean.getStatus());
@@ -276,8 +274,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
-	private void createOverrideMap() {
-		if (overrideMap == null) overrideMap = new Hashtable<>(7);
+	private void addBeanOverride(U bean) {
+		if (beanOverrideMap == null) {
+			beanOverrideMap = Collections.synchronizedMap(new HashMap<>());
+		}
+		beanOverrideMap.put(bean.getUniqueId(), bean);
 	}
 
 	@Override
@@ -645,8 +646,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		// If the bean changed after being submitted to the submission queue, and that change was published to the
 		// status topic, the bean we've consumed from the submission queue will be out of date, but the override map will
 		// have the updated bean, so use that instead
-		if (overrideMap != null && overrideMap.containsKey(bean.getUniqueId())) {
-			U o = overrideMap.remove(bean.getUniqueId());
+		if (beanOverrideMap != null && beanOverrideMap.containsKey(bean.getUniqueId())) {
+			U o = beanOverrideMap.remove(bean.getUniqueId());
 			bean.setStatus(o.getStatus());
 		}
 
