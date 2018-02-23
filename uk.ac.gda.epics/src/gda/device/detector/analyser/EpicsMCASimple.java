@@ -52,7 +52,7 @@ import gov.aps.jca.dbr.DBR_Enum;
  * Observers are notified of change of status - either MCAStatus.READY or MCAStatus.BUSY getStatus - returns either
  * Detector.IDLE or Detector.BUSY eraseStartAcquisition - starts acquisition
  */
-public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA {
+public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCASimple.class);
 
