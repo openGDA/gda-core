@@ -513,9 +513,13 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		// normal error case, log error message and continue if
 		if (e instanceof EventException || e instanceof InterruptedException) {
-			if (Thread.interrupted()) return false;
-			LOGGER.error("Cannot consume message ", e);
-			return isDurable();
+			if (Thread.interrupted()) {
+				LOGGER.error("Consumer was interrupted consuming a message", e);
+				return false;
+			} else {
+				LOGGER.error("Cannot consume message ", e);
+				return isDurable();
+			}
 		}
 
 		if (!isDurable()) return false;
@@ -654,7 +658,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
 		}
 
-		// We peel off the most recent bean from the submission queue
+		// If terminate has been requested before the bean is run, don't run it
+		// instead set state to TERMINATED and publish to status topic
 		if (bean.getStatus()==Status.REQUEST_TERMINATE) {
 			bean.setStatus(Status.TERMINATED);
 			bean.setMessage("Run aborted before started");
@@ -662,7 +667,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			return;
 		}
 
-		if (bean.getStatus().isFinal()) return; // Sanity check, the bean status should not be final
+		if (bean.getStatus().isFinal()) {
+			LOGGER.warn("Bean status is already final, it will not be run");
+			return; // Sanity check, the bean status should not be final
+		}
 
 		try {
 			IConsumerProcess<U> process = runner.createProcess(bean, status);
