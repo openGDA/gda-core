@@ -87,7 +87,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	 * how to pause and resume a collection cycle using Reentrant locks.
 	 * Design requires these three fields.
 	 */
-	private ReentrantLock lock;
+	private ReentrantLock consumerStateChangeLock;
 	private Condition paused;
 	private volatile boolean awaitPaused;
 	private final String heartbeatTopicName;
@@ -97,8 +97,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			IEventService eservice)
 			throws EventException {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
-		this.lock = new ReentrantLock();
-		this.paused = lock.newCondition();
+		this.consumerStateChangeLock = new ReentrantLock();
+		this.paused = consumerStateChangeLock.newCondition();
 
 		durable = true;
 		consumerId = UUID.randomUUID();
@@ -578,7 +578,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			throw new EventException("The consumer is not active and cannot be paused!");
 
 		// Check the locking using a condition
-		if (!lock.tryLock(1, TimeUnit.SECONDS)) {
+		if (!consumerStateChangeLock.tryLock(1, TimeUnit.SECONDS)) {
 			throw new EventException("Internal Error - Could not obtain lock to run device!");
 		}
 		try {
@@ -594,7 +594,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				setActive(true);
 			}
 		} finally {
-			lock.unlock();
+			consumerStateChangeLock.unlock();
 		}
 	}
 
@@ -602,7 +602,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	public void pause() throws EventException {
 		if (!isActive()) return; // Nothing to pause
 		try {
-			lock.lockInterruptibly();
+			consumerStateChangeLock.lockInterruptibly();
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		}
@@ -615,14 +615,15 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
-			lock.unlock();
+			consumerStateChangeLock.unlock();
 		}
 	}
 
 	@Override
 	public void resume() throws EventException {
+		if (isActive()) return;
 		try {
-			lock.lockInterruptibly();
+			consumerStateChangeLock.lockInterruptibly();
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		}
@@ -633,7 +634,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			paused.signalAll();
 			LOGGER.info("{} is running", getName());
 		} finally {
-			lock.unlock();
+			consumerStateChangeLock.unlock();
 		}
 	}
 
