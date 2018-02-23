@@ -34,12 +34,15 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 
 	private static final ArrayList<String> EMPTY_LIST = new ArrayList<String>();
 
+	private double collectionTime;
+
 	public MultipleExposureHardwareTriggeredStrategy(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+		this.collectionTime = collectionTime;
 		getAdBase().stopAcquiring(); // Stop acquiring first (in case live mode is already be running).
 		enableOrDisableCallbacks();
 		setTimeFrames(scanInfo); // set time frames for I1 and ionchambers
@@ -91,10 +94,14 @@ public class MultipleExposureHardwareTriggeredStrategy extends SimpleAcquire {
 			// Set TfgScaler frame times. NB. Don't do this if frame times have already been
 			// set explicitly. e.g. by a script or for scan started from the command queue.
 			if (tfgScaler != null && tfgScaler.getTimes() == null) {
-				double collectionTime = tfgScaler.getCollectionTime();
+				double collectionTimeTfg = tfgScaler.getCollectionTime();
+				// Set frametime from medipix collection time if frame time hasn't been specified for I1, ionchambers. imh 13/6/2017
+				if (collectionTimeTfg < 1e-6) {
+					collectionTimeTfg = collectionTime;
+				}
 				int numImages = getTotalNumberScanImages(scanInfo);
 				Double times[] = new Double[numImages];
-				Arrays.fill(times, collectionTime); // each frame has same duration...
+				Arrays.fill(times, collectionTimeTfg); // each frame has same duration...
 				tfgScaler.clearFrameSets();
 				tfgScaler.setTimes(times);
 			}
