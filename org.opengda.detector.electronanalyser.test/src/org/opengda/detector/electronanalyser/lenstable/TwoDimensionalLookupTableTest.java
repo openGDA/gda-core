@@ -40,7 +40,7 @@ public class TwoDimensionalLookupTableTest {
 	@Before
 	public void setUp() throws Exception {
 		table= new TwoDimensionalLookupTable();
-		table.createTable("./../../gda-dls-beamlines-i09.git/i09-config/lookupTables/low_energy_table.txt");
+		table.createTable("./../../gda-diamond.git/configurations/i09-config/lookupTables/low_energy_table.txt");
 		}
 
 	/**
