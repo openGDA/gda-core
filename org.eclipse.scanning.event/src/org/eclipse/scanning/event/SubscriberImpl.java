@@ -94,7 +94,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	public void addListener(String scanID, T listener) throws EventException{
 		setConnected(true);
 		if (isSynchronous()) createDiseminateThread();
-		registerListener(scanID, listener, scanListeners);
+		registerListener(scanID, listener);
 		if (scanConsumer == null) {
 			try {
 				Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
@@ -337,11 +337,11 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	}
 
 
-	private void registerListener(String key, T listener, Map<String, Collection<T>> listeners) {
-		Collection<T> ls = listeners.get(key);
+	private void registerListener(String key, T listener) {
+		Collection<T> ls = scanListeners.get(key);
 		if (ls == null) {
 			ls = new LinkedHashSet<>();
-			listeners.put(key, ls);
+			scanListeners.put(key, ls);
 		}
 		ls.add(listener);
 	}
