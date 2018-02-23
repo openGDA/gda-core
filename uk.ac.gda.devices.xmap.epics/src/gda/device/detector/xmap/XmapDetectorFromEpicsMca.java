@@ -44,7 +44,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.detector.analyser.EpicsMCA;
 import gda.device.detector.analyser.EpicsMCAPresets;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
-import gda.device.detector.analyser.IEpicsMCA;
+import gda.device.detector.analyser.IEpicsMCASimple;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.FactoryException;
 import uk.ac.gda.beans.DetectorROI;
@@ -377,8 +377,8 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		for (Analyser analyser : analysers) {
 			if (analyser instanceof EpicsMCA) {
 				((EpicsMCA) analyser).eraseStartAcquisition();
-			} else if (analyser instanceof IEpicsMCA) {
-				((IEpicsMCA) analyser).eraseStartAcquisition();
+			} else if (analyser instanceof IEpicsMCASimple) {
+				((IEpicsMCASimple) analyser).eraseStartAcquisition();
 			}  else {
 				clear();
 				start();
@@ -544,7 +544,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			output.setPlottableValue(thisElement.getName()+"_livetime", (double) realAndLiveTime[1]);
 
 			Analyser analyser = analysers.get(element);
-			IEpicsMCA epicsMCA = (analyser instanceof IEpicsMCA) ? (IEpicsMCA) analyser : null;
+			IEpicsMCASimple epicsMCA = (analyser instanceof IEpicsMCASimple) ? (IEpicsMCASimple) analyser : null;
 			HashMap<Integer, double[][]> regionsOfInterestCountCache = null;
 
 			// REGIONS
@@ -764,8 +764,8 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 						regionList.add(new DetectorROI());
 					}
 					DetectorROI roi = regionList.get(ir);
-					if( anly instanceof IEpicsMCA){
-						IEpicsMCA mca =(IEpicsMCA)anly;
+					if( anly instanceof IEpicsMCASimple){
+						IEpicsMCASimple mca =(IEpicsMCASimple)anly;
 						EpicsMCARegionOfInterest mcaRoi = mca.getNthRegionOfInterest(ir);
 						String regionName = mcaRoi.getRegionName();
 						roi.setRoiName(regionName.isEmpty() ? Integer.toString(ir) : regionName);
