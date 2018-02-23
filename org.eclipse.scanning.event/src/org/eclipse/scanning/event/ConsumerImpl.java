@@ -65,11 +65,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private String name;
 	private UUID consumerId;
-	private IPublisher<U> status; // a publisher to the status topic
-	private IPublisher<HeartbeatBean> alive; // a publisher to the heartbeat topic
-	private ISubscriber<IBeanListener<U>> manager; // a subscriber to the status topic
-	private ISubscriber<IBeanListener<ConsumerCommandBean>> command; // a subscriber to the command topic
-	private ISubmitter<U> mover; // a submitter to the status set
+	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
+	private IPublisher<HeartbeatBean> heartbeatTopicPublisher; // a publisher to the heartbeat topic
+	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
+	private ISubscriber<IBeanListener<ConsumerCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
+	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
 
 	private boolean pauseOnStart = false;
 	private CountDownLatch latchStart;
@@ -80,7 +80,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private MessageConsumer messageConsumer;
 
 	private volatile boolean active = false;
-	private volatile Map<String, WeakReference<IConsumerProcess<U>>>  processes;
+	private volatile Map<String, WeakReference<IConsumerProcess<U>>> processMap;
 	private Map<String, U> overrideMap;
 
 	/**
@@ -104,24 +104,24 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		durable = true;
 		consumerId = UUID.randomUUID();
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
-		this.processes = Collections.synchronizedMap(new HashMap<>());
+		this.processMap = Collections.synchronizedMap(new HashMap<>());
 		this.heartbeatTopicName = heartbeatTopicName;
 		connect();
 	}
 
 	private void connect() throws EventException {
-		mover  = eservice.createSubmitter(uri, getStatusSetName());
-		status = eservice.createPublisher(uri, getStatusTopicName());
-		status.setStatusSetName(getStatusSetName()); // We also update values in a queue.
+		statusSetSubmitter  = eservice.createSubmitter(uri, getStatusSetName());
+		statusTopicPublisher = eservice.createPublisher(uri, getStatusTopicName());
+		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (heartbeatTopicName!=null) {
-			alive  = eservice.createPublisher(uri, heartbeatTopicName);
-			alive.setConsumer(this);
+			heartbeatTopicPublisher  = eservice.createPublisher(uri, heartbeatTopicName);
+			heartbeatTopicPublisher.setConsumer(this);
 		}
 
 		if (getCommandTopicName()!=null) {
-			command = eservice.createSubscriber(uri, getCommandTopicName());
-			command.addListener(new CommandListener());
+			commandTopicSubscriber = eservice.createSubscriber(uri, getCommandTopicName());
+			commandTopicSubscriber.addListener(new CommandListener());
 		}
 	}
 
@@ -130,10 +130,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (isActive()) stop();
 
 		setActive(false);
-		mover.disconnect();
-		status.disconnect();
-		if (alive!=null)   alive.disconnect();
-		if (command!=null) command.disconnect();
+		statusSetSubmitter.disconnect();
+		statusTopicPublisher.disconnect();
+		if (heartbeatTopicPublisher!=null)   heartbeatTopicPublisher.disconnect();
+		if (commandTopicSubscriber!=null) commandTopicSubscriber.disconnect();
 		if (overrideMap!=null) overrideMap.clear();
 
 		super.disconnect();
@@ -364,9 +364,9 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private void startProcessManager() throws EventException {
-		if (manager!=null) manager.disconnect();
-		manager = eservice.createSubscriber(uri, getStatusTopicName());
-		manager.addListener(new ProcessManager());
+		if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
+		statusTopicSubscriber = eservice.createSubscriber(uri, getStatusTopicName());
+		statusTopicSubscriber.addListener(new ProcessManager());
 	}
 
 	/**
@@ -380,7 +380,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			U bean = evt.getBean();
 			if (!bean.getStatus().isRequest()) return;
 
-			WeakReference<IConsumerProcess<U>> ref = processes.get(bean.getUniqueId());
+			WeakReference<IConsumerProcess<U>> ref = processMap.get(bean.getUniqueId());
 			try {
 				if (ref==null) { // Might be in submit queue still
 					updateQueue(bean);
@@ -399,7 +399,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			process.getBean().setStatus(bean.getStatus());
 			process.getBean().setMessage(bean.getMessage());
 			if (bean.getStatus()==Status.REQUEST_TERMINATE) {
-				processes.remove(bean.getUniqueId());
+				processMap.remove(bean.getUniqueId());
 				if (process.isPaused()) process.resume();
 				process.terminate();
 			} else if (bean.getStatus()==Status.REQUEST_PAUSE) {
@@ -413,19 +413,19 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void stop() throws EventException {
 		try {
-			alive.setAlive(false); // Broadcasts that we are being killed
+			heartbeatTopicPublisher.setAlive(false); // Broadcasts that we are being killed
 			setActive(false); // Stops event loop
 
 			@SuppressWarnings("unchecked")
-			final WeakReference<IConsumerProcess<U>>[] wra = processes.values()
-					.toArray(new WeakReference[processes.size()]);
+			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
+					.toArray(new WeakReference[processMap.size()]);
 			for (WeakReference<IConsumerProcess<U>> wr : wra) {
 				if (wr.get() != null) {
 					terminateProcess(wr.get());
 				}
 			}
 		} finally {
-			processes.clear();
+			processMap.clear();
 		}
 	}
 
@@ -457,7 +457,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		this.waitTime = 0;
 
 		if (runner!=null) {
-			alive.setAlive(true);
+			heartbeatTopicPublisher.setAlive(true);
 		} else {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
 		}
@@ -651,10 +651,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 
 		// We record the bean in the status queue
-		LOGGER.trace("Moving {} to {}", bean, mover.getSubmitQueueName());
-		mover.submit(bean);
+		LOGGER.trace("Moving {} to {}", bean, statusSetSubmitter.getSubmitQueueName());
+		statusSetSubmitter.submit(bean);
 
-		if (processes.containsKey(bean.getUniqueId())) {
+		if (processMap.containsKey(bean.getUniqueId())) {
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
 		}
 
@@ -663,7 +663,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (bean.getStatus()==Status.REQUEST_TERMINATE) {
 			bean.setStatus(Status.TERMINATED);
 			bean.setMessage("Run aborted before started");
-			status.broadcast(bean);
+			statusTopicPublisher.broadcast(bean);
 			return;
 		}
 
@@ -673,15 +673,15 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 
 		try {
-			IConsumerProcess<U> process = runner.createProcess(bean, status);
-			processes.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
+			IConsumerProcess<U> process = runner.createProcess(bean, statusTopicPublisher);
+			processMap.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
 
 			process.start(); // Depending on the process may run in a separate thread (default is not to)
 		} catch (Exception e) {
 			// if an exception is thrown, set the bean status to failed. Note the exception is logged in processException()
 			bean.setStatus(Status.FAILED);
 			bean.setMessage(e.getMessage());
-			status.broadcast(bean);
+			statusTopicPublisher.broadcast(bean);
 			throw e;
 		}
 	}
