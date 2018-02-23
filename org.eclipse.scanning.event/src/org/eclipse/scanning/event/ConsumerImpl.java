@@ -128,7 +128,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	public void disconnect() throws EventException {
 		if (isActive()) stop();
 
-		setActive(false);
 		statusSetSubmitter.disconnect();
 		statusTopicPublisher.disconnect();
 		if (heartbeatTopicPublisher!=null)   heartbeatTopicPublisher.disconnect();
@@ -143,10 +142,16 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		public void beanChangePerformed(BeanEvent<ConsumerCommandBean> evt) {
 			ConsumerCommandBean bean = evt.getBean();
 			if (isCommandForMe(bean)) {
-				if (bean instanceof KillBean)   terminate((KillBean)bean);
-				if (bean instanceof PauseBean)  processPause((PauseBean)bean);
+				if (bean instanceof KillBean) terminate((KillBean)bean);
+				if (bean instanceof PauseBean) processPause((PauseBean)bean);
 			}
 		}
+
+		protected boolean isCommandForMe(ConsumerCommandBean bean) {
+			return bean.getConsumerId()!=null && bean.getConsumerId().equals(getConsumerId())
+					|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
+		}
+
 	}
 
 	protected void processPause(PauseBean bean) {
@@ -202,11 +207,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		// - when called from processException() maybe just return false
 		// - when called from terminate? possibly just set active to false
 		System.exit(0); // Normal orderly exit
-	}
-
-	protected boolean isCommandForMe(ConsumerCommandBean bean) {
-		return bean.getConsumerId()!=null && bean.getConsumerId().equals(getConsumerId())
-				|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
 	}
 
 	/**
