@@ -413,7 +413,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public int getScriptStatus() {
+	public JythonStatus getScriptStatus() {
 		return commandServer.getScriptStatus(name);
 	}
 
@@ -422,12 +422,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public int getScanStatus() {
+	public JythonStatus getScanStatus() {
 		return commandServer.getScanStatus(name);
 	}
 
 	@Override
-	public void setScriptStatus(int status) {
+	public void setScriptStatus(JythonStatus status) {
 		commandServer.setScriptStatus(status, name);
 	}
 

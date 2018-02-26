@@ -19,10 +19,19 @@
 
 package gda.jython.corba.impl;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Vector;
+
+import org.omg.CORBA.Any;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.corba.CorbaDeviceException;
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
 import gda.jython.Jython;
+import gda.jython.JythonStatus;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.CommandThreadEvent;
@@ -32,14 +41,6 @@ import gda.jython.corba.CorbaJythonPOA;
 import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanDataPointServer;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.Vector;
-
-import org.omg.CORBA.Any;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Server side implementation for classes using the Jython interface
@@ -228,7 +229,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	@Override
 	public int getScanStatus(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			return jythonServer.getScanStatus(JSFIdentifier);
+			return jythonServer.getScanStatus(JSFIdentifier).ordinal();
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
@@ -237,7 +238,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	@Override
 	public int getScriptStatus(String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			return jythonServer.getScriptStatus(JSFIdentifier);
+			return jythonServer.getScriptStatus(JSFIdentifier).ordinal();
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
@@ -246,7 +247,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	@Override
 	public void setScriptStatus(int status, String JSFIdentifier) throws CorbaDeviceException {
 		try {
-			jythonServer.setScriptStatus(status, JSFIdentifier);
+			jythonServer.setScriptStatus(JythonStatus.fromInt(status), JSFIdentifier);
 			return;
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());

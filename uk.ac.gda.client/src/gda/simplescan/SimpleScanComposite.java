@@ -18,10 +18,6 @@
 
 package gda.simplescan;
 
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -54,6 +50,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
+import gda.rcp.GDAClientActivator;
 
 public final class SimpleScanComposite extends Composite {
 	private ComboWrapperWithGetCombo scannableName;
@@ -219,7 +219,7 @@ public final class SimpleScanComposite extends Composite {
 						Thread.sleep(500);
 					} catch (InterruptedException e1) {
 					}
-					if (JythonServerFacade.getInstance().getScanStatus() != Jython.RUNNING)
+					if (JythonServerFacade.getInstance().getScanStatus() != JythonStatus.RUNNING)
 						moving = false;
 					try {
 						Thread.sleep(100);

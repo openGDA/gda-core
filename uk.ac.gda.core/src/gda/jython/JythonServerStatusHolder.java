@@ -44,7 +44,7 @@ public class JythonServerStatusHolder {
 	private boolean paused;
 
 	// This field determines the scan status
-	private int lastScanStatus = Jython.IDLE;
+	private JythonStatus lastScanStatus = JythonStatus.IDLE;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,14 +73,14 @@ public class JythonServerStatusHolder {
 		lock.writeLock().lock();
 		try {
 
-			final int statusBefore = getScriptStatus();
+			final JythonStatus statusBefore = getScriptStatus();
 
 			if (!runningScript) {
 				runningScript = true;
 				allowed = true;
 			}
 
-			final int statusAfter = getScriptStatus();
+			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
 				event = new JythonServerStatus(statusAfter, lastScanStatus);
@@ -105,7 +105,7 @@ public class JythonServerStatusHolder {
 		lock.writeLock().lock();
 		try {
 
-			final int statusBefore = getScriptStatus();
+			final JythonStatus statusBefore = getScriptStatus();
 
 			if (runningScript) {
 				runningScript = false;
@@ -115,7 +115,7 @@ public class JythonServerStatusHolder {
 				}
 			}
 
-			final int statusAfter = getScriptStatus();
+			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
 				event = new JythonServerStatus(statusAfter, lastScanStatus);
@@ -138,11 +138,11 @@ public class JythonServerStatusHolder {
 		lock.writeLock().lock();
 		try {
 
-			final int statusBefore = getScriptStatus();
+			final JythonStatus statusBefore = getScriptStatus();
 
 			numCommandsRunningSynchronously++;
 
-			final int statusAfter = getScriptStatus();
+			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
 				event = new JythonServerStatus(statusAfter, lastScanStatus);
@@ -165,11 +165,11 @@ public class JythonServerStatusHolder {
 		lock.writeLock().lock();
 		try {
 
-			final int statusBefore = getScriptStatus();
+			final JythonStatus statusBefore = getScriptStatus();
 
 			numCommandsRunningSynchronously--;
 
-			final int statusAfter = getScriptStatus();
+			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
 				event = new JythonServerStatus(statusAfter, lastScanStatus);
@@ -185,24 +185,24 @@ public class JythonServerStatusHolder {
 		}
 	}
 
-	public void setScriptStatus(int newStatus) {
+	public void setScriptStatus(JythonStatus newStatus) {
 
 		JythonServerStatus event = null;
 
 		lock.writeLock().lock();
 		try {
 
-			final int statusBefore = getScriptStatus();
+			final JythonStatus statusBefore = getScriptStatus();
 
-			if (newStatus == Jython.PAUSED) {
+			if (newStatus == JythonStatus.PAUSED) {
 				paused = true;
 			}
 
-			else if (newStatus == Jython.RUNNING) {
+			else if (newStatus == JythonStatus.RUNNING) {
 				paused = false;
 			}
 
-			final int statusAfter = getScriptStatus();
+			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
 				event = new JythonServerStatus(statusAfter, lastScanStatus);
@@ -218,21 +218,21 @@ public class JythonServerStatusHolder {
 		}
 	}
 
-	public int getScriptStatus() {
+	public JythonStatus getScriptStatus() {
 
 		lock.readLock().lock();
 		try {
 
 			if (paused) {
-				return Jython.PAUSED;
+				return JythonStatus.PAUSED;
 			}
 
 			else if (runningScript || (numCommandsRunningSynchronously > 0)) {
-				return Jython.RUNNING;
+				return JythonStatus.RUNNING;
 			}
 
 			else {
-				return Jython.IDLE;
+				return JythonStatus.IDLE;
 			}
 		}
 
@@ -243,7 +243,7 @@ public class JythonServerStatusHolder {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public void updateScanStatus(int newStatus) {
+	public void updateScanStatus(JythonStatus newStatus) {
 
 		JythonServerStatus event = null;
 

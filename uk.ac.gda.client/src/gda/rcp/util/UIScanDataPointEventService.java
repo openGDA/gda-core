@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.rcp.GDAClientActivator;
@@ -103,7 +102,7 @@ public final class UIScanDataPointEventService {
 						return;
 				} catch (IllegalStateException e) {
 					// ignore exception - this means that an event has arrived before the workbench has had a chance to
-					// be created. So simply return;
+					// be created. So simply return
 					return;
 				}
 
@@ -116,13 +115,11 @@ public final class UIScanDataPointEventService {
 
 				try {
 					if (info instanceof JythonServerStatus) {
-						final JythonServerStatus status = (JythonServerStatus) info;
-						if (status.scanStatus == Jython.IDLE) {
-							fireScanStopped();
-						} else if (status.scanStatus == Jython.PAUSED) {
-							fireScanPaused();
-						} else {
-							fireScanStarted();
+						switch (((JythonServerStatus) info).scanStatus) {
+							case IDLE: fireScanStopped(); break;
+							case PAUSED: fireScanPaused(); break;
+							case RUNNING: fireScanStarted(); break;
+							default: throw new IllegalStateException("Unreacheable");
 						}
 					} else if (info instanceof IScanDataPoint) {
 						final IScanDataPoint currentPoint = (IScanDataPoint) info;

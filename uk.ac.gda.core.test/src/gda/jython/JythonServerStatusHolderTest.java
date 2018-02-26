@@ -18,8 +18,8 @@
 
 package gda.jython;
 
-import static gda.jython.Jython.IDLE;
-import static gda.jython.Jython.RUNNING;
+import static gda.jython.JythonStatus.IDLE;
+import static gda.jython.JythonStatus.RUNNING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -17,15 +17,21 @@
  */
 
 package gda.jython;
-/**
- * Interface used by some classes to hold the scan status
- * Provided to ensure loose coupling between callers and command runner implementation
- */
-public interface IScanStatusHolder {
-	/**
-	 *
-	 * @return status of Jython scan e.g. JythonStatus.IDLE
-	 */
-	public JythonStatus getScanStatus();
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+public class JythonStatusTest {
+
+	@Test
+	public void testEnumOrder() {
+		// Since the ordinal values of JythonStatus are used in the CORBA Jython interface,
+		// we must ensure that the order does not change.
+		JythonStatus[] stati = JythonStatus.values();
+		assertEquals(stati[0], JythonStatus.IDLE);
+		assertEquals(stati[1], JythonStatus.PAUSED);
+		assertEquals(stati[2], JythonStatus.RUNNING);
+	}
 
 }

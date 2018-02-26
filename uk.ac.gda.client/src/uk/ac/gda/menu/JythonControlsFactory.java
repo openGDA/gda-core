@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.ResourceManager;
 
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
 import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.rcp.GDAClientActivator;
@@ -184,13 +183,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		private void updateScriptStatus(JythonServerStatus event) {
 			switch (event.scriptStatus) {
-			case Jython.RUNNING:
+			case RUNNING:
 				script = State.RUNNING;
 				break;
-			case Jython.PAUSED:
+			case PAUSED:
 				script = State.PAUSED;
 				break;
-			case Jython.IDLE:
+			case IDLE:
 				script = State.IDLE;
 				break;
 			default: // who knows

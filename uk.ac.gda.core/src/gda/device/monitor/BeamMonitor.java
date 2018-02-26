@@ -19,6 +19,10 @@
 
 package gda.device.monitor;
 
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -27,13 +31,9 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.observable.IObserver;
-
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -220,7 +220,7 @@ public class BeamMonitor extends MonitorBase implements Runnable, Monitor, IObse
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		if (theObserved instanceof Detector
-				&& InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.RUNNING) {
+				&& InterfaceProvider.getScanStatusHolder().getScanStatus() == JythonStatus.RUNNING) {
 
 			// convert whatever the recieved object is into an array of doubles
 			Double[] currentData = ScannableUtils.objectToArray(changeCode);

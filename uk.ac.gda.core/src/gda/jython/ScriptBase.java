@@ -59,12 +59,12 @@ public abstract class ScriptBase {
 		// TODO: GDA-5776 Script status is only changed if this method is called.
 		checkForInterruption();
 		if (paused ) {
-			JythonServerFacade.getInstance().setScriptStatus(Jython.PAUSED);
+			JythonServerFacade.getInstance().setScriptStatus(JythonStatus.PAUSED);
 			while (paused) {
 				Thread.sleep(250);
 				checkForInterruption();
 			}
-			JythonServerFacade.getInstance().setScriptStatus(Jython.RUNNING);
+			JythonServerFacade.getInstance().setScriptStatus(JythonStatus.RUNNING);
 		}
 
 		checkForInterruption();
@@ -74,7 +74,7 @@ public abstract class ScriptBase {
 		if (Thread.interrupted()) { // clears as read
 			logger.info("Raising InterruptedException as thread was interrupted:", Thread.currentThread()
 					.getName());
-			logger.warn("GDA-5776 - *not* calling setScriptStatus(Jython.IDLE");
+			logger.warn("GDA-5776 - *not* calling setScriptStatus(JythonStatus.IDLE");
 			throw new InterruptedException();
 		}
 	}

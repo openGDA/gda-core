@@ -43,8 +43,8 @@ import gda.device.DeviceBase;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Localizable;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.scan.IScanDataPoint;
 
 /**
@@ -125,7 +125,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			addFile(fileName);
 		}
 		// if we are not in a scan, send out immediately, otherwise wait for next ScanDataPoint to batch process
-		if (JythonServerFacade.getInstance().getScanStatus() != Jython.RUNNING) {
+		if (JythonServerFacade.getInstance().getScanStatus() != JythonStatus.RUNNING) {
 			kickOff();
 		}
 	}

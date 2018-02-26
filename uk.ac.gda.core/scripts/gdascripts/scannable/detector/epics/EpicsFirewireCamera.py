@@ -10,13 +10,14 @@ from org.eclipse.january.dataset import DatasetFactory
 from gda.analysis.io import PNGSaver
 from gda.jython import InterfaceProvider
 from gda.data import NumTracker
+from gda.jython import JythonStatus
 # test = ScanFileContainer()
 # test.loadPilatusData("/dls/i16/data/Pilatus/test1556.tif")
 # test.plot()
 # matrix = test.getImage().doubleMatrix()
 
 def isScanRunning():
-	return InterfaceProvider.getScanStatusHolder().getScanStatus() != 0
+	return InterfaceProvider.getScanStatusHolder().getScanStatus() != JythonStatus.IDLE
 
 
 

@@ -28,8 +28,8 @@ import org.springframework.util.StringUtils;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.IJythonServerStatusProvider;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
+import gda.jython.JythonStatus;
 import gda.observable.IObserver;
 
 /**
@@ -88,11 +88,11 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 					if (arg instanceof JythonServerStatus) {
 
 						JythonServerStatus jsState = (JythonServerStatus) arg;
-						int scriptState = jsState.scriptStatus;
-						int scanState = jsState.scanStatus;
-						boolean scriptOrScanPaused = scriptState == Jython.PAUSED || scanState == Jython.PAUSED;
+						JythonStatus scriptState = jsState.scriptStatus;
+						JythonStatus scanState = jsState.scanStatus;
+						boolean scriptOrScanPaused = scriptState == JythonStatus.PAUSED || scanState == JythonStatus.PAUSED;
 
-						if (getState().equals(Command.STATE.NOT_STARTED) && scriptState == Jython.RUNNING) {
+						if (getState().equals(Command.STATE.NOT_STARTED) && scriptState == JythonStatus.RUNNING) {
 							setState(Command.STATE.RUNNING);
 						}
 
@@ -184,11 +184,11 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 
 	@Override
 	public void resume() throws Exception {
-		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == Jython.PAUSED) {
+		if (InterfaceProvider.getScanStatusHolder().getScanStatus() == JythonStatus.PAUSED) {
 			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 			setState(Command.STATE.RUNNING);
 		}
-		if (InterfaceProvider.getScriptController().getScriptStatus() == Jython.PAUSED) {
+		if (InterfaceProvider.getScriptController().getScriptStatus() == JythonStatus.PAUSED) {
 			InterfaceProvider.getScriptController().resumeCurrentScript();
 			setState(Command.STATE.RUNNING);
 		}
