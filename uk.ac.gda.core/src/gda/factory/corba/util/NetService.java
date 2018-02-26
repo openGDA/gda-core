@@ -221,7 +221,7 @@ public class NetService {
 	public void bind(String name, String type, org.omg.CORBA.Object object) throws FactoryException {
 		try {
 			String kind = type.replace('.', '%');
-			logger.debug("NetService: binding name " + name + " of kind " + kind);
+			logger.debug("NetService: binding name '{}' of type '{}'", name, type);
 			Vector<String> names = getComponents(name, OBJECT_DELIMITER);
 			NameComponent[] bindingName;
 			Vector<String> v = new Vector<String>();

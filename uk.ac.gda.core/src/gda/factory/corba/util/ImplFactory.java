@@ -135,7 +135,7 @@ public abstract class ImplFactory {
 					// but passed back to the caller.
 					store.put(fullName, new CorbaBoundObject(fullName, adapterClassName, obj));
 					netService.bind(fullName, adapterClassName, obj);
-					logger.debug("ImplFactory created Corba object for " + fullName);
+					logger.debug("ImplFactory created Corba object for '{}' (impl='{}' adaptor='{}')", fullName, implName, adapterClassName);
 				} else {
 					logger.warn("No CORBA object created for " + fullName);
 				}
