@@ -18,10 +18,10 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.scan.AxisSpec;
-
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.january.dataset.Dataset;
+
+import gda.scan.AxisSpec;
 
 public class LineData {
 	private Plot1DAppearance appearance;
@@ -51,4 +51,65 @@ public class LineData {
 		this.yAxisSpec = yAxisSpec;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((appearance == null) ? 0 : appearance.hashCode());
+		result = prime * result + ((x == null) ? 0 : x.hashCode());
+		result = prime * result + ((y == null) ? 0 : y.hashCode());
+		result = prime * result + ((yAxisSpec == null) ? 0 : yAxisSpec.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LineData other = (LineData) obj;
+		if (!checkAppearance(other)) {
+			return false;
+		}
+		if (x == null) {
+			if (other.x != null)
+				return false;
+		} else if (!x.equals(other.x))
+			return false;
+		if (y == null) {
+			if (other.y != null)
+				return false;
+		} else if (!y.equals(other.y))
+			return false;
+		if (yAxisSpec == null) {
+			if (other.yAxisSpec != null)
+				return false;
+		} else if (!yAxisSpec.equals(other.yAxisSpec))
+			return false;
+		return true;
+	}
+
+	/**
+	 *
+	 * @param other
+	 * @return true if colour, visibility, style, linewidth of 'other' appearance matches current one
+	 */
+	private boolean checkAppearance(LineData other) {
+		if (appearance == null) {
+			if (other.appearance != null)
+				return false;
+		} else if ( !appearance.getColour().equals(other.appearance.getColour()) ) {
+			return false;
+		} else if (!appearance.isVisible() != other.appearance.isVisible()) {
+			return false;
+		} else if (appearance.getStyle() != other.appearance.getStyle()) {
+			return false;
+		} else if (appearance.getLineWidth() != other.appearance.getLineWidth()) {
+			return false;
+		}
+		return true;
+	}
 }

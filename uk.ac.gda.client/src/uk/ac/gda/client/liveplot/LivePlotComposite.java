@@ -56,6 +56,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -96,6 +97,7 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.common.rcp.util.GridUtils;
+import uk.ac.gda.preferences.PreferenceConstants;
 /**
  * Composite for displaying XY data from ScanDataPoints.
  *
@@ -483,6 +485,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	private final UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 	private IPositionListener plottingSystemPositionListener;
 	private ScriptingConnection scriptingConnection;
+	private volatile boolean updateInProgress = false;
+	private List<LineData> lastXys;
 
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
 		super(parent, style);
@@ -539,7 +543,9 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			}
 		};
 		plottingSystem.addPositionListener(plottingSystemPositionListener);
-
+		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
+		updateQueue.setPlotPeriodMs(plotPeriodMS);
 	}
 
 	public void createScriptingConnection(String partName) {
@@ -720,7 +726,18 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	public void onUpdate(boolean force) {
 		if (plottingSystem == null)
 			return;
+
+		if (updateInProgress) {
+			logger.debug("Update already in progress");
+			return;
+		}
+		updatePlots(force);
+	}
+
+	private void updatePlots(final boolean force) {
+
 		try {
+			updateInProgress = true;
 			/**
 			 * TODO FIXME This class taken from XYPlotComponent replots all the plots
 			 * if one point is added to the end of one plot. Instead it should just add the
@@ -733,6 +750,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			boolean xAxisIsVarious = false;
 			boolean yAxisIsVarious = false;
 			boolean additionalYAxes = false;
+			long startTime = System.currentTimeMillis();
 			for (LiveData sd : scans) {
 				if (sd != null  && sd.getNumber() > 1 ) {//do not show lines with only 1 point as the datasetplotter throws exceptions
 					LiveDataArchive archive = sd.getArchive();
@@ -778,10 +796,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.clear();
 				return;
 			}
+			logger.trace("{} plots created in {} ms", xys.size(), System.currentTimeMillis() - startTime);
 			createUpdatePlot(xAxisHeader, yAxisHeader, xys, invis, additionalYAxes);
 
 		} catch (Throwable e) {
 			logger.warn("Error handling update. force={}", force, e);
+		} finally {
+			updateInProgress = false;
 		}
 	}
 
@@ -794,12 +815,20 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 * @param additionalYAxes
 	 */
 	private void createUpdatePlot(String xLabelIn, String yLabelIn, final List<LineData> xys, final List<String> invis, boolean additionalYAxes) {
+
+		if (xys.equals(lastXys) ) {
+			logger.trace("createUpdatePlot - same data as last time, not updating plot");
+			return; // nothing to do
+		}
+		lastXys = xys;
+
 		final String xLabel = xLabelIn != null ? xLabelIn : UNKNOWN;
 		final String yLabel = yLabelIn != null ? yLabelIn : UNKNOWN;
 		final String title = (additionalYAxes ? "various" : yLabel) + " / " + xLabel;
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
+				logger.trace("createUpdatePlot started");
 				plottingSystem.reset(); //remove all axes
 				plottingSystem.setTitle(title);
 				plottingSystem.getSelectedXAxis().setTitle(xLabel);
@@ -867,8 +896,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 						trace.setTraceType(ILineTrace.TraceType.POINT);
 					}
 					final Color color = ld.getAppearance().getColour();
-					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
 					trace.setData(ld.getX(), ld.getY());
+					trace.setTraceColor(new org.eclipse.swt.graphics.Color(null, color.getRed(), color.getGreen(), color.getBlue()));
 					plottingSystem.addTrace(trace);
 					plottingSystem.setSelectedYAxis( defaultYAxis);
 				}
@@ -885,6 +914,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				if (plottingSystem.isRescale()) {
 					plottingSystem.autoscaleAxes();
 				}
+				logger.trace("createUpdatePlot finished");
+				updateInProgress = false;
 			}
 		});
 	}

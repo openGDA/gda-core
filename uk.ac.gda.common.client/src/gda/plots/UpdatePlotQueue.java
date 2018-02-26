@@ -38,6 +38,7 @@ public class UpdatePlotQueue {
 
 	private final BlockingQueue<XYDataHandler> items = new LinkedBlockingQueue<>();
 	private final Thread thread;
+	private int plotPeriodMs = 250;
 
 	public UpdatePlotQueue() {
 		thread = new Thread(this::runPlotQueueUpdates, THREAD_NAME);
@@ -62,6 +63,7 @@ public class UpdatePlotQueue {
 			try {
 				XYDataHandler item = items.take();
 				item.onUpdate(false);
+				Thread.sleep(plotPeriodMs);
 			} catch (InterruptedException e) {
 				// We are about to be ended
 				Thread.currentThread().interrupt();
@@ -79,6 +81,10 @@ public class UpdatePlotQueue {
 	public void kill() {
 		logger.debug("Requested thread to be killed");
 		thread.interrupt();
+	}
+
+	public void setPlotPeriodMs(int plotPeriodMs) {
+		this.plotPeriodMs = plotPeriodMs;
 	}
 }
 
