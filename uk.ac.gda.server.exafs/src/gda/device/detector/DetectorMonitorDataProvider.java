@@ -35,8 +35,8 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.countertimer.TfgScalerWithDarkCurrent;
 import gda.device.detector.countertimer.TfgScalerWithLogValues;
 import gda.device.scannable.ScannableBase;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
 import uk.ac.gda.beans.xspress.XspressDetector;
@@ -234,8 +234,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	}
 
 	public boolean getScriptOrScanIsRunning() {
-		return JythonServerFacade.getInstance().getScanStatus() != Jython.IDLE ||
-			   JythonServerFacade.getInstance().getScriptStatus() != Jython.IDLE;
+		return JythonServerFacade.getInstance().getScanStatus() != JythonStatus.IDLE ||
+			   JythonServerFacade.getInstance().getScriptStatus() != JythonStatus.IDLE;
 	}
 
 	private Double[] getNormalisedIonChamberCounts() throws DeviceException {

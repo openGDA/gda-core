@@ -57,9 +57,9 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider;
 import gda.device.detector.DetectorMonitorDataProviderInterface;
 import gda.factory.Finder;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
+import gda.jython.JythonStatus;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.CommandQueueViewFactory;
@@ -120,8 +120,8 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					int newstatus = ((JythonServerStatus) arg).scanStatus;
-					if (newstatus == Jython.IDLE) {
+					JythonStatus newstatus = ((JythonServerStatus) arg).scanStatus;
+					if (newstatus == JythonStatus.IDLE) {
 						btnRunPause.setEnabled(true);
 					} else {
 						btnRunPause.setEnabled(false);
