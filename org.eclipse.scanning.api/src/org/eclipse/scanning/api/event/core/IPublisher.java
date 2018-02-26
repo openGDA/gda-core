@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.event.core;
 import java.io.PrintStream;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 
 
 public interface IPublisher<T> extends ITopicConnection {
@@ -30,8 +31,11 @@ public interface IPublisher<T> extends ITopicConnection {
 	public void broadcast(T bean) throws EventException;
 
 	/**
-	 * Calling this method true starts a thread which notifies of
-	 *
+	 * Calling this method with <code>true</code> starts a thread which broadcasts
+	 * {@link HeartbeatBean}s to the heartbeat topic at a frequency
+	 * determined by the property <code>org.eclipse.scanning.event.heartbeat.freq</code>;
+	 * calling this method with <code>false</code> stops this thread, if it was
+	 * previously running.
 	 *
 	 * @param alive
 	 */

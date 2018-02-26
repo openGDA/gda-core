@@ -43,10 +43,11 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 	// JMS things, these are null when not running and
 	// are cleaned up at the end of a run.
-	private MessageProducer scanProducer;
-	private MessageProducer heartbeatProducer;
-	private volatile boolean alive;
-	private String statusSetName;
+	private MessageProducer messageProducer;
+	private MessageProducer heartbeatMessageProducer;
+
+	private volatile boolean alive = false;
+	private String statusSetName = null;
 
 	private IConsumer<?> consumer;
 
@@ -59,8 +60,8 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 	@Override
 	public synchronized void broadcast(T bean) throws EventException {
 		try {
-			if (scanProducer == null && getTopicName() != null) {
-				scanProducer = createProducer(getTopicName());
+			if (messageProducer == null) {
+				messageProducer = createProducer(getTopicName());
 			}
 			try {
 				if (statusSetName != null) {
@@ -69,9 +70,8 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 			} catch (Exception e) {
 				logger.error("Could not update the status set", e);
 			}
-			if (getTopicName() != null) {
-				send(scanProducer, bean, Constants.getPublishLiveTime());
-			}
+
+			send(messageProducer, bean, Constants.getPublishLiveTime());
 		} catch (JMSException ne) {
 			throw new EventException("Unable to start the scan producer using uri " + uri + " and topic " + getTopicName(), ne);
 		} catch (Exception neOther) {
@@ -123,13 +123,13 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 			beat.setConceptionTime(System.currentTimeMillis());
 
 			// Here we are sending the message out to the topic
-			while(isAlive()) {
+			while (isAlive()) {
 				try {
 					// Sleep for a bit
 					Thread.sleep(Constants.getNotificationFrequency());
 
 					// The producer might need to be reconnected.
-					if (heartbeatProducer==null) heartbeatProducer = createProducer(getTopicName());
+					if (heartbeatMessageProducer==null) heartbeatMessageProducer = createProducer(getTopicName());
 					beat.setPublishTime(System.currentTimeMillis());
 					if (consumer!=null) {
 						beat.setConsumerId(consumer.getConsumerId());
@@ -139,11 +139,11 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 					beat.setBeamline(System.getenv("BEAMLINE"));
 					beat.setHostName(InetAddress.getLocalHost().getHostName());
 
-					send(heartbeatProducer, beat, Math.round(Constants.getNotificationFrequency()*2.5));
+					send(heartbeatMessageProducer, beat, Math.round(Constants.getNotificationFrequency()*2.5));
 					lastBeat = beat;
 					cumulativeWaitTime = 0; // We sent something
 				} catch (Exception ne) {
-					heartbeatProducer = null;
+					heartbeatMessageProducer = null;
 					connection = null;
 					session = null;
 
@@ -163,13 +163,12 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 
 	@Override
 	public void setAlive(boolean alive) throws EventException {
-
 		boolean wasAlive = this.alive;
 		this.alive = alive;
 
 		if (alive) {
 			try {
-				if (heartbeatProducer==null) heartbeatProducer = createProducer(getTopicName());
+				if (heartbeatMessageProducer==null) heartbeatMessageProducer = createProducer(getTopicName());
 			} catch (JMSException ne) {
 				throw new EventException("Unable to start the heartbeat producer using uri "+uri+" and topic "+getTopicName());
 			}
@@ -186,7 +185,7 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 					Thread.sleep(Constants.getNotificationFrequency()+100); // Make sure dead
 					if (lastBeat!=null) {
 						lastBeat.setConsumerStatus(ConsumerStatus.STOPPED);
-						send(heartbeatProducer, lastBeat, Math.round(Constants.getNotificationFrequency()*2.5));
+						send(heartbeatMessageProducer, lastBeat, Math.round(Constants.getNotificationFrequency()*2.5));
 					}
 				} catch (Exception ne) {
 					throw new EventException("Cannot send termination message!", ne);
@@ -205,8 +204,8 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 	public void disconnect() throws EventException {
 		try {
 			alive = false;
-			if (scanProducer!=null)      scanProducer.close();
-			if (heartbeatProducer!=null) heartbeatProducer.close();
+			if (messageProducer!=null)      messageProducer.close();
+			if (heartbeatMessageProducer!=null) heartbeatMessageProducer.close();
 			consumer = null;
 
 			super.disconnect();
@@ -215,8 +214,8 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 			throw new EventException("Internal error - unable to close connection!", ne);
 
 		} finally {
-			scanProducer = null;
-			heartbeatProducer = null;
+			messageProducer = null;
+			heartbeatMessageProducer = null;
 		}
 	}
 
@@ -289,36 +288,38 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 		@SuppressWarnings("rawtypes")
 		final Enumeration e = qb.getEnumeration();
 
-		String jMSMessageID = null;
-		while (e.hasMoreElements()) {
-			Message m = (Message)e.nextElement();
-			if (m instanceof TextMessage) {
-				TextMessage t = (TextMessage)m;
+		try {
+			while (e.hasMoreElements()) {
+				Message m = (Message)e.nextElement();
+				if (m instanceof TextMessage) {
+					TextMessage t = (TextMessage)m;
 
-				final T qbean;
-				try {
-					@SuppressWarnings("unchecked")
-					Class<T> beanClass = (Class<T>) bean.getClass();
-					qbean = service.unmarshal(t.getText(), beanClass);
-					if (isSame(qbean, bean)) {
-						jMSMessageID = t.getJMSMessageID();
+					final T qbean;
+					try {
+						@SuppressWarnings("unchecked")
+						Class<T> beanClass = (Class<T>) bean.getClass();
+						qbean = service.unmarshal(t.getText(), beanClass);
+						if (isSame(qbean, bean)) {
+							return t.getJMSMessageID();
+						}
+					} catch (Exception ne) {
+						// If we cannot deserialize to the type passed in, it certainly is
+						// not going to be the bean which we are looking for.
 					}
-				} catch (Exception ne) {
-					// If we cannot deserialize to the type passed in, it certainly is
-					// not going to be the bean which we are looking for.
 				}
 			}
+		} finally {
+			qb.close();
 		}
 
-		qb.close();
-		return jMSMessageID;
+		return null;
 	}
 
 	private boolean replaceBeanWithId(Queue queue, String jmsMessageId, T bean) throws Exception {
 		// consume the bean (removing it from the status set)
-		MessageConsumer consumer = queueSession.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
-		Message m = consumer.receive(Constants.getReceiveFrequency());
-		consumer.close();
+		MessageConsumer messageConsumer = queueSession.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
+		Message m = messageConsumer.receive(Constants.getReceiveFrequency());
+		messageConsumer.close();
 		if (m instanceof TextMessage) {
 			MessageProducer producer = queueSession.createProducer(queue);
 			try {
@@ -357,7 +358,7 @@ class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
 	public void setLoggingStream(PrintStream stream) {
 		this.out = stream;
 		if (out != null && consumer != null) {
-			out.println("Publisher for consumer name " + (consumer == null ? "<unknown>" : consumer.getName()));
+			out.println("Publisher for consumer name " + consumer.getName());
 		}
 	}
 
