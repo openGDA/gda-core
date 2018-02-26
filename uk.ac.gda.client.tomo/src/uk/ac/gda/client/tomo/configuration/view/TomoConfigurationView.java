@@ -18,14 +18,6 @@
 
 package uk.ac.gda.client.tomo.configuration.view;
 
-import gda.commandqueue.Processor;
-import gda.commandqueue.ProcessorCurrentItem;
-import gda.commandqueue.QueuedCommandSummary;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -97,6 +89,13 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.operations.RedoActionHandler;
 import org.eclipse.ui.operations.UndoActionHandler;
 
+import gda.commandqueue.Processor;
+import gda.commandqueue.ProcessorCurrentItem;
+import gda.commandqueue.QueuedCommandSummary;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.rcp.util.CommandExecutor;
 import uk.ac.gda.client.CommandQueueContributionFactory;
 import uk.ac.gda.client.CommandQueueViewFactory;
@@ -735,8 +734,8 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 		}
 
 		private boolean isScanOrScriptIsRunning() {
-			return JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING
-					|| JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING;
+			return JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING
+					|| JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING;
 		}
 	};
 
@@ -1442,7 +1441,7 @@ public class TomoConfigurationView extends BaseTomographyView implements IDetect
 
 	/**
 	 * Given a config Id, checks if the table viewer contains an element with the config id and sets selection on that.
-	 * 
+	 *
 	 * @param configId
 	 */
 	public void setConfigSelection(String configId) {
