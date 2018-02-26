@@ -47,8 +47,8 @@ import gda.epics.util.EpicsGlobals;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -1564,12 +1564,12 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 					// to READY to prevent sending the next scan point request. This
 					// also ensure the current point reading complete before pausing
 					if (acs == AccessControl.Status.DISABLED) {
-						if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+						if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
 							JythonServerFacade.getInstance().pauseCurrentScan();
 							JythonServerFacade.getInstance().print(
 									"current scan paused after motor " + getName() + " is disabled.");
 						}
-						if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
+						if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
 							JythonServerFacade.getInstance().pauseCurrentScript();
 							JythonServerFacade.getInstance().print(
 									"current script paused after motor " + getName() + " is disabled.");
@@ -1647,12 +1647,12 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 			this.acs = (AccessControl.Status) changeCode;
 			if ((AccessControl.Status) changeCode == AccessControl.Status.ENABLED) {
 				logger.info("Beamline control of the device " + getName() + " is enabled.");
-				if (JythonServerFacade.getInstance().getScanStatus() == Jython.PAUSED) {
+				if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED) {
 					JythonServerFacade.getInstance().resumeCurrentScan();
 					JythonServerFacade.getInstance().print(
 							"current scan resumed after motor: " + getName() + " is enabled.");
 				}
-				if (JythonServerFacade.getInstance().getScriptStatus() == Jython.PAUSED) {
+				if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.PAUSED) {
 					JythonServerFacade.getInstance().resumeCurrentScript();
 					JythonServerFacade.getInstance().print(
 							"current script resumed after motor: " + getName() + " is enabled.");

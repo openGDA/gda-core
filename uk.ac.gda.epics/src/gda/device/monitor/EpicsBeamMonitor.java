@@ -35,8 +35,8 @@ import gda.device.detector.etldetector.ETLDetector;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gov.aps.jca.CAStatusException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
@@ -272,11 +272,11 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 				// Deliberately do nothing
 			}
 			// if you abort or halt or stop scan during no beam, this thread should stop
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE) {
+			if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.IDLE) {
 				break;
 			}
 		}
-		if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == Jython.PAUSED && pausedByBeamMonitor) {
+		if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED && pausedByBeamMonitor) {
 			// only restart or resume if paused by this beam monitor, manual pause excluded
 			if (LocalProperties.check("gda.device.monitor.resumeScan", true)) {
 				JythonServerFacade.getInstance().resumeCurrentScan();
@@ -286,7 +286,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 			pausedByBeamMonitor = false;
 		}
 		// reset paused flag
-		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE) {
+		if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.IDLE) {
 			pausedByBeamMonitor = false;
 		}
 	}
@@ -337,7 +337,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 			} else {
 				logger.warn("Monitor must return numeric data type. Type returned is {}", dbr.getType());
 			}
-			if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+			if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
 				// do not pause if already paused or IDLE
 				// then check the level against the threshold
 				if (currentData <= threshold) {
@@ -361,7 +361,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 			} else {
 				logger.warn("Monitor must return numeric data type. Type returned is {}", dbr.getType());
 			}
-			if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+			if (monitorOn && JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
 				// then check the level against the threshold
 				if (currentData != null && currentData.length > channel && currentData[channel] <= threshold) {
 					JythonServerFacade.getInstance().pauseCurrentScan();

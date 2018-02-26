@@ -27,8 +27,8 @@ import gda.epics.connection.InitializationListener;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -293,11 +293,11 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 				logger.info("Beamline control of the device " + blctrl.getName() + " is enabled.");
 				acStatus = Status.ENABLED;
 				if (defaultAction) {
-					if (JythonServerFacade.getInstance().getScanStatus() == Jython.PAUSED) {
+					if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED) {
 						JythonServerFacade.getInstance().resumeCurrentScan();
 						JythonServerFacade.getInstance().print("current scan resumed as " + getName() + " is enabled.");
 					}
-					if (JythonServerFacade.getInstance().getScriptStatus() == Jython.PAUSED) {
+					if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.PAUSED) {
 						JythonServerFacade.getInstance().resumeCurrentScript();
 						JythonServerFacade.getInstance().print(
 								"current running script resumed as " + getName() + " is enabled.");
@@ -308,11 +308,11 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 				logger.warn("Beamline control of the device " + blctrl.getName() + " is disabled.");
 				acStatus = Status.DISABLED;
 				if (defaultAction) {
-					if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+					if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
 						JythonServerFacade.getInstance().pauseCurrentScan();
 						JythonServerFacade.getInstance().print("current scan paused as " + getName() + " is disabled.");
 					}
-					if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
+					if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
 						JythonServerFacade.getInstance().pauseCurrentScript();
 						JythonServerFacade.getInstance().print(
 								"current running script paused as " + getName() + " is disabled.");
