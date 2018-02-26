@@ -18,16 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.plots.ISelectableNode;
-import gda.plots.Marker;
-import gda.plots.ScanLine;
-import gda.plots.ScanTree;
-import gda.plots.ScanTreeM;
-import gda.plots.Selected;
-import gda.plots.XYDataHandler;
-import gda.plots.XYDataHandlerLegend;
-import gda.rcp.GDAClientActivator;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,9 +52,18 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.preferences.PreferenceConstants;
-
 import com.swtdesigner.SWTResourceManager;
+
+import gda.plots.ISelectableNode;
+import gda.plots.Marker;
+import gda.plots.ScanLine;
+import gda.plots.ScanTree;
+import gda.plots.ScanTreeM;
+import gda.plots.Selected;
+import gda.plots.XYDataHandler;
+import gda.plots.XYDataHandlerLegend;
+import gda.rcp.GDAClientActivator;
+import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	private static final String VISIBLE = "Visible";
@@ -94,6 +93,14 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		String hideScanThreshold = preferenceStore.getString(PreferenceConstants.HIDE_SCAN_THRESHOLD);
 		int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
 		model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
+
+		String removeOldScans = preferenceStore.getString(PreferenceConstants.REMOVE_OLD_SCANS);
+		boolean removeOldScansVal = Boolean.parseBoolean(removeOldScans);
+		model.setRemoveOldScans(removeOldScansVal);
+
+		String removeScanThreshold = preferenceStore.getString(PreferenceConstants.REMOVE_SCAN_THRESHOLD);
+		int removeScanThresholdVal = Integer.parseInt(removeScanThreshold);
+		model.setMaxNumberOfScansInTree(removeScanThresholdVal);
 
 		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
 

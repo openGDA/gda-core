@@ -37,6 +37,16 @@ public class PreferenceConstants {
 	public static final String HIDE_SCAN_THRESHOLD = "uk.ac.gda.client.liveplot.threshold";
 
 	/**
+	 * Boolean value : if true, old scan plots will be removed from LivePlot view if total number of plots exceeds {@link #REMOVE_SCAN_THRESHOLD}
+	 */
+	public static final String REMOVE_OLD_SCANS = "gda.client.plot.remove.oldscans";
+
+	/**
+	 * Integer value : max number of scan plots in tree section of LivePlot view before old plots are removed
+	 */
+	public static final String REMOVE_SCAN_THRESHOLD = "gda.client.plot.removescan.threshold";
+
+	/**
 	 * Comma separated list of integers used to construct Color(int rgb). Def = PlotColorUtility.getDefaultColour(nr);
 	 * Values converted to Integer using Integer.valueof(s,16)., i.e. using radix 16 e.g. FF0000 = red
 	 */

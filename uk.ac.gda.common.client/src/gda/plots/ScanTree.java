@@ -35,6 +35,8 @@ public class ScanTree extends DefaultTreeModel {
 	private XYDataHandler simplePlot;
 	private boolean hideOldestScan = false;
 	private int numberOfScansBeforeHiding = 0;
+	private int maxNumberOfScansInTree;
+	private boolean removeOldScans = false;
 
 	/**
 	 * @param root
@@ -174,6 +176,17 @@ public class ScanTree extends DefaultTreeModel {
 			hideOldestScan(scanTreeM);
 		}
 
+		if (removeOldScans) {
+			int currentNumScans = scanTreeM.getChildCount();
+			if (currentNumScans > maxNumberOfScansInTree) {
+				for (int i = maxNumberOfScansInTree; i < currentNumScans; i++) {
+					TreeNode nodeToRemove = scanTreeM.getChildAt(i);
+					logger.debug("Remove old scan : {}", nodeToRemove.toString());
+					removeScanTreeObject(nodeToRemove);
+				}
+			}
+		}
+
 		if(reloadLegendModel){
 			try {
 				if (autoCollapseTree)
@@ -277,6 +290,18 @@ public class ScanTree extends DefaultTreeModel {
 
 	public void setNumberOfScansBeforeHiding(int numberOfScansBeforeHiding) {
 		this.numberOfScansBeforeHiding = numberOfScansBeforeHiding;
+	}
+
+	public void setMaxNumberOfScansInTree(int numberOfScansBeforeRemoving) {
+		this.maxNumberOfScansInTree = numberOfScansBeforeRemoving;
+	}
+
+	public boolean getRemoveOldScans() {
+		return removeOldScans;
+	}
+
+	public void setRemoveOldScans(boolean removeOldScans) {
+		this.removeOldScans = removeOldScans;
 	}
 
 }

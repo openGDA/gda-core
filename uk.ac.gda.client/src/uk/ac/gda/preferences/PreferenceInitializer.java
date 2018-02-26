@@ -81,6 +81,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 		store.setDefault(PreferenceConstants.HIDE_SCAN_THRESHOLD, 100);
 
+		store.setDefault(PreferenceConstants.REMOVE_OLD_SCANS, false);
+		store.setDefault(PreferenceConstants.REMOVE_SCAN_THRESHOLD, 500);
+
 		readExtensionPoints(store);
 	}
 
