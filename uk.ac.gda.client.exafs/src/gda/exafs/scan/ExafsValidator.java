@@ -45,6 +45,7 @@ import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.exafs.ui.ElementEdgeEditor;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -251,8 +252,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 			errors.add(new InvalidBeanMessage(e.getMessage()));
 		}
 
-		String minElement = LocalProperties.get("gda.exafs.element.min", "P");
-		String maxElement = LocalProperties.get("gda.exafs.element.max", "U");
+		String minElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "P");
+		String maxElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "U");
 		if (!Arrays.asList(Element.getSortedEdgeSymbols(minElement, maxElement)).contains(x.getElement())) {
 			errors.add(new InvalidBeanMessage("The element '" + x.getElement()
 					+ "' is not currently allowed to be scanned."));

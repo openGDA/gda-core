@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.ExafsScanPointCreatorException;
-import gda.exafs.scan.ExafsTimeEstimator;
-import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DateFormat;
@@ -77,6 +69,13 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.ExafsScanPointCreatorException;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.XanesScanPointCreator;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -114,6 +113,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	protected boolean updateValueAllowed = true;
 	private Color red, black;
 	protected PlotUpdateJob plotUpdateJob;
+
+	public static final String EXAFS_MIN_ELEMENT_PROP = "gda.exafs.element.min";
+	public static final String EXAFS_MAX_ELEMENT_PROP = "gda.exafs.element.max";
+	private String minAllowedElementSymbol = LocalProperties.get(EXAFS_MIN_ELEMENT_PROP,"P");
+	private String maxAllowedElementSymbol = LocalProperties.get(EXAFS_MAX_ELEMENT_PROP,"Np");
 
 	public ElementEdgeEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -322,7 +326,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	 * @throws Exception
 	 */
 	protected SchemaReader setupElementAndEdge(final String objectName) throws Exception {
-		element.setItems(Element.getSortedEdgeSymbols("P", "Np"));
+		element.setItems(Element.getSortedEdgeSymbols(minAllowedElementSymbol, maxAllowedElementSymbol));
 
 		SchemaReader reader = new SchemaReader(XasScanParameters.schemaUrl);
 		List<String> choices = reader.getAllowedChoices(objectName, "edge");
@@ -644,5 +648,13 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	public ComboWrapper getElement() {
 		return element;
+	}
+
+	public String getMinAllowedElementSymbol() {
+		return minAllowedElementSymbol;
+	}
+
+	public String getMaxAllowedElemenetSymbol() {
+		return maxAllowedElementSymbol;
 	}
 }
