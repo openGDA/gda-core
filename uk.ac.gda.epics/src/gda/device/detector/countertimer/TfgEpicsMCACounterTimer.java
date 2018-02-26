@@ -18,20 +18,21 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.device.adc.EpicsADC;
-import gda.device.detector.analyser.EpicsMCARegionOfInterest;
-import gda.device.detector.analyser.EpicsMCASimple;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-import gda.scan.Scan;
-
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.device.adc.EpicsADC;
+import gda.device.detector.analyser.EpicsMCARegionOfInterest;
+import gda.device.detector.analyser.IEpicsMCASimple;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.scan.Scan;
 
 /**
  * Represents a Tfg and EpicsMCA acting as a CounterTimer combination. Since the Tfg will generally also be part of a
@@ -55,14 +56,14 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	long channelsToCount = 0;
 
-	protected ArrayList<String> epicsMcaNameList = new ArrayList<String>();
+	protected List<String> epicsMcaNameList = new ArrayList<>();
 
-	private ArrayList<EpicsMCASimple> epicsMcaList = new ArrayList<EpicsMCASimple>();
+	private List<IEpicsMCASimple> epicsMcaList = new ArrayList<>();
 
 	@Override
 	public void configure() throws FactoryException {
 		for (int i = 0; i < epicsMcaNameList.size(); i++) {
-			epicsMcaList.add((EpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
+			epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
 		}
 
 		logger.debug("Finding ADC: " + adcName);
@@ -179,7 +180,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 	 */
 	public void setMcaCollectionTimes(double collectionTime) throws DeviceException {
 
-		for (EpicsMCASimple mca : epicsMcaList) {
+		for (IEpicsMCASimple mca : epicsMcaList) {
 			// Set the dwell time to zero to avoid any delays.
 			mca.setDwellTime(0.0);
 
@@ -221,7 +222,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 		adc.setScanMode("Disable");
 
 		// Loop over each MCA and press the 'Erase & Start' button.
-		for (EpicsMCASimple mca : epicsMcaList) {
+		for (IEpicsMCASimple mca : epicsMcaList) {
 			mca.eraseStartAcquisition();
 		}
 
@@ -237,7 +238,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 		double[] values = new double[getTotalChans()];
 		values[0] = getCollectionTime();
 		int j = 1;
-		for (EpicsMCASimple mca : epicsMcaList) {
+		for (IEpicsMCASimple mca : epicsMcaList) {
 
 			double[][] counts = mca.getRegionsOfInterestCount();
 			values[j] = counts[0][0];
@@ -286,11 +287,11 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 	}
 
 	/**
-	 * Gets an arraylist of all the names of the EpicsMCAs that are used with the countertimer.
+	 * Gets a list of all the names of the EpicsMCAs that are used with the countertimer.
 	 *
 	 * @return ArrayList of all the EpicsMCA names.
 	 */
-	public ArrayList<String> getEpicsMcaNameList() {
+	public List<String> getEpicsMcaNameList() {
 		return epicsMcaNameList;
 	}
 

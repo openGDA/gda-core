@@ -18,15 +18,17 @@
 
 package gda.device.detector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCAPresets;
-import gda.device.detector.analyser.EpicsMCASimple;
+import gda.device.detector.analyser.IEpicsMCASimple;
 import gda.factory.Finder;
-
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * CounterTimer that uses a number of EpicsMCAs as channels. The data from each MCA is summed to give a single value per
@@ -34,23 +36,23 @@ import org.apache.commons.lang.ArrayUtils;
  */
 public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase implements Detector {
 
-	protected ArrayList<String> epicsMcaNameList = new ArrayList<String>();
+	protected List<String> epicsMcaNameList = new ArrayList<>();
 
-	private ArrayList<EpicsMCASimple> epicsMcaList = new ArrayList<EpicsMCASimple>();
+	private List<IEpicsMCASimple> epicsMcaList = new ArrayList<>();
 
 	@Override
 	public void configure() {
 		//if an epicsMcaList exists (set directly in Spring), then do not
 		//use the name list. If only nameList, find the EpicsMCASimple objects.
-		if ((epicsMcaList==null) && (epicsMcaNameList.size()>0)) {
+		if (epicsMcaList.isEmpty() && !epicsMcaNameList.isEmpty()) {
 			for (int i = 0; i < epicsMcaNameList.size(); i++) {
-				epicsMcaList.add((EpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
+				epicsMcaList.add((IEpicsMCASimple) Finder.getInstance().find(epicsMcaNameList.get(i)));
 			}
 		}
 	}
 
 	public void countAsync(double time) throws DeviceException {
-		for (EpicsMCASimple e : epicsMcaList) {
+		for (IEpicsMCASimple e : epicsMcaList) {
 			e.clearWaitForCompletion();
 			EpicsMCAPresets p = (EpicsMCAPresets) e.getPresets();
 			p.setPresetRealTime((float) 0.0); // we want live time NOT real
@@ -78,7 +80,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 		int status = Detector.IDLE;
 
 		// Loop over all MCAs in the list.
-		for (EpicsMCASimple e : epicsMcaList) {
+		for (IEpicsMCASimple e : epicsMcaList) {
 			if (e.getStatus() == Detector.BUSY) {
 
 				// If any of the elements are busy then return a BUSY
@@ -99,7 +101,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	private double[] sumOfAllData() throws DeviceException {
 		double[] values = new double[epicsMcaList.size()];
 		int j = 0;
-		for (EpicsMCASimple e : epicsMcaList) {
+		for (IEpicsMCASimple e : epicsMcaList) {
 			int[] data = (int[]) e.readout();
 
 			for (int i = 0; i < data.length; i++) {
@@ -111,7 +113,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	}
 
 	private double[] regionsOfInterestAsFlatArray() throws DeviceException{
-		java.util.Vector<double[][]> allData = regionsOfInterestCounts();
+		Vector<double[][]> allData = regionsOfInterestCounts();
 		int arraySize = 0;
 		for( double[][] regionofInterest : allData){
 			int outerLen = regionofInterest.length;
@@ -137,13 +139,13 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 
 	}
 	/*
-	 * return java.util.Vector<double[][]>. Each member of the vector represents a single mca data[n][0] is the total
+	 * return Vector<double[][]>. Each member of the vector represents a single mca data[n][0] is the total
 	 * number of counts in the n'th ROI data[n][1] is the net number of counts in the n'th ROI, i.e. the total counts
 	 * less the total background in that ROI.
 	 */
-	private java.util.Vector<double[][]> regionsOfInterestCounts() throws DeviceException {
-		java.util.Vector<double[][]> allData = new java.util.Vector<double[][]>();
-		for (EpicsMCASimple e : epicsMcaList) {
+	private Vector<double[][]> regionsOfInterestCounts() throws DeviceException {
+		Vector<double[][]> allData = new Vector<double[][]>();
+		for (IEpicsMCASimple e : epicsMcaList) {
 			allData.add(e.getRegionsOfInterestCount());
 		}
 		return allData;
@@ -221,7 +223,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	 *
 	 * @return ArrayList of all the EpicsMCA names.
 	 */
-	public ArrayList<String> getEpicsMcaNameList() {
+	public List<String> getEpicsMcaNameList() {
 		return epicsMcaNameList;
 	}
 
@@ -230,7 +232,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	 *
 	 * @param epicsMcaList the list of EpicsMCASimples
 	 */
-	public void setEpicsMCASimpleList(ArrayList<EpicsMCASimple> epicsMcaList) {
+	public void setEpicsMCASimpleList(List<IEpicsMCASimple> epicsMcaList) {
 		this.epicsMcaList = epicsMcaList;
 	}
 	/**

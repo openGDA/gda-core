@@ -415,6 +415,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	 *
 	 * @throws DeviceException
 	 */
+	@Override
 	public void clearWaitForCompletion() throws DeviceException {
 		clear();
 	}
@@ -494,6 +495,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getDwellTime() throws DeviceException {
 		return getDoubleFromField(DWELL_TIME_FIELD);
 	}
@@ -619,6 +621,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	 * @param time
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setDwellTime(double time) throws DeviceException {
 		// The dwell time appears to be changed automatically to 0
 		setDoubleFieldValue(DWELL_TIME_FIELD, time);
@@ -952,6 +955,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	/**
 	 * @param mcaPV
 	 */
+	@Override
 	public void setMcaPV(String mcaPV) {
 		this.mcaPV = mcaPV;
 	}
