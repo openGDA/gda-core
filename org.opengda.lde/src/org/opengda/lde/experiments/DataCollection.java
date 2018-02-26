@@ -40,6 +40,7 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.ScriptControllerBase;
@@ -196,7 +197,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	 */
 	public void skip() {
 		String message;
-		int scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
+		JythonStatus scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
 		if (scanStatus==ScanStatus.RUNNING.asJython() || scanStatus == ScanStatus.PAUSED.asJython()) {
 			int scanNumber = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
 			message = "Skip current scan "+ scanNumber;
@@ -897,7 +898,6 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (!configured) {
 			configured=true;
 		}
-
 	}
 
 	@Override
