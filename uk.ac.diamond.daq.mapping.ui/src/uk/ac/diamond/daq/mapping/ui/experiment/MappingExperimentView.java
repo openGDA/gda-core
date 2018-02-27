@@ -28,6 +28,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -369,16 +370,23 @@ public class MappingExperimentView implements IAdaptable {
 
 	public IRunnableDeviceService getRunnableDeviceService() throws EventException {
 		if (runnableDeviceService == null) {
-			IEventService eventService = injectionContext.get(IEventService.class);
-			try {
-				URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-				return  eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
-			} catch (URISyntaxException e) {
-				throw new EventException("Malformed URI for activemq", e);
-			}
+			return (IRunnableDeviceService) getRemoteService(IRunnableDeviceService.class);
 		}
-
 		return runnableDeviceService;
+	}
+
+	public IScannableDeviceService getScannableDeviceService() throws EventException {
+		return (IScannableDeviceService) getRemoteService(IScannableDeviceService.class);
+	}
+
+	private Object getRemoteService(Class<?> klass) throws EventException {
+		IEventService eventService = injectionContext.get(IEventService.class);
+		try {
+			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			return eventService.createRemoteService(jmsURI, klass);
+		} catch (URISyntaxException e) {
+			throw new EventException("Malformed URI for activemq", e);
+		}
 	}
 
 	public void detectorSelectionChanged(List<IDetectorModelWrapper> selectedDetectors) {
