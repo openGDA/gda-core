@@ -19,22 +19,22 @@
 
 package gda.data.metadata;
 
-import gda.factory.Finder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.Finder;
 
 /**
  * Class that holds a singleton metadata instance.
  */
 public class GDAMetadataProvider {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GDAMetadataProvider.class);
 	/**
 	 * The single instance of GdaMetadata should be named GDAMetadata
 	 */
-	public static final String GDAMETADATANAME = "GDAMetadata"; 
-	
+	public static final String GDAMETADATANAME = "GDAMetadata";
+
 	/*
 	 * key for metadataEntry used to provide value for facility run cycle
 	 */
@@ -73,13 +73,13 @@ public class GDAMetadataProvider {
 	/*
 	 * key for metadataEntry used to provide value for facility run cycle
 	 */
-	public static final String TITLE = "title";	
-	
+	public static final String TITLE = "title";
+
 	/*
 	 * key for metadataEntry used to provide value for scan identifier
 	 */
 	public static final String SCAN_IDENTIFIER = "scan_identifier";
-	
+
 	private static Metadata instance;
 
 	/**
@@ -110,7 +110,7 @@ public class GDAMetadataProvider {
 	/**
 	 * Sets the singleton metadata instance held by this class. This allows the metadata to be constructed elsewhere and
 	 * registered with this provider class.
-	 * 
+	 *
 	 * @param metadata
 	 *            the metadata instance
 	 * @throws RuntimeException
@@ -122,15 +122,15 @@ public class GDAMetadataProvider {
 		}
 		instance = metadata;
 	}
-	
+
 	/**
 	 * call this only when you wish to setup the metadata for test purposes
-	 * without this method a tests would interfere via the singleton instance 
-	 * 
+	 * without this method a tests would interfere via the singleton instance
+	 *
 	 * @param metadata Metadata
-	 */	
+	 */
 	public synchronized static void setInstanceForTesting(Metadata metadata) {
 		logger.warn("setInstanceForTesting called");
 		instance=metadata;
-	}	
+	}
 }
