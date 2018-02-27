@@ -98,11 +98,10 @@ public class GDAMetadataProvider {
 		if (instance == null) {
 
 			instance = Finder.getInstance().find(GDAMETADATANAME);
-			
-			if(instance == null){
-				if (createIfNonExistent) {
-					instance = new GdaMetadata();
-				}
+
+			if(instance == null && createIfNonExistent){
+				logger.warn("Creating a new GdaMetadata. This might result in inconsistent metadata.");
+				instance = new GdaMetadata();
 			}
 		}
 		return instance;
