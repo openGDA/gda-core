@@ -61,6 +61,7 @@ import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.DummyScannableMotor;
 
 public class ScannableNexusWrapperTest {
 
@@ -338,6 +339,20 @@ public class ScannableNexusWrapperTest {
 		DataNode valueDemandDataNode = nexusObject.getDataNode("value_set");
 		assertThat(valueDemandDataNode, notNullValue());
 		assertThat(valueDemandDataNode.getDataset(), notNullValue());
+	}
+
+	@Test
+	public void testGetMotorLimitsWhenGDALimitsNotSet() throws Exception {
+		DummyScannableMotor motor = new DummyScannableMotor();
+		motor.setUpperMotorLimit(9.4);
+		motor.setLowerMotorLimit(-0.25);
+		Double nullLimit = null;
+		motor.setUpperGdaLimits(nullLimit);
+		motor.setLowerGdaLimits(nullLimit);
+		IScannable<Object> scannableWrapper = new ScannableNexusWrapper<>(motor);
+
+		assertThat(scannableWrapper.getMaximum(), is(9.4));
+		assertThat(scannableWrapper.getMinimum(), is(-0.25));
 	}
 
 }

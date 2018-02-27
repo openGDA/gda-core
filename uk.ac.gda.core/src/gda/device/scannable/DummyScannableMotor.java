@@ -117,4 +117,12 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 		return upperInnerLimit;
 	}
 
+	public void setUpperMotorLimit(double upperMotorLimit) {
+		this.upperMotorLimit = upperMotorLimit;
+	}
+
+	public void setLowerMotorLimit(double lowerMotorLimit) {
+		this.lowerMotorLimit = lowerMotorLimit;
+	}
+
 }
