@@ -68,8 +68,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	private Map<Class, DiseminateHandler> handlers;
 	private BlockingQueue<DiseminateEvent> queue;
 
-	private MessageConsumer scanConsumer;
-	private MessageConsumer hearbeatConsumer;
+	private MessageConsumer messageConsumer;
 
 	private boolean synchronous = true;
 
@@ -95,10 +94,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 		setConnected(true);
 		if (isSynchronous()) createDiseminateThread();
 		registerListener(scanID, listener);
-		if (scanConsumer == null) {
+		if (messageConsumer == null) {
 			try {
 				Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
-				scanConsumer = createConsumer(getTopicName(), beanClass);
+				messageConsumer = createConsumer(getTopicName(), beanClass);
 			} catch (JMSException e) {
 				throw new EventException("Cannot subscribe to topic "+getTopicName()+" with URI "+uri, e);
 			}
@@ -372,8 +371,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	public void disconnect() throws EventException {
 		try {
 			removeAllListeners();
-			if (scanConsumer!=null)     scanConsumer.close();
-			if (hearbeatConsumer!=null) hearbeatConsumer.close();
+			if (messageConsumer!=null)     messageConsumer.close();
 
 			super.disconnect();
 
@@ -381,8 +379,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 			throw new EventException("Internal error - unable to close connection!", ne);
 
 		} finally {
-			scanConsumer = null;
-			hearbeatConsumer = null;
+			messageConsumer = null;
 			setConnected(false);
 		}
 		super.disconnect();
