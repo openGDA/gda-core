@@ -103,10 +103,10 @@ public interface ISubscriber<T> extends ITopicConnection, IPropertyFilter {
 	public void removeListeners(String id);
 
 	/**
-	 * Clears all listeners without disconnecting from events or
+	 * Removes all listeners without disconnecting from events or
 	 * stopping the JMS threads.
 	 */
-	public void clear();
+	public void removeAllListeners();
 
 	/**
 	 * Call to set if the events should be ordered and BLOCKING.

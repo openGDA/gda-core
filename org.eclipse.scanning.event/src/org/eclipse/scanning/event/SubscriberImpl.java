@@ -64,7 +64,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	private static final String DEFAULT_KEY = UUID.randomUUID().toString(); // Does not really matter what key is used for the default collection.
 
-	private Map<String, Collection<T>> scanListeners; // Scan listeners
+	private Map<String, Collection<T>> listeners; // Scan listeners
 	private Map<Class, DiseminateHandler> handlers;
 	private BlockingQueue<DiseminateEvent> queue;
 
@@ -75,13 +75,13 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	public SubscriberImpl(URI uri, String topic, IEventConnectorService service) {
 		super(uri, topic, service);
-		scanListeners = new ConcurrentHashMap<>(); // Concurrent overkill?
+		listeners = new ConcurrentHashMap<>(); // Concurrent overkill?
 		handlers = createDiseminateHandlers();
 	}
 
 	@Override
 	public void setTopicName(String topicName) {
-		if (!scanListeners.isEmpty()) throw new IllegalStateException("Cannot set topic name once listeners have been added");
+		if (!listeners.isEmpty()) throw new IllegalStateException("Cannot set topic name once listeners have been added");
 		super.setTopicName(topicName);
 	}
 
@@ -221,13 +221,13 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	private void diseminate(DiseminateEvent event) {
 		Object bean = event.bean;
-		diseminate(bean, scanListeners.get(DEFAULT_KEY));  // general listeners
+		diseminate(bean, listeners.get(DEFAULT_KEY));  // general listeners
 		if (bean instanceof IdBean) {
 			IdBean idBean = (IdBean)bean;
-			diseminate(bean, scanListeners.get(idBean.getUniqueId())); // scan specific listeners, if any
+			diseminate(bean, listeners.get(idBean.getUniqueId())); // scan specific listeners, if any
 		} else if (bean instanceof INameable) {
 			INameable namedBean = (INameable)bean;
-			diseminate(bean, scanListeners.get(namedBean.getName())); // scan specific listeners, if any
+			diseminate(bean, listeners.get(namedBean.getName())); // scan specific listeners, if any
 		}
 	}
 
@@ -338,10 +338,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 
 	private void registerListener(String key, T listener) {
-		Collection<T> ls = scanListeners.get(key);
+		Collection<T> ls = listeners.get(key);
 		if (ls == null) {
 			ls = new LinkedHashSet<>();
-			scanListeners.put(key, ls);
+			listeners.put(key, ls);
 		}
 		ls.add(listener);
 	}
@@ -353,25 +353,25 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	@Override
 	public void removeListener(String id, T listener) {
-		if (scanListeners.containsKey(id)) {
-			scanListeners.get(id).remove(listener);
+		if (listeners.containsKey(id)) {
+			listeners.get(id).remove(listener);
 		}
 	}
 
 	@Override
 	public void removeListeners(String id) {
-		scanListeners.remove(id);
+		listeners.remove(id);
 	}
 
 	@Override
-	public void clear() {
-		scanListeners.clear();
+	public void removeAllListeners() {
+		listeners.clear();
 	}
 
 	@Override
 	public void disconnect() throws EventException {
 		try {
-			clear();
+			removeAllListeners();
 			if (scanConsumer!=null)     scanConsumer.close();
 			if (hearbeatConsumer!=null) hearbeatConsumer.close();
 

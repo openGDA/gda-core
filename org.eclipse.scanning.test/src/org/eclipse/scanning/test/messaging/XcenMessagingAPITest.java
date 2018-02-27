@@ -114,7 +114,7 @@ public class XcenMessagingAPITest extends BrokerTest {
 		submitter.submit(sentBean);
 
 		boolean ok = latch.await(5, TimeUnit.SECONDS);
-		subscriber.clear();
+		subscriber.removeAllListeners();
 		if (!ok) throw new Exception("The latch broke before Xcen responded!");
 
 		if (beans.size() == 0) throw new Exception("No Xcen responses have been found!");
