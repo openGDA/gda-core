@@ -23,12 +23,18 @@ package gda.device;
  * A Enum Positioner Status class - provides a set of allowed status values
  */
 public enum EnumPositionerStatus {
-	IDLE,
-	MOVING,
-	ERROR;
+	IDLE("idle"),
+	MOVING("moving"),
+	ERROR("error");
 
 	// Cache values for efficiency
 	private static final EnumPositionerStatus[] values = EnumPositionerStatus.values();
+
+	private final String stringVal;
+
+	private EnumPositionerStatus(String stringVal) {
+		this.stringVal = stringVal;
+	}
 
 	/**
 	 * @return the internal value
@@ -47,14 +53,6 @@ public enum EnumPositionerStatus {
 
 	@Override
 	public String toString() {
-		switch (this) {
-		case IDLE:
-			return "idle";
-		case MOVING:
-			return "moving";
-		case ERROR:
-			return "error";
-		}
-		return "undefined";
+		return stringVal;
 	}
 }
