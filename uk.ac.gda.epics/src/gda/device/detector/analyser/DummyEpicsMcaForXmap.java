@@ -18,33 +18,40 @@
 
 package gda.device.detector.analyser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DummyEpicsMcaForXmap extends AnalyserBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyEpicsMcaForXmap.class);
 
+	private static final String NOT_SUPPORTED = "Not supported";
 
-	private Roi[] regions = new Roi[32];
+	private static final int SCAN_WIDTH = 10;
+	private static final int SCAN_HEIGHT = 10;
+
+	private static final int SPECTRUM_GENERATOR_SEED = 42;
+	private final Random spectrumGenerator = new Random(SPECTRUM_GENERATOR_SEED);
+
+	private int pointsSinceScanStart = 0;
+
+	private EpicsMCARegionOfInterest[] regions = new EpicsMCARegionOfInterest[32];
 
 	private long numberOfChannels = 1024;
 
 	private double[] lastCollectedSpectrum = new double[0];
 
 	private EpicsMCAPresets presets;
-
-	public DummyEpicsMcaForXmap() {
-	}
 
 	@Override
 	public void startAcquisition() throws DeviceException {
@@ -55,15 +62,13 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	@Override
 	public void stopAcquisition() throws DeviceException {
 		log(".stopAcquisition()");
-
 	}
 
 	@Override
 	public void addRegionOfInterest(int regionIndex, double regionLow, double regionHigh, int regionBackground,
 			double regionPreset, String regionName) throws DeviceException {
-		regions[regionIndex] = new Roi(regionIndex, regionLow, regionHigh, regionBackground, regionPreset, regionName);
+		regions[regionIndex] = new EpicsMCARegionOfInterest(regionIndex, regionLow, regionHigh, regionBackground, regionPreset, regionName);
 		log(".addRegionOfInterest() <-- " + regions[regionIndex]);
-
 	}
 
 	@Override
@@ -75,7 +80,6 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	@Override
 	public void clear() throws DeviceException {
 		//log(".clear()");
-
 	}
 
 	@Override
@@ -96,7 +100,6 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 		pointsSinceScanStart ++;
 	}
 
-
 	@Override
 	public Object getData() throws DeviceException {
 		return lastCollectedSpectrum;
@@ -114,9 +117,9 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 
 	@Override
 	public double[][] getRegionsOfInterestCount() throws DeviceException {
-		List<Double> grossCounts = new ArrayList<Double>();
-		for (int i = 0; i < regions.length; i++) {
-			Roi roi = regions[i];
+		final int defaultTotalCount = -99;
+		final List<Double> grossCounts = new ArrayList<>();
+		for (EpicsMCARegionOfInterest roi : regions) {
 			if (roi != null) {
 				double sum = 0;
 				for (int element = (int) roi.getRegionLow(); element < roi.getRegionHigh(); element++) {
@@ -125,17 +128,17 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 				grossCounts.add(sum);
 			}
 		}
-		double[][] s = new double [grossCounts.size()][2];
+		final double[][] s = new double [grossCounts.size()][2];
 		for (int i = 0; i < grossCounts.size(); i++) {
 			s[i][0] = grossCounts.get(i);
-			s[i][1] = -99;
+			s[i][1] = defaultTotalCount;
 		}
 		return s;
 	}
 
 	@Override
 	public void setNumberOfRegions(int regions) throws DeviceException {
-		this.regions = new Roi[regions];
+		this.regions = new EpicsMCARegionOfInterest[regions];
 	}
 
 	@Override
@@ -176,17 +179,17 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 
 	@Override
 	public long getSequence() throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
 	public Object getCalibrationParameters() throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
 	public void setCalibration(Object calibrate) throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
@@ -196,138 +199,72 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 
 	@Override
 	public void setData(Object data) throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
 	public Object getRegionsOfInterest() throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
 	public void setRegionsOfInterest(Object lowHigh) throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
 
 	@Override
 	public void setSequence(long sequence) throws DeviceException {
-		throw new RuntimeException("Not supported");
+		throw new NotImplementedException(NOT_SUPPORTED);
 	}
-
-	class Roi {
-
-		private final int regionIndex;
-		private final double regionLow;
-		private final double regionHigh;
-		private final int regionBackground;
-		private final double regionPreset;
-		private final String regionName;
-
-		public Roi(int regionIndex, double regionLow, double regionHigh, int regionBackground,
-				double regionPreset, String regionName) {
-					this.regionIndex = regionIndex;
-					this.regionLow = regionLow;
-					this.regionHigh = regionHigh;
-					this.regionBackground = regionBackground;
-					this.regionPreset = regionPreset;
-					this.regionName = regionName;
-		}
-
-
-		@Override
-		public String toString() {
-			String s = " regionIndex:" + regionIndex;
-			s += " regionLow:" + regionLow ;
-			s += " regionHigh:" + regionHigh;
-			s += " regionBackground:" + regionBackground;
-			s += " regionPreset:" + regionPreset ;
-			s += " regionName:" + regionName ;
-			return s;
-		}
-
-		public int getRegionIndex() {
-			return regionIndex;
-		}
-
-		public double getRegionLow() {
-			return regionLow;
-		}
-
-		public double getRegionHigh() {
-			return regionHigh;
-		}
-
-		public int getRegionBackground() {
-			return regionBackground;
-		}
-
-		public double getRegionPreset() {
-			return regionPreset;
-		}
-
-		public String getRegionName() {
-			return regionName;
-		}
-	}
-
-	public int scanWidth = 10;
-
-	public int scanHeight = 10;
-
-	private int pointsSinceScanStart = 0;
 
 	@Override
 	public void atScanStart() throws DeviceException {
 		pointsSinceScanStart = 0;
 	}
 
-	double getX() {
-		return (pointsSinceScanStart % scanWidth) / ((double) scanWidth);
+	private double getX() {
+		return (pointsSinceScanStart % SCAN_WIDTH) / ((double) SCAN_WIDTH);
 	}
 
-	double getY() {
-		return ((pointsSinceScanStart / scanHeight) % scanWidth) / ((double) scanHeight);
+	private double getY() {
+		return (((double) pointsSinceScanStart / SCAN_HEIGHT) % SCAN_WIDTH) / (SCAN_HEIGHT);
 	}
 
-	public double[] createSpectrum() throws DeviceException {
-		Random random = new Random();
-		double[] counts = new double[(int) getNumberOfChannels()];
+	private double[] createSpectrum() throws DeviceException {
+		final double[] counts = new double[(int) getNumberOfChannels()];
 
-		double p1mu = .2;
-		double p1sigma = .02;
-		double p2mu = .3;
-		double p2sigma = .01;
-		double p1amp = getX();
-		double p2amp = getY();
+		final double p1mu = .2;
+		final double p1sigma = .02;
+		final double p2mu = .3;
+		final double p2sigma = .01;
+		final double p1amp = getX();
+		final double p2amp = getY();
 
 		for (int channel = 0; channel < counts.length; channel++) {
-			double x = (float) channel / getNumberOfChannels();
-			double noise = random.nextDouble();
-			double p1 = gaussian(x, p1mu, p1sigma) * (p1amp + random.nextDouble()/10.);
-			double p2 = gaussian(x, p2mu, p2sigma) * (p2amp + random.nextDouble()/10.);
+			final double x = (float) channel / getNumberOfChannels();
+			final double noise = spectrumGenerator.nextDouble();
+			final double p1 = gaussian(x, p1mu, p1sigma) * (p1amp + spectrumGenerator.nextDouble()/10.);
+			final double p2 = gaussian(x, p2mu, p2sigma) * (p2amp + spectrumGenerator.nextDouble()/10.);
 			counts[channel] = (noise + p1 + p2) * 1000;
 		}
 		return counts;
-
 	}
 
 	private double gaussian(double x, double mu, double sigma) {
-		double a = 1/ (sigma * Math.sqrt(2*Math.PI));
-		double b = mu;
-		double c = sigma;
+		final double a = 1/ (sigma * Math.sqrt(2*Math.PI));
+		final double b = mu;
+		final double c = sigma;
 		return a * Math.exp(-1 * (x-b) * (x-b) / (2*c*c));
 	}
 
 	private void log(String msg) {
-		ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
-		msg = getName() + msg;
-		logger.info(msg);
+		final ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
+		final  String message = getName() + msg;
+		logger.info(message);
 		try {
-			terminalPrinter.print(msg);
+			terminalPrinter.print(message);
 		} catch (java.lang.IllegalStateException e) {
 			// ignore, as print fails during configure
 		}
-
 	}
-
 }
