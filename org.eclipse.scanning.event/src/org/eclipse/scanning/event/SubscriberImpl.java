@@ -90,26 +90,26 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	}
 
 	@Override
-	public void addListener(String beanId, T listener) throws EventException{
+	public void addListener(String beanId, T listener) throws EventException {
 		setConnected(true);
 		if (isSynchronous()) createDiseminateThread();
 		registerListener(beanId, listener);
 		if (messageConsumer == null) {
-			try {
-				Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
-				messageConsumer = createConsumer(getTopicName(), beanClass);
-			} catch (JMSException e) {
-				throw new EventException("Cannot subscribe to topic "+getTopicName()+" with URI "+uri, e);
-			}
+			Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
+			messageConsumer = createConsumer(getTopicName(), beanClass);
 		}
 	}
 
-	private MessageConsumer createConsumer(final String topicName, final Class<?> beanClass) throws JMSException {
-		final Topic topic = createTopic(topicName);
+	private MessageConsumer createConsumer(final String topicName, final Class<?> beanClass) throws EventException {
+		try {
+			final Topic topic = createTopic(topicName);
 
-		final MessageConsumer consumer = session.createConsumer(topic);
-		consumer.setMessageListener(message -> handleMessage(topicName, beanClass, message));
-		return consumer;
+			final MessageConsumer consumer = session.createConsumer(topic);
+			consumer.setMessageListener(message -> handleMessage(topicName, beanClass, message));
+			return consumer;
+		} catch (JMSException e) {
+			throw new EventException("Cannot subscribe to topic "+getTopicName()+" with URI "+uri, e);
+		}
 	}
 
 	private void handleMessage(final String topicName, final Class<?> beanClass, Message message) {
