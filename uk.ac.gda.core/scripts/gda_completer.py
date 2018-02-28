@@ -13,7 +13,7 @@ import keyword
 import re
 import logging
 
-from java.lang import Object
+from java.lang import Object, NoSuchMethodException, Class
 from org.python.core import PyJavaPackage
 
 logger = logging.getLogger("uk.ac.gda.core.scripts.gda_completer.py")
@@ -169,8 +169,18 @@ class Completer(object):
                         sub_command += '.' + part
                         logger.debug('%s Is next object', sub_command)
                     else:
-                        logger.debug('Cannot complete further, would require a method call')
-                        return []
+                        logger.debug('Cannot complete fully, trying to use reflection')
+                        try:
+                            if isinstance(obj, Class):
+                                method = obj.getMethod('get' + part[0].upper() + part[1:])
+                            else:
+                                method = obj.__class__.getMethod('get' + part[0].upper() + part[1:])
+                        except NoSuchMethodException as e:
+                            return []
+                        if method is not None:
+                            obj = method.getReturnType()
+                        else:
+                            return []
 
                 # Get the options for the final object
                 options = dir(obj)
