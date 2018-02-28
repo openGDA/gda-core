@@ -72,6 +72,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 
 	private boolean synchronous = true;
 
+	private Class<?> beanClass;
+
 	public SubscriberImpl(URI uri, String topic, IEventConnectorService service) {
 		super(uri, topic, service);
 		listeners = new ConcurrentHashMap<>(); // Concurrent overkill?
@@ -95,34 +97,56 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 		if (isSynchronous()) createDiseminateThread();
 		registerListener(beanId, listener);
 		if (messageConsumer == null) {
-			Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
-			messageConsumer = createConsumer(getTopicName(), beanClass);
+			setBeanClass(getBeanClassForListener(listener));
+			messageConsumer = createConsumer();
 		}
 	}
 
-	private MessageConsumer createConsumer(final String topicName, final Class<?> beanClass) throws EventException {
+	public Class<?> getBeanClass() {
+		return beanClass;
+	}
+
+	private void setBeanClass(Class<?> beanClass) {
+		this.beanClass = beanClass;
+	}
+
+	private Class<?> getBeanClassForListener(T listener) {
+		if (listener instanceof IBeanClassListener) {
+			return ((IBeanClassListener) listener).getBeanClass();
+		} else if (listener instanceof IScanListener) {
+			return ScanBean.class;
+		} else if (listener instanceof IHeartbeatListener) {
+			return HeartbeatBean.class;
+		} else if (listener instanceof ILocationListener) {
+			return Location.class;
+		} else {
+			throw new IllegalArgumentException("Unsupported listener type " + listener.getClass());
+		}
+	}
+
+	private MessageConsumer createConsumer() throws EventException {
 		try {
-			final Topic topic = createTopic(topicName);
+			final Topic topic = createTopic(getTopicName());
 
 			final MessageConsumer consumer = session.createConsumer(topic);
-			consumer.setMessageListener(message -> handleMessage(topicName, beanClass, message));
+			consumer.setMessageListener(this::handleMessage);
 			return consumer;
 		} catch (JMSException e) {
 			throw new EventException("Cannot subscribe to topic "+getTopicName()+" with URI "+uri, e);
 		}
 	}
 
-	private void handleMessage(final String topicName, final Class<?> beanClass, Message message) {
+	private void handleMessage(Message message) {
 		TextMessage txt = (TextMessage) message;
 		try {
 			String json = txt.getText();
 			json = JsonUtil.removeProperties(json, properties);
 			try {
-				Object bean = service.unmarshal(json, beanClass);
+				Object bean = service.unmarshal(json, getBeanClass());
 				schedule(new DiseminateEvent(bean));
 			} catch (Exception ne) {
-				logger.error("Error processing message {} on topic {} with beanClass {}", message, topicName,
-						beanClass, ne);
+				logger.error("Error processing message {} on topic {} with beanClass {}", message,
+						getTopicName(), getBeanClass(), ne);
 				ne.printStackTrace(); // Unit tests without log4j config show this one.
 			}
 		} catch (JMSException ne) {
