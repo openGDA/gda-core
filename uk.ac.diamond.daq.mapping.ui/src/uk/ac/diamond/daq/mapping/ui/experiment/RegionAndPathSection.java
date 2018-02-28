@@ -38,7 +38,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -46,7 +45,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
@@ -57,9 +55,9 @@ import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
-import uk.ac.diamond.daq.mapping.ui.path.AbstractPathComposite;
-import uk.ac.diamond.daq.mapping.ui.path.PathCompositeProvider;
-import uk.ac.diamond.daq.mapping.ui.region.RegionCompositeProvider;
+import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor;
+import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
+import uk.ac.diamond.daq.mapping.ui.region.RegionEditorProvider;
 
 /**
  * A section for configuring the region to scan and the path of the mapping scan.
@@ -126,14 +124,14 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private final PropertyChangeListener pathBeanPropertyChangeListener = evt -> updatePoints();
 
 	private Composite regionAndPathComposite;
-	private Composite pathComposite;
+	private AbstractModelEditor<IScanPathModel> pathEditor;
 	private IMappingScanRegionShape scanRegion = null;
 	private IScanPathModel scanPathModel = null;
 	private PathInfoCalculatorJob pathCalculationJob;
 	private PlottingController plotter;
 	private IMappingRegionManager mappingRegionManager;
 
-	private Composite regionComposite;
+	private AbstractModelEditor<IMappingScanRegionShape> regionEditor;
 	private ComboViewer regionSelector;
 	private ComboViewer pathSelector;
 	private boolean canEditMappingStage = true; // false when Malcolm device selected, which specifies its own axes.
@@ -338,13 +336,13 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	 */
 	protected void rebuildMappingSection() {
 		// Remove the old controls
-		if (regionComposite != null) {
-			regionComposite.dispose();
-			regionComposite = null;
+		if (regionEditor != null) {
+			regionEditor.dispose();
+			regionEditor = null;
 		}
-		if (pathComposite != null) {
-			pathComposite.dispose();
-			pathComposite = null;
+		if (pathEditor != null) {
+			pathEditor.dispose();
+			pathEditor = null;
 		}
 
 		// Scan Region
@@ -353,16 +351,18 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			return; // We can't build a UI to edit null
 		}
 
-		regionComposite = RegionCompositeProvider.createRegionComposite(regionAndPathComposite, mappingScanRegion);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionComposite);
+		regionEditor = RegionEditorProvider.createRegionEditor(mappingScanRegion, getEclipseContext());
+		regionEditor.createEditorPart(regionAndPathComposite);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
 		// Scan Path
 		final IScanPathModel scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
 		if (scanPath == null) {
 			return; // We can't build a UI to edit null
 		}
-		pathComposite = PathCompositeProvider.createPathComposite(regionAndPathComposite, scanPath);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(pathComposite);
+		pathEditor = PathEditorProvider.createPathComposite(scanPath, getEclipseContext());
+		pathEditor.createEditorPart(regionAndPathComposite);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
 		detectorsChanged(getMappingBean().getDetectorParameters().stream()
 							.filter(IDetectorModelWrapper::isIncludeInScan)
@@ -393,31 +393,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 									.anyMatch(IMalcolmModel.class::isInstance);
 
 		canEditMappingStage = !isMalcolm;
+		((AbstractPathEditor) pathEditor).setContinuousEnabled(isMalcolm);
 
-		if (pathComposite instanceof AbstractPathComposite) {
-			((AbstractPathComposite) pathComposite).setContinuousEnabled(isMalcolm);
-		} else if (scanPathModel instanceof IMapPathModel) {
-				((IMapPathModel) scanPathModel).setContinuous(isMalcolm);
-				// We need to update the checkbox as well as because we used the gui generator
-				// we don't have the DataBindingsContext to call updateTargets. The only way to find the
-				// 'continuous' checkbox and label is to go through the controls on the pathComposite and
-				// look for them.
-				if (pathComposite != null) {
-					final Control[] pathControls = pathComposite.getChildren();
-					for (int i = 0; i < pathControls.length - 1; i++) {
-						// find the 'Continuous label' with an adjacent checkbox
-						if (pathControls[i] instanceof Label && "Continuous:".equals(((Label) pathControls[i]).getText())
-								&& pathControls[i+1] instanceof Button && (pathControls[i+1].getStyle() & SWT.CHECK) != 0) {
-							// if malcolm the button is enabled and selected, if not (software scan) disabled and deselected
-							// as we do not support continuous scans in software
-							((Button) pathControls[i+1]).setSelection(isMalcolm);
-							pathControls[i].setEnabled(isMalcolm);
-							pathControls[i+1].setEnabled(isMalcolm);
-						}
-					}
-
-				}
-		}
 	}
 }
 

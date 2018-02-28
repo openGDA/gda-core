@@ -18,24 +18,27 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class OneDEqualSpacingPathComposite extends AbstractPathComposite {
+public class OneDEqualSpacingPathEditor extends AbstractPathEditor {
 
-	public OneDEqualSpacingPathComposite(Composite parent, OneDEqualSpacingModel path) {
-		super(parent, SWT.NONE);
+	@Override
+	public Composite createEditorPart(Composite parent) {
 
-		(new Label(this, SWT.NONE)).setText("Points");
-		Spinner points = new Spinner(this, SWT.BORDER);
+		final Composite composite = super.createEditorPart(parent);
+
+		new Label(composite, SWT.NONE).setText("Points");
+		Spinner points = new Spinner(composite, SWT.BORDER);
 		points.setMinimum(1);
-		gdControls.applyTo(points);
-		bind(points, "points", path);
+		grabHorizontalSpace.applyTo(points);
+		binder.bind(points, "points", getModel());
 
-		makeContinuousControl(this, path);
+		makeContinuousControl(composite, getModel());
+
+		return composite;
 	}
 
 }

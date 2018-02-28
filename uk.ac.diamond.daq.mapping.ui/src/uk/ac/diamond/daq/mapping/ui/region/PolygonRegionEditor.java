@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -43,40 +42,34 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import uk.ac.diamond.daq.mapping.region.MutablePoint;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionAndPathComposite;
 
-public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
+public class PolygonRegionEditor extends AbstractRegionEditor {
 
 	private TableViewer polygonTableViewer;
-	private PolygonMappingRegion polygonRegion;
 	private enum Axis {X, Y}
 	private List<MutablePoint> polyPoints = new ArrayList<>(10);
 	private Pattern pattern = Pattern.compile("-?\\d+\\.?\\d*");
 	private PropertyChangeListener regionPointsListener = evt -> {
-		this.polyPoints = ((PolygonMappingRegion) evt.getSource()).getPoints();
+		polyPoints = ((PolygonMappingRegion) evt.getSource()).getPoints();
 		polygonTableViewer.setInput(this.polyPoints);
 		polygonTableViewer.refresh();
 	};
 
-	public PolygonRegionComposite(Composite parent, PolygonMappingRegion region) {
-		super(parent, SWT.NONE);
+	@Override
+	public Composite createEditorPart(Composite parent) {
 
-		this.polygonRegion = region;
+		final Composite composite = super.createEditorPart(parent);
 
-		// Set the layout of the main composite area
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER)
-		.applyTo(this);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
+		PolygonMappingRegion polygonRegion = (PolygonMappingRegion) getModel();
 
-		Composite tableComposite = new Composite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 110)
-		.applyTo(tableComposite);
+		Composite tableComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 110).applyTo(tableComposite);
 
 		// Create the table
 		polygonTableViewer = new TableViewer(tableComposite,
 				SWT.MULTI | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
-		.applyTo(polygonTableViewer.getControl());
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(polygonTableViewer.getControl());
+		grabHorizontalSpace.applyTo(polygonTableViewer.getControl());
 
 		createColumns(polygonTableViewer);
 
@@ -91,8 +84,10 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 		table.setLinesVisible(true);
 
 		polygonTableViewer.setContentProvider(new ArrayContentProvider());
-		polygonTableViewer.setInput(region.getPoints());
-		region.addPropertyChangeListener(regionPointsListener);
+		polygonTableViewer.setInput(polygonRegion.getPoints());
+		polygonRegion.addPropertyChangeListener(regionPointsListener);
+
+		return composite;
 
 	}
 
@@ -171,7 +166,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 				return;
 			// polyPoints is empty if user has switched region types, so replenish with fresh points
 			if (polyPoints.isEmpty()) {
-				polyPoints = polygonRegion.getPoints();
+				polyPoints = ((PolygonMappingRegion)getModel()).getPoints();
 			}
 
 			if (axis == Axis.X) {
@@ -180,7 +175,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 				((MutablePoint) element).setY(Double.valueOf((String) value));
 			}
 
-			polygonRegion.setPoints(polyPoints);
+			((PolygonMappingRegion)getModel()).setPoints(polyPoints);
 			polygonTableViewer.refresh();
 		}
 	}
@@ -196,7 +191,7 @@ public class PolygonRegionComposite extends AbstractRegionAndPathComposite {
 
 	@Override
 	public void dispose() {
-		polygonRegion.removePropertyChangeListener(regionPointsListener);
+		getModel().removePropertyChangeListener(regionPointsListener);
 		super.dispose();
 	}
 
