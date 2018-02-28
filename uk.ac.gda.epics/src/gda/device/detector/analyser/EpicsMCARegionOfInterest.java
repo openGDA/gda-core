@@ -85,6 +85,13 @@ public class EpicsMCARegionOfInterest implements Serializable {
 	}
 
 	/**
+	 * Copy constructor
+	 */
+	public EpicsMCARegionOfInterest(final EpicsMCARegionOfInterest roi) {
+		this(roi.regionIndex, roi.regionLow, roi.regionHigh, roi.regionBackground, roi.regionPreset, roi.regionName);
+	}
+
+	/**
 	 * @return regionBackground
 	 */
 	public int getRegionBackground() {
