@@ -90,10 +90,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 	}
 
 	@Override
-	public void addListener(String scanID, T listener) throws EventException{
+	public void addListener(String beanId, T listener) throws EventException{
 		setConnected(true);
 		if (isSynchronous()) createDiseminateThread();
-		registerListener(scanID, listener);
+		registerListener(beanId, listener);
 		if (messageConsumer == null) {
 			try {
 				Class<?> beanClass = listener instanceof IBeanClassListener ? ((IBeanClassListener)listener).getBeanClass() : null;
@@ -223,10 +223,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractConnection impleme
 		diseminate(bean, listeners.get(DEFAULT_KEY));  // general listeners
 		if (bean instanceof IdBean) {
 			IdBean idBean = (IdBean)bean;
-			diseminate(bean, listeners.get(idBean.getUniqueId())); // scan specific listeners, if any
+			diseminate(bean, listeners.get(idBean.getUniqueId())); // bean specific listeners, if any
 		} else if (bean instanceof INameable) {
 			INameable namedBean = (INameable)bean;
-			diseminate(bean, listeners.get(namedBean.getName())); // scan specific listeners, if any
+			diseminate(bean, listeners.get(namedBean.getName())); // bean specific listeners, if any
 		}
 	}
 
