@@ -54,16 +54,29 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(yStop);
 
-		/*Validation and binding*/
+		validateAndBind(xStart, yStart, xStop, yStop);
+		return composite;
+	}
+
+	private void validateAndBind(NumberAndUnitsComposite xStart,
+								 NumberAndUnitsComposite yStart,
+								 NumberAndUnitsComposite xStop,
+								 NumberAndUnitsComposite yStop) {
+
+		binder.bind(xStart, "xStart", getModel());
+		binder.bind(yStart, "yStart", getModel());
+		binder.bind(xStop,  "xStop",  getModel());
+		binder.bind(yStop,  "yStop",  getModel());
+
+		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStop), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yStop), SWT.LEFT);
+
 		IObservableValue targetXStart = binder.getObservableValue(xStart);
 		IObservableValue targetXStop  = binder.getObservableValue(xStop);
 		IObservableValue targetYStart = binder.getObservableValue(yStart);
 		IObservableValue targetYStop  = binder.getObservableValue(yStop);
-
-		IObservableValue modelXStart  = binder.getObservableValue("xStart", getModel());
-		IObservableValue modelXStop   = binder.getObservableValue("xStop",  getModel());
-		IObservableValue modelYStart  = binder.getObservableValue("yStart", getModel());
-		IObservableValue modelYStop   = binder.getObservableValue("yStop",  getModel());
 
 		MultiValidator lengthValidator = new MultiValidator() {
 
@@ -76,14 +89,8 @@ public class LineRegionEditor extends AbstractRegionEditor {
 			}
 		};
 
-		binder.bind(lengthValidator.observeValidatedValue(targetXStart), modelXStart);
-		binder.bind(lengthValidator.observeValidatedValue(targetXStop ), modelXStop );
-		binder.bind(lengthValidator.observeValidatedValue(targetYStart), modelYStart);
-		binder.bind(lengthValidator.observeValidatedValue(targetYStop ), modelYStop );
-
 		ControlDecorationSupport.create(lengthValidator, SWT.LEFT);
 
-		return composite;
 	}
 
 }

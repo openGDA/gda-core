@@ -18,12 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
-import uk.ac.diamond.daq.mapping.ui.experiment.DataBinder;
 
 public class CircleRegionEditor extends AbstractRegionEditor {
 
@@ -35,17 +35,22 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
 		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(xCentre);
-		binder.bind(xCentre, "xCentre", getModel());
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
 		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(yCentre);
-		binder.bind(yCentre, "yCentre", getModel());
 
 		new Label(composite, SWT.NONE).setText("Radius");
 		NumberAndUnitsComposite radius = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(radius);
-		binder.bind(radius, "radius", getModel(), DataBinder.GREATER_THAN_ZERO);
+
+		binder.bind(xCentre, "xCentre", getModel());
+		binder.bind(yCentre, "yCentre", getModel());
+		binder.bind(radius, "radius", getModel());
+
+		ControlDecorationSupport.create(createGreaterThanZeroValidator(radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xCentre, radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getSlowAxisName(), yCentre, radius), SWT.LEFT);
 
 		return composite;
 	}

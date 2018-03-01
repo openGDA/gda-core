@@ -125,4 +125,19 @@ public class DataBinder {
 		return dbc.bindValue(targetObservableValue, modelObservableValue);
 	}
 
+	/**
+	 * Bind two IObservableValues validating with provided IValidator, and create default decoration support
+	 * @param target target value, commonly a UI widget
+	 * @param model model value
+	 * @param validator validator to use
+	 * @return created binding
+	 */
+	public Binding bind(IObservableValue target, IObservableValue model, IValidator validator) {
+		UpdateValueStrategy strategy = new UpdateValueStrategy();
+		strategy.setBeforeSetValidator(validator);
+		Binding binding = dbc.bindValue(target, model, strategy, new UpdateValueStrategy());
+		ControlDecorationSupport.create(binding, SWT.LEFT);
+		return binding;
+	}
+
 }

@@ -18,8 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
-
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.validation.MultiValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -36,24 +39,55 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
 		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(xCentre);
-		binder.bind(xCentre, "xCentre", getModel());
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Range");
 		NumberAndUnitsComposite xRange = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(xRange);
-		binder.bind(xRange, "xRange", getModel(), GREATER_THAN_ZERO);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
 		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(yCentre);
-		binder.bind(yCentre, "yCentre", getModel());
 
-		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Range");
+		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Range");
 		NumberAndUnitsComposite yRange = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(yRange);
-		binder.bind(yRange, "yRange", getModel(), GREATER_THAN_ZERO);
+
+		createValidatedBindings(getFastAxisName(), xCentre, "xCentre", xRange, "xRange");
+		createValidatedBindings(getSlowAxisName(), yCentre, "yCentre", yRange, "yRange");
 
 		return composite;
+	}
+
+	private void createValidatedBindings(String scannableName,
+										 NumberAndUnitsComposite centreWidget,
+										 String centreProperty,
+										 NumberAndUnitsComposite rangeWidget,
+										 String rangeProperty) {
+
+		binder.bind(centreWidget, centreProperty, getModel());
+		binder.bind(rangeWidget, rangeProperty, getModel());
+
+		ControlDecorationSupport.create(createGreaterThanZeroValidator(rangeWidget), SWT.LEFT);
+
+		MultiValidator limitsValidator = new MultiValidator() {
+
+			double lowerLimit = getLowerLimit(scannableName);
+			double upperLimit = getUpperLimit(scannableName);
+
+			IObservableValue centreValue = binder.getObservableValue(centreWidget);
+			IObservableValue rangeValue  = binder.getObservableValue(rangeWidget);
+
+			@Override
+			protected IStatus validate() {
+				double centre = (double) centreValue.getValue();
+				double range  = (double) rangeValue.getValue();
+
+				if (centre - range/2 < lowerLimit || centre + range/2 > upperLimit) return getLimitsError(lowerLimit, upperLimit);
+				return ValidationStatus.ok();
+			}
+		};
+		ControlDecorationSupport.create(limitsValidator, SWT.LEFT);
+
 	}
 
 }

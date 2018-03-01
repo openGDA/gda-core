@@ -36,6 +36,7 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 
 		Composite composite = super.createEditorPart(parent);
 
+
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Start");
 		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(xStart);
@@ -52,38 +53,44 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(composite, SWT.NONE);
 		grabHorizontalSpace.applyTo(yStop);
 
-		bindAndValidate(xStart, "xStart", xStop, "xStop", getModel());
-		bindAndValidate(yStart, "yStart", yStop, "yStop", getModel());
+		bind(getFastAxisName(), xStart, "xStart", xStop, "xStop");
+		bind(getSlowAxisName(), yStart, "yStart", yStop, "yStop");
 
 		return composite;
 	}
 
-	private void bindAndValidate(NumberAndUnitsComposite firstWidget,
-								 String firstProperty,
-								 NumberAndUnitsComposite secondWidget,
-								 String secondProperty,
-								 Object bean) {
+	private void bind(String scannableName,
+					  NumberAndUnitsComposite firstWidget,
+					  String firstProperty,
+					  NumberAndUnitsComposite secondWidget,
+					  String secondProperty) {
 
 		IObservableValue targetStart = binder.getObservableValue(firstWidget);
 		IObservableValue targetStop  = binder.getObservableValue(secondWidget);
 
-		IObservableValue modelStart = binder.getObservableValue(firstProperty, bean);
-		IObservableValue modelStop  = binder.getObservableValue(secondProperty, bean);
+		IObservableValue modelStart  = binder.getObservableValue(firstProperty, getModel());
+		IObservableValue modelStop	 = binder.getObservableValue(secondProperty, getModel());
 
-		MultiValidator validator = new MultiValidator() {
+		// Binding
+
+		binder.bind(targetStart, modelStart);
+		binder.bind(targetStop, modelStop);
+
+		// Validation decorators
+
+		MultiValidator lengthValidator = new MultiValidator() {
 			@Override
 			protected IStatus validate() {
 				double start = (double) targetStart.getValue();
-				double stop  = (double) targetStop.getValue();
+				double stop = (double) targetStop.getValue();
 				if (Math.abs(start-stop) > 0.0) return ValidationStatus.ok();
 				return ValidationStatus.error("Length must be greater than zero!");
 			}
 		};
 
-		binder.bind(validator.observeValidatedValue(targetStart), modelStart);
-		binder.bind(validator.observeValidatedValue(targetStop),  modelStop);
-
-		ControlDecorationSupport.create(validator, SWT.LEFT);
+		ControlDecorationSupport.create(lengthValidator, SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(scannableName, firstWidget), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(scannableName, secondWidget), SWT.LEFT);
 	}
 
 }
