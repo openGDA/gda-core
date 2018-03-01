@@ -117,7 +117,7 @@ public class ScriptProject {
 	 * the path String is marked as having failed resolution. This will cause
 	 * a further error to be reported when the Jython interpreter is initialised.
 	 *
-	 * @param path		The configured path String usually from a Spring bena definition
+	 * @param path		The configured path String usually from a Spring bean definition
 	 * @return			The corresponding full path or a marked version of the original
 	 * 					indicating failure.
 	 */
