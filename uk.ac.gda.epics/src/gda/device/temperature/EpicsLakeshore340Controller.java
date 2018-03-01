@@ -42,6 +42,16 @@ import gov.aps.jca.event.MonitorListener;
 
 /**
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
+ * <p>
+ * Example bean definition in Spring
+ * <pre>
+ * {@code
+ <bean id="lakeshore_controller" class="gda.device.temperature.EpicsLakeshore340Controller">
+	<property name="pvName" value="ME01D-EA-TCTRL-01:"/>
+	<property name="local" value="true"/>
+	<property name="configureAtStartup" value="true"/>
+</bean>
+ * }
  */
 public class EpicsLakeshore340Controller extends DeviceBase implements Configurable, Findable, InitializationListener {
 	/**
@@ -102,6 +112,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * GDA device Name
 	 */
 	private String deviceName = null;
+	private String pvName;
 	/**
 	 * EPICS controller
 	 */
@@ -160,6 +171,9 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 					logger.error("Can NOT find EPICS configuration for CryoController " + getDeviceName(), e);
 					throw new FactoryException("Missing EPICS XML configuration for CryoController " + getDeviceName());
 				}
+			} else if (getPvName()!=null) {
+				createChannelAccess(getPvName());
+				channelManager.tryInitialize(100);
 			}
 			// Nothing specified in Server XML file
 			else {
@@ -174,6 +188,21 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 			configured = true;
 		}// end of if (!configured)
 
+	}
+
+	private void createChannelAccess(String pvName) throws FactoryException {
+		try {
+		targettemp = channelManager.createChannel(pvName+"SETP_S", false);
+		krdg0 = channelManager.createChannel(pvName+"KRDG0", readbackChannel == 0 ? ctl : null, false);
+		krdg1 = channelManager.createChannel(pvName+"KRDG1", readbackChannel == 1 ? ctl : null, false);
+		krdg2 = channelManager.createChannel(pvName+"KRDG2", readbackChannel == 2 ? ctl : null, false);
+		krdg3 = channelManager.createChannel(pvName+"KRDG3", readbackChannel == 3 ? ctl : null, false);
+		disable = channelManager.createChannel(pvName+"DISABLE", connlist, false);
+		// acknowledge that creation phase is completed
+		channelManager.creationPhaseCompleted();
+		} catch (Throwable th) {
+			throw new FactoryException("failed to create reuqired channels for " + getName(), th);
+		}
 	}
 
 	/**
@@ -487,5 +516,13 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 			throw new IllegalStateException("Cannot change readback channel once configured");
 		}
 		this.readbackChannel = readbackChannel;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 }
