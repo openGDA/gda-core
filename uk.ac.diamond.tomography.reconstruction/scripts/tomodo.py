@@ -1764,7 +1764,7 @@ if __name__=="__main__":
 class Test1(unittest.TestCase):
 
 	def setUp(self):
-		#/scratch/i13trunk2_git/gda-dls-beamlines-i13x.git/i13i/scripts
+		#/scratch/i13trunk2_git/gda-dls-beamlines-i13x.git/i13-config/scripts
 		self.cwd=os.getcwd()
 
 	def tearDown(self):
