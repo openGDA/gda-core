@@ -42,13 +42,13 @@ import uk.ac.gda.client.liveplot.LivePlotView;
  * CompositeFactoryExecutableExtension. The details of this are
  * beamline-specific, but it is intended to show the status of the Ring and, to
  * look good on the screen, should be only 2-3 rows high, though it can fill the
- * whole window width-wise. For an example, see statusView.xml in i13i-config.
+ * whole window width-wise. For an example, see statusView.xml in i13-config.
  * <p>
  * - A bean that defines a DataCollectionADControllerImpl. This will be
- * beamline-specific, but for an example, see adController.xml in i13i-config.
+ * beamline-specific, but for an example, see adController.xml in i13-config.
  * <p>
  * - An OSGi service named dataCollectionADService that makes the AD controller
- * available. For an example, see osgi_services.xml in i13i-config.
+ * available. For an example, see osgi_services.xml in i13-config.
  */
 public class DataCollectionPerspective implements IPerspectiveFactory {
 

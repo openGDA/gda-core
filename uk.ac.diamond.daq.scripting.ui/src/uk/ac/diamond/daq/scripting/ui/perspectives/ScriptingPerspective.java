@@ -39,7 +39,7 @@ import uk.ac.gda.client.liveplot.LivePlotView;
  * CompositeFactoryExecutableExtension. The details of this are
  * beamline-specific, but it is intended to show the status of the Ring and, to
  * look good on the screen, should be only 2-3 rows high, though it can fill the
- * whole window width-wise. For an example, see statusView.xml in i13i-config.
+ * whole window width-wise. For an example, see statusView.xml in i13-config.
  */
 public class ScriptingPerspective implements IPerspectiveFactory {
 	private static final String STATUS_VIEW_ID = "uk.ac.diamond.daq.scripting.ui.views.StatusView";
