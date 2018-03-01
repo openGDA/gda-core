@@ -25,11 +25,12 @@ import javax.jms.Topic;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
+import org.eclipse.scanning.api.event.core.IURIConnection;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractConnection {
+abstract class AbstractConnection implements IURIConnection {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractConnection.class);
 
@@ -66,6 +67,7 @@ abstract class AbstractConnection {
 		this.service = service;
 	}
 
+	@Override
 	public IEventConnectorService getConnectorService() {
 		return service;
 	}
@@ -130,6 +132,7 @@ abstract class AbstractConnection {
 		connection.start();
 	}
 
+	@Override
 	public void disconnect() throws EventException {
 		try {
 			if (connection!=null) connection.close();
@@ -153,6 +156,7 @@ abstract class AbstractConnection {
 		this.topicName = topic;
 	}
 
+	@Override
 	public URI getUri() {
 		return uri;
 	}
@@ -230,6 +234,7 @@ abstract class AbstractConnection {
 		return value;
 	}
 
+	@Override
 	public boolean isDisconnected() {
 		return disconnected;
 	}
