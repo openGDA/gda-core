@@ -277,20 +277,29 @@ Interacting with the user
 
 You might write a script which requires user input every time it is
 run, such as asking for a variable. To do this within the GDA
-scripting environment you should use the requestInput command.
+you can use Jython's built in
+`raw_input <https://docs.python.org/2/library/functions.html#raw_input>`_
+function.
 
-To get this command import the command from the Input class::
+To use this command::
 
-	from gda.jython.commands.Input import requestInput
+    >>> raw_input('Prompt for input: ')
 
 When this is called the script will be paused and the prompt in the
 JythonTerminal GUI panel changes to ask the user to input something
 there. After the user has pressed return whatever has been typed in is
 returned as a string by the requestInput command. For example::
 
-   >>> target = requestInput("Where would you like to move s1_upper to?")
+   >>> target = raw_input("Where would you like to move s1_upper to?")
    >>> pos s1_upper float(target)
-    					
+
+.. note:: When using ``raw_input`` from the RCP client, input can be entered
+    on any connected client, not just the one that started the script or ran the
+    command.
+
+    When using ``raw_input`` from a remote connection, input will be restricted to
+    that connection.
+
 Error handling in scripts
 -------------------------
 
@@ -307,8 +316,8 @@ which 'wrap' the enclosed code and pickup exceptions if they occur
 within them and run code to resolve or report the problem.
 
 One thing to note is that all Jython errors inherit the Jython class
-org.python.core.exceptions. This does not inherit from the Java
-exception base class java.lang.Exception. This is important to
+``org.python.core.exceptions``. This does not inherit from the Java
+exception base class ``java.lang.Exception``. This is important to
 remember when writing error handling for scripts. When scripts are
 halted or stopped by user intervention, it is a Java exception which
 is raised; however many other errors which may occur in scripts will
@@ -318,39 +327,39 @@ forms of exception.
 For example::
 
    >>> try:
-   >>>     # your logic goes here
-   >>>     # have lots of calls to gda.jython.commands.ScannableControl.pause()
-   >>>     # to allow users to pause/halt the script cleanly
-   >>> except InterruptedException, e:
-   >>>     print "a user-requested halt!"
-   >>>     # code here to stop the equipment and return the beamline to a safe state
-   >>> except java.lang.Exception, e:
-   >>>     print "a Java exception must have occurred!"
-   >>>     # code here to stop the equipment and return the beamline to a safe state
-   >>> except:
-   >>>     print "a Jython error must have occurred!"
-   >>>     # code here to stop the equipment and return the beamline to a safe state
+   ...     # your logic goes here
+   ...     # have lots of calls to gda.jython.commands.ScannableControl.pause()
+   ...     # to allow users to pause/halt the script cleanly
+   ... except InterruptedException, e:
+   ...     print "a user-requested halt!"
+   ...     # code here to stop the equipment and return the beamline to a safe state
+   ... except java.lang.Exception, e:
+   ...     print "a Java exception must have occurred!"
+   ...     # code here to stop the equipment and return the beamline to a safe state
+   ... except:
+   ...     print "a Jython error must have occurred!"
+   ...     # code here to stop the equipment and return the beamline to a safe state
+   ...
 
 Alternatively, Jython has a finally clause which is always operated
 after a try block whether an exception has been thrown or not. This
-may be more suitable in some circumstances. As you cannot have both
-finally and except clauses with the same try block, you must nest try
-blocks to make execution order unambiguous::
+may be more suitable in some circumstances. ::
 
 
    >>> try:
-   >>>	    try:
-   >>> 	# your logic goes here
-   >>> 	# have lots of calls to gda.jython.commands.ScannableControl.pause()
-   >>> 	#to allow users to pause/halt the script cleanly
-   >>>     finally:
-   >>> 	# code here to stop the equipment and return the beamline to a safe state
-   >>> except InterruptedException, e:
-   >>>     print "a user-requested halt!"
-   >>> except java.lang.Exception, e:
-   >>>     print "a Java exception must have occurred!"
-   >>> except:
-   >>>     print "a Jython error must have occurred!"
+   ...     # your logic goes here
+   ...     # have lots of calls to gda.jython.commands.ScannableControl.pause()
+   ...     #to allow users to pause/halt the script cleanly
+   ... except InterruptedException, e:
+   ...     print "a user-requested halt!"
+   ... except java.lang.Exception, e:
+   ...     print "a Java exception must have occurred!"
+   ... except:
+   ...     print "a Jython error must have occurred!"
+   ... finally:
+   ...     # code here to stop the equipment and return the beamline to a safe state
+   ...     # this is always called whether an exception was raised or not
+   ...
 
 
 Persistence
@@ -416,3 +425,24 @@ the current exception::
 
 The full stack trace is written to the logs. Only the underlying causes are
 displayed to the user.
+
+Writing to external files
+-------------------------
+
+Writing to text files can be a useful way of recording the state of GDA and the
+beamline during a running script. Jython has built in methods of opening, writing
+to and closing files that prevent you having to manually handle any errors that
+may occur.
+
+To open a file for writing::
+
+    >>> with open('/path/to/file/to/open', 'a') as output:
+    ...     output.write('text to write to file\n') # \n adds a new line
+
+This replaces any ``try:...except:...finally:...`` blocks needed when writing to
+files. The file can be used at any time until the end of the ``with`` block
+where it will be closed, even if an error occurred somewhere in the block.
+
+.. note:: Using this will add text to the end of a file. To overwrite the
+  current contents of the file, pass 'w' instead of 'a' in the open command.
+
