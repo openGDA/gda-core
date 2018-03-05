@@ -20,13 +20,13 @@
 package gda.factory;
 
 /**
- * Thrown when an eceptional factory error codition has occured. For example when configuration fails.
+ * Thrown when an exceptional factory error condition has occurred. For example when configuration fails.
  */
 public class FactoryException extends Exception {
 
 	/**
 	 * Constructs a factory exception with the specified detail message.
-	 * 
+	 *
 	 * @param message
 	 *            the detail message.
 	 */
@@ -36,7 +36,7 @@ public class FactoryException extends Exception {
 
 	/**
 	 * Constructs a factory exception with the specified detail message.
-	 * 
+	 *
 	 * @param message
 	 *            the detail message.
 	 * @param cause
