@@ -19,7 +19,14 @@
 
 package gda.device.scannable;
 
+import static gda.device.MotorStatus.BUSY;
+import static gda.device.MotorStatus.FAULT;
+import static gda.device.MotorStatus.LOWER_LIMIT;
+import static gda.device.MotorStatus.READY;
+import static gda.device.MotorStatus.SOFT_LIMIT_VIOLATION;
+import static gda.device.MotorStatus.UPPER_LIMIT;
 import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
+import static gda.device.scannable.ScannableMotor.WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
@@ -32,6 +39,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.jscience.physics.quantities.Quantity;
 import org.junit.After;
@@ -65,7 +75,7 @@ public class ScannableMotorTest {
 	@Before
 	public void setUp() throws Exception {
 		motor = mock(Motor.class);
-		when(motor.getStatus()).thenReturn(MotorStatus.READY);
+		when(motor.getStatus()).thenReturn(READY);
 		when(motor.getMinPosition()).thenReturn(Double.NaN);
 		when(motor.getMaxPosition()).thenReturn(Double.NaN);
 
@@ -136,9 +146,9 @@ public class ScannableMotorTest {
 	@Test
 	public void testChangeMotorStatusTechniqueForFollowingTests() throws Exception {
 		assertFalse(sm.isBusy());
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertTrue(sm.isBusy());
-		when(motor.getStatus()).thenReturn(MotorStatus.READY);
+		when(motor.getStatus()).thenReturn(READY);
 		assertFalse(sm.isBusy());
 	}
 
@@ -149,7 +159,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(1.01);
 		assertEquals(1.01, (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1010., (Double) sm.getDemandPosition(), .00001);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals(1.01, (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1010., (Double) sm.getDemandPosition(), .00001);
 	}
@@ -162,7 +172,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(1.01);
 		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
 	}
@@ -173,7 +183,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.rawAsynchronousMoveTo(1.);
 		when(motor.getPosition()).thenReturn(1.11);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
 	}
@@ -199,7 +209,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		when(motor.getPosition()).thenReturn(1.01);
 		assertEquals(1010, (Double) sm.getPosition(), .00001);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals(1010., (Double) sm.getPosition(), .00001);
 	}
 
@@ -217,7 +227,7 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.1);
 		sm.asynchronousMoveTo(1000.);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		when(motor.getPosition()).thenReturn(1.01);
 		assertEquals(1010, (Double) sm.getPosition(), .00001);
 	}
@@ -228,7 +238,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.asynchronousMoveTo(1000.);
 		when(motor.getPosition()).thenReturn(1.11);
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals(1110., (Double) sm.getPosition(), .00001);
 	}
 
@@ -267,7 +277,7 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
 		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
@@ -286,7 +296,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.0101); // mm
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals("sm : 10.100micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
@@ -307,7 +317,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
@@ -356,7 +366,7 @@ public class ScannableMotorTest {
 	@Test
 	public void testIsBusy() throws Exception {
 		assertFalse(sm.isBusy());
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 		assertTrue(sm.isBusy());
 	}
 
@@ -517,7 +527,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testAsynchronousMoveToExceptionIfMoving() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
+		when(motor.getStatus()).thenReturn(BUSY);
 
 		try {
 			sm.asynchronousMoveTo(50);
@@ -773,61 +783,74 @@ public class ScannableMotorTest {
 
 	@Test(expected = DeviceException.class)
 	public void testIsBusyCannotGetStatus() throws Exception {
-		when(motor.getStatus()).thenThrow(new MotorException(MotorStatus.FAULT, "Error getting motor status"));
+		when(motor.getStatus()).thenThrow(new MotorException(FAULT, "Error getting motor status"));
 		sm.isBusy();
 	}
 
 	@Test
 	public void testIsBusyMotorAtFault() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.FAULT);
+		when(motor.getStatus()).thenReturn(FAULT);
 		assertFalse(sm.isBusy());
 	}
 
 	@Test
 	public void testIsBusyMotorAtUpperLimit() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.UPPER_LIMIT);
+		when(motor.getStatus()).thenReturn(UPPER_LIMIT);
 		assertFalse(sm.isBusy());
 	}
 
 	@Test
 	public void testIsBusyMotorAtLowerLimit() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.LOWER_LIMIT);
+		when(motor.getStatus()).thenReturn(LOWER_LIMIT);
 		assertFalse(sm.isBusy());
 	}
 
 	@Test
 	public void testIsBusyMotorAtSoftLimitViolation() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.SOFT_LIMIT_VIOLATION);
+		when(motor.getStatus()).thenReturn(SOFT_LIMIT_VIOLATION);
 		assertFalse(sm.isBusy());
 	}
 
 	@Test(expected = MotorException.class, timeout = 500)
 	public void testWaitWhileBusyCannotGetMotorStatus() throws Exception {
-		when(motor.getStatus()).thenThrow(new MotorException(MotorStatus.FAULT, "Error getting motor status"));
+		when(motor.getStatus()).thenThrow(new MotorException(FAULT, "Error getting motor status"));
 		sm.waitWhileBusy();
 	}
 
 	@Test(expected = DeviceException.class, timeout = 500)
 	public void testWaitWhileBusyMotorAtFault() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.FAULT);
+		when(motor.getStatus()).thenReturn(FAULT);
 		sm.waitWhileBusy();
 	}
 
 	@Test(expected = DeviceException.class, timeout = 500)
 	public void testWaitWhileBusyMotorAtUpperLimit() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.UPPER_LIMIT);
+		when(motor.getStatus()).thenReturn(UPPER_LIMIT);
 		sm.waitWhileBusy();
 	}
 
 	@Test(expected = DeviceException.class, timeout = 500)
 	public void testWaitWhileBusyMotorAtLowerLimit() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.LOWER_LIMIT);
+		when(motor.getStatus()).thenReturn(LOWER_LIMIT);
 		sm.waitWhileBusy();
 	}
 
 	@Test(expected = DeviceException.class, timeout = 500)
 	public void testWaitWhileBusyMotorAtSoftLimitViolation() throws Exception {
-		when(motor.getStatus()).thenReturn(MotorStatus.SOFT_LIMIT_VIOLATION);
+		when(motor.getStatus()).thenReturn(SOFT_LIMIT_VIOLATION);
 		sm.waitWhileBusy();
+	}
+
+	@Test(timeout = 1000)
+	public void testWaitWhileBusyThrowsExceptionWhenMotorIsInFaultState() throws Exception {
+		final Set<MotorStatus> faultStates = EnumSet.of(FAULT, LOWER_LIMIT, SOFT_LIMIT_VIOLATION, UPPER_LIMIT);
+		LocalProperties.set(WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE, "false");
+		sm.configure(); // get motor to re-read property
+
+		for (MotorStatus state : faultStates) {
+			when(motor.getStatus()).thenReturn(state);
+			sm.waitWhileBusy();
+		}
+		LocalProperties.clearProperty(WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE);
 	}
 }

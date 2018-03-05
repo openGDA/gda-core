@@ -65,6 +65,13 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	 */
 	public static final String COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS = "gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits";
 
+	/**
+	 * Name of Java property to control whether an exception is thrown when motor is in a limit/fault state.<br>
+	 * This property is deprecated and will be removed in GDA 9.10. Code that intentionally drives motors to these
+	 * states should catch and handle the exception.
+	 */
+	public static final String WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE = "gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState";
+
 	private static final Logger logger = LoggerFactory.getLogger(ScannableMotor.class);
 
 	/**
@@ -96,6 +103,11 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	private final Object isBusyAndMovetoLock = new Object();
 
 	private boolean demandMsgShown = false;
+
+	/**
+	 * See {@link ScannableMotor#WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE}
+	 */
+	private boolean waitWhileBusyThrowsExceptionWhenMotorIsInFaultState;
 
 	/**
 	 * Sets the motor used by this scannable motor.
@@ -153,6 +165,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 			if (LocalProperties.check(COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, false)) {
 				copyMotorLimitsIntoScannableLimits();
 			}
+			waitWhileBusyThrowsExceptionWhenMotorIsInFaultState = LocalProperties.check(WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE, true);
 		} catch (Exception e) {
 			throw new FactoryException("Exception during configure of " + getName(), e);
 		}
@@ -364,9 +377,14 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 
 		final MotorStatus motorStatus = motor.getStatus();
 		if (ERROR_STATES.contains(motorStatus)) {
-			final String message = String.format("During %s.waitWhileBusy(), EPICS Motor was found in %s status. Please check EPICS Screen.",
+			final String message = String.format(
+					"During %s.waitWhileBusy(), EPICS Motor was found in %s status. Please check EPICS Screen.",
 					getName(), motorStatus);
-			throw new MotorException(motorStatus, message);
+			if (waitWhileBusyThrowsExceptionWhenMotorIsInFaultState) {
+				throw new MotorException(motorStatus, message);
+			} else {
+				logger.warn(message);
+			}
 		}
 	}
 
