@@ -111,7 +111,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	}
 
 	/**
-	 * COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS Method required by scripts which need to access the real motor at times.
+	 * Method required by scripts which need to access the real motor at times.<br>
 	 * Before the script could get the motor name but now that the motor may be set by spring, scripts cannot get the
 	 * underlying motor.
 	 *
@@ -342,7 +342,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	}
 
 	/**
-	 * Return true if motor is busy. Throw an exception if the motor is in a FAULT state and isIsBusyThrowingExceptionWhenMotorGoesIntoFault() is true.
+	 * Return true if motor is busy.
 	 */
 	@Override
 	public boolean isBusy() throws DeviceException {

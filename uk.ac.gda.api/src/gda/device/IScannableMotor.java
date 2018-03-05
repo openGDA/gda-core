@@ -38,8 +38,9 @@ public interface IScannableMotor extends Scannable {
 	void setMotor(Motor motor);
 
 	/**
-	 * COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS Method required by scripts which need to access the real motor at times. Before the script could get the motor
-	 * name but now that the motor may be set by spring, scripts cannot get the underlying motor.
+	 * Method required by scripts which need to access the real motor at times.<br>
+	 * Before the script could get the motor name but now that the motor may be set by spring, scripts cannot get the
+	 * underlying motor.
 	 *
 	 * @return Motor
 	 */

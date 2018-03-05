@@ -19,6 +19,7 @@
 
 package gda.device.scannable;
 
+import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
@@ -690,7 +691,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_Off() throws Exception {
-		LocalProperties.set(ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "false");
+		LocalProperties.set(COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "false");
 		when(motor.getMinPosition()).thenReturn(-10.);
 		when(motor.getMaxPosition()).thenReturn(10.);
 		sm = new ScannableMotor();
@@ -703,7 +704,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_Limits_ManuallySet() throws Exception {
-		LocalProperties.set(ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "true");
+		LocalProperties.set(COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "true");
 		when(motor.getMinPosition()).thenReturn(-10.);
 		when(motor.getMaxPosition()).thenReturn(10.);
 		sm = new ScannableMotor();
@@ -717,7 +718,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testCopyMotorLimitsIntoScannable_ScaleNegative() throws Exception {
-		LocalProperties.set(ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "true");
+		LocalProperties.set(COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "true");
 		when(motor.getMinPosition()).thenReturn(-10.);
 		when(motor.getMaxPosition()).thenReturn(20.);
 		sm = new ScannableMotor();
