@@ -47,6 +47,7 @@ import gda.device.detector.xmap.edxd.EDXDController.PIXEL_ADVANCE_MODE;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
+import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 public class EDXDMappingControllerTest {
@@ -99,6 +100,14 @@ public class EDXDMappingControllerTest {
 			final IEDXDElement subDetector = controller.getSubDetector(i);
 			assertTrue(subDetector instanceof EDXDMappingElement);
 		}
+	}
+
+	@Test(expected = FactoryException.class)
+	public void testConfigureWithNoXmapDeviceFails() throws Exception {
+		final EDXDMappingController controllerNoXmap = new EDXDMappingController();
+		controllerNoXmap.setElementOffset(ELEMENT_OFFSET);
+		controllerNoXmap.setHdf5(ndFileHDF5);
+		controllerNoXmap.configure();
 	}
 
 	@Test
@@ -475,5 +484,10 @@ public class EDXDMappingControllerTest {
 	public void testIsBufferedArrayPortFalse() throws Exception {
 		when(ndFileHDF5.getArrayPort()).thenReturn("something else");
 		assertFalse(controller.isBufferedArrayPort());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReconfigureNotSupported() throws Exception {
+		controller.reconfigure();
 	}
 }

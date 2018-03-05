@@ -28,7 +28,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.epicsdevice.EpicsMonitorEvent;
-import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
 import gda.device.epicsdevice.XmapEpicsDevice;
@@ -49,7 +48,6 @@ public class EDXDController extends DetectorBase implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(EDXDController.class);
 
 	private boolean isBusy = false;
-	private String epicsDeviceName = "edxd";
 	private IEpicsChannel statusChannel;
 
 	protected int numberOfElements = 24;
@@ -82,15 +80,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		// FIXME The xmap FindableEpicsDevice should preferably be configured in Spring but,
-		// for backwards compatibility, is created here if necessary.
-		// TODO Please be aware that use of the finder prevents others from understanding how the code flows!
 		if (xmap == null) {
-			final FindableEpicsDevice xmapFindable = new FindableEpicsDevice();
-			xmapFindable.setDeviceName(epicsDeviceName);
-			xmapFindable.setName(epicsDeviceName);
-			xmapFindable.configure();
-			xmap = xmapFindable;
+			throw new FactoryException(String.format("No XMAP device set in %s", getName()));
 		}
 		statusChannel = xmap.createEpicsChannel(ReturnType.DBR_NATIVE, ACQUIRING , "");
 		statusChannel.addIObserver(new IObserver(){
@@ -124,21 +115,9 @@ public class EDXDController extends DetectorBase implements Configurable {
 			subDetectors.add(new EDXDElement(xmap, i + 1));
 	}
 
-	/**
-	 * reconfigure() deprecated because this will cause a new Xmap device to be created, which may be different from the one configured in Spring
-	 */
 	@Override
-	@Deprecated
 	public void reconfigure() throws FactoryException {
-		try {
-			xmap.dispose();
-		} catch (DeviceException e) {
-			logger.warn(
-					"DeviceException while trying to shutdown EpicsDevice during reconfigure of EDXDController. Will continue with reconfigure anyway",
-					e);
-		}
-		xmap = null;
-		configure();
+		throw new UnsupportedOperationException(String.format("Illegal call to reconfigure() in %s", getName()));
 	}
 
 	@Override
@@ -610,13 +589,5 @@ public class EDXDController extends DetectorBase implements Configurable {
 
 	public void setXmap(XmapEpicsDevice xmap) {
 		this.xmap = xmap;
-	}
-
-	public String getEpicsDeviceName() {
-		return epicsDeviceName;
-	}
-
-	public void setEpicsDeviceName(String deviceName) {
-		this.epicsDeviceName = deviceName;
 	}
 }
