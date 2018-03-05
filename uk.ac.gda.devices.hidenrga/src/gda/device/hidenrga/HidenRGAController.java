@@ -16,11 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device;
+package gda.device.hidenrga;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -41,6 +47,8 @@ import gov.aps.jca.event.MonitorListener;
  * Interacts with the Hiden RGA EPICS layer. This is separated from the Hiden Scannable class for testing purposes.
  */
 public class HidenRGAController implements IObservable, InitializationListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(HidenRGAController.class);
 
 	private class ScanCycleListener implements MonitorListener {
 		boolean first = true;
@@ -90,10 +98,20 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	protected ReadOnlyPV<Double[]> valveDataPV;
 	protected ReadOnlyPV<Double[]> tempDataPV;
 
+	private ReadOnlyPV<Integer> hardwareErrorPv;
+	private ReadOnlyPV<String> hardwareErrorStringPv;
+	private ReadOnlyPV<Double>[] barChartPressurePVs;
+
+	private String hardwareErrorString = "";
 
 	private int numberOfMasses;
 
 	private boolean useAuxiliaryInputs=true; //B18 first implemented this class
+
+	private int numBarChartPressures = 200;
+
+	private String currentValvePvName = ":P:MIDAUX1-I";
+	private String currentTempPvName = ":P:MIDAUX2-I";
 
 	public HidenRGAController(String epicsPrefix) {
 		this.epicsPrefix = epicsPrefix;
@@ -114,8 +132,8 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		startScanPV = LazyPVFactory.newIntegerPV(generatePVName(":MID:START.PROC"));	// set 1 to run procedure
 		stopScanPV = LazyPVFactory.newIntegerPV(generatePVName(":ABORT.PROC"));		// set 1 to run procedure
 		if (isUseAuxiliaryInputs()) {
-			currentValvePV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX1-I"));
-			currentTempPV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX2-I"));
+			currentValvePV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(currentValvePvName));
+			currentTempPV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(currentTempPvName));
 		}
 
 		massSetPVs = new PV[getNumberOfMassChannels()];
@@ -127,7 +145,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		for (int chan = 1; chan <= getNumberOfMassChannels(); chan++){
 			massSetPVs[chan - 1] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:M_SP",chan)));
 			massReadbackPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":MID:%d:M_RBV",chan)));
-			massCountsPerSecPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":P:MID%d-PCALC",chan)));
+			massCountsPerSecPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":P:MID%d-PCALC",chan))); // not on mobile RGA
 			if (chan > 1){
 				enableMassPVs[chan - 2] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:ENABLE",chan)));
 			}
@@ -139,7 +157,17 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		timestampPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:TIME:ABS")));
 		if (isUseAuxiliaryInputs()) {
 			valveDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX1:P:RAW")));
-			tempDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX2:P:RAW")));
+			tempDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX2:P:RAW"))); // not on mobile RGA
+		}
+
+		// New error status, error message PVs.
+		hardwareErrorPv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(":ErrorLatch"));
+		hardwareErrorStringPv = LazyPVFactory.newReadOnlyStringPV(generatePVName(":LastErrorString"));
+
+		// Bar chart pressure PVs
+		barChartPressurePVs = new ReadOnlyPV[numBarChartPressures];
+		for(int i = 0; i<numBarChartPressures; i++) {
+			barChartPressurePVs[i] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":BAR:M%d", i+1)));
 		}
 	}
 
@@ -149,8 +177,19 @@ public class HidenRGAController implements IObservable, InitializationListener {
 
 	public void setMasses(Set<Integer> masses) throws IOException {
 
-		numberOfMasses = masses.size();
+		// Throw exception for invalid masses array
+		if (masses == null || masses.isEmpty()) {
+			String message = "setMasses called with null or zero length masses array";
+			logger.warn(message);
+			throw new IllegalArgumentException(message);
+		}
+		if (masses.size() > numberOfMassChannels) {
+			String message = "setMasses called with masses array size ("+masses.size()+") larger than number of mass channels in Epics ("+numberOfMassChannels+")";
+			logger.warn(message);
+			throw new IllegalArgumentException(message);
+		}
 
+		numberOfMasses = masses.size();
 		int chan = 1;
 		for (Integer mass : masses){
 			// for each mass, set the value and enable the channel
@@ -218,8 +257,29 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		throw new UnsupportedOperationException("RGA auxiliary inputs are not supported.");
 	}
 
+	/**
+	 * @return Hardware error message string
+	 */
+	public String getHardwareErrorMessage() {
+		return hardwareErrorString;
+	}
+
+	/**
+	 *  Check hardware error status, throw exception if necessary
+	 */
+	public void checkForHardwareError() throws IOException, DeviceException {
+		hardwareErrorString = "";
+		if (hardwareErrorPv.get() != 0) {
+			String errorStringFromPv = hardwareErrorStringPv.get();
+			hardwareErrorString = errorStringFromPv == null ? "" : errorStringFromPv;
+			throw new DeviceException(hardwareErrorString);
+		}
+	}
+
 	public double[] readout() throws DeviceException {
 		try {
+			checkForHardwareError();
+
 			double[] results = new double[numberOfMasses];
 			for (int chan = 1; chan <= numberOfMasses; chan++){
 				results[chan - 1] = massCountsPerSecPVs[chan - 1].get();
@@ -266,4 +326,36 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		this.numberOfMassChannels = numberOfMassChannels;
 	}
 
+	public int getNumBarChartPressures() {
+		return numBarChartPressures;
+	}
+
+	public void setNumBarChartPressures(int numBarChartPressures) {
+		this.numBarChartPressures = numBarChartPressures;
+	}
+
+	public List<Double> getBarChartPressures() throws IOException {
+		List<Double> pressures = new ArrayList<>();
+		for(int i=0; i<numBarChartPressures; i++) {
+			Double val = barChartPressurePVs[i].get();
+			pressures.add(val);
+		}
+		return pressures;
+	}
+
+	public String getCurrentTemperaturePvName() {
+		return currentTempPvName;
+	}
+
+	public void setCurrentTemperaturePvName(String currentTempPvName) {
+		this.currentTempPvName = currentTempPvName;
+	}
+
+	public String getCurrentValvePvName() {
+		return currentValvePvName;
+	}
+
+	public void setCurrentValvePvName(String currentValvePvName) {
+		this.currentValvePvName = currentValvePvName;
+	}
 }

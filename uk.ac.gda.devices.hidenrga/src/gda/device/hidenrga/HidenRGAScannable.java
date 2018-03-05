@@ -16,17 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device;
-
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.scannable.ScannableBase;
-import gda.epics.EpicsConstants;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-import gov.aps.jca.CAException;
+package gda.device.hidenrga;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -36,12 +26,26 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.scannable.ScannableBase;
+import gda.epics.EpicsConstants;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.observable.IObserver;
+import gda.scan.ScanInformation;
+import gov.aps.jca.CAException;
 
 /**
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
@@ -72,212 +76,15 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	private static final String TIME_FORMAT = "HH:mm:ss:SSS";
 	private boolean useAuxiliaryInputs = true;
 
-	private class HidenFileWriter extends Thread {
-
-		private String filename;
-		private boolean shouldStop = false;
-		private Date startTime;
-		private DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		private DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
-		private Double[][] massesData = new Double[21][];
-		private Double[] valveData;
-		private Double[] tempData;
-		private Double[] timeStampData;
-		private int lastDataPoint;
-
-		public HidenFileWriter(String filename) {
-			this.filename = filename;
-		}
-
-		@Override
-		public void run() {
-			shouldStop = false;
-			// open file
-			try (BufferedWriter buffer = new BufferedWriter(new FileWriter(filename))) {
-				lastDataPoint = 0;
-				boolean headerWritten = false;
-				// infinite loop
-				while (!shouldStop) {
-					if (lastScanCycleUsed != lastScanCycleSeen) {
-						if (!headerWritten) {
-							writeHeader(buffer);
-							headerWritten = true;
-						}
-
-						if (collectionRate >= 1) {
-							recordNewEntry(buffer);
-						} else {
-							recordMissingEntries(buffer);
-						}
-						lastScanCycleUsed = lastScanCycleSeen;
-					}
-					if (messageToAppend != null) {
-						buffer.write(messageToAppend);
-						buffer.flush();
-						messageToAppend = null;
-					}
-					sleep();
-				}
-			} catch (DeviceException e) {
-				logger.error("DeviceException when reading the RGA to file", e);
-			} catch (IOException e1) {
-				logger.error("IOException when trying to create RGA file " + filename, e1);
-			} finally {
-				try {
-					stopRGA();
-					String message = HidenRGAScannable.this.getName() + " has stopped recording";
-					logger.info(message);
-					InterfaceProvider.getTerminalPrinter().print(message);
-					HidenRGAScannable.this.notifyIObservers(this, RECORDING_STOPPED);
-				} catch (IOException e) {
-					logger.error("IOException when stopping the RGA after writing to file", e);
-				}
-			}
-		}
-
-		private void sleep() {
-
-			// increase the sleep time if the collectionRate attribute has been set
-			int sleepTime_ms = 50;
-			if (collectionRate >= 1) {
-				sleepTime_ms = collectionRate * 100; // use 1/10th of the collection time to avoid overshooting too much
-			}
-
-			try {
-				Thread.sleep(sleepTime_ms);
-			} catch (InterruptedException e) {
-				shouldStop = true;
-			}
-		}
-
-		private void writeHeader(BufferedWriter buffer) throws IOException {
-			startTime = new Date(); // used for 'slow' (throttled) data collection
-
-			Double dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0]; // in Epics epoch
-
-			// Check if start time is zero (occurs while EPICS is waiting for the RGA to start scanning)
-			while (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01
-					&& (new Date().getTime() - startTime.getTime()) < 60000) { // timeout after a minute
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					break;
-				}
-				dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0];
-			}
-
-			Date dataCollectionStart;
-			if (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01) {
-				logger.warn("Timeout while waiting for timestamp from RGA controller");
-				dataCollectionStart = startTime;
-			} else {
-				Double dataCollectionStartInJavaEpoch = dataCollectionStartEpicsEpoch + EpicsConstants.EPICS_EPOCH_OFFSET;
-				dataCollectionStart = new Date(dataCollectionStartInJavaEpoch.longValue());
-			}
-
-			String[] columns = getExtraNames();
-
-			StringBuffer header = new StringBuffer();
-			header.append("# Scan started: ");
-			header.append(dateFormat.format(dataCollectionStart));
-			header.append("\n");
-			header.append("Absolute Time");
-			header.append("\t");
-			header.append("Relative Time (ms)");
-			for (String column : columns) {
-				header.append("\t");
-				header.append(column);
-			}
-			header.append("\n");
-
-			buffer.write(header.toString());
-			buffer.flush();
-		}
-
-		private void recordNewEntry(BufferedWriter buffer) throws DeviceException, IOException {
-			Date now = new Date();
-			long timeSinceStart = now.getTime() - startTime.getTime();
-			double[] latestMasses = controller.readout();
-			Double valve = null;
-			Double temp = null;
-			if (isUseAuxiliaryInputs()) {
-				valve = controller.readValve();
-				temp = controller.readtemp();
-			}
-			recordSingleEntry(buffer, now, timeSinceStart, latestMasses, valve, temp);
-		}
-
-		private void recordMissingEntries(BufferedWriter buffer) throws DeviceException, IOException {
-
-			int availableDataPoints = controller.dataPointsCountPV.get();
-
-			for (int chan = 0; chan < masses.size(); chan++) {
-				massesData[chan] = controller.dataPVs[chan].get();
-			}
-			if (isUseAuxiliaryInputs()) {
-				valveData = controller.valveDataPV.get(availableDataPoints);
-				tempData = controller.tempDataPV.get(availableDataPoints);
-			}
-			timeStampData = controller.timestampPV.get(availableDataPoints);
-
-			for (int cycle = lastDataPoint; cycle < availableDataPoints; cycle++) {
-				logger.debug("Doing cycle " + cycle);
-				double[] latestMasses = new double[masses.size()];
-				for (int chan = 0; chan < masses.size(); chan++) {
-					latestMasses[chan] = massesData[chan][cycle];
-				}
-				long absTime = timeStampData[cycle].longValue();
-				long relativeTime = absTime - timeStampData[0].longValue();
-
-				Date absTimeInJavaEpoch = new Date(absTime + EpicsConstants.EPICS_EPOCH_OFFSET);
-
-				if (isUseAuxiliaryInputs()) {
-					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, valveData[cycle], tempData[cycle]);
-				} else {
-					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, null, null);
-				}
-			}
-			lastDataPoint = availableDataPoints;
-		}
-
-		private void recordSingleEntry(BufferedWriter buffer, Date absTime, long relativeTime, double[] latestMasses, Double valve, Double temp) throws IOException {
-
-			StringBuffer lineToWrite = new StringBuffer();
-			lineToWrite.append(timeFormat.format(absTime));
-			lineToWrite.append("\t");
-			lineToWrite.append(String.format("%d", relativeTime));
-			for (double mass : latestMasses) {
-				lineToWrite.append("\t");
-				lineToWrite.append(String.format(FORMAT, mass));
-			}
-			if (valve != null) {
-				lineToWrite.append("\t");
-				lineToWrite.append(String.format(FORMAT, valve));
-			}
-			if (temp != null) {
-				lineToWrite.append("\t");
-				lineToWrite.append(String.format(FORMAT, temp));
-			}
-			lineToWrite.append("\n");
-
-			buffer.write(lineToWrite.toString());
-			buffer.flush();
-		}
-
-		public void stopWriting() {
-			shouldStop = true;
-		}
-	}
-
 	private String epicsPrefix;
-	private Set<Integer> masses = new LinkedHashSet<Integer>();
+	private Set<Integer> masses = new LinkedHashSet<>();
 	private HidenRGAController controller;
 	private HidenFileWriter fileWriterThread;
 	private volatile int lastScanCycleSeen = 0;
 	private volatile int lastScanCycleUsed = 0;
 	private volatile String messageToAppend;
 	private boolean inAScan = false;
-	private int collectionRate = -1; // the minimum time between data collections, in seconds
+	private double collectionRate = -1; // the minimum time between data collections, in seconds
 
 	public HidenRGAScannable() {
 		setInputNames(new String[] {});
@@ -498,12 +305,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	}
 
 	@Override
-	public int getCollectionRate() {
+	public double getCollectionRate() {
 		return collectionRate;
 	}
 
 	@Override
-	public void setCollectionRate(int collectionRate) {
+	public void setCollectionRate(double collectionRate) {
 		this.collectionRate = collectionRate;
 	}
 
@@ -541,6 +348,242 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			}
 		} else {
 			logger.warn("RGA is not recording a file, could not append message '{}'", message);
+		}
+	}
+
+	@Override
+	public List<Double> getBarChartPressures() throws IOException {
+		return controller.getBarChartPressures();
+	}
+
+	@Override
+	public int getNumBarChartPressures() {
+		return controller.getNumBarChartPressures();
+	}
+
+	@Override
+	public int getNumberOfMassChannels() {
+		return controller.getNumberOfMassChannels();
+	}
+	private class HidenFileWriter extends Thread {
+
+		private String filename;
+		private boolean shouldStop = false;
+		private Date startTime;
+		private DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		private DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
+		private Double[][] massesData = new Double[21][];
+		private Double[] valveData;
+		private Double[] tempData;
+		private Double[] timeStampData;
+		private int lastDataPoint;
+
+		public HidenFileWriter(String filename) {
+			this.filename = filename;
+		}
+
+		@Override
+		public void run() {
+			shouldStop = false;
+
+			// open file
+			try (BufferedWriter buffer = new BufferedWriter(new FileWriter(filename))) {
+				lastDataPoint = 0;
+				boolean headerWritten = false;
+				// infinite loop
+				while (!shouldStop) {
+					if (lastScanCycleUsed != lastScanCycleSeen) {
+						if (!headerWritten) {
+							writeHeader(buffer);
+							headerWritten = true;
+						}
+
+						if (collectionRate >= 1) {
+							recordNewEntry(buffer);
+						} else {
+							recordMissingEntries(buffer);
+						}
+						lastScanCycleUsed = lastScanCycleSeen;
+					}
+					if (messageToAppend != null) {
+						buffer.write(messageToAppend);
+						buffer.flush();
+						messageToAppend = null;
+					}
+					sleep();
+				}
+			} catch (DeviceException e) {
+				logger.error("DeviceException when reading the RGA to file", e);
+			} catch (IOException e1) {
+				logger.error("IOException when trying to create RGA file " + filename, e1);
+			}
+
+			// Append any hardware error message to the output file
+			try (BufferedWriter buffer = new BufferedWriter(new FileWriter(filename, true))) {
+				stopRGA();
+				String message = "\n# "+HidenRGAScannable.this.getName() + " has stopped recording";
+
+				// Get hardware error message string.
+				String hardwareErrorMessage = controller.getHardwareErrorMessage();
+				if (!hardwareErrorMessage.isEmpty()) {
+					message += " : " + hardwareErrorMessage;
+				}
+
+				// Append to output file
+				buffer.write(message);
+				buffer.flush();
+
+				logger.info(message);
+				InterfaceProvider.getTerminalPrinter().print(message);
+				HidenRGAScannable.this.notifyIObservers(this, RECORDING_STOPPED);
+			} catch (IOException e) {
+				logger.error("IOException when stopping the RGA after writing to file", e);
+			}
+		}
+
+		private void sleep() {
+
+			// increase the sleep time if the collectionRate attribute has been set
+			int sleepTime_ms = 50;
+			if (collectionRate*1000 >= sleepTime_ms) {
+				sleepTime_ms = (int) (collectionRate * 100); // use 1/10th of the collection time to avoid overshooting too much
+			}
+
+			try {
+				Thread.sleep(sleepTime_ms);
+			} catch (InterruptedException e) {
+				shouldStop = true;
+			}
+		}
+
+		private void writeHeader(BufferedWriter buffer) throws IOException {
+			startTime = new Date(); // used for 'slow' (throttled) data collection
+
+			Double dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0]; // in Epics epoch
+
+			// Check if start time is zero (occurs while EPICS is waiting for the RGA to start scanning)
+			while (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01
+					&& (new Date().getTime() - startTime.getTime()) < 60000) { // timeout after a minute
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					break;
+				}
+				dataCollectionStartEpicsEpoch = controller.timestampPV.get(1)[0];
+			}
+
+			Date dataCollectionStart;
+			if (Math.abs(dataCollectionStartEpicsEpoch.doubleValue()) < 0.01) {
+				logger.warn("Timeout while waiting for timestamp from RGA controller");
+				dataCollectionStart = startTime;
+			} else {
+				Double dataCollectionStartInJavaEpoch = dataCollectionStartEpicsEpoch + EpicsConstants.EPICS_EPOCH_OFFSET;
+				dataCollectionStart = new Date(dataCollectionStartInJavaEpoch.longValue());
+			}
+
+			String[] columns = getExtraNames();
+
+			StringBuffer header = new StringBuffer();
+			header.append("# Scan started: ");
+			header.append(dateFormat.format(dataCollectionStart));
+			header.append("\n");
+			header.append("Absolute Time");
+			header.append("\t");
+			header.append("Relative Time (ms)");
+			for (String column : columns) {
+				header.append("\t");
+				header.append(column);
+			}
+			header.append("\n");
+
+			buffer.write(header.toString());
+			buffer.flush();
+		}
+
+		private void recordNewEntry(BufferedWriter buffer) throws DeviceException, IOException {
+			Date now = new Date();
+			long timeSinceStart = now.getTime() - startTime.getTime();
+			double[] latestMasses = controller.readout();
+			Double valve = null;
+			Double temp = null;
+			if (isUseAuxiliaryInputs()) {
+				valve = controller.readValve();
+				temp = controller.readtemp();
+			}
+			recordSingleEntry(buffer, now, timeSinceStart, latestMasses, valve, temp);
+		}
+
+		private void recordMissingEntries(BufferedWriter buffer) throws DeviceException, IOException {
+
+			controller.checkForHardwareError();
+
+			int availableDataPoints = controller.dataPointsCountPV.get();
+
+			for (int chan = 0; chan < masses.size(); chan++) {
+				massesData[chan] = controller.dataPVs[chan].get();
+			}
+			if (isUseAuxiliaryInputs()) {
+				valveData = controller.valveDataPV.get(availableDataPoints);
+				tempData = controller.tempDataPV.get(availableDataPoints);
+			}
+			timeStampData = controller.timestampPV.get(availableDataPoints);
+
+			for (int cycle = lastDataPoint; cycle < availableDataPoints; cycle++) {
+				logger.debug("Doing cycle " + cycle);
+				double[] latestMasses = new double[masses.size()];
+				for (int chan = 0; chan < masses.size(); chan++) {
+					latestMasses[chan] = massesData[chan][cycle];
+				}
+				long absTime = timeStampData[cycle].longValue();
+				long relativeTime = absTime - timeStampData[0].longValue();
+
+				Date absTimeInJavaEpoch = new Date(absTime + EpicsConstants.EPICS_EPOCH_OFFSET);
+
+				if (isUseAuxiliaryInputs()) {
+					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, valveData[cycle], tempData[cycle]);
+				} else {
+					recordSingleEntry(buffer, absTimeInJavaEpoch, relativeTime, latestMasses, null, null);
+				}
+			}
+			lastDataPoint = availableDataPoints;
+		}
+
+		private void recordSingleEntry(BufferedWriter buffer, Date absTime, long relativeTime, double[] latestMasses, Double valve, Double temp) throws IOException {
+
+			StringBuilder lineToWrite = new StringBuilder();
+			lineToWrite.append(timeFormat.format(absTime));
+			lineToWrite.append("\t");
+			lineToWrite.append(String.format("%d", relativeTime));
+
+			for (double mass : latestMasses) {
+				lineToWrite.append("\t");
+				lineToWrite.append(String.format(FORMAT, mass));
+			}
+			if (valve != null) {
+				lineToWrite.append("\t");
+				lineToWrite.append(String.format(FORMAT, valve));
+			}
+			if (temp != null) {
+				lineToWrite.append("\t");
+				lineToWrite.append(String.format(FORMAT, temp));
+			}
+
+			// Add scan number to end of line.
+			ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			int scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
+			if (scanInfo != null && scanStatus != Jython.IDLE) {
+				String scanNumber = String.valueOf(scanInfo.getScanNumber());
+				lineToWrite.append("\t");
+				lineToWrite.append(scanNumber);
+			}
+			buffer.append("\n");
+
+			buffer.write(lineToWrite.toString());
+			buffer.flush();
+		}
+
+		public void stopWriting() {
+			shouldStop = true;
 		}
 	}
 }

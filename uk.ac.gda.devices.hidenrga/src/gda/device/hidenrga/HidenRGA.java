@@ -1,8 +1,10 @@
-package gda.device;
+package gda.device.hidenrga;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
+import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
@@ -34,8 +36,13 @@ public interface HidenRGA extends Findable, IObservable{
 	 *
 	 * @param collectionRate
 	 */
-	public void setCollectionRate(int rate);
+	public void setCollectionRate(double rate);
 
-	public int getCollectionRate();
+	public double getCollectionRate();
 
+	public List<Double> getBarChartPressures() throws IOException;
+
+	public int getNumBarChartPressures();
+
+	public int getNumberOfMassChannels();
 }
