@@ -100,7 +100,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	}
 
 	protected synchronized void addPositions(Collection<String> positions) {
-		positions.addAll(positions);
+		this.positions.addAll(positions);
 	}
 
 	@Override
