@@ -49,6 +49,7 @@ import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
@@ -360,6 +361,14 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			final Double[] upperLimits = ((ScannableMotion) scannable).getUpperGdaLimits();
 			if (upperLimits != null) {
 				return upperLimits[0];
+			} else {
+				if (scannable instanceof IScannableMotor) {
+					try {
+						return ((IScannableMotor) scannable).getUpperMotorLimit();
+					} catch (DeviceException e) {
+						logger.error("Could not read upper motor limit for {}", scannable.getName(), e);
+					}
+				}
 			}
 		}
 		return null;
@@ -373,6 +382,14 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			final Double[] lowerLimits = ((ScannableMotion) scannable).getLowerGdaLimits();
 			if (lowerLimits != null) {
 				return lowerLimits[0];
+			} else {
+				if (scannable instanceof IScannableMotor) {
+					try {
+						return ((IScannableMotor) scannable).getLowerMotorLimit();
+					} catch (DeviceException e) {
+						logger.error("Problem reading lower motor limit for {}", scannable.getName(), e);
+					}
+				}
 			}
 		}
 		return null;
