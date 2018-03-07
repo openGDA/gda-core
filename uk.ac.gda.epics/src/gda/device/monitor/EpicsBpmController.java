@@ -65,6 +65,8 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	private gov.aps.jca.Monitor xMonitor;
 	private gov.aps.jca.Monitor yMonitor;
 
+	private String pvName;
+
 	/**
 	 * GDA device Name
 	 */
@@ -116,6 +118,10 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for BPM " + getDeviceName(), e);
 				}
+			} else if (getPvName()!=null) {
+				createChannelAccess(getPvName());
+				channelManager.tryInitialize(100);
+
 			} else {
 				logger.error("Missing EPICS interface configuration for the BPM " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the BPM " + getName());
@@ -123,6 +129,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 			configured = true;
 		}// end of if (!configured)
 	}
+
 
 	/**
 	 * @return device name
@@ -136,6 +143,17 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	 */
 	public void setDeviceName(String name) {
 		this.deviceName = name;
+	}
+
+	private void createChannelAccess(String pvName) throws FactoryException {
+		try {
+			intensityCh = channelManager.createChannel(pvName+"INTENSITY", false);
+			xPosCh = channelManager.createChannel(pvName+"BEAMX", false);
+			yPosCh = channelManager.createChannel(pvName+"BEAMY", false);
+			channelManager.creationPhaseCompleted();
+		} catch (Throwable th) {
+			throw new FactoryException("failed to connect to all channels", th);
+		}
 	}
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
@@ -347,6 +365,14 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	public void setPoll(boolean poll) {
 		this.poll = poll;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }

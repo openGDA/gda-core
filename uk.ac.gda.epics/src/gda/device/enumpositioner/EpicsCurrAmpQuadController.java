@@ -52,6 +52,13 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		Scannable, EnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpQuadController.class);
+	 // following fields allow PV name to be set individually e.g. I10
+	private String current1Pv;
+	private String current2Pv;
+	private String current3Pv;
+	private String current4Pv;
+	private String rangePv;
+	private String rangeRbvPv;
 
 	private String deviceName = null;
 
@@ -125,26 +132,29 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		setOutputFormat(outputFormat);
 	}
 
-	/**
-	 * Configures the class with the PV information from the gda-interface.xml file. Vendor and model are available
-	 * through EPICS but are currently not supported in GDA.
-	 *
-	 * @see gda.device.DeviceBase#configure()
-	 */
 	@Override
 	public void configure() throws FactoryException {
 		//String rangeRec = null;
 		if (!configured) {
 			if (getDeviceName() != null) {
+				//Configures the class with the PV information from the gda-interface.xml file.
+				//Vendor and model are available through EPICS but are currently not supported in GDA.
 				CurrAmpQuadType currAmpConfig;
 				try {
 					currAmpConfig = Configurator.getConfiguration(getDeviceName(),
 							gda.epics.interfaces.CurrAmpQuadType.class);
+					logger.debug("Configure using EPISC device name '{},", getDeviceName());
 					createChannelAccess(currAmpConfig);
 					channelManager.tryInitialize(100);
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for current amplifier quad " + getDeviceName(), e);
 				}
+			} else if (getRangePv()!=null && getRangeRbvPv()!=null && getCurrent1Pv()!=null && getCurrent2Pv()!=null && getCurrent3Pv()!=null && getCurrent4Pv()!=null){
+				//configure the object using individual PV names directly.
+				logger.debug("Configure using individual PVs explicitly");
+				createChannelAccess();
+				channelManager.tryInitialize(100);
+
 			} else {
 				logger.error("Missing EPICS interface configuration for the current amplifier quad " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier quad "
@@ -152,6 +162,21 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			}
 			configured = true;
 		}// end of if (!configured)
+	}
+
+	private void createChannelAccess() throws FactoryException {
+		try {
+			range = channelManager.createChannel(getRangePv(), rangeMonitor, MonitorType.CTRL, false);
+			range_rbv = channelManager.createChannel(getRangeRbvPv(), rangeMonitor, MonitorType.CTRL, true);
+			current1Ch = channelManager.createChannel(getCurrent1Pv(), false);
+			current2Ch = channelManager.createChannel(getCurrent2Pv(), false);
+			current3Ch = channelManager.createChannel(getCurrent3Pv(), false);
+			current4Ch = channelManager.createChannel(getCurrent4Pv(), false);
+			channelManager.creationPhaseCompleted();
+
+		} catch (Exception e) {
+			throw new FactoryException("failed to connect to all channels", e);
+		}
 	}
 
 	/**
@@ -582,5 +607,53 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	public void setPoll(boolean poll) {
 		this.poll = poll;
+	}
+
+	public String getCurrent1Pv() {
+		return current1Pv;
+	}
+
+	public void setCurrent1Pv(String current1pv) {
+		current1Pv = current1pv;
+	}
+
+	public String getCurrent2Pv() {
+		return current2Pv;
+	}
+
+	public void setCurrent2Pv(String current2pv) {
+		current2Pv = current2pv;
+	}
+
+	public String getCurrent3Pv() {
+		return current3Pv;
+	}
+
+	public void setCurrent3Pv(String current3pv) {
+		current3Pv = current3pv;
+	}
+
+	public String getCurrent4Pv() {
+		return current4Pv;
+	}
+
+	public void setCurrent4Pv(String current4pv) {
+		current4Pv = current4pv;
+	}
+
+	public String getRangePv() {
+		return rangePv;
+	}
+
+	public void setRangePv(String rangePV) {
+		this.rangePv = rangePV;
+	}
+
+	public String getRangeRbvPv() {
+		return rangeRbvPv;
+	}
+
+	public void setRangeRbvPv(String rangeRBVPV) {
+		rangeRbvPv = rangeRBVPV;
 	}
 }
