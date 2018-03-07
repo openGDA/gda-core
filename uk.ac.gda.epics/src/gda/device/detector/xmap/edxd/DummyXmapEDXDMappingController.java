@@ -18,6 +18,9 @@
 
 package gda.device.detector.xmap.edxd;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.detector.analyser.DummyEpicsMcaForXmap;
 import gda.device.detector.analyser.IEpicsMCASimple;
 
@@ -28,12 +31,27 @@ import gda.device.detector.analyser.IEpicsMCASimple;
  */
 public class DummyXmapEDXDMappingController extends EDXDMappingController {
 
-	private final IEpicsMCASimple mcaSimple = new DummyEpicsMcaForXmap();
+	private static final Logger logger = LoggerFactory.getLogger(DummyXmapEDXDMappingController.class);
+
+	private long numberOfChannels = 1024;
 
 	@Override
 	protected void addElements() {
+		final IEpicsMCASimple mcaSimple = new DummyEpicsMcaForXmap();
+		try {
+			mcaSimple.setNumberOfChannels(numberOfChannels);
+			mcaSimple.configure();
+		} catch (Exception e) {
+			// This should never happen in dummy mode
+			logger.error("Exception configuring DummyEpicsMcaForXmap", e);
+		}
+
 		final int elementOffset = getElementOffset();
 		for (int i = elementOffset; i < (numberOfElements + elementOffset); i++)
 			subDetectors.add(new EDXDMappingElement(xmap, i, mcaSimple));
+	}
+
+	public void setNumberOfChannels(long numberOfChannels) {
+		this.numberOfChannels = numberOfChannels;
 	}
 }

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
@@ -54,8 +55,9 @@ public class DummyEpicsMcaForXmap extends AnalyserBase implements IEpicsMCASimpl
 
 	private EpicsMCAPresets presets;
 
-	public DummyEpicsMcaForXmap() {
-		super();
+	@Override
+	public void configure() throws FactoryException {
+		super.configure();
 
 		regions = new EpicsMCARegionOfInterest[NUM_ROIS];
 		for (int i = 0; i < NUM_ROIS; i++) {
