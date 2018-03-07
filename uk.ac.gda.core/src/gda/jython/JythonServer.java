@@ -1072,6 +1072,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		final String jythonServerThreadId = UUID.randomUUID().toString();
 		String cmd = "";
 		JythonServer server = null;
+
+		public JythonServerThread() {
+			// Use the Jython bundle loader as the TCCL
+			this.setContextClassLoader(Py.class.getClassLoader());
+		}
 		/**
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
