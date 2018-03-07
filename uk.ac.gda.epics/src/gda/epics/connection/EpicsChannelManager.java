@@ -462,14 +462,14 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 		}
 		// notify that all critical channels have been connected
 		if (notify) {
-			notifyInitalizationCompleted();
+			notifyInitializationCompleted();
 		}
 	}
 
 	/**
 	 * Notify about initialization completion.
 	 */
-	private void notifyInitalizationCompleted() {
+	private void notifyInitializationCompleted() {
 		if (initializationListener != null) {
 			try {
 				threadPool.submit(() -> {
