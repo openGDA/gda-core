@@ -738,7 +738,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 				if (newStatus != null)
 					set_motorStatus(newStatus);
 				notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-				logger.debug("Epics Motor " + getName() + " notyfying CAPUT_MOVECOMPLETE " + get_motorStatus());
+				logger.debug("Epics Motor " + getName() + " notifying CAPUT_MOVECOMPLETE " + get_motorStatus());
 				DMOVRefreshEnabled = true; // allow DMOV listener to refresh
 				// ignoreNextDMOV = true;
 				break;
@@ -763,7 +763,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 					if (newStatus != null)
 						set_motorStatus(newStatus);
 					notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-					logger.debug("Epics Motor " + getName() + " notyfying DMOV_MOVECOMPLETE " + get_motorStatus());
+					logger.debug("Epics Motor " + getName() + " notifying DMOV_MOVECOMPLETE " + get_motorStatus());
 				}
 				break;
 			case NEWSTATUS:
