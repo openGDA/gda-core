@@ -90,6 +90,7 @@ import uk.ac.diamond.daq.concurrent.Async;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This controls the information given to the Jython engine (GDAJythonInterpreter). This implements the Jython
@@ -98,6 +99,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  * this rule is scan objects, which require information via methods which are not distributed and are shared via the
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
+@ServiceInterface(Jython.class)
 public class JythonServer extends ConfigurableBase implements LocalJython, Localizable, ITerminalInputProvider, TextCompleter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
