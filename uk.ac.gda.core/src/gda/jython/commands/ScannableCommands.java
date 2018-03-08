@@ -83,7 +83,7 @@ public class ScannableCommands {
 	 *             - any exception within this method
 	 */
 	public static void pos(Object... args) throws Exception {
-		logger.debug("Called 'pos' with args: {}", args);
+		logger.debug("Called 'pos' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
 			if (args[0] == null) {// example: pos None, Jython command: pos([None])
 				throw new Exception(
@@ -231,7 +231,7 @@ public class ScannableCommands {
 	 *             - any exception within this method
 	 */
 	public static void upos(Object... args) throws Exception {
-		logger.debug("Called 'upos' with args: {}", args);
+		logger.debug("Called 'upos' with args: {}", Arrays.asList(args));
 		if (args.length >= 2) {
 			// identify scannables and the positions to move them to
 			Scannable[] scannables = new Scannable[args.length / 2];
@@ -373,7 +373,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void inc(Object... args) throws Exception {
-		logger.debug("Called 'inc' with args: {}", args);
+		logger.debug("Called 'inc' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
 			InterfaceProvider.getTerminalPrinter().print(args[0].toString());
 		} else if (args.length >= 2) {
@@ -431,7 +431,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void uinc(Object... args) throws Exception {
-		logger.debug("Called 'uinc' with args: {}", args);
+		logger.debug("Called 'uinc' with args: {}", Arrays.asList(args));
 		if (args.length >= 2) {
 			// identify scannables and the positions to move them to
 			Scannable[] scannables = new Scannable[args.length / 2];
@@ -535,13 +535,13 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void scan(Object... args) throws Exception {
-		logger.debug("Called 'scan' with args: {}", args);
+		logger.debug("Called 'scan' with args: {}", Arrays.asList(args));
 		ConcurrentScan scan = createConcurrentScan(args);
 		scan.runScan();
 	}
 
 	public static ConcurrentScan createConcurrentScan(Object... args) throws Exception {
-		logger.debug("Called 'createConcurrentScan' with args: {}", args);
+		logger.debug("Called 'createConcurrentScan' with args: {}", Arrays.asList(args));
 		ConcurrentScan scan = new ConcurrentScan(args);
 		doCommandLineSpecificConcurrentScanSetup(scan);
 		return scan;
@@ -631,7 +631,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void pscan(Object... args) throws Exception {
-		logger.debug("Called 'pscan' with args: {}", args);
+		logger.debug("Called 'pscan' with args: {}", Arrays.asList(args));
 		PointsScan theScan = new PointsScan(args);
 		theScan.runScan();
 	}
@@ -643,7 +643,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void cscan(Object... args) throws Exception {
-		logger.debug("Called 'cscan' with args: {}", args);
+		logger.debug("Called 'cscan' with args: {}", Arrays.asList(args));
 		CentroidScan theScan = new CentroidScan(args);
 		theScan.runScan();
 	}
@@ -656,7 +656,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void staticscan(Scannable... args) throws Exception {
-		logger.debug("Called 'staticscan' with args: {}", (Object[]) args);
+		logger.debug("Called 'staticscan' with args: {}", Arrays.asList(args));
 		StaticScan theScan = new StaticScan(args);
 		theScan.runScan();
 	}
@@ -670,7 +670,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void gscan(Object... args) throws Exception {
-		logger.debug("Called 'gscan' with args: {}", args);
+		logger.debug("Called 'gscan' with args: {}", Arrays.asList(args));
 		int numberArgs = args.length;
 		GridScan theScan = null;
 		switch (numberArgs) {
@@ -697,7 +697,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void timescan(Object... args) throws Exception {
-		logger.debug("Called 'timescan' with args: {}", args);
+		logger.debug("Called 'timescan' with args: {}", Arrays.asList(args));
 		int numberArgs = args.length;
 		TimeScan theScan = null;
 		switch (numberArgs) {
@@ -761,7 +761,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void tscan(Object... args) throws Exception {
-		logger.debug("Called 'tscan' with args: {}", args);
+		logger.debug("Called 'tscan' with args: {}", Arrays.asList(args));
 		if (args.length < 3)
 			throw new IllegalArgumentException("timescan numberOfPoints pauseTime [collectTime] scannable... ");
 		int points = Integer.parseInt(args[0].toString());
@@ -808,7 +808,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void testscan(Object... args) throws Exception {
-		logger.debug("Called 'testscan' with args: {}", args);
+		logger.debug("Called 'testscan' with args: {}", Arrays.asList(args));
 		TestScan theScan = new TestScan(args);
 		theScan.runScan();
 	}
@@ -823,7 +823,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 */
 	public static void cv(Object... args) throws Exception {
-		logger.debug("Called 'cv' with args: {}", args);
+		logger.debug("Called 'cv' with args: {}", Arrays.asList(args));
 
 		String usageMessage = "continuousscan continuouslyScannable start stop numberPoints totaltime bufferedDetector(s) ";
 
@@ -878,7 +878,7 @@ public class ScannableCommands {
 	 * @throws IllegalArgumentException
 	 */
 	public static Object level(Object... args) throws IllegalArgumentException {
-		logger.debug("Called 'level' with args: {}", args);
+		logger.debug("Called 'level' with args: {}", Arrays.asList(args));
 
 		if (args.length == 0 || (!(args[0] instanceof Scannable))) {
 			throw new IllegalArgumentException("level() usage: level scannable [new level]");
@@ -924,7 +924,7 @@ public class ScannableCommands {
 	 * Set a Scannable to be used by default
 	 */
 	public static void add_default(Object... args) {
-		logger.debug("Called 'add_default' with args: {}", args);
+		logger.debug("Called 'add_default' with args: {}", Arrays.asList(args));
 
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
@@ -943,7 +943,7 @@ public class ScannableCommands {
 	 * Remove a Scannable from the list of defaults
 	 */
 	public static void remove_default(Object... args) {
-		logger.debug("Called 'remove_default' with args: {}", args);
+		logger.debug("Called 'remove_default' with args: {}", Arrays.asList(args));
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
