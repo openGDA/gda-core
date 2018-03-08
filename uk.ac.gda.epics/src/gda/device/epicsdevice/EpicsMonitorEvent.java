@@ -18,24 +18,19 @@
 
 package gda.device.epicsdevice;
 
+import java.io.Serializable;
+
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.event.MonitorEvent;
-
-import java.io.Serializable;
 
 /**
  * EpicsMonitorEvent Class
  */
 public class EpicsMonitorEvent implements Serializable {
-	final static long serialVersionUID = 1;
-	/**
-	 *
-	 */
-	final public Object caStatus;
-	/**
-	 *
-	 */
-	final public Object epicsDbr;
+	private static final long serialVersionUID = 1;
+
+	public final Object caStatus;
+	public final Object epicsDbr;
 
 	EpicsMonitorEvent(MonitorEvent event, boolean toWrap) {
 		if (toWrap) {
@@ -48,9 +43,8 @@ public class EpicsMonitorEvent implements Serializable {
 		}
 	}
 
-	EpicsMonitorEvent(Object object) // used for dummy events
-	{
-		caStatus = null;
+	EpicsMonitorEvent(Object object) { // used for dummy events
+		caStatus = CAStatus.NORMAL;
 		epicsDbr = object;
 	}
 
