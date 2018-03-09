@@ -29,7 +29,7 @@ import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
 /**
- * A version of EpicsPositioner which does not use DMOV at all but relies on the callback mecnanism to determine when
+ * A version of EpicsPositioner which does not use DMOV at all but relies on the callback mechanism to determine when
  * the move has completed.
  */
 public class EpicsPositionerCallback extends EpicsPositioner {
