@@ -51,7 +51,6 @@ import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
-import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.logging.LogbackUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
@@ -391,14 +390,6 @@ public class Application implements IApplication {
 	 * Launch the ObjectServer to create the client implementation (as the AcquisitionFrame would do in original gda)
 	 */
 	private static boolean started = false;
-
-	@SuppressWarnings("unused")
-	private static void createClientObjects() throws FactoryException {
-		if (!started) {
-			ObjectServer.createClientImpl();
-			started = true;
-		}
-	}
 
 	/**
 	 *
