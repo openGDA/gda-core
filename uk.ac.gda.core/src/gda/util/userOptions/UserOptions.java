@@ -34,7 +34,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.util.VisitPath;
-import gda.util.exceptionUtils;
 import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
@@ -42,7 +41,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
  * UserOptions Class Use TreeMap as it is sorted by the key as opposed to HashMaps which are not.
  */
 @SuppressWarnings( { "unchecked", "rawtypes" })
-public class UserOptions extends java.util.TreeMap<String, UserOption> implements Serializable {
+public class UserOptions extends java.util.LinkedHashMap<String, UserOption> implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserOptions.class);
 
