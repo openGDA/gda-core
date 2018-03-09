@@ -50,9 +50,14 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 
 	private final DummyEpicsChannel statusChannel = new DummyEpicsChannel();
 
+	private static final long RNG_SEED = 42424242;
+	private final Random generator = new Random(RNG_SEED);
+
 	private int numberOfBins = 1024;
 	private double acquisitionTime;
 	private int numberOfROIs;
+
+	private long acquisitionStartTime = 0;
 
 	@Override
 	public IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field, double putTimeout) {
@@ -90,7 +95,7 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	}
 
 	// Record names that are valid, but setting their value requires no action in this dummy
-	private final List<String> setValueNoActionRequired = Arrays.asList("ERASEALL", "ERASESTART", "SCAACTIVATE", "SETRESUME");
+	private final List<String> setValueNoActionRequired = Arrays.asList("ERASEALL", "ERASESTART", "SCAACTIVATE", "SETPRESETTYPE", "SETRESUME");
 
 	@Override
 	public void setValue(String record, String field, Object val) throws DeviceException {
@@ -132,11 +137,13 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	}
 
 	private void startAcquisition() {
+		acquisitionStartTime = System.currentTimeMillis();
 		statusChannel.notifyIObservers(this, busyEvent);
 	}
 
 	private void stopAcquisition() {
 		statusChannel.notifyIObservers(this, notBusyEvent);
+		acquisitionStartTime = 0;
 	}
 
 	@Override
@@ -154,16 +161,22 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 			return REAL_TIME;
 		} else if (record.equals("GETPRESETVALUE")) {
 			return acquisitionTime;
-		} else if (record.startsWith("DATA") || record.startsWith("SCADATA")) {
-			return getData();
+		} else if (record.startsWith("DATA") || record.startsWith("SCADATA") ) {
+			return getIntegerData();
+		} else if (record.startsWith("ENERGYBINS") ) {
+			return getDoubleData(3.6);
 		} else if (record.equals("SCAELEMENTS")) {
 			return numberOfROIs;
 		} else if (record.startsWith("EVENTS")) {
 			return EVENTS;
 		} else if (record.startsWith("INPUTCOUNTRATE") || record.startsWith("OUTPUTCOUNTRATE")) {
-			return Math.random() * 100d;
+			return generator.nextDouble() * 100d;
 		} else if (record.startsWith("SCALOWLIMITS") || record.startsWith("SCAHIGHLIMITS")) {
 			return new double[][] {};
+		} else if (record.startsWith("ELIVETIME") || record.startsWith("TLIVETIME")) {
+			return getTimeSinceAcquisitionStart();
+		} else if (record.equals("DeadTime")) {
+			return generator.nextDouble() * 0.02;
 		} else {
 			final String message = String.format("Unknown record %s passed to getValue()", record);
 			logger.error(message);
@@ -171,15 +184,29 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 		}
 	}
 
-	private int[] getData() {
-		final int[] dummyData = new int[numberOfBins];
-		final Random generator = new Random();
-
+	private int[] getIntegerData() {
+		final int[] data = new int[numberOfBins];
 		for (int i = 0; i < numberOfBins; i++) {
 			// say that for this simulation cannot count more than 10MHz
-			dummyData[i] = generator.nextInt((int) (REAL_TIME) * 10000);
+			data[i] = generator.nextInt((int) (REAL_TIME) * 10000);
 		}
-		return dummyData;
+		return data;
+	}
+
+	private double[] getDoubleData(double maxValue) {
+		final double[] data = new double[numberOfBins];
+		for (int i = 0; i < numberOfBins; i++) {
+			data[i] = generator.nextDouble() * maxValue;
+		}
+		return data;
+	}
+
+	private double getTimeSinceAcquisitionStart() {
+		if (acquisitionStartTime == 0) {
+			return 0.0;
+		} else {
+			return (System.currentTimeMillis() - acquisitionStartTime) / 1000.0;
+		}
 	}
 
 	@Override
@@ -198,17 +225,25 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	 * All the EDXDController actually uses is the status update callback
 	 */
 	private class DummyEpicsChannel extends ScannableBase implements IEpicsChannel {
+
+		private Object value;
+
+		public DummyEpicsChannel() {
+			super();
+			setName("dummy status channel");
+		}
+
 		@Override
 		public boolean isBusy() throws DeviceException {
 			return false;
 		}
 		@Override
 		public Object getValue() throws DeviceException {
-			return null;
+			return value;
 		}
 		@Override
 		public void setValue(Object position) throws DeviceException {
-			// nothing to do
+			this.value = position;
 		}
 		@Override
 		public void dispose() {
