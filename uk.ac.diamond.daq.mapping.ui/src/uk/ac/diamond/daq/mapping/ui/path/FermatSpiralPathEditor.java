@@ -19,24 +19,26 @@
 package uk.ac.diamond.daq.mapping.ui.path;
 
 import org.eclipse.core.databinding.validation.ValidationStatus;
-import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class FermatSpiralPathComposite extends AbstractPathComposite {
+public class FermatSpiralPathEditor extends AbstractPathEditor {
 
-	public FermatSpiralPathComposite(Composite parent, SpiralModel path) {
-		super(parent, SWT.NONE);
+	@Override
+	public Composite createEditorPart(Composite parent) {
 
-		(new Label(this, SWT.NONE)).setText("Scale");
-		Text scaleText = new Text(this, SWT.BORDER);
-		gdControls.applyTo(scaleText);
+		final Composite composite = super.createEditorPart(parent);
+		new Label(composite, SWT.NONE).setText("Scale");
+		Text scaleText = new Text(composite, SWT.BORDER);
+		grabHorizontalSpace.applyTo(scaleText);
 
-		bind(scaleText, "scale", path, val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
+		binder.bind(scaleText, "scale", getModel(), val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
 
-		makeContinuousControl(this, path);
+		makeContinuousControl(composite, getModel());
+
+		return composite;
 	}
 
 }

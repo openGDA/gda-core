@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -24,37 +24,48 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionAndPathComposite;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractModelEditor;
 
-public class AbstractPathComposite extends AbstractRegionAndPathComposite {
+/**
+ * Parent class for all path editors used in RegionAndPathSection.
+ */
+public abstract class AbstractPathEditor  extends AbstractModelEditor<IScanPathModel> {
 
 	private Button continuous;
 	private Label continuousLabel;
 
-	public AbstractPathComposite(Composite parent, int style) {
-		super(parent, style);
-	}
-
-	public void setContinuousEnabled(boolean enabled) {
-		continuous.setEnabled(enabled);
-		continuous.setSelection(enabled);
-		continuousLabel.setEnabled(enabled);
-	}
-
+	/**
+	 * If the path edited by this editor is snakeable, this method will draw the controls for consistency.
+	 * @param parent composite to draw control on
+	 * @param path to bind to snake control
+	 */
 	protected void makeSnakeControl(Composite parent, IScanPathModel path) {
 		Label snakeLabel = new Label(parent, SWT.NONE);
 		snakeLabel.setText("Snake");
 		Button snake = new Button(parent, SWT.CHECK);
-
-		bind(snake, "snake", path);
+		binder.bind(snake, "snake", path);
 	}
 
+	/**
+	 * If the path edited by this editor can be continuous (Malcolm-driven), this method will draw the controls for consistency.
+	 * @param parent composite to draw control on
+	 * @param path to bind to snake control
+	 */
 	protected void makeContinuousControl(Composite parent, IScanPathModel path) {
 		continuousLabel = new Label(parent, SWT.NONE);
 		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
+		binder.bind(continuous, "continuous", path);
+	}
 
-		bind(continuous, "continuous", path);
+	/**
+	 * Triggered when a device selection is changed - Only Malcolm devices can drive continuous scans
+	 * @param enabled true if device is a Malcolm device, otherwise false
+	 */
+	public void setContinuousEnabled(boolean enabled) {
+		continuous.setEnabled(enabled);
+		continuous.setSelection(enabled);
+		continuousLabel.setEnabled(enabled);
 	}
 
 }

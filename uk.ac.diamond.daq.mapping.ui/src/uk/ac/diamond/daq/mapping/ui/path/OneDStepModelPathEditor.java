@@ -18,24 +18,24 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.OneDStepModel;
+import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class OneDStepModelPathComposite extends AbstractPathComposite {
+public class OneDStepModelPathEditor extends AbstractPathEditor {
 
-	public OneDStepModelPathComposite(Composite parent, OneDStepModel path) {
-		super(parent, SWT.NONE);
-
-		(new Label(this, SWT.NONE)).setText("Step");
-		Text step = new Text(this, SWT.BORDER);
-		gdControls.applyTo(step);
-
-		bind(step, "step", path, GREATER_THAN_ZERO);
-
-		makeContinuousControl(this, path);
+	@Override
+	public Composite createEditorPart(Composite parent) {
+		final Composite composite = super.createEditorPart(parent);
+		new Label(composite, SWT.NONE).setText("Step");
+		Text step = new Text(composite, SWT.BORDER);
+		grabHorizontalSpace.applyTo(step);
+		binder.bind(step, "step", getModel(), GREATER_THAN_ZERO);
+		makeContinuousControl(composite, getModel());
+		return composite;
 	}
 
 }

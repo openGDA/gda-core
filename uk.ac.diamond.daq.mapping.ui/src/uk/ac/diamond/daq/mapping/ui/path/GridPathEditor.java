@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,33 +18,36 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class GridPathComposite extends AbstractPathComposite {
+public class GridPathEditor extends AbstractPathEditor {
 
-	public GridPathComposite(Composite parent, GridModel path) {
-		super(parent, SWT.NONE);
+	@Override
+	public Composite createEditorPart(Composite parent) {
 
-		(new Label(this, SWT.NONE)).setText(getFastAxisName() + " Points");
-		Spinner fastPoints = new Spinner(this, SWT.BORDER);
+		final Composite composite = super.createEditorPart(parent);
+
+		(new Label(composite, SWT.NONE)).setText(getFastAxisName() + " Points");
+		Spinner fastPoints = new Spinner(composite, SWT.BORDER);
 		fastPoints.setMinimum(1);
 		fastPoints.setMaximum(Integer.MAX_VALUE);
-		gdControls.applyTo(fastPoints);
-		bind(fastPoints, "fastAxisPoints", path);
+		grabHorizontalSpace.applyTo(fastPoints);
+		binder.bind(fastPoints, "fastAxisPoints", getModel());
 
-		(new Label(this, SWT.NONE)).setText(getSlowAxisName() + " Points");
-		Spinner slowPoints = new Spinner(this, SWT.BORDER);
+		(new Label(composite, SWT.NONE)).setText(getSlowAxisName() + " Points");
+		Spinner slowPoints = new Spinner(composite, SWT.BORDER);
 		slowPoints.setMinimum(1);
 		slowPoints.setMaximum(Integer.MAX_VALUE);
-		gdControls.applyTo(slowPoints);
-		bind(slowPoints, "slowAxisPoints", path);
+		grabHorizontalSpace.applyTo(slowPoints);
+		binder.bind(slowPoints, "slowAxisPoints", getModel());
 
-		makeSnakeControl(this, path);
-		makeContinuousControl(this, path);
+		makeSnakeControl(composite, getModel());
+		makeContinuousControl(composite, getModel());
+
+		return composite;
 	}
 
 }
