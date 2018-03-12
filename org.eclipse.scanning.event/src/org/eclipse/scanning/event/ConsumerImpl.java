@@ -219,17 +219,18 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	protected void updateQueue(U bean) throws EventException {
 		boolean resumeAfter = !awaitPaused;
 		Session session = null;
+		QueueBrowser queueBrowser = null;
 		try {
 			pause();
 
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			Queue queue = session.createQueue(getSubmitQueueName());
-			QueueBrowser qb = session.createBrowser(queue);
+			queueBrowser = session.createBrowser(queue);
 
 			// Iterates through all beans on the queue to find the one with the
 			// same unique id as the given bean,
 			@SuppressWarnings("rawtypes")
-			Enumeration  e  = qb.getEnumeration();
+			Enumeration  e  = queueBrowser.getEnumeration();
 			while (e.hasMoreElements()) {
 				Message msg = (Message)e.nextElement();
 				TextMessage t = (TextMessage)msg;
@@ -267,7 +268,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				resume();
 			}
 			try {
-				if (session!=null) session.close();
+				if (queueBrowser != null) queueBrowser.close();
+				if (session != null) session.close();
 			} catch (JMSException e) {
 				throw new EventException("Cannot close session!", e);
 			}
