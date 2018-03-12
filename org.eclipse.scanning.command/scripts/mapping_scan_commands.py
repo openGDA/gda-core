@@ -56,7 +56,7 @@ from org.eclipse.scanning.api.points.models import (
     StepModel, MultiStepModel, CollatedStepModel, GridModel, RasterModel, SinglePointModel,
     OneDEqualSpacingModel, OneDStepModel, ArrayModel,
     BoundingBox, BoundingLine, CompoundModel, RepeatedPointModel,
-    RandomOffsetGridModel, SpiralModel, LissajousModel)
+    RandomOffsetGridModel, SpiralModel, LissajousModel, StaticModel)
 
 from org.eclipse.scanning.command.Services import (
     getEventService, getRunnableDeviceService, getScannableDeviceService)
@@ -631,6 +631,13 @@ def point(x, y):
     roi = None
     return _instantiate(SinglePointModel, {'x': x, 'y': y}), _listify(roi)
 
+
+def static(size=1):
+    """ For repeated paths
+        e.g. mscan([static(3), step(ix, 0, 5, 1)]) will repeat the step 3 times
+        e.g. mscan([step(ix, 0, 5, 1)], static(3)] will repeat each point in the step path 3 times
+    """
+    return StaticModel(size), []
 
 # ROIs
 # ----
