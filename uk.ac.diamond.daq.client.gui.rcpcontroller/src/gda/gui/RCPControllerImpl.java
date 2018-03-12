@@ -71,8 +71,8 @@ public class RCPControllerImpl implements RCPController {
 		obs.notifyIObservers(theObserved, changeCode);
 	}
 
-	public boolean IsBeingObserved() {
-		return obs.IsBeingObserved();
+	public boolean isBeingObserved() {
+		return obs.isBeingObserved();
 	}
 
 	@Override

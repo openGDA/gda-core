@@ -50,7 +50,7 @@ public final class NameFilter implements Filter {
 
 	@Override
 	public ACCEPTANCE apply(TimedStructuredEvent event) {
-		if (isBeingObserved != null && !isBeingObserved.IsBeingObserved())
+		if (isBeingObserved != null && !isBeingObserved.isBeingObserved())
 			return ACCEPTANCE.NOT;
 		final String eventName = event.getHeader().eventName;
 		return (eventName != null) && name.equals(eventName) ? ACCEPTANCE.EXCLUSIVE : ACCEPTANCE.NOT;

@@ -246,8 +246,8 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 	}
 
 	@Override
-	public boolean IsBeingObserved() {
-		return observable.IsBeingObserved();
+	public boolean isBeingObserved() {
+		return observable.isBeingObserved();
 	}
 
 }

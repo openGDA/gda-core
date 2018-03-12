@@ -187,7 +187,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	}
 
 	protected boolean isBeingObserved() {
-		return observableComponent.IsBeingObserved();
+		return observableComponent.isBeingObserved();
 	}
 	/**
 	 * Notify all observers on the list of the requested change.
