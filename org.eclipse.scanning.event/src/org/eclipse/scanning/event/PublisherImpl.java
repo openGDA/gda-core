@@ -41,6 +41,8 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 
 	private static final Logger logger = LoggerFactory.getLogger(PublisherImpl.class);
 
+	private final long messageLifetime = Long.getLong("org.eclipse.scanning.event.publish.messageLifetime", 2000);
+
 	// JMS things, these are null when not running and
 	// are cleaned up at the end of a run.
 	private MessageProducer messageProducer;
@@ -71,7 +73,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 				logger.error("Could not update the status set", e);
 			}
 
-			send(messageProducer, bean, Constants.getPublishLiveTime());
+			send(messageProducer, bean, messageLifetime);
 		} catch (JMSException ne) {
 			throw new EventException("Unable to start the scan producer using uri " + uri + " and topic " + getTopicName(), ne);
 		} catch (Exception neOther) {
