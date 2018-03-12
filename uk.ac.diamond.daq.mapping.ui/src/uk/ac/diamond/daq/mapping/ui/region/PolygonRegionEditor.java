@@ -21,10 +21,10 @@ package uk.ac.diamond.daq.mapping.ui.region;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.property.Properties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -40,60 +40,37 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
-import uk.ac.diamond.daq.mapping.region.MutablePoint;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
+import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion.MutablePoint;
 
 public class PolygonRegionEditor extends AbstractRegionEditor {
 
 	private TableViewer polygonTableViewer;
 	private enum Axis {X, Y}
-	private List<MutablePoint> polyPoints = new ArrayList<>(10);
 	private Pattern pattern = Pattern.compile("-?\\d+\\.?\\d*");
-	private PropertyChangeListener regionPointsListener = evt -> {
-		polyPoints = ((PolygonMappingRegion) evt.getSource()).getPoints();
-		polygonTableViewer.setInput(this.polyPoints);
-		polygonTableViewer.refresh();
-	};
+	private PropertyChangeListener tableInputChanged = event -> polygonTableViewer.refresh();
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
 
 		final Composite composite = super.createEditorPart(parent);
+		GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 110).applyTo(composite);
 
-		PolygonMappingRegion polygonRegion = (PolygonMappingRegion) getModel();
+		createTable(composite);
 
-		Composite tableComposite = new Composite(composite, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 110).applyTo(tableComposite);
-
-		// Create the table
-		polygonTableViewer = new TableViewer(tableComposite,
-				SWT.MULTI | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(polygonTableViewer.getControl());
-		grabHorizontalSpace.applyTo(polygonTableViewer.getControl());
-
-		createColumns(polygonTableViewer);
-
-		// make lines and header visible
-		final Table table = polygonTableViewer.getTable();
-		TableColumnLayout tableLayout = new TableColumnLayout();
-		tableComposite.setLayout(tableLayout);
-		for (TableColumn tc : table.getColumns()) {
-			tableLayout.setColumnData(tc, new ColumnWeightData(50));
-		}
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-
-		polygonTableViewer.setContentProvider(new ArrayContentProvider());
-		polygonTableViewer.setInput(polygonRegion.getPoints());
-		polygonRegion.addPropertyChangeListener(regionPointsListener);
+		// Force a TableViewer refresh when the model changes
+		getModel().addPropertyChangeListener(tableInputChanged);
 
 		return composite;
-
 	}
 
-	private void createColumns(TableViewer polygonTableViewer) {
+	private void createTable(Composite tableComposite) {
+		polygonTableViewer = new TableViewer(tableComposite, SWT.MULTI | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		grabHorizontalSpace.applyTo(polygonTableViewer.getControl());
 
-		// X column
+		// content and label providers
+		polygonTableViewer.setContentProvider(new ArrayContentProvider());
+
 		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, getFastAxisName() + " (mm)");
 		xCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -102,11 +79,9 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 				return String.valueOf(round(p.getX(), 4));
 			}
 		});
-
 		xCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.X));
 		xCol.getColumn().setToolTipText("Edit X position of vertex");
 
-		// Y column
 		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, getSlowAxisName() + " (mm)");
 		yCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -115,10 +90,23 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 				return String.valueOf(round(p.getY(), 4));
 			}
 		});
-
 		yCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.Y));
 		yCol.getColumn().setToolTipText("Edit Y position of vertex");
 
+		final Table table = polygonTableViewer.getTable();
+		TableColumnLayout tableLayout = new TableColumnLayout();
+		tableComposite.setLayout(tableLayout);
+		for (TableColumn tc : table.getColumns()) {
+			tableLayout.setColumnData(tc, new ColumnWeightData(50));
+		}
+
+		// make lines and header visible
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+
+		// tableviewer input
+		IObservableList input = Properties.selfList(MutablePoint.class).observe(((PolygonMappingRegion) getModel()).getPoints());
+		polygonTableViewer.setInput(input);
 	}
 
 	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, final String title) {
@@ -164,10 +152,6 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 			// Ensure only numbers are entered as values
 			if (!pattern.matcher((String) value).matches())
 				return;
-			// polyPoints is empty if user has switched region types, so replenish with fresh points
-			if (polyPoints.isEmpty()) {
-				polyPoints = ((PolygonMappingRegion)getModel()).getPoints();
-			}
 
 			if (axis == Axis.X) {
 				((MutablePoint) element).setX(Double.valueOf((String) value));
@@ -175,9 +159,13 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 				((MutablePoint) element).setY(Double.valueOf((String) value));
 			}
 
-			((PolygonMappingRegion)getModel()).setPoints(polyPoints);
-			polygonTableViewer.refresh();
 		}
+	}
+
+	@Override
+	public void dispose() {
+		getModel().removePropertyChangeListener(tableInputChanged);
+		super.dispose();
 	}
 
 	private double round(double value, int places) {
@@ -187,12 +175,6 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		BigDecimal bd = BigDecimal.valueOf(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
-	}
-
-	@Override
-	public void dispose() {
-		getModel().removePropertyChangeListener(regionPointsListener);
-		super.dispose();
 	}
 
 }

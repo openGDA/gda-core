@@ -26,7 +26,6 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -34,7 +33,8 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 
 	private String name = "Polygon";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private List<MutablePoint> points = new ArrayList<>(10);
+	private final List<MutablePoint> points = new ArrayList<>();
+	private final PropertyChangeListener pointListener = pcs::firePropertyChange;
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -47,7 +47,6 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
 		return name;
 	}
@@ -57,10 +56,12 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	}
 
 	public void setPoints(List<MutablePoint> newValue) {
-		List<MutablePoint> oldvalue = this.points;
-		this.points = newValue;
-		// PCS will always be fired
-		this.pcs.firePropertyChange("points", null, newValue);
+		points.forEach(point -> point.removePropertyChangeListener(pointListener));
+		points.clear();
+		points.addAll(newValue);
+		points.forEach(point -> point.addPropertyChangeListener(pointListener));
+		// PCS will always be fired due to null previous value
+		pcs.firePropertyChange("points", null, newValue);
 	}
 
 	@Override
@@ -81,15 +82,90 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof PolygonalROI) {
 			PolygonalROI roi = (PolygonalROI) newROI;
-			// Rebuild the list of points
-			points.clear();
+			List<MutablePoint> newPoints = new ArrayList<>();
 			for (int i = 0; i < roi.getNumberOfPoints(); i++) {
-				points.add(new MutablePoint(roi.getPointX(i), roi.getPointY(i)));
+				newPoints.add(new MutablePoint(roi.getPointX(i), roi.getPointY(i)));
 			}
-			// PCS will always be fired
-			this.pcs.firePropertyChange("points", null, points);
+			setPoints(newPoints);
 		} else {
 			throw new IllegalArgumentException("Polygon mapping region can only update from a PolygonalROI");
+		}
+	}
+
+	public static class MutablePoint {
+
+		private double x;
+		private double y;
+
+		private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+			pcs.addPropertyChangeListener(listener);
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {
+			pcs.removePropertyChangeListener(listener);
+		}
+
+		public MutablePoint() {
+			x = 0;
+			y = 0;
+		}
+
+		public MutablePoint(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public double getX() {
+			return x;
+		}
+
+		public void setX(double newValue) {
+			double oldvalue = x;
+			x = newValue;
+			pcs.firePropertyChange("x", oldvalue, newValue);
+		}
+
+		public double getY() {
+			return y;
+		}
+
+		public void setY(double newValue) {
+			double oldValue = y;
+			y = newValue;
+			pcs.firePropertyChange("y", oldValue, newValue);
+		}
+
+		@Override
+		public String toString() {
+			return "MutablePoint["+x+", "+y+"]";
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			long temp;
+			temp = Double.doubleToLongBits(x);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			temp = Double.doubleToLongBits(y);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			MutablePoint other = (MutablePoint) obj;
+			if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
+				return false;
+			return (Double.doubleToLongBits(y) == Double.doubleToLongBits(other.y));
 		}
 	}
 
@@ -97,7 +173,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((points == null) ? 0 : points.hashCode());
+		result = prime * result + points.hashCode();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -111,10 +187,7 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		if (getClass() != obj.getClass())
 			return false;
 		PolygonMappingRegion other = (PolygonMappingRegion) obj;
-		if (points == null) {
-			if (other.points != null)
-				return false;
-		} else if (!points.equals(other.points))
+		if (!points.equals(other.points))
 			return false;
 		if (name == null) {
 			if (other.name != null)
