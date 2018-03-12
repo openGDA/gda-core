@@ -260,7 +260,7 @@ final class CorbaEpicsRecord extends ScannableBase implements IEpicsChannel, IOb
 	@Override
 	public synchronized void addIObserver(IObserver anIObserver) {
 		// logger.info("addIObserver in " + this.record);
-		if (!observableComponent.IsBeingObserved()) {
+		if (!observableComponent.isBeingObserved()) {
 			// add before registering so we get the first event
 			observableComponent.addIObserver(anIObserver);
 			try {
@@ -277,7 +277,7 @@ final class CorbaEpicsRecord extends ScannableBase implements IEpicsChannel, IOb
 	@Override
 	public synchronized void deleteIObserver(IObserver anIObserver) {
 		observableComponent.deleteIObserver(anIObserver);
-		if (!observableComponent.IsBeingObserved()) {
+		if (!observableComponent.isBeingObserved()) {
 			try {
 				adapter._unregister(this);
 				adapter.unregisterWithBaseForUpdatesFromServer(this);

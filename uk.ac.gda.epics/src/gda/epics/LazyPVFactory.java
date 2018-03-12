@@ -21,6 +21,16 @@ package gda.epics;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.ArrayUtils.toPrimitive;
+
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
@@ -47,15 +57,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class with factory methods to return {@link PV}s representing Epics Process Variables. The {@link PV}s are lazy
@@ -1089,7 +1090,7 @@ public class LazyPVFactory {
 			@Override
 			public void removeObserver(Observer<T> observer) {
 				oc.removeObserver(observer);
-				if( !oc.IsBeingObserved())
+				if( !oc.isBeingObserved())
 					stringFromWaveform.removeObserver(observerN);
 			}
 
@@ -1431,7 +1432,7 @@ class PVMonitor<E> implements Observable<E>{
 			return;
 		}
 		oc.removeObserver(observer);
-		if (!IsBeingObserved()){
+		if (!isBeingObserved()){
 			if (monitorAdded){
 				pv.removeMonitorListener(monitorListener);
 				monitorAdded = false;
@@ -1439,11 +1440,9 @@ class PVMonitor<E> implements Observable<E>{
 		}
 	}
 
-	public boolean IsBeingObserved() {
-		return oc == null ? false : oc.IsBeingObserved();
+	public boolean isBeingObserved() {
+		return oc == null ? false : oc.isBeingObserved();
 	}
-
-
 
 }
 

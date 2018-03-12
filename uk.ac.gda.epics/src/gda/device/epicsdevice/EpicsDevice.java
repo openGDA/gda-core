@@ -559,7 +559,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 					String pvName = request.pvName;
 					ObservableComponent obsComp = dummyRegistrations.get(request).obsComp;
 					obsComp.deleteIObserver(observer);
-					if (!obsComp.IsBeingObserved()) {
+					if (!obsComp.isBeingObserved()) {
 						DummyChannel channel = getDummyChannel(pvName);
 						channel.removeListener(dummyRegistrations.get(request).listener);
 						dummyRegistrations.remove(request);
@@ -571,7 +571,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 				String pvName = request.pvName;
 				ObservableComponent obsComp = registrations.get(request).obsComp;
 				obsComp.deleteIObserver(observer);
-				if (!obsComp.IsBeingObserved()) {
+				if (!obsComp.isBeingObserved()) {
 
 					controller.clearMonitor(registrations.get(request).monitor);
 					registrations.remove(request);
