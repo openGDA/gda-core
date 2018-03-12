@@ -151,6 +151,8 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 
 	private boolean adcSamplesAverageCached=false;
 
+	private boolean instantaneousVoltage=false;
+
 
 	public enum AdcMode {
 		CONTINUOUS, TRIGGERED, GATED
@@ -667,6 +669,9 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		if (!isIntegrated()) {
 			//Default - EPICS driver return averaged value only
 			voltage = getAverageVoltage();
+		} else if (isInstantaneousVoltage()) {
+			//don't need to set acquisition time.
+			voltage = getInstantaneousVoltage();
 		} else {
 			//EPICS driver give integrated value
 			voltage = getIntegralVoltage();
@@ -952,7 +957,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	public void setSupportsCoupling(boolean supportsCoupling) {
 		this.supportsCoupling = supportsCoupling;
 	}
-	
+
 	public boolean isIntegrated() {
 		return integrated;
 	}
@@ -961,4 +966,11 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		this.integrated = integrated;
 	}
 
+	public void setInstantaneousVoltage(boolean instantaneousVoltage) {
+		this.instantaneousVoltage = instantaneousVoltage;
+	}
+
+	private boolean isInstantaneousVoltage() {
+		return instantaneousVoltage;
+	}
 }
