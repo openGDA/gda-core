@@ -190,7 +190,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		obsComp.addIObserver(anIObserver);
-		if (obsComp.IsBeingObserved()) {
+		if (obsComp.isBeingObserved()) {
 			startPolling();
 		}
 	}
