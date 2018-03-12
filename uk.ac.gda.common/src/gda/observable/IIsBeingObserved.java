@@ -24,7 +24,7 @@ package gda.observable;
  */
 public interface IIsBeingObserved {
 	/**
-	 * @return boolean
+	 * @return boolean True if the object has observers attached
 	 */
-	boolean IsBeingObserved();
+	boolean isBeingObserved();
 }

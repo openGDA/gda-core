@@ -105,19 +105,19 @@ public class ObservableComponentTest {
 		ObservableComponent oc = new ObservableComponent();
 
 		// New shouldn't have any observers
-		assertFalse(oc.IsBeingObserved());
+		assertFalse(oc.isBeingObserved());
 
 		// Add an observer
 		oc.addIObserver(new TestObserver("test observer"));
 
 		// Should now be being observed
-		assertTrue(oc.IsBeingObserved());
+		assertTrue(oc.isBeingObserved());
 
 		// Remove all observers
 		oc.deleteIObservers();
 
 		// Now shouldn't be being observed again
-		assertFalse(oc.IsBeingObserved());
+		assertFalse(oc.isBeingObserved());
 	}
 
 	/**

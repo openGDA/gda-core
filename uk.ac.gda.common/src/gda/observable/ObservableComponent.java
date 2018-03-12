@@ -155,7 +155,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	}
 
 	@Override
-	public boolean IsBeingObserved() {
+	public boolean isBeingObserved() {
 		return !myIObservers.isEmpty();
 	}
 

@@ -138,7 +138,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	}
 
 	@Override
-	public boolean IsBeingObserved() {
+	public boolean isBeingObserved() {
 		return !myObservers.isEmpty();
 	}
 
