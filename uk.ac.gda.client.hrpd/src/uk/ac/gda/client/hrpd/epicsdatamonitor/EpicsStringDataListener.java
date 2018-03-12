@@ -79,7 +79,7 @@ public class EpicsStringDataListener extends EpicsPVListener {
 		DBR dbr = ev.getDBR();
 		if (dbr.isSTRING()) {
 			value = ((DBR_String) dbr).getStringValue()[0];
-			if (observers.IsBeingObserved()) {
+			if (observers.isBeingObserved()) {
 				observers.notifyIObservers(this, value);
 			}
 		}

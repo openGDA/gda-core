@@ -79,7 +79,7 @@ public class EpicsDoubleDataArrayListener extends EpicsPVListener {
 		DBR dbr = ev.getDBR();
 		if (dbr.isDOUBLE()) {
 			value = ((DBR_Double) dbr).getDoubleValue();
-			if (observers.IsBeingObserved()) {
+			if (observers.isBeingObserved()) {
 				observers.notifyIObservers(this, value);
 			}
 		}

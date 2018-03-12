@@ -82,7 +82,7 @@ public class EpicsByteArrayAsStringDataListener extends EpicsPVListener {
 		if (dbr.isBYTE()) {
 			bytevalue=((DBR_Byte)dbr).getByteValue();
 			value = new String(bytevalue).trim();
-			if (observers.IsBeingObserved()) {
+			if (observers.isBeingObserved()) {
 				observers.notifyIObservers(this, value);
 			}
 		}

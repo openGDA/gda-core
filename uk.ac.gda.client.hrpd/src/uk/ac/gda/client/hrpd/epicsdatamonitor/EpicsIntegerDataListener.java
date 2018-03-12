@@ -69,7 +69,7 @@ public class EpicsIntegerDataListener extends EpicsPVListener {
 		DBR dbr = ev.getDBR();
 		if (dbr.isINT()) {
 			value = ((DBR_Int) dbr).getIntValue()[0];
-			if (observers.IsBeingObserved()) {
+			if (observers.isBeingObserved()) {
 				observers.notifyIObservers(this, Integer.valueOf(value));
 			}
 		}

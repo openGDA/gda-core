@@ -81,7 +81,7 @@ public class EpicsEnumDataListener extends EpicsPVListener {
 		DBR dbr = ev.getDBR();
 		if (dbr.isENUM()) {
 			value = ((DBR_Enum) dbr).getEnumValue()[0];
-			if (observers.IsBeingObserved()) {
+			if (observers.isBeingObserved()) {
 				observers.notifyIObservers(this, Short.valueOf(value));
 			}
 		}
