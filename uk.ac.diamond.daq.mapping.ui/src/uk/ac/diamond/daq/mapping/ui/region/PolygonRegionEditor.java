@@ -24,7 +24,13 @@ import java.math.RoundingMode;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.property.Properties;
+import org.eclipse.core.databinding.validation.MultiValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -36,7 +42,9 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
@@ -72,24 +80,12 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		polygonTableViewer.setContentProvider(new ArrayContentProvider());
 
 		TableViewerColumn xCol = createTableViewerColumn(polygonTableViewer, getFastAxisName() + " (mm)");
-		xCol.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				MutablePoint p = (MutablePoint) element;
-				return String.valueOf(round(p.getX(), 4));
-			}
-		});
+		xCol.setLabelProvider(new MutablePointLabelProvider(Axis.X));
 		xCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.X));
 		xCol.getColumn().setToolTipText("Edit X position of vertex");
 
 		TableViewerColumn yCol = createTableViewerColumn(polygonTableViewer, getSlowAxisName() + " (mm)");
-		yCol.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				MutablePoint p = (MutablePoint) element;
-				return String.valueOf(round(p.getY(), 4));
-			}
-		});
+		yCol.setLabelProvider(new MutablePointLabelProvider(Axis.Y));
 		yCol.setEditingSupport(new PointEditingSupport(polygonTableViewer, Axis.Y));
 		yCol.getColumn().setToolTipText("Edit Y position of vertex");
 
@@ -104,7 +100,7 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
-		// tableviewer input
+		// TableViewer input
 		IObservableList input = Properties.selfList(MutablePoint.class).observe(((PolygonMappingRegion) getModel()).getPoints());
 		polygonTableViewer.setInput(input);
 	}
@@ -119,13 +115,36 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 
 	private class PointEditingSupport extends EditingSupport {
 
-		private CellEditor cellEditor;
+		private TextCellEditor cellEditor;
 		private Axis axis;
 
 		public PointEditingSupport(TableViewer viewer, Axis axis) {
 			super(viewer);
 			this.axis = axis;
 			cellEditor = new TextCellEditor((Composite) viewer.getControl());
+
+			createValidation();
+		}
+
+		private void createValidation() {
+			String scannableName = axis==Axis.X ? getFastAxisName() :  getSlowAxisName();
+			double lowerLimit = getLowerLimit(scannableName);
+			double upperLimit = getUpperLimit(scannableName);
+
+			IObservableValue observableText = WidgetProperties.text(SWT.Modify).observe(cellEditor.getControl());
+			MultiValidator validator = new MultiValidator() {
+				@Override
+				protected IStatus validate() {
+					double position = Double.parseDouble((String) observableText.getValue());
+					if (position < lowerLimit || position > upperLimit) return getLimitsError(lowerLimit, upperLimit);
+					return ValidationStatus.ok();
+				}
+			};
+
+			// Position of decoration depends on the column number
+			// so that it is always inside the table
+			int decorationPosition = SWT.TOP | (axis == Axis.X ? SWT.RIGHT : SWT.LEFT);
+			ControlDecorationSupport.create(validator, decorationPosition);
 		}
 
 		@Override
@@ -158,7 +177,6 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 			} else {
 				((MutablePoint) element).setY(Double.valueOf((String) value));
 			}
-
 		}
 	}
 
@@ -175,6 +193,39 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		BigDecimal bd = BigDecimal.valueOf(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
+	}
+
+	private static final Color RED = Display.getDefault().getSystemColor(SWT.COLOR_RED);
+	private class MutablePointLabelProvider extends ColumnLabelProvider {
+
+		private final Axis axis;
+		private final double lowerLimit;
+		private final double upperLimit;
+
+		public MutablePointLabelProvider(Axis axis) {
+			this.axis = axis;
+			String scannableName = axis == Axis.X ? getFastAxisName() : getSlowAxisName();
+			lowerLimit = getLowerLimit(scannableName);
+			upperLimit = getUpperLimit(scannableName);
+		}
+
+		@Override
+		public String getText(Object element) {
+			MutablePoint p = (MutablePoint) element;
+			double pos = axis == Axis.X ? p.getX() : p.getY();
+			return String.valueOf(round(pos, 4));
+		}
+
+		@Override
+		public Color getForeground(Object element) {
+			if (!isWithinLimits(element)) return RED;
+			return super.getForeground(element);
+		}
+
+		private boolean isWithinLimits(Object element) {
+			double position = Double.parseDouble(getText(element));
+			return position >= lowerLimit && position <= upperLimit;
+		}
 	}
 
 }
