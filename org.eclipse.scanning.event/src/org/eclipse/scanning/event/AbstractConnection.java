@@ -20,7 +20,6 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -47,8 +46,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	protected QueueConnection connection;
 	protected QueueSession queueSession;
-	protected Session session;
-
 	private boolean disconnected = false;
 
 	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
@@ -72,16 +69,15 @@ abstract class AbstractConnection implements IURIConnection {
 		return service;
 	}
 
-	/**
-	 * Creates and returns a topic of the given name
-	 * @param topicName
-	 * @return topic
-	 * @throws JMSException
-	 */
-	protected Topic createTopic(String topicName) throws JMSException {
-		if (connection==null) createConnection();
-		if (session == null)  createSession();
-		return session.createTopic(topicName);
+	protected void createConnection() throws JMSException {
+		Object factory = service.createConnectionFactory(uri);
+		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)factory;
+		this.connection = connectionFactory.createQueueConnection();
+		connection.start();
+	}
+
+	private void createQueueSession() throws JMSException {
+		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
 	/**
@@ -96,32 +92,15 @@ abstract class AbstractConnection implements IURIConnection {
 		return queueSession.createQueue(queueName);
 	}
 
-	protected void createSession() throws JMSException {
-		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-	}
-
-	private void createQueueSession() throws JMSException {
-		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-	}
-
-	protected void createConnection() throws JMSException {
-		Object factory = service.createConnectionFactory(uri);
-		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)factory;
-		this.connection = connectionFactory.createQueueConnection();
-		connection.start();
-	}
-
 	@Override
 	public void disconnect() throws EventException {
 		try {
 			if (connection!=null) connection.close();
-			if (session!=null) session.close();
 			if (queueSession!=null) queueSession.close();
 		} catch (JMSException ne) {
 			logger.error("Internal error - unable to close connection!", ne);
 		} finally {
 			connection = null;
-			session = null;
 			queueSession = null;
 		}
 		setDisconnected(true);

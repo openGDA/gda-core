@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PublisherImpl<T> extends AbstractConnection implements IPublisher<T> {
+class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(PublisherImpl.class);
 

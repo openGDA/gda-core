@@ -58,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("rawtypes")
-class SubscriberImpl<T extends EventListener> extends AbstractConnection implements ISubscriber<T> {
+class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection implements ISubscriber<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubscriberImpl.class);
 
