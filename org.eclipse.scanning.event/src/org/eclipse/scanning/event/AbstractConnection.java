@@ -73,48 +73,27 @@ abstract class AbstractConnection implements IURIConnection {
 	}
 
 	/**
-	 * Deals with reconnecting or if broker gone down, fails
-	 * TODO consolidate these two methods. Note, they use different sessions
-	 *
+	 * Creates and returns a topic of the given name
 	 * @param topicName
-	 * @return
+	 * @return topic
 	 * @throws JMSException
 	 */
 	protected Topic createTopic(String topicName) throws JMSException {
-		// Deals with reconnecting or if broker gone down, fails
-		try {
-			if (connection==null) createConnection();
-			if (session == null)  createSession();
-
-			return session.createTopic(topicName);
-		} catch (Exception ne) {
-			createConnection();
-			createQueueSession();
-
-			return (session!=null) ? session.createTopic(topicName) : null;
-		}
+		if (connection==null) createConnection();
+		if (session == null)  createSession();
+		return session.createTopic(topicName);
 	}
 
 	/**
-	 * Deals with reconnecting or if broker gone down, fails
-	 *
+	 * Creates and returns a queue of the given name
 	 * @param queueName
 	 * @return
 	 * @throws JMSException
 	 */
 	protected Queue createQueue(String queueName) throws JMSException {
-		// Deals with reconnecting or if broker gone down, fails
-		try {
-			if (connection==null) createConnection();
-			if (queueSession == null) createQueueSession();
-
-			return queueSession.createQueue(queueName);
-		} catch (Exception ne) {
-			createConnection();
-			createQueueSession();
-
-			return queueSession.createQueue(queueName);
-		}
+		if (connection==null) createConnection();
+		if (queueSession == null) createQueueSession();
+		return queueSession.createQueue(queueName);
 	}
 
 	protected void createSession() throws JMSException {
