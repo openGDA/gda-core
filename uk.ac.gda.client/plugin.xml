@@ -146,15 +146,6 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="false"
-            category="uk.ac.gda.client.general.category"
-            class="uk.ac.gda.client.plotting.ScanDataPlotView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.client.plotting.scandataplotview"
-            name="Data Plot"
-            restorable="true">
-      </view>
-      <view
             allowMultiple="true"
             class="uk.ac.gda.client.livecontrol.LiveControlsView"
             icon="icons/ui-slider-050.png"
