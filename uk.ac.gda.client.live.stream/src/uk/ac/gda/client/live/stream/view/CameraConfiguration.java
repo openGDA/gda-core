@@ -22,7 +22,10 @@ import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
 import gda.factory.Findable;
 
 /**
- * A class to be used to hold camera configuration for use with the LiveMJPEGView
+ * A class to be used to hold camera configuration for use with the LiveMJPEGView.
+ * <p>
+ * For more info on configuring this class see
+ * <a href="https://confluence.diamond.ac.uk/x/1wWKAg">Setup Live Stream Camera Views</a>
  *
  * @author James Mudd
  */
