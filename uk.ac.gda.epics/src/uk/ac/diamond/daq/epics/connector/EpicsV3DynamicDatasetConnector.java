@@ -18,14 +18,16 @@
 
 package uk.ac.diamond.daq.epics.connector;
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataListener;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetChangeChecker;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.january.dataset.ILazyDataset;
@@ -34,26 +36,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cosylab.epics.caj.CAJChannel;
+import com.google.common.util.concurrent.RateLimiter;
 
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
-import gov.aps.jca.dbr.DBR_Short;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 /**
  * Connects to a remote Epics V3 Array, and uses the data to populate a dataset which dynamically changes whenever the Epics data changes.
+ * <p>
+ * This class was significantly rewritten as part of <a href="https://jira.diamond.ac.uk/browse/DAQ-1255">DAQ-1255</a>
  *
  * @author Matt Taylor
+ * @author James Mudd
  */
 public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
@@ -70,7 +71,8 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private static final String DATA_TYPE_SUFFIX = ":DataType_RBV";
 	private static final String MONO_COLOUR_MODE = "Mono";
 	private static final String UINT8_DATA_TYPE = "UInt8";
-	private static final long FRAME_LIMIT_TIME_DIFFERENCE= 1000 / 20; // 20 FPS
+
+	private final RateLimiter frameRateLimiter = RateLimiter.create(20);
 
 	private Channel dataChannel = null;
 	private Channel dim0Ch = null;
@@ -80,9 +82,10 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private Channel colourModeCh = null;
 
 	private Monitor dataChannelMonitor = null;
-	private EpicsMonitorListener dataChannelMonitorListener = null;
+	private final MonitorListener dataChannelMonitorListener = this::dataUpdate;
+	private final MonitorListener arrayParametersMonitorListener = this::arrayParametersUpdate;
 
-	private final LinkedList<IDataListener> listeners = new LinkedList<>();
+	private final Set<IDataListener> listeners = new CopyOnWriteArraySet<>();
 
 	private int dim0;
 	private int dim1;
@@ -90,10 +93,12 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private int height = 0;
 	private int width = 0;
 	private int rgbChannels = 0;
+	private int dataSize; // = height * width * rgbChannels
 	private int numDimensions = 0;
 	private String colourMode = "";
 	private String dataTypeStr = "";
 
+	private final String arrayBasePv;
 	private final String dataChannelPV;
 	private final String dim0PV;
 	private final String dim1PV;
@@ -102,9 +107,7 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private final String colourModePV;
 	private final String dataTypePV;
 
-	private DBRType dataType = null;
-	private long lastSystemTime = System.currentTimeMillis();
-	private ILazyDataset dataset;
+	private IDataset dataset;
 	private String[] colourModes;
 
 	private Monitor dim0ChMonitor;
@@ -116,17 +119,18 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	/**
 	 * Constructor, takes the name of the base plugin name
 	 *
-	 * @param arrayPluginName
+	 * @param arrayBasePv
 	 *            The name of the 'parent' PV endpoint
 	 */
-	public EpicsV3DynamicDatasetConnector(String arrayPluginName) {
-		this.dataChannelPV = arrayPluginName + ARRAY_DATA_SUFFIX;
-		this.dim0PV = arrayPluginName + ARRAY_SIZE_0_SUFFIX;
-		this.dim1PV = arrayPluginName + ARRYA_SIZE_1_SUFFIX;
-		this.dim2PV = arrayPluginName + ARRAY_SIZE_2_SUFFIX;
-		this.numDimensionsPV = arrayPluginName + NUMBER_OF_DIMENSIONS_SUFFIX;
-		this.colourModePV = arrayPluginName + COLOUR_MODE_SUFFIX;
-		this.dataTypePV = arrayPluginName + DATA_TYPE_SUFFIX;
+	public EpicsV3DynamicDatasetConnector(String arrayBasePv) {
+		this.arrayBasePv = arrayBasePv;
+		this.dataChannelPV = arrayBasePv + ARRAY_DATA_SUFFIX;
+		this.dim0PV = arrayBasePv + ARRAY_SIZE_0_SUFFIX;
+		this.dim1PV = arrayBasePv + ARRYA_SIZE_1_SUFFIX;
+		this.dim2PV = arrayBasePv + ARRAY_SIZE_2_SUFFIX;
+		this.numDimensionsPV = arrayBasePv + NUMBER_OF_DIMENSIONS_SUFFIX;
+		this.colourModePV = arrayBasePv + COLOUR_MODE_SUFFIX;
+		this.dataTypePV = arrayBasePv + DATA_TYPE_SUFFIX;
 	}
 
 	@Override
@@ -137,23 +141,23 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 	@Override
 	public void setPath(String path) {
-		// Not applicable
+		throw new UnsupportedOperationException("Cannot setPath on a EPICS stream");
 	}
 
 	@Override
 	public int[] getMaxShape() {
-		// TODO applicable?
+		// Return null
 		return null;
 	}
 
 	@Override
 	public void setMaxShape(int... maxShape) {
-		// TODO applicable?
+		throw new UnsupportedOperationException("Cannot setMaxShape on a EPICS stream");
 	}
 
 	@Override
 	public void startUpdateChecker(int milliseconds, IDatasetChangeChecker checker) {
-		// TODO applicable?
+		throw new UnsupportedOperationException("EPICS stream does not support update checker");
 	}
 
 	@Override
@@ -168,28 +172,27 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 	@Override
 	public void fireDataListeners() {
-		// TODO Auto-generated method stub
+		final DataEvent dataEvent = new DataEvent(getDatasetName(), getDataShape());
+		listeners.forEach(listener -> listener.dataChangePerformed(dataEvent));
 	}
 
 	@Override
 	public String getDatasetName() {
-		// TODO Auto-generated method stub
-		return null;
+		return arrayBasePv;
 	}
 
 	@Override
 	public void setDatasetName(String datasetName) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Cannot setDatasetName on a EPICS stream");
 	}
 
 	@Override
 	public void setWritingExpected(boolean expectWrite) {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Cant write to an EPICS stream");
 	}
 
 	@Override
 	public boolean isWritingExpected() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -209,7 +212,6 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			colourModeCh = EPICS_CONTROLLER.createChannel(colourModePV);
 			Channel dataTypeCh = EPICS_CONTROLLER.createChannel(dataTypePV);
 
-			dataType = dataChannel.getFieldType();
 			dim0 = EPICS_CONTROLLER.cagetInt(dim0Ch);
 			dim1 = EPICS_CONTROLLER.cagetInt(dim1Ch);
 			dim2 = EPICS_CONTROLLER.cagetInt(dim2Ch);
@@ -217,39 +219,19 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			colourMode = EPICS_CONTROLLER.cagetString(colourModeCh);
 			dataTypeStr = EPICS_CONTROLLER.cagetString(dataTypeCh);
 
-			colourModes=EPICS_CONTROLLER.cagetLabels(colourModeCh);
+			colourModes = EPICS_CONTROLLER.cagetLabels(colourModeCh);
 
-			int dataSize = calculateAndUpdateDataSize();
-			// Without specifying data size in cagets, they will always try to get max data size, which could be >> actual data, causing timeouts.
+			calculateAndUpdateDataSize();
 
-			DBR dbr = dataChannel.get(dataType, dataSize);
+			// Initialise the dataset to be zeros. This is needed so when the trace is added to the plotting system its actually drawn.
+			dataset = DatasetFactory.zeros(getDataShape());
 
-			if (dataType.equals(DBRType.BYTE)) {
-				EPICS_CONTROLLER.cagetByteArray(dataChannel, dataSize); // Without doing this, the dbr isn't populated with the actual data
-				handleByte(dbr);
-			} else if (dataType.equals(DBRType.SHORT)) {
-				EPICS_CONTROLLER.cagetShortArray(dataChannel, dataSize); // Without doing this, the dbr isn't populated with the actual data
-				handleShort(dbr);
-			} else if (dataType.equals(DBRType.INT)) {
-				EPICS_CONTROLLER.cagetIntArray(dataChannel, dataSize); // Without doing this, the dbr isn't populated with the actual data
-				handleInt(dbr);
-			} else if (dataType.equals(DBRType.FLOAT)) {
-				EPICS_CONTROLLER.cagetFloatArray(dataChannel, dataSize); // Without doing this, the dbr isn't populated with the actual data
-				handleFloat(dbr);
-			} else if (dataType.equals(DBRType.DOUBLE)) {
-				EPICS_CONTROLLER.cagetDoubleArray(dataChannel, dataSize); // Without doing this, the dbr isn't populated with the actual data
-				handleDouble(dbr);
-			} else {
-				logger.error("Unknown DBRType - " + dataType);
-			}
-
-			dataChannelMonitorListener = new EpicsMonitorListener();
 			dataChannelMonitor = EPICS_CONTROLLER.setMonitor(dataChannel, dataChannelMonitorListener, dataSize);
-			dim0ChMonitor = EPICS_CONTROLLER.setMonitor(dim0Ch, dataChannelMonitorListener);
-			dim1ChMonitor = EPICS_CONTROLLER.setMonitor(dim1Ch, dataChannelMonitorListener);
-			dim2ChMonitor = EPICS_CONTROLLER.setMonitor(dim2Ch, dataChannelMonitorListener);
-			colourModeChMonitor = EPICS_CONTROLLER.setMonitor(colourModeCh, dataChannelMonitorListener);
-			numDimChMonitor = EPICS_CONTROLLER.setMonitor(numDimCh, dataChannelMonitorListener);
+			dim0ChMonitor = EPICS_CONTROLLER.setMonitor(dim0Ch, arrayParametersMonitorListener);
+			dim1ChMonitor = EPICS_CONTROLLER.setMonitor(dim1Ch, arrayParametersMonitorListener);
+			dim2ChMonitor = EPICS_CONTROLLER.setMonitor(dim2Ch, arrayParametersMonitorListener);
+			colourModeChMonitor = EPICS_CONTROLLER.setMonitor(colourModeCh, arrayParametersMonitorListener);
+			numDimChMonitor = EPICS_CONTROLLER.setMonitor(numDimCh, arrayParametersMonitorListener);
 		} catch (Exception e) {
 			logger.error("Error connecting to EPICS stream", e);
 			throw new DatasetException(e);
@@ -259,37 +241,39 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 	@Override
 	public void disconnect() throws DatasetException {
+		// Remove listeners to stop sending updates
+		listeners.clear();
+
 		if (null != dataChannel) {
 			dataChannelMonitor.removeMonitorListener(dataChannelMonitorListener);
 			EPICS_CONTROLLER.destroy(dataChannel);
-			dataChannelMonitor=null;
+			dataChannelMonitor = null;
 		}
 		if (null != dim0Ch) {
-			dim0ChMonitor.removeMonitorListener(dataChannelMonitorListener);
+			dim0ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
 			EPICS_CONTROLLER.destroy(dim0Ch);
-			dim0ChMonitor=null;
+			dim0ChMonitor = null;
 		}
 		if (null != dim1Ch) {
-			dim1ChMonitor.removeMonitorListener(dataChannelMonitorListener);
+			dim1ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
 			EPICS_CONTROLLER.destroy(dim1Ch);
-			dim1ChMonitor=null;
+			dim1ChMonitor = null;
 		}
 		if (null != dim2Ch) {
-			dim2ChMonitor.removeMonitorListener(dataChannelMonitorListener);
+			dim2ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
 			EPICS_CONTROLLER.destroy(dim2Ch);
-			dim2ChMonitor=null;
+			dim2ChMonitor = null;
 		}
 		if (null != colourModeCh) {
-			colourModeChMonitor.removeMonitorListener(dataChannelMonitorListener);
+			colourModeChMonitor.removeMonitorListener(arrayParametersMonitorListener);
 			EPICS_CONTROLLER.destroy(colourModeCh);
-			colourModeChMonitor=null;
+			colourModeChMonitor = null;
 		}
 		if (null != numDimCh) {
-			numDimChMonitor.removeMonitorListener(dataChannelMonitorListener);
+			numDimChMonitor.removeMonitorListener(arrayParametersMonitorListener);
 			EPICS_CONTROLLER.destroy(numDimCh);
-			numDimChMonitor=null;
+			numDimChMonitor = null;
 		}
-		dataChannelMonitorListener=null;
 	}
 
 	@Override
@@ -299,17 +283,15 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 	@Override
 	public boolean resize(int... newShape) {
-		// TODO ?
-		return false;
+		throw new UnsupportedOperationException("Cant resize an EPICS stream");
 	}
 
 	@Override
 	public boolean refreshShape() {
-		// TODO ?
-		return false;
+		return false; // There is no file so false
 	}
 
-	private int calculateAndUpdateDataSize() {
+	private void calculateAndUpdateDataSize() {
 		String currentWidthPV;
 		String currentHeightPV;
 		String rgbChannelsPV;
@@ -372,249 +354,125 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			logger.warn("Image channels {} from {}, assuming a at least 1 channel. Check that plugin is receiving images.", rgbChannels, rgbChannelsPV);
 			rgbChannels = 1;
 		}
-		return height * width * rgbChannels;
+
+		dataSize = height * width * rgbChannels;
+
+		logger.debug("New values: height={} width={} channels={} numDimensions={} or colourMode={}", height, width, rgbChannels, numDimensions, colourMode);
+	}
+
+	private int[] getDataShape() {
+		return new int[] { height, width };
 	}
 
 	/**
-	 * Handles a byte DBR, updating the dataset with the data from the DBR
+	 * This is the method called by EPICS when the monitor on the {@link #ARRAY_DATA_SUFFIX} is triggered. It converts the event into a dataset and fires
+	 * listeners
 	 *
-	 * @param dbr
+	 * @param event The EPICS monitor update with the new data
 	 */
-	private void handleByte(DBR dbr) {
+	private void dataUpdate(MonitorEvent event) {
+		// Only notify of data update at certain FPS
+		if (frameRateLimiter.tryAcquire()) {
+			// Extract the updated data
+			final Object data = event.getDBR().getValue();
 
-		DBR_Byte dbrb = (DBR_Byte) dbr;
-		byte[] rawData = dbrb.getByteValue();
-		short[] latestData = new short[rawData.length];
-
-		if (dataTypeStr.equalsIgnoreCase(UINT8_DATA_TYPE)) {
-			for (int i = 0; i < rawData.length; i++) {
-				latestData[i] = (short) (rawData[i] & 0xFF);
+			// Build the new dataset
+			if (isRgb()) {
+				dataset = DatasetFactory.createFromObject(RGBDataset.class, data, getDataShape());
+			} else {
+				dataset = DatasetFactory.createFromObject(data, getDataShape());
 			}
+			if (isUnsigned()) {
+				dataset = DatasetUtils.makeUnsigned(dataset);
+			}
+
+			// Update listeners
+			fireDataListeners();
 		} else {
-			for (int i = 0; i < rawData.length; i++) {
-				latestData[i] = rawData[i];
-			}
-		}
-
-		int dataSize = calculateAndUpdateDataSize();
-
-		if (latestData.length != dataSize) {
-			if (dataSize > latestData.length) {
-				logger.warn("Warning: Image size is larger than data array size");
-			}
-			latestData = Arrays.copyOf(latestData, dataSize);
-		}
-		if (numDimensions == 2) {
-			dataset = DatasetFactory.createFromObject(latestData, new int[] { height, width });
-		} else {
-			dataset = DatasetFactory.createFromObject(RGBDataset.class, latestData, new int[] { height, width });
+			logger.trace("Frame dropped");
 		}
 	}
 
+	private boolean isRgb() {
+		return !MONO_COLOUR_MODE.equalsIgnoreCase(colourMode);
+	}
+
+	private boolean isUnsigned() {
+		return UINT8_DATA_TYPE.equalsIgnoreCase(dataTypeStr);
+	}
+
 	/**
-	 * Handles a short DBR, updating the dataset with the data from the DBR
+	 * This is called by EPICS when one of the monitors of array parameters is triggered. It logs it and updated the data monitor
 	 *
-	 * @param dbr
+	 * @param event THe EPICS monitor event when an parameter is changed
 	 */
-	private void handleShort(DBR dbr) {
+	private void arrayParametersUpdate(MonitorEvent event) {
 
-		DBR_Short dbrb = (DBR_Short) dbr;
-		short[] latestData = Arrays.copyOf(dbrb.getShortValue(), dbrb.getShortValue().length);
+		final Object source = event.getSource();
+		final DBR dbr = event.getDBR();
 
-		if (latestData != null) {
-			int dataSize = calculateAndUpdateDataSize();
+		if (source instanceof CAJChannel) {
+			CAJChannel chan = (CAJChannel) source;
+			String channelName = chan.getName();
 
-			if (latestData.length != dataSize) {
-				if (dataSize > latestData.length) {
-					logger.warn("Warning: Image size is larger than data array size");
+			if (channelName.equalsIgnoreCase(dim0PV)) {
+				DBR_Int dbri = (DBR_Int) dbr;
+				int value = dbri.getIntValue()[0];
+				if (dim0 != value) {
+					dim0 = value;
+					logger.debug("New dim0PV value {} for {}", value, dim0PV);
+					updateDataChannelMonitor();
 				}
-				latestData = Arrays.copyOf(latestData, dataSize);
-			}
-			if (numDimensions == 2) {
-				dataset = DatasetFactory.createFromObject(latestData, new int[] { height, width });
+			} else if (channelName.equalsIgnoreCase(dim1PV)) {
+				DBR_Int dbri = (DBR_Int) dbr;
+				int value = dbri.getIntValue()[0];
+				if (dim1 != value) {
+					dim1 = value;
+					logger.debug("New dim1PV value {} for {}", value, dim1PV);
+					updateDataChannelMonitor();
+				}
+			} else if (channelName.equalsIgnoreCase(dim2PV)) {
+				DBR_Int dbri = (DBR_Int) dbr;
+				int value = dbri.getIntValue()[0];
+				if (dim2 != value) {
+					dim2 = value;
+					logger.debug("New dim2PV value {} for {}", value, dim2PV);
+					updateDataChannelMonitor();
+				}
+			} else if (channelName.equalsIgnoreCase(numDimensionsPV)) {
+				DBR_Int dbri = (DBR_Int) dbr;
+				int value = dbri.getIntValue()[0];
+				if (numDimensions != value) {
+					numDimensions = value;
+					logger.debug("New numDimensionsPV value {} from {}", value, numDimensionsPV);
+					updateDataChannelMonitor();
+				}
+			} else if (channelName.equalsIgnoreCase(colourModePV)) {
+				DBR_Enum dbrs = (DBR_Enum) dbr;
+				short value = dbrs.getEnumValue()[0];
+				if (colourMode != colourModes[value]) {
+					colourMode = colourModes[value];
+					logger.debug("New colourModePV value '{} 'from {}", colourModes[value], colourMode);
+					updateDataChannelMonitor();
+				}
 			} else {
-				dataset = DatasetFactory.createFromObject(RGBDataset.class, latestData, new int[] { height, width });
+				logger.debug("New value from {}, ignoring: {}", channelName, dbr);
 			}
 		}
 	}
 
 	/**
-	 * Handles an int DBR, updating the dataset with the data from the DBR
-	 *
-	 * @param dbr
+	 * This removes the existing monitor (if any), then recalculates the data size (this is important as we want to attach a monitor of the right number of
+	 * elements) then re-adds the listener with the new data size.
 	 */
-	private void handleInt(DBR dbr) {
-
-		DBR_Int dbrb = (DBR_Int) dbr;
-		int[] latestData = Arrays.copyOf(dbrb.getIntValue(), dbrb.getIntValue().length);
-
-		if (latestData != null) {
-			int dataSize = calculateAndUpdateDataSize();
-
-			if (latestData.length != dataSize) {
-				if (dataSize > latestData.length) {
-					logger.warn("Warning: Image size is larger than data array size");
-				}
-				latestData = Arrays.copyOf(latestData, dataSize);
-			}
-			if (numDimensions == 2) {
-				dataset = DatasetFactory.createFromObject(latestData, new int[] { height, width });
-			} else {
-				dataset = DatasetFactory.createFromObject(RGBDataset.class, latestData, new int[] { height, width });
-			}
-		}
-	}
-
-	/**
-	 * Handles a float DBR, updating the dataset with the data from the DBR
-	 *
-	 * @param dbr
-	 */
-	private void handleFloat(DBR dbr) {
-
-		DBR_Float dbrb = (DBR_Float) dbr;
-		float[] latestData = Arrays.copyOf(dbrb.getFloatValue(), dbrb.getFloatValue().length);
-
-		if (latestData != null) {
-			int dataSize = calculateAndUpdateDataSize();
-
-			if (latestData.length != dataSize) {
-				if (dataSize > latestData.length) {
-					logger.warn("Warning: Image size is larger than data array size");
-				}
-				latestData = Arrays.copyOf(latestData, dataSize);
-			}
-			if (numDimensions == 2) {
-				dataset = DatasetFactory.createFromObject(latestData, new int[] { height, width });
-			} else {
-				dataset = DatasetFactory.createFromObject(RGBDataset.class, latestData, new int[] { height, width });
-			}
-		}
-	}
-
-	/**
-	 * Handles a double DBR, updating the dataset with the data from the DBR
-	 *
-	 * @param dbr
-	 */
-	private void handleDouble(DBR dbr) {
-
-		DBR_Double dbrb = (DBR_Double) dbr;
-		double[] latestData = Arrays.copyOf(dbrb.getDoubleValue(), dbrb.getDoubleValue().length);
-
-		if (latestData != null) {
-			int dataSize = calculateAndUpdateDataSize();
-
-			if (latestData.length != dataSize) {
-				if (dataSize > latestData.length) {
-					logger.warn("Warning: Image size is larger than data array size");
-				}
-				latestData = Arrays.copyOf(latestData, dataSize);
-			}
-			if (numDimensions == 2) {
-				dataset = DatasetFactory.createFromObject(latestData, new int[] { height, width });
-			} else {
-				dataset = DatasetFactory.createFromObject(RGBDataset.class, latestData, new int[] { height, width });
-			}
-		}
-	}
-
-	/**
-	 * Private class used to perform actions based on events sent from the Epics PVs
-	 */
-	private class EpicsMonitorListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			try {
-				Object source = arg0.getSource();
-
-				if (source instanceof CAJChannel) {
-					CAJChannel chan = (CAJChannel) source;
-					String channelName = chan.getName();
-					DBR dbr = arg0.getDBR();
-
-					if (channelName.equalsIgnoreCase(dataChannelPV)) {
-						if (dataType.equals(DBRType.BYTE)) {
-							handleByte(dbr);
-						} else if (dataType.equals(DBRType.SHORT)) {
-							handleShort(dbr);
-						} else if (dataType.equals(DBRType.INT)) {
-							handleInt(dbr);
-						} else if (dataType.equals(DBRType.FLOAT)) {
-							handleFloat(dbr);
-						} else if (dataType.equals(DBRType.DOUBLE)) {
-							handleDouble(dbr);
-						} else {
-							logger.error("Unknown DBRType - " + dataType);
-						}
-
-						// Only notify of data update at certain FPS
-						long timeNow = System.currentTimeMillis();
-						if (timeNow - lastSystemTime > FRAME_LIMIT_TIME_DIFFERENCE) {
-							for (IDataListener listener : listeners) {
-								int[] shape = new int[] { height, width };
-								DataEvent evt = new DataEvent("", shape);
-								listener.dataChangePerformed(evt);
-							}
-							lastSystemTime = timeNow;
-						}
-					} else if (channelName.equalsIgnoreCase(dim0PV)) {
-						DBR_Int dbri = (DBR_Int) dbr;
-						int value = dbri.getIntValue()[0];
-						if (dim0 != value) {
-							dim0 = value;
-							logger.debug("New dim0PV value {} for {}", value, dim0PV);
-							updateDataChannelMonitor();
-						}
-					} else if (channelName.equalsIgnoreCase(dim1PV)) {
-						DBR_Int dbri = (DBR_Int) dbr;
-						int value = dbri.getIntValue()[0];
-						if (dim1 != value) {
-							dim1 = value;
-							logger.debug("New dim1PV value {} for {}", value, dim1PV);
-							updateDataChannelMonitor();
-						}
-					} else if (channelName.equalsIgnoreCase(dim2PV)) {
-						DBR_Int dbri = (DBR_Int) dbr;
-						int value = dbri.getIntValue()[0];
-						if (dim2 != value) {
-							dim2 = value;
-							logger.debug("New dim2PV value {} for {}", value, dim2PV);
-							updateDataChannelMonitor();
-						}
-					} else if (channelName.equalsIgnoreCase(numDimensionsPV)) {
-						DBR_Int dbri = (DBR_Int) dbr;
-						int value = dbri.getIntValue()[0];
-						if (numDimensions != value) {
-							numDimensions = value;
-							logger.debug("New numDimensionsPV value {} from {}", value, numDimensionsPV);
-							updateDataChannelMonitor();
-						}
-					} else if (channelName.equalsIgnoreCase(colourModePV)) {
-						DBR_Enum dbrs = (DBR_Enum) dbr;
-						short value = dbrs.getEnumValue()[0];
-						if (colourMode != colourModes[value]) {
-							colourMode = colourModes[value];
-							logger.debug("New colourModePV value '{} 'from {}", colourModes[value], colourMode);
-							updateDataChannelMonitor();
-						}
-					} else {
-						logger.debug("New value from {}, ignoring: {}", channelName, dbr);
-					}
-				}
-			} catch (Exception e) {
-				logger.error("Error handling update from EPICS", e);
-			}
-		}
-
-		private void updateDataChannelMonitor() throws CAException, InterruptedException {
-			int[] were = { height, width, rgbChannels };
-			dataChannelMonitor.removeMonitorListener(dataChannelMonitorListener);
-			int dataSize = calculateAndUpdateDataSize();
-			logger.debug("New value for height {} width {} channels {} numDimensions {} or colourMode {} " + "(height, width & channels were {})", height,
-					width, rgbChannels, numDimensions, colourMode, were);
+	private void updateDataChannelMonitor() {
+		dataChannelMonitor.removeMonitorListener(dataChannelMonitorListener);
+		calculateAndUpdateDataSize();
+		try {
 			dataChannelMonitor = EPICS_CONTROLLER.setMonitor(dataChannel, dataChannelMonitorListener, dataSize);
+		} catch (CAException | InterruptedException e) {
+			logger.error("Error attaching data channel monitor listener", e);
 		}
 	}
+
 }
