@@ -101,7 +101,7 @@ public class LiveStreamView extends ViewPart {
 	private LiveStreamConnection liveStreamConnection;
 	private Text errorText;
 	private String cameraName;
-	private AtomicLong frameCounter=new AtomicLong();
+	private AtomicLong frameCounter = new AtomicLong();
 	private ScriptingConnection scriptingConnection;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
@@ -109,7 +109,7 @@ public class LiveStreamView extends ViewPart {
 	private final IDataListener shapeListener = new IDataListener() {
 
 		private int[] oldShape;
-		private long lastUpdateTime= System.nanoTime(); // Initialise to prevent NPE
+		private long lastUpdateTime = System.nanoTime(); // Initialise to make first call to getFps more reasonable
 
 		@Override
 		public void dataChangePerformed(DataEvent evt) {
@@ -119,8 +119,10 @@ public class LiveStreamView extends ViewPart {
 				oldShape = evt.getShape();
 				// Need to be in the UI thread to do rescaling
 				display.asyncExec(() -> {
-					plottingSystem.autoscaleAxes();
-					iTrace.rehistogram();
+					if (plottingSystem != null && !plottingSystem.isDisposed()) {
+						plottingSystem.autoscaleAxes();
+						iTrace.rehistogram();
+					}
 				});
 				updateAxes();
 			}
@@ -128,12 +130,17 @@ public class LiveStreamView extends ViewPart {
 			// Build the new title while not in the UI thread
 			final String newTitle = buildTitle();
 			// Update the plot title in the UI thread
-			display.asyncExec(() -> plottingSystem.setTitle(newTitle));
+			display.asyncExec(() -> {
+				if (plottingSystem != null && !plottingSystem.isDisposed()) {
+					plottingSystem.setTitle(newTitle);
+				}
+			});
 		}
 
 		private String buildTitle() {
 			final double fps = getFps();
-			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(), frameCounter.incrementAndGet(), fps);
+			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
+					frameCounter.incrementAndGet(), fps);
 		}
 
 		private double getFps() {
@@ -189,14 +196,16 @@ public class LiveStreamView extends ViewPart {
 			cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
 			cameraSelectorLabel.setText("Select camera:");
 
-			final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+			final org.eclipse.swt.widgets.List cameraSelector = new org.eclipse.swt.widgets.List(parent,
+					SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
 			cameraSelector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			cameraSelector.setItems(cameraMap.keySet().toArray(new String[0]));
 			cameraSelector.setSelection(0);
 			cameraSelector.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDoubleClick(MouseEvent e) {
-					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+					reopenViewWithSecondaryId(
+							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
 				}
 			});
 
@@ -207,7 +216,8 @@ public class LiveStreamView extends ViewPart {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					// Get the cameras ID for the secondary ID
-					reopenViewWithSecondaryId(cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
+					reopenViewWithSecondaryId(
+							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName());
 				}
 			});
 
@@ -322,7 +332,7 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void createScriptingConnection(String partName) {
-		if( plottingSystem != null){
+		if (plottingSystem != null) {
 			scriptingConnection = new ScriptingConnection(partName);
 			scriptingConnection.setPlottingSystem(plottingSystem);
 		}
@@ -387,7 +397,7 @@ public class LiveStreamView extends ViewPart {
 				public void mouseDoubleClick(MouseEvent e) {
 					errorText.dispose();
 					parent.layout(true);
-					errorText=null;
+					errorText = null;
 				}
 			});
 			errorText.setToolTipText("Double click this message to remove it.");
@@ -415,10 +425,6 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		if (plottingSystem != null) {
-			plottingSystem.dispose();
-			plottingSystem = null;
-		}
 		if (liveStreamConnection != null) {
 			try {
 				liveStreamConnection.getStream().removeDataListener(shapeListener);
@@ -430,8 +436,13 @@ public class LiveStreamView extends ViewPart {
 				liveStreamConnection = null;
 			}
 		}
+		if (plottingSystem != null) {
+			plottingSystem.dispose();
+			plottingSystem = null;
+		}
 		if (scriptingConnection != null) {
 			scriptingConnection.dispose();
+			scriptingConnection = null;
 		}
 		super.dispose();
 	}
@@ -457,7 +468,8 @@ public class LiveStreamView extends ViewPart {
 	/**
 	 * This should be called when starting a new stream. It also takes care of disconnecting old streams (if any)
 	 *
-	 * @param streamType The type of stream to use
+	 * @param streamType
+	 *            The type of stream to use
 	 */
 	private void setupStream(StreamType streamType) {
 		if (liveStreamConnection != null) {
@@ -535,7 +547,7 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
-	private  void updateServerRois() {
+	private void updateServerRois() {
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 
 		// Check if any regions are non rectangular and warn if not
