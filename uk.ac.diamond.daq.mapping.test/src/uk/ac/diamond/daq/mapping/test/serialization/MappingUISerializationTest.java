@@ -30,8 +30,6 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
-import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.StepModel;
@@ -57,9 +55,9 @@ import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.CircularMappingRegion;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
-import uk.ac.diamond.daq.mapping.region.MutablePoint;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
+import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion.MutablePoint;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 
 public class MappingUISerializationTest {
@@ -191,19 +189,6 @@ public class MappingUISerializationTest {
 		PointMappingRegion newRegion = service.unmarshal(json, PointMappingRegion.class);
 
 		assertEquals(region, newRegion);
-	}
-
-	@Test
-	public void testSerializePoint() throws Exception {
-		// TODO remove: a temporary test to test serializing a Point in isolation.
-		// Point is required by PolygonMappingRegion. This test should be removed when
-		// testSerializePolygonRegion is passing
-		Point point = new Point(0, 1.0, 0, 1.0);
-
-		String json = service.marshal(point);
-		IPosition newPoint = service.unmarshal(json, IPosition.class);
-
-		assertEquals(point, newPoint);
 	}
 
 	@Test

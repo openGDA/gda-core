@@ -338,11 +338,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Remove the old controls
 		if (regionEditor != null) {
 			regionEditor.dispose();
-			regionEditor = null;
 		}
 		if (pathEditor != null) {
 			pathEditor.dispose();
-			pathEditor = null;
 		}
 
 		// Scan Region
