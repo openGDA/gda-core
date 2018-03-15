@@ -40,8 +40,8 @@ import gda.factory.Finder;
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
 
 /**
- * This processed {@link CameraConfiguration}'s in the client Spring and generates the menu items to allow them to be
- * opened. If no {@link CameraConfiguration}'s are found it does nothing.
+ * This processes {@link CameraConfiguration}s in the client Spring and generates the menu items to allow them to be
+ * opened. If no {@link CameraConfiguration}s are found it does nothing.
  *
  * @author James Mudd
  */
