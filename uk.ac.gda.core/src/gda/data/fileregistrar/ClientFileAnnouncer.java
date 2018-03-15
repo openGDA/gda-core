@@ -30,5 +30,16 @@ import gda.factory.corba.util.CorbaImplClass;
 public class ClientFileAnnouncer extends DeviceBase {
 	@Override
 	public void configure() throws FactoryException {
+		// no configuration required
+	}
+
+	/**
+	 * Notify observers (usually the project explorer) that files have been created
+	 *
+	 * @param files
+	 *            Array of file names
+	 */
+	public void notifyFilesAvailable(String[] files) {
+		notifyIObservers(this, files);
 	}
 }

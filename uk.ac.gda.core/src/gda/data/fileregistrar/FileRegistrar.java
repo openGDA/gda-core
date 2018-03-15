@@ -82,7 +82,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private ArchiveFileCreator icatXMLCreator;
 
-	private DeviceBase clientFileAnnouncer;
+	private ClientFileAnnouncer clientFileAnnouncer;
 
 	private Set<String> files = new LinkedHashSet<>();
 
@@ -232,8 +232,9 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			try {
 				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", scanId);
 				icatXMLCreator.registerFiles(scanId, fileArr);
-				if (clientFileAnnouncer != null)
-					clientFileAnnouncer.notifyIObservers(clientFileAnnouncer, fileArr);
+				if (clientFileAnnouncer != null) {
+					clientFileAnnouncer.notifyFilesAvailable(fileArr);
+				}
 			} catch (Exception e) {
 				logger.error("Error generating XML", e);
 			}
@@ -279,12 +280,12 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	}
 
 	/**
-	 * Clients can listen to this DeviceBase object for
-	 * String arrays with filenames of recently created files
-	 * to update their data projects.
+	 * Clients can listen to this object for String arrays with filenames of recently created files to update their data
+	 * projects.
+	 *
 	 * @param clientFileAnnouncer
 	 */
-	public void setClientFileAnnouncer(DeviceBase clientFileAnnouncer) {
+	public void setClientFileAnnouncer(ClientFileAnnouncer clientFileAnnouncer) {
 		this.clientFileAnnouncer = clientFileAnnouncer;
 	}
 	/**

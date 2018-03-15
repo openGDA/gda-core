@@ -41,13 +41,12 @@ import org.mockito.ArgumentCaptor;
 import gda.TestHelpers;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
-import gda.device.DeviceBase;
 import gda.factory.FactoryException;
 import gda.scan.IScanDataPoint;
 
 public class FileRegistrarUnitTest {
 
-	private class ScanObserver extends DeviceBase {
+	private class ScanObserver extends ClientFileAnnouncer {
 
 		private CountDownLatch latch = new CountDownLatch(1);
 
