@@ -221,7 +221,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IS
 			Runnable anotherUpdate = new Runnable() {
 				@Override
 				public void run() {
-					det.notifyIObservers(det, rateCollection);
+					det.notifyRateCollection(rateCollection);
 				}
 			};
 			new Thread(anotherUpdate).start();
