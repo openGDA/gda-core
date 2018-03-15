@@ -32,12 +32,10 @@ public class ScanEventTest extends AbstractScanEventTest{
 		// DO NOT COPY THIS IN NON-TEST CODE!
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
-		// We use the long winded constructor because we need to pass in the connector.
-		// In production we would normally
-		publisher  = eservice.createPublisher(uri, EventConstants.SCAN_TOPIC);
-		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC);
+		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);
+		subscriber = eventService.createSubscriber(uri, EventConstants.SCAN_TOPIC);
 	}
 
 }
