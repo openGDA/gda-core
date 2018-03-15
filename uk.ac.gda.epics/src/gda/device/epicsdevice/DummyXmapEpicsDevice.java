@@ -45,9 +45,6 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	private static final double REAL_TIME = 1000.0;
 	private static final int EVENTS = -1000;
 
-	private static final EpicsMonitorEvent busyEvent = new EpicsMonitorEvent(new DBR_Enum(1));
-	private static final EpicsMonitorEvent notBusyEvent = new EpicsMonitorEvent(new DBR_Enum(0));
-
 	private final DummyEpicsChannel statusChannel = new DummyEpicsChannel();
 
 	private static final long RNG_SEED = 42424242;
@@ -138,11 +135,11 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 
 	private void startAcquisition() {
 		acquisitionStartTime = System.currentTimeMillis();
-		statusChannel.notifyIObservers(this, busyEvent);
+		statusChannel.notifyDeviceBusy();
 	}
 
 	private void stopAcquisition() {
-		statusChannel.notifyIObservers(this, notBusyEvent);
+		statusChannel.notifyDeviceNotBusy();
 		acquisitionStartTime = 0;
 	}
 
@@ -224,7 +221,10 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	 * Private class to simulate the Epics channel<br>
 	 * All the EDXDController actually uses is the status update callback
 	 */
-	private class DummyEpicsChannel extends ScannableBase implements IEpicsChannel {
+	private static class DummyEpicsChannel extends ScannableBase implements IEpicsChannel {
+
+		private static final EpicsMonitorEvent busyEvent = new EpicsMonitorEvent(new DBR_Enum(1));
+		private static final EpicsMonitorEvent notBusyEvent = new EpicsMonitorEvent(new DBR_Enum(0));
 
 		private Object value;
 
@@ -248,6 +248,14 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 		@Override
 		public void dispose() {
 			// nothing to do
+		}
+
+		public void notifyDeviceBusy() {
+			notifyIObservers(this, busyEvent);
+		}
+
+		public void notifyDeviceNotBusy() {
+			notifyIObservers(this, notBusyEvent);
 		}
 	}
 }
