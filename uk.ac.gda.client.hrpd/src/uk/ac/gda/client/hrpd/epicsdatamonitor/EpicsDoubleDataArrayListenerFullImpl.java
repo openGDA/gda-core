@@ -26,7 +26,7 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.CAException;
@@ -38,30 +38,30 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-/** 
+/**
  * A named Spring-configurable {@link MonitorListener} for an EPICS PV of type {@link DBRType#DOUBLE}.
  * This listener stores a double data array which updated via {@link MonitorEvent} from the EPICS PV by default,
- * unless its {@link #poll} property is set to true, in which case, it will poll data from EPICS PV every time 
+ * unless its {@link #poll} property is set to true, in which case, it will poll data from EPICS PV every time
  * when {@link #getValue()} method is called.
  * <li>{@link #name} and {@link #pvName} must be specified for an instance.</li>
  * <li>{@link #disablePoll()} and {@link #enablePoll()} can be used to switch monitoring on and off dynamically.</li>
  * <li>The default mode is monitoring on.</li>
- * 
+ *
  */
-public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, InitializationListener, Configurable, InitializingBean, Findable {
+public class EpicsDoubleDataArrayListenerFullImpl extends ConfigurableBase implements MonitorListener, InitializationListener, InitializingBean, Findable {
 
 	protected double[] value;
 	private Logger logger = LoggerFactory.getLogger(EpicsDoubleDataArrayListenerFullImpl.class);
 	private boolean first=true;
 	private String name;
-	
+
 	private Channel pvchannel;
 	private String pvName;
 	private EpicsChannelManager channelManager;
 	private Monitor pvmonitor;
 	private boolean poll=false;
 	private EpicsController controller;
-	
+
 	public EpicsDoubleDataArrayListenerFullImpl() {
 		channelManager=new EpicsChannelManager(this);
 		controller=EpicsController.getInstance();
@@ -79,8 +79,9 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 				throw new FactoryException(getName()+": failed to create EPICS channel to "+getPvName(),e);
 			}
 		}
+		setConfigured(true);
 	}
-	
+
 	public void disablePoll() {
 		if (pvchannel != null) {
 			try {
@@ -113,7 +114,7 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 			value = ((DBR_Double) dbr).getDoubleValue();
 		}
 	}
-	
+
 	public double[] getValue() {
 		if (isPoll()) {
 			try {
@@ -152,14 +153,14 @@ public class EpicsDoubleDataArrayListenerFullImpl implements MonitorListener, In
 			throw new IllegalArgumentException("name property must be set");
 		}
 	}
-	
+
 	public void dispose() {
 		pvchannel.dispose();
 	}
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override

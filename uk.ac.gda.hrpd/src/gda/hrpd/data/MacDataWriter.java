@@ -19,6 +19,20 @@
 
 package gda.hrpd.data;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.beamline.BeamlineInfo;
 import gda.beamline.beam.Beam;
 import gda.configuration.properties.LocalProperties;
@@ -26,7 +40,6 @@ import gda.data.PathConstructor;
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
-import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -42,25 +55,11 @@ import gda.hrpd.SampleInfo;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class writes files of tabulated data from Multiple Analyser Crystal Detectors, along with a header and footer if
  * needed, in ASCII format. The files created use names which are an increment from the last name.
  */
-public class MacDataWriter extends DataWriterBase implements DataWriter, Findable, Configurable {
+public class MacDataWriter extends DataWriterBase implements Findable, Configurable {
 	/**
 	 * logging instance
 	 */
@@ -122,7 +121,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	private Metadata metadata;
 
 	private double sampleNo = Double.MIN_VALUE;
-	
+
 	private Vector<Scannable> parentScannables = new Vector<Scannable>();
 
 	private Vector<Scannable> allScannables = new Vector<Scannable>();
@@ -131,6 +130,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	private double temp = Double.NaN;
 	private int numberOfDetectors;
 	private double scantime;
+	private boolean configured = false;
 //	private IDataCollectionListener dataCollectionListener;
 
 	/**
@@ -161,8 +161,15 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 		if ((saminfo = (SampleInfo) finder.find("SampleInfo")) == null) {
 			logger.warn("Cannot find sample information data object 'SampleInfo'");
 		}
+		configured = true;
 
 	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
+	}
+
 
 	@Override
 	public void addData(IScanDataPoint dataPoint) {
@@ -172,7 +179,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * MAC specific data writer
-	 * 
+	 *
 	 * @param rows
 	 * @param parentScannables
 	 * @param allScannables
@@ -187,7 +194,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	 * @param path8
 	 * @param data
 	 * @param error2
-	 * @param scantime 
+	 * @param scantime
 	 * @return filename
 	 */
 	public String addData(int rows, Vector<Scannable> parentScannables, Vector<Scannable> allScannables,
@@ -199,7 +206,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 		this.allScannables = allScannables;
 		this.allDetectors = allDetectors;
 		this.scantime = scantime;
-		
+
 		int i=0;
 		if (!parentScannables.isEmpty()) {
 			for (Scannable s : this.parentScannables) {
@@ -275,7 +282,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 			if (i<rows) {
 				logger.info("Number of data points saved in file {} is {} < 60000 expected", fileUrl, i);
 			}
-			// Print informational message to console. 
+			// Print informational message to console.
 			JythonServerFacade.getInstance().print("Writing data to file: " + fileUrl + " completed");
 
 		}
@@ -338,7 +345,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Returns the file reference to the data file
-	 * 
+	 *
 	 * @return FileWriter
 	 */
 	public FileWriter getData() {
@@ -347,7 +354,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Writes any file footers and closes file.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public void completeCollection() throws Exception {
@@ -375,7 +382,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 	/**
 	 * Standard header for synchrotron experiments at beamline I11 at DLS written in the format of name/key-value pair,
 	 * placed in between the markers of &DLS and &END
-	 * 
+	 *
 	 * <pre>
 	 * &amp;DLS
 	 * &lt;dt&gt;
@@ -570,7 +577,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Returns the full path of the folder which data files are written to.
-	 * 
+	 *
 	 * @return the full path of the folder which data files are written
 	 */
 	public String getDataDir() {
@@ -579,7 +586,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Get the delimiter used between columns
-	 * 
+	 *
 	 * @return the delimiter used between columns
 	 */
 	public String getDelimiter() {
@@ -588,7 +595,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Set the delimiter used between columns (default is a tab '\t')
-	 * 
+	 *
 	 * @param delimiter
 	 *            String
 	 */
@@ -598,7 +605,7 @@ public class MacDataWriter extends DataWriterBase implements DataWriter, Findabl
 
 	/**
 	 * Returns the number of the last file written to.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getFileNumber() {

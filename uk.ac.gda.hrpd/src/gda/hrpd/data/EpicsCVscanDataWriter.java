@@ -19,6 +19,19 @@
 
 package gda.hrpd.data;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.beamline.BeamlineInfo;
 import gda.beamline.beam.Beam;
 import gda.configuration.properties.LocalProperties;
@@ -35,30 +48,17 @@ import gda.device.Scannable;
 import gda.device.Temperature;
 import gda.device.detector.multichannelscaler.EpicsMultiChannelScaler;
 import gda.device.detector.multichannelscaler.Mca;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.Findable;
 import gda.hrpd.SampleInfo;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class writes files of tabulated data from Multiple Analyser Crystal Detectors, along with a header and footer if
  * needed, in ASCII format. The files created use names which are an increment from the last name.
  */
-public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable {
+public class EpicsCVscanDataWriter extends ConfigurableBase implements DataWriter, Findable {
 	/**
 	 * logging instance
 	 */
@@ -171,7 +171,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 		if (sampaleInfo == null) {
 			logger.warn("{}: Cannot find sample information data object 'SampleInfo'", getName());
 		}
-
+		setConfigured(true);
 	}
 
 	@Override
@@ -182,7 +182,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 
 	/**
 	 * MAC specific data writer
-	 * 
+	 *
 	 * @param rows
 	 * @param parentScannables
 	 * @param motorName
@@ -344,7 +344,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	/**
 	 * Standard header for synchrotron experiments at beamline I11 at DLS written in the format of name/key-value pair,
 	 * placed in between the markers of &DLS and &END
-	 * 
+	 *
 	 * <pre>
 	 * &amp;DLS
 	 * &lt;dt&gt;
@@ -544,7 +544,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 
 	/**
 	 * Returns the full path of the folder which data files are written to.
-	 * 
+	 *
 	 * @return the full path of the folder which data files are written
 	 */
 	public String getDataDir() {
@@ -553,7 +553,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 
 	/**
 	 * Get the delimiter used between columns
-	 * 
+	 *
 	 * @return the delimiter used between columns
 	 */
 	public String getDelimiter() {
@@ -562,7 +562,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 
 	/**
 	 * Set the delimiter used between columns (default is a tab '\t')
-	 * 
+	 *
 	 * @param delimiter
 	 *            String
 	 */
@@ -572,7 +572,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 
 	/**
 	 * Returns the number of the last file written to.
-	 * 
+	 *
 	 * @return long
 	 */
 	public int getFileNumber() {
@@ -624,7 +624,7 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	@Override
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -635,13 +635,13 @@ public class EpicsCVscanDataWriter implements DataWriter, Findable, Configurable
 	@Override
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	@Override
 	public void setHeader(ArrayList<String> header) {
 		this.header=header;
-		
+
 	}
 
 	@Override

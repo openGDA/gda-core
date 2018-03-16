@@ -18,11 +18,15 @@
 
 package uk.ac.gda.client.hrpd.epicsdatamonitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
@@ -35,34 +39,30 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-/** 
+/**
  * A named Spring-configurable {@link MonitorListener} for an EPICS PV of type {@link DBRType#DOUBLE}.
  * This listener stores a double data array which updated via {@link MonitorEvent} from the EPICS PV by default,
- * unless its {@link #poll} property is set to true, in which case, it will poll data from EPICS PV every time 
+ * unless its {@link #poll} property is set to true, in which case, it will poll data from EPICS PV every time
  * when {@link #getValue()} method is called.
  * <li>{@link #name} and {@link #pvName} must be specified for an instance.</li>
  * <li>{@link #disablePoll()} and {@link #enablePoll()} can be used to switch monitoring on and off dynamically.</li>
  * <li>The default mode is monitoring on.</li>
- * 
+ *
  */
-public abstract class EpicsPVListener implements MonitorListener, InitializationListener, Configurable, InitializingBean, Findable, IObservable {
+public abstract class EpicsPVListener extends ConfigurableBase implements MonitorListener, InitializationListener, InitializingBean, Findable, IObservable {
 
 	private Logger logger = LoggerFactory.getLogger(EpicsPVListener.class);
 	protected boolean first=true;
 	protected String name;
 	protected ObservableComponent observers=new ObservableComponent();
-	
+
 	protected Channel pvchannel;
 	protected String pvName;
 	protected EpicsChannelManager channelManager;
 	protected Monitor pvmonitor;
 	protected boolean poll=false;
 	protected EpicsController controller;
-	
+
 	public EpicsPVListener() {
 		channelManager=new EpicsChannelManager(this);
 		controller=EpicsController.getInstance();
@@ -80,8 +80,9 @@ public abstract class EpicsPVListener implements MonitorListener, Initialization
 				throw new FactoryException(getName()+": failed to create EPICS channel to "+getPvName(),e);
 			}
 		}
+		setConfigured(true);
 	}
-	
+
 	public abstract void disablePoll();
 
 	public void enablePoll() {
@@ -120,14 +121,14 @@ public abstract class EpicsPVListener implements MonitorListener, Initialization
 			throw new IllegalArgumentException("name property must be set");
 		}
 	}
-	
+
 	public void dispose() {
 		pvchannel.dispose();
 	}
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -144,12 +145,12 @@ public abstract class EpicsPVListener implements MonitorListener, Initialization
 	}
 	@Override
 	public void addIObserver(IObserver observer) {
-		observers.addIObserver(observer);		
+		observers.addIObserver(observer);
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
-		observers.deleteIObserver(observer);		
+		observers.deleteIObserver(observer);
 	}
 
 	@Override
