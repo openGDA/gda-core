@@ -19,12 +19,6 @@
 
 package gda.device.detector.uviewnew.corba.impl;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.peem.MicroscopeControl.Microscope;
-import gda.device.peem.MicroscopeControl.MicroscopeHelper;
-import gda.factory.Configurable;
-import gda.factory.Findable;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,41 +28,47 @@ import org.omg.CosNaming.NameComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.peem.MicroscopeControl.Microscope;
+import gda.device.peem.MicroscopeControl.MicroscopeHelper;
+import gda.factory.ConfigurableBase;
+import gda.factory.Findable;
+
 /**
  * Java Implementation for Connection between PEEM CORBA Server and Client
  */
-public class CorbaBridgeConnection implements Configurable, Findable {
+public class CorbaBridgeConnection extends ConfigurableBase implements Findable {
 	private static final Logger logger = LoggerFactory.getLogger(CorbaBridgeConnection.class);
 
 	private String name = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public static ORB orb = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public static Microscope msImpl = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public String CORBARef = "c:/leem.ref";
 
 	/**
-	 * 
+	 *
 	 */
 	public String[] CORBACommandArg = new String[8];
 
 	/**
-	 * 
+	 *
 	 */
 	public int CORBACommandArgc = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public static boolean connected = false;
 
@@ -88,11 +88,12 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 	public void configure() {
 		logger.debug("CorbaBridgeConnection configured!");
 		connect();
+		setConfigured(true);
 	}
 
 	/**
 	 * Instruct the ORB to connect to & setup the detector
-	 * 
+	 *
 	 * @return Microscope detector object
 	 */
 	public Microscope connect() {
@@ -102,7 +103,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 		}
 		else{
 			getConfig();
-	
+
 			if (setupORB()){
 				connected = true;
 				logger.info("The Java ORB has been successfully established.");
@@ -112,13 +113,13 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 				logger.info("Can not connecte to the Corba Bridge!");
 			}
 		}
-		
+
 		return msImpl;
 	}
 
 	/**
 	 * Instruct the ORB to disconnect from the detector
-	 * 
+	 *
 	 * @return boolean true after shutdown the connection
 	 */
 	public boolean disconnect() {
@@ -130,7 +131,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 
 	/**
 	 * Determine if detector is connected
-	 * 
+	 *
 	 * @return boolean true if connected else false
 	 */
 	public boolean isConnected() {
@@ -139,7 +140,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 
 	/**
 	 * Read the Config file named in java properties
-	 * 
+	 *
 	 * @return int read status 1='file read', 2='file not found'
 	 */
 	public int getConfig() {
@@ -167,7 +168,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 
 	/**
 	 * Read object reference from named file
-	 * 
+	 *
 	 * @param fileName
 	 *            file to read
 	 * @return String representation of the serialized object or null
@@ -190,7 +191,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 
 	/**
 	 * Read the Client configuration file startupClient.txt
-	 * 
+	 *
 	 * @param fileName
 	 *            the String name of the file to read
 	 * @return boolean true = 'file read' else false
@@ -242,7 +243,7 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 
 	/**
 	 * Setup the PEEM Corba Bridge Client
-	 * 
+	 *
 	 * @return boolean true if set OK else false
 	 */
 	public boolean setupORB() {
