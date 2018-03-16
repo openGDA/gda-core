@@ -21,12 +21,13 @@ package gda.device.detector.areadetector.impl;
 import gda.device.detector.areadetector.EpicsAreaDetectorFileSave;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
-public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
+public class EpicsAreaDetectorFileSaveImpl extends ConfigurableBase implements EpicsAreaDetectorFileSave{
 
 	// Localizable variables
 	private boolean local = true;
@@ -217,7 +218,7 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 		} catch (Exception e) {
 			throw new FactoryException("Failure to initialise AreaDetector",e);
 		}
-
+		setConfigured(true);
 	}
 
 	@Override

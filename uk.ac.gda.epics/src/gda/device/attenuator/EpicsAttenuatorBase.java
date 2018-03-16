@@ -18,19 +18,20 @@
 
 package gda.device.attenuator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Attenuator;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
+import gda.factory.ConfigurableBase;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public abstract class EpicsAttenuatorBase implements Attenuator, MonitorListener, InitializationListener{
+public abstract class EpicsAttenuatorBase extends ConfigurableBase implements Attenuator, MonitorListener, InitializationListener{
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsAttenuatorBase.class);
 

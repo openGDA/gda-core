@@ -78,11 +78,4 @@ public interface IEpicsMCASimple extends IEpicsMCA {
 	 * @param mcaPV
 	 */
 	void setMcaPV(String mcaPV);
-
-	/**
-	 * Checks to see if the object is already configured.
-	 *
-	 * @return boolean value of whether the device has been configured or not
-	 */
-	boolean isConfigured();
 }

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.jython.Jython;
@@ -122,7 +122,7 @@ import gov.aps.jca.event.MonitorListener;
  * element. And also add {@code <field name="accessControlName" type="string">} to the mapping.xml.
  * </p>
  */
-public class AccessControl implements Configurable, Findable, IObservable, InitializationListener {
+public class AccessControl extends ConfigurableBase implements Findable, IObservable, InitializationListener {
 	/**
 	 * status enum
 	 */
@@ -142,8 +142,6 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private static final Logger logger = LoggerFactory.getLogger(AccessControl.class);
-
-	private boolean configured = false;
 
 	private String accessControlPvName;
 
@@ -187,14 +185,14 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getAccessControlPvName() != null) {
 				createChannelAccess(accessControlPvName);
 				channelManager.tryInitialize(100);
 			} else {
 				throw new FactoryException("Can not find the access control PV name.");
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

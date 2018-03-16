@@ -35,7 +35,7 @@ import gov.aps.jca.event.MonitorListener;
  * The scripting interface between Jython and EPICS. CAClient provides client-side implementation of caget(), caput(),
  * and camonitor() for accessing EPICS PVs directly from Jython scripts or Jython Terminal.
  */
-public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorListener, ConnectionListener {
+public class ChannalAccessCommands extends EpicsBase implements MonitorListener, ConnectionListener {
 	private Channel theChannel = null;
 	private Channel[] chs = null;
 	private EpicsController controller = EpicsController.getInstance();

@@ -18,6 +18,9 @@
 
 package gda.device.attenuator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -25,15 +28,11 @@ import gda.epics.interfaces.XiaArrayType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
-import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of Attenuator for Xia array attenuators.
  */
-public class EpicsAttenuator extends EpicsAttenuatorBase implements MonitorListener {
+public class EpicsAttenuator extends EpicsAttenuatorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsAttenuator.class);
 
@@ -57,6 +56,7 @@ public class EpicsAttenuator extends EpicsAttenuatorBase implements MonitorListe
 			}
 
 		}
+		setConfigured(true);
 	}
 
 	private void createChannelAccess() throws FactoryException {

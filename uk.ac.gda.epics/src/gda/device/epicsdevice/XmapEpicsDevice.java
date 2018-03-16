@@ -19,19 +19,12 @@
 package gda.device.epicsdevice;
 
 import gda.device.DeviceException;
+import gda.factory.Configurable;
 
 /**
  * Extend IEpicsDevice to add the functions required to control an XMAP device
  */
-public interface XmapEpicsDevice extends IEpicsDevice {
-
-	/**
-	 * Tests whether the device has been configured (via the configure() method)
-	 *
-	 * @return true if configured, false otherwise
-	 */
-	boolean isConfigured();
-
+public interface XmapEpicsDevice extends IEpicsDevice, Configurable {
 	/**
 	 * Set the value of an Epics record, specifying the type
 	 *

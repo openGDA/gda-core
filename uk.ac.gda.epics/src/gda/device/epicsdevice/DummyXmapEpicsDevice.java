@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
+import gda.factory.ConfigurableBase;
 import gov.aps.jca.dbr.DBR_Enum;
 
 /**
@@ -37,7 +38,7 @@ import gov.aps.jca.dbr.DBR_Enum;
  * - the real XMAP controller (EpicsXmapController), and<br>
  * - DummyXmapEDXDMappingController, which is only a very minimal variant of the real EDXDMappingController
  */
-public class DummyXmapEpicsDevice implements XmapEpicsDevice {
+public class DummyXmapEpicsDevice extends ConfigurableBase implements XmapEpicsDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXmapEpicsDevice.class);
 
@@ -74,11 +75,6 @@ public class DummyXmapEpicsDevice implements XmapEpicsDevice {
 	@Override
 	public void closeUnUsedChannels() throws DeviceException {
 		throw new NotImplementedException(NOT_IMPLEMENTED);
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return true;
 	}
 
 	@Override

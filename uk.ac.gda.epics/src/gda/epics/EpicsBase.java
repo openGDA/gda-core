@@ -21,7 +21,7 @@ package gda.epics;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import gda.factory.FactoryException;
+import gda.factory.ConfigurableBase;
 
 /**
  * EpicsBase class provides the common implementation to all EPICS classes. It implements all methods required by
@@ -29,7 +29,7 @@ import gda.factory.FactoryException;
  * object-specific behaviour.
  */
 // TODO revise
-public abstract class EpicsBase implements Epics {
+public abstract class EpicsBase extends ConfigurableBase implements Epics {
 	protected String name;
 
 	protected String epicsRecordName;
@@ -41,15 +41,6 @@ public abstract class EpicsBase implements Epics {
 	protected ArrayList<String> pvNames = new ArrayList<String>();
 
 	protected HashMap<String, Integer> connectionCountRegister = new HashMap<String, Integer>();
-
-	/**
-	 * configure the object after instantiation.
-	 *
-	 * @throws FactoryException
-	 */
-	@Override
-	public void configure() throws FactoryException {
-	}
 
 	@Override
 	public String getEpicsRecordName() throws EpicsException {

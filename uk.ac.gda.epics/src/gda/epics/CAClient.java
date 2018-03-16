@@ -53,15 +53,13 @@ import gov.aps.jca.event.PutListener;
  * The scripting interface between Jython and EPICS. CAClient provides client-side implementation of caget(), caput(),
  * and camonitor() for accessing EPICS PVs directly from Jython scripts or Jython Terminal.
  */
-public class CAClient extends EpicsBase implements Epics, MonitorListener, ConnectionListener {
+public class CAClient extends EpicsBase implements MonitorListener, ConnectionListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(CAClient.class);
 
 	private Channel theChannel = null;
 
 	private Channel[] chs = null;
-
-	private boolean configured = false;
 
 	EpicsController controller = EpicsController.getInstance();
 	EpicsChannelManager channelmanager = new EpicsChannelManager();
@@ -924,7 +922,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	public void configure() throws FactoryException {
 		try {
 			super.configure();
-			if (!configured) {
+			if (!isConfigured()) {
 				if (pvName != null) {
 //					theChannel = controller.createChannel(pvName,this);
 					theChannel = channelmanager.createChannel(pvName);
@@ -937,7 +935,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 				} else {
 					logger.info("No PV strings are given.");
 				}
-				configured = true;
+				setConfigured(true);
 			}
 		} catch (Throwable th) {
 			throw new FactoryException("failed to configure", th);
@@ -1691,7 +1689,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * Clear the CA channels and reclaim the resources.
 	 */
 	public void clearup() {
-		if (configured) {
+		if (!isConfigured()) {
 			if (theChannel != null) {
 				controller.destroy(theChannel);
 				theChannel = null;
@@ -1700,7 +1698,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 					controller.destroy(chs[i]);
 				chs = null;
 			}
-			configured = false;
+			setConfigured(false);
 		}
 	}
 
@@ -1709,24 +1707,6 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 */
 	public int getElementCount() {
 		return theChannel.getElementCount();
-	}
-
-	/**
-	 * Gets the configuration state of the object.
-	 *
-	 * @return true if configured, false if not.
-	 */
-	public boolean isConfigured() {
-		return configured;
-	}
-
-	/**
-	 * Set the configuration state of the object.
-	 *
-	 * @param configstate
-	 */
-	public void setConfigured(boolean configstate) {
-		this.configured = configstate;
 	}
 
 	private String timeStamp2String(DBR dbr) {

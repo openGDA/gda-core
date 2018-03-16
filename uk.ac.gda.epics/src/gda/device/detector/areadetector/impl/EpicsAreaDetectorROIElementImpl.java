@@ -18,20 +18,21 @@
 
 package gda.device.detector.areadetector.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.EpicsAreaDetectorROIElement;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class EpicsAreaDetectorROIElementImpl implements EpicsAreaDetectorROIElement {
+public class EpicsAreaDetectorROIElementImpl extends ConfigurableBase implements EpicsAreaDetectorROIElement {
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(EpicsAreaDetectorROIElementImpl.class);
 
@@ -201,7 +202,7 @@ public class EpicsAreaDetectorROIElementImpl implements EpicsAreaDetectorROIElem
 		} catch (Exception e) {
 			throw new FactoryException("Failure to initialise AreaDetector", e);
 		}
-
+		setConfigured(true);
 	}
 
 	/**

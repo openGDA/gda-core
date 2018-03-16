@@ -18,20 +18,20 @@
 
 package gda.epics.xml;
 
-import gda.epics.generated.Subsystem;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-
 import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.epics.generated.Subsystem;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+
 /**
  * EpicsRecord class
  */
-public class EpicsRecord implements Configurable, Findable, Serializable {
+public class EpicsRecord extends ConfigurableBase implements Findable, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsRecord.class);
 
@@ -110,6 +110,7 @@ public class EpicsRecord implements Configurable, Findable, Serializable {
 		if (recordDescription == null) {
 			recordDescription = tp.getSubsystemDescription(getSubsystem(deviceName, subsystemName));
 		}
+		setConfigured(true);
 	}
 
 	private Subsystem getSubsystem(String devicename, String subsystemname) {

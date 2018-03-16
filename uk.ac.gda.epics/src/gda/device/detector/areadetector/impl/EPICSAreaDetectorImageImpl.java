@@ -24,12 +24,13 @@ import org.eclipse.january.dataset.DoubleDataset;
 import gda.device.detector.areadetector.EPICSAreaDetectorImage;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
-public class EPICSAreaDetectorImageImpl implements EPICSAreaDetectorImage {
+public class EPICSAreaDetectorImageImpl extends ConfigurableBase implements EPICSAreaDetectorImage {
 
 	// LocalizableLocalizable
 	private boolean local = true;
@@ -118,7 +119,7 @@ public class EPICSAreaDetectorImageImpl implements EPICSAreaDetectorImage {
 		} catch (Exception e) {
 			throw new FactoryException("Failure to initialise AreaDetector", e);
 		}
-
+		setConfigured(true);
 	}
 
 	@Override

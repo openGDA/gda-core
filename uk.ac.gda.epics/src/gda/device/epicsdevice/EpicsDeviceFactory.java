@@ -18,6 +18,11 @@
 
 package gda.device.epicsdevice;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.epics.generated.Device;
 import gda.epics.generated.Interface;
@@ -30,11 +35,6 @@ import gda.factory.Factory;
 import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
 
 public class EpicsDeviceFactory extends FactoryBase implements Factory {
 

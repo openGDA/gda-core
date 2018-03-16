@@ -21,11 +21,12 @@ package gda.device.detector.areadetector.impl;
 import gda.device.detector.areadetector.EpicsAreaDetectorROI;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 
-public class EpicsAreaDetectorROIImpl implements EpicsAreaDetectorROI{
+public class EpicsAreaDetectorROIImpl extends ConfigurableBase implements EpicsAreaDetectorROI{
 
 	// Localizable variables
 	private boolean local = true;
@@ -81,7 +82,7 @@ public class EpicsAreaDetectorROIImpl implements EpicsAreaDetectorROI{
 		} catch (Exception e) {
 			throw new FactoryException("Failure to initialise AreaDetector",e);
 		}
-
+		setConfigured(true);
 	}
 
 	@Override
