@@ -36,7 +36,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -387,19 +389,24 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 				if (xyDataSetNames == null)
 					return;
 			}
-			DoubleDataset xData = (DoubleDataset) dataHolder.getDataset(xyDataSetNames.get(0));
+			DoubleDataset xData = DatasetUtils.cast(DoubleDataset.class, dataHolder.getDataset(xyDataSetNames.get(0)));
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
 				String xyDataSetName = xyDataSetNames.get(i);
-				DoubleDataset yData = (DoubleDataset) dataHolder.getDataset(xyDataSetName);
-				AxisSpec axisSpec = null;
-				if (yAxesMap != null) {
-					String yAxisName = yAxesMap.get(xyDataSetName);
-					if (yAxisName != null)
-						axisSpec = new AxisSpec(yAxisName);
+				IDataset xyDataSet = dataHolder.getDataset(xyDataSetName);
+				if (xyDataSet != null) {
+					DoubleDataset yData = DatasetUtils.cast(DoubleDataset.class, xyDataSet);
+					AxisSpec axisSpec = null;
+					if (yAxesMap != null) {
+						String yAxisName = yAxesMap.get(xyDataSetName);
+						if (yAxisName != null)
+							axisSpec = new AxisSpec(yAxisName);
+					}
+					int scanNumberFromPath = deriveScanNumberFromPath(path);
+					xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
+							true, true, axisSpec);
+				} else {
+					logger.warn("Could not add dataset: '{}' from {}", xyDataSetName, path);
 				}
-				int scanNumberFromPath = deriveScanNumberFromPath(path);
-				xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
-						true, true, axisSpec);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);
