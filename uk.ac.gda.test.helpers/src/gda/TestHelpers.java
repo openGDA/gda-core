@@ -19,6 +19,21 @@
 
 package gda;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ShapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.extractor.NexusExtractor;
@@ -39,28 +54,13 @@ import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
-import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.ShapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Collection of utility functions to assist testing.
  */
 public class TestHelpers {
 
 	/**
-	 * Sets up of environment for the a test Set property so that output is to Nexus format file 
+	 * Sets up of environment for the a test Set property so that output is to Nexus format file
 	 * Uses MockJythonServerFacade and MockJythonServer to configure InterfaceProvider
 	 *
 	 * @param testClass
@@ -910,5 +910,10 @@ class TestFactory implements Factory {
 
 	@Override
 	public void configure() throws FactoryException {
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return true;
 	}
 }
