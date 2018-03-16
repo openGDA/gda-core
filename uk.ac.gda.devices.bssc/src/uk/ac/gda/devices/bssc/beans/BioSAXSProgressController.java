@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.IBatonStateProvider;
@@ -44,7 +44,7 @@ import uk.ac.gda.devices.bssc.ispyb.BioSAXSISPyB;
 import uk.ac.gda.devices.bssc.ispyb.ISAXSDataCollection;
 import uk.ac.gda.devices.bssc.ispyb.ISpyBStatusInfo;
 
-public class BioSAXSProgressController implements IObservable, Configurable {
+public class BioSAXSProgressController extends ConfigurableBase implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSProgressController.class);
 	private BioSAXSISPyB bioSAXSISPyB;
 	private IObservableList bioSAXSProgressModel;
@@ -75,6 +75,7 @@ public class BioSAXSProgressController implements IObservable, Configurable {
 		catch (SQLException e) {
 			logger.error("SQLEXception getting session id", e);
 		}
+		setConfigured(true);
 	}
 
 	public void setISpyBAPI(BioSAXSISPyB bioSAXSISPyB) {
