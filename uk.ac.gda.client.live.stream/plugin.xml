@@ -12,7 +12,7 @@
       </view>
       <view
             class="uk.ac.gda.client.live.stream.view.SnapshotView"
-            icon="icons/snapshot.png"
+            icon="icons/camera.png"
             id="uk.ac.gda.client.live.stream.view.snapshotview"
             name="Snapshot"
             restorable="true">
@@ -29,7 +29,7 @@
             locationURI="toolbar:uk.ac.gda.client.live.stream.view.LiveStreamView">
          <command
                commandId="uk.ac.gda.client.live.stream.snapshotcommand"
-               icon="icons/snapshot.png"
+               icon="icons/camera.png"
                label="Snapshot"
                style="push"
                tooltip="Take a snapshot of the live image">
