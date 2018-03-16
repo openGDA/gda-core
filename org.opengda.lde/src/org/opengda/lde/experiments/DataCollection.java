@@ -52,12 +52,12 @@ import gda.scan.ScanInformation;
 
 public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
-	private Map<String, SampleStage> sampleStages = new HashMap<String, SampleStage>();
-	private Map<String, Stage> stages=new HashMap<String, Stage>();
-	private Map<String, Cell> cells= new HashMap<String, Cell>();
-	private Map<String, Sample> samples = new HashMap<String, Sample>();
+	private Map<String, SampleStage> sampleStages = new HashMap<>();
+	private Map<String, Stage> stages=new HashMap<>();
+	private Map<String, Cell> cells= new HashMap<>();
+	private Map<String, Sample> samples = new HashMap<>();
 	private ListMultimap<Cell, Sample> cellActiveSamplesMap = ArrayListMultimap.create();
-	
+
 	private DetectorArm detectorArm;
 	private LDEResourceUtil resUtil;
 	private Scriptcontroller eventAdmin;
@@ -135,9 +135,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	}
 	/**
 	 * start LDE data collection.
-	 * Data collection starts with all stages in parking positions, proceed from 1st stage and move down 
-	 * the X-ray beam direction, collect diffraction data from all active samples on these stages along with 
-	 * detector calibration for each of cells having active samples. 
+	 * Data collection starts with all stages in parking positions, proceed from 1st stage and move down
+	 * the X-ray beam direction, collect diffraction data from all active samples on these stages along with
+	 * detector calibration for each of cells having active samples.
 	 * @param filename - the file containing a list of samples to be collected.
 	 * @throws InterruptedException
 	 */
@@ -146,7 +146,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		processExperiments(filename);
 		completeDataCollection();
 	}
-	
+
 	private void completeDataCollection() {
 		String message="Automated data collections for all active samples in all cells on all stages are completed.";
 		updateMessage(null, message);
@@ -164,7 +164,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 
 	/**
 	 * pause data collection after current sample.
-	 * This does NOT pause current sample collection if it already started. 
+	 * This does NOT pause current sample collection if it already started.
 	 */
 	public void pause() {
 		String message="Pause current data collection.";
@@ -220,7 +220,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	 * 2. group active or selected samples into cells, and
 	 * 3. ensure all stages are in safe positions.
 	 * @param filename
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	private void prepareDataCollection(String filename) throws InterruptedException {
 		String message="Prepare data collection run on GDA server ...";
@@ -242,7 +242,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				stages = resUtil.getStages(filename);
 				samples = resUtil.getSamples(filename);
 				cells = resUtil.getCells(filename);
-				
+
 			} catch (Exception e) {
 				message = "Cannot load samples from experiment sample definition file "+ filename + ".";
 				updateMessage(e, message);
@@ -280,7 +280,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			}
 		}
 		checkForPauseAndInterruption();
-		
+
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
@@ -352,17 +352,17 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 
 	/**
 	 * process samples on each stage in order, engage the stage when its samples are processed, it has no samples,
-	 * or the stage is not contained in the given stage list, except the last stage. This is required to satisfy 
-	 * the experiment conditions in which diffraction data from samples must be collected in a specified order following 
-	 * X-ray beam direction in order to minimise delays due to stage motions. 
-	 * @param eList 
-	 * @throws InterruptedException 
+	 * or the stage is not contained in the given stage list, except the last stage. This is required to satisfy
+	 * the experiment conditions in which diffraction data from samples must be collected in a specified order following
+	 * X-ray beam direction in order to minimise delays due to stage motions.
+	 * @param eList
+	 * @throws InterruptedException
 	 */
 	private void processStages(EList<Stage> eList) throws InterruptedException {
 		checkForPauseAndInterruption();
 		//TODO map data model Stage to real SampleStage
 		String message="Processing each of the sample stages down the X-ray beam direction ...";
-		Map<String, Stage> stages=new HashMap<String, Stage>();
+		Map<String, Stage> stages=new HashMap<>();
 		for (Stage stage : eList) {
 			stages.put(stage.getStageID(), stage);
 		}
@@ -397,7 +397,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				}
 			}
 			stage.setProcessed(true);
-			
+
 			if (stage != getStages().get(getStages().size() - 1)) {
 				// do not need to engage the last and first stages.
 				try {
@@ -439,7 +439,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		message="Data collection completed!";
 		updateMessage(null, message);
 	}
-	
+
 	private void processSample(Sample sample) throws InterruptedException {
 		doSampleDataCollection(sample);
 	}
@@ -456,7 +456,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	 * 1st take a photo of the sample cell;
 	 * 2nd do detector calibration with the calibrant for the specified cell;
 	 * @param cell
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	private void processCell(Cell cell) throws InterruptedException {
 		currentCell=cell;
@@ -468,12 +468,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	/**
 	 * Only support one detector position per stage - all samples and calibrant in the same cell on the stage
 	 *  <b>must</b> have the same distance from the detector.
 	 * @param sampleStage
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	private void moveDetectorToPosition(SampleStage sampleStage) throws InterruptedException {
 		Stage stage = stages.get(sampleStage.getName());
@@ -532,9 +532,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param stage
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	private void doDetectorCalibration(Cell cell) throws InterruptedException {
 		if (cell.isCalibrated()) {
@@ -545,7 +545,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		String calibrant = cell.getCalibrant();
 		String message="Starting detector calibration using calibrant '"+calibrant+"' for cell '"+cell.getCellID()+"' ...";
-		updateMessage(null, message);		
+		updateMessage(null, message);
 		// set calibrant name
 		if (getCalibrantNameScannable()!=null) {
 			try {
@@ -562,7 +562,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
-		
+
 		//move calibrant into beam
 		SampleStage stage=Finder.getInstance().find(cell.getStage().getStageID());
 		try {
@@ -615,7 +615,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		}
 	}
-	
+
 	private String getDataDirectory(Cell cell) {
 		String dataDir=File.separator;
 		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
@@ -687,14 +687,14 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		Double x_start = sample.getSample_x_start();
 		Double x_stop = sample.getSample_x_stop();
 		Double x_step = sample.getSample_x_step();
-		
+
 		if (x_start==Double.NaN || x_step==Double.NaN || x_stop==Double.NaN) {
 			message="Missing parameters: Sample '"+name+"' must have X motor positions being provided for start, stop, and step.";
 			updateMessage(null, message);
 			// stop as scan will fail
 			throw new IllegalArgumentException(message);
 		}
-		ArrayList<Object> scanparameters=new ArrayList<Object>();
+		ArrayList<Object> scanparameters=new ArrayList<>();
 		scanparameters.add(x_motor);
 		scanparameters.add(x_start);
 		scanparameters.add(x_stop);
@@ -728,7 +728,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		//set data directory
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample.getCell()));
 		checkForPauseAndInterruption();
-		
+
 		STATUS status = sample.getStatus();
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 		if (eventAdmin!=null) {
@@ -884,7 +884,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -897,6 +897,11 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		if (!configured) {
 			configured=true;
 		}
-		
+
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 }

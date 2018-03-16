@@ -40,12 +40,6 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import gda.data.PathConstructor;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -69,6 +63,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 
 
@@ -76,7 +76,7 @@ import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
  * Watch a directory (or tree) for changes to files and scan the directory for a file list.
  */
 
-public class WatchDirectory implements Configurable, IObservable {
+public class WatchDirectory extends ConfigurableBase implements IObservable {
 
 	public static final Logger logger = LoggerFactory.getLogger(WatchDirectory.class);
 	private final WatchService watcher;
@@ -134,8 +134,7 @@ public class WatchDirectory implements Configurable, IObservable {
 		});
 	}
 
-	List<Path> dataFileCollected = new ArrayList<Path>();
-	private boolean configured;
+	List<Path> dataFileCollected = new ArrayList<>();
 	private Path dir;
 
 	public List<Path> getDataFileCollected() {
@@ -149,7 +148,7 @@ public class WatchDirectory implements Configurable, IObservable {
 	/**
 	 * add all data files collected so far in the directory and its sub-directory to a array list which can be accessed
 	 * using {@link #getDataFileCollected()}
-	 * 
+	 *
 	 * @param start
 	 * @throws IOException
 	 */
@@ -170,7 +169,7 @@ public class WatchDirectory implements Configurable, IObservable {
 	/**
 	 * add only the data files collected in the given directory to the array list which can be accessed using
 	 * {@link #getDataFileCollected()}
-	 * 
+	 *
 	 * @param dir
 	 * @throws IOException
 	 */
@@ -193,7 +192,7 @@ public class WatchDirectory implements Configurable, IObservable {
 	 */
 	public WatchDirectory() throws IOException {
 		this.watcher = FileSystems.getDefault().newWatchService();
-		this.keys = new HashMap<WatchKey, Path>();
+		this.keys = new HashMap<>();
 	}
 	/**
 	 * initialise the watcher object - scan the specified directory for initial state and update any observer the latest filename index and value.
@@ -246,7 +245,7 @@ public class WatchDirectory implements Configurable, IObservable {
 			notifyIObservers();
 			//kick start the watcher event processing.
 			Thread processEventThread=new Thread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					processEvents();
@@ -271,7 +270,7 @@ public class WatchDirectory implements Configurable, IObservable {
 	 */
 	public WatchDirectory(Path dir, boolean recursive) throws IOException {
 		this.watcher = FileSystems.getDefault().newWatchService();
-		this.keys = new HashMap<WatchKey, Path>();
+		this.keys = new HashMap<>();
 		this.setRecursive(recursive);
 
 		if (recursive) {
@@ -405,7 +404,7 @@ public class WatchDirectory implements Configurable, IObservable {
 			recursive = true;
 			dirArg++;
 		}
-		
+
 		// register directory and process its events
 		Path dir = Paths.get(args[dirArg]);
 		WatchDirectory dirWatcher = new WatchDirectory();
@@ -434,14 +433,6 @@ public class WatchDirectory implements Configurable, IObservable {
 
 	public void setDirectory(String directory) {
 		this.directory = directory;
-	}
-
-	public boolean isConfigured() {
-		return configured;
-	}
-
-	public void setConfigured(boolean configured) {
-		this.configured = configured;
 	}
 
 	public String[] getFilenameExtensions() {

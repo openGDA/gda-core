@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.PathConstructor;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -50,12 +50,11 @@ import gda.observable.ObservableComponent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 
 
-public class DataFileListener implements FileListener, Configurable, IObservable {
+public class DataFileListener extends ConfigurableBase implements FileListener, IObservable {
 	public static final Logger logger = LoggerFactory.getLogger(DataFileListener.class);
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private String directory = null;
 	private boolean server = false;
-	private boolean configured=false;
 	private FileSystemManager fsManager;
 	/**
 	 * A flag used to determine if adding files to be monitored should be recursive.
@@ -200,13 +199,6 @@ public class DataFileListener implements FileListener, Configurable, IObservable
 		this.server = server;
 	}
 
-	public boolean isConfigured() {
-		return configured;
-	}
-
-	public void setConfigured(boolean configured) {
-		this.configured = configured;
-	}
 	/**
 	 * Access method to get the recursive setting when adding files for monitoring.
 	 */
