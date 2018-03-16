@@ -19,13 +19,6 @@
 
 package gda.data.metadata;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Localizable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,11 +27,18 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Localizable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+
 /**
  * A concrete implementation of the {@link Metadata} interface. The class stores a list of {@link IMetadataEntry} objects
  * and provides access to those objects and their contents. Metadata can be added programatically or configured via XML.
  */
-public class GdaMetadata implements Metadata, Configurable, Localizable, IObserver {
+public class GdaMetadata extends ConfigurableBase implements Metadata, Localizable, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(GdaMetadata.class);
 	private String name;
 
@@ -59,6 +59,7 @@ public class GdaMetadata implements Metadata, Configurable, Localizable, IObserv
 		for (IMetadataEntry me : metadataEntries.values()) {
 			me.configure();
 		}
+		setConfigured(true);
 	}
 
 	@Override
@@ -137,7 +138,7 @@ public class GdaMetadata implements Metadata, Configurable, Localizable, IObserv
 
 	/**
 	 * Removes the metadata entry with the specified name.
-	 * 
+	 *
 	 * @param name
 	 *            the metadata entry name
 	 */
@@ -173,21 +174,21 @@ public class GdaMetadata implements Metadata, Configurable, Localizable, IObserv
 		if (source instanceof IMetadataEntry && getMetadataEntries().contains(source)){
 			observableComponent.notifyIObservers(source,arg);
 		}
-		
+
 	}
 
 	@Override
 	public void addIObserver(IObserver observer) {
-		observableComponent.addIObserver(observer);		
+		observableComponent.addIObserver(observer);
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
-		observableComponent.deleteIObserver(observer);		
+		observableComponent.deleteIObserver(observer);
 	}
 
 	@Override
 	public void deleteIObservers() {
-		observableComponent.deleteIObservers();		
+		observableComponent.deleteIObservers();
 	}
 }

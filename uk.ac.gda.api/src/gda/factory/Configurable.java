@@ -20,16 +20,26 @@
 package gda.factory;
 
 /**
- * An interface to ensure configurability of findable objects. The configure method is called after construction of the
- * instance, generally, by the object server, to perform initialisation.
- * 
+ * An interface to ensure configurability of objects. The {{@link #configure()} method is called after construction of
+ * the instance, generally, by the object server, to perform initialisation.
+ *
  * @since GDA 4.0
  */
 public interface Configurable {
 	/**
-	 * Perform initialisation of values and states that cannot be achieved directly from instantitation with Castor.
-	 * 
-	 * @throws FactoryException
+	 * Perform operations that must be done after Spring initialisation i.e. anything that goes beyond setting member
+	 * variables.
+	 *
+	 * @throws FactoryException if there is an error in configuration e.g. required variable not set or cannot connect to device
 	 */
-	public void configure() throws FactoryException;
+	void configure() throws FactoryException;
+
+	/**
+	 * Checks to see if the object is already configured.
+	 *
+	 * @since GDA 9.8
+	 *
+	 * @return return <code>true</code> if configured <code>false</code> otherwise
+	 */
+	boolean isConfigured();
 }

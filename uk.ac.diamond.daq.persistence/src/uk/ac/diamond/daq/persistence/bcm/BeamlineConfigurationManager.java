@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Localizable;
@@ -65,7 +65,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
  * <p>
  * Can only be instantiated using server.xml file.
  */
-public class BeamlineConfigurationManager implements Findable, Configurable, Localizable, IObservable {
+public class BeamlineConfigurationManager extends ConfigurableBase implements Findable, Localizable, IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BeamlineConfigurationManager.class);
 
 	private static EntityManager em;
@@ -125,6 +125,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 			logger.debug("SourceException", e);
 			throw new FactoryException("Could not get last used mode", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

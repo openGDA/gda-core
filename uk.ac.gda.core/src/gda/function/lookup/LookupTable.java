@@ -19,16 +19,6 @@
 
 package gda.function.lookup;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.factory.Findable;
-import gda.factory.Localizable;
-import gda.function.Lookup;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.util.QuantityFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +33,15 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.factory.ConfigurableBase;
+import gda.factory.Localizable;
+import gda.function.Lookup;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.util.QuantityFactory;
 
 /**
  * This class provides a generic lookup function for looking up the value for a scannable (scannable name as column
@@ -60,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * it uses a MultiValuedMap object to store the lookup table.
  */
-public class LookupTable implements Findable, Configurable, Lookup, Localizable {
+public class LookupTable extends ConfigurableBase implements Lookup, Localizable {
 	/**
 	 * the logger instance
 	 */
@@ -132,7 +131,6 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	}
 
 	private MultiValueMap lookupMap = new MultiValueMap();
-	private boolean configured = false;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean local = false;
 
@@ -146,7 +144,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	public void configure() {
 		logger.info("{} configuring lookup table. This will take a while, please wait ......", getName());
 //		logger.debug("LookupTable configure called");
-		if (!configured) {
+		if (!isConfigured()) {
 			String filePath;
 			if (dirLUT == null) {
 				String gda_config = LocalProperties.get(LocalProperties.GDA_CONFIG);
@@ -157,17 +155,18 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 				filePath = dirLUT + File.separator + filename;
 			}
 			readTheFile(filePath);
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
 	private void checkConfigured() throws DeviceException{
-		if (!configured)
+		if (!isConfigured()) {
 			throw new DeviceException("LookupTable '" + getName() +"' is not configured");
+		}
 	}
 	@Override
 	public void reload() {
-		configured = false;
+		setConfigured(false);
 		configure();
 	}
 
@@ -449,10 +448,10 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	 */
 	private void configure(String filename) {
 		logger.debug("LookupTable configure called");
-		if (!configured) {
+		if (!isConfigured()) {
 
 			readTheFile(filename);
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

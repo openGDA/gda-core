@@ -19,20 +19,20 @@
 
 package gda.beamline.beamline;
 
-import gda.beamline.BeamlineInfo;
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Localizable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.beamline.BeamlineInfo;
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Localizable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * This class provides access methods for users to query or change beamline parameters used in data collection, such as
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("serial")
-public class Beamline implements BeamlineInfo, Configurable, Localizable {
+public class Beamline extends ConfigurableBase implements BeamlineInfo, Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(Beamline.class);
 	private final String FILE_PREFIX = "gda.data.file.prefix";
 	private final String FILE_SUFFIX = "gda.data.file.suffix";
@@ -57,7 +57,6 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 	private NumTracker runs;
 	private String project;
 	private String experiment;
-	private boolean configured = false;
 	private boolean local = false;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean configureAtStartup = false;
@@ -71,7 +70,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			filePrefix = LocalProperties.get(FILE_PREFIX, "");
 			fileSuffix = LocalProperties.get(FILE_SUFFIX, "");
 			fileExtension = LocalProperties.get(FILE_EXTENSION, "dat");
@@ -83,7 +82,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 				logger.error("Cannot instantiate NumTracker.", e);
 				throw new FactoryException("Could not create NumTracker for Beamline", e);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 
 	}

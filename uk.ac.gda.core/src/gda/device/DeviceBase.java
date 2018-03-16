@@ -140,6 +140,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	 *
 	 * @return boolean value of whether the device has been configured or not
 	 */
+	@Override
 	public boolean isConfigured() {
 		return configured;
 	}

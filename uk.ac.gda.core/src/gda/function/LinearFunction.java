@@ -21,7 +21,6 @@ package gda.function;
 
 import org.jscience.physics.quantities.Quantity;
 
-import gda.factory.FactoryException;
 import gda.util.QuantityFactory;
 
 /**
@@ -135,10 +134,6 @@ public class LinearFunction extends Function {
 		// given Quantities of a particular subclass and with units of a
 		// particular subclass of Unit.
 		return interim; // QuantityFactory.createFromString(interim.toString());
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 
 	@Override

@@ -19,19 +19,18 @@
 
 package gda.function;
 
-import gda.factory.Configurable;
-import gda.factory.Findable;
-
 import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.Findable;
 
 /**
  * Base class of a functions of a single (Quantity) variable. Implements Findable and so that Functions can be specified
  * in XML
  */
 
-public abstract class Function implements Findable, Configurable {
+public abstract class Function implements Findable {
 	protected static final Logger logger = LoggerFactory.getLogger(Function.class);
 
 	private String name;

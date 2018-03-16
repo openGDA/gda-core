@@ -28,7 +28,7 @@ import java.util.Vector;
  * Simple implementation of {@link Factory} that uses a {@link Map} of
  * {@link Findable}s.
  */
-public class MapFactory implements Factory {
+public class MapFactory extends ConfigurableBase implements Factory {
 
 	private String name;
 
@@ -100,11 +100,6 @@ public class MapFactory implements Factory {
 	@Override
 	public boolean containsExportableObjects() {
 		return false;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-		// do nothing
 	}
 
 }

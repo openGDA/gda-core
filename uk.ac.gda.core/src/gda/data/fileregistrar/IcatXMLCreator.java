@@ -40,14 +40,14 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 /**
  * creates an xml file required for the icat xml ingest file registry
  */
-public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
+public class IcatXMLCreator extends ConfigurableBase implements ArchiveFileCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(IcatXMLCreator.class);
 
@@ -248,6 +248,7 @@ public class IcatXMLCreator implements ArchiveFileCreator, Configurable {
 			}
 		}
 		logger.info("DLSICAT:IcatXMLCreator version {} writing to {}", VERSION, directory);
+		setConfigured(true);
 	}
 
 	/**

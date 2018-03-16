@@ -19,14 +19,6 @@
 
 package gda.server.collisionAvoidance;
 
-import gda.device.DeviceException;
-import gda.device.scannable.CheckedScannableMotion;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Localizable;
-import gda.jython.JythonServerFacade;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,10 +31,16 @@ import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.scannable.CheckedScannableMotion;
+import gda.factory.Findable;
+import gda.factory.Localizable;
+import gda.jython.JythonServerFacade;
+
 /**
  *
  */
-public class CollisionAvoidanceController implements Findable, Configurable, Localizable {
+public class CollisionAvoidanceController implements Findable, Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(CollisionAvoidanceController.class);
 
 	// Map of scannables (keyed to their internal name field)
@@ -77,11 +75,6 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	 */
 	private CollisionAvoidanceController() {
 		// Singleton
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-
 	}
 
 	/**

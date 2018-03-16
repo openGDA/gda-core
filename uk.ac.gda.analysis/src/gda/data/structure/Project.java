@@ -28,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.analysis.datastructure.ManagedDataObject;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
 import gda.factory.Findable;
 
 /**
@@ -37,7 +35,7 @@ import gda.factory.Findable;
  * memory object which holds the scan data The purpose of this is to allow later manipulation of data in jython or java
  * without reading it in again etc... for example....curve fitting of data etc...
  */
-public class Project extends ManagedDataObject implements Configurable, Serializable, Findable {
+public class Project extends ManagedDataObject implements Serializable, Findable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Project.class);
 
@@ -925,11 +923,6 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	protected int decrementMountCount() {
 		mountCount--;
 		return mountCount;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-
 	}
 
 	@Override

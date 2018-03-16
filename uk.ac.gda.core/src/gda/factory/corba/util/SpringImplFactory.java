@@ -18,10 +18,6 @@
 
 package gda.factory.corba.util;
 
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -31,6 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
 
 /**
  * Extension of {@link ImplFactory} that makes all objects in a Spring {@link ApplicationContext} available.
@@ -45,6 +45,8 @@ public class SpringImplFactory extends ImplFactory implements ApplicationContext
 	private ApplicationContext applicationContext;
 
 	private String namespace;
+
+	private boolean configured = false;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -64,6 +66,12 @@ public class SpringImplFactory extends ImplFactory implements ApplicationContext
 	public void configure() throws FactoryException {
 		logger.info("Making objects in Spring context available through CORBA...");
 		makeObjectsAvailable();
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	@Override

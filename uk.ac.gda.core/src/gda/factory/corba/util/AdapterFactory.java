@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.ConfigurableBase;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -44,7 +45,7 @@ import gda.jython.accesscontrol.RbacUtils;
  * which imports remote objects directly into the Spring application context and allows
  * those objects to be referenced using the {@code ref="..."} attribute.
  */
-public class AdapterFactory implements Factory {
+public class AdapterFactory extends ConfigurableBase implements Factory {
 	private HashMap<String, Findable> store = new LinkedHashMap<String, Findable>();
 
 	private static final Logger logger = LoggerFactory.getLogger(AdapterFactory.class);
@@ -64,11 +65,6 @@ public class AdapterFactory implements Factory {
 	public AdapterFactory(String name, NetService netService) {
 		this.name = name;
 		this.netService = netService;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-		// do nothing
 	}
 
 	/**

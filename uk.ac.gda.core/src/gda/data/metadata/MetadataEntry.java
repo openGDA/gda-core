@@ -19,16 +19,13 @@
 
 package gda.data.metadata;
 
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * An item of metadata. The user does not need to know the means of access to the metadata value. This is based on the
@@ -38,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @see Metadata
  * @see GdaMetadata
  */
-public abstract class MetadataEntry implements Findable, IObservable, Serializable, IMetadataEntry {
+public abstract class MetadataEntry extends ConfigurableBase implements IMetadataEntry {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataEntry.class);
 
@@ -58,6 +55,7 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 	@Override
 	public void configure() throws FactoryException {
 		metadata = GDAMetadataProvider.getInstance();
+		setConfigured(true);
 	}
 
 	@Override

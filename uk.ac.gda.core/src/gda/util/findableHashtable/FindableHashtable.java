@@ -132,6 +132,11 @@ public class FindableHashtable extends java.util.Hashtable implements gda.util.f
 	public void configure() throws FactoryException {
 	}
 
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
+
 	// Implements Localizable interface.
 
 	@Override

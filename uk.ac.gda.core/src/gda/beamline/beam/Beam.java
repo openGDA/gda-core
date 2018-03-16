@@ -19,6 +19,9 @@
 
 package gda.beamline.beam;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.beamline.BeamInfo;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
@@ -28,15 +31,12 @@ import gda.device.DeviceException;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class describes the photon beam properties of a Beamline or Station, including
@@ -46,12 +46,11 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  */
-public class Beam implements BeamInfo, Configurable, Localizable {
+public class Beam extends ConfigurableBase implements BeamInfo, Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(Beam.class);
 	private String name = "beam";
 	private double energy = Double.NaN;
 	private double wavelength = Double.NaN;
-	private boolean configured = false;
 
 	private Metadata metadata;
 	private boolean local = false;
@@ -67,12 +66,13 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			metadata = GDAMetadataProvider.getInstance();
-			configured = true;
+			setConfigured(true);
 		}
 
 	}
+
 	/**
 	 * sets beam energy in keV.
 	 */

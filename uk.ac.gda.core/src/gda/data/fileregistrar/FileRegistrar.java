@@ -90,6 +90,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	private boolean local = false;
 
+	private boolean configured = false;
+
 	private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 10, 1, TimeUnit.SECONDS,
 			new LinkedBlockingQueue<Runnable>());
 
@@ -98,6 +100,12 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 		if (icatXMLCreator == null) {
 			throw new FactoryException("icatXMLCreator is not set");
 		}
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	/**

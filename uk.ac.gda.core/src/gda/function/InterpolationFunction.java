@@ -19,11 +19,11 @@
 
 package gda.function;
 
-import gda.factory.Configurable;
-import gda.factory.Finder;
-
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+
+import gda.factory.Configurable;
+import gda.factory.Finder;
 
 /**
  * To change the template for this generated type comment go to Window - Preferences - Java - Code Generation - Code and
@@ -35,8 +35,6 @@ public class InterpolationFunction extends Function implements Configurable {
 	private int numberOfXValues;
 
 	private double[] yValues;
-
-	private boolean configured = false;
 
 	private int xColumn = -1;
 
@@ -53,6 +51,8 @@ public class InterpolationFunction extends Function implements Configurable {
 	private int yPlaces;
 
 	private static int decimalPlacesToPreventRounding = -1;
+
+	private boolean configured = false;
 
 	/**
 	 * FIXME remove empty constructor
@@ -118,7 +118,13 @@ public class InterpolationFunction extends Function implements Configurable {
 			yValues = cdf.getColumn(yColumn);
 			yUnits = cdf.getColumnUnits(yColumn);
 			yPlaces = cdf.getColumnDecimalPlaces(yColumn);
+			configured = true;
 		}
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	/**

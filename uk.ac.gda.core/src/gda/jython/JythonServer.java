@@ -58,7 +58,7 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.Stoppable;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -96,9 +96,7 @@ import gda.scan.ScanInterruptedException;
  * this rule is scan objects, which require information via methods which are not distributed and are shared via the
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
-public class JythonServer implements Jython, LocalJython, Configurable, Localizable,
-		ICurrentScanInformationHolder, IJythonServerNotifer, IDefaultScannableProvider, ITerminalInputProvider,
-		TextCompleter {
+public class JythonServer extends ConfigurableBase implements LocalJython, Localizable, ITerminalInputProvider, TextCompleter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
@@ -122,9 +120,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private IObserver localFacade = null;
 
 	private IObserver remoteFacade = null;
-
-	// to ensure configuration only performed once
-	private boolean configured = false;
 
 	// whether interpreter initialization has completed
 	private boolean initialized = false;
@@ -283,7 +278,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// force garbage collect (useful if doing a restart)
 			System.gc();
 
@@ -328,12 +323,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 			jythonCompleter = new JythonCompleter(this);
 
-			configured = true;
+			setConfigured(true);
 		}
-	}
-
-	private boolean isConfigured() {
-		return configured;
 	}
 
 	public boolean isInitialized() {
@@ -730,7 +721,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Allows a restart of the command server while keeping the same object reference to this object.
 	 */
 	public void restart() {
-		this.configured = false;
+		setConfigured(false);
 		interruptThreads();
 		try {
 			bufferedLocalStationOutput = new StringBuilder();
