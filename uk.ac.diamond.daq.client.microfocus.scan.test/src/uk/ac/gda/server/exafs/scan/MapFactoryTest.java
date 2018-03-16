@@ -31,10 +31,7 @@ import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import junit.framework.Assert;
-import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
-import uk.ac.gda.client.microfocus.scan.FasterRasterMap;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
-import uk.ac.gda.client.microfocus.scan.RasterMap;
 import uk.ac.gda.client.microfocus.scan.StepMap;
 
 public class MapFactoryTest {
@@ -53,7 +50,6 @@ public class MapFactoryTest {
 	private Scannable zScan;
 	private ScriptControllerBase elementListScriptController;
 	private CounterTimer counterTimer;
-	private RasterMapDetectorPreparer rasterMapDetectorPreparer;
 	private ContinuouslyScannable trajectoryMotor;
 	private RealPositionReader positionReader;
 
@@ -75,7 +71,6 @@ public class MapFactoryTest {
 		zScan = PowerMockito.mock(Scannable.class);
 		elementListScriptController = PowerMockito.mock(ScriptControllerBase.class);
 
-		rasterMapDetectorPreparer = PowerMockito.mock(RasterMapDetectorPreparer.class);
 		trajectoryMotor = PowerMockito.mock(ContinuouslyScannable.class);
 		positionReader = PowerMockito.mock(RealPositionReader.class);
 	}
@@ -136,143 +131,6 @@ public class MapFactoryTest {
 
 		try {
 			theFactory.createStepMap();
-		} catch (IllegalArgumentException e) {
-			// this is what we are expecting
-			return;
-		} catch (Exception e) {
-			Assert.fail("Unexpected exception: " + e.getMessage());
-		}
-	}
-
-	@Test
-	public void testCanCreateRasterMap() {
-		MapFactory theFactory = new MapFactory();
-
-		theFactory.setBeamlinePreparer(beamlinePreparer);
-		theFactory.setDetectorPreparer(detectorPreparer);
-		theFactory.setSamplePreparer(samplePreparer);
-		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyNoGapScannable(energyScannable);
-		theFactory.setEnergyWithGapScannable(energyScannable);
-		theFactory.setMetashop(metashop);
-		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
-
-		theFactory.setCounterTimer(counterTimer);
-		theFactory.setxScan(xScan);
-		theFactory.setyScan(yScan);
-		theFactory.setzScan(zScan);
-		theFactory.setElementListScriptController(elementListScriptController);
-
-		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
-		theFactory.setTrajectoryMotor(trajectoryMotor);
-		theFactory.setPositionReader(positionReader);
-
-		RasterMap theScan = theFactory.createRasterMap();
-
-		if (theScan == null) {
-			Assert.fail("Null returned from factory");
-		}
-
-	}
-
-	@Test
-	public void testIncompleteRasterMapFails() {
-		MapFactory theFactory = new MapFactory();
-
-		theFactory.setBeamlinePreparer(beamlinePreparer);
-		theFactory.setDetectorPreparer(detectorPreparer);
-		theFactory.setSamplePreparer(samplePreparer);
-		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyScannable(energyScannable);
-		// theFactory.setMetashop(metashop);
-		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
-
-		theFactory.setCounterTimer(counterTimer);
-		theFactory.setxScan(xScan);
-		theFactory.setyScan(yScan);
-		theFactory.setzScan(zScan);
-		theFactory.setElementListScriptController(elementListScriptController);
-
-		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
-		theFactory.setTrajectoryMotor(trajectoryMotor);
-		theFactory.setPositionReader(positionReader);
-
-		try {
-			theFactory.createRasterMap();
-		} catch (IllegalArgumentException e) {
-			// this is what we are expecting
-			return;
-		} catch (Exception e) {
-			Assert.fail("Unexpected exception: " + e.getMessage());
-		}
-	}
-
-	@Test
-	public void testCanCreateFasterRasterMap() {
-		MapFactory theFactory = new MapFactory();
-
-		theFactory.setBeamlinePreparer(beamlinePreparer);
-		theFactory.setDetectorPreparer(detectorPreparer);
-		theFactory.setSamplePreparer(samplePreparer);
-		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyScannable(energyScannable);
-		theFactory.setMetashop(metashop);
-		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
-
-		theFactory.setCounterTimer(counterTimer);
-		theFactory.setxScan(xScan);
-		theFactory.setyScan(yScan);
-		theFactory.setzScan(zScan);
-		theFactory.setElementListScriptController(elementListScriptController);
-
-		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
-		theFactory.setTrajectoryMotor(trajectoryMotor);
-		theFactory.setPositionReader(positionReader);
-
-		FasterRasterMap theScan = theFactory.createFasterRasterMap();
-
-		if (theScan == null) {
-			Assert.fail("Null returned from factory");
-		}
-
-	}
-
-	@Test
-	public void testIncompleteFasterRasterMapFails() {
-		MapFactory theFactory = new MapFactory();
-
-		theFactory.setBeamlinePreparer(beamlinePreparer);
-		theFactory.setDetectorPreparer(detectorPreparer);
-		theFactory.setSamplePreparer(samplePreparer);
-		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyScannable(energyScannable);
-		// theFactory.setMetashop(metashop);
-		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setScanName("mapScan");
-
-		theFactory.setCounterTimer(counterTimer);
-		theFactory.setxScan(xScan);
-		theFactory.setyScan(yScan);
-		theFactory.setzScan(zScan);
-		theFactory.setElementListScriptController(elementListScriptController);
-
-		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
-		theFactory.setTrajectoryMotor(trajectoryMotor);
-		theFactory.setPositionReader(positionReader);
-
-		try {
-			theFactory.createFasterRasterMap();
 		} catch (IllegalArgumentException e) {
 			// this is what we are expecting
 			return;

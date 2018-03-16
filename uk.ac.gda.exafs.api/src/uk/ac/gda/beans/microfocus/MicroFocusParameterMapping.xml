@@ -31,9 +31,6 @@
 		<field name="zValue" type="double">
 			<bind-xml name="zValue" node="element" />
 		</field>
-		<field name="raster" type="boolean">
-			<bind-xml name="raster" node="element" />
-		</field>
 		<field name="rowTime" type="double">
 			<bind-xml name="rowTime" node="element" />
 		</field>

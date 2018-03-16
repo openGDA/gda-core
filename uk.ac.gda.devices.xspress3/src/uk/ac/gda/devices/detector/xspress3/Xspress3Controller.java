@@ -49,6 +49,8 @@ public interface Xspress3Controller extends Findable {
 
 	public void doReset() throws DeviceException;
 
+	public void setArrayCounter(int n) throws DeviceException;
+
 	public boolean isSavingFiles() throws DeviceException;
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;

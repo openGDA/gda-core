@@ -55,7 +55,6 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 	private Double energy;
 	private Double zValue;
 	private Double rowTime;
-	private boolean raster;
 
 	public MicroFocusScanParameters() {
 	}
@@ -145,7 +144,6 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 		result = prime * result + ((collectionTime == null) ? 0 : collectionTime.hashCode());
 		result = prime * result + ((zValue == null) ? 0 : zValue.hashCode());
 		result = prime * result + ((rowTime == null) ? 0 : rowTime.hashCode());
-		result = prime * result + (raster ? 1231 : 1237);
 		result = prime * result + ((energy == null) ? 0 : energy.hashCode());
 		return result;
 	}
@@ -232,9 +230,6 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 		} else if (!rowTime.equals(other.rowTime)) {
 			return false;
 		}
-		if (raster != (other.raster)) {
-			return false;
-		}
 
 		return true;
 	}
@@ -260,14 +255,6 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 
 	public Double getRowTime() {
 		return rowTime;
-	}
-
-	public void setRaster(boolean raster) {
-		this.raster = raster;
-	}
-
-	public boolean isRaster() {
-		return raster;
 	}
 
 }

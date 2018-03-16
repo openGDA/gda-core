@@ -203,6 +203,10 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 	}
 
 	@Override
+	public void setArrayCounter(int n) {
+	}
+
+	@Override
 	public Integer getNumFramesToAcquire() {
 		return numFramesToAcquire;
 	}

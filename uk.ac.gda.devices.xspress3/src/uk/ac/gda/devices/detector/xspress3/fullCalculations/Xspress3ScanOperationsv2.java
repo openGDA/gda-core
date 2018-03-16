@@ -80,14 +80,9 @@ public class Xspress3ScanOperationsv2 {
 	}
 
 	public void atScanLineStart() throws DeviceException {
-		ReadyForNextRow isReadyForNextRow;
 		lineNumber++;
 		if (lineNumber > 1) {
 			savingHDFFiles();
-		}
-		isReadyForNextRow = controller.monitorReadyForNextRow(ReadyForNextRow.YES);
-		if (isReadyForNextRow != ReadyForNextRow.YES) {
-			throw new DeviceException("Xspress3 buffered not cleared for next row!");
 		}
 	}
 
@@ -138,6 +133,7 @@ public class Xspress3ScanOperationsv2 {
 
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
+		controller.setArrayCounter(0);
 		controller.doStart();
 	}
 

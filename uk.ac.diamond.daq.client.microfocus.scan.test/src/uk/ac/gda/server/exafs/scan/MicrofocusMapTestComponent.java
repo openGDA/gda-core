@@ -18,6 +18,15 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+
 import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
@@ -32,17 +41,6 @@ import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-
-import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -63,7 +61,7 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 public class MicrofocusMapTestComponent {
 
 	private BeamlinePreparer beamlinepreparer;
-	private RasterMapDetectorPreparer detectorPreparer;
+	private DetectorPreparer detectorPreparer;
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
 	private Processor commandQueueProcessor;
@@ -125,7 +123,7 @@ public class MicrofocusMapTestComponent {
 
 		// create the preparers
 		beamlinepreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(RasterMapDetectorPreparer.class);
+		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
 		commandQueueProcessor = PowerMockito.mock(Processor.class);
@@ -153,7 +151,6 @@ public class MicrofocusMapTestComponent {
 		mapscanParams.setYEnd(20.);
 		mapscanParams.setXStepSize(1.0);
 		mapscanParams.setYStepSize(5.0);
-		mapscanParams.setRaster(false);
 		mapscanParams.setCollectionTime(1.);
 		mapscanParams.setZValue(6.0);
 		mapscanParams.setRowTime(10.0);
@@ -240,7 +237,7 @@ public class MicrofocusMapTestComponent {
 		return beamlinepreparer;
 	}
 
-	public RasterMapDetectorPreparer getDetectorPreparer() {
+	public DetectorPreparer getDetectorPreparer() {
 		return detectorPreparer;
 	}
 
@@ -316,7 +313,7 @@ public class MicrofocusMapTestComponent {
 		return ionchambers;
 	}
 
-	public void setDetectorPreparer(RasterMapDetectorPreparer mock) {
+	public void setDetectorPreparer(DetectorPreparer mock) {
 		detectorPreparer = mock;
 	}
 }

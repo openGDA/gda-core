@@ -40,6 +40,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String ACQUIRE_SUFFIX = ":Acquire";
 	private static String ERASE_SUFFIX = ":ERASE";
 	private static String RESET_SUFFIX = ":RESET";
+	private static String ARRAY_COUNTER_SUFFIX = ":ArrayCounter";
 	private static String POINTS_PER_ROW_SUFFIX = ":PointsPerRow";
 	private static String READY_FOR_NEXT_ROW_SUFFIX = ":ReadyForNextRow_RBV";
 	private static String NUM_IMAGES_SUFFIX = ":NumImages";
@@ -136,6 +137,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<ACQUIRE_STATE> pvAcquire;
 	protected PV<ERASE_STATE> pvErase;
 	protected PV<Integer> pvReset;
+	protected PV<Integer> pvSetArrayCounter;
 	protected PV<Integer> pvUpdate;
 	protected PV<Integer> pvUpdateArraysAvailableFrame;
 	protected PV<Integer> pvPointsPerRow;
@@ -267,6 +269,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvAcquire = LazyPVFactory.newEnumPV(generatePVName(ACQUIRE_SUFFIX), ACQUIRE_STATE.class);
 		pvErase = LazyPVFactory.newEnumPV(generatePVName(ERASE_SUFFIX), ERASE_STATE.class);
 		pvReset = LazyPVFactory.newIntegerPV(generatePVName(RESET_SUFFIX));
+		pvSetArrayCounter = LazyPVFactory.newIntegerPV(generatePVName(ARRAY_COUNTER_SUFFIX));
 		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_SUFFIX));
 		pvUpdateArraysAvailableFrame = LazyPVFactory.newIntegerPV(generatePVName(UPDATEARRAYS_FRAME_NUMBER_SUFFIX));
 		pvPointsPerRow = LazyPVFactory.newIntegerPV(generatePVName(POINTS_PER_ROW_SUFFIX));
