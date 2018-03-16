@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -47,7 +47,7 @@ import gov.aps.jca.TimeoutException;
  *
  * @author James Mudd
  */
-public class VGScientaController implements Configurable {
+public class VGScientaController extends ConfigurableBase {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaController.class);
 
 	// Values internal to the object for Channel Access
@@ -231,6 +231,7 @@ public class VGScientaController implements Configurable {
 		}
 
 		logger.info("Finished configuring analyser");
+		setConfigured(true);
 	}
 
 	/**

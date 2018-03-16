@@ -35,14 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-class AnalyserLiveDataDispatcher implements Configurable, Findable {
+class AnalyserLiveDataDispatcher extends ConfigurableBase implements Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
@@ -76,6 +76,7 @@ class AnalyserLiveDataDispatcher implements Configurable, Findable {
 			logger.error("Error setting up analyser live visualisation", e);
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
+		setConfigured(true);
 	}
 
 	private void updatedFrameReceived(final MonitorEvent event) {

@@ -31,7 +31,7 @@ import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -56,7 +56,7 @@ import gov.aps.jca.TimeoutException;
  *
  * @author James Mudd
  */
-public class SpecsPhoibosController implements Configurable, IObservable {
+public class SpecsPhoibosController extends ConfigurableBase implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosController.class);
 
 	// Values internal to the object for Channel Access
@@ -222,6 +222,7 @@ public class SpecsPhoibosController implements Configurable, IObservable {
 		} catch (Exception e) {
 			logger.error("Configuring the analyser failed. Check EPICS IOC", e);
 		}
+		setConfigured(true);
 	}
 
 	/**

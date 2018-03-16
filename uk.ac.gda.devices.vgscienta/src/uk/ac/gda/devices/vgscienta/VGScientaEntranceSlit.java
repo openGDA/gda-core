@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR_Enum;
@@ -37,7 +37,7 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @author James Mudd
  */
-public class VGScientaEntranceSlit implements EntranceSlitInformationProvider, Configurable {
+public class VGScientaEntranceSlit extends ConfigurableBase implements EntranceSlitInformationProvider {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaEntranceSlit.class);
 
 	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
@@ -92,6 +92,7 @@ public class VGScientaEntranceSlit implements EntranceSlitInformationProvider, C
 			throw new FactoryException("Error setting up analyser entrance slit monitoring", e);
 		}
 		logger.info("Finished configuring analyser entrance slit");
+		setConfigured(true);
 	}
 
 	/**

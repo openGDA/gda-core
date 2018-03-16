@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
@@ -20,10 +20,8 @@ import gov.aps.jca.event.MonitorListener;
  * @author fy65
  *
  */
-public class AnalyserProgressDispatcher implements MonitorListener,
-		IObservable, Configurable, Findable {
-	private static final Logger logger = LoggerFactory
-			.getLogger(AnalyserProgressDispatcher.class);
+public class AnalyserProgressDispatcher extends ConfigurableBase implements MonitorListener, IObservable, Findable {
+	private static final Logger logger = LoggerFactory.getLogger(AnalyserProgressDispatcher.class);
 	private String name;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
@@ -31,7 +29,7 @@ public class AnalyserProgressDispatcher implements MonitorListener,
 	private int currentPoint;
 	private String totalPointsPv;
 	private int totalPoints;
-	private ObservableComponent observerComp = new ObservableComponent();;
+	private ObservableComponent observerComp = new ObservableComponent();
 
 	public AnalyserProgressDispatcher() {
 		controller = EpicsController.getInstance();
@@ -66,6 +64,7 @@ public class AnalyserProgressDispatcher implements MonitorListener,
 			throw new FactoryException("Cannot set up monitor of "
 					+ totalPointsPv, e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

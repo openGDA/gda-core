@@ -20,11 +20,11 @@ package uk.ac.gda.devices.vgscienta;
 
 import java.util.List;
 
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import uk.ac.gda.devices.vgscienta.VGScientaEntranceSlit.EntranceSlit;
 
-public class DummyVGScientaEntranceSlit implements EntranceSlitInformationProvider, Configurable {
+public class DummyVGScientaEntranceSlit extends ConfigurableBase implements EntranceSlitInformationProvider {
 
 	// The list of entrance slits available to be configured in Spring. Must be ordered as EPICS enum is
 	private List<EntranceSlit> slits;
@@ -83,5 +83,6 @@ public class DummyVGScientaEntranceSlit implements EntranceSlitInformationProvid
 		}
 		// Set the current slit to avoid possible NPE
 		currentSlit = slits.get(0);
+		setConfigured(true);
 	}
 }

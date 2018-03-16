@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
@@ -45,7 +45,7 @@ import gov.aps.jca.event.MonitorListener;
  *
  * @author James Mudd
  */
-public class VGScientaOverExposureProtector implements Configurable, MonitorListener {
+public class VGScientaOverExposureProtector extends ConfigurableBase implements MonitorListener {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaOverExposureProtector.class);
 
 	// Over-exposure values
@@ -107,6 +107,7 @@ public class VGScientaOverExposureProtector implements Configurable, MonitorList
 		}
 
 		logger.info("Finsihed configuring analyser over-exposure protection");
+		setConfigured(true);
 	}
 
 	private double getAlarmValue() throws TimeoutException, CAException, InterruptedException {
