@@ -18,11 +18,6 @@
 
 package gda.images.camera.example;
 
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.images.camera.ImageListener;
-import gda.images.camera.VideoReceiver;
-
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
@@ -35,81 +30,87 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.images.camera.ImageListener;
+import gda.images.camera.VideoReceiver;
+
 /**
  * Window that receives video from a {@link VideoReceiver} and updates the display at (approximately) the desired
  * frame rate.
  */
-public class ImageListenerWindow implements Configurable, ImageListener<Image>, Runnable {
-	
+public class ImageListenerWindow extends ConfigurableBase implements ImageListener<Image>, Runnable {
+
 	private static final Logger logger = LoggerFactory.getLogger(ImageListenerWindow.class);
-	
+
 	public ImageListenerWindow() {
 		frame = new JFrame();
 		frame.setSize(640, 480);
-		
+
 		label = new JLabel();
 		frame.add(label);
-		
+
 		desiredFrameRate = 10;
 	}
-	
+
 	private JFrame frame;
-	
+
 	private JLabel label;
-	
+
 	protected String name;
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	protected VideoReceiver<Image> videoReceiver;
-	
+
 	public void setVideoReceiver(VideoReceiver<Image> videoReceiver) {
 		this.videoReceiver = videoReceiver;
 	}
-	
+
 	protected int desiredFrameRate;
-	
+
 	public void setDesiredFrameRate(int desiredFrameRate) {
 		this.desiredFrameRate = desiredFrameRate;
 	}
-	
+
 	public void setLocation(Point p) {
 		frame.setLocation(p);
 	}
-	
+
 	public void setSize(Dimension d) {
 		frame.setSize(d);
 	}
-	
+
 	public void setSize(int width, int height) {
 		frame.setSize(width, height);
 	}
-	
+
 	public void setVisible(boolean visible) {
 		frame.setVisible(visible);
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		videoReceiver.addImageListener(this);
+		setConfigured(true);
 	}
-	
+
 	private int imagesReceived;
-	
+
 	private boolean timingEnabled;
-	
+
 	private long startTime;
-	
+
 	protected volatile Image latestImage;
-	
+
 	@Override
 	public void processImage(Image image) {
 		if (!timingEnabled) {
@@ -130,7 +131,7 @@ public class ImageListenerWindow implements Configurable, ImageListener<Image>, 
 		}
 		latestImage = image;
 	}
-	
+
 	@Override
 	public void run() {
 		int sleepTime = 1000 / desiredFrameRate;
@@ -151,5 +152,5 @@ public class ImageListenerWindow implements Configurable, ImageListener<Image>, 
 			}
 		}
 	}
-	
+
 }

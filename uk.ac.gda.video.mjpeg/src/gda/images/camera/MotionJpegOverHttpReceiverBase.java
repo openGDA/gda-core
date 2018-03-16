@@ -18,11 +18,6 @@
 
 package gda.images.camera;
 
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.images.camera.mjpeg.FrameCaptureTask;
-import gda.images.camera.mjpeg.FrameDispatchTask;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -41,11 +36,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
+import gda.device.DeviceException;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.images.camera.mjpeg.FrameCaptureTask;
+import gda.images.camera.mjpeg.FrameDispatchTask;
+
 /**
  * Captures an MJPEG stream from a HTTP connection.
  */
-public abstract class MotionJpegOverHttpReceiverBase<E> implements VideoReceiver<E>, InitializingBean {
-	
+public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase implements VideoReceiver<E>, InitializingBean {
+
 	/** Set this to {@code true} to get some statistics about frame processing. */
 	public static final boolean SHOW_STATS = false;
 
@@ -75,7 +76,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> implements VideoReceiver
 
 	/**
 	 * Method to identify whether the url has been set on the MotionJpegReceiver
-	 * 
+	 *
 	 * @return true is the urlspec is not null
 	 */
 	public boolean isUrlSet() {
@@ -109,6 +110,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> implements VideoReceiver
 	@Override
 	public void configure() throws FactoryException {
 		createConnection();
+		setConfigured(true);
 	}
 
 	@Override
@@ -155,7 +157,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> implements VideoReceiver
 
 	/** Queue of all decoded images, in the order they were received. */
 	private BlockingQueue<Future<E>> receivedImages;
-	
+
 	void setImageQueue(BlockingQueue<Future<E>> q){
 		receivedImages = q;
 	}

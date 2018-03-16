@@ -18,11 +18,6 @@
 
 package gda.images.camera;
 
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Localizable;
-
 import java.net.InetAddress;
 import java.util.Set;
 import java.util.Timer;
@@ -49,27 +44,33 @@ import javax.media.rtp.event.RemotePayloadChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.factory.Localizable;
+
 /**
  * Connects to an RTP stream, and runs a capture task at a regular fixed interval that captures frames from the stream
  * at (approximately) the desired frame rate, and passes them to a list of {@link ImageListener}s. By default, the
  * desired frame rate is 25fps.
- * 
+ *
  * <p>Configuring the receiver establishes the RTP connection and begins image capture. Image capture can be turned off
  * and on using the {@link #stop()} and {@link #start()} methods.
- * 
+ *
  * <p>The entire connection can be terminated using {@link #closeConnection()}, and then started again using
  * {@link #createConnection()} (which will also resume image capture once the connection has been established).
  */
-public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Findable, Configurable, ReceiveStreamListener, ControllerListener, Localizable {
-	
+public abstract class RTPStreamReceiverBase<E> extends ConfigurableBase implements VideoReceiver<E>, Findable, Configurable, ReceiveStreamListener, ControllerListener, Localizable {
+
 	private static final Logger logger = LoggerFactory.getLogger(RTPStreamReceiverBase.class);
-	
+
 	protected String name;
-	
+
 	protected String host;
-	
+
 	protected int port;
-	
+
 	public String getHost() {
 		return host;
 	}
@@ -79,11 +80,11 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 	}
 
 	protected int desiredFrameRate = 25;
-	
+
 	protected int bufferSize = 350;
-	
+
 	protected Set<ImageListener<E>> listeners = new CopyOnWriteArraySet<ImageListener<E>>();
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -114,51 +115,52 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 	public void addImageListener(ImageListener<E> listener) {
 		listeners.add(listener);
 	}
-	
+
 	@Override
 	public void removeImageListener(ImageListener<E> listener) {
 		listeners.remove(listener);
 	}
-	
+
 	protected RTPManager rtpManager;
-	
+
 	protected Player player;
-	
+
 	protected FrameGrabbingControl frameGrabber;
 
 	protected Timer timer;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		createConnection();
+		setConfigured(true);
 	}
-	
+
 	enum ReceiverState {
-		
+
 		STOPPED,
-		
+
 		STARTING,
-		
+
 		STARTED
 	}
 
 	protected ReceiverState state = ReceiverState.STOPPED;
-	
+
 	protected boolean captureRunning;
-	
+
 	protected static final int PLAYER_WAIT_TIME = 30000;
-	
+
 	@Override
 	public synchronized void createConnection() {
 		if (state != ReceiverState.STOPPED) {
 			return;
 		}
-		
+
 		state = ReceiverState.STARTING;
-		
+
 		try {
 			player = null;
-			
+
 			logger.info("Connecting to RTP stream from " + host + ":" + port);
 
 			rtpManager = RTPManager.newInstance();
@@ -182,7 +184,7 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 			if (bc != null) {
 				bc.setBufferLength(bufferSize);
 			}
-			
+
 			rtpManager.addTarget(destinationAddress);
 
 			long startTime = System.currentTimeMillis();
@@ -193,7 +195,7 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 				}
 				Thread.sleep(500);
 			}
-			
+
 			if (player != null) {
 				state = ReceiverState.STARTED;
 				start();
@@ -206,13 +208,13 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 			logger.error("Could not connect to RTP stream", e);
 		}
 	}
-	
+
 	@Override
 	public synchronized void start() {
 		if (captureRunning) {
 			return;
 		}
-		
+
 		captureRunning = true;
 		logger.info("Starting frame capture");
 		TimerTask captureTask = createCaptureTimerTask();
@@ -243,10 +245,10 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 			}
 		};
 	}
-	
+
 	@Override
 	public void update(ReceiveStreamEvent event) {
-		
+
 		if (event instanceof RemotePayloadChangeEvent) {
 			logger.error("Received a RemotePayloadChangeEvent, which cannot be handled.");
 		}
@@ -259,7 +261,7 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 				RTPControl ctl = (RTPControl) ds.getControl(RTPControl.class.getName());
 				String format = (ctl != null) ? ctl.getFormat().toString() : "unknown";
 				logger.info("Received new RTP stream (format is " + format + ")");
-				
+
 				// create a player by passing datasource to the Media Manager
 				Player p = Manager.createPlayer(ds);
 				if (p == null) {
@@ -286,39 +288,39 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 			}
 		}
 	}
-	
-	
+
+
 	@Override
 	public synchronized void stop() {
 		if (!captureRunning) {
 			return;
 		}
-		
+
 		logger.info("Stopping frame capture");
 		timer.cancel();
 		timer = null;
 		captureRunning = false;
 	}
-	
+
 	@Override
 	public synchronized void closeConnection() {
 		if (state != ReceiverState.STARTED) {
 			return;
 		}
-		
+
 		stop();
-		
+
 		frameGrabber = null;
-		
+
 		if (player != null) {
 			player.close();
 			player = null;
 		}
-		
+
 		rtpManager.removeTargets("Disconnecting from RTP stream");
 		rtpManager.dispose();
 		rtpManager = null;
-		
+
 		state = ReceiverState.STOPPED;
 	}
 
@@ -331,14 +333,14 @@ public abstract class RTPStreamReceiverBase<E> implements VideoReceiver<E>, Find
 	public void setLocal(boolean local) {
 		// do nothing
 	}
-	
+
 	private String displayName;
-	
+
 	@Override
 	public String getDisplayName() {
 		return displayName != null ? displayName : (host + ":" + port);
 	}
-	
+
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
