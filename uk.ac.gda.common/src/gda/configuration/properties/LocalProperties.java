@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
@@ -459,34 +458,6 @@ public final class LocalProperties {
 
 	public static void dumpProperties() {
 		propConfig.dumpProperties();
-	}
-
-	/**
-	 * Set a group of string-valued properties. An array of strings is passed in and each string is expected to be of
-	 * the form "A=B". Each string is parsed into its a key (A) and a value (B). A string property is then set using
-	 * each key value pair.
-	 *
-	 * @param propertyPairs
-	 *            an array of key-value pair assignment strings
-	 */
-	public static void parseProperties(String[] propertyPairs) {
-		StringTokenizer st;
-		String propertyName;
-		String propertyValue;
-
-		for (int i = 0; i < propertyPairs.length; i++) {
-			propertyName = null;
-			propertyValue = null;
-			st = new StringTokenizer(propertyPairs[i], "=");
-
-			if (st.hasMoreTokens())
-				propertyName = st.nextToken();
-			if (st.hasMoreTokens())
-				propertyValue = st.nextToken();
-
-			if ((propertyName != null) && (propertyValue != null))
-				propConfig.setString(propertyValue, propertyName);
-		}
 	}
 
 	/**
