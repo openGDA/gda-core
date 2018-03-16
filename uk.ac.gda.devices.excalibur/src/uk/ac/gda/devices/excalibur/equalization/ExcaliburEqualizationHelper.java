@@ -161,6 +161,10 @@ public class ExcaliburEqualizationHelper {
 	public static final String CHIP_THRESHOLD_GAUSSIAN_POSITION_DATASET = "chip_threshold_gaussian_position";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_SIGMA_DATASET = "chip_threshold_gaussian_sigma";
 	public static final String CHIP_THRESHOLD_GAUSSIAN_HEIGHT_DATASET = "chip_threshold_gaussian_height";
+
+	// Used a fixed seed to ensure test is reproducible
+	private static final long FIXED_RANDOM_SEED = 3529678539694459119L;
+
 	private static final ExcaliburEqualizationHelper INSTANCE = new ExcaliburEqualizationHelper();
 
 	public static ExcaliburEqualizationHelper getInstance() {
@@ -777,7 +781,7 @@ public class ExcaliburEqualizationHelper {
 			CompositeFunction cmpF = new CompositeFunction();
 			cmpF.addFunction(peakFunction);
 
-			GeneticAlg geneticAlg = new GeneticAlg(0.01);
+			GeneticAlg geneticAlg = new GeneticAlg(0.01, FIXED_RANDOM_SEED);
 			geneticAlg.optimize(new IDataset[]{xvals_ds}, yvals_ds, cmpF);
 
 			return cmpF;
