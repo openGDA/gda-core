@@ -18,7 +18,7 @@
 
 package uk.ac.gda.tomography.scan.presentation;
 
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 
@@ -32,7 +32,7 @@ import gda.factory.Findable;
  * </p>
  */
 
-public class TomographyOptions implements Findable, Configurable {
+public class TomographyOptions extends ConfigurableBase implements Findable {
 
 	private String name;
 	private String[] rotationStages;
@@ -40,7 +40,6 @@ public class TomographyOptions implements Findable, Configurable {
 	private String[] detectorToSampleDistanceUnits;
 	private String[] xPixelSizeUnits;
 	private String[] yPixelSizeUnits;
-	private boolean configured = false;
 
 	@Override
 	public void setName(String name) {
@@ -54,12 +53,13 @@ public class TomographyOptions implements Findable, Configurable {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (rotationStages == null) {
 				throw new FactoryException("No rotation stages set");
 			} else if (linearStages == null) {
-				throw new FactoryException("No rotation stages set");
+				throw new FactoryException("No linear stages set");
 			}
+			setConfigured(true);
 		}
 	}
 
