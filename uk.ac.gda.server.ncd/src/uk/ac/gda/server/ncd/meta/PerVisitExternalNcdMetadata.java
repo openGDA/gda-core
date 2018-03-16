@@ -68,6 +68,7 @@ public abstract class PerVisitExternalNcdMetadata extends NcdMetaBaseProvider im
 		}
 		visit.addIObserver(this);
 		MsgBus.subscribe(this);
+		setConfigured(true);
 	}
 
 	private boolean isSet() {

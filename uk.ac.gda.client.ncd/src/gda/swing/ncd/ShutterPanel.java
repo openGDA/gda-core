@@ -19,14 +19,6 @@
 
 package gda.swing.ncd;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.device.EnumPositioner;
-import gda.factory.Configurable;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -44,6 +36,14 @@ import javax.swing.border.TitledBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.EnumPositioner;
+import gda.factory.Configurable;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+
 /**
  * Generates a JPanel to control a beamline shutter or valve (EpicsPneumatic)
  * <p>
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * The implementation is lazy: There is a getPosition() in the update below, to circumvent changes to the Corba
  * interface. Don't be too surprised if you are doing funny things with this class and it breaks. You have been warned
  * now.
- * 
+ *
  */
 
 public class ShutterPanel extends JPanel implements IObserver, Runnable,Configurable, Findable {
@@ -85,6 +85,8 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 		}
 	};
 
+	private boolean configured = false;
+
 	/**
 	 * Constructor.
 	 */
@@ -93,7 +95,7 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void configure() {
@@ -123,9 +125,9 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 					try {
 						// do what is says on the tin
 						String action = ev.getActionCommand();
-						
+
 						logger.debug("shutter action requested: "+action);
-						
+
 						if (action.equals("Wait")) {
 							return;
 						}
@@ -152,6 +154,12 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 			// if the shutter is not found the JPanel will be empty
 			logger.warn("exception configuring {}: {}", shutter.getName(), e);
 		}
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	private class TimerListener implements ActionListener {
