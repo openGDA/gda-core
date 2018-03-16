@@ -28,9 +28,8 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
@@ -51,7 +50,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  *
  */
-public class DummyXspress3Controller implements Xspress3Controller, Findable, Configurable {
+public class DummyXspress3Controller extends ConfigurableBase implements Xspress3Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
@@ -119,6 +118,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 		} catch (DeviceException e) {
 			throw new FactoryException(e.getMessage(), e);
 		}
+		setConfigured(true);
 	}
 
 	private void open() throws DeviceException {

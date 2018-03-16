@@ -28,9 +28,8 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.zebra.GreaterThanOrEqualTo;
 import gda.epics.ReadOnlyPV;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
@@ -46,7 +45,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  *
  */
-public class EpicsXspress3Controller implements Xspress3Controller, Configurable, Findable {
+public class EpicsXspress3Controller extends ConfigurableBase implements Xspress3Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress3Controller.class);
 
@@ -88,6 +87,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		} catch (IOException e) {
 			throw new FactoryException("Excpetion trying to connect to Xspress3 EPICS template", e);
 		}
+		setConfigured(true);
 	}
 
 	@Override

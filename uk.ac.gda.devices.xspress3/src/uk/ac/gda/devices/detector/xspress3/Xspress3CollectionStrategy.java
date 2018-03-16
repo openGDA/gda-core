@@ -18,19 +18,19 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 
 /**
  * not used or tested yet.
@@ -39,7 +39,7 @@ import java.util.Vector;
  *
  */
 @Deprecated
-public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Configurable{
+public class Xspress3CollectionStrategy extends ConfigurableBase implements AsyncNXCollectionStrategy{
 
 	private Xspress3Controller controller;
 	private Integer frameToLookFor = null;
@@ -53,6 +53,7 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 	@Override
 	public void configure() throws FactoryException {
 		controller.configure();
+		setConfigured(true);
 	}
 
 //	public boolean isWriteHDF5Files() {
@@ -124,7 +125,7 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender> ();
+		Vector<NXDetectorDataAppender> appenders = new Vector<> ();
 		appenders.add(new NXDetectorDataNullAppender());
 		return appenders;
 	}

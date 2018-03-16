@@ -62,6 +62,7 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 	private ReadOnlyPV<Integer> CurrentPixelPV;
 
 	private String basePVName;
+	private boolean configured = false;
 
 	/**
 	 * Initial setting of pixels per buffer<br>
@@ -92,6 +93,12 @@ public class XmapMappingModeEpicsLayerImpl extends CollectionMode implements Xma
 			logger.error(message, e);
 			throw new FactoryException(message, e);
 		}
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	@Override
