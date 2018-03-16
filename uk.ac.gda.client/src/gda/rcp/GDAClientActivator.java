@@ -24,6 +24,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -32,6 +33,7 @@ import org.osgi.framework.ServiceReference;
 
 import gda.rcp.util.UIScanDataPointEventService;
 import uk.ac.gda.common.rcp.NamedServiceProvider;
+import uk.ac.gda.preferences.PreferenceConstants;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -82,7 +84,11 @@ public class GDAClientActivator extends AbstractUIPlugin {
 				namedServiceProvider.close();
 				namedServiceProvider = null;
 			}
-			UIScanDataPointEventService.getInstance().dispose();
+			//to fix DAG-1236 i.e. should not call dispose if service not used.
+			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+			if (preferenceStore.getBoolean(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE)) {
+				UIScanDataPointEventService.getInstance().dispose();
+			}
 		} finally{
 			plugin = null;
 		}
