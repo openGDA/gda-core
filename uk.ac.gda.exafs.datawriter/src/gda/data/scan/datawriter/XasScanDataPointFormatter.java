@@ -72,7 +72,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		// Header
 		final StringBuilder headerBuf = new StringBuilder();
 		if (data.get("bragg1") != null)
-			addColumnEntry(headerBuf, "bragg1");
+			addColumnEntry(headerBuf, "Energy");
 		if (data.get("Energy") != null)
 			addColumnEntry(headerBuf, "Energy");
 		else if (data.get("energy") != null)
