@@ -18,6 +18,9 @@
 
 package gda.device.detector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +31,9 @@ import gda.device.XmapDetector;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.countertimer.TfgScalerWithDarkCurrent;
+import gda.device.detector.countertimer.TfgScalerWithLogValues;
 import gda.device.scannable.ScannableBase;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
@@ -50,7 +55,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	protected static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
 
-	public enum COLLECTION_TYPES {XSPRESS2, XMAP, XMAP_I1, MEDIPIX};
+	public enum COLLECTION_TYPES {IONCHAMBERS, XSPRESS2, XMAP, XMAP_I1, MEDIPIX}
 
 	private volatile boolean collectionInProgress = false;
 
@@ -156,6 +161,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 		try {
 			switch(type) {
+				case IONCHAMBERS : return getIonChambersCounts();
 				case XSPRESS2 : return getIonChambersForXspress2();
 				case XMAP 	  : return getIonChambersForXmap();
 				case XMAP_I1  : return getIonChambersForXmapI1();
@@ -187,6 +193,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		collectionInProgress=true;
 		try {
 			switch(type) {
+				case IONCHAMBERS : return new Double[0];
 				case XSPRESS2 : return getXSpress2Data();
 				case XMAP 	  :
 				case XMAP_I1  : return getXmapData();
@@ -209,6 +216,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	public int getNumElements(COLLECTION_TYPES type) throws DeviceException {
 		checkDetectors(type);
 		switch(type) {
+			case IONCHAMBERS : return 0;
 			case XSPRESS2 : return xspress2Detector.getNumberOfDetectors();
 			case XMAP :
 			case XMAP_I1 : return xmapDetector.getNumberOfMca();
@@ -230,8 +238,72 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			   JythonServerFacade.getInstance().getScriptStatus() != Jython.IDLE;
 	}
 
-	// TODO refactor to make getIonChambersForXMap and getIonChambersForXSpress2 use same function.
-	// Currently, the two functions are just copied from XspressMonitorView, XmapMonitorView without attempting to tidy up...
+	private Double[] getNormalisedIonChamberCounts() throws DeviceException {
+		double[] results = (double[]) ionchambers.readout();
+
+		String[] extraNames = ionchambers.getExtraNames();
+		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
+		results[i0Index] /= collectionTime;
+		results[i0Index + 1] /= collectionTime;
+		results[i0Index + 2] /= collectionTime;
+
+		return new Double[] { results[i0Index + 0], results[i0Index + 1], results[i0Index + 2] };
+	}
+
+	private Double[] getIonChamberReadout() throws DeviceException {
+		int startIndex = ArrayUtils.indexOf(ionchambers.getExtraNames(), "I0");
+		int numChannelsToNormaliseByTime = 3;
+		if (ionchambers instanceof TfgScaler) {
+			if ( ((TfgScaler)ionchambers).isTimeChannelRequired() ) {
+				startIndex = 1;
+			} else {
+				startIndex = 0;
+			}
+
+			// Determine how many of the readout values should be normalised by time
+			boolean useCustomisedOutput = false;
+			// If using customised output for Tfg (gda9 only), don't normalise anything just copy the value
+			// (since values are in arbitrary user specified order with various ratios, logs etc).
+//			if (ionchambers instanceof TfgScalerWithLogValues) {
+//				useCustomisedOutput = ((TfgScalerWithLogValues)ionchambers).getUseCustomisedOutput();
+//			}
+
+			if (!useCustomisedOutput) {
+				numChannelsToNormaliseByTime = ((TfgScaler)ionchambers).getNumChannelsToRead();
+			} else {
+				numChannelsToNormaliseByTime = 0;
+			}
+		}
+
+		double[] results = (double[]) ionchambers.readout();
+		List<Double> resultsList = new ArrayList<>();
+		for(int i=startIndex; i<results.length; i++) {
+			if (i<startIndex+numChannelsToNormaliseByTime) {
+				// raw counts, normalised by time
+				resultsList.add(results[i]/collectionTime);
+			} else {
+				// processed value (e.g. lnI0It ...)
+				resultsList.add(results[i]);
+			}
+		}
+		return resultsList.toArray(new Double[]{});
+	}
+
+	private Double[] getIonChambersCounts() throws Exception {
+		logger.debug("Collect values from {}", ionchambers.getName());
+
+		if ( !getScriptOrScanIsRunning() && !ionchambers.isBusy()) {
+			ionchambers.setCollectionTime(collectionTime);
+			ionchambers.clearFrameSets();
+			ionchambers.collectData();
+			ionchambers.waitWhileBusy();
+		} else {
+			throw new Exception("Script/scan already running");
+		}
+
+		return getIonChamberReadout();
+	}
+
 	private Double[] getIonChambersForXspress2() throws Exception {
 		logger.debug("Collect values from {} and {}", ionchambers.getName(), xspress2Detector.getName());
 
@@ -247,19 +319,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			throw new Exception("Script/scan already running");
 		}
 
-		// assumes a column called I0
-		double[] ion_results = (double[]) ionchambers.readout();
-		// Why do this - we already know the collection time, having just set it... imh
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-
-		String[] extraNames = ionchambers.getExtraNames();
-		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
-		if (collectionTime != null) {
-			ion_results[i0Index] /= collectionTime;
-			ion_results[i0Index + 1] /= collectionTime;
-			ion_results[i0Index + 2] /= collectionTime;
-		}
-		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
+		return getNormalisedIonChamberCounts();
 	}
 
 	protected Double[] getXSpress2Data() throws DeviceException {
@@ -277,19 +337,6 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		return new Double[] {ion_results[0] / collectionTime};
 	}
 
-	private int getCurrentFrame() throws DeviceException {
-		// read the latest frame
-		int currentFrame = ionchambers.getCurrentFrame();
-		if (currentFrame % 2 != 0) {
-			currentFrame--;
-		}
-		if (currentFrame > 0) {
-			currentFrame /= 2;
-			currentFrame--;
-		}
-		return currentFrame;
-	}
-
 	protected Double[] getIonChambersForXmap() throws Exception {
 		logger.debug("Collect values from {} and {}", ionchambers.getName(), xmapDetector.getName());
 
@@ -305,29 +352,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			throw new Exception("Script/scan already running");
 		}
 
-		int currentFrame = getCurrentFrame();
-
-		int numChannels = ionchambers.getExtraNames().length;
-//		// works for TFG2 only where time if the first channel
-		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-
-//		double[] ion_results = (double[]) ionchambers.readout();
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		int i0Index = -1;
-		String[] eNames = ionchambers.getExtraNames();
-		// find the index for I0
-		for (String s : eNames) {
-			i0Index++;
-			if (s.equals("I0"))
-				break;
-
-		}
-		if (collectionTime != null) {
-			ion_results[i0Index] /= collectionTime;
-			ion_results[i0Index + 1] /= collectionTime;
-			ion_results[i0Index + 2] /= collectionTime;
-		}
-		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
+		return getNormalisedIonChamberCounts();
 	}
 
 	/**
@@ -391,8 +416,14 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		this.xspress2Detector = xspress2Detector;
 	}
 
-	public CounterTimer getIonChambers() {
-		return ionchambers;
+	@Override
+	public String[] getIonChambersExtraNames() {
+		return ionchambers.getExtraNames();
+	}
+
+	@Override
+	public String[] getIonChambersOutputFormats() {
+		return ionchambers.getOutputFormat();
 	}
 
 	public void setIonChambers(CounterTimer ionchambers) {

@@ -134,12 +134,13 @@ public abstract class MonitorViewBase extends ViewPart implements IPartListener2
 	@Override
 	public void createPartControl(Composite parent) {
 
+		collectionTime = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0"));
+		dataProvider = Finder.getInstance().find("detectorMonitorDataProvider");
+
 		setupGui(parent);
 
 		getSite().getPage().addPartListener(this);
 		createToolbar();
-		collectionTime = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0"));
-		dataProvider = Finder.getInstance().find("detectorMonitorDataProvider");
 
 		// Display a warning message if the server is not setup with the 'data provider' object,
 		// Put details in log file of how to make it work.

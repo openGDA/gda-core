@@ -114,6 +114,11 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	private Color red, black;
 	protected PlotUpdateJob plotUpdateJob;
 
+	public static final String EXAFS_MIN_ELEMENT_PROP = "gda.exafs.element.min";
+	public static final String EXAFS_MAX_ELEMENT_PROP = "gda.exafs.element.max";
+	private String minAllowedElementSymbol = LocalProperties.get(EXAFS_MIN_ELEMENT_PROP,"P");
+	private String maxAllowedElementSymbol = LocalProperties.get(EXAFS_MAX_ELEMENT_PROP,"Np");
+
 	public ElementEdgeEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		plotUpdateJob = new PlotUpdateJob("Calculating energy profile");
@@ -328,7 +333,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	 * @throws Exception
 	 */
 	protected SchemaReader setupElementAndEdge(final String objectName) throws Exception {
-		element.setItems(Element.getSortedEdgeSymbols("P", "Np"));
+		element.setItems(Element.getSortedEdgeSymbols(minAllowedElementSymbol, maxAllowedElementSymbol));
 
 		SchemaReader reader = new SchemaReader(XasScanParameters.schemaUrl);
 		List<String> choices = reader.getAllowedChoices(objectName, "edge");
@@ -656,5 +661,13 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	public ComboWrapper getElement() {
 		return element;
+	}
+
+	public String getMinAllowedElementSymbol() {
+		return minAllowedElementSymbol;
+	}
+
+	public String getMaxAllowedElemenetSymbol() {
+		return maxAllowedElementSymbol;
 	}
 }

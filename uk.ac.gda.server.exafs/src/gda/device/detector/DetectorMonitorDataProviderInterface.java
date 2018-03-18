@@ -43,4 +43,8 @@ public interface DetectorMonitorDataProviderInterface extends Findable, IObserva
 
 	public void setCollectionIsRunning(boolean collectionIsRunning);
 
+	public String[] getIonChambersExtraNames();
+
+	public String[] getIonChambersOutputFormats();
+
 }
