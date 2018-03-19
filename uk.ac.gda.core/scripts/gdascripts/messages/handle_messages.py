@@ -5,19 +5,29 @@ import java
 import gda
 from gda.jython import InterfaceProvider
 from java.lang import Math, String
+from org.python.core import PyException
 
 from org.slf4j import LoggerFactory
 logger = LoggerFactory.getLogger("gdascripts.messages.handle_messages")
 
 import traceback as traceback_mod
-		
+
 def getCauseList(exception):
-	if isinstance(exception, java.lang.InterruptedException):
-		return str(exception)
-	elif isinstance(exception, java.lang.Exception):
-		return gda.util.exceptionUtils.getFullStackMsg(exception)
-	else:
-		return str(exception)
+    if isinstance(exception, java.lang.InterruptedException):
+        return str(exception)
+    elif isinstance(exception, java.lang.Exception):
+        msg = exception.toString()
+        cause = exception.getCause()
+        while (cause is not None and not cause == cause.getCause()):
+            msg += "\n" + str(cause)
+            cause = cause.getCause()
+        if isinstance(exception, PyException):
+            trace = exception.getStackTrace()
+            for t in trace:
+                msg += "\n" + t.toString()
+        return msg
+    else:
+        return str(exception)
 
 def padMsg(msg):
     if msg == None or msg == "":
