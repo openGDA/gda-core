@@ -19,11 +19,11 @@
 
 package gda.scan;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-
 import java.util.HashMap;
 import java.util.Vector;
+
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
 
 /**
  * Device that acts as a store for information about a ScanDataPoint Runs on server and client. On the server it accepts
@@ -39,7 +39,7 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 		return INSTANCE;
 	}
 
-	public ScanDataPointServer() {
+	private ScanDataPointServer() {
 		setName(getClass().getSimpleName());
 	}
 
@@ -56,7 +56,7 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 	public ScanDataPointVar ___getToken(ScanDataPoint sdp) {
 		String uniqueName = sdp.getUniqueName();
 		if (!store.containsKey(uniqueName)) {
-			//If plotting is held up on client and scans are gnerated in quick succession
+			//If plotting is held up on client and scans are generated in quick succession
 			//the server may not have the token in its store when needed by the client
 			//unless we increase the store size to 100
 			while (storeOrder.size() > 100) {
