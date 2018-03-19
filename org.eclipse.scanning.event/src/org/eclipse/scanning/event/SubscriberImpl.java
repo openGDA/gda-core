@@ -65,8 +65,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	private static final String DEFAULT_KEY = UUID.randomUUID().toString(); // Does not really matter what key is used for the default collection.
 
 	private Map<String, Collection<T>> listeners; // Scan listeners
-	private Map<Class, DiseminateHandler> handlers;
-	private BlockingQueue<DiseminateEvent> queue;
+	private Map<Class, DisseminateHandler> handlers;
+	private BlockingQueue<Object> queue;
 
 	private MessageConsumer messageConsumer;
 
@@ -77,7 +77,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	public SubscriberImpl(URI uri, String topic, IEventConnectorService service) {
 		super(uri, topic, service);
 		listeners = new ConcurrentHashMap<>(); // Concurrent overkill?
-		handlers = createDiseminateHandlers();
+		handlers = createDisseminateHandlers();
 	}
 
 	@Override
@@ -94,7 +94,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	@Override
 	public void addListener(String beanId, T listener) throws EventException {
 		setConnected(true);
-		if (isSynchronous()) createDiseminateThread();
+		if (isSynchronous()) createDisseminateThread();
 		registerListener(beanId, listener);
 		if (messageConsumer == null) {
 			setBeanClass(getBeanClassForListener(listener));
@@ -143,7 +143,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			json = JsonUtil.removeProperties(json, properties);
 			try {
 				Object bean = service.unmarshal(json, getBeanClass());
-				schedule(new DiseminateEvent(bean));
+				schedule(bean);
 			} catch (Exception ne) {
 				logger.error("Error processing message {} on topic {} with beanClass {}", message,
 						getTopicName(), getBeanClass(), ne);
@@ -154,16 +154,15 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		}
 	}
 
-	private void schedule(DiseminateEvent event) {
+	private void schedule(Object bean) {
 		if (isSynchronous()) {
-			if (queue!=null) queue.add(event);
+			if (queue!=null) queue.add(bean);
 		} else {
-			if (event==DiseminateEvent.STOP) return;
 			// TODO FIXME Might not be right...
 			final Thread thread = new Thread("Execute event "+getTopicName()) {
 				@Override
 				public void run() {
-					diseminate(event); // Use this JMS thread directly to do work.
+					disseminate(bean); // Use this JMS thread directly to do work.
 				}
 			};
 			thread.setDaemon(true);
@@ -172,7 +171,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		}
 	}
 
-	private void createDiseminateThread() {
+	private void createDisseminateThread() {
 		if (!isSynchronous()) return; // If asynch we do not run events in order and wait until they return.
 		if (queue!=null) return;
 		queue = new LinkedBlockingQueue<>(); // Small, if they do work and things back-up, exceptions will occur.
@@ -182,9 +181,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			public void run() {
 				while(isConnected()) {
 					try {
-						DiseminateEvent event = queue.take();
-						if (event==DiseminateEvent.STOP) return;
-						diseminate(event);
+						Object bean = queue.take();
+						disseminate(bean);
 					} catch (RuntimeException e) {
 						e.printStackTrace();
 						logger.error("RuntimeException occured despatching event", e);
@@ -204,72 +202,33 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		despatcher.start();
 	}
 
-
-	private static final class DiseminateEvent {
-
-		public static final DiseminateEvent STOP = new DiseminateEvent("STOP");
-
-		protected final Object bean;
-
-		public DiseminateEvent(Object bean) {
-			this.bean = bean;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((bean == null) ? 0 : bean.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			DiseminateEvent other = (DiseminateEvent) obj;
-			if (bean == null) {
-				if (other.bean != null)
-					return false;
-			} else if (!bean.equals(other.bean))
-				return false;
-			return true;
-		}
-
-	}
-
-	private void diseminate(DiseminateEvent event) {
-		Object bean = event.bean;
-		diseminate(bean, listeners.get(DEFAULT_KEY));  // general listeners
+	private void disseminate(Object bean) {
+		disseminate(bean, listeners.get(DEFAULT_KEY));  // general listeners
 		if (bean instanceof IdBean) {
 			IdBean idBean = (IdBean)bean;
-			diseminate(bean, listeners.get(idBean.getUniqueId())); // bean specific listeners, if any
+			disseminate(bean, listeners.get(idBean.getUniqueId())); // bean specific listeners, if any
 		} else if (bean instanceof INameable) {
 			INameable namedBean = (INameable)bean;
-			diseminate(bean, listeners.get(namedBean.getName())); // bean specific listeners, if any
+			disseminate(bean, listeners.get(namedBean.getName())); // bean specific listeners, if any
 		}
 	}
 
-	private boolean diseminate(Object bean, Collection<T> listeners) {
+	private boolean disseminate(Object bean, Collection<T> listeners) {
 		if (listeners==null || listeners.isEmpty()) return false;
 		final EventListener[] ls = listeners.toArray(new EventListener[listeners.size()]);
 
 		boolean ret = true;
 		for (EventListener listener : ls) {
 			List<Class<?>> types = getAllInterfaces(listener.getClass());
-			boolean diseminated = false;
+			boolean disseminated = false;
 			for (Class<?> type : types) {
-				DiseminateHandler handler = handlers.get(type);
+				DisseminateHandler handler = handlers.get(type);
 				if (handler != null) {
-					handler.diseminate(bean, listener);
-					diseminated = true;
+					handler.disseminate(bean, listener);
+					disseminated = true;
 				}
 			}
-			ret =  ret && diseminated;
+			ret =  ret && disseminated;
 		}
 		return ret;
 	}
@@ -291,13 +250,13 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		return interfaces.get(class1);
 	}
 
-	private Map<Class, DiseminateHandler> createDiseminateHandlers() {
+	private Map<Class, DisseminateHandler> createDisseminateHandlers() {
 
-		Map<Class, DiseminateHandler> ret = Collections.synchronizedMap(new HashMap<Class, DiseminateHandler>(3));
+		Map<Class, DisseminateHandler> ret = Collections.synchronizedMap(new HashMap<Class, DisseminateHandler>(3));
 
-		ret.put(IScanListener.class, new DiseminateHandler() {
+		ret.put(IScanListener.class, new DisseminateHandler() {
 			@Override
-			public void diseminate(Object bean, EventListener e) {
+			public void disseminate(Object bean, EventListener e) {
 
 				if (!(bean instanceof ScanBean)) return;
 				// This listener must be used with events publishing ScanBean
@@ -324,27 +283,27 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 				execute(new DespatchEvent(l, new ScanEvent(sbean), false));
 			}
 		});
-		ret.put(IHeartbeatListener.class, new DiseminateHandler() {
+		ret.put(IHeartbeatListener.class, new DisseminateHandler() {
 			@Override
-			public void diseminate(Object bean, EventListener e) {
+			public void disseminate(Object bean, EventListener e) {
 				// Used casting because generics got silly
 				HeartbeatBean hbean = (HeartbeatBean)bean;
 				IHeartbeatListener l= (IHeartbeatListener)e;
 				execute(new DespatchEvent(l, new HeartbeatEvent(hbean)));
 			}
 		});
-		ret.put(IBeanListener.class, new DiseminateHandler() {
+		ret.put(IBeanListener.class, new DisseminateHandler() {
 			@Override
-			public void diseminate(Object bean, EventListener e) {
+			public void disseminate(Object bean, EventListener e) {
 				// Used casting because generics got silly
 				@SuppressWarnings("unchecked")
 				IBeanListener<Object> l = (IBeanListener<Object>)e;
 				execute(new DespatchEvent(l, new BeanEvent<Object>(bean)));
 			}
 		});
-		ret.put(ILocationListener.class, new DiseminateHandler() {
+		ret.put(ILocationListener.class, new DisseminateHandler() {
 			@Override
-			public void diseminate(Object bean, EventListener e) {
+			public void disseminate(Object bean, EventListener e) {
 				// Used casting because generics got silly
 				ILocationListener l = (ILocationListener)e;
 				execute(new DespatchEvent(l, new LocationEvent((Location)bean)));
@@ -355,8 +314,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	@FunctionalInterface
-	private interface DiseminateHandler {
-		public void diseminate(Object bean, EventListener listener) throws ClassCastException;
+	private interface DisseminateHandler {
+		public void disseminate(Object bean, EventListener listener) throws ClassCastException;
 	}
 
 
@@ -407,7 +366,6 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			setConnected(false);
 		}
 		super.disconnect();
-		schedule(DiseminateEvent.STOP);
 	}
 
 	private boolean connected;
