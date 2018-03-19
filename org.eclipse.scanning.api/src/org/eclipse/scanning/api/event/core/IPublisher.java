@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.event.core;
 import java.io.PrintStream;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 
 
 public interface IPublisher<T> extends ITopicConnection {
@@ -29,22 +28,6 @@ public interface IPublisher<T> extends ITopicConnection {
 	 * @param bean
 	 */
 	public void broadcast(T bean) throws EventException;
-
-	/**
-	 * Calling this method with <code>true</code> starts a thread which broadcasts
-	 * {@link HeartbeatBean}s to the heartbeat topic at a frequency
-	 * determined by the property <code>org.eclipse.scanning.event.heartbeat.freq</code>;
-	 * calling this method with <code>false</code> stops this thread, if it was
-	 * previously running.
-	 *
-	 * @param alive
-	 */
-	public void setAlive(boolean alive) throws EventException;
-
-	/**
-	 * Returns true if the producer is alive and sending a heartbeat.
-	 */
-	public boolean isAlive();
 
 	/**
 	 * The queue name to synch with the topic updates (if any)
@@ -75,13 +58,5 @@ public interface IPublisher<T> extends ITopicConnection {
 	 * @param stream
 	 */
 	public void setLoggingStream(PrintStream stream);
-
-	/**
-	 * If this publisher is providing alive events for a consumer,
-	 * use this method to set the consumer and provide the consumer's
-	 * current information when the events are sent.
-	 * @param consumer
-	 */
-	public void setConsumer(IConsumer<?> consumer);
 
 }

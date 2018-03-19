@@ -12,14 +12,19 @@
 package org.eclipse.scanning.event;
 
 import java.lang.ref.WeakReference;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -65,7 +70,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private String name;
 	private UUID consumerId;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
-	private IPublisher<HeartbeatBean> heartbeatTopicPublisher; // a publisher to the heartbeat topic
+	private HeartbeatBroadcaster heartbeatBroadcaster;
 	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<ConsumerCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -114,8 +119,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (heartbeatTopicName!=null) {
-			heartbeatTopicPublisher  = eservice.createPublisher(uri, heartbeatTopicName);
-			heartbeatTopicPublisher.setConsumer(this);
+			heartbeatBroadcaster = new HeartbeatBroadcaster(uri, heartbeatTopicName, this);
 		}
 
 		if (getCommandTopicName()!=null) {
@@ -130,7 +134,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		statusSetSubmitter.disconnect();
 		statusTopicPublisher.disconnect();
-		if (heartbeatTopicPublisher!=null)   heartbeatTopicPublisher.disconnect();
+		if (heartbeatBroadcaster!=null) heartbeatBroadcaster.disconnect();
 		if (commandTopicSubscriber!=null) commandTopicSubscriber.disconnect();
 		if (beanOverrideMap!=null) beanOverrideMap.clear();
 
@@ -416,7 +420,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void stop() throws EventException {
 		try {
-			heartbeatTopicPublisher.setAlive(false); // Broadcasts that we are being killed
+			heartbeatBroadcaster.stop();
 			setActive(false); // Stops event loop
 
 			@SuppressWarnings("unchecked")
@@ -460,7 +464,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		this.waitTime = 0;
 
 		if (runner!=null) {
-			heartbeatTopicPublisher.setAlive(true);
+			heartbeatBroadcaster.start();
 		} else {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
 		}
@@ -786,5 +790,74 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void setPauseOnStart(boolean pauseOnStart) {
 		this.pauseOnStart = pauseOnStart;
+	}
+
+	/**
+	 * Class responsible for updating and broadcasting {@code HeartbeatBean}s. Essentially a wrapper for an {@code IPublisher<HeartbeatBean>}
+	 */
+	private class HeartbeatBroadcaster {
+
+		private final IPublisher<HeartbeatBean> publisher;
+		private final IConsumer<?> consumer;
+		private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+			Thread thread = Executors.defaultThreadFactory().newThread(r);
+			thread.setName("Alive Notification " + getTopicName());
+			thread.setDaemon(true);
+			thread.setPriority(Thread.MIN_PRIORITY);
+			return thread;
+		});
+		private volatile HeartbeatBean lastBeat;
+		private boolean broadcasting = false;
+
+		public HeartbeatBroadcaster(URI uri, String heartbeatTopicName, IConsumer<?> consumer) {
+			this.consumer = Objects.requireNonNull(consumer);
+			publisher = eservice.createPublisher(uri, heartbeatTopicName);
+		}
+
+		/**
+		 * Starts a thread which broadcasts {@link HeartbeatBean}s to the heartbeat topic
+		 * at a frequency determined by the property <code>org.eclipse.scanning.event.heartbeat.freq</code>
+		 */
+		public void start() {
+			if (broadcasting) throw new IllegalStateException("Cannot start heartbeat broadcast; it has already been started");
+			final HeartbeatBean beat = new HeartbeatBean();
+			beat.setConceptionTime(System.currentTimeMillis());
+
+			scheduler.scheduleAtFixedRate(()->{
+				try {
+					updateHeartbeatBean(beat);
+					publisher.broadcast(beat);
+				} catch (Exception e) {
+					LOGGER.error("Error encountered while broadcasting heartbeat", e);
+				}
+				lastBeat = beat;
+			}, Constants.getNotificationFrequency(), Constants.getNotificationFrequency(), TimeUnit.MILLISECONDS);
+			broadcasting = true;
+		}
+
+		/**
+		 * Stops the heartbeat broadcast thread.
+		 * @throws EventException
+		 */
+		public void stop() throws EventException {
+			if (!broadcasting) throw new IllegalStateException("Cannot stop Heartbeat broadcaster; it is not running");
+			scheduler.shutdownNow();
+			lastBeat.setConsumerStatus(ConsumerStatus.STOPPED);
+			publisher.broadcast(lastBeat);
+			broadcasting = false;
+		}
+
+		private void updateHeartbeatBean(HeartbeatBean beat) throws UnknownHostException {
+			beat.setPublishTime(System.currentTimeMillis());
+			beat.setConsumerId(consumer.getConsumerId());
+			beat.setConsumerName(consumer.getName());
+			beat.setConsumerStatus(consumer.getConsumerStatus());
+			beat.setBeamline(System.getenv("BEAMLINE"));
+			beat.setHostName(InetAddress.getLocalHost().getHostName());
+		}
+
+		public void disconnect() throws EventException {
+			publisher.disconnect();
+		}
 	}
 }

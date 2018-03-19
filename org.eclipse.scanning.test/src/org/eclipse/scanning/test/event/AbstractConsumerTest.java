@@ -15,10 +15,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.net.InetAddress;
+import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,8 +37,10 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.KillBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -61,9 +69,9 @@ public class AbstractConsumerTest extends BrokerTest {
 	protected IConsumer<StatusBean>  consumer;
 
 	@Before
-	public void start() throws Exception {
-		Constants.setNotificationFrequency(200); // Normally 2000
+	public void start() {
 		Constants.setReceiveFrequency(100);
+		Constants.setNotificationFrequency(200); // Normally 2000
 	}
 
 	@After
@@ -103,6 +111,11 @@ public class AbstractConsumerTest extends BrokerTest {
 			consumer.disconnect();
 			connection.close();
 		}
+	}
+
+	@Test (expected=EventException.class)
+	public void badURI() throws Exception {
+		eservice.createConsumer(new URI("tcp://rubbish:5600"));
 	}
 
 	@Test
@@ -316,8 +329,57 @@ public class AbstractConsumerTest extends BrokerTest {
 		}
 	}
 
+	private static class HeartbeatListener implements IHeartbeatListener {
+
+		private List<HeartbeatBean> beatsReceived = Collections.synchronizedList(new ArrayList<>());
+		private final CountDownLatch countdown;
+		private int expectedBeats;
+
+		public HeartbeatListener(int expectedBeats)  {
+			countdown = new CountDownLatch(expectedBeats);
+			this.expectedBeats = expectedBeats;
+		}
+
+		public int numberOfBeats() {
+			return beatsReceived.size();
+		}
+
+		public void awaitBeats() throws InterruptedException {
+			countdown.await(expectedBeats*400, TimeUnit.MILLISECONDS);
+		}
+
+		@Override
+		public void heartbeatPerformed(HeartbeatEvent evt) {
+			beatsReceived.add(evt.getBean());
+			countdown.countDown();
+		}
+}
+
 	@Test
-	public void testHeartbeat() throws Exception {
+	public void checkedHeartbeat() throws Exception {
+		ISubscriber<IHeartbeatListener> subscriber = eservice.createSubscriber(consumer.getUri(), EventConstants.HEARTBEAT_TOPIC);
+		HeartbeatListener listener = new HeartbeatListener(5);
+		subscriber.addListener(listener);
+
+		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+		consumer.cleanQueue(consumer.getSubmitQueueName());
+		Instant broadcastStartTime = Instant.now();
+		consumer.start();
+		listener.awaitBeats();
+		Duration broadcastDuration = Duration.between(broadcastStartTime, Instant.now());
+
+		// We should have received 5 heart beats
+		assertEquals(5, listener.numberOfBeats());
+
+		// The heartbeats should have come from our consumer only
+		listener.beatsReceived.forEach(beat -> assertEquals(consumer.getConsumerId(), beat.getConsumerId()));
+
+		// 5 heartbeats at a notification period of 200 ms should have taken ~ 1 second
+		assertEquals(1000, broadcastDuration.toMillis(), 10);
+	}
+
+	@Test
+	public void uncheckedHeartbeat() throws Exception {
 		ISubscriber<IHeartbeatListener> subscriber = null;
 		try {
 			consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
@@ -445,6 +507,4 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		checkStatus(submissions);
 	}
-
-
 }
