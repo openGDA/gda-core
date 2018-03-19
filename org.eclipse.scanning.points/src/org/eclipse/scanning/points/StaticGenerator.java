@@ -56,7 +56,7 @@ class StaticGenerator extends AbstractGenerator<StaticModel> {
 
 	@Override
 	public boolean isScanPointGeneratorFactory() {
-		return false;
+		return true;
 	}
 
 	@Override
