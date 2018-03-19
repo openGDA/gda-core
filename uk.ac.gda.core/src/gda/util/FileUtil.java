@@ -25,8 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.zip.Adler32;
-import java.util.zip.CheckedInputStream;
 
 import org.springframework.util.StringUtils;
 
@@ -36,26 +34,6 @@ import gda.configuration.properties.LocalProperties;
  * A class containing utility methods for files.
  */
 public class FileUtil {
-	/**
-	 * Calculate a checksum for a file, based on the Adler32 algorithm invented by Mark Adler. This is almost as
-	 * reliable as a 32-bit cyclic redundancy check for protecting against accidental modification of data.
-	 *
-	 * @param filename
-	 *            The name of the file to be checksummed.
-	 * @return The Adler32 checksum.
-	 * @throws IOException
-	 *             the IO exception
-	 */
-	public static long checksum(String filename) throws IOException {
-		CheckedInputStream cis = new CheckedInputStream(new FileInputStream(filename), new Adler32());
-		byte[] buffer = new byte[128];
-		while (cis.read(buffer) >= 0)
-			continue;
-		long checksum = cis.getChecksum().getValue();
-		cis.close();
-		return checksum;
-	}
-
 	/**
 	 * copy one file from one place to another
 	 * @param fromFileName
