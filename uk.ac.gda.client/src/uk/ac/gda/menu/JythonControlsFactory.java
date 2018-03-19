@@ -30,10 +30,17 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.ExtensionContributionFactory;
 import org.eclipse.ui.menus.IContributionRoot;
 import org.eclipse.ui.services.IServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.ResourceManager;
 
+import gda.jython.InterfaceProvider;
+import gda.jython.Jython;
+import gda.jython.JythonServerStatus;
+import gda.jython.commandinfo.ICommandThreadObserver;
 import gda.rcp.GDAClientActivator;
+import gda.scan.Scan.ScanStatus;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 /**
@@ -42,29 +49,44 @@ import uk.ac.gda.preferences.PreferenceConstants;
  */
 public class JythonControlsFactory extends ExtensionContributionFactory {
 
+	/** States common to both scripts and scans */
+	private enum State { RUNNING, PAUSED, IDLE; }
+
+	private static final Logger logger = LoggerFactory.getLogger(JythonControlsFactory.class);
+
 	private static ActionContributionItem pauseScan;
-	private static ActionContributionItem haltScan;
-	private static Boolean controlsEnabled = true;
+	private static ActionContributionItem fastForwardScan;
+	private static final ActionUpdater actionUpdater = new ActionUpdater();
 
-	public static void enableUIControls(){
-		controlsEnabled = true;
-		enableControls();
+	public static void enableUIControls() {
+		logger.trace("Enabling scan UI controls");
+		updateControls(State.RUNNING, State.RUNNING);
 	}
 
-	private static void enableControls(){
-		enableControl(pauseScan);
-		enableControl(haltScan);
+	public static void disableUIControls() {
+		logger.trace("Disabling scan UI controls");
+		updateControls(State.IDLE, State.IDLE);
 	}
 
-	private static void enableControl(ActionContributionItem item) {
+	private static void updateControls(State script, State scan) {
+		logger.trace("Update controls called with script: {}, scan: {}", script, scan);
+		boolean pauseEnabled = (script != State.IDLE) || (scan != State.IDLE);
+		boolean pauseChecked = script == State.PAUSED || scan == State.PAUSED;
+
+		boolean fastForwardEnabled = scan != State.IDLE;
+		boolean fastForwardChecked = false; // Never checked
+
+		logger.trace("Updating controls, pause enabled: {}, pause checked: {}, fastForward enabled: {}",
+				pauseEnabled, pauseChecked, fastForwardEnabled);
+		updateControl(pauseScan, pauseEnabled, pauseChecked);
+		updateControl(fastForwardScan, fastForwardEnabled, fastForwardChecked);
+	}
+
+	private static void updateControl(ActionContributionItem item, boolean enabled, boolean checked) {
 		if (item != null) {
-			item.getAction().setEnabled(controlsEnabled);
+			item.getAction().setEnabled(enabled);
+			item.getAction().setChecked(checked);
 		}
-	}
-
-	public static void disableUIControls(){
-		controlsEnabled = false;
-		enableControls();
 	}
 
 	@Override
@@ -72,8 +94,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
-		haltScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png");
-		additions.addContributionItem(haltScan, Expression.TRUE);
+		fastForwardScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png");
+		additions.addContributionItem(fastForwardScan, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
@@ -94,6 +116,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		}
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
+
+		InterfaceProvider.getJSFObserver().addIObserver(actionUpdater);
 	}
 
 	private ActionContributionItem createHaltAction(final IServiceLocator serviceLocator, final String label, final String commandId, final String iconPath) {
@@ -101,7 +125,7 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			@Override
 			public void run() {
 				try {
-					((IHandlerService)serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
+					serviceLocator.getService(IHandlerService.class).executeCommand(commandId, new Event());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -116,8 +140,8 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 			@Override
 			public void run() {
 				try {
-					final Boolean isPaused = (Boolean)((IHandlerService)serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
-					setChecked(isPaused);
+					setChecked(false); //force this to only be checked by scan events
+					serviceLocator.getService(IHandlerService.class).executeCommand(commandId, new Event());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -125,5 +149,59 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		});
 		pause.getAction().setImageDescriptor(ResourceManager.getImageDescriptor(JythonControlsFactory.class, iconPath));
 		return pause;
+	}
+
+	private static class ActionUpdater implements ICommandThreadObserver {
+		private volatile State scan = State.IDLE;
+		private volatile State script = State.IDLE;
+
+		@Override
+		public void update(Object source, Object update) {
+			logger.trace("Update {} from {}", update, source);
+			if (update instanceof ScanStatus) {
+				ScanStatus status = (ScanStatus) update;
+				updateScanStatus(status);
+			} else if (update instanceof JythonServerStatus) {
+				JythonServerStatus event = (JythonServerStatus) update;
+				updateScriptStatus(event);
+			}
+			updateControlStates();
+		}
+
+		private void updateScanStatus(ScanStatus status) {
+			switch(status) {
+			case RUNNING:
+				scan = State.RUNNING;
+				break;
+			case PAUSED:
+				scan = State.PAUSED;
+				break;
+			default:
+				scan = State.IDLE;
+				break;
+			}
+		}
+
+		private void updateScriptStatus(JythonServerStatus event) {
+			switch (event.scriptStatus) {
+			case Jython.RUNNING:
+				script = State.RUNNING;
+				break;
+			case Jython.PAUSED:
+				script = State.PAUSED;
+				break;
+			case Jython.IDLE:
+				script = State.IDLE;
+				break;
+			default: // who knows
+				logger.warn("Unexpected script status");
+			}
+		}
+
+		private void updateControlStates() {
+			logger.trace("State now (script {}, scan: {})", script, scan);
+			updateControls(script, scan);
+
+		}
 	}
 }

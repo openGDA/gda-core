@@ -79,13 +79,11 @@ import gda.rcp.views.dashboard.DashboardView;
 import gda.rcp.views.dashboard.JythonSnapshotProvider;
 import gda.rcp.views.dashboard.ScannableObject;
 import gda.scan.IScanDataPoint;
-import gda.scan.Scan;
 import gda.scan.ScanDataPointFormatter;
 import gda.scan.ScanEvent;
 import gda.util.PropertyUtils;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.HelpHandler;
-import uk.ac.gda.menu.JythonControlsFactory;
 
 /**
  * Design to look and act like a command terminal for the GDA Jython Interpreter. NOTE: Currently this class does not
@@ -321,16 +319,6 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			}
 			// always print the point to the terminal
 			appendOutput(sdpt.toFormattedString(scanDataPointFormatter) + "\n");
-		} else if (changeCode instanceof Scan.ScanStatus && theObserved instanceof JythonServerFacade) {
-			Scan.ScanStatus newStatus = (Scan.ScanStatus) changeCode;
-			switch (newStatus) {
-				case RUNNING:
-				case PAUSED:
-					JythonControlsFactory.enableUIControls();
-					break;
-				default:
-					JythonControlsFactory.disableUIControls();
-			}
 		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanEvent) {
 			if (((ScanEvent) changeCode).getType() == ScanEvent.EventType.FINISHED) {
 				// BEEP to info users scan has finished.
