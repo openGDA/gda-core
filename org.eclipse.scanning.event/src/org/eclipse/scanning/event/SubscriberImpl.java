@@ -23,9 +23,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -66,7 +68,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 
 	private Map<String, Collection<T>> listeners; // Scan listeners
 	private Map<Class, DisseminateHandler> handlers;
-	private BlockingQueue<Object> queue;
+	private ExecutorService executor;
 
 	private MessageConsumer messageConsumer;
 
@@ -94,7 +96,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	@Override
 	public void addListener(String beanId, T listener) throws EventException {
 		setConnected(true);
-		if (isSynchronous()) createDisseminateThread();
+		if (executor == null) {
+			createExecutorService();
+		}
+
 		registerListener(beanId, listener);
 		if (messageConsumer == null) {
 			setBeanClass(getBeanClassForListener(listener));
@@ -155,61 +160,58 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private void schedule(Object bean) {
-		if (isSynchronous()) {
-			if (queue!=null) queue.add(bean);
-		} else {
-			// TODO FIXME Might not be right...
-			final Thread thread = new Thread("Execute event "+getTopicName()) {
-				@Override
-				public void run() {
-					disseminate(bean); // Use this JMS thread directly to do work.
-				}
-			};
-			thread.setDaemon(true);
-			thread.setPriority(Thread.NORM_PRIORITY+1);
-			thread.start();
+		if (executor != null) {
+			executor.submit(() -> disseminate(bean));
 		}
 	}
 
-	private void createDisseminateThread() {
-		if (!isSynchronous()) return; // If asynch we do not run events in order and wait until they return.
-		if (queue!=null) return;
-		queue = new LinkedBlockingQueue<>(); // Small, if they do work and things back-up, exceptions will occur.
+	private void createExecutorService() {
+		final ThreadFactory threadFactory = new ThreadFactory() {
 
-		final Thread despatcher = new Thread(new Runnable() {
+			private final AtomicInteger threadNumber = new AtomicInteger(1);
+
 			@Override
-			public void run() {
-				while(isConnected()) {
-					try {
-						Object bean = queue.take();
-						disseminate(bean);
-					} catch (RuntimeException e) {
-						e.printStackTrace();
-						logger.error("RuntimeException occured despatching event", e);
-						continue;
-					} catch (Exception e) {
-						e.printStackTrace();
-						logger.error("Stopping event despatch thread ", e);
-						return;
-					}
-				}
-				System.out.println(Thread.currentThread().getName()+" disconnecting events.");
+			public Thread newThread(Runnable r) {
+				final String name = getName();
+				final Thread thread = new Thread(r, name);
+				thread.setDaemon(true);
+				thread.setPriority(Thread.NORM_PRIORITY + 1);
+				return thread;
 			}
-		}, "Subscriber despatch thread "+ getTopicName());
-		despatcher.setName("Subscriber despatcher");
-		despatcher.setDaemon(true);
-		despatcher.setPriority(Thread.NORM_PRIORITY+1);
-		despatcher.start();
+
+			private String getName() {
+				String name = getTopicName() + " subscriber";
+				if (!synchronous) {
+					name += ", thread " + threadNumber.getAndIncrement();
+				}
+				return name;
+			}
+		};
+
+		if (synchronous) {
+			executor = Executors.newSingleThreadExecutor(threadFactory);
+		} else {
+			executor = Executors.newCachedThreadPool(threadFactory);
+		}
 	}
 
 	private void disseminate(Object bean) {
-		disseminate(bean, listeners.get(DEFAULT_KEY));  // general listeners
-		if (bean instanceof IdBean) {
-			IdBean idBean = (IdBean)bean;
-			disseminate(bean, listeners.get(idBean.getUniqueId())); // bean specific listeners, if any
-		} else if (bean instanceof INameable) {
-			INameable namedBean = (INameable)bean;
-			disseminate(bean, listeners.get(namedBean.getName())); // bean specific listeners, if any
+		if (!isConnected()) {
+			logger.warn("Subscriber to topic {} disconnected - ignoring bean {}", getTopicName(), bean);
+			return;
+		}
+
+		try {
+			disseminate(bean, listeners.get(DEFAULT_KEY)); // general listeners
+			if (bean instanceof IdBean) {
+				IdBean idBean = (IdBean) bean;
+				disseminate(bean, listeners.get(idBean.getUniqueId())); // bean specific listeners, if any
+			} else if (bean instanceof INameable) {
+				INameable namedBean = (INameable) bean;
+				disseminate(bean, listeners.get(namedBean.getName())); // bean specific listeners, if any
+			}
+		} catch (Exception e) {
+			logger.error("Could not disseminate bean {}", bean, e);
 		}
 	}
 
@@ -364,6 +366,10 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		} finally {
 			messageConsumer = null;
 			setConnected(false);
+			if (executor != null) {
+				executor.shutdownNow();
+				executor = null;
+			}
 		}
 		super.disconnect();
 	}

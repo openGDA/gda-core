@@ -118,6 +118,9 @@ public interface ISubscriber<T extends EventListener> extends ITopicConnection, 
 	 * If it is false the messaging thread is used to directly
 	 * depatch the event meaning that more events may occur and
 	 * be called the last listener has returned.
+	 * Note: this method must be called before adding any listeners
+	 * by calling {@link #addListener(EventListener)} or
+	 * {@link #addListener(String, EventListener)}.
 	 * @param sync
 	 */
 	public void setSynchronous(boolean sync);
