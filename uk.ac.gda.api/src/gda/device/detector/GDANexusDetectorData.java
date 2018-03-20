@@ -27,21 +27,23 @@ public interface GDANexusDetectorData  extends NexusTreeProvider, PlottableDetec
 
 	/**
 	 * returns the names detectors tree
-	 * @param detName if null or empty it returns the first 
+	 * @param detName if null or empty it returns the first
 	 * @return the NexusTree associated with the named detector
-	 * 
+	 *
 	 **/
 	public INexusTree getDetTree(String detName);
-	
+
 	/**
 	 * @param detName
 	 * @param dataName name of the child whose data is to be returned. If null or empty the first detector entry is used
 	 * @param className class name of the child whose data is to be returned e.g. NexusExtractor.SDSClassName
 	 * @return NexusGroupData
-	 */	
+	 */
 	public NexusGroupData getData(String detName, String dataName, String className);
 
 	public String[] getOutputFormat();
 
 	public GDANexusDetectorData mergeIn(GDANexusDetectorData data);
+
+	public String[] getExtraNames();
 }

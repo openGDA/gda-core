@@ -19,6 +19,13 @@
 
 package gda.device.detector;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -26,13 +33,6 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
-
-import java.io.Serializable;
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * Basic class which wrappers up a lot of nexus calls so that detectors can integrate more easily
@@ -50,15 +50,18 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	public NXDetectorData(String[] extraNames, String[] outputFormat, String detectorName) {
 		this();
-		this.extraNames = extraNames;
-		if (this.extraNames == null || this.extraNames.length == 0) {
+
+		if (extraNames == null || extraNames.length == 0) {
 			this.extraNames = new String[] { detectorName };
+		} else {
+			this.extraNames = extraNames;
 		}
 
-		this.outputFormat = outputFormat;
-		if (this.outputFormat == null || this.outputFormat.length == 0) {
-			logger.info("Detector " + detectorName + " does not provide outputFormat");
-			outputFormat = new String[] { "%5.5g" };
+		if (outputFormat == null || outputFormat.length == 0) {
+			logger.info("Detector {} does not provide outputFormat", detectorName);
+			this.outputFormat = new String[] { "%5.5g" };
+		} else {
+			this.outputFormat = outputFormat;
 		}
 
 		doubleData = new Double[this.extraNames.length];
@@ -454,7 +457,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return output.toString();
 	}
 
-	void setOutputFormat(String[] outputFormat) {
+	private void setOutputFormat(String[] outputFormat) {
 		this.outputFormat = outputFormat;
 	}
 
@@ -463,8 +466,13 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		return outputFormat;
 	}
 
+	@Override
 	public String[] getExtraNames() {
 		return extraNames;
+	}
+
+	private void setExtraNames(String[] extraNames) {
+		this.extraNames = extraNames;
 	}
 
 	@Override
@@ -495,6 +503,15 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 					extendedVals[i + existingVals.length] = outputFormatstoAdd[i];
 				}
 				setOutputFormat(extendedVals);
+			}
+			String[] extraNamestoAdd = ntp.getExtraNames();
+			if (extraNamestoAdd != null) {
+				String[] existingVals = getExtraNames();
+				String[] extendedVals = Arrays.copyOf(existingVals, existingVals.length + extraNamestoAdd.length);
+				for (int i = 0; i < extraNamestoAdd.length; i++) {
+					extendedVals[i + existingVals.length] = extraNamestoAdd[i];
+				}
+				setExtraNames(extendedVals);
 			}
 		}
 		return this;
