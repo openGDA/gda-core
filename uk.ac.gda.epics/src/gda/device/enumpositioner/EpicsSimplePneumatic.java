@@ -83,7 +83,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 		this.inputNames = new String[] { getName() };
 		this.outputFormat = new String[]{"%s"};
 		try {
-			if (!configured) {
+			if (!isConfigured()) {
 
 //				control = channelManager.createChannel(pvName, false);
 				control = channelManager.createChannel(pvName, statusMonitor, false);
@@ -91,7 +91,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 				channelManager.creationPhaseCompleted();
 				channelManager.tryInitialize(100);
 
-				configured = true;
+				setConfigured(true);
 			} // end of if(!configured)
 
 		} catch (Exception e) {

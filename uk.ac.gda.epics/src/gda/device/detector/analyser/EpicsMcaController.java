@@ -18,6 +18,9 @@
 
 package gda.device.detector.analyser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -40,9 +43,6 @@ import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multi-channel
@@ -509,7 +509,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getEpicsMcaRecordName() != null) {
 				// phase I beamlines interface using GDA's epicsRecordName
 				if ((epicsMcaRecord = (EpicsRecord) Finder.getInstance().find(epicsMcaRecordName)) != null) {
@@ -542,7 +542,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 				logger.error("Missing EPICS configuration for MCA {}", getName());
 				throw new FactoryException("Missing EPICS configuration for MCA " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

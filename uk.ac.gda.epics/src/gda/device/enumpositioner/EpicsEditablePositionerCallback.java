@@ -66,7 +66,7 @@ public class EpicsEditablePositionerCallback extends EpicsPositionerCallback imp
 	@Override
 	public void setPositions(String[] newPositions) {
 
-		if (controller == null || channelManager == null || !configured) {
+		if (controller == null || channelManager == null || !isConfigured()) {
 			logger.error("Trying to over write EPICS positions when not yet connected. Do you mean to do this? Consider using EpicsSimplePositioner instead.");
 		}
 

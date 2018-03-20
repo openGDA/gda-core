@@ -18,6 +18,10 @@
 
 package gda.device.epicsdevice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannablePositionChangeEvent;
@@ -36,10 +40,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  * An object that provides read/write access to an EPICS DOUBLE.
@@ -82,10 +82,10 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			createChannels();
 			channelManager.tryInitialize(100);
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -18,6 +18,13 @@
 
 package gda.device.detector.analyser;
 
+import java.lang.reflect.Array;
+import java.util.Vector;
+
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.MCAStatus;
@@ -27,13 +34,6 @@ import gda.observable.IObserver;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
 import gda.util.converters.IQuantityConverter;
-
-import java.lang.reflect.Array;
-import java.util.Vector;
-
-import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multi-channel
@@ -113,7 +113,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getEpicsMcaRecordName() != null) {
 				controller.setEpicsMcaRecordName(epicsMcaRecordName);
 			} else if (getDeviceName() != null) {
@@ -127,7 +127,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 			controller.configure();
 			controller.addIObserver(this);
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

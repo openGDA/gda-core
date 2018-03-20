@@ -110,7 +110,7 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 
 			if (pvName == null) {
 
@@ -155,7 +155,7 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 
 			createChannelAccess();
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -352,7 +352,7 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 	 */
 	@Override
 	public String[] getExtraNames() {
-		if (!configured){
+		if (!isConfigured()){
 			return new String[]{};
 		}
 		try {

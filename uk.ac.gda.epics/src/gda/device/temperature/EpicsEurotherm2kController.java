@@ -18,6 +18,9 @@
 
 package gda.device.temperature;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -36,9 +39,6 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is designed to support Cyberstar Blower, MRI Furnace, and Stoe Furnace.
@@ -164,7 +164,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// EPICS interface version 2 for phase II beamlines.
 			if (getDeviceName() != null) {
 				Eurotherm2kType config;
@@ -196,13 +196,13 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 			} catch (DeviceException e) {
 				logger.warn("Failed to get Hardware connection state in {} configure().", getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 	/**
@@ -231,15 +231,15 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			configured = false;
-			throw new FactoryException("failed to create reuqired connections for " + getName(), th);
+		} catch (Exception ex) {
+			setConfigured(false);
+			throw new FactoryException("failed to create reuqired connections for " + getName(), ex);
 		}
 	}
 
 	/**
 	 * create channel access using PV root name.
-	 * 
+	 *
 	 * @param pvroot
 	 * @throws FactoryException
 	 */
@@ -263,9 +263,9 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			configured = false;
-			throw new FactoryException("failed to create reuqired connections for " + getName(), th);
+		} catch (Exception ex) {
+			setConfigured(false);
+			throw new FactoryException("failed to create reuqired connections for " + getName(), ex);
 		}
 	}
 	/**

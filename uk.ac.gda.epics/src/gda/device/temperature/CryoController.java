@@ -18,6 +18,11 @@
 
 package gda.device.temperature;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -38,11 +43,6 @@ import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
@@ -140,7 +140,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// EPICS interface version 2 for phase II beamlines.
 			if (getDeviceName() != null) {
 				OXCS700Type Config;
@@ -169,7 +169,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 			} catch (DeviceException e) {
 				logger.warn("Failed to get Hardware connection state in {} configure().", getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 
 	}

@@ -85,7 +85,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 	@Override
 	public void configure() throws FactoryException {
 
-		if (!configured) {
+		if (!isConfigured()) {
 			//String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
 			String filePrefix = PathConstructor.createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
@@ -134,7 +134,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 				}
 				cryoController.addIObserver(this);
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} else {
 				logger.warn("'{}' need to reconfigure '{}' before using.", getName(), getName() + ".reconfigure( )");
 			}
@@ -143,7 +143,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 

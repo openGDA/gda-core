@@ -168,7 +168,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (!isAllPVsSet()) {
 				// EPICS interface version 2 for phase I beamlines + I22
 				if (getEpicsRecordName() != null) {
@@ -215,7 +215,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 				// TODO take care of destruction
 				throw new FactoryException("failed to connect to all channels", e);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

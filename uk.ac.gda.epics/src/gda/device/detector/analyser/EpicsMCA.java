@@ -297,12 +297,12 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 		// acknowledge that creation phase is completed
 		channelManager.creationPhaseCompleted();
 		channelManager.tryInitialize(100);
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				if (pvName == null) {
 					if (epicsMcaRecordName != null) {

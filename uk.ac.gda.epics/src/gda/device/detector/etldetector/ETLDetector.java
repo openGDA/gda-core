@@ -89,7 +89,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			//wire up objects
 			if (detectorName != null) {
 				if ((detector = (EpicsETLController) Finder.getInstance().find(detectorName)) == null) {
@@ -106,7 +106,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 							+ " not found.");
 				}
 			}
-			configured=true;
+			setConfigured(true);
 		}
 
 	}

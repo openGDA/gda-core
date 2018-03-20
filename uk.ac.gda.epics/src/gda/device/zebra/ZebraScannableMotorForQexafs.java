@@ -18,14 +18,6 @@
 
 package gda.device.zebra;
 
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.ScannableMotor;
-import gda.util.converters.JEPConverterHolder;
-// TODO: Rename class to indicate that it just converts from one positino type to another
-
 import java.util.concurrent.Callable;
 
 import org.jscience.physics.quantities.Energy;
@@ -35,6 +27,14 @@ import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.ContinuousMoveController;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.ScannableMotor;
+import gda.util.converters.JEPConverterHolder;
+// TODO: Rename class to indicate that it just converts from one position type to another
 
 // TODO is this class necessary? could move the conversion functions into ZebraConstantVelocityMoveControllerForQexafs
 // and then get rid of this. But maybe it's useful as a place to do the readout conversion, when that's done?
@@ -57,7 +57,7 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 		// (Does this class actually need to extend ScannableMotor or could it extend something else which is not intended
 		// to wrap a single physical motor?)
 		this.setInputNames(new String[] { "Energy" });
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

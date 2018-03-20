@@ -74,12 +74,12 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		this.outputFormat = new String[]{"%s"};
 
 		try {
-			if (!configured) {
+			if (!isConfigured()) {
 				monitorInstalledSet = new HashSet<Channel>(3);
 
 				currentPositionChnl = controller.createChannel(pvName, this);
 
-				configured = true;
+				setConfigured(true);
 			} // end of if(!configured)
 
 		} catch (Exception e) {

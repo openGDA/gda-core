@@ -335,7 +335,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 
 			if (pvName == null) {
 
@@ -395,7 +395,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 				this.acs = accessControl.getStatus();
 				accessControl.addIObserver(this);
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 
@@ -1025,7 +1025,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 	@Override
 	public void stop() throws MotorException {
 		try {
-			if (configured)
+			if (isConfigured())
 				controller.caput(stop, 1);
 		} catch (Throwable ex) {
 			throw new MotorException(getStatus(), "failed to stop", ex);

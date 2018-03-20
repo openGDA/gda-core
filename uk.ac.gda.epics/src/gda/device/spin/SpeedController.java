@@ -18,6 +18,9 @@
 
 package gda.device.spin;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -31,9 +34,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * SpeedController Class
@@ -74,7 +74,7 @@ public class SpeedController extends DeviceBase implements Configurable, Findabl
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				// phase II beamlines interface using GDA's deviceName.
 				SimplePvType config;
@@ -92,7 +92,7 @@ public class SpeedController extends DeviceBase implements Configurable, Findabl
 				logger.error("Missing EPICS configuration for sample spin {}", getName());
 				throw new FactoryException("Missing EPICS configuration for sample spin " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -18,6 +18,11 @@
 
 package gda.device.spin;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -36,11 +41,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Spin class
@@ -99,7 +99,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			SimplePvType speed;
 			SimpleBinaryType enable;
 			if (getSpeedName() != null && getEnableName()!=null) {
@@ -123,7 +123,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 				logger.error("Missing EPICS configuration for sample spin {}", getName());
 				throw new FactoryException("Missing EPICS configuration for sample spin " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

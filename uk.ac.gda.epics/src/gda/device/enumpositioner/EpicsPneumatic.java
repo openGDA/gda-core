@@ -136,7 +136,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 
 			if (controlPv == null || statusPv == null) {
 
@@ -184,7 +184,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 				throw new FactoryException("failed to connect to all channels", e);
 			}
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

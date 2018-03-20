@@ -79,7 +79,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	@Override
 	public void configure() throws FactoryException {
 
-		if (!configured) {
+		if (!isConfigured()) {
 			poller = new Poller();
 			poller.setPollTime(LONGPOLLTIME);
 			// register this as listener to poller for update temperature values.
@@ -128,7 +128,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 				}
 				controller.addIObserver(this);
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} else {
 				logger.warn("'{}' need to reconfigure '{}' before using.", getName(), getName() + ".reconfigure( )");
 			}
@@ -137,7 +137,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 

@@ -83,15 +83,15 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 	@Override
 	public void configure() throws FactoryException {
 
-		if (!configured) {
+		if (!isConfigured()) {
 			if (pvBase == null) {
-				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
+				if ((epicsRecord = Finder.getInstance().find(epicsRecordName)) != null) {
 					pvBase = epicsRecord.getFullRecordName();
 				} else {
 					return;
 				}
 			}
-			monitorInstalledSet = new HashSet<Channel>();
+			monitorInstalledSet = new HashSet<>();
 
 
 			if (pvBase.endsWith("SELECT") || pvBase.endsWith("SELECT:")) {
@@ -136,7 +136,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 				}
 			}
 
-			configured = true;
+			setConfigured(true);
 		}// end of if(!configured)
 	}
 

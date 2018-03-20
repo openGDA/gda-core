@@ -18,6 +18,10 @@
 
 package gda.device;
 
+import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -33,10 +37,6 @@ import gda.util.converters.IQuantityConverter;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -225,12 +225,12 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 		// acknowledge that creation phase is completed
 		channelManager.creationPhaseCompleted();
 		channelManager.tryInitialize(100);
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				if (epicsTcaRecordName != null) {
 					EpicsRecord epicsTcaRecord = (EpicsRecord) Finder.getInstance().find(epicsTcaRecordName);

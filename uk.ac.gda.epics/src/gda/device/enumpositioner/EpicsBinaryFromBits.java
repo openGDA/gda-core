@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.epics.connection.EpicsChannelManager;
@@ -32,9 +35,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPositioner, InitializationListener, MonitorListener {
 
@@ -61,13 +61,11 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 	}
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
-			if (recordName != null) {
-				createChannelAccess(recordName);
-				channelManager.tryInitialize(100);
-			}
+		if (!isConfigured() && recordName != null) {
+			createChannelAccess(recordName);
+			channelManager.tryInitialize(100);
 		}
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void createChannelAccess(String pv) throws FactoryException {
@@ -112,7 +110,7 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 	}
 
 	void checkConfigured() throws DeviceException {
-		if (!configured)
+		if (!isConfigured())
 			throw new DeviceException(getName() + " is not yet configured");
 	}
 	public String getRecordName() {

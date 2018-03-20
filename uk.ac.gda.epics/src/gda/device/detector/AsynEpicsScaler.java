@@ -18,6 +18,11 @@
 
 package gda.device.detector;
 
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
@@ -36,11 +41,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Epics scaler class.
@@ -101,7 +101,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 		monitorInstalledSet = new HashSet<Channel>();
 		epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
 		recordName = epicsRecord.getFullRecordName();
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				// PV to start or stop counting
 				count = controller.createChannel(recordName + ".CNT", this);
@@ -133,7 +133,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 			// countState = controller.setMonitor(count, this);
 
-			configured = true;
+			setConfigured(true);
 
 		}
 

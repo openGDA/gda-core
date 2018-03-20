@@ -18,6 +18,9 @@
 
 package gda.device.detector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -31,9 +34,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import gov.aps.jca.Channel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to use a Hytec 8512 scaler board as a counter timer via EPICS
@@ -101,7 +101,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 		}
 
 		// Set up the PRESET, STARTCOUNT and n x CHn EPICS channels
-		if (!configured && !dummy) {
+		if (!isConfigured() && !dummy) {
 			if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(
 					epicsRecordName)) != null) {
 				epicsRecordName = epicsRecord.getFullRecordName();
@@ -122,7 +122,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 					throw new FactoryException("failed to create channels", th);
 				}
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

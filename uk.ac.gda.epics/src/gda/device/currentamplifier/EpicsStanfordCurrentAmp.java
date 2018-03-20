@@ -18,6 +18,11 @@
 
 package gda.device.currentamplifier;
 
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.CurrentAmplifier;
@@ -30,11 +35,6 @@ import gda.epics.interfaces.CurrAmpSingleType;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.Channel;
-
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EPICS class for Stanford SR570 Current Amplifier device.
@@ -76,7 +76,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				CurrAmpSingleType currAmpConfig;
 				try {
@@ -93,7 +93,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 						+ getName());
 			}
 
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

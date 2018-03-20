@@ -68,12 +68,12 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getSetPV() != null && getReadPV() !=null) {
 				createChannelAccess(getSetPV(), getReadPV());
 				channelManager.tryInitialize(100);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 	@Override

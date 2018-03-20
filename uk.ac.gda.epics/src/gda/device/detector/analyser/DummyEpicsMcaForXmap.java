@@ -65,7 +65,7 @@ public class DummyEpicsMcaForXmap extends AnalyserBase implements IEpicsMCASimpl
 		}
 
 		lastCollectedSpectrum = createSpectrum();
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

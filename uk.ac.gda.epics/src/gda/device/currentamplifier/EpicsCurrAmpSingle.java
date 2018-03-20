@@ -103,7 +103,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				CurrAmpSingleType currAmpConfig;
 				try {
@@ -126,7 +126,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			// scannable name
 			this.inputNames[0] = getName();
 			this.outputFormat[0] = "%5.4f";
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

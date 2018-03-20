@@ -153,7 +153,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	public void configure() throws FactoryException {
 		this.setInputNames(new String[]{getName()});
 		this.setExtraNames(new String[0]);
-		if (!configured) {
+		if (!isConfigured()) {
 
 			if (recordName != null) {
 				setRecordNamesUsingBasePv(recordName);
@@ -201,7 +201,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			// getPosition() returns a single String, so explain what it is
 			inputNames = new String[]{getName()};
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

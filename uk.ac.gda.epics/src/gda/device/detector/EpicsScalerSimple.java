@@ -18,6 +18,11 @@
 
 package gda.device.detector;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.epicsdevice.FindableEpicsDevice;
@@ -26,11 +31,6 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
@@ -166,7 +166,7 @@ public class EpicsScalerSimple extends DetectorBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			super.configure();
 			setInputNames(new String[0]);
 			if (channelsToBeRead.size() != extraNames.length) {
@@ -177,7 +177,7 @@ public class EpicsScalerSimple extends DetectorBase {
 				throw new FactoryException("EpicsScaler:" + getName() + ". epicsDevice not set");
 			}
 			if (epicsDevice.getDummy()) {
-				configured = true;
+				setConfigured(true);
 				//set configured so we can set default values in dummy mode
 				try {
 					epicsDevice.setValue(RECORD, START, new Short((short) 0));
@@ -190,11 +190,11 @@ public class EpicsScalerSimple extends DetectorBase {
 							ex);
 				}
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
-	private void CheckInitialised(String nameOfCaller) throws DeviceException {
-		if (!configured) {
+	private void checkInitialised(String nameOfCaller) throws DeviceException {
+		if (!isConfigured()) {
 			throw new DeviceException("EpicsScalerSimple " + getName() + ":" + nameOfCaller + " : - not yet configured");
 		}
 	}
@@ -207,7 +207,7 @@ public class EpicsScalerSimple extends DetectorBase {
 	@Override
 	public void setCollectionTime(double time){
 		try {
-			CheckInitialised("setCollectionTime");
+			checkInitialised("setCollectionTime");
 			epicsDevice.setValue(RECORD, TP, time);
 		} catch (Throwable th) {
 			throw new RuntimeException("EpicsSimpleScaler.setCollectionTime: failed to set collection time:" + getName(), th);
@@ -222,7 +222,7 @@ public class EpicsScalerSimple extends DetectorBase {
 	@Override
 	public double getCollectionTime() {
 		try {
-			CheckInitialised("getCollectionTime");
+			checkInitialised("getCollectionTime");
 			return (Double)epicsDevice.getValue(ReturnType.DBR_NATIVE, RECORD, TP);
 		} catch (Throwable th) {
 			throw new RuntimeException("getCollectionTime: failed to get collection time:" + getName(), th);

@@ -18,6 +18,9 @@
 
 package gda.device.robot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -34,9 +37,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * RobotSampleState Class
@@ -81,7 +81,7 @@ public class RobotSampleState extends DeviceBase implements Configurable, Findab
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				// phase II beamlines interface using GDA's deviceName.
 				SimplePvType config;
@@ -99,7 +99,7 @@ public class RobotSampleState extends DeviceBase implements Configurable, Findab
 				logger.error("Missing EPICS configuration for Robot State {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Robot State " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

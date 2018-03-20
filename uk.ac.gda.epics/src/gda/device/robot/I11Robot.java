@@ -82,8 +82,8 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
-		outputFormat = new String[] { "%5d" };
-		if (!configured) {
+		if (!isConfigured()) {
+			outputFormat = new String[] { "%5d" };
 			if (robotController == null) {
 				logger.error("{} - Robot controller not set", getName());
 				throw new FactoryException(getName() + " - Robot controller not set");
@@ -111,7 +111,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 			currentSampleNumberController.addIObserver(this);
 			doorLatch.addIObserver(this);
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

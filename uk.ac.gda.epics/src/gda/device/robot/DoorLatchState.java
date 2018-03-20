@@ -18,6 +18,9 @@
 
 package gda.device.robot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -34,9 +37,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class for the experimental hutch door latch state, used by robot to decide when safety needs to be checked.
@@ -81,7 +81,7 @@ public class DoorLatchState extends DeviceBase implements Configurable, Findable
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				SimplePvType config;
 				try {
@@ -97,7 +97,7 @@ public class DoorLatchState extends DeviceBase implements Configurable, Findable
 				logger.error("Missing EPICS configuration for  Experiment Door Latch State {}", getName());
 				throw new FactoryException("Missing EPICS configuration for  Experiment Door Latch State " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -114,7 +114,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (monitor == null) {
 				if (monitorName != null) {
 					monitor = (CurrentAmplifier) Finder.getInstance().find(monitorName);
@@ -125,7 +125,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 			} else {
 				throw new FactoryException("Can not find monitor " + monitorName);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 		startMonitoring();
 	}
@@ -134,7 +134,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	 *
 	 */
 	private void startMonitoring() {
-		if (configured && monitorOn) {
+		if (isConfigured() && monitorOn) {
 			uk.ac.gda.util.ThreadManager.getThread(this).start();
 		}
 	}

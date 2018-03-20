@@ -80,7 +80,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				CurrAmpQuadType currAmpConfig;
 				try {
@@ -96,7 +96,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier quad "
 						+ getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

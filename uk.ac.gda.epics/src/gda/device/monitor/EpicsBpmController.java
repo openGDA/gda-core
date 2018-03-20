@@ -18,6 +18,9 @@
 
 package gda.device.monitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -36,9 +39,6 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EpicsBpmController Class
@@ -105,7 +105,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	@Override
 	public void configure() throws FactoryException {
 		String intensityRec = null, xPosRec = null, yPosRec = null;
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				BpmType bpmConfig;
 				try {
@@ -126,7 +126,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				logger.error("Missing EPICS interface configuration for the BPM " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the BPM " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

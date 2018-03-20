@@ -212,7 +212,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				// phase II beamlines interface using GDA's deviceName.
 				McaGroupType mcsConfig;
@@ -232,7 +232,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 				logger.error("Missing EPICS configuration for EpicsDlsMcs3820Controller {}", getName());
 				throw new FactoryException("Missing EPICS configuration for EpicsDlsMcs3820Controller " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -292,9 +292,9 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 			}
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-			configured = true;
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create all channels", th);
+			setConfigured(true);
+		} catch (Exception ex) {
+			throw new FactoryException("failed to create all channels", ex);
 		}
 
 	}

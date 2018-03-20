@@ -104,7 +104,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (controller == null) {
 				if ((controller = (EpicsDlsMcsSis3820Controller) Finder.getInstance().find(controllerName)) != null) {
 					logger.debug("controller {} found", controllerName);
@@ -119,7 +119,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 			 * for (int i = 0; i < MAX_NUMBER_MCA; i++) { dmls.set(i, dm[i]); try { controller.addDataMonitor(i, dm[i]); }
 			 * catch (DeviceException e) { throw new FactoryException( "Can not add data Monitor to mca", e); } }
 			 */
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

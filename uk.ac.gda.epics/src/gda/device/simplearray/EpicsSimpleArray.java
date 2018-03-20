@@ -18,6 +18,9 @@
 
 package gda.device.simplearray;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -34,9 +37,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class implements EPICS SimpleArray interface (record type in GDA interface is 'array', in EPICS is 'waveform').
@@ -75,7 +75,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 		this.inputNames = new String[]{getName()};
 
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				try {
 					gda.epics.interfaces.SimpleArrayType simpleArray = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimpleArrayType.class);
@@ -100,7 +100,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 		}
 		channelManager.creationPhaseCompleted();
 
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

@@ -119,7 +119,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (detectorName != null) {
 				detector = (Detector) Finder.getInstance().find(detectorName);
 				if (detector != null) {
@@ -145,7 +145,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 					throw new FactoryException("Can not find detector " + detectorName);
 				}
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -98,7 +98,7 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// EPICS interface verion 2 for phase I beamlines + I22
 			if (getEpicsRecordName() != null) {
 				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
@@ -152,7 +152,7 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 			llimrbv = channelManager.createChannel(recordName + ":LLIM:RBV", false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-			configured = true;
+			setConfigured(true);
 		} catch (Throwable th) {
 			throw new FactoryException("failed to create all channels", th);
 		}
@@ -175,9 +175,9 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 			llimrbv = channelManager.createChannel(etlConfig.getLLIMRBV().getPv(), false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-			configured = true;
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create all channels", th);
+			setConfigured(true);
+		} catch (Exception ex) {
+			throw new FactoryException("failed to create all channels", ex);
 		}
 	}
 

@@ -85,7 +85,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				BpmType bpmConfig;
 				try {
@@ -104,7 +104,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 				throw new FactoryException("Missing EPICS interface configuration for the BPM " + getName());
 			}
 			this.modifyExtraNames();
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

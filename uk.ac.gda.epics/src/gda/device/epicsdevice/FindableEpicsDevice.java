@@ -58,7 +58,7 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 	protected boolean dummy = false;
 
 	public FindableEpicsDevice() {
-		configured = false;
+		setConfigured(false);
 		// do nothing
 	}
 
@@ -67,13 +67,13 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 	 */
 	public FindableEpicsDevice(String name, EpicsDevice epicsDevice) {
 		this.epicsDevice = epicsDevice;
-		configured = true;
+		setConfigured(true);
 		setName(name);
 		setDummy(epicsDevice.isInDummyMode());
 	}
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			gda.epics.interfaceSpec.Device device = null;
 			if (!epicsRecordNames.isEmpty()) {
 				for (String epicsRecordName : epicsRecordNames) {
@@ -110,7 +110,7 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 					epicsDevice.setAttribute("gda.epics.interfaceSpec.Device", device);
 					epicsDevice.setDocString(device.getDescription());
 				}
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException e) {
 				throw new IllegalArgumentException("configure failed for FindableEpicsDevice " + getName(), e);
 			}
@@ -139,19 +139,9 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 	}
 
 	private void checkConfigured() throws DeviceException {
-		if (!configured)
+		if (!isConfigured()) {
 			throw new DeviceException("EpicsDevice:" + getName() + " not yet configured");
-	}
-
-	@Override
-	public boolean isConfigured() {
-		try {
-			checkConfigured();
-		} catch (DeviceException e) {
-			logger.error(e.getMessage());
-			return false;
 		}
-		return true;
 	}
 
 	public void setEpicsRecordNames(List<String> epicsRecordNames) {

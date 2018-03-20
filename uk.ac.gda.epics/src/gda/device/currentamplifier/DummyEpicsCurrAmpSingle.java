@@ -58,7 +58,7 @@ public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Sca
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				setGain(positionLabels[0]);
 			} catch (DeviceException e) {
@@ -88,7 +88,7 @@ public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Sca
 					}
 				}).start();
 			}
-			configured = true;
+			setConfigured(true);
 		} // end of if (!configured)
 	}
 

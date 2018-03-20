@@ -140,7 +140,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (readbackChannel < 0 || readbackChannel > 3) {
 				throw new FactoryException("Readback channel must be between 0 and 3 inclusive.");
 			}
@@ -185,7 +185,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 			} catch (DeviceException e) {
 				logger.warn("Failed to get Hardware connection state in {} configure().", getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 
 	}
@@ -512,7 +512,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	}
 
 	public void setReadbackChannel(int readbackChannel) {
-		if (configured) {
+		if (isConfigured()) {
 			throw new IllegalStateException("Cannot change readback channel once configured");
 		}
 		this.readbackChannel = readbackChannel;

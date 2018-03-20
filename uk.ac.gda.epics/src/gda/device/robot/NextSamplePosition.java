@@ -18,6 +18,9 @@
 
 package gda.device.robot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -30,9 +33,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gov.aps.jca.Channel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * NextSamplePosition Class
@@ -69,7 +69,7 @@ public class NextSamplePosition extends DeviceBase implements Configurable, Find
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				// phase II beamlines interface using GDA's deviceName.
 				SimplePvType config;
@@ -87,7 +87,7 @@ public class NextSamplePosition extends DeviceBase implements Configurable, Find
 				logger.error("Missing EPICS configuration for Carousel sample position {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Carousel sample position " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

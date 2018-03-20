@@ -92,13 +92,13 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	}
 
 	void checkConfigured() throws DeviceException {
-		if (!configured)
+		if (!isConfigured())
 			throw new DeviceException(getName() + " is not yet configured");
 	}
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (pvName != null) {
 				createChannelAccess(pvName);
 			} else {
@@ -128,7 +128,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 			this.inputNames = new String[] { getName() };
 			this.outputFormat = new String[] { "%s" };
 			channelManager.tryInitialize(100);
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

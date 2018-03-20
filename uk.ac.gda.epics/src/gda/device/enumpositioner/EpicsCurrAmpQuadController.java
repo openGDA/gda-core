@@ -135,7 +135,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	@Override
 	public void configure() throws FactoryException {
 		//String rangeRec = null;
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				//Configures the class with the PV information from the gda-interface.xml file.
 				//Vendor and model are available through EPICS but are currently not supported in GDA.
@@ -160,7 +160,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier quad "
 						+ getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

@@ -53,7 +53,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (currAmpController == null) {
 				if (getCurrAmpQuadName() != null) {
 					currAmpController = (EpicsCurrAmpQuadController) finder.find(getCurrAmpQuadName());
@@ -79,7 +79,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 				extraNames = bpmController.getInputNames();
 			}
 
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 

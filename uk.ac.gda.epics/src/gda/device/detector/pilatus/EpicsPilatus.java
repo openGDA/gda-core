@@ -18,6 +18,11 @@
 
 package gda.device.detector.pilatus;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -30,11 +35,6 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -155,7 +155,7 @@ public class EpicsPilatus extends DetectorBase implements
 		this.setOutputFormat(new String[] {"%f", "%s"});
 		cached_exptime = 0.;
 		cached_expperiod = 0;
-		if (!configured) {
+		if (!isConfigured()) {
 				if (getDeviceName() != null) {
 					PilatusType pvConfig;
 					try {
@@ -182,13 +182,13 @@ public class EpicsPilatus extends DetectorBase implements
 			createChannelAccess();
 			channelManager.tryInitialize(100);
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException{
-		configured = false;
+		setConfigured(false);
 		channelManager = null;
 		configure();
 	}

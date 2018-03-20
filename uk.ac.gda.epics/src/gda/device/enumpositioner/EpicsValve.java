@@ -66,7 +66,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 
 	@Override
 	public void configure() {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 
 				// remove any final :
@@ -95,7 +95,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 			} catch (Exception e) {
 				logger.error("Error while trying to configure: " + getName() + " : " + e.getMessage());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

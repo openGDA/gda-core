@@ -166,7 +166,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (epicsDevice == null) {
 				if (epicsDeviceName != null) {
 					final Findable object = Finder.getInstance().find(epicsDeviceName);
@@ -206,7 +206,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 			} else {
 				try {
 					// set configured so that we can use the set commands to initialise values
-					configured = true;
+					setConfigured(true);
 					for (Integer i = 0; i < numberOfRegions; i++) {
 						addRegionOfInterest(i, -1, -1, 0, 1.0, i.toString()); // set regionPreset to 1.0 to ensure
 						// value
@@ -235,11 +235,11 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 					}
 					setData(data);
 				} catch (DeviceException ex) {
-					configured=false;
+					setConfigured(false);
 					throw new FactoryException("Error initialising the device:"+getName(),ex);
 				}
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -629,7 +629,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	@Override
 	public void setNumberOfRegions(int numberOfRegions) throws DeviceException {
-		if (configured) {
+		if (isConfigured()) {
 			throw new DeviceException("Unable to set numberOfRegions once configured");
 		}
 		if (numberOfRegions > MAX_NUMBER_OF_REGIONS || numberOfRegions < 1) {

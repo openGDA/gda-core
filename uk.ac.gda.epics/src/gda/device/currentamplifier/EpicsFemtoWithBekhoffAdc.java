@@ -215,7 +215,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		super.configure();
 
 		// Check if we are already configured
-		if (configured) {
+		if (isConfigured()) {
 			logger.trace("Already configured");
 			return;
 		}
@@ -286,7 +286,7 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 		setInputNames(new String[] {});
 		setExtraNames(new String[] { getName() });
 
-		configured = true;
+		setConfigured(true);
 		logger.info("Finished configuring Femto+ADC " + getName());
 	}
 

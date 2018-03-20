@@ -29,7 +29,7 @@ import gda.factory.Finder;
 
 /**
  * EpicsCurrAmpQuadController Class: A monitor type to get the beam intensity, beam positions and four currents
- * 
+ *
  * @since 9.3.3
  * @fy65 @Deprecated please use {@link gda.device.qbpm.EpicsQbpm} instead
  */
@@ -56,7 +56,7 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getCurrAmpQuadName() != null) {
 				qca = (EpicsQuadraCurrentAmplifier) finder.find(getCurrAmpQuadName());
 			} else {
@@ -71,7 +71,7 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 				throw new FactoryException("Missing EPICS interface configuration for the BPM device " + getBpmName());
 			}
 			this.modifyExtraNames();
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

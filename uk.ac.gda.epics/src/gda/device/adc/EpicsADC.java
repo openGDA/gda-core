@@ -18,6 +18,11 @@
 
 package gda.device.adc;
 
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.Adc;
@@ -36,11 +41,6 @@ import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * EpicsADC Class.
@@ -246,7 +246,7 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// EPICS interface verion 2 for phase I beamlines + I22
 			if (getEpicsAdcRecordName() != null) {
 				if ((epicsAdcRecord = (EpicsRecord) Finder.getInstance().find(epicsAdcRecordName)) != null) {
@@ -287,7 +287,7 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 				logger.error("Missing EPICS interface configuration for the motor " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 
 	}

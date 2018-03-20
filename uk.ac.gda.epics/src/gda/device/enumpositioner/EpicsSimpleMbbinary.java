@@ -100,7 +100,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (recordName != null) {
 				createChannelAccess(recordName);
 				channelManager.tryInitialize(100);
@@ -138,7 +138,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 					}
 				}
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -67,7 +67,7 @@ public class DummyXmapControllerAreaDetector extends DummyXmapControllerBase {
 			logger.error(message, e);
 			throw new FactoryException(message);
 		}
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
@@ -118,6 +118,6 @@ public class DummyXmapControllerAreaDetector extends DummyXmapControllerBase {
 
 	@Override
 	public String toString() {
-		return "DummyXmapControllerAreaDetector [adDetector=" + adDetector + ", configured=" + configured + ", " + super.toString() + "]";
+		return "DummyXmapControllerAreaDetector [adDetector=" + adDetector + ", configured=" + isConfigured() + ", " + super.toString() + "]";
 	}
 }

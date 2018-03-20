@@ -116,7 +116,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 		this.setInputNames(new String[0]);
 		this.setExtraNames(new String[] { getName() });
 
-		if (!configured) {
+		if (!isConfigured()) {
 
 			if (pvName == null) {
 
@@ -160,7 +160,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 			createChannelAccess();
 			channelManager.tryInitialize(100);
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -199,7 +199,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	@Override
 	public Object getPosition() throws DeviceException {
 
-		if (!configured) {
+		if (!isConfigured()) {
 			return null;
 		}
 
@@ -545,7 +545,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	}
 
 	private void ensuredConfigured() throws FactoryException{
-		if(!configured)
+		if(!isConfigured())
 			configure();
 	}
 

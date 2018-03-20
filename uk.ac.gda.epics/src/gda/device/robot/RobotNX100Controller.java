@@ -186,7 +186,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getDeviceName() != null) {
 				// phase II beamlines interface using GDA's deviceName.
 				Nx100Type nxConfig;
@@ -204,7 +204,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 				throw new FactoryException("Missing EPICS configuration for Robot Control " + getName());
 			}
 			readTheFile();
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

@@ -18,6 +18,9 @@
 
 package gda.device.controlpoint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.ControlPoint;
@@ -37,9 +40,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Class EpicsControlPoint.
@@ -99,8 +99,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 		this.inputNames = new String[]{getName()};
 
-		// String recordName = null;
-		if (!configured) {
+		if (!isConfigured()) {
 			// Original implementation of EPICS interface
 			if ((getEpicsRecordNameSetPoint() != null) & (getEpicsRecordNameGetPoint() != null)) {
 
@@ -226,7 +225,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 			}
 		}
 
-		configured = true;
+		setConfigured(true);
 	}
 
 	MonitorListener getMonitorListener(){

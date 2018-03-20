@@ -18,6 +18,11 @@
 
 package gda.device;
 
+import java.util.HashSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.STSHandler;
 import gda.epics.util.JCAUtils;
@@ -35,11 +40,6 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -190,9 +190,9 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
-			if ((epicsTcaRecord = (EpicsRecord) Finder.getInstance().find(epicsTcaRecordName)) != null) {
-				monitorInstalledSet = new HashSet<Channel>();
+		if (!isConfigured()) {
+			if ((epicsTcaRecord = Finder.getInstance().find(epicsTcaRecordName)) != null) {
+				monitorInstalledSet = new HashSet<>();
 
 				tcaRecordName = epicsTcaRecord.getFullRecordName();
 				logger.debug("the adc record name is" + tcaRecordName);
@@ -222,7 +222,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 				}
 
 			}
-			configured = true;
+			setConfigured(true);
 		}
 
 	}
