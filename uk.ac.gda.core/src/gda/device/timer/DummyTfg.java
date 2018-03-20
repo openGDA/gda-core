@@ -85,12 +85,12 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
 		runner.start();
 		logger.debug("Configuring dummy tfg " + getName());
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() {
-		if (!configured) {
+		if (!isConfigured()) {
 			logger.debug("Reconfiguring dummy tfg " + getName());
 			configure();
 		}
@@ -100,7 +100,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	public void close() {
 		runner = null;
 		timeFrameGenerator = null;
-		configured = false;
+		setConfigured(false);
 		logger.debug("DummyTfg " + getName() + " closed");
 	}
 
@@ -157,7 +157,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 
 	@Override
 	public synchronized void start() {
-		if (configured && framesLoaded) {
+		if (isConfigured() && framesLoaded) {
 			doStart();
 		} else {
 			countAsync(360000);

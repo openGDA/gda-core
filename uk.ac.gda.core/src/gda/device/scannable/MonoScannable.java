@@ -19,15 +19,6 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
-import gda.factory.Finder;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jscience.physics.quantities.PhotonEnergy;
-import gda.jscience.physics.quantities.Wavelength;
-import gda.jscience.physics.units.NonSIext;
-import gda.util.QuantityFactory;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Energy;
@@ -39,6 +30,15 @@ import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
+import gda.jscience.physics.quantities.BraggAngle;
+import gda.jscience.physics.quantities.PhotonEnergy;
+import gda.jscience.physics.quantities.Wavelength;
+import gda.jscience.physics.units.NonSIext;
+import gda.util.QuantityFactory;
 
 /**
  * Operates an angular motor controlling a mono
@@ -92,7 +92,7 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, NonSI.ELECTRON_VOLT);
 			acceptableUnits = (Unit[]) ArrayUtils.add(acceptableUnits, SI.KILO(NonSI.ELECTRON_VOLT));
 
-			this.configured = true;
+			setConfigured(true);
 		} catch (Exception e) {
 			// do not throw an error as this would stop ObjectFactory from
 			// completing its initialisation
@@ -131,7 +131,7 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 	public void setUserUnits(String userUnitsString) throws DeviceException {
 
 		Unit<?> newUnits = QuantityFactory.createUnitFromString(userUnitsString);
-		if (configured) {
+		if (isConfigured()) {
 			if (ArrayUtils.contains(this.acceptableUnits, newUnits)) {
 				this.userUnits = newUnits;
 			}

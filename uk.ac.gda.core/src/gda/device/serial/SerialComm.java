@@ -19,6 +19,13 @@
 
 package gda.device.serial;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.factory.FactoryException;
@@ -27,13 +34,6 @@ import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of the Serial class
@@ -88,7 +88,7 @@ public class SerialComm extends SerialBase {
 				flowControlMode = serialPort.getFlowControlMode();
 				logger.debug("Flowcontrol setting: " + flowControlMode);
 			}
-			configured = true;
+			setConfigured(true);
 		} catch (UnsupportedCommOperationException e) {
 			logger.debug("Comm error " + e.toString());
 		}
@@ -367,12 +367,12 @@ public class SerialComm extends SerialBase {
 	public void close() {
 		serialPort.close();
 		opened = false;
-		configured = false;
+		setConfigured(false);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 

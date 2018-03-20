@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.ConditionallyConfigurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Localizable;
 import gda.jython.accesscontrol.MethodAccessProtected;
@@ -35,7 +36,7 @@ import gda.observable.ObservableComponent;
 /**
  * A base implementation for all devices
  */
-public abstract class DeviceBase implements Device, ConditionallyConfigurable, Localizable {
+public abstract class DeviceBase extends ConfigurableBase implements Device, ConditionallyConfigurable, Localizable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
 
@@ -51,8 +52,6 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	private final Map<String, Object> attributes = new Hashtable<>();
 
-	protected boolean configured = false;
-
 	public DeviceBase() {
 	}
 
@@ -63,7 +62,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	 */
 	@Override
 	public String getName() {
-		if (configured && (name == null || name.isEmpty())){
+		if (isConfigured() && (name == null || name.isEmpty())){
 			logger.warn("getName() called on a device when the name has not been set. This may cause problems in the system and should be fixed.");
 		}
 		return name;
@@ -133,23 +132,6 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	@Override
 	public void reconfigure() throws FactoryException {
 		// do nothing. its up to the sub-classes
-	}
-
-	/**
-	 * Checks to see if the object is already configured.
-	 *
-	 * @return boolean value of whether the device has been configured or not
-	 */
-	@Override
-	public boolean isConfigured() {
-		return configured;
-	}
-
-	/**
-	 * @param configured
-	 */
-	public void setConfigured(boolean configured) {
-		this.configured = configured;
 	}
 
 	@Override

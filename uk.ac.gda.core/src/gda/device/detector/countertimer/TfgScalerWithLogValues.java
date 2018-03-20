@@ -68,7 +68,7 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 		this.outputLogValues = outputLogValues;
 
 		// adjust the extraNmaes and outputFormat arrays
-		if (!configured) {
+		if (!isConfigured()) {
 			return;
 		}
 		if (outputLogValues) {

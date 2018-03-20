@@ -19,15 +19,15 @@
 
 package gda.device.shear;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.Shear;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Couette shear cell
@@ -117,7 +117,7 @@ public class Couette extends DeviceBase implements Runnable, Shear {
 				serial.flush();
 				reset();
 				runner.start();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException de) {
 			}
 		}
@@ -125,7 +125,7 @@ public class Couette extends DeviceBase implements Runnable, Shear {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -133,7 +133,7 @@ public class Couette extends DeviceBase implements Runnable, Shear {
 	public void close() throws DeviceException {
 		if (serial != null)
 			serial.close();
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**

@@ -74,12 +74,12 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 			runner.start();
 		}
 		startPoller();
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			logger.debug("Reconfiguring DummyTemp " + getName());
 			configure();
 		}
@@ -88,7 +88,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	@Override
 	public void close() {
 		logger.debug("Dummy temperature " + getName() + " closed");
-		configured = false;
+		setConfigured(false);
 		stopPoller();
 		poller = null;
 	}

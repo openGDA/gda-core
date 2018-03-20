@@ -131,7 +131,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 				targetTemp = getTargetTemperature();
 				currentTemp = getCurrentTemperature();
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException de) {
 				logger.error("Error in {}.configure()", getName(), de);
 			}
@@ -141,7 +141,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -150,7 +150,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 		if (serial != null)
 			serial.close();
 		arw = null;
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**

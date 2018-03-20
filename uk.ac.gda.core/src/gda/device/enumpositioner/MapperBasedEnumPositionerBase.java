@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
@@ -25,9 +28,6 @@ import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 /**
  * A class that acts as an EnumPositioner. It monitors a scannable that gives the current value of the 'hardware' in
@@ -98,7 +98,7 @@ public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBas
 		this.outputFormat = new String[] { "%s" };
 
 		// try {
-		if (!configured) {
+		if (!isConfigured()) {
 			monitor.addIObserver(new IObserver() {
 
 				@Override
@@ -108,7 +108,7 @@ public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBas
 						notifyIObservers(MapperBasedEnumPositionerBase.this, event);
 				}
 			});
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

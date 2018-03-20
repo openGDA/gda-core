@@ -129,7 +129,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 				setPoint = getSetPoint();
 				currentTemp = getCurrentTemperature();
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException de) {
 				logger.error("{}.configure() caught DeviceException", getName(), de);
 			}
@@ -138,7 +138,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -147,7 +147,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 		if (serial != null)
 			serial.close();
 		arw = null;
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**

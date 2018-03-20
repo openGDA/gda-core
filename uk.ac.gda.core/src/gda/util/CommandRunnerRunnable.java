@@ -18,12 +18,12 @@
 
 package gda.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Findable implementer of Runnable whose run method calls InterfaceProvider.getCommandRunner().runCommand()
@@ -61,7 +61,7 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 
 	@Override
 	public void run() {
-		if(!configured){
+		if(!isConfigured()){
 			logger.error(getName() + "- pollDone called before configure");
 		} else {
 			if( command != null && !command.isEmpty())

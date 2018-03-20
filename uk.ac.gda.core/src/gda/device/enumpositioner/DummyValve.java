@@ -36,7 +36,7 @@ public class DummyValve extends ValveBase {
 
 	@Override
 	public void configure() throws FactoryException{
-		if(!configured){
+		if(!isConfigured()){
 			super.configure();
 			if (getNumberOfPositions() == 0) {
 				setPositionsInternal(Arrays.asList(OPEN, CLOSE));
@@ -44,7 +44,7 @@ public class DummyValve extends ValveBase {
 			if (currentPosition==null) {
 				this.currentPosition = getPosition(0);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -78,7 +78,7 @@ public class DummyValve extends ValveBase {
 	 * @param position The position to set.
 	 */
 	public void setPosition(String position) {
-		if(!configured)
+		if(!isConfigured())
 			this.currentPosition = position;
 	}
 

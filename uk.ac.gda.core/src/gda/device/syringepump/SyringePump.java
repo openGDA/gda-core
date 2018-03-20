@@ -49,7 +49,7 @@ public class SyringePump extends DeviceBase implements Syringe {
 		if (controller != null && getName() != null) {
 			controller.configure();
 			controller.addIObserver(this);
-			configured = true;
+			setConfigured(true);
 		} else {
 			throw new FactoryException("SyringePump must have a name and a controller");
 		}
@@ -75,7 +75,7 @@ public class SyringePump extends DeviceBase implements Syringe {
 
 	@Override
 	public String toString() {
-		if (!configured) {
+		if (!isConfigured()) {
 			return String.format("%s - is not configured", getName());
 		}
 		try {
@@ -97,7 +97,7 @@ public class SyringePump extends DeviceBase implements Syringe {
 
 	@Override
 	public boolean isEnabled() {
-		return configured && controller.isEnabled();
+		return isConfigured() && controller.isEnabled();
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class DummyXmapController extends DummyXmapControllerBase {
 	@Override
 	public void configure() throws FactoryException {
 		// no specific configuration required
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

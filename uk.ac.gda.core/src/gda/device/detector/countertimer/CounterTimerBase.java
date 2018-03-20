@@ -18,6 +18,9 @@
 
 package gda.device.detector.countertimer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -25,9 +28,6 @@ import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class CounterTimerBase extends DetectorBase implements CounterTimer {
 
@@ -48,7 +48,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 			}
 		}
 		super.configure();
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

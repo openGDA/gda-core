@@ -77,7 +77,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		theScannableName = theScannable.getName();
 		configureHardwareUnits();
 
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		}
 		configureHardwareUnits();
 		theScannable.addIObserver(this);
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void configureHardwareUnits()

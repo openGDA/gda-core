@@ -105,7 +105,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		}
 
 		setArrays();
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		if (member == null) {
 			if (!this.groupMembers.contains(groupMember)) {
 				this.groupMembers.add(groupMember);
-				if (configured) {
+				if (isConfigured()) {
 					setGroupMemberNamesArrayUsingGroupMembersList();
 				}
 			}
@@ -157,7 +157,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	public void removeGroupMember(Scannable groupMember) {
 		if (this.groupMembers.contains(groupMember)) {
 			this.groupMembers.remove(groupMember);
-			if (configured) {
+			if (isConfigured()) {
 				setGroupMemberNamesArrayUsingGroupMembersList();
 			}
 		}
@@ -199,7 +199,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	 */
 	public void setGroupMembers(List<Scannable> groupMembers) {
 		this.groupMembers = new ArrayList<Scannable>(groupMembers);
-		if (configured) {
+		if (isConfigured()) {
 			setGroupMemberNamesArrayUsingGroupMembersList();
 			setArrays();
 		}

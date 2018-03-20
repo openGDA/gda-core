@@ -32,7 +32,7 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	@Override
 	public void configure() {
 		this.inputNames = new String[]{getName()};
-		this.configured = true;
+		setConfigured(true);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	}
 
 	public void setPosition(String position) throws DeviceException {
-		if (!configured) {
+		if (!isConfigured()) {
 			moveTo(position);
 		}
 	}

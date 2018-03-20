@@ -104,12 +104,12 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			throw new FactoryException("Interrupted while setting pump to auto " + getName(), e);
 		}
 		startPoller();
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -119,7 +119,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		stopPoller();
 		poller = null;
 		probeNameList.clear();
-		configured = false;
+		setConfigured(false);
 	}
 
 

@@ -19,6 +19,13 @@
 
 package gda.device.temperature;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TemperatureRamp;
@@ -26,13 +33,6 @@ import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.PollerEvent;
-
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Integra Compact Low-Temperature Thermostat.
@@ -108,7 +108,7 @@ public class IntegralT extends TemperatureBase {
 				setPoint = getSetPoint();
 				currentTemp = getCurrentTemperature();
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException de) {
 				logger.error("Error configuring {}", serialDeviceName, de);
 			}
@@ -117,7 +117,7 @@ public class IntegralT extends TemperatureBase {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -126,7 +126,7 @@ public class IntegralT extends TemperatureBase {
 		if (serial != null)
 			serial.close();
 		arw = null;
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**

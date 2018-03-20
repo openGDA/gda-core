@@ -169,7 +169,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 		} catch (Exception e) {
 			throw new FactoryException("Exception during configure of " + getName(), e);
 		}
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void copyMotorLimitsIntoScannableLimits() throws Exception {

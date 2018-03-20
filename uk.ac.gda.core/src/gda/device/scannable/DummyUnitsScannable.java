@@ -50,13 +50,13 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		currentPosition = initialPosition;
 		setHardwareUnitString(hardwareUnits);
 		setInitialUserUnits(userUnits);
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
 	public void configure(){
 		//everything done in setters
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override

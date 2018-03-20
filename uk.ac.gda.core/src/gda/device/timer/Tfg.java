@@ -108,13 +108,13 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			// FIXME we might end up with more than one runner
 			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
 			runner.start();
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
 	@Override
 	public void reconfigure() {
-		if (!configured) {
+		if (!isConfigured()) {
 			configure();
 		}
 	}
@@ -122,7 +122,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	@Override
 	public void close() {
 		// we don't actually close as other devices may use the same connection
-		configured = false;
+		setConfigured(false);
 		framesLoaded = false;
 	}
 
@@ -229,7 +229,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	@Override
 	public void stop() throws DeviceException {
 		waitingForExtStart = false;
-		if (daServer == null || !configured) {
+		if (daServer == null || !isConfigured()) {
 			throw new DeviceException(getName() + "unconfigured");
 		}
 		if (!daServer.isConnected()) {
@@ -326,7 +326,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	protected void checkOKToSendCommand() throws DeviceException {
-		if (daServer == null || !configured) {
+		if (daServer == null || !isConfigured()) {
 			throw new DeviceException(getName() + "unconfigured");
 		}
 		if (!daServer.isConnected()) {

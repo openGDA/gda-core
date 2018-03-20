@@ -52,7 +52,7 @@ public class TimedRunnableInvoker extends DeviceBase {
 	}
 
 	void start() {
-		if (!configured)
+		if (!isConfigured())
 			return;
 		if (t == null && runnables != null && !runnables.isEmpty() && isRunning()) {
 			t = new Thread(new Runnable() {
@@ -108,7 +108,7 @@ public class TimedRunnableInvoker extends DeviceBase {
 	 */
 	public void setRunning(boolean running) {
 		this.running = running;
-		if (running && configured)
+		if (running && isConfigured())
 			start();
 	}
 

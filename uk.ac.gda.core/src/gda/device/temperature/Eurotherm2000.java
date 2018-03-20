@@ -19,6 +19,12 @@
 
 package gda.device.temperature;
 
+import java.text.NumberFormat;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TemperatureRamp;
@@ -26,12 +32,6 @@ import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.PollerEvent;
-
-import java.text.NumberFormat;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the Eurotherm controller. The EuroTherm expects even parity, 1 stop bit and 7 data bits with a baud
@@ -153,7 +153,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 				targetTemp = getTargetTemperature();
 				currentTemp = getCurrentTemperature();
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException de) {
 				logger.error("Error configuring {}", getName(), de);
 			}
@@ -162,7 +162,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -171,7 +171,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 		if (serial != null)
 			serial.close();
 		arw = null;
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**
