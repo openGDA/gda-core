@@ -18,12 +18,12 @@
 
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import org.jscience.physics.quantities.Quantity;
 
 public class PassthroughScannableMotionUnitsDecorator implements ScannableMotionUnits {
 
@@ -40,6 +40,16 @@ public class PassthroughScannableMotionUnitsDecorator implements ScannableMotion
 	@Override
 	public void setName(String name) {
 		delegate.setName(name);
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		delegate.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return delegate.isConfigured();
 	}
 
 	@Override

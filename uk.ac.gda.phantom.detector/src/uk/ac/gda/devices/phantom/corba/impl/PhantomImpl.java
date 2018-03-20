@@ -487,6 +487,20 @@ public class PhantomImpl extends CorbaPhantomPOA {
 	}
 
 	@Override
+	public void configure() throws CorbaFactoryException {
+		try {
+			phantom.configure();
+		} catch (FactoryException e) {
+			throw new CorbaFactoryException(e.getMessage());
+		}
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return phantom.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		try {
 			phantom.reconfigure();

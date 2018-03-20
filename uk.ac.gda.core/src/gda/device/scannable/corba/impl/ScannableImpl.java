@@ -18,18 +18,18 @@
 
 package gda.device.scannable.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.scannable.corba.CorbaScannablePOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A server side implementation for a distributed Scannable class
@@ -288,6 +288,16 @@ public class ScannableImpl extends CorbaScannablePOA {
 	@Override
 	public void setAttribute(String arg0, Any arg1) throws CorbaDeviceException {
 		this.deviceImpl.setAttribute(arg0, arg1);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override

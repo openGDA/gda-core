@@ -19,14 +19,14 @@
 
 package gda.device.controlpoint.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.controlpoint.corba.CorbaControlPointPOA;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed ControlPoint class
@@ -116,6 +116,16 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 		} catch (DeviceException ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		scannableImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return scannableImpl.isConfigured();
 	}
 
 	@Override

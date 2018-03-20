@@ -19,6 +19,14 @@
 
 package gda.device.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.python.core.PyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDevice;
@@ -35,14 +43,6 @@ import gda.factory.corba.util.RbacEnabledAdapter;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.LoggingConstants;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.python.core.PyObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client side implementation of the adapter pattern for the Device class
@@ -118,7 +118,7 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 	}
 
 	@Override
-	public java.lang.Object getAttribute(String attributeName) throws DeviceException {
+	public Object getAttribute(String attributeName) throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaDevice.getAttribute(attributeName);
@@ -134,6 +134,37 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				corbaDevice.configure();
+				return;
+			} catch (CorbaFactoryException ex) {
+				throw new FactoryException(ex.message);
+			} catch (COMM_FAILURE | TRANSIENT cf) {
+				corbaDevice = CorbaDeviceHelper.narrow(netService.reconnect(name));
+			}
+		}
+		throw new FactoryException("Communication failure: retry failed");
+	}
+
+	@Override
+	public boolean isConfigured() {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				return corbaDevice.isConfigured();
+			} catch (CorbaDeviceException ex) {
+				logger.error("Cannot get configured state for device {}", name, ex);
+				return false;
+			} catch (COMM_FAILURE | TRANSIENT cf) {
+				corbaDevice = CorbaDeviceHelper.narrow(netService.reconnect(name));
+			}
+		}
+		logger.error("Communication failure getting configured state for {}: retry failed", name);
+		return false;
 	}
 
 	@Override

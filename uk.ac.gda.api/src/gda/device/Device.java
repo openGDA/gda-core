@@ -19,6 +19,7 @@
 
 package gda.device;
 
+import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.factory.Reconfigurable;
 import gda.jython.accesscontrol.MethodAccessProtected;
@@ -28,10 +29,10 @@ import gda.observable.IObservable;
  * Interface to be implemented by all hardware and communication channels. A Device controls a specific type of hardware
  * for example a Motor controls a motor, a Serial controls a serial port.
  */
-public interface Device extends Findable, IObservable, Reconfigurable {
+public interface Device extends Findable, IObservable, Configurable, Reconfigurable {
 	/**
 	 * Set any attribute the implementing classes may provide
-	 * 
+	 *
 	 * @param attributeName
 	 *            is the name of the attribute
 	 * @param value
@@ -44,7 +45,7 @@ public interface Device extends Findable, IObservable, Reconfigurable {
 
 	/**
 	 * Get the value of the specified attribute
-	 * 
+	 *
 	 * @param attributeName
 	 *            is the name of the attribute
 	 * @return the value of the attribute as an Object type
@@ -55,20 +56,20 @@ public interface Device extends Findable, IObservable, Reconfigurable {
 
 	/**
 	 * Close and unconfigure the device.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void close() throws DeviceException;
-	
+
 	/**
-	 * Sets the permission level for this object. If this is not set then a default value will be applied. 
-	 * 
+	 * Sets the permission level for this object. If this is not set then a default value will be applied.
+	 *
 	 * @param newLevel
 	 * @throws DeviceException
 	 */
-	@MethodAccessProtected(isProtected=true)	
+	@MethodAccessProtected(isProtected=true)
 	public void setProtectionLevel(int newLevel) throws DeviceException;
-	
+
 	/**
 	 * @return int - the permission level for this object.
 	 * @throws DeviceException

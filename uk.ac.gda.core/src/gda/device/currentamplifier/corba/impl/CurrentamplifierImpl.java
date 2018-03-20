@@ -19,6 +19,10 @@
 
 package gda.device.currentamplifier.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
@@ -26,10 +30,6 @@ import gda.device.currentamplifier.corba.CorbaCurrentAmplifierPOA;
 import gda.device.currentamplifier.corba.CorbaStatus;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EnumPositioner class
@@ -145,6 +145,16 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 			throw new CorbaDeviceException(e.getMessage());
 		}
 
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		scannableImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return scannableImpl.isConfigured();
 	}
 
 	@Override

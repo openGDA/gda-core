@@ -19,16 +19,16 @@
 
 package gda.device.detector.cobolddetector.corba.impl;
 
+import java.util.ArrayList;
+
+import org.omg.CORBA.Any;
+
 import gda.device.CoboldDetector;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.cobolddetector.corba.CorbaCoboldDetectorPOA;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.util.ArrayList;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed CoboldDetector class
@@ -174,6 +174,16 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 	@Override
 	public void prepareForCollection() throws CorbaDeviceException {
 		detectorImpl.prepareForCollection();
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

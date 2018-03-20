@@ -19,13 +19,13 @@
 
 package gda.util.simpleServlet.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDevicePOA;
 import gda.device.corba.impl.DeviceImpl;
 import gda.factory.corba.CorbaFactoryException;
 import gda.util.simpleServlet.FindableSimpleServlet;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EpicsDevice class
@@ -71,6 +71,16 @@ public class SimpleServletImpl extends CorbaDevicePOA {
 	@Override
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override

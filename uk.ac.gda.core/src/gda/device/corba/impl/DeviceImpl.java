@@ -121,6 +121,20 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 	}
 
 	@Override
+	public void configure() throws CorbaFactoryException {
+		try {
+			device.configure();
+		} catch (FactoryException e) {
+			throw new CorbaFactoryException(e.getMessage());
+		}
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return device.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		try {
 			device.reconfigure();

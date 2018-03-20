@@ -19,16 +19,16 @@
 
 package gda.device.detector.mar345.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.Mar345;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.mar345.corba.CorbaMar345POA;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed Mar345Detector class
@@ -299,6 +299,16 @@ public class Mar345Impl extends CorbaMar345POA {
 		} catch (DeviceException de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

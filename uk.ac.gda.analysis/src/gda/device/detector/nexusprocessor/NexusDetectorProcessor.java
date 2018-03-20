@@ -18,6 +18,15 @@
 
 package gda.device.detector.nexusprocessor;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
@@ -28,15 +37,6 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to delegate calls to a detector. Used for overriding method of an existing detector Turns a detector that does
@@ -113,6 +113,16 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		// do not pass on this is allow the wrapper to be named
 		// detector.setName(name);
 		this.wrapperName = name;
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		detector.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return detector.isConfigured();
 	}
 
 	@Override

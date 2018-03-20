@@ -20,7 +20,6 @@ package gda.device.syringepump;
 
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 public interface Syringe extends Device, IObserver {
@@ -28,8 +27,6 @@ public interface Syringe extends Device, IObserver {
 	boolean isBusy() throws DeviceException;
 
 	void stop() throws DeviceException;
-
-	void configure() throws FactoryException;
 
 	/**
 	 * Infuse or withdraw liquid from/to the syringe

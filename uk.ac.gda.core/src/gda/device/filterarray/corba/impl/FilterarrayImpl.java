@@ -19,14 +19,14 @@
 
 package gda.device.filterarray.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.FilterArray;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.filterarray.corba.CorbaFilterArrayPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed FilterArray class
@@ -180,6 +180,16 @@ public class FilterarrayImpl extends CorbaFilterArrayPOA {
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return deviceImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override

@@ -21,15 +21,17 @@ package gda.jython.accesscontrol;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import org.junit.Test;
+
 import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.jython.GDAJythonInterpreter;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.observable.IObserver;
-
-import org.junit.Test;
 
 /**
  * Test of DeviceInterceptor
@@ -167,7 +169,7 @@ public class DeviceInterceptorTest {
 	}
 }
 
-class SimpleDevice implements Device{
+class SimpleDevice extends ConfigurableBase implements Device{
 
 	String name="";
 	int protectionLevel=1;

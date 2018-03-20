@@ -19,14 +19,14 @@
 
 package gda.device.detector.countertimer.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.countertimer.corba.CorbaCounterTimerPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed CounterTimer class
@@ -270,6 +270,16 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 		} catch (DeviceException de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

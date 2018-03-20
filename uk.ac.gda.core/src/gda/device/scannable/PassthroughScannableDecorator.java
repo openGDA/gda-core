@@ -41,6 +41,16 @@ public class PassthroughScannableDecorator implements Scannable {
 	}
 
 	@Override
+	public void configure() throws FactoryException {
+		getDelegate().configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return getDelegate().isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws FactoryException {
 		getDelegate().reconfigure();
 	}

@@ -19,14 +19,14 @@
 
 package gda.device.monitor.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.monitor.corba.CorbaMonitorPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed Monitor class
@@ -59,6 +59,16 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return scannableImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		scannableImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return scannableImpl.isConfigured();
 	}
 
 	@Override

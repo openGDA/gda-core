@@ -19,6 +19,11 @@
 
 package gda.device.temperature.corba.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.Temperature;
 import gda.device.TemperatureRamp;
@@ -27,11 +32,6 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.device.temperature.corba.CorbaTemperaturePOA;
 import gda.device.temperature.corba.CorbaTemperatureRamp;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed Temperature class
@@ -302,6 +302,16 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	@Override
 	public org.omg.CORBA.Any getAttribute(String attributeName) throws CorbaDeviceException {
 			return scannableImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		scannableImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return scannableImpl.isConfigured();
 	}
 
 	@Override

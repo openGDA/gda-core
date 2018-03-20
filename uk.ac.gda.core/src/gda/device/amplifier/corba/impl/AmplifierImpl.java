@@ -19,16 +19,16 @@
 
 package gda.device.amplifier.corba.impl;
 
+import org.omg.CORBA.Any;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Amplifier;
 import gda.device.DeviceException;
 import gda.device.amplifier.corba.CorbaAmplifierPOA;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A server side implementation for the distributed Amplifier class
@@ -277,6 +277,16 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return deviceImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override

@@ -191,6 +191,16 @@ public class SerialImpl extends CorbaSerialPOA {
 	}
 
 	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		deviceImpl.reconfigure();
 	}

@@ -19,16 +19,16 @@
 
 package gda.device.detector.analyser.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.Analyser;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.analyser.corba.CorbaAnalyserPOA;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed Analyser class
@@ -515,6 +515,16 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 	public void close() throws CorbaDeviceException {
 		detectorImpl.close();
 
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

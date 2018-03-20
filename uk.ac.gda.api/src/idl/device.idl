@@ -67,6 +67,20 @@ interface CorbaDevice : gda::_factory::corba::CorbaFindable, gda::_factory::corb
 	 * @throws DeviceException
 	 */
 	long getProtectionLevel() raises (CorbaDeviceException);
+
+	/**
+	 * Configures the device
+	 *
+	 * @throws FactoryException
+	 */
+	void configure() raises (gda::_factory::corba::CorbaFactoryException);
+
+     /**
+	 * Returns true if the device is configured, false if not
+	 *
+	 * @throws DeviceException
+	 */
+	boolean isConfigured() raises (CorbaDeviceException);
 };
 
 };};};

@@ -283,6 +283,16 @@ public class OdccdImpl extends CorbaODCCDPOA {
 	}
 
 	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		detectorImpl.reconfigure();
 	}

@@ -19,6 +19,10 @@
 
 package gda.device.robot.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.Robot;
 import gda.device.corba.CorbaDeviceException;
@@ -26,10 +30,6 @@ import gda.device.robot.corba.CorbaRobotPOA;
 import gda.device.robot.corba.SampleState;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EnumPositioner class
@@ -218,6 +218,16 @@ public class RobotImpl extends CorbaRobotPOA {
 		} catch (DeviceException e) {
 			throw new CorbaDeviceException(e.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		scannableImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return scannableImpl.isConfigured();
 	}
 
 	@Override

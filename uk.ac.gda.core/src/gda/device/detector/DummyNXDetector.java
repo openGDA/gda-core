@@ -23,13 +23,14 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
 /**
  *
  */
-public class DummyNXDetector implements NexusDetector {
+public class DummyNXDetector extends ConfigurableBase implements NexusDetector {
 
 	private String name;
 	int numElements=1;

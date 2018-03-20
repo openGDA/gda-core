@@ -19,14 +19,14 @@
 
 package gda.device.detector.datalogger.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DataLogger;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.datalogger.corba.CorbaDataLoggerPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed DataLogger class
@@ -165,6 +165,16 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 	@Override
 	public void prepareForCollection() throws CorbaDeviceException {
 		detectorImpl.prepareForCollection();
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

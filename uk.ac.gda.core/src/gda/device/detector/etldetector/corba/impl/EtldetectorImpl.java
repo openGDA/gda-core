@@ -19,6 +19,8 @@
 
 package gda.device.detector.etldetector.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EtlDetector;
@@ -26,8 +28,6 @@ import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.etldetector.corba.CorbaEtlDetectorPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EtlDetector class
@@ -345,6 +345,17 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return detectorImpl.getAttribute(attributeName);
 	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
+	}
+
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		detectorImpl.reconfigure();

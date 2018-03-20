@@ -26,6 +26,7 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
@@ -34,7 +35,7 @@ import gda.observable.ObservableComponent;
 /**
  * part of
  */
-public class SimpleMotor implements Motor, InitializingBean{
+public class SimpleMotor extends ConfigurableBase implements Motor, InitializingBean{
 
 	private static final long POLL_TIME_MILLIS = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
 

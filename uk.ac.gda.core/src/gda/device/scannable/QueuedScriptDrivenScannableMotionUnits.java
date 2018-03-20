@@ -18,6 +18,9 @@
 
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Queue;
 import gda.device.DeviceException;
@@ -25,9 +28,6 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import org.jscience.physics.quantities.Quantity;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class to wrap a ScannableMotionUnits that is to be driven by a script that is run on the queue
@@ -102,6 +102,16 @@ public class QueuedScriptDrivenScannableMotionUnits implements ScannableMotionUn
 	@Override
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		scannable.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return scannable.isConfigured();
 	}
 
 	@Override

@@ -18,14 +18,14 @@
 
 package gda.device.scannable.scannablegroup.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.device.scannable.scannablegroup.corba.CorbaScannablegroupPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed ScannableGroup class
@@ -225,6 +225,16 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return deviceImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override
