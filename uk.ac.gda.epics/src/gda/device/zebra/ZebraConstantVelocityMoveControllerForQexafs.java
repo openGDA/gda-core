@@ -17,6 +17,14 @@
  */
 
 package gda.device.zebra;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
@@ -31,21 +39,14 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.device.zebra.controller.Zebra;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class ZebraConstantVelocityMoveControllerForQexafs implements Scannable,
+public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBase implements Scannable,
 		ConstantVelocityMoveController2, PositionCallableProvider<Double>, ContinuouslyScannableViaController {
 
 	private String name;

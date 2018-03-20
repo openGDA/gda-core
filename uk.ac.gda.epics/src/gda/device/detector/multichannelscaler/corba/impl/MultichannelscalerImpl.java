@@ -18,6 +18,8 @@
 
 package gda.device.detector.multichannelscaler.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
@@ -26,8 +28,6 @@ import gda.device.detector.multichannelscaler.EpicsMcsSis3820;
 import gda.device.detector.multichannelscaler.corba.CorbaMultiChannelScalerPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed DataLogger class
@@ -183,6 +183,16 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 	@Override
 	public void prepareForCollection() throws CorbaDeviceException {
 		detectorImpl.prepareForCollection();
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override

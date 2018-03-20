@@ -37,6 +37,16 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 	}
 
 	@Override
+	public void configure() throws FactoryException {
+		delegate.configure();
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return delegate.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws FactoryException {
 		delegate.reconfigure();
 	}

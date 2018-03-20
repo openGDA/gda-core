@@ -18,13 +18,13 @@
 
 package gda.device.epicsdevice.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDevicePOA;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EpicsDevice class
@@ -66,6 +66,16 @@ public class EpicsdeviceImpl extends CorbaDevicePOA {
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
 		return deviceImpl.getAttribute(attributeName);
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override
