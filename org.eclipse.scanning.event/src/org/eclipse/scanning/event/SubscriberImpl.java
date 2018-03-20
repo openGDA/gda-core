@@ -94,7 +94,6 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 
 	@Override
 	public void addListener(String beanId, T listener) throws EventException {
-		setConnected(true);
 		if (executor == null) {
 			createExecutorService();
 		}
@@ -195,7 +194,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private void disseminate(Object bean) {
-		if (!isConnected()) {
+		if (isDisconnected()) {
 			logger.warn("Subscriber to topic {} disconnected - ignoring bean {}", getTopicName(), bean);
 			return;
 		}
@@ -309,32 +308,17 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	public void disconnect() throws EventException {
 		try {
 			removeAllListeners();
-			if (messageConsumer!=null)     messageConsumer.close();
-
-			super.disconnect();
-
-		} catch (JMSException ne) {
-			throw new EventException("Internal error - unable to close connection!", ne);
-
-		} finally {
-			messageConsumer = null;
-			setConnected(false);
+			if (messageConsumer!=null) messageConsumer.close();
 			if (executor != null) {
 				executor.shutdownNow();
-				executor = null;
 			}
+			super.disconnect();
+		} catch (JMSException ne) {
+			throw new EventException("Internal error - unable to close connection!", ne);
+		} finally {
+			messageConsumer = null;
+			executor = null;
 		}
-		super.disconnect();
-	}
-
-	private boolean connected;
-
-	public boolean isConnected() {
-		return connected;
-	}
-
-	private void setConnected(boolean connected) {
-		this.connected = connected;
 	}
 
 	@Override
