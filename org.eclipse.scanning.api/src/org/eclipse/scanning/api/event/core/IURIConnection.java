@@ -15,7 +15,7 @@ import java.net.URI;
 
 import org.eclipse.scanning.api.event.IEventConnectorService;
 
-public interface IURIConnection extends IDisconnectable {
+public interface IURIConnection extends IConnection {
 
 	/**
 	 * The URI of this connection.

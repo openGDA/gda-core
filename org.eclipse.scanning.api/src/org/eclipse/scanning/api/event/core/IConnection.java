@@ -14,14 +14,15 @@ package org.eclipse.scanning.api.event.core;
 import org.eclipse.scanning.api.event.EventException;
 
 /**
- *
- * Any object which has a disconnect may implement this interface.
+ * An instance of a class that implements this interfaces represents a connection of some kind that can be
+ * disconnected by calling the {@link #disconnect()} method.
+ * Note that there is no {@code connect()} method, the connection is assumed to be either connected when
+ * created or automatically connects when necessary.
+ * It is undefined whether it is possible to reconnect to a connection. Subclasses may override this.
  *
  * @author Matthew Gerring
- *
  */
-@FunctionalInterface
-public interface IDisconnectable {
+public interface IConnection {
 
 	/**
 	 * Call to disconnect any resources which we no longer need.
@@ -33,9 +34,11 @@ public interface IDisconnectable {
 	public void disconnect() throws EventException ;
 
 	/**
+	 * Returns whether this connection is connected. This method returns <code>true</code> until
+	 * disconnect is called, even if the connection is created lazily.
 	 *
+	 * @return <code>true</code> if connected, <code>false</code> otherwise
 	 */
-	default boolean isDisconnected() {
-		return false;
-	}
+	public boolean isConnected();
+
 }

@@ -187,8 +187,9 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		this.durable = durable;
 	}
 
+	@Override
 	public boolean isConnected() {
-		return isConnected && (consumer!=null ? !consumer.isDisconnected() : true);
+		return isConnected && (consumer!=null ? consumer.isConnected() : true);
 	}
 
 	public boolean isPurgeQueue() {

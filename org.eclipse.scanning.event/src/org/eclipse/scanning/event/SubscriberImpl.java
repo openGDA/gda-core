@@ -194,7 +194,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private void disseminate(Object bean) {
-		if (isDisconnected()) {
+		if (!isConnected()) {
 			logger.warn("Subscriber to topic {} disconnected - ignoring bean {}", getTopicName(), bean);
 			return;
 		}

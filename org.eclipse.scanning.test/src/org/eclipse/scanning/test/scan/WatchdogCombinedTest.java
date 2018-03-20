@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -62,7 +63,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
-		assertTrue(topup.isDisconnected());
+		assertFalse(topup.isConnected());
 		topup.setPosition(1000);
 		assertTrue("Topup is "+topup.getPosition(), topup.getPosition().doubleValue()>=1000);
 
@@ -88,7 +89,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
-		assertTrue(topup.isDisconnected());
+		assertFalse(topup.isConnected());
 		topup.setPosition(1000);
 		assertTrue("Topup is "+topup.getPosition(), topup.getPosition().doubleValue()>=1000);
 
@@ -271,7 +272,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
-		assertTrue(topup.isDisconnected());
+		assertFalse(topup.isConnected());
 		topup.setPosition(5000);
 
 		// x and y are level 3

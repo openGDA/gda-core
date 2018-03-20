@@ -30,8 +30,8 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.core.IRequester;
@@ -141,9 +141,9 @@ public class EventServiceImpl implements IEventService {
 				SoftReference<T> ref = (SoftReference<T>)cachedServices.get(key);
 				if (ref.get()!=null) {
 					T service = ref.get();
-					if (service instanceof IDisconnectable) {
-						IDisconnectable discon = (IDisconnectable)service;
-						if (discon.isDisconnected()) {
+					if (service instanceof IConnection) {
+						IConnection connection = (IConnection)service;
+						if (!connection.isConnected()) {
 							cachedServices.remove(key);
 							// Drop out of these tests and make a new service.
 						} else {

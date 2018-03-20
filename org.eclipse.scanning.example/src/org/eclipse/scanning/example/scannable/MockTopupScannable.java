@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.example.scannable;
 
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @author Matthew Gerring
  *
  */
-public class MockTopupScannable extends MockScannable implements IDisconnectable {
+public class MockTopupScannable extends MockScannable implements IConnection {
 
 	private long start;
 	private long period;
@@ -74,9 +74,10 @@ public class MockTopupScannable extends MockScannable implements IDisconnectable
 		System.out.println("Topup stopped");
 		this.position = 5000;
 	}
+
 	@Override
-	public boolean isDisconnected() {
-		return !isRunning;
+	public boolean isConnected() {
+		return isRunning;
 	}
 
 	@Override

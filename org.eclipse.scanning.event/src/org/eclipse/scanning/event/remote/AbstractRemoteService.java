@@ -17,7 +17,7 @@ import java.net.URI;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-abstract class AbstractRemoteService implements IDisconnectable, Closeable {
+abstract class AbstractRemoteService implements IConnection, Closeable {
 
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractRemoteService.class);
 
@@ -71,7 +71,7 @@ abstract class AbstractRemoteService implements IDisconnectable, Closeable {
 	}
 
 	@Override
-	public boolean isDisconnected() {
+	public boolean isConnected() {
 		return isDisconnected;
 	}
 

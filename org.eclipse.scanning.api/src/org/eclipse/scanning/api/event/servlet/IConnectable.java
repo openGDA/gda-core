@@ -14,9 +14,9 @@ package org.eclipse.scanning.api.event.servlet;
 import java.net.URISyntaxException;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 
-public interface IConnectable extends IDisconnectable {
+public interface IConnectable extends IConnection {
 	/**
 	 * Should called to start the servlet.
 	 * @param uri, a string representation of the activemq uri.

@@ -26,7 +26,7 @@ import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
@@ -158,7 +158,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 
 	@After
 	public void disposeService() throws EventException {
-		((IDisconnectable)rservice).disconnect();
+		((IConnection)rservice).disconnect();
 		dservlet.disconnect();
 		pservlet.disconnect();
 	}

@@ -29,13 +29,13 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.Location;
 import org.eclipse.scanning.example.Services;
 
-public class MockScannableConnector implements IScannableDeviceService, IDisconnectable {
+public class MockScannableConnector implements IScannableDeviceService, IConnection {
 
 	protected String               broker;
 	private Map<String, INameable> cache;
@@ -220,16 +220,16 @@ public class MockScannableConnector implements IScannableDeviceService, IDisconn
 		if (cache!=null && !cache.isEmpty()) {
 			INameable[] devices = cache.values().toArray(new INameable[cache.size()]);
 			for (INameable device : devices) {
-				if (device instanceof IDisconnectable) ((IDisconnectable)device).disconnect();
+				if (device instanceof IConnection) ((IConnection)device).disconnect();
 			}
 			cache.clear();
 		}
 	}
 
 	@Override
-	public boolean isDisconnected() {
-		if (positionPublisher!=null) return positionPublisher.isDisconnected();
-		return true;
+	public boolean isConnected() {
+		if (positionPublisher!=null) return positionPublisher.isConnected();
+		return false;
 	}
 
 	public String getBroker() {

@@ -25,7 +25,7 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
@@ -94,7 +94,7 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 	@After
 	public void disposeService() throws EventException {
-		((IDisconnectable)rservice).disconnect();
+		((IConnection)rservice).disconnect();
 	}
 
 

@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
@@ -195,7 +195,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		disconnect(subscriber);
 	}
 
-	protected void disconnect(IDisconnectable service) throws EventException {
+	protected void disconnect(IConnection service) throws EventException {
 		if (service!=null) service.disconnect();
 	}
 

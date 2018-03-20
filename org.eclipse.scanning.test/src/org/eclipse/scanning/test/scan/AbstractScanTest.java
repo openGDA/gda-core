@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -197,7 +197,7 @@ public class AbstractScanTest extends BrokerTest {
 		IRunnableDevice<ScanModel> scanner = createTestScanner(null, null, null, null, null, null);
 		int before = Thread.activeCount();
 		scanner.run(null);
-		if (connector instanceof IDisconnectable) ((IDisconnectable)connector).disconnect();
+		if (connector instanceof IConnection) ((IConnection)connector).disconnect();
 		Thread.sleep(25); // Just allows any threads no longer required to exit.
 		int after = Thread.activeCount();
 		System.out.println("Before = "+before);

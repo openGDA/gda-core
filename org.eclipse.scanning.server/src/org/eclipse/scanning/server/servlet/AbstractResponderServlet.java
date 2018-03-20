@@ -21,9 +21,9 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.core.IResponder;
 import org.eclipse.scanning.api.event.core.IResponseCreator;
-import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.servlet.IResponderServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,10 +90,15 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 	}
 
 	@Override
+	public boolean isConnected() {
+		return responder.isConnected();
+	}
+
+	@Override
 	@PreDestroy
-    public void disconnect() throws EventException {
+	public void disconnect() throws EventException {
 		responder.disconnect();
-    }
+	}
 
 	public String getBroker() {
 		return broker;

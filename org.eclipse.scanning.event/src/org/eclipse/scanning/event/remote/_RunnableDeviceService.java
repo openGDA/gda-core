@@ -24,7 +24,7 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.core.IDisconnectable;
+import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ResponseConfiguration;
@@ -59,7 +59,7 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 		requester.disconnect(); // Requester can still be used again after a disconnect
 		for (String name : runnables.keySet()) {
 			IRunnableDevice<?> runnable = runnables.remove(name);
-			if (runnable instanceof IDisconnectable) ((IDisconnectable)runnable).disconnect();
+			if (runnable instanceof IConnection) ((IConnection)runnable).disconnect();
 		}
 		runnables.clear();
 		setDisconnected(true);

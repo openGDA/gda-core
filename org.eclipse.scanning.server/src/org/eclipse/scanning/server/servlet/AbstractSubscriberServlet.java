@@ -84,11 +84,17 @@ public abstract class AbstractSubscriberServlet<T> implements ISubscriberServlet
     }
 
 	@Override
+	public boolean isConnected() {
+		return subscriber.isConnected();
+	}
+
+	@Override
 	@PreDestroy
 	public void disconnect() throws EventException {
-	subscriber.disconnect();
-	if (publisher!=null) publisher.disconnect();
-    }
+		subscriber.disconnect();
+		if (publisher != null)
+			publisher.disconnect();
+	}
 
 	public String getBroker() {
 		return broker;

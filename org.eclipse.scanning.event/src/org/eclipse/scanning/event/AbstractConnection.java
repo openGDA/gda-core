@@ -46,7 +46,7 @@ abstract class AbstractConnection implements IURIConnection {
 
 	protected QueueConnection connection;
 	protected QueueSession queueSession;
-	private boolean disconnected = false;
+	private boolean connected = true;
 
 	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
 		this.uri = uri;
@@ -103,7 +103,7 @@ abstract class AbstractConnection implements IURIConnection {
 			connection = null;
 			queueSession = null;
 		}
-		setDisconnected(true);
+		setConnected(false);
 	}
 
 	public String getTopicName() {
@@ -193,12 +193,12 @@ abstract class AbstractConnection implements IURIConnection {
 	}
 
 	@Override
-	public boolean isDisconnected() {
-		return disconnected;
+	public boolean isConnected() {
+		return connected;
 	}
 
-	private void setDisconnected(boolean disconnected) {
-		this.disconnected = disconnected;
+	private void setConnected(boolean connected) {
+		this.connected = connected;
 	}
 
 }
