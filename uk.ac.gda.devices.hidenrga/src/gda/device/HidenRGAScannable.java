@@ -18,16 +18,6 @@
 
 package gda.device;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.scannable.ScannableBase;
-import gda.epics.EpicsConstants;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -42,6 +32,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.scannable.ScannableBase;
+import gda.epics.EpicsConstants;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
+import gov.aps.jca.CAException;
 
 /**
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
@@ -270,7 +270,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	}
 
 	private String epicsPrefix;
-	private Set<Integer> masses = new LinkedHashSet<Integer>();
+	private Set<Integer> masses = new LinkedHashSet<>();
 	private HidenRGAController controller;
 	private HidenFileWriter fileWriterThread;
 	private volatile int lastScanCycleSeen = 0;
@@ -285,12 +285,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				controller.setUseAuxiliaryInputs(isUseAuxiliaryInputs());//this must be called before connect.
 				controller.connect();
 				controller.addIObserver(this);
-				configured = true;
+				setConfigured(true);
 			} catch (CAException e) {
 				throw new FactoryException("CAException when trying to connect ot RGA", e);
 			}
@@ -398,7 +398,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 	@Override
 	public String toFormattedString() {
-		if (configured) {
+		if (isConfigured()) {
 			return super.toFormattedString();
 		}
 
@@ -410,7 +410,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 		synchronized (this) {
 
-			if (!configured) {
+			if (!isConfigured()) {
 				int numberZeroes = getExtraNames().length;
 				return new int[numberZeroes];
 			}

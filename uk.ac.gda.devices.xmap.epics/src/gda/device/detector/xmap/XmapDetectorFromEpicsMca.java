@@ -59,7 +59,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapDetectorFromEpicsMca.class);
 
-	private List<Analyser> analysers = new ArrayList<Analyser>();
+	private List<Analyser> analysers = new ArrayList<>();
 
 	private String configFileName;
 
@@ -250,23 +250,14 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	}
 
 	private void checkConfigured() throws DeviceException{
-		if( !configured || ! super.isConfigured())
+		if (!isConfigured()) {
 			throw new DeviceException(getName() + " is not yet configured or configuration failed");
-	}
-	@Override
-	public boolean isConfigured() {
-		try {
-			checkConfigured();
-			return true;
-		} catch (DeviceException e) {
-			logger.error(e.getMessage(), e);
 		}
-		return false;
 	}
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getAnalysers().size() < 1) {
 				throw new FactoryException("No anyalsers have been configured");
 			}
@@ -276,7 +267,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 				} else {
 					vortexParameters = createVortexParameters();
 				}
-				configured = true;
+				setConfigured(true);
 			} catch (Exception e) {
 				throw new FactoryException("Cannot load xml file "+ getConfigFileName(), e);
 			}
@@ -342,7 +333,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	 * @param vp
 	 */
 	private void configureChannelLabels(VortexParameters vp) {
-		roiChannelLabels = new ArrayList<String>(7);
+		roiChannelLabels = new ArrayList<>(7);
 		int roiNum = 0;
 		for (DetectorROI roi : vp.getDetectorList().get(0).getRegionList()) {
 			String name = roi.getRoiName();
@@ -425,7 +416,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 	@Override
 	public int getNumberOfBins() throws DeviceException {
-		List<Integer> binsFromEachAnalyser = new ArrayList<Integer>(analysers.size());
+		List<Integer> binsFromEachAnalyser = new ArrayList<>(analysers.size());
 		for (Analyser analyser : analysers) {
 			binsFromEachAnalyser.add((int) analyser.getNumberOfChannels());
 		}
@@ -446,7 +437,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 	@Override
 	public double getAcquisitionTime() throws DeviceException {
-		List<Double> acquisitionTimeEachAnalyser = new ArrayList<Double>(analysers.size());
+		List<Double> acquisitionTimeEachAnalyser = new ArrayList<>(analysers.size());
 		for (Analyser analyser : analysers) {
 			acquisitionTimeEachAnalyser.add(analyser.getCollectionTime());
 		}
@@ -559,7 +550,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 						count = readNetCounts ? epicsMCA.getRoiNetCount(roiIndex):epicsMCA.getRoiCount(roiIndex);
 					} else {
 						if( regionsOfInterestCountCache == null)
-							regionsOfInterestCountCache = new HashMap<Integer, double[][]>();
+							regionsOfInterestCountCache = new HashMap<>();
 						count = getROICountsUsingCache(roiIndex, regionsOfInterestCountCache)[element];
 					}
 					INexusTree roidata = NXDetectorData.addData(detTree, getExtraName(thisElement, roi), new NexusGroupData(count), "counts", 1);
@@ -683,7 +674,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public String[] getExtraNames() {
 		if( !isConfigured())
 			return new String[]{};
-		List<String> extraNames = new ArrayList<String>();
+		List<String> extraNames = new ArrayList<>();
 		for (DetectorElement thisElement: vortexParameters.getDetectorList()) {
 			if (thisElement.isExcluded()) continue;
 			extraNames.add(thisElement.getName() + "_realtime");

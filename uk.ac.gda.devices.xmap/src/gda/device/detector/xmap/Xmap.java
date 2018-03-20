@@ -19,6 +19,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -29,14 +36,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -74,7 +73,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (controller == null) {
 				if ((controller = (XmapController) Finder.getInstance().find(xmapControllerName)) != null) {
 					logger.debug("controller {} found", xmapControllerName);
@@ -92,7 +91,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 			controller.addIObserver(this);
 
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -135,7 +134,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	 * @param vp
 	 */
 	protected void configureChannelLabels(VortexParameters vp) {
-		channelLabels = new ArrayList<String>(7);
+		channelLabels = new ArrayList<>(7);
 
 		int roiNum = 0;
 		for (DetectorROI roi : vp.getDetectorList().get(0).getRegionList()) {

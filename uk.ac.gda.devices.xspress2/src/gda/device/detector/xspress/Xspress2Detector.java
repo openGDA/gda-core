@@ -105,11 +105,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		if ( controller != null )
 			controller.configure();
 
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void useDefaultXspressParameters() {
-		ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
+		ArrayList<DetectorROI> regions = new ArrayList<>();
 		XspressParameters xspressParameters = new XspressParameters();
 		XspressDeadTimeParameters xspressDeadTimeParameters = new XspressDeadTimeParameters();
 		if (modeOverride) {
@@ -210,7 +210,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void setRegionOfInterest(int detector, ArrayList<DetectorROI> regionList) throws DeviceException {
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setRegionList(regionList);
-		if (configured) {
+		if (isConfigured()) {
 			controller.doSetROICommand(detectorElement);
 		}
 	}
@@ -226,7 +226,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void setWindows(int detector, int windowStart, int windowEnd) throws DeviceException {
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setWindow(windowStart, windowEnd);
-		if (configured) {
+		if (isConfigured()) {
 			controller.doSetWindowsCommand(detectorElement);
 		}
 	}
@@ -305,7 +305,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 */
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
 		settings.setFullMCABits(fullMCABits);
-		if (configured) {
+		if (isConfigured()) {
 			controller.setFullMCABits(fullMCABits);
 		}
 	}
@@ -841,7 +841,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 			throws DeviceException {
 
 		// convert to list
-		List<DetectorROI> rois = new ArrayList<DetectorROI>();
+		List<DetectorROI> rois = new ArrayList<>();
 		for(DetectorROI roi : regionList){
 			rois.add(roi);
 		}

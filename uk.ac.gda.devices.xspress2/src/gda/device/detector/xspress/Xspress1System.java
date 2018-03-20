@@ -19,6 +19,12 @@
 
 package gda.device.detector.xspress;
 
+import java.util.ArrayList;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -26,13 +32,6 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -84,7 +83,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 			logger.error(
 					"Error loading template XML. Will use a detector with a few default elements instead. "
 							+ e.getMessage(), e);
-			ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
+			ArrayList<DetectorROI> regions = new ArrayList<>();
 			xspressParameters = new XspressParameters();
 			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
 			xspressParameters.setResGrade(ResGrades.NONE);
@@ -127,7 +126,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 				throw new FactoryException(e.getMessage(), e);
 			}
 		}
-		configured = true;
+		setConfigured(true);
 	}
 
 	public XspressDetectorImpl getXspressDetectorImpl() {
@@ -348,7 +347,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 	 * Adds FF to the Nexus data where defined in the ascii data
 	 */
 	private NXDetectorData addFFIfPossible(INexusTree detTree, NXDetectorData thisFrame, double[] ds) {
-		ArrayList<String> elementNames = new ArrayList<String>();
+		ArrayList<String> elementNames = new ArrayList<>();
 		getUnFilteredChannelLabels(elementNames);
 		int ffColumn = elementNames.indexOf("FF");
 
@@ -366,7 +365,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 			long[] rawScalervalues) {
 		// only add FF
 		if (onlyDisplayFF) {
-			ArrayList<String> elementNames = new ArrayList<String>();
+			ArrayList<String> elementNames = new ArrayList<>();
 			getUnFilteredChannelLabels(elementNames);
 			int ffColumn = elementNames.indexOf("FF");
 			scalerData = new double[] { scalerData[ffColumn] };
@@ -560,7 +559,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 	 */
 	@Override
 	public ArrayList<String> getChannelLabels() {
-		ArrayList<String> channelLabels = new ArrayList<String>();
+		ArrayList<String> channelLabels = new ArrayList<>();
 		if (onlyDisplayFF) {
 			channelLabels.add("FF");
 		} else {
