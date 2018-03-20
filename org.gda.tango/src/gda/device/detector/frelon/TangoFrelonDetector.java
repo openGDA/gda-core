@@ -18,6 +18,10 @@
 
 package gda.device.detector.frelon;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceAttribute;
 import gda.device.DeviceException;
@@ -32,10 +36,6 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
@@ -76,9 +76,9 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 				writeSpb2Config(spb2_config);
 			if (timer != null)
 				timer.addIObserver(this);
-			configured = true;
+			setConfigured(true);
 		} catch (Exception e) {
-			configured = false;
+			setConfigured(false);
 			logger.error("TangoPilatusDetector {} configure: {}", getName(), e);
 		}
 		}
@@ -93,14 +93,14 @@ public class TangoFrelonDetector extends TangoLimaDetector implements Initializi
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		configured = false;
+		setConfigured(false);
 		logger.debug("NcdDetector reconfiguring " + getName());
 		configure();
 	}
 
 	@Override
 	public void close() {
-		configured = false;
+		setConfigured(false);
 		System.out.println("************************************Frelon close() deleting timer IOBserver");
 		timer.deleteIObserver(this);
 	}

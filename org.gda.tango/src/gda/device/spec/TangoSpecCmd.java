@@ -18,15 +18,15 @@
 
 package gda.device.spec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TangoSpecCmd extends DeviceBase {
 
@@ -35,13 +35,13 @@ public class TangoSpecCmd extends DeviceBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			try {
 				tangoDeviceProxy.isAvailable();
 			} catch (DeviceException e) {
 				throw new FactoryException(e.getMessage(), e);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

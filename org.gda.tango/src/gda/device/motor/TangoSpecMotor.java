@@ -18,6 +18,9 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DeviceAttribute;
@@ -28,9 +31,6 @@ import gda.device.MotorStatus;
 import gda.device.TangoDeviceProxy;
 import gda.device.spec.TangoSpecCmd;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to control a Tango motor
@@ -167,7 +167,7 @@ public class TangoSpecMotor extends MotorBase implements Motor {
 			tangoDeviceProxy.status();
 		} catch (DevFailed e) {
 			// device has lost connection
-			configured = false;
+			setConfigured(false);
 			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server " + tangoDeviceProxy.get_name() + " failed");
 		} catch (Exception e) {
 			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server stuffed");

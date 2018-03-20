@@ -18,6 +18,10 @@
 
 package gda.device.detector.pilatus;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceAttribute;
 import gda.device.DeviceException;
@@ -31,10 +35,6 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
@@ -88,14 +88,14 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		configured = false;
+		setConfigured(false);
 		logger.debug("NcdDetector reconfiguring " + getName());
 		configure();
 	}
 
 	@Override
 	public void close() {
-		configured = false;
+		setConfigured(false);
 		timer.deleteIObserver(this);
 	}
 
@@ -328,7 +328,7 @@ public class TangoPilatusDetector extends TangoLimaDetector implements Initializ
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg != null && arg instanceof TimerStatus && configured) {
+		if (arg != null && arg instanceof TimerStatus && isConfigured()) {
 			TimerStatus ts = (TimerStatus) arg;
 			if ("DEAD PAUSE".equals(ts.getCurrentStatus())) {
 				try {

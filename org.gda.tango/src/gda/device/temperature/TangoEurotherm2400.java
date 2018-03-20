@@ -22,19 +22,19 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceException;
-import gda.device.Temperature;
 import gda.device.TangoDeviceProxy;
+import gda.device.Temperature;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.util.PollerEvent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class TangoEurotherm2400 extends TemperatureBase implements Temperature, InitializingBean {
 
@@ -46,13 +46,13 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 	private int scale;
 	private short maxSegments;
 	private short maxPrograms;
-	protected volatile boolean activeProgram = false;	
+	protected volatile boolean activeProgram = false;
 
 	private static short CURRENT_SEGMENT_NUM = 56;
 	private static short CURRENT_SEGMENT_TYPE = 29;
 	private static short CURRENT_PROGRAM = 22;
 	private static short PROGRAM_STATUS = 23;
-	private static short SETPOINT_MAXIMUM = 111;	
+	private static short SETPOINT_MAXIMUM = 111;
 	private static short SETPOINT_MINIMUM = 112;
 	private static short INSTRUMENT_IDENTITY = 122;
 	private static short SCALE_FACTOR = 525;
@@ -64,7 +64,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 	private short HOLD = 4;
 	private short RUN = 2;
 	private short RESET = 1;
-			
+
 	public TangoEurotherm2400() {
 		// These will be overwritten by the values specified in the XML
 		// but are given here as defaults.
@@ -85,7 +85,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 				upperTemp = getSetPointMaximum();
 				getCurrentTemperature();
 				startPoller();
-				configured = true;
+				setConfigured(true);
 			} catch (DeviceException e) {
 				logger.error(e.getMessage());
 			}
@@ -94,7 +94,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured)
+		if (!isConfigured())
 			configure();
 	}
 
@@ -103,7 +103,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 		stopPoller();
 		poller = null;
 		probeNameList.clear();
-		configured = false;
+		setConfigured(false);
 	}
 
 	public TangoDeviceProxy getTangoDeviceProxy() {
@@ -123,7 +123,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 
 	/**
 	 * Get the Eurotherm Controller identifier.
-	 * 
+	 *
 	 * @returns the identifier in format >ABCD (hex),
 	 *     A = 2 (series 2000) B = Range number  C = Size       D = Type
 	 *                             2: 2200           3: 1/32 din    0: PID/on-off
@@ -299,7 +299,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 
 	/**
 	 * Tells the hardware to start heating or cooling
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void sendStart() throws DeviceException {
@@ -387,9 +387,9 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 		this.targetTemp = targetTemp;
 		startTowardsTarget();
 	}
-	
+
 	@Override
-	protected void setHWLowerTemp(double lowerTemp) throws DeviceException {		
+	protected void setHWLowerTemp(double lowerTemp) throws DeviceException {
 	}
 
 	@Override
@@ -411,14 +411,14 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 
 	/**
 	 * Sets the array of ramps.
-	 * 
+	 *
 	 * @param ramps an ArrayList<TemperatureRamp> of ramps to be set
 	 */
 	@Override
 	public void setRamps(ArrayList<TemperatureRamp> ramps) {
 		rampList = ramps;
 		short[] modbusBuffer = new short[17*8];
-		
+
 		modbusBuffer[0] = 0; // no hold back
 		modbusBuffer[2] = 1; // ramp unit to minutes
 		modbusBuffer[3] = 1; // dwell units to minutes
@@ -438,7 +438,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 //			modbusBuffer[j+1] = (short) (ramp.getEndTemperature()*scale);
 //			startTemp = (segment == 1) ? currentTemp : lastRamp.getEndTemperature();
 //			modbusBuffer[j+2] = (short) (Math.abs(ramp.getEndTemperature() - startTemp)*60*scale/(ramp.getRate()));
-			
+
 			segment++;
 			short dwell = (short)(ramp.getDwellTime()*1);
 			if (dwell > 0) {
@@ -465,7 +465,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 	 * Address calculation is base address 8192 plus number of program (skip 0) times 17*8 writing a progwriting a
 	 * program has to be done in a selective manner. One can`t just write a block of modbus addresses. Each segment type
 	 * has arguments, which can be written over.
-	 * 
+	 *
 	 * @param modbusBuffer
 	 * @param programNumber
 	 * @param numSegments
@@ -479,19 +479,19 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 			logger.error("Invalid program number:");
 			return;
 		}
-			
+
 		short baseOffset = (short) (programBase + (programNumber * 17 * 8));
 		try {
 			numSegments = (numSegments > maxSegments) ? maxSegments : numSegments;
 
-			args[0] = baseOffset; 
+			args[0] = baseOffset;
 			args[1] = modbusBuffer[0]; // Holdback type (0:OFF, 1:Low, 2:High, 3:Band)
 			System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
 			argin = new DeviceData();
 			argin.insert(args);
 			tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 			if (modbusBuffer[0] != 0) {
-				args[0] = (short) (baseOffset + 1); 
+				args[0] = (short) (baseOffset + 1);
 				args[1] = modbusBuffer[1]; // Holdback value
 				System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
 				argin = new DeviceData();
@@ -586,7 +586,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements Temperature, 
 			throw ex;
 		}
 	}
-	
+
 	public short getCurrentSegment() throws DeviceException {
 		try {
 			return getModbusValue(CURRENT_SEGMENT_NUM);

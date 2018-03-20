@@ -38,11 +38,11 @@ public class TangoShutter extends ValveBase implements EnumPositioner {
 
 	@Override
 	public void configure() throws FactoryException{
-		if(!configured){
+		if(!isConfigured()){
 			if(getNumberOfPositions() == 0 ){
 				setPositionsInternal(Arrays.asList(OPEN, CLOSE));
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 	/**

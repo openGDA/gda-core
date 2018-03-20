@@ -18,18 +18,18 @@
 
 package gda.device.timer;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.TimerStatus;
-import gda.factory.FactoryException;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.TimerStatus;
+import gda.factory.FactoryException;
 
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
@@ -46,10 +46,10 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 
 	//if true that tfg.start sends "tfg arm", otherwise sends "tfg start"
 	protected boolean extStart = false;
-	// if true then send tfg arm, tfg start. For the system to work correctly in 
+	// if true then send tfg arm, tfg start. For the system to work correctly in
 	// this situation then there must be a pause in every frame, including the first frame.
 	protected boolean softwareTriggering = false;
-	
+
 	protected boolean extInh = false;
 	protected int cycles = 1;
 	protected int totalCycles = 0;
@@ -69,7 +69,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 	private boolean monitorInBackground  = true;
 
 	protected abstract String getAcqStatus() throws DeviceException;
-	
+
 	@Override
 	public void configure() throws FactoryException{
 		if (!once) {
@@ -81,7 +81,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			configure();
 		}
 	}
@@ -89,7 +89,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 	@Override
 	public void close() {
 		// we don't actually close as other devices may use the same connection
-		configured = false;
+		setConfigured(false);
 		framesLoaded = false;
 	}
 
@@ -272,7 +272,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param monitorInBackground if true (default) the tfg state is monitored regularly and observers are notified of changes.
 	 */
 	public void setMonitorInBackground(boolean monitorInBackground) {

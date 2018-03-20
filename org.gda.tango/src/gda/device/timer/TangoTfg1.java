@@ -19,18 +19,18 @@
 
 package gda.device.timer;
 
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.device.Timer;
 import gda.factory.FactoryException;
-
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * A timer class for the VME time frame generator card
@@ -40,13 +40,13 @@ public class TangoTfg1 extends TimerBase implements InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(TangoTfg1.class);
 	protected TangoDeviceProxy tangoDeviceProxy;
 	private int version;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		try {
 			tangoDeviceProxy.isAvailable();
 			super.configure();
-			configured = true;
+			setConfigured(true);
 		} catch(DeviceException e) {
 			throw new FactoryException(e.getMessage(), e);
 		}
@@ -218,7 +218,7 @@ public class TangoTfg1 extends TimerBase implements InitializingBean {
 		totalExptTime = 0;
 		totalFrames = 0;
 		int index = 0;
-		
+
 		for (FrameSet frameSet : timeFrameProfile) {
 			totalExptTime += (int) (frameSet.getRequestedLiveTime() + frameSet.getRequestedDeadTime())
 					* frameSet.getFrameCount();
@@ -310,6 +310,6 @@ public class TangoTfg1 extends TimerBase implements InitializingBean {
 	@Override
 	public void output(String file) throws DeviceException {
 		// not implemented/not required
-		
+
 	}
 }

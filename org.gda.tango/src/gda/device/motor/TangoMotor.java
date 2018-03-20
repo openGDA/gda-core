@@ -18,6 +18,9 @@
 
 package gda.device.motor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DbDatum;
@@ -28,9 +31,6 @@ import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to control a Tango motor
@@ -88,7 +88,7 @@ public class TangoMotor extends MotorBase implements Motor{
 
 	/**
 	 * This method returns the current position of the motor in natural units.
-	 * 
+	 *
 	 * @return the current position in natural units
 	 * @throws MotorException
 	 */
@@ -105,7 +105,7 @@ public class TangoMotor extends MotorBase implements Motor{
 
 	/**
 	 * Gets the current speed of the motor in steps/second
-	 * 
+	 *
 	 * @return double the motor speed in steps per second
 	 * @throws MotorException
 	 */
@@ -163,7 +163,7 @@ public class TangoMotor extends MotorBase implements Motor{
 
 	/**
 	 * Relative move, moves the motor by the specified mount in natural units.
-	 * 
+	 *
 	 * @param increment the distance that motor need to travel in natural units (eg. mm, deg)
 	 * @throws MotorException
 	 */
@@ -189,7 +189,7 @@ public class TangoMotor extends MotorBase implements Motor{
 
 	/**
 	 * Absolute move, moves the motor to the specified position in natural units
-	 * 
+	 *
 	 * @param position the absolute position of the motor in natural units (eg. mm, deg)
 	 * @throws MotorException
 	 */
@@ -204,7 +204,7 @@ public class TangoMotor extends MotorBase implements Motor{
 		if (motorStatus == MotorStatus.FAULT)
 			throw new MotorException(motorStatus, "moveTo aborted because Motor is at Fault status.");
 		try {
-			// Attribute Position: Position in natural units - Tango_DEV_DOUBLE 
+			// Attribute Position: Position in natural units - Tango_DEV_DOUBLE
 			dev.write_attribute(new DeviceAttribute(positionAttributeName, position));
 		} catch (DevFailed e) {
 			throw new MotorException(motorStatus, "failed to initiate start move", e);
@@ -229,8 +229,8 @@ public class TangoMotor extends MotorBase implements Motor{
 	@Override
 	public void setPosition(double position) throws MotorException {
 		try {
-//			 Attribute PresetPosition: expressed in natural units (mm, degree, etc) it is 
-//			 proportional to the steps attribute- Tango_DEV_DOUBLE 
+//			 Attribute PresetPosition: expressed in natural units (mm, degree, etc) it is
+//			 proportional to the steps attribute- Tango_DEV_DOUBLE
 			dev.write_attribute(new DeviceAttribute(presetPositionAttributeName, position));
 		} catch (DevFailed e) {
 			throw new MotorException(getStatus(), "failed to preset motor position", e);
@@ -268,7 +268,7 @@ public class TangoMotor extends MotorBase implements Motor{
 
 	/**
 	 * checks motor Status
-	 * 
+	 *
 	 * @return MotorStatus
 	 * @throws MotorException
 	 */
@@ -281,7 +281,7 @@ public class TangoMotor extends MotorBase implements Motor{
 	}
 	/**
 	 * This method check the target position is within the limit range.
-	 * 
+	 *
 	 * @param requestedPosition
 	 *            absolute requested target to validate within limits
 	 * @throws MotorException
@@ -545,7 +545,7 @@ public class TangoMotor extends MotorBase implements Motor{
 			// Is the device still connected or just started
 			dev.status();
 			// if it was not connected and just started
-			if (!configured) {
+			if (!isConfigured()) {
 				dev.command_inout("ON");
 				if (dev.use_db()) {
 					DbDatum property = dev.get_property("Calibrated");
@@ -553,15 +553,15 @@ public class TangoMotor extends MotorBase implements Motor{
 						calibrated = property.extractBoolean();
 					}
 				}
-				configured = true;
+				setConfigured(true);
 				motorStatus = MotorStatus.READY;
 			}
 		} catch (DevFailed e) {
 			// device has lost connection
-			configured = false;
+			setConfigured(false);
 			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server " + dev.get_name() + " failed");
 		} catch (Exception e) {
-			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server stuffed");			
+			throw new MotorException(MotorStatus.UNKNOWN, "Tango device server stuffed");
 		}
 	}
 }

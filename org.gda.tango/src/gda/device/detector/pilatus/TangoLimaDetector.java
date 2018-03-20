@@ -18,6 +18,10 @@
 
 package gda.device.detector.pilatus;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DeviceAttribute;
@@ -33,10 +37,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
@@ -80,10 +80,10 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 			readDetectorType();
 			readDetectorDescription();
 			readImageType();
-			configured = true;
+			setConfigured(true);
 		} catch (Exception e) {
 			logger.error("TangoLimaDetector {} configure: {}", getName(), e.getMessage());
-			configured = false;
+			setConfigured(false);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class TangoLimaDetector extends DetectorBase implements Detector, Scannab
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		configured = false;
+		setConfigured(false);
 		logger.debug("TangoLimaDetector reconfiguring {}", getName());
 		configure();
 	}

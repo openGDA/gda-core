@@ -18,17 +18,16 @@
 
 package gda.device.serial;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevVarLongStringArray;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TangoDeviceProxy;
-import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class TangoSerial extends SerialBase implements Serial, InitializingBean {
 
@@ -52,7 +51,7 @@ public class TangoSerial extends SerialBase implements Serial, InitializingBean 
 	private static final short SL_STOP1  = 0;
 	private static final short SL_STOP15 = 1;
 	private static final short SL_STOP2  = 2;
-	
+
 	public TangoDeviceProxy getTangoDeviceProxy() {
 		return tangoDeviceProxy;
 	}
@@ -140,7 +139,7 @@ public class TangoSerial extends SerialBase implements Serial, InitializingBean 
 			stops = SL_STOP1;
 		} else if (stopBits == Serial.STOPBITS_1_5) {
 			stops = SL_STOP15;
-			
+
 		} else if (stopBits == Serial.STOPBITS_2) {
 			stops = SL_STOP2;
 		} else {
@@ -247,11 +246,6 @@ public class TangoSerial extends SerialBase implements Serial, InitializingBean 
 		}
 	}
 
-	@Override
-	public void configure() throws FactoryException {
-		configured = true;
-	}
-	
 	public String readString() throws DeviceException {
 		try {
 			return tangoDeviceProxy.command_inout("DevSerReadRaw").extractString();
