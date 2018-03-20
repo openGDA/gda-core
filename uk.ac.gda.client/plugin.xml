@@ -80,6 +80,14 @@
       <view
             allowMultiple="false"
             category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.views.baton.ReducedGUIWarningView"
+            icon="icons/stop.png"
+            id="gda.rcp.views.baton.ReducedGUIWarningView"
+            name="Reduced GUI Warning">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.gda.client.general.category"
             class="uk.ac.gda.views.baton.BatonView"
             icon="icons/server_link.png"
             id="gda.rcp.views.baton.BatonView"

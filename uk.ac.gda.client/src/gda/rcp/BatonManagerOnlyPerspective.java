@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.views.baton.BatonView;
 import uk.ac.gda.views.baton.MessageView;
+import uk.ac.gda.views.baton.ReducedGUIWarningView;
 
 public class BatonManagerOnlyPerspective implements IPerspectiveFactory {
 
@@ -40,11 +41,12 @@ public class BatonManagerOnlyPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
+		layout.addStandaloneView(ReducedGUIWarningView.ID, false, IPageLayout.TOP, 0.05f, editorArea);
 
-		IFolderLayout batonManager = layout.createFolder("topLeft", IPageLayout.TOP, (float) 0.6, editorArea);
+		IFolderLayout batonManager = layout.createFolder("Left", IPageLayout.BOTTOM, (float) 0.6, editorArea);
 		batonManager.addView(BatonView.ID);
 
-		IFolderLayout messages = layout.createFolder("topRight", IPageLayout.RIGHT, (float) 0.4, "topLeft");
+		IFolderLayout messages = layout.createFolder("Right", IPageLayout.RIGHT, (float) 0.4, "Left");
 		messages.addView(MessageView.ID);
 
 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener(new IPerspectiveListener() {

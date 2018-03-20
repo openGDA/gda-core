@@ -217,18 +217,19 @@ outer scan, we can define the outer scan to set the value of the inner
 scan. The example class ScannableGaussianWidth in the scannableClasses
 module (in directory documention/users/scripts) takes an existing
 ScannableGaussian instance, and sets the width of the
-scannableGaussian to its own current value. The enclosed
-scannableGaussian can be scanned at each width across a user-defined
+ScannableGaussian to its own current value. The enclosed
+ScannableGaussian can be scanned at each width across a user-defined
 range.
 
 
-Instantiate a new ScannableGaussianWidth object:: 
+Instantiate a new inner ScannableGaussian and then a new ScannableGaussianWidth::
 
-   >>> sgw = ScannableGaussianWidth('sgw', 0.0, scannableGaussian0)
+   >>> sgi = ScannableGaussian('sgi', 0.0)
+   >>> sgw = ScannableGaussianWidth('sgw', sgi)
 
 Perform the nested scan::
 
-   >>> scan sgw 1. 10. 1 scannableGaussian0 0. 100. 10
+   >>> scan sgw 0.2 2.0 0.2 sgi -1.0 1.0 0.02
 
 The results of this scan in the Terminal plot window are shown below:
 

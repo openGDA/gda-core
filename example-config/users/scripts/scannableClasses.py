@@ -1,9 +1,9 @@
-from gda.device.scannable import ScannableMotionBase
+from gda.device.scannable import ScannableBase
 import math
 import random
 
 
-class SimpleScannable(ScannableMotionBase):
+class SimpleScannable(ScannableBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue
@@ -21,9 +21,9 @@ class SimpleScannable(ScannableMotionBase):
 
 
 
-class ScannableGaussian(ScannableMotionBase):
+class ScannableGaussian(ScannableBase):
 	"""
-	This class is a Scannable (PseudoDevice) which returns the value of a Gaussian at each sampled point in the scan.
+	This class is a Scannable which returns the value of a Gaussian at each sampled point in the scan.
 
 	The user can define 4 optional parameters of the Gaussian
 
@@ -86,9 +86,9 @@ class ScannableGaussian(ScannableMotionBase):
 
 	
 
-class ScannableSine(ScannableMotionBase):
+class ScannableSine(ScannableBase):
 	"""
-	This class is a Scannable (PseudoDevice) which returns the value of a sine at each sampled point in the scan.
+	This class is a Scannable which returns the value of a sine at each sampled point in the scan.
 
 	The user can optionally define 4 optional parameters of the sine:
 
@@ -133,7 +133,7 @@ class ScannableSine(ScannableMotionBase):
 	
 
 
-class ScannableRandom(ScannableMotionBase):
+class ScannableRandom(ScannableBase):
 	"""
 	For each scanned position, the value returned is random.random()
 	"""
@@ -155,7 +155,7 @@ class ScannableRandom(ScannableMotionBase):
 
 
 
-class ScannableRandomRange(ScannableMotionBase):
+class ScannableRandomRange(ScannableBase):
 	def __init__(self, name, initialValue):
 		self.name = name
 		self.currentposition = initialValue
@@ -177,7 +177,7 @@ class ScannableRandomRange(ScannableMotionBase):
 
 
 
-class ScannableGaussianDev(ScannableMotionBase):
+class ScannableGaussianDev(ScannableBase):
 	def __init__(self, name, initialValue, mu=0, sigma=1):
 		self.name = name
 		self.currentposition = initialValue
@@ -202,7 +202,7 @@ class ScannableGaussianDev(ScannableMotionBase):
 
 
 
-class ScannableExponentialDev(PseudoDevice):
+class ScannableExponentialDev(ScannableBase):
 	def __init__(self, name, initialValue, lambd=0.25):
 		self.name = name
 		self.currentposition = initialValue
@@ -226,7 +226,7 @@ class ScannableExponentialDev(PseudoDevice):
 
 
 
-class ScannableXYFunc(PseudoDevice):
+class ScannableXYFunc(ScannableBase):
 	def __init__(self, name, initialValue, func):
 		self.name = name
 		self.currentposition = initialValue
@@ -248,19 +248,28 @@ class ScannableXYFunc(PseudoDevice):
 
 
 
-class ScannableGaussianWidth(PseudoDevice):
+class ScannableGaussianWidth(ScannableBase):
 	"""
-	This class is a Scannable (PseudoDevice) which takes a reference to a scannableGaussian instance:
-	and sets the width parameter of this Gaussian to its current value, by a custom implementation of its asynchronousMoveTo method:
+	This class is a Scannable that uses a ScannableGaussian's width as its
+	position.
+
+	This Scannable takes a reference to a ScannableGaussian instance in
+	its constructor and gets the width of the ScannableGaussian as its
+	position by overriding the getPosition method:
+
+	def getPosition(self):
+		return self.gaussian.width
+
+	and sets the width of the ScannableGaussian to its position by
+	overriding the asynchronousMoveTo method:
 
 	def asynchronousMoveTo(self, new_position):
-		self.gaussian.setWidth(new_position)
+		self.gaussian.width = new_position
 
+	Example usage:
+	>>> sgw = ScannableGaussianWidth("sgw", sg)
 
-	Example usage: 
-	>>>sgw = ScannableGaussianWidth("sgw", 0.0, sg)
-
-	where "sg" is an existing instance of the ScannableGaussian device
+	where sg is an existing instance of a ScannableGaussian.
 	"""
 
 	def __init__(self,name,gaussian):
@@ -274,8 +283,8 @@ class ScannableGaussianWidth(PseudoDevice):
 		return False
 
 	def getPosition(self):
-		return self.gaussian.getWidth()
+		return self.gaussian.width
 
 	def asynchronousMoveTo(self, new_position):
-		self.gaussian.setWidth(new_position)
+		self.gaussian.width = new_position
 		
