@@ -18,20 +18,17 @@
 
 package uk.ac.gda.devices.mythen.epics;
 
-import gda.device.DeviceException;
-import gda.device.detector.Mythen;
-import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
-import gda.device.detector.mythen.tasks.DataProcessingTask;
-import gda.factory.FactoryException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface IMythenDetector extends Mythen {
+import gda.device.DeviceException;
+import gda.device.detector.Mythen;
+import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
+import gda.device.detector.mythen.tasks.DataProcessingTask;
 
-	public abstract void configure() throws FactoryException;
+public interface IMythenDetector extends Mythen {
 
 	public abstract void afterPropertiesSet() throws Exception;
 
@@ -134,9 +131,9 @@ public interface IMythenDetector extends Mythen {
 	 * gated multiple frames collection - one frame per file, numGates per frame, single cycle only
 	 * Mythen detector controls the frame number increment starting from 0.
 	 * exposure time is controlled by gate signal length
-	 * Delay time = 0, 
+	 * Delay time = 0,
 	 * this acquisition waits for data correction and angular conversion to complete.
-	 * 
+	 *
 	 * @param numFrames Number of frames to collects, i.e. number of data files to create
 	 * @param numGates Number of gates for each frame
 	 * @param scanNumber this acquisition number
@@ -148,12 +145,12 @@ public interface IMythenDetector extends Mythen {
 			throws DeviceException;
 
 	/**
-	 * gated multiple frames collection - one frame per file, numGates per frame, only one cycle - 
+	 * gated multiple frames collection - one frame per file, numGates per frame, only one cycle -
 	 * Mythen detector controls the frame number increment starting from 0.
 	 * exposure time is controlled by gate signal length
-	 * Delay time = 0, 
-	 * does not wait for data correction and angular conversion, returns immediately after RAW data are collected. 
-	 * 
+	 * Delay time = 0,
+	 * does not wait for data correction and angular conversion, returns immediately after RAW data are collected.
+	 *
 	 * @param numFrames Number of frames to collects, i.e. number of data files to create
 	 * @param numGates Number of gates for each frame
 	 * @param scanNumber this acquisition number
@@ -164,7 +161,7 @@ public interface IMythenDetector extends Mythen {
 	/**
 	 * gated multiple or single frame collection - one frame per file, numGates per frame - where GDA controls the collection
 	 * number increment. This acquisition does not wait for data correction and angular conversion to complete before return.
-	 * 
+	 *
 	 * @param numFrames
 	 * @param numGates
 	 * @param scanNumber
