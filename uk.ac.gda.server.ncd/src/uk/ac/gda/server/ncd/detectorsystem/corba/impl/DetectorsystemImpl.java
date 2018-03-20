@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.ncd.detectorsystem.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
@@ -25,9 +27,6 @@ import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
-
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetector;
 import uk.ac.gda.server.ncd.detectorsystem.corba.CorbaNcdDetectorsystemPOA;
 
@@ -177,6 +176,16 @@ public class DetectorsystemImpl extends CorbaNcdDetectorsystemPOA {
 		} catch (DeviceException de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		detectorImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return detectorImpl.isConfigured();
 	}
 
 	@Override

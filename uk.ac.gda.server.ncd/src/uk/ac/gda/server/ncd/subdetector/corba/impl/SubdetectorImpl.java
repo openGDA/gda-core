@@ -20,15 +20,14 @@ package uk.ac.gda.server.ncd.subdetector.corba.impl;
 
 import java.util.List;
 
+import org.omg.CORBA.Any;
+
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.DataDimension;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
-
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorPOA;
 
@@ -119,6 +118,15 @@ public class SubdetectorImpl extends CorbaNcdsubDetectorPOA {
 		}
 	}
 
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
+	}
 	
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
