@@ -81,12 +81,11 @@ public class Xspress3DataOperationsv2 {
 		// remove for testing Xspress3 v.2 as this plugin is not yet available
 		// controller.setPerformROICalculations(false);
 		this.readDataFromFile = readDataFromFile;
-		if (readDataFromFile) {
+		if (!readDataFromFile) {
+			enableEpicsMcaStorage();
+		} else {
 			// we are in a Continuous / Fly scan, so data will be readback from
 			// the HDF file at the end of each scan line
-			disableAllEPICSCalculations();
-		} else {
-			enableEpicsMcaStorage();
 		}
 		lineNumber = 0;
 		framesRead = 0;
@@ -131,13 +130,6 @@ public class Xspress3DataOperationsv2 {
 		isChannelEnabled = new boolean[controller.getNumberOfChannels()];
 		for (int detector = 0; detector < controller.getNumberOfChannels(); detector++) {
 			isChannelEnabled[detector] = !parameters.getDetector(detector).isExcluded();
-		}
-	}
-
-	private void disableAllEPICSCalculations() throws DeviceException {
-		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel < numChannels; channel++) {
-			controller.enableChannel(channel, false);
 		}
 	}
 
@@ -396,7 +388,7 @@ public class Xspress3DataOperationsv2 {
 			regions = new DetectorROI[0];
 		}
 
-		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+		List<DetectorElement> detectorList = new ArrayList<>();
 
 		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
 			DetectorElement thisElement = new DetectorElement();
