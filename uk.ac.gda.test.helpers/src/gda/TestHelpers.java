@@ -46,6 +46,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.factory.ConfigurableBase;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -169,7 +170,7 @@ public class TestHelpers {
 	}
 }
 
-class SimpleScannable implements Scannable, INeXusInfoWriteable {
+class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoWriteable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleScannable.class);
 
@@ -447,7 +448,7 @@ class SineScannable extends SimpleScannable {
 	}
 }
 
-class SimpleDetector implements Detector {
+class SimpleDetector extends ConfigurableBase implements Detector {
 	String name;
 	Object position;
 	String[] extraNames;
