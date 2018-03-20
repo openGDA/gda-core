@@ -65,6 +65,9 @@ public class JlineSshServer {
 		logger.info("Running SSH server on port {}", port);
 		server.setPort(port);
 		server.getProperties().put(FactoryManager.IDLE_TIMEOUT, 0); // 0 -> no timeout
+		// Input is being read by Jline. Server read process timing out causes it to read null
+		// and close the connection.
+		server.getProperties().put(FactoryManager.NIO2_READ_TIMEOUT, 0); // 0 -> no timeout
 		server.setShellFactory(new ShellFactoryImpl(params -> {
 			logger.info("Running SSH shell as {}", params.getEnv().get("USER"));
 			try {
