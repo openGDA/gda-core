@@ -19,6 +19,10 @@
 
 package gda.device.detector.uviewnew.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.UViewROINew;
 import gda.device.corba.CorbaDeviceException;
@@ -27,10 +31,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.uview.corba.CorbaUViewROIPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed UView class
@@ -49,7 +49,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param ur
 	 *            the ur implementation object
 	 * @param poa
@@ -65,7 +65,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the UView implementation object
 	 */
 	public UViewROINew _delegate() {
@@ -74,7 +74,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param ur
 	 */
 	public void _delegate(UViewROINew ur) {
@@ -105,7 +105,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 		}
 
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		try {
@@ -182,6 +182,16 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 		} catch (DeviceException de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override
@@ -388,12 +398,12 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		deviceImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
@@ -408,7 +418,7 @@ public class UviewRoiImpl extends CorbaUViewROIPOA {
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();

@@ -19,14 +19,14 @@
 
 package gda.device.peem.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.PEEM;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.peem.corba.CorbaPEEMPOA;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed PEEM class
@@ -42,7 +42,7 @@ public class PeemImpl extends CorbaPEEMPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param peem
 	 *            the PEEM implementation object
 	 * @param poa
@@ -56,7 +56,7 @@ public class PeemImpl extends CorbaPEEMPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the PEEM implementation object
 	 */
 	public PEEM _delegate() {
@@ -65,7 +65,7 @@ public class PeemImpl extends CorbaPEEMPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param peem
 	 *            set the PEEM implementation object
 	 */
@@ -222,6 +222,16 @@ public class PeemImpl extends CorbaPEEMPOA {
 	}
 
 	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
+	}
+
+	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		deviceImpl.reconfigure();
 	}
@@ -230,7 +240,7 @@ public class PeemImpl extends CorbaPEEMPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

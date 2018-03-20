@@ -19,6 +19,10 @@
 
 package gda.device.detector.uviewnew.corba.impl;
 
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.UViewNew;
 import gda.device.corba.CorbaDeviceException;
@@ -27,10 +31,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.uview.corba.CorbaUViewPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed UView class
@@ -49,7 +49,7 @@ public class UviewImpl extends CorbaUViewPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param uview
 	 *            the UView implementation object
 	 * @param poa
@@ -65,7 +65,7 @@ public class UviewImpl extends CorbaUViewPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the UView implementation object
 	 */
 	public UViewNew _delegate() {
@@ -74,7 +74,7 @@ public class UviewImpl extends CorbaUViewPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param uview
 	 *            set the UView implementation object
 	 */
@@ -157,7 +157,7 @@ public class UviewImpl extends CorbaUViewPOA {
 		}
 
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		try {
@@ -234,6 +234,16 @@ public class UviewImpl extends CorbaUViewPOA {
 		} catch (DeviceException de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}
+	}
+
+	@Override
+	public void configure() throws CorbaFactoryException {
+		deviceImpl.configure();
+	}
+
+	@Override
+	public boolean isConfigured() throws CorbaDeviceException {
+		return deviceImpl.isConfigured();
 	}
 
 	@Override
@@ -459,7 +469,7 @@ public class UviewImpl extends CorbaUViewPOA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();
@@ -469,12 +479,12 @@ public class UviewImpl extends CorbaUViewPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		deviceImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
@@ -489,7 +499,7 @@ public class UviewImpl extends CorbaUViewPOA {
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
