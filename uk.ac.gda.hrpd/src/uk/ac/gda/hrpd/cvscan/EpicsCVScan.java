@@ -18,6 +18,11 @@
 
 package uk.ac.gda.hrpd.cvscan;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
@@ -34,16 +39,10 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EpicsCVScan extends DeviceBase implements InitializationListener, Configurable, Findable {
 
@@ -144,7 +143,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getPv_root() != null) {
 				createChannelAccess(pv_root);
 				channelManager.tryInitialize(100);
@@ -153,7 +152,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				throw new FactoryException("Missing EPICS interface configuration for " + getName());
 			}
 			jythonScanStatus = new ScanStatusProvider();
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -194,7 +193,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * gets the total time of the constant velocity scan.
-	 * 
+	 *
 	 * @return total time in seconds
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -206,7 +205,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * sets the total time for the constant velocity scan.
-	 * 
+	 *
 	 * @param time
 	 *            in seconds
 	 * @throws CAException
@@ -218,7 +217,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * gets the motor components that participate the subsequent constant velocity scan.
-	 * 
+	 *
 	 * @return String motor names
 	 * @throws DeviceException
 	 */
@@ -234,7 +233,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * sets the motor components that participate the subsequent constant velocity scan.
-	 * 
+	 *
 	 * @param profile
 	 * @throws DeviceException
 	 * @throws InterruptedException
@@ -270,7 +269,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * gets the scan start position of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @return the 2nd motor scan range.
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -282,7 +281,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * sets the scan start position of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @param position
 	 * @throws CAException
 	 * @throws InterruptedException
@@ -293,7 +292,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * gets the scan range of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @return the 2nd motor scan range.
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -305,7 +304,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * sets the scan range of 2nd motor that participating the constant velocity scan of two-theta.
-	 * 
+	 *
 	 * @param position
 	 * @throws CAException
 	 * @throws InterruptedException
@@ -318,7 +317,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	 * starts, restarts, or resume the constant velocity scan. The scan only starts when its current state is in one of
 	 * the following modes: Done, Aborted, Paused or Fault. This is done to ensure the EPICS "Start" is never being
 	 * called more than once during a constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
@@ -338,7 +337,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * pauses current constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
@@ -349,7 +348,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * aborts current constant velocity scan.
-	 * 
+	 *
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
@@ -360,7 +359,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * pulls the current state of the CVScan from EPICS and update cached {@link #currentstate}.
-	 * 
+	 *
 	 * @return the current state
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -395,7 +394,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	/****************** Access CVScan data *****************************/
 	/**
 	 * gets the raw two-theta position where scalers/detectors are triggered.
-	 * 
+	 *
 	 * @return two-theta positions
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -435,7 +434,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * return the latest status message that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #message}
 	 */
 	public String getMessage() {
@@ -444,7 +443,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * returns the latest current state that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #currentstate}
 	 */
 	public EpicsCVScanState getState() {
@@ -453,7 +452,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * returns the latest number of pulses completed that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #numberofpulsedone}
 	 */
 	public int getNumberOfPulseDone() {
@@ -462,7 +461,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 
 	/**
 	 * returns the latest total number of pulses in this CVScan that updated from EPICS
-	 * 
+	 *
 	 * @return the cached {@link #totalnumberofpulse}
 	 */
 	public int getTotalNumberOfPulses() {

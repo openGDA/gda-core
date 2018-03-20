@@ -99,7 +99,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			this.setInputNames(new String[] { "tth" });
 			this.setOutputFormat(new String[] { "%s" });
 			try {
@@ -108,7 +108,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				throw new FactoryException("getAvailableCVScanProfiles failed " + getName());
 			} // initialise profiles variable.
 			this.level = 9;
-			configured = true;
+			setConfigured(true);
 		}
 	}
 

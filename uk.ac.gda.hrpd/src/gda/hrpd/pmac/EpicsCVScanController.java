@@ -180,7 +180,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (getPv_root() != null) {
 				createChannelAccess(pv_root);
 				channelManager.tryInitialize(100);
@@ -191,7 +191,7 @@ public class EpicsCVScanController extends DeviceBase implements InitializationL
 			if (getPlotPanelName() == null) {
 				throw new FactoryException("Missing Plot Panel Name configuration for " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
