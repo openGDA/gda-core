@@ -32,11 +32,11 @@ public class StringValueScannable extends ScannableBase {
 
 	@Override
 	public void configure() throws gda.factory.FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			setName(name);
 			setInputNames(new String[] { name });
 			setOutputFormat(new String[] { "%s" });
-			configured=true;
+			setConfigured(true);
 		}
 	};
 	@Override
