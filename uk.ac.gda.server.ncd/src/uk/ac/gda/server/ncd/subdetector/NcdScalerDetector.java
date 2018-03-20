@@ -18,6 +18,13 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -25,13 +32,6 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.device.memory.Gdhist;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to represent a detector for NCD.
@@ -84,7 +84,7 @@ public class NcdScalerDetector extends NcdSubDetector implements INcdSubDetector
 		if (memory != null) {
 			memory.close();
 		}
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**
@@ -176,13 +176,13 @@ public class NcdScalerDetector extends NcdSubDetector implements INcdSubDetector
     @Override
     public void atScanEnd() throws DeviceException {
     }
-    
+
     @Override
     public void atScanStart() throws DeviceException {
     }
 
 	@Override
 	public void setTimer(Timer timer) {
-		
+
 	}
 }

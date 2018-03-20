@@ -18,6 +18,11 @@
 
 package uk.ac.gda.server.ncd.mar;
 
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.Detector;
@@ -29,11 +34,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.util.ThreadManager;
 
 /**
@@ -97,7 +97,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 			if (tracker == null) {
 				tracker = new NumTracker(getName());
 			}
-			configured = true;
+			setConfigured(true);
 		} catch (Exception e) {
 			logger.error("exception in configure: ", e);
 			throw new FactoryException("exception in configure", e);
@@ -106,8 +106,8 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	/**
 	 * Reconfigure the detector interface, if it has been cut off
-	 * @throws FactoryException 
-	 * 
+	 * @throws FactoryException
+	 *
 	 * @see gda.device.DeviceBase#reconfigure()
 	 */
 	@Override
@@ -133,7 +133,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 	 * Stops a data acquisition started with "start"
 	 */
 	public void abort() {
-		if (configured) {
+		if (isConfigured()) {
 			mc.abort();
 		}
 	}
@@ -166,7 +166,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	/**
 	 * Get current binning mode
-	 * 
+	 *
 	 * @return bin 2,3,4 or 8
 	 * @throws DeviceException
 	 */
@@ -176,7 +176,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	/**
 	 * Change binning mode
-	 * 
+	 *
 	 * @param mode
 	 *            2,3,4 or 8
 	 */
@@ -204,7 +204,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	/**
 	 * This won't change anything about how the scripts actually collect data, only in scripts
-	 * 
+	 *
 	 * @return Returns the darkMode.
 	 */
 	public int getDarkType() {
@@ -282,7 +282,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 	}
 
 	public void start() throws DeviceException {
-		if (!configured) {
+		if (!isConfigured()) {
 			throw new DeviceException("not configured");
 		}
 		if (isAcquiring()) {
@@ -298,7 +298,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	@Override
 	public void stop() throws DeviceException {
-		if (!configured) {
+		if (!isConfigured()) {
 			throw new DeviceException("not configured");
 		}
 		mc.readout(0);
@@ -359,7 +359,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 	/**
 	 * Wait until reading is done. Reading should have been started and status should reflect this, or else it will
 	 * return immediately. Will allow more rapid data collections.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void waitWhileReading() throws DeviceException {

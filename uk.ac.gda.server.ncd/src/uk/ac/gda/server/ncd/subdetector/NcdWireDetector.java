@@ -18,6 +18,13 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -25,13 +32,6 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.device.memory.Gdhist;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class to represent a detector for NCD.
@@ -104,7 +104,7 @@ public class NcdWireDetector extends NcdSubDetector implements INcdSubDetector {
 			memory.close();
 		}
 
-		configured = false;
+		setConfigured(false);
 	}
 
 	/**

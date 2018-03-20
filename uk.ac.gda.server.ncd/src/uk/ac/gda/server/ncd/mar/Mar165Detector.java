@@ -18,16 +18,6 @@
 
 package uk.ac.gda.server.ncd.mar;
 
-import gda.data.PathConstructor;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.DetectorBase;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
-import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -37,6 +27,15 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.device.detector.corba.impl.DetectorImpl;
+import gda.factory.FactoryException;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.MARLoader;
 
@@ -89,7 +88,7 @@ public class Mar165Detector extends DetectorBase {
 			mc = new MarCCDController(host, port);
 			mc.initialize();
 
-			configured = true;
+			setConfigured(true);
 			takeDarkExposure();
 		} catch (Exception e) {
 			logger.error("exception in configure: ", e);
@@ -99,7 +98,7 @@ public class Mar165Detector extends DetectorBase {
 
 	/**
 	 * Reconfigure the detector interface, if it has been cut off
-	 * 
+	 *
 	 * @throws FactoryException
 	 * @see gda.device.DeviceBase#reconfigure()
 	 */
@@ -127,7 +126,7 @@ public class Mar165Detector extends DetectorBase {
 	 */
 	@Override
 	public void stop() {
-		if (configured) {
+		if (isConfigured()) {
 			mc.abort();
 		}
 	}
@@ -158,7 +157,7 @@ public class Mar165Detector extends DetectorBase {
 
 	/**
 	 * Get current binning mode
-	 * 
+	 *
 	 * @return bin 2,3,4 or 8
 	 * @throws DeviceException
 	 */
@@ -168,7 +167,7 @@ public class Mar165Detector extends DetectorBase {
 
 	/**
 	 * Change binning mode
-	 * 
+	 *
 	 * @param mode
 	 *            2,3,4 or 8
 	 */
@@ -196,7 +195,7 @@ public class Mar165Detector extends DetectorBase {
 
 	/**
 	 * This won't change anything about how the scripts actually collect data, only in scripts
-	 * 
+	 *
 	 * @return Returns the darkMode.
 	 */
 	public int getDarkType() {
@@ -281,7 +280,7 @@ public class Mar165Detector extends DetectorBase {
 	}
 
 	public void start() throws DeviceException {
-		if (!configured) {
+		if (!isConfigured()) {
 			throw new DeviceException("not configured");
 		}
 		if (isAcquiring()) {
@@ -297,7 +296,7 @@ public class Mar165Detector extends DetectorBase {
 	}
 
 	public void stopSlow() throws DeviceException {
-		if (!configured) {
+		if (!isConfigured()) {
 			throw new DeviceException("not configured");
 		}
 		mc.readout(0);
@@ -334,11 +333,11 @@ public class Mar165Detector extends DetectorBase {
 					elapsedTime = (date.getTime() - startTime) / 1000;
 				}
 
-				if (i == 0) {				
+				if (i == 0) {
 					logger.info("reading first frame into scratch buffer");
 
 					mc.readout(2); // put first frame into scratch buffer
-				} else {				
+				} else {
 					logger.info("reading second frame into background buffer");
 					mc.readout(1); // put second frame into background buffer. will dezinger this one
 				}
@@ -360,7 +359,7 @@ public class Mar165Detector extends DetectorBase {
 	/**
 	 * Wait until reading is done. Reading should have been started and status should reflect this, or else it will
 	 * return immediately. Will allow more rapid data collections.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void waitWhileReading() throws DeviceException {
@@ -412,7 +411,7 @@ public class Mar165Detector extends DetectorBase {
 		String filename = path + "/" + getName() + "-" + tracker + "." + SUFFIX;
 
 		new File(filename).delete();
-		
+
 		mc.readout(rawMode, filename);
 
 		File file = new File(filename);
@@ -433,9 +432,9 @@ public class Mar165Detector extends DetectorBase {
 		} catch (ScanFileHolderException e) {
 			throw new DeviceException("error reading mar file", e);
 		}
-		
+
 		float[] data = (float[]) dataHolder.getDataset(0).cast(Dataset.FLOAT32).getBuffer();
-		
+
 		file.delete();
 		return data;
 	}
@@ -447,7 +446,7 @@ public class Mar165Detector extends DetectorBase {
 	public void setDirTemplate(String dirTemplate) {
 		this.dirTemplate = dirTemplate;
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		return 0.0;
