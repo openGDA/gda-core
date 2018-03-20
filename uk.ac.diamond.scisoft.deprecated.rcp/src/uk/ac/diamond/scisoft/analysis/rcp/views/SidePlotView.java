@@ -83,6 +83,7 @@ public class SidePlotView extends ViewPart implements ISidePlotView {
 	public SidePlotView() {
 		super();
 		switchActions = new ArrayList<Action>();
+		logger.debug("Using deprecated class");
 	}
 
 	/**
