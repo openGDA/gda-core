@@ -30,7 +30,7 @@ class XasScan(Scan):
 
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= 1, validation=True):
         self.setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName)
-        ScriptBase.paused = False
+        ScriptBase.setPaused(False)
         self.runFromXml(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions, validation)
         
     def runFromBeansAndScanXml(self, sampleBean, scanFileName, detectorBean, outputBean, experimentFullPath, numRepetitions= 1, validation=True):
