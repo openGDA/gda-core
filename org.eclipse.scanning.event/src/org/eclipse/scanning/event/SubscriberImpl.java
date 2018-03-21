@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventListener;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -272,17 +271,17 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 				DeviceState now = sbean.getDeviceState();
 				DeviceState was = sbean.getPreviousDeviceState();
 				if (now != null && now != was) {
-					execute(new DespatchEvent(l, new ScanEvent(sbean), true));
+					l.scanStateChanged(new ScanEvent(sbean));
 					return;
 				} else {
 					Status snow = sbean.getStatus();
 					Status swas = sbean.getPreviousStatus();
 					if (snow!=null && snow!=swas && swas!=null) {
-						execute(new DespatchEvent(l, new ScanEvent(sbean), true));
+						l.scanStateChanged(new ScanEvent(sbean));
 						return;
 					}
 				}
-				execute(new DespatchEvent(l, new ScanEvent(sbean), false));
+				l.scanEventPerformed(new ScanEvent(sbean));
 			}
 		});
 		ret.put(IHeartbeatListener.class, new DisseminateHandler() {
@@ -291,7 +290,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 				// Used casting because generics got silly
 				HeartbeatBean hbean = (HeartbeatBean)bean;
 				IHeartbeatListener l= (IHeartbeatListener)e;
-				execute(new DespatchEvent(l, new HeartbeatEvent(hbean)));
+				l.heartbeatPerformed(new HeartbeatEvent(hbean));
 			}
 		});
 		ret.put(IBeanListener.class, new DisseminateHandler() {
@@ -300,7 +299,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 				// Used casting because generics got silly
 				@SuppressWarnings("unchecked")
 				IBeanListener<Object> l = (IBeanListener<Object>)e;
-				execute(new DespatchEvent(l, new BeanEvent<Object>(bean)));
+				l.beanChangePerformed(new BeanEvent<Object>(bean));
 			}
 		});
 		ret.put(ILocationListener.class, new DisseminateHandler() {
@@ -308,7 +307,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			public void disseminate(Object bean, EventListener e) {
 				// Used casting because generics got silly
 				ILocationListener l = (ILocationListener)e;
-				execute(new DespatchEvent(l, new LocationEvent((Location)bean)));
+				l.locationPerformed(new LocationEvent((Location) bean));
 			}
 		});
 
@@ -375,47 +374,6 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private boolean connected;
-
-	private void execute(DespatchEvent event) {
-		if (event.listener instanceof IHeartbeatListener) ((IHeartbeatListener)event.listener).heartbeatPerformed((HeartbeatEvent)event.object);
-		if (event.listener instanceof IBeanListener)      ((IBeanListener)event.listener).beanChangePerformed((BeanEvent)event.object);
-		if (event.listener instanceof ILocationListener)  ((ILocationListener)event.listener).locationPerformed((LocationEvent)event.object);
-		if (event.listener instanceof IScanListener){
-			IScanListener l = (IScanListener)event.listener;
-			ScanEvent     e = (ScanEvent)event.object;
-			if (event.isStateChange()) {
-				l.scanStateChanged(e);
-			} else {
-				l.scanEventPerformed(e);
-			}
-		}
-	}
-
-	/**
-	 * Immutable event for queue.
-	 *
-	 * @author fcp94556
-	 *
-	 */
-	private static class DespatchEvent {
-
-		protected final EventListener listener;
-		protected final EventObject   object;
-		protected final boolean       isStateChange;
-
-		public DespatchEvent(EventListener listener, EventObject object) {
-			this(listener, object, false);
-		}
-		public DespatchEvent(EventListener listener, EventObject object, boolean isStateChange) {
-			this.listener = listener;
-			this.object   = object;
-			this.isStateChange = isStateChange;
-		}
-		public boolean isStateChange() {
-			return isStateChange;
-		}
-
-	}
 
 	public boolean isConnected() {
 		return connected;
