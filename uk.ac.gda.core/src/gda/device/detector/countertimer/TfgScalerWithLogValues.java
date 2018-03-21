@@ -221,6 +221,10 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 		this.useCustomisedOutput = useCustomisedOutput;
 	}
 
+	public boolean getUseCustomisedOutput() {
+		return useCustomisedOutput;
+	}
+
 	/**
 	 * Save the current output formats and extra names;
 	 */
