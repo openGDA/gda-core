@@ -267,20 +267,26 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	protected void invokeScanListener(IScanListener scanListener, ScanBean scanBean) {
-		DeviceState now = scanBean.getDeviceState();
-		DeviceState was = scanBean.getPreviousDeviceState();
-		if (now != null && now != was) {
-			scanListener.scanStateChanged(new ScanEvent(scanBean));
-			return;
-		} else {
-			Status snow = scanBean.getStatus();
-			Status swas = scanBean.getPreviousStatus();
-			if (snow!=null && snow!=swas && swas!=null) {
-				scanListener.scanStateChanged(new ScanEvent(scanBean));
-				return;
-			}
+		// check if device state has changed
+		boolean isStateChange = false;
+		final DeviceState currentState = scanBean.getDeviceState();
+		final DeviceState previousState = scanBean.getPreviousDeviceState();
+		if (currentState != null && currentState != previousState) {
+			isStateChange = true;
 		}
-		scanListener.scanEventPerformed(new ScanEvent(scanBean));
+
+		// check if status has changed
+		final Status currentStatus = scanBean.getStatus();
+		final Status previousStatus = scanBean.getPreviousStatus();
+		if (currentStatus != null && previousStatus != null && currentStatus != previousStatus) {
+			isStateChange = true;
+		}
+
+		if (isStateChange) {
+			scanListener.scanStateChanged(new ScanEvent(scanBean));
+		} else {
+			scanListener.scanEventPerformed(new ScanEvent(scanBean));
+		}
 	}
 
 	/**
