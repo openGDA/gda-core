@@ -353,6 +353,10 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	@Override
 	public void recover() throws DeviceException {
+		if (!started) {
+			JythonServerFacade.getInstance().print("Robot not started. Run sample.start() before continuing");
+			throw new IllegalStateException("Can't recover sample while robot not started");
+		}
 		setBusy(true);
 		runJob(Job.RECOVER);
 		robotController.clearError();
