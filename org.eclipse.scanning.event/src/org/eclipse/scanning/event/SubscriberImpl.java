@@ -252,73 +252,45 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	private Map<Class, DisseminateHandler> createDisseminateHandlers() {
+		final Map<Class, DisseminateHandler> ret = Collections.synchronizedMap(new HashMap<Class, DisseminateHandler>());
 
-		Map<Class, DisseminateHandler> ret = Collections.synchronizedMap(new HashMap<Class, DisseminateHandler>(3));
-
-		ret.put(IScanListener.class, new DisseminateHandler() {
-			@Override
-			public void disseminate(Object bean, EventListener e) {
-
-				if (!(bean instanceof ScanBean)) return;
-				// This listener must be used with events publishing ScanBean
-				// If your scan does not publish ScanBean events then you
-				// may listen to it with a standard IBeanListener.
-
-				// Used casting because generics got silly
-				ScanBean sbean  = (ScanBean)bean;
-				IScanListener l = (IScanListener)e;
-
-				DeviceState now = sbean.getDeviceState();
-				DeviceState was = sbean.getPreviousDeviceState();
-				if (now != null && now != was) {
-					l.scanStateChanged(new ScanEvent(sbean));
-					return;
-				} else {
-					Status snow = sbean.getStatus();
-					Status swas = sbean.getPreviousStatus();
-					if (snow!=null && snow!=swas && swas!=null) {
-						l.scanStateChanged(new ScanEvent(sbean));
-						return;
-					}
-				}
-				l.scanEventPerformed(new ScanEvent(sbean));
-			}
-		});
-		ret.put(IHeartbeatListener.class, new DisseminateHandler() {
-			@Override
-			public void disseminate(Object bean, EventListener e) {
-				// Used casting because generics got silly
-				HeartbeatBean hbean = (HeartbeatBean)bean;
-				IHeartbeatListener l= (IHeartbeatListener)e;
-				l.heartbeatPerformed(new HeartbeatEvent(hbean));
-			}
-		});
-		ret.put(IBeanListener.class, new DisseminateHandler() {
-			@Override
-			public void disseminate(Object bean, EventListener e) {
-				// Used casting because generics got silly
-				@SuppressWarnings("unchecked")
-				IBeanListener<Object> l = (IBeanListener<Object>)e;
-				l.beanChangePerformed(new BeanEvent<Object>(bean));
-			}
-		});
-		ret.put(ILocationListener.class, new DisseminateHandler() {
-			@Override
-			public void disseminate(Object bean, EventListener e) {
-				// Used casting because generics got silly
-				ILocationListener l = (ILocationListener)e;
-				l.locationPerformed(new LocationEvent((Location) bean));
-			}
-		});
+		ret.put(IScanListener.class, (bean, listener) ->
+				invokeScanListener((IScanListener) listener, (ScanBean) bean));
+		ret.put(IHeartbeatListener.class, (bean, listener) ->
+				((IHeartbeatListener) listener).heartbeatPerformed(new HeartbeatEvent((HeartbeatBean) bean)));
+		ret.put(IBeanListener.class, (bean, listener) ->
+				((IBeanListener<Object>) listener).beanChangePerformed(new BeanEvent<Object>(bean)));
+		ret.put(ILocationListener.class, (bean, listener) ->
+				((ILocationListener) listener).locationPerformed(new LocationEvent((Location) bean)));
 
 		return ret;
 	}
 
-	@FunctionalInterface
-	private interface DisseminateHandler {
-		public void disseminate(Object bean, EventListener listener) throws ClassCastException;
+	protected void invokeScanListener(IScanListener scanListener, ScanBean scanBean) {
+		DeviceState now = scanBean.getDeviceState();
+		DeviceState was = scanBean.getPreviousDeviceState();
+		if (now != null && now != was) {
+			scanListener.scanStateChanged(new ScanEvent(scanBean));
+			return;
+		} else {
+			Status snow = scanBean.getStatus();
+			Status swas = scanBean.getPreviousStatus();
+			if (snow!=null && snow!=swas && swas!=null) {
+				scanListener.scanStateChanged(new ScanEvent(scanBean));
+				return;
+			}
+		}
+		scanListener.scanEventPerformed(new ScanEvent(scanBean));
 	}
 
+	/**
+	 * A {@link DisseminateHandler} knows how to invoke the listener for a particular bean,
+	 * i.e. what method to call and how to construct an event from the bean to be passed to that method.
+	 */
+	@FunctionalInterface
+	private interface DisseminateHandler {
+		public void disseminate(Object bean, EventListener listener);
+	}
 
 	private void registerListener(String key, T listener) {
 		Collection<T> ls = listeners.get(key);
