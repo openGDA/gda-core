@@ -32,7 +32,7 @@ import gda.device.robot.RobotNX100Controller.Job;
 import gda.device.robot.RobotSampleState.SampleStateListener;
 import gda.device.scannable.ScannableBase;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
@@ -41,19 +41,7 @@ import gda.observable.IObserver;
  */
 public class I11Robot extends ScannableBase implements Robot, IObserver {
 
-	/**
-	 * logging instance
-	 */
-
 	private static final Logger logger = LoggerFactory.getLogger(I11Robot.class);
-
-	private String robotControllerName;
-
-	private String sampleStateControllerName;
-
-	private String nextSampleNumberControllerName;
-
-	private String currentSampleNumberControllerName;
 
 	private RobotNX100Controller robotController;
 
@@ -68,13 +56,9 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	private double sampleNumber = -1.0;
 
 	private String err = "OK";
-	private boolean started=false;
+	private boolean started = false;
 
 	private boolean busy = false;
-	/**
-	 * Array of strings which specify the format to output when getting the position of this Scannable.
-	 */
-	protected String[] outputFormat = new String[] { "%5d" };
 
 	private boolean stopInProgress = false;
 
@@ -96,64 +80,35 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 		this.stopInProgress = stopInProgress;
 	}
 
-	/**
-	 * Constructor
-	 */
-	public I11Robot() {
-
-	}
-
 	@Override
 	public void configure() throws FactoryException {
+		outputFormat = new String[] { "%5d" };
 		if (!configured) {
 			if (robotController == null) {
-				if ((robotController = (RobotNX100Controller) Finder.getInstance().find(robotControllerName)) != null) {
-					logger.debug("Robot controller {} found", robotControllerName);
-
-				} else {
-					logger.error("Robot controller {} not found", robotControllerName);
-					throw new FactoryException("Robot controller " + robotControllerName + " not found");
-				}
+				logger.error("{} - Robot controller not set", getName());
+				throw new FactoryException(getName() + " - Robot controller not set");
 			}
-			robotController.addIObserver(this);
 			if (sampleStateController == null) {
-				if ((sampleStateController = (RobotSampleState) Finder.getInstance().find(sampleStateControllerName)) != null) {
-					logger.debug("Robot sample state controller {} found", sampleStateControllerName);
-
-				} else {
-					logger.error("Robot sample state controller {} not found", sampleStateControllerName);
-					throw new FactoryException("Robot  sample state controller " + sampleStateControllerName + " not found");
-				}
+				logger.error("{} - Robot sample state controller not set", getName());
+				throw new FactoryException(getName() + " - Robot sample state controller not set");
 			}
-			sampleStateController.addIObserver(this);
 			if (nextSampleNumberController == null) {
-				if ((nextSampleNumberController = (NextSamplePosition) Finder.getInstance().find(nextSampleNumberControllerName)) != null) {
-					logger.debug("Robot next sample position controller {} found", nextSampleNumberControllerName);
-
-				} else {
-					logger.error("Robot next sample position controller {} not found", nextSampleNumberControllerName);
-					throw new FactoryException("Robot next sample position controller " + nextSampleNumberControllerName
-							+ " not found");
-				}
+				logger.error("{} - Robot next sample position controller not set", getName());
+				throw new FactoryException(getName() + " - Robot next sample position controller not set");
 			}
-			nextSampleNumberController.addIObserver(this);
 			if (currentSampleNumberController ==null) {
-				if ((currentSampleNumberController = (CurrentSamplePosition) Finder.getInstance().find(currentSampleNumberControllerName)) != null) {
-					logger.debug("Robot current sample position controller {} found", currentSampleNumberControllerName);
+				logger.error("{} - Robot current sample position controller not set", getName());
+				throw new FactoryException(getName() + " - Robot current sample position controller not set");
+			}
+			if (doorLatch == null) {
+					logger.error("{} - Door Latch state object must be provided", getName());
+					throw new FactoryException(getName() + " - Robot door latch state not set");
+			}
 
-				} else {
-					logger
-							.error("Robot current sample position controller {} not found",
-									currentSampleNumberControllerName);
-					throw new FactoryException("Robot current sample position controller "
-							+ currentSampleNumberControllerName + " not found");
-				}
-			}
+			robotController.addIObserver(this);
+			sampleStateController.addIObserver(this);
+			nextSampleNumberController.addIObserver(this);
 			currentSampleNumberController.addIObserver(this);
-			if (doorLatch ==null) {
-					logger.error("Door Latch state object must be provided");
-					throw new FactoryException("Cannot find the Door Latch state object.");
-			}
 			doorLatch.addIObserver(this);
 
 			configured = true;
@@ -163,11 +118,11 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (!started) start();
-		if (doorLatch.getState()==1) {
+		if (doorLatch.getState() == 1) {
 			recover();
 			doorLatch.resetDoorLatch();
 		}
-		double pos = Double.valueOf(position.toString()).doubleValue();
+		double pos = Double.parseDouble(position.toString());
 		if (pos >= RobotNX100Controller.MIN_NUMBER_OF_SAMPLES || pos <= RobotNX100Controller.MAX_NUMBER_OF_SAMPLES) {
 			setBusy(true);
 			nextSample(pos);
@@ -213,9 +168,8 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
-			// do nothing
+			Thread.currentThread().interrupt();
 		}
-		//finish();
 	}
 
 	@Override
@@ -242,10 +196,9 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 			logger.error("Robot Sample is in an UNKNOWN state. Please investigate");
 			throw new DeviceException("clear sample from Diffractometer failed.");
 		}
-		//recover(); // ensure any left-over sample is cleared from diffractometer
 		runJob(Job.TABLEIN);
 		setBusy(false);
-		JythonServerFacade.getInstance().print("Clear Sample from Diffractometer completed.");
+		InterfaceProvider.getTerminalPrinter().print("Clear Sample from Diffractometer completed.");
 	}
 
 	/**
@@ -259,7 +212,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
-			// do nothing
+			Thread.currentThread().interrupt();
 		}
 		robotController.start();
 		error(job);
@@ -457,61 +410,6 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 		}
 	}
 
-	/**
-	 * @return robotControllerName
-	 */
-	public String getRobotControllerName() {
-		return robotControllerName;
-	}
-
-	/**
-	 * @param robotControllerName
-	 */
-	public void setRobotControllerName(String robotControllerName) {
-		this.robotControllerName = robotControllerName;
-	}
-
-	/**
-	 * @return sampleStateControllerName
-	 */
-	public String getSampleStateControllerName() {
-		return sampleStateControllerName;
-	}
-
-	/**
-	 * @param sampleStateControllerName
-	 */
-	public void setSampleStateControllerName(String sampleStateControllerName) {
-		this.sampleStateControllerName = sampleStateControllerName;
-	}
-
-	/**
-	 * @return nextSampleNumberControllerName
-	 */
-	public String getNextSampleNumberControllerName() {
-		return nextSampleNumberControllerName;
-	}
-
-	/**
-	 * @param nextSampleNumberControllerName
-	 */
-	public void setNextSampleNumberControllerName(String nextSampleNumberControllerName) {
-		this.nextSampleNumberControllerName = nextSampleNumberControllerName;
-	}
-
-	/**
-	 * @return currentSampleNumberControllerName
-	 */
-	public String getCurrentSampleNumberControllerName() {
-		return currentSampleNumberControllerName;
-	}
-
-	/**
-	 * @param currentSampleNumberControllerName
-	 */
-	public void setCurrentSampleNumberControllerName(String currentSampleNumberControllerName) {
-		this.currentSampleNumberControllerName = currentSampleNumberControllerName;
-	}
 	/**
 	 * return the robot controller instance.
 	 * @return the robot controller instance
