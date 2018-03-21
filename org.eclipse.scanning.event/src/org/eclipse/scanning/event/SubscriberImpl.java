@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +35,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.commons.lang.ClassUtils;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -214,41 +214,17 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		}
 	}
 
-	private boolean disseminate(Object bean, Collection<T> listeners) {
-		if (listeners==null || listeners.isEmpty()) return false;
+	private void disseminate(Object bean, Collection<T> listeners) {
+		if (listeners==null || listeners.isEmpty()) return;
 		final EventListener[] ls = listeners.toArray(new EventListener[listeners.size()]);
 
-		boolean ret = true;
 		for (EventListener listener : ls) {
-			List<Class<?>> types = getAllInterfaces(listener.getClass());
-			boolean disseminated = false;
-			for (Class<?> type : types) {
-				DisseminateHandler handler = handlers.get(type);
-				if (handler != null) {
-					handler.disseminate(bean, listener);
-					disseminated = true;
+			for (Entry<Class, DisseminateHandler> entry : handlers.entrySet()) {
+				if (entry.getKey().isInstance(listener)) {
+					entry.getValue().disseminate(bean, listener);
 				}
 			}
-			ret =  ret && disseminated;
 		}
-		return ret;
-	}
-
-	private Map<Class<? extends EventListener>,List<Class<?>>> interfaces;
-
-	/**
-	 * Important to cache the interfaces. Getting them caused a bug where scannable
-	 * values were slow to transmit to the client during a scan.
-	 *
-	 * @param class1
-	 * @return
-	 */
-	private List<Class<?>> getAllInterfaces(Class<? extends EventListener> class1) {
-		if (interfaces==null) interfaces = new HashMap<>();
-		if (!interfaces.containsKey(class1)) {
-			interfaces.put(class1, ClassUtils.getAllInterfaces(class1));
-		}
-		return interfaces.get(class1);
 	}
 
 	private Map<Class, DisseminateHandler> createDisseminateHandlers() {
