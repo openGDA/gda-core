@@ -40,7 +40,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	private static final Logger logger = LoggerFactory.getLogger(EnumPositionerBase.class);
 
 	private List<String> positions = new ArrayList<>();
-	public volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
+	private volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
 	protected String name;
 	/**
 	 * sets the OutputFormat
@@ -103,9 +103,32 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 		this.positions.addAll(positions);
 	}
 
+	/**
+	 * Set the positioner status<br>
+	 * Ideally, this function should be protected, but there are currently problems with calling protected functions
+	 * from inner classes in subclasses.
+	 * <p>
+	 * TODO: Make protected when the above-mentioned issue is resolved.
+	 *
+	 * @param positionerStatus The new value to set
+	 */
+	public void setPositionerStatus(EnumPositionerStatus positionerStatus) {
+		this.positionerStatus = positionerStatus;
+	}
+
+	/**
+	 * Get the current positioner status<br>
+	 * This should also be made protected: see comment on {@link #setPositionerStatus(EnumPositionerStatus)}
+	 *
+	 * @return Current status
+	 */
+	public EnumPositionerStatus getPositionerStatus() {
+		return positionerStatus;
+	}
+
 	@Override
 	public EnumPositionerStatus getStatus() throws DeviceException {
-		return positionerStatus;
+		return getPositionerStatus();
 	}
 
 	@Override
@@ -133,7 +156,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	@Override
 	public boolean isInPos() throws DeviceException {
 		logger.debug("Default isInPos() called");
-		return positionerStatus == EnumPositionerStatus.IDLE;
+		return getPositionerStatus() == EnumPositionerStatus.IDLE;
 	}
 
 	@Override
