@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.scripting;
 
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -29,33 +27,38 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.rcp.GDAClientActivator;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
+
+	private static final Logger logger = LoggerFactory.getLogger(PreferenceInitializer.class);
 
 	@Override
 	public void initializeDefaultPreferences() {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.SHOW_CONFIG_SCRIPTS,     false);
-		store.setDefault(PreferenceConstants.SHOW_GDA_SCRIPTS,        false);
-		store.setDefault(PreferenceConstants.SHOW_XML_CONFIG,         false);
+		store.setDefault(PreferenceConstants.SHOW_CONFIG_SCRIPTS, false);
+		store.setDefault(PreferenceConstants.SHOW_GDA_SCRIPTS, false);
+		store.setDefault(PreferenceConstants.SHOW_XML_CONFIG, false);
 		store.setDefault(PreferenceConstants.CHECK_SCRIPT_SYNTAX, false);
 		store.setDefault(PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
-
 
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
 				/**
-				 * if a new folder is to be created/deleted or syntax checking is changed
-				 * then rebuild the projects
+				 * if a new folder is to be created/deleted or syntax checking is changed then rebuild the projects
 				 */
 				String prop = event.getProperty();
-				if( prop.equals(PreferenceConstants.SHOW_CONFIG_SCRIPTS) ||
-						prop.equals(PreferenceConstants.SHOW_GDA_SCRIPTS) ||
-						prop.equals(PreferenceConstants.CHECK_SCRIPT_SYNTAX ))
-				{
-					Job job = new Job("Create/Hide Script projects"){
+				if (prop.equals(PreferenceConstants.SHOW_CONFIG_SCRIPTS)
+						|| prop.equals(PreferenceConstants.SHOW_GDA_SCRIPTS)
+						|| prop.equals(PreferenceConstants.CHECK_SCRIPT_SYNTAX)) {
+
+					logger.debug("Change script property: {} to {}", prop, event.getNewValue());
+					Job job = new Job("Create/Hide Script projects") {
 
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
@@ -63,15 +66,17 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 								ScriptProjectCreator.createProjects(monitor);
 								return Status.OK_STATUS;
 							} catch (Exception e) {
-								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(),e );
+								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
 							}
 						}
 					};
 					job.setUser(true);
 					job.schedule();
 				}
-				if( prop.equals(PreferenceConstants.SHOW_XML_CONFIG)){
-					Job job = new Job("Create/Hide XML project"){
+				if (prop.equals(PreferenceConstants.SHOW_XML_CONFIG)) {
+
+					logger.debug("Change xml property: {} to {}", prop, event.getNewValue());
+					Job job = new Job("Create/Hide XML project") {
 
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
@@ -79,7 +84,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 								ScriptProjectCreator.handleShowXMLConfig(monitor);
 								return Status.OK_STATUS;
 							} catch (CoreException e) {
-								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(),e );
+								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
 							}
 						}
 					};
