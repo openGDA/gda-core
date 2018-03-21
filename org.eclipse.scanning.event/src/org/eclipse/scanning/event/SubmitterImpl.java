@@ -68,6 +68,8 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 			producer.setPriority(priority);
 			producer.setTimeToLive(lifeTime);
 
+			logger.trace("submit({}) using {} , {} , {} and {}", bean, connectionFactory, send, session, producer);
+
 			if (bean.getSubmissionTime()<1) bean.setSubmissionTime(System.currentTimeMillis());
 			if (bean.getUserName()==null) bean.setUserName(System.getProperty("user.name"));
 			if (bean.getUniqueId()==null) bean.setUniqueId(UUID.randomUUID().toString());
@@ -90,6 +92,8 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 			if (getStatusTopicName() != null) {
 				publishToStatusTopic(session, json);
 			}
+
+			logger.trace("submit({}) completed, closing...", bean);
 		} catch (Exception e) {
 			throw new EventException("Problem opening connection to queue! ", e);
 		} finally {
@@ -117,6 +121,8 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException {
+		logger.trace("blockingSubmit({})", bean);
+
 		String topic = getTopicName();
 		if (topic == null) {
 			// We can't block if we don't know what topic to listen to.
@@ -152,6 +158,9 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 		submit(bean);
 		latch.await();
+		logger.trace("blockingSubmit({}) subscriber latch released. {}", bean, subscriber);
+		subscriber.disconnect();
+		logger.trace("blockingSubmit({}) subscriber disconnected.   {}", bean, subscriber);
 	}
 
 	@Override
