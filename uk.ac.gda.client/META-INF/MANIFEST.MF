@@ -76,7 +76,6 @@ Require-Bundle: org.eclipse.help.ui,
  com.google.guava;bundle-version="16.0.1"
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
- gda.osgi,
  gda.rcp,
  gda.rcp.client,
  gda.rcp.client.propertyTesters,
