@@ -264,9 +264,9 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			boolean useCustomisedOutput = false;
 			// If using customised output for Tfg (gda9 only), don't normalise anything just copy the value
 			// (since values are in arbitrary user specified order with various ratios, logs etc).
-//			if (ionchambers instanceof TfgScalerWithLogValues) {
-//				useCustomisedOutput = ((TfgScalerWithLogValues)ionchambers).getUseCustomisedOutput();
-//			}
+			if (ionchambers instanceof TfgScalerWithLogValues) {
+				useCustomisedOutput = ((TfgScalerWithLogValues)ionchambers).getUseCustomisedOutput();
+			}
 
 			if (!useCustomisedOutput) {
 				numChannelsToNormaliseByTime = ((TfgScaler)ionchambers).getNumChannelsToRead();
