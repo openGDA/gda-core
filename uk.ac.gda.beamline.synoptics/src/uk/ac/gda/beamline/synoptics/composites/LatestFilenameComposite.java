@@ -358,6 +358,7 @@ class LatestFilenameComposite extends Composite {
 		for (String detector : getDetectors().keySet()) {
 			detectorCombo.add(detector);
 		}
+		detectors.put("All Data", a -> true);
 		detectorCombo.select(0); // default to no filtering of data
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(plotTypes);
 		detectorCombo.addSelectionListener(new SelectionAdapter() {
@@ -410,6 +411,9 @@ class LatestFilenameComposite extends Composite {
 								if (pauseButton.getSelection()) {
 									// paused, no update the latest Detector file.
 									return;
+								}
+								if (detectors.get(detectorCombo.getText()).test(filename)) {
+									latestFoundIndex = detectorFilteredFileList(detectorCombo.getText()).size() -1;
 								}
 								group.setText(label);
 								// textIndex.setText(String.valueOf(latestFoundIndex));
