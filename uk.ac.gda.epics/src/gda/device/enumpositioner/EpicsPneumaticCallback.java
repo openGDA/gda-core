@@ -262,14 +262,14 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 					logger.warn("{} is busy", getName());
 					return;
 				}
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				controller.caput(control, target, pcl);
 			} catch (CAException e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString()
 						+ "\n!!! Epics Channel Access problem", e);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! ", e);
 			}
 			return;
@@ -360,18 +360,18 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 			} else {
 				if (value == 0) {
 					synchronized (lock) {
-						positionerStatus = EnumPositionerStatus.ERROR;
+						setPositionerStatus(EnumPositionerStatus.ERROR);
 					}
 				} else if (value == 1 || value == 3) {
 					synchronized (lock) {
-						positionerStatus = EnumPositionerStatus.IDLE;
+						setPositionerStatus(EnumPositionerStatus.IDLE);
 					}
 				} else if (value == 2 || value == 4) {
 					synchronized (lock) {
-						positionerStatus = EnumPositionerStatus.MOVING;
+						setPositionerStatus(EnumPositionerStatus.MOVING);
 					}
 				}
-				notifyIObservers(this, positionerStatus);
+				notifyIObservers(this, getPositionerStatus());
 			}
 		}
 	}
@@ -388,10 +388,10 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 				if (event.getStatus() != CAStatus.NORMAL) {
 					logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(),
 							event.getStatus());
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				} else {
 					logger.info("{} move done", getName());
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 			} catch (Exception ex) {
 				logger.error("Error in putCompleted for {}", getName(), ex);

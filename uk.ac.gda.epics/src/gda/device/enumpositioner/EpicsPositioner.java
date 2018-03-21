@@ -266,7 +266,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 						controller.caput(stop, 1, 0.0); // 0.0 means no timeout
 						// flag idle
 						synchronized (lock) {
-							positionerStatus = EnumPositionerStatus.IDLE;
+							setPositionerStatus(EnumPositionerStatus.IDLE);
 						}
 					} else {
 						// reject new moveTo position
@@ -278,12 +278,12 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				// Preconditions.checkArgument(getStatus() == EnumPositionerStatus.IDLE);
 				// flag moving
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+					setPositionerStatus(EnumPositionerStatus.MOVING);
 				}
 				// move
 				controller.caput(select, target, putCallbackListener);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(select.getName() + " failed to moveTo " + position.toString(), e);
 			}
 			return;
@@ -433,7 +433,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			}
 			if (value == 1.0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 			}
 
@@ -455,12 +455,12 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			}
 			if (value == 0.0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+					setPositionerStatus(EnumPositionerStatus.MOVING);
 				}
 			} else if (value == 1.0) {
 				synchronized (lock) {
-					if (positionerStatus != EnumPositionerStatus.ERROR) {
-						positionerStatus = EnumPositionerStatus.IDLE;
+					if (getPositionerStatus() != EnumPositionerStatus.ERROR) {
+						setPositionerStatus(EnumPositionerStatus.IDLE);
 					}
 				}
 			}
@@ -482,7 +482,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			}
 			if (value != 0.0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 			}
 
@@ -492,7 +492,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	}
 
 	private void sendUpdate() {
-		notifyIObservers(this, positionerStatus);
+		notifyIObservers(this, getPositionerStatus());
 	}
 
 	/**
@@ -531,19 +531,19 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 
 				if (ev.getStatus() != CAStatus.NORMAL) {
 					logger.error("Put failed. Channel {} : Status {}", ((Channel) ev.getSource()).getName(), ev.getStatus());
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				} else {
 					logger.info("{} move done", getName());
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 
 				if (status == Status.NO_ALARM && severity == Severity.NO_ALARM) {
 					logger.info("{} moves OK", getName());
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				} else {
 					// if Alarmed, check and report MSTA status
 					logger.error("{} reports Alarm: {}", getName(), status);
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 
 			} catch (Exception ex) {

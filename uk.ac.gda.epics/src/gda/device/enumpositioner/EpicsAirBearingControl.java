@@ -93,10 +93,10 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 			targetPosition=position.toString();
 			int target = getPositionIndex(targetPosition);
 			try {
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				controller.caput(setChannel, target, pcbl);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(readChannel.getName() + " failed to moveTo " + position.toString(), e);
 			}
 		} else {
@@ -175,7 +175,7 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 						value = ((DBR_Enum) dbr).getEnumValue()[0];
 						currentPosition = readpositions.get(value);
 						if (!currentPosition.isEmpty()) {
-							positionerStatus = EnumPositionerStatus.IDLE;
+							setPositionerStatus(EnumPositionerStatus.IDLE);
 							notifyIObservers(EpicsAirBearingControl.this, new ScannablePositionChangeEvent(currentPosition));
 						}
 						logger.info("{} is at {}", getName(), currentPosition);
@@ -196,10 +196,10 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
 						.getStatus());
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 			} else {
 				logger.info("{} move done", getName());
-				positionerStatus = EnumPositionerStatus.IDLE;
+				setPositionerStatus(EnumPositionerStatus.IDLE);
 			}
 		}
 

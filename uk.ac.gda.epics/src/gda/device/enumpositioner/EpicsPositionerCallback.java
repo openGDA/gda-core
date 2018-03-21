@@ -52,10 +52,10 @@ public class EpicsPositionerCallback extends EpicsPositioner {
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
 						.getStatus());
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				return;
 			}
-			positionerStatus = EnumPositionerStatus.IDLE;
+			setPositionerStatus(EnumPositionerStatus.IDLE);
 		}
 
 	}
@@ -70,10 +70,10 @@ public class EpicsPositionerCallback extends EpicsPositioner {
 					logger.warn("{} is busy", getName());
 					return;
 				}
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				controller.caput(select, target, putCallbackListener);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(select.getName() + " failed to moveTo " + position, e);
 			}
 		}

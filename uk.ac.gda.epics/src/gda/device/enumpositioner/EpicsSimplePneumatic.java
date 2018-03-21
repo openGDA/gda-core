@@ -136,13 +136,13 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 					return;
 				}
 
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				controller.caput(control, target, pcl);
 			} catch (CAException e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! Epics Channel Access problem", e);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(control.getName() + " failed to moveTo " + position.toString() + "\n!!! ", e);
 			}
 			return;
@@ -217,18 +217,18 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 			}
 			if (value == 0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 			} else if (value == 1 || value == 3) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 			} else if (value == 2 || value == 4) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+					setPositionerStatus(EnumPositionerStatus.MOVING);
 				}
 			}
-			notifyIObservers(this, positionerStatus);
+			notifyIObservers(this, getPositionerStatus());
 		}
 	}
 
@@ -244,19 +244,19 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 				if (event.getStatus() != CAStatus.NORMAL) {
 					logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
 							.getStatus());
-					positionerStatus=EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				} else {
 					logger.info("{} move done", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 
 				if (callbackstatus == Status.NO_ALARM && callbackseverity == Severity.NO_ALARM) {
 					logger.info("{} moves OK", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				} else {
 					// if Alarmed, check and report MSTA status
 					logger.error("{} reports Alarm: {}", getName(), control);
-					positionerStatus=EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 
 			} catch (Exception ex) {

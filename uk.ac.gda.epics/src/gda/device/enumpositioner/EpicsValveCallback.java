@@ -52,11 +52,11 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 			// check top ensure a correct string has been supplied
 			if (containsPosition(position.toString())) {
 				controller.caput(currentPositionChnl, position.toString(), putCallbackListener);
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				return;
 			}
 		} catch (Exception e) {
-			positionerStatus = EnumPositionerStatus.ERROR;
+			setPositionerStatus(EnumPositionerStatus.ERROR);
 			throw new DeviceException("failed to move to" + position.toString(), e);
 		}
 		// if get here then wrong position name supplied
@@ -65,17 +65,12 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 	}
 
 	@Override
-	public EnumPositionerStatus getStatus() throws DeviceException {
-		return positionerStatus;
-	}
-
-	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		try {
 			// no matter what message is received, send observers latest status and position
 			EnumPositionerStatus status = fetchEpicsStatus();
-			if (status != positionerStatus) {
-				positionerStatus = status;
+			if (status != getPositionerStatus()) {
+				setPositionerStatus(status);
 				notifyIObservers(this, status);
 
 				if (status == EnumPositionerStatus.IDLE && currentPositionChnl != null && getNumberOfPositions() > 0) {
@@ -94,10 +89,10 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(),
 						event.getStatus());
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				return;
 			}
-			positionerStatus = EnumPositionerStatus.IDLE;
+			setPositionerStatus(EnumPositionerStatus.IDLE);
 		}
 	}
 }

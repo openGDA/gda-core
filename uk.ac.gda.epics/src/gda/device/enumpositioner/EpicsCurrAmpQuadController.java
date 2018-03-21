@@ -308,11 +308,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	}
 
 	@Override
-	public EnumPositionerStatus getStatus() throws DeviceException {
-		return positionerStatus;
-	}
-
-	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// EpicsPositioner moveTo
 		// find in the positionNames array the index of the string
@@ -403,15 +398,15 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 			}
 			if (value == 0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 			} else if (value == 1 || value == 3) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 			} else if (value == 2 || value == 4) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+					setPositionerStatus(EnumPositionerStatus.MOVING);
 				}
 			}
 		}

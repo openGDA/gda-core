@@ -190,22 +190,14 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 		}
 	}
 
-	@Override
-	public EnumPositionerStatus getStatus() {
-		return positionerStatus;
-	}
-
-	/**
-	 *
-	 */
 	public void reset() {
-		if (positionerStatus == EnumPositionerStatus.ERROR) {
+		if (getPositionerStatus() == EnumPositionerStatus.ERROR) {
 			logger.info("reset device {}", getName());
-			positionerStatus = EnumPositionerStatus.IDLE;
-		} else if (positionerStatus == EnumPositionerStatus.MOVING) {
+			setPositionerStatus(EnumPositionerStatus.IDLE);
+		} else if (getPositionerStatus() == EnumPositionerStatus.MOVING) {
 			logger.info("device {} is moving", getName());
 			int i = 0;
-			while (positionerStatus == EnumPositionerStatus.MOVING && i < 30) {
+			while (getPositionerStatus() == EnumPositionerStatus.MOVING && i < 30) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -230,10 +222,10 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 		if (containsPosition(position.toString())) {
 			int target = getPositionIndex(position.toString());
 			try {
-				positionerStatus = EnumPositionerStatus.MOVING;
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 				controller.caput(pv, target, pcbl);
 			} catch (Exception e) {
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException(pv.getName() + " failed to moveTo " + position.toString(), e);
 			}
 			return;
@@ -278,7 +270,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 						logger.error("Could not read Enum Positions. New value: {}", value, e);
 						return;
 					}
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 					notifyIObservers(EpicsSimpleMbbinary.this, new ScannablePositionChangeEvent(position));
 					logger.info("{} is at {}", getName(), position);
 				} else {
@@ -299,10 +291,10 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
 						.getStatus());
-				positionerStatus = EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 			} else {
 				logger.info("{} move done", getName());
-				positionerStatus = EnumPositionerStatus.IDLE;
+				setPositionerStatus(EnumPositionerStatus.IDLE);
 			}
 		}
 

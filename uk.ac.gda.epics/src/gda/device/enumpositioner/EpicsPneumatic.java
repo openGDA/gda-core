@@ -298,18 +298,18 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 			}
 			if (value == 0) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.ERROR;
+					setPositionerStatus(EnumPositionerStatus.ERROR);
 				}
 			} else if (value == 1 || value == 3) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.IDLE;
+					setPositionerStatus(EnumPositionerStatus.IDLE);
 				}
 			} else if (value == 2 || value == 4) {
 				synchronized (lock) {
-					positionerStatus = EnumPositionerStatus.MOVING;
+					setPositionerStatus(EnumPositionerStatus.MOVING);
 				}
 			}
-			notifyIObservers(this, positionerStatus);
+			notifyIObservers(this, getPositionerStatus());
 		}
 	}
 

@@ -36,7 +36,6 @@ import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_STS_Short;
-import gov.aps.jca.dbr.Status;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorEvent;
@@ -96,11 +95,11 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		// find in the positionNames array the index of the string
 		if (values.containsKey(positionString)) {
 			final String value = values.get(positionString);
-			positionerStatus=EnumPositionerStatus.MOVING;
+			setPositionerStatus(EnumPositionerStatus.MOVING);
 			try {
 				controller.caput(currentPositionChnl, value, pcbl);
 			} catch (Exception e) {
-				positionerStatus=EnumPositionerStatus.ERROR;
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 				throw new DeviceException("failed to moveTo", e);
 			}
 
@@ -113,7 +112,6 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	@Override
 	public String getPosition() throws DeviceException {
 		try {
-			// int position = controller.cagetInt(currentPositionChnl);
 			String value = controller.cagetString(currentPositionChnl);
 			return reverseValues.get(value);
 		} catch (Exception e) {
@@ -184,13 +182,11 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		// no matter what message is received, send observers latest status
-		DBR dbr= arg0.getDBR();
+		final DBR dbr = arg0.getDBR();
 		short position = 0;
-		Status status = null;
 		if (dbr.isSTS()) {
-			DBR_STS_Short value = ((DBR_STS_Short)dbr);
+			final DBR_STS_Short value = ((DBR_STS_Short) dbr);
 			position = value.getShortValue()[0];
-			status = value.getStatus();
 		}
 		try {
 			if (currentPositionChnl != null && getNumberOfPositions() > 0) {
@@ -247,7 +243,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			} else {
 				logger.info("{} move done", getName());
 			}
-			positionerStatus=EnumPositionerStatus.IDLE;
+			setPositionerStatus(EnumPositionerStatus.IDLE);
 		}
 
 	}
