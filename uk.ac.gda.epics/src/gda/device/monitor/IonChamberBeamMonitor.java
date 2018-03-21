@@ -35,6 +35,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.jython.ScriptBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -205,16 +206,24 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 		while (monitorOn) {
 			boolean aboveThreshold = aboveThreshold(getCurrentValue());
 			if (!aboveThreshold) {
-				if (!pausedByBeamMonitor && !InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
+				logger.trace("Beam below threshold");
+				boolean idle = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle();
+				logger.trace("pausedByBeamMonitor: {}, scriptAndScanIdle: {}, ScriptBase.paused: {}", pausedByBeamMonitor, idle, ScriptBase.isPaused());
+				if (!pausedByBeamMonitor && !idle) {
 					// only pause if scan running and value fall below the threshold
 					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 					InterfaceProvider.getScriptController().pauseCurrentScript();
 					pausedByBeamMonitor = true;
 					JythonServerFacade.getInstance().print("Data collection PAUSED - NO BEAM ON SAMPLE. ");
 					logger.warn("Data Collection PAUSED WAITING FOR BEAM ON SAMPLE.");
+				} else if (pausedByBeamMonitor && idle) {
+					logger.info("Scan/script finished while beam was down (aborted?)");
+					pausedByBeamMonitor = false;
 				}
 			} else {
+				logger.trace("Beam above threshold");
 				if (pausedByBeamMonitor) {
+					logger.info("Beam above threshold and pausedByBeamMonitor - resuming scan");
 					if (InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().isScriptOrScanPaused()) {
 						// only restart or resume scan if paused by this beam monitor, manual pause excluded
 						if (LocalProperties.check("gda.device.monitor.resumeScan", true)) {
@@ -222,10 +231,12 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 						} else {
 							InterfaceProvider.getCurrentScanController().restartCurrentScan();
 						}
-						InterfaceProvider.getScriptController().resumeCurrentScript();
 						JythonServerFacade.getInstance().print("Beam is back, resume or restart data collection.");
 						logger.info("Beam is back, resume or restart scan.");
 					}
+					// If paused by us, resume script anyway as ScriptBase.pause may not have been checked yet
+					// and isScriptOrScanPaused will return false
+					InterfaceProvider.getScriptController().resumeCurrentScript();
 				}
 				pausedByBeamMonitor = false;
 			}
@@ -281,7 +292,15 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	 * @param monitorOn
 	 */
 	public void setMonitorOn(boolean monitorOn) {
+		logger.debug("Setting monitor from {} to {}", this.monitorOn, monitorOn);
+		InterfaceProvider.getTerminalPrinter().print(String.format("Setting %s monitor to %s", getName(), monitorOn ? "on" : "off"));
 		this.monitorOn = monitorOn;
+		if (!monitorOn && pausedByBeamMonitor) {
+			logger.info("BeamMonitor turned off while beam down - resuming current scan/script");
+			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+			InterfaceProvider.getScriptController().resumeCurrentScript();
+			pausedByBeamMonitor = false;
+		}
 		startMonitoring();
 	}
 
@@ -301,10 +320,6 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	public void off() {
 		if (monitorOn)
 			setMonitorOn(false);
-		if (pausedByBeamMonitor) {
-			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-			InterfaceProvider.getScriptController().resumeCurrentScript();
-		}
 	}
 
 	@Override
