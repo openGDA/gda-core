@@ -465,10 +465,6 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		observableComponent.deleteIObservers();
 	}
 
-	public void notifyIObservers(Object theObserved, Object theArgument) {
-		observableComponent.notifyIObservers(theObserved, theArgument);
-	}
-
 	public boolean isLoadMapForScan() {
 		return loadMapForScan;
 	}
