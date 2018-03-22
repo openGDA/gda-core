@@ -527,6 +527,12 @@ public class FocusScanResultPage extends WizardPage {
 		statusQueueSubscriber.removeListener(statusBeanListener);
 		mapFileController.removeListener(mapFileEventListener);
 
+		try {
+			statusQueueSubscriber.disconnect();
+		} catch (EventException e) {
+			logger.error("Could not disconnect from status topic subscriber", e);
+		}
+
 		return true;
 	}
 
