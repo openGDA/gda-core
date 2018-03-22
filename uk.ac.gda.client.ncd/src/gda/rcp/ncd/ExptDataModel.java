@@ -18,12 +18,12 @@
 
 package gda.rcp.ncd;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * class that contains data pertinent to a users experiment. The class includes methods to save and restore this data
@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ExptDataModel implements IObservable {
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ExptDataModel.class);
-	
+
 	private static ExptDataModel instance = new ExptDataModel();
 
 	private ObservableComponent oc;
@@ -79,7 +79,7 @@ public class ExptDataModel implements IObservable {
 
 	/**
 	 * parameter File changed
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
@@ -145,7 +145,7 @@ public class ExptDataModel implements IObservable {
 	 * @param theObserver
 	 * @param theArgument
 	 */
-	public void notifyIObservers(Object theObserver, Object theArgument) {
+	private void notifyIObservers(Object theObserver, Object theArgument) {
 		oc.notifyIObservers(theObserver, theArgument);
 	}
 
