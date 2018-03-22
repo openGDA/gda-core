@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.UserPrincipal;
@@ -169,10 +170,10 @@ public class GdaAuthorizedKeys implements PublickeyAuthenticator {
 	 */
 	private static void checkOwnership(Path path, String username) {
 		try {
-			UserPrincipal user = Files.getOwner(path);
+			UserPrincipal user = Files.getOwner(path, LinkOption.NOFOLLOW_LINKS);
 			if (!user.getName().equals(username)) {
-				logger.error("Can't authenticate against {}. File must be owned by the user", path);
-				throw new IllegalStateException("Key file must be owned by user");
+				logger.error("Can't authenticate against {}. File must be owned by the user and must not be a symbolic link", path);
+				throw new IllegalStateException("Key file must be owned by user and must not be a symbolic link");
 			}
 		} catch (IOException e) {
 			logger.error("Could not read key file {}", path, e);
