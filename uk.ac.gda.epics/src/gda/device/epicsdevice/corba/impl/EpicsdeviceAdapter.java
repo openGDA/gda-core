@@ -79,7 +79,7 @@ public class EpicsdeviceAdapter extends DeviceAdapter implements Findable, Devic
 	}
 
 	@Override
-	public void notifyIObservers(Object theObserved, Object theArgument) {
+	protected void notifyIObservers(Object theObserved, Object theArgument) {
 		/*
 		 * if theArgument is of type EpicsDeviceEvent then look for it in the registration list. If an entry is found
 		 * that notify it

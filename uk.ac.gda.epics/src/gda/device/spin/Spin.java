@@ -305,12 +305,12 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 				}
 			}
 		}
-	}
 
-	public void notifyIObservers(String position) {
-		logger.info("{}: Notify observers of position changed to {}", getName(), position);
-		notifyIObservers(this, position);
-		logger.info("{}: notify sent.", getName());
+		private void notifyIObservers(String position) {
+			logger.info("{}: Notify observers of position changed to {}", getName(), position);
+			Spin.this.notifyIObservers(this, position);
+			logger.info("{}: notify sent.", getName());
+		}
 	}
 
 	public String getEnableName() {

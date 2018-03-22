@@ -185,16 +185,6 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 	}
 
 	@Override
-	public void notifyIObservers(Object theObserved, Object theArgument) {
-		try {
-			// logger.info("notifyIObservers - in " + theArgument.toString());
-			super.notifyIObservers(theObserved, theArgument);
-		} finally {
-			// logger.info("notifyIObservers - out " + theArgument.toString());
-		}
-	}
-
-	@Override
 	public void addIObserver(IObserver anIObserver) {
 		if (isConfigured())
 			epicsDevice.addIObserver(anIObserver);

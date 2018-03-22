@@ -18,13 +18,6 @@
 
 package gda.device.epicsdevice;
 
-import gda.device.DeviceException;
-import gda.device.epicsdevice.corba.impl.EpicsdeviceAdapter;
-import gda.device.scannable.ScannableBase;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +25,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.epicsdevice.corba.impl.EpicsdeviceAdapter;
+import gda.device.scannable.ScannableBase;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * A client side implementation of the adapter pattern for the ControlPoint class
@@ -141,7 +141,7 @@ public class EpicsDeviceCorbaAdapter implements IEpicsDevice {
 	 * @param theObserved
 	 * @param theArgument
 	 */
-	public void notifyIObservers(@SuppressWarnings("unused") Object theObserved, Object theArgument) {
+	private void notifyIObservers(@SuppressWarnings("unused") Object theObserved, Object theArgument) {
 		/*
 		 * if theArgument is of type EpicsDeviceEvent then look for it in the registration list. If an entry is found
 		 * that notify it

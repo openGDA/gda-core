@@ -384,7 +384,7 @@ public class AccessControl extends ConfigurableBase implements Findable, IObserv
 	 * @param theArgument
 	 *            the data to be sent to the observer.
 	 */
-	public void notifyIObservers(Object theObserved, Object theArgument) {
+	private void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
 

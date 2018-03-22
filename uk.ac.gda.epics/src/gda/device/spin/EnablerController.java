@@ -196,13 +196,13 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 			}
 		}
 
+		private void notifyIObservers(String position) {
+			logger.warn("{}: Notify observers of position changed to {}", getName(), position);
+			EnablerController.this.notifyIObservers(this, position);
+			logger.warn("{}: notify sent.", getName());
+		}
 	}
 
-	public void notifyIObservers(String position) {
-		logger.warn("{}: Notify observers of position changed to {}", getName(), position);
-		this.notifyIObservers(this, position);
-		logger.warn("{}: notify sent.", getName());
-	}
 	/**
 	 * @return deviceName
 	 */
