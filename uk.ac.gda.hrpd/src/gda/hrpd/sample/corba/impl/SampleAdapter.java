@@ -19,6 +19,11 @@
 
 package gda.hrpd.sample.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
@@ -29,11 +34,6 @@ import gda.hrpd.sample.corba.CorbaSampleInfoHelper;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.LoggingConstants;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client side implementation of the adapter pattern for the SampleInfo interface
@@ -525,7 +525,7 @@ public class SampleAdapter implements SampleInfo, EventSubscriber {
 	 * @param changeCode
 	 *            the changed code
 	 */
-	public void notifyIObservers(java.lang.Object theObserved, java.lang.Object changeCode) {
+	private void notifyIObservers(Object theObserved, Object changeCode) {
 		observableComponent.notifyIObservers(theObserved, changeCode);
 	}
 
