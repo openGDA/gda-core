@@ -48,6 +48,8 @@ public final class Element {
 
 	final static Integer NUMBER_OF_ELEMENTS = 103;
 
+	private static int maxAtomicNumberInEdgeData = 93;
+
 	/**
 	 * The Core Holes are being read from a tab separated text file as the old values in this class were wrong and
 	 * difficult to check and maintain.
@@ -111,6 +113,9 @@ public final class Element {
 			m3EdgeEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 8);
 			m4EdgeEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 9);
 			m5EdgeEnergies = setArrayFromFileParser(NUMBER_OF_ELEMENTS, 0., p, 10);
+
+			List<String> atomicNumbers = p.getColumn(0);
+			maxAtomicNumberInEdgeData = Integer.parseInt(atomicNumbers.get(atomicNumbers.size() - 1));
 
 		} catch (Throwable e) {
 			logger.error("Failed to read Element-Edge.txt file. All core holes will be null!",e);
@@ -491,22 +496,22 @@ public final class Element {
 
 		if (getAtomicNumber() >= 15 && getAtomicNumber() <= 54)
 			ret.add("K");
-		if (getAtomicNumber() >= 37 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 37 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("L1");
-		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 39 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("L2");
-		if (getAtomicNumber() >= 39 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 39 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("L3");
 
-		if (getAtomicNumber() >= 66 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 66 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("M1");
-		if (getAtomicNumber() >= 69 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 69 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("M2");
-		if (getAtomicNumber() >= 72 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 72 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("M3");
-		if (getAtomicNumber() >= 77 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 77 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("M4");
-		if (getAtomicNumber() >= 78 && getAtomicNumber() <= 93)
+		if (getAtomicNumber() >= 78 && getAtomicNumber() <= maxAtomicNumberInEdgeData)
 			ret.add("M5");
 		return ret;
 	}
