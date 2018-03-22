@@ -67,7 +67,7 @@ public class RCPControllerImpl implements RCPController {
 		obs.deleteIObservers();
 	}
 
-	public void notifyIObservers(Object theObserved, Object changeCode) {
+	private void notifyIObservers(Object theObserved, Object changeCode) {
 		obs.notifyIObservers(theObserved, changeCode);
 	}
 

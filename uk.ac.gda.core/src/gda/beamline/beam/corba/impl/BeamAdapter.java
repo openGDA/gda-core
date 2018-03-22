@@ -19,6 +19,11 @@
 
 package gda.beamline.beam.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.beamline.BeamInfo;
 import gda.beamline.beam.corba.CorbaBeamInfo;
 import gda.beamline.beam.corba.CorbaBeamInfoHelper;
@@ -31,11 +36,6 @@ import gda.factory.corba.util.NetService;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.LoggingConstants;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client side implementation of the adapter pattern for the BeamInfo interface
@@ -201,7 +201,7 @@ public class BeamAdapter implements BeamInfo, EventSubscriber {
 	 * @param changeCode
 	 *            the changed code
 	 */
-	public void notifyIObservers(java.lang.Object theObserved, java.lang.Object changeCode) {
+	private void notifyIObservers(Object theObserved, Object changeCode) {
 		observableComponent.notifyIObservers(theObserved, changeCode);
 	}
 

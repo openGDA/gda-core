@@ -172,11 +172,17 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 	protected boolean isBeingObserved() {
 		return observableComponent.isBeingObserved();
 	}
+
 	/**
 	 * Notify all observers on the list of the requested change.
+	 * <p>
+	 * This function should ideally be protected, but is left as public for the time being because inner classes of
+	 * subclasses cannot access protected members if they are in different bundles.
 	 *
-	 * @param source the observed component
-	 * @param arg the data to be sent to the observer.
+	 * @param source
+	 *            the observed component
+	 * @param arg
+	 *            the data to be sent to the observer.
 	 */
 	public void notifyIObservers(Object source, Object arg) {
 		observableComponent.notifyIObservers(source, arg);

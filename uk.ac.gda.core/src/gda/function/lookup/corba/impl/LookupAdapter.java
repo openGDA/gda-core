@@ -19,6 +19,15 @@
 
 package gda.function.lookup.corba.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.python.core.PyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.scannable.ScannableUtils;
@@ -32,15 +41,6 @@ import gda.function.lookup.corba.CorbaLookup;
 import gda.function.lookup.corba.CorbaLookupHelper;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.python.core.PyObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client side implementation of the Lookup interface
@@ -131,9 +131,10 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 	 * @param changeCode
 	 *            the changed code
 	 */
-	public void notifyIObservers(java.lang.Object theObserved, java.lang.Object changeCode) {
+	private void notifyIObservers(Object theObserved, Object changeCode) {
 		observableComponent.notifyIObservers(theObserved, changeCode);
 	}
+
 	@Override
 	public String getFilename() {
 		for (int i = 0; i < NetService.RETRY; i++) {

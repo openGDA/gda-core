@@ -254,16 +254,4 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo, Localiza
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
 	}
-
-	/**
-	 * Notify all observers on the list of the requested change.
-	 *
-	 * @param theObserved
-	 *            the observed component
-	 * @param theArgument
-	 *            the data to be sent to the observer.
-	 */
-	public void notifyIObservers(Object theObserved, Object theArgument) {
-		observableComponent.notifyIObservers(theObserved, theArgument);
-	}
 }

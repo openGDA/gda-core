@@ -19,6 +19,11 @@
 
 package gda.data.metadata.corba.impl;
 
+import java.util.ArrayList;
+
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.corba.CorbaMetadata;
@@ -33,11 +38,6 @@ import gda.factory.corba.util.NameFilter;
 import gda.factory.corba.util.NetService;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-
-import java.util.ArrayList;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Metadata class
@@ -190,7 +190,7 @@ public class MetadataAdapter implements Metadata, Findable, EventSubscriber {
 	 * @param source the observed object
 	 * @param arg the changed code
 	 */
-	public void notifyIObservers(Object source, Object arg) {
+	private void notifyIObservers(Object source, Object arg) {
 		observableComponent.notifyIObservers(source, arg);
 	}
 

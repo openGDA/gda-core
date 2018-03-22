@@ -241,7 +241,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 	 * @param changeCode
 	 *            the data requested by the observer.
 	 */
-	public void notifyIObservers(Object theObserved, Object changeCode) {
+	private void notifyIObservers(Object theObserved, Object changeCode) {
 		observable.notifyIObservers(theObserved, changeCode);
 	}
 

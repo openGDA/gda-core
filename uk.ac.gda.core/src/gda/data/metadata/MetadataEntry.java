@@ -137,7 +137,7 @@ public abstract class MetadataEntry extends ConfigurableBase implements IMetadat
 	 * @param theArgument
 	 *            the data to be sent to the observer.
 	 */
-	public void notifyIObservers(Object theObserved, Object theArgument) {
+	protected void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
 

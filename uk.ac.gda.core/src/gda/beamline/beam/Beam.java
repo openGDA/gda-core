@@ -235,7 +235,7 @@ public class Beam extends ConfigurableBase implements BeamInfo, Localizable {
 	 * @param theArgument
 	 *            the data to be sent to the observer.
 	 */
-	public void notifyIObservers(Object theObserved, Object theArgument) {
+	private void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
 

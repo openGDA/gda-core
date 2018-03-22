@@ -232,7 +232,7 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 	 * @param source the observed object
 	 * @param arg the changed code
 	 */
-	public void notifyIObservers(Object source, Object arg) {
+	protected void notifyIObservers(Object source, Object arg) {
 		observableComponent.notifyIObservers(source, arg);
 	}
 
