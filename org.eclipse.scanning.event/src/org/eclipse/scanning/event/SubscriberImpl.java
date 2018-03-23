@@ -147,10 +147,11 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			try {
 				Object bean = service.unmarshal(json, getBeanClass());
 				schedule(bean);
-			} catch (Exception ne) {
-				logger.error("Error processing message {} on topic {} with beanClass {}", message,
-						getTopicName(), getBeanClass(), ne);
-				ne.printStackTrace(); // Unit tests without log4j config show this one.
+			} catch (Exception e) {
+				// can't unmarshall this bean. This is only a warning not an error as we assume that
+				// if we can't unmarshall a bean it's of a type we're not interested in
+				logger.warn("Error processing message {} on topic {} with beanClass {}", message,
+						getTopicName(), getBeanClass());
 			}
 		} catch (JMSException ne) {
 			logger.error("Cannot get text from message " + txt, ne);
