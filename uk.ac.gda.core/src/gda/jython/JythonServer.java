@@ -610,6 +610,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 					}
 
 					interruptThreads();
+					ScriptBase.setPaused(false);
 					interp.getInterp().interrupt(Py.getThreadState());
 				} finally {
 					if (andCallStopAll)
@@ -623,6 +624,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				updateIObservers(new PanicStopEvent());
 			}
 		}).start();
+
 	}
 
 	@Override
@@ -1190,9 +1192,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 						logger.error("CommandServer: error while running command: '{}' encountered an error: ", cmd, e);
 					}
 				}
+
 			}
 
 			finally {
+				// Pause flag should not persist from one script to another
+				ScriptBase.setPaused(false);
 				server.statusHolder.releaseScriptLock();
 
 				if (commandThreadInfo != null) {
