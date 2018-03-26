@@ -144,12 +144,12 @@ public enum Finder {
 				}
 			} catch (FactoryException e) {
 				if (warn) {
-					logger.warn("FactoryException locally looking for {}", name, e);
+					logger.warn("FactoryException looking for '{}'", name, e);
 				}
 			}
 		}
 		if (findable == null && warn) {
-			logger.warn("Could not find \"{}\"", name);
+			logger.warn("Could not find '{}'", name);
 		}
 		return findable;
 	}
