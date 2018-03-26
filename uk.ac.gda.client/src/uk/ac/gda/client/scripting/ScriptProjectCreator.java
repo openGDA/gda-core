@@ -19,6 +19,8 @@
 package uk.ac.gda.client.scripting;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +34,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
@@ -59,19 +60,15 @@ import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
- * Class creates a project for the scripts if it does not exist.
+ * Class creates/removes script projects and XML projects if required to by preferences. Also can automatically create a Jython Interpreter
+ * and assign PyDev nature to the script projects.
  */
-public class ScriptProjectCreator implements IStartup {
+public class ScriptProjectCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
 	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
 
-
-	@Override
-	public void earlyStartup() {
-	}
-
-	public static String getProjectNameXMLConfig() {
+	private static String getProjectNameXMLConfig() {
 		return getProjectName("gda.scripts.user.xml.project.name", "XML - Config");
 	}
 
@@ -82,7 +79,7 @@ public class ScriptProjectCreator implements IStartup {
 		return projectName;
 	}
 
-	static public void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
+	public static void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
 			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
@@ -100,105 +97,112 @@ public class ScriptProjectCreator implements IStartup {
 
 	/**
 	 * We programmatically create a Jython Interpreter so that the user does not have to.
-	 *
-	 * @throws CoreException
 	 */
-	static void createInterpreter(IProgressMonitor monitor) throws Exception {
+	private static void createInterpreter(IProgressMonitor monitor) throws Exception {
 
-		if (System.getProperty("gda.client.jython.automatic.interpreter") != null)
-			return;
 		final IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
-		monitor.subTask("Checking if interpreter already exists");
-		if (!isInterpreter(monitor)) {
+		// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
 
-			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
-			final String interpreterPath = BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath()+File.separator+"jython2.7";
-			final String executable = interpreterPath + File.separator+"jython.jar";
-			if( !(new File(executable)).exists())
-				throw new Exception("Jython jar not found  :" + executable);
+		final Path interpreterPath = Paths.get(BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath(),
+				"jython2.7");
+		final String executable = interpreterPath.resolve("jython.jar").toString();
+		if (!(new File(executable)).exists())
+			throw new Exception("Jython jar not found  :" + executable);
 
-			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
-			if (!script.exists()) {
-				throw new RuntimeException("The file specified does not exist: " + script);
-			}
-			monitor.subTask("Creating interpreter");
-			// gets the info for the python side
-			String encoding=null;
-			Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-					FileUtils.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
-
-			InterpreterInfo info = null;
-			try {
-				// HACK Otherwise Pydev shows a dialog to the user.
-				ModulesManagerWithBuild.IN_TESTS = true;
-				info = InterpreterInfo.fromString(outTup.o1, false);
-			} catch (Exception e) {
-				logger.error("Something went wrong creating the InterpreterInfo.", e);
-			} finally {
-				ModulesManagerWithBuild.IN_TESTS = false;
-			}
-
-			if (info == null) {
-				// cancelled
-				return;
-			}
-			// the executable is the jar itself
-			info.executableOrJar = executable;
-
-			// we have to find the jars before we restore the compiled libs
-			if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS)) {
-				List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
-				for (File jar : jars) {
-					info.libs.add(FileUtils.getFileAbsolutePath(jar));
-				}
-			}
-
-			// Defines all third party libs that can be used in scripts.
-			if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS)) {
-				final List<String> gdaJars = LibsLocationFinder.findGdaLibs();
-				info.libs.addAll(gdaJars);
-			}
-
-			// Defines gda classes which can be used in scripts.
-			final String gdaInterfacePath = LibsLocationFinder.findGdaInterface();
-			if (gdaInterfacePath != null) {
-				info.libs.add(gdaInterfacePath);
-			}
-
-			List<String> allScriptProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
-			for (String s : allScriptProjectFolders) {
-				info.libs.add(s);
-			}
-
-			// java, java.lang, etc should be found now
-			info.restoreCompiledLibs(monitor);
-			info.setName(PydevConstants.INTERPRETER_NAME);
-
-			final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
-			HashSet<String> set = new HashSet<String>();
-			set.add(PydevConstants.INTERPRETER_NAME);
-			man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
-
-			logger.info("Jython interpreter registered: " + PydevConstants.INTERPRETER_NAME);
+		final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+		if (!script.exists()) {
+			throw new RuntimeException("The file specified does not exist: " + script);
 		}
+		monitor.subTask("Creating interpreter");
+		// gets the info for the python side
+		String encoding = null;
+		Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
+				FileUtils.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
+
+		InterpreterInfo info = null;
+		try {
+			// HACK Otherwise Pydev shows a dialog to the user.
+			ModulesManagerWithBuild.IN_TESTS = true;
+			info = InterpreterInfo.fromString(outTup.o1, false);
+		} catch (Exception e) {
+			logger.error("Something went wrong creating the InterpreterInfo.", e);
+		} finally {
+			ModulesManagerWithBuild.IN_TESTS = false;
+		}
+
+		if (info == null) {
+			// cancelled
+			return;
+		}
+		// the executable is the jar itself
+		info.executableOrJar = executable;
+
+		// we have to find the jars before we restore the compiled libs
+		if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS)) {
+			List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
+			for (File jar : jars) {
+				info.libs.add(FileUtils.getFileAbsolutePath(jar));
+			}
+		}
+
+		// Defines all third party libs that can be used in scripts.
+		if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS)) {
+			final List<String> gdaJars = LibsLocationFinder.findGdaLibs();
+			info.libs.addAll(gdaJars);
+		}
+
+		// Defines gda classes which can be used in scripts.
+		final String gdaInterfacePath = LibsLocationFinder.findGdaInterface();
+		if (gdaInterfacePath != null) {
+			info.libs.add(gdaInterfacePath);
+		}
+
+		List<String> allScriptProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
+		for (String s : allScriptProjectFolders) {
+			info.libs.add(s);
+		}
+
+		// java, java.lang, etc should be found now
+		info.restoreCompiledLibs(monitor);
+		info.setName(PydevConstants.INTERPRETER_NAME);
+
+		final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
+		HashSet<String> set = new HashSet<String>();
+		set.add(PydevConstants.INTERPRETER_NAME);
+		man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
+
+		logger.info("Jython interpreter registered: " + PydevConstants.INTERPRETER_NAME);
 	}
 
-	static public void createProjects(IProgressMonitor monitor) throws Exception {
+
+	/**
+	 * Base method of this class for setting up script projects
+	 *  which calls other class methods to: create a Jython interpreter if preferences are set,
+	 * create script projects in the client, manage which projects are shown (created) based on preferences,
+	 * add PyDev nature to these projects and add script projects to working set
+	 */
+	public static void createProjects(IProgressMonitor monitor) throws Exception {
 		monitor.subTask("Checking existence of projects");
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
 
-		if (chkGDASyntax)
-			createInterpreter(monitor);
+
+		//The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
+		//if set to anything. It is not set by default
+		if (chkGDASyntax && System.getProperty("gda.client.jython.automatic.interpreter") == null) {
+			monitor.subTask("Checking if interpreter already exists");
+			if (isInterpreterCreationRequired(monitor))
+				createInterpreter(monitor);
+		}
 
 		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
 
 		for (String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
 			String projectName = JythonServerFacade.getInstance().getProjectNameForPath(path);
-			boolean shouldHideProject = shouldHideProject(path, store);
-			if (!shouldHideProject) {
+			boolean shouldShowProject = checkShowProjectPref(path, store);
+			if (shouldShowProject) {
 				final IProject newProject = createJythonProject(projectName, path, chkGDASyntax, monitor);
 				scriptProjects.add(newProject);
 				pathProjectMap.put(path, newProject);
@@ -220,8 +224,8 @@ public class ScriptProjectCreator implements IStartup {
 		IWorkingSet workingSet = workingSetManager.getWorkingSet("Scripts");
 		if (workingSet == null) {
 			monitor.subTask("Adding Scripts working set");
-			workingSetManager.addWorkingSet(workingSetManager.createWorkingSet("Scripts",
-					scriptProjects.toArray(new IAdaptable[] {})));
+			workingSetManager.addWorkingSet(
+					workingSetManager.createWorkingSet("Scripts", scriptProjects.toArray(new IAdaptable[] {})));
 		} else {
 			for (IAdaptable element : scriptProjects) {
 				workingSetManager.addToWorkingSets(element, new IWorkingSet[] { workingSet });
@@ -229,56 +233,60 @@ public class ScriptProjectCreator implements IStartup {
 		}
 	}
 
-	public static boolean shouldHideProject(String path, IPreferenceStore store) throws RuntimeException {
+	/**
+	 * Checks GDA script preferences to see if the project should be shown or hidden in the workspace
+	 */
+	private static boolean checkShowProjectPref(String path, IPreferenceStore store) throws RuntimeException {
 		if (JythonServerFacade.getInstance().projectIsUserType(path)) {
-			return false;
+			return true;
 		}
 		if (JythonServerFacade.getInstance().projectIsConfigType(path)) {
-			return !store.getBoolean(PreferenceConstants.SHOW_CONFIG_SCRIPTS);
+			return store.getBoolean(PreferenceConstants.SHOW_CONFIG_SCRIPTS);
 		}
 		if (JythonServerFacade.getInstance().projectIsCoreType(path)) {
-			return !store.getBoolean(PreferenceConstants.SHOW_GDA_SCRIPTS);
+			return store.getBoolean(PreferenceConstants.SHOW_GDA_SCRIPTS);
 		}
 		throw new RuntimeException("Unknown type of Jython Script Project: " + path + " = "
 				+ JythonServerFacade.getInstance().getProjectNameForPath(path));
 	}
 
-	static private IProject createJythonProject(final String projectName, final String importFolder,
+	/**
+	 * Uses ProjectUtils to create the script project in the workspace and also adds PyDev specific (.pydevproject) and
+	 * PyDev Eclipse nature (in .project) when chkGDASyntax is true. Otherwise removes just the nature from .project
+	 */
+	private static IProject createJythonProject(final String projectName, final String importFolder,
 			final boolean chkGDASyntax, IProgressMonitor monitor) throws CoreException {
 
-		IProject project2 = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
+		IProject project = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
 				monitor);
-		boolean hasPythonNature = PythonNature.getPythonNature(project2) != null;
+		boolean hasPythonNature = PythonNature.getPythonNature(project) != null;
 
 		if (chkGDASyntax) {
 			if (!hasPythonNature) {
 				// Assumes that the interpreter named PydevConstants.INTERPRETER_NAME has been created.
-				PythonNature.addNature(project2, monitor, IPythonNature.JYTHON_VERSION_2_7,
 				// NOTE Very important to start the name with a '/'
 				// or pydev creates the wrong kind of nature.
-						"/" + project2.getName() + "/src", null, PydevConstants.INTERPRETER_NAME, null);
+				PythonNature.addNature(project, monitor, IPythonNature.JYTHON_VERSION_2_7,
+						"/" + project.getName() + "/src", null, PydevConstants.INTERPRETER_NAME, null);
 			}
 		} else {
 			if (hasPythonNature) {
 				// This should do the same as removing the Pydev config but neither
 				// prevent it being added when a python file is edited.
-				PythonNature.removeNature(project2, monitor);
+				PythonNature.removeNature(project, monitor);
+				// This method removes just the nature in .project
 			}
 		}
-		return project2;
-	}
-
-	public static IProject projectForPath(String path) {
-		return pathProjectMap.get(path);
+		return project;
 	}
 
 	/**
 	 * The method PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(...) can never return in some
-	 * circumstances because of a bug in pydev.
+	 * circumstances because of a bug in pydev. Therefore this is dealt with in InterpreterThread.
 	 *
 	 * @return true if new interpreter required
 	 */
-	static boolean isInterpreter(final IProgressMonitor monitor) {
+	private static boolean isInterpreterCreationRequired(final IProgressMonitor monitor) {
 
 		final InterpreterThread checkInterpreter = new InterpreterThread(monitor);
 		checkInterpreter.start();
@@ -288,7 +296,7 @@ public class ScriptProjectCreator implements IStartup {
 			try {
 				if (totalTimeWaited > 4000) {
 					logger.error("Unable to call getInterpreterInfo() method on pydev, assuming interpreter is already created.");
-					return true;
+					return false;
 				}
 				Thread.sleep(100);
 				totalTimeWaited += 100;
@@ -296,45 +304,53 @@ public class ScriptProjectCreator implements IStartup {
 				break;
 			}
 		}
-
-		if (checkInterpreter.isInterpreter())
-			return true;
-		return false;
+		return !checkInterpreter.isInterpreter();
 	}
 
-}
+	/**
+	 *Thread to check if the desired interpreter already exists within PyDev. Will throw an error in logs if it doesn't.
+	 */
+	private static class InterpreterThread extends Thread {
+		private static final Logger logger = LoggerFactory.getLogger(InterpreterThread.class);
 
-class InterpreterThread extends Thread {
-	private static final Logger logger = LoggerFactory.getLogger(InterpreterThread.class);
+		private IInterpreterInfo info = null;
+		private IProgressMonitor monitor;
+		private boolean finishedCheck = false;
 
-	private IInterpreterInfo info = null;
-	private IProgressMonitor monitor;
-	private boolean finishedCheck = false;
-
-	InterpreterThread(final IProgressMonitor monitor) {
-		super("Interpreter Info");
-		setDaemon(true);// This is not that important
-		this.monitor = monitor;
-	}
-
-	@Override
-	public void run() {
-		// Might never return...
-		try {
-			info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(PydevConstants.INTERPRETER_NAME,
-					monitor);
-		} catch (MisconfigurationException e) {
-			logger.error("Jython is not configured properly", e);
+		private InterpreterThread(final IProgressMonitor monitor) {
+			super("Interpreter Info");
+			setDaemon(true);// This is not that important
+			this.monitor = monitor;
 		}
-		finishedCheck = true;
-	}
 
-	public boolean isInterpreter() {
-		return info != null;
-	}
+		@Override
+		public void run() {
+			// Might never return...
+			try {
+				//Attempts to get interpreter info for a Jython interpreter called INTERPRETER_NAME (doesn't actually check version)
+				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(PydevConstants.INTERPRETER_NAME,
+						monitor);
+			} catch (MisconfigurationException e) {
+				logger.error("Jython is not configured properly", e);
+			}
+			finishedCheck = true;
+		}
 
-	public boolean isFinishedChecking() {
-		return finishedCheck;
-	}
+		/**
+		 * Check if Jython interpreter called INTERPRETER_NAME exists
+		 * @return true if it does exist
+		 */
+		private boolean isInterpreter() {
+			return info != null;
+		}
 
+		/**
+		 * Used to confirm to main thread that a check for existing interpreter actually completed
+		 * @return true when run method completed
+		 */
+		private boolean isFinishedChecking() {
+			return finishedCheck;
+		}
+
+	}
 }
