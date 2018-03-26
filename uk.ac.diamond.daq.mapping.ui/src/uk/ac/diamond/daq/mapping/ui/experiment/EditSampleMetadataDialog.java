@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.Objects;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -50,14 +52,14 @@ public class EditSampleMetadataDialog extends Dialog {
 
 		new Label(mainComposite, SWT.NONE).setText("Sample name");
 		nameWidget = new Text(mainComposite, SWT.BORDER);
-		nameWidget.setText(name);
+		if (Objects.nonNull(name)) nameWidget.setText(name);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(nameWidget);
 
 		Label descriptionLabel = new Label(mainComposite, SWT.NONE);
 		descriptionLabel.setText("Description");
 		GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(descriptionLabel);
 		descriptionWidget = new Text(mainComposite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-		descriptionWidget.setText(description);
+		if (Objects.nonNull(description)) descriptionWidget.setText(description);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(descriptionWidget);
 
 		return mainComposite;
