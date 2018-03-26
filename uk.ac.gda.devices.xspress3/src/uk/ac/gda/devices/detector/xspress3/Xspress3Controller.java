@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.io.IOException;
+
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -280,5 +282,14 @@ public interface Xspress3Controller extends Findable {
 	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException;
 
 	public void setFileArrayCounter(int arrayCounter) throws DeviceException;
+
+	/**
+	 * Set HDF writer 'extra dimensions' PVs from the scan dimensions (up to 3-dimensional shape).
+	 * The number of extra dimensions is set to 0 for a 1-dimensional scan.
+	 * @param scanDimensions - number of points in each dimension of the scan
+	 */
+	public void setHDFExtraDims(int[] scanDimensions) throws IOException;
+
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException;
 
 }

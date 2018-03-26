@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.io.IOException;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -598,6 +599,14 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable, Co
 	@Override
 	public void setHDFLazyOpen(boolean b) throws DeviceException {
 
+	}
+
+	@Override
+	public void setHDFExtraDims(int[] scanDimensions) throws IOException {
+	}
+
+	@Override
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
 	}
 
 }

@@ -90,6 +90,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
 	private static String EXTRA_DIM_X = ":HDF5:ExtraDimSizeX";
 	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
+	private static String DIM_ATT_DATASETS = "HDF5:DimAttDatasets";
 
 	// File performance PVs
 	private static String FILE_ATTR = ":HDF5:StoreAttr";
@@ -201,6 +202,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvExtraDimN;
 	protected PV<Integer> pvExtraDimX;
 	protected PV<Integer> pvExtraDimY;
+	protected PV<Integer> pvDimAttDatasets;
 	protected PV<Boolean> pvHDFAutoIncrement;
 	protected PV<Integer> pvHDFNumCapture;
 	protected PV<Integer> pvHDFNumCaptureRBV;
@@ -312,6 +314,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
 		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
 		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
+		pvDimAttDatasets = LazyPVFactory.newIntegerPV(generatePVName(DIM_ATT_DATASETS));
 	}
 
 	@SuppressWarnings("unchecked")
