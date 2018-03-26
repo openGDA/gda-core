@@ -36,7 +36,7 @@ import gda.device.scannable.component.MotorLimitsComponent;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.remoting.ServiceInterface;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Adapter class for motor to work as scannables. This class uses units and has an offset/scaling factor for the motor

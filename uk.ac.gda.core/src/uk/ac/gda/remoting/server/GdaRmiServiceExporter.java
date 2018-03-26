@@ -28,7 +28,7 @@ import org.springframework.remoting.rmi.RmiServiceExporter;
 
 import gda.factory.Findable;
 import gda.observable.IObservable;
-import uk.ac.gda.remoting.ServiceInterface;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A bean that can be used in place of Spring's {@link RmiServiceExporter}. Makes an object remotely available using

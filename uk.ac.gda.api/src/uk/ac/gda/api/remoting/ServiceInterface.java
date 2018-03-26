@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.remoting;
+package uk.ac.gda.api.remoting;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
