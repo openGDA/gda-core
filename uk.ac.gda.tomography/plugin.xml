@@ -22,5 +22,12 @@
             type="tomoparameters"
             class="uk.ac.gda.tomography.parameters.util.TomoParametersResourceFactoryImpl"/>
    </extension>
+   <extension
+         point="uk.ac.diamond.daq.jython.api.scriptLocations">
+      <location
+            folder="uk.ac.gda.tomography/scripts"
+            name="Scripts: Tomography">
+      </location>
+   </extension>
 
 </plugin>
