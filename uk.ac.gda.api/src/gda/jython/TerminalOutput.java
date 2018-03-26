@@ -32,4 +32,10 @@ public class TerminalOutput implements Serializable {
 		return output;
 	}
 
+	@Override
+	public String toString() {
+		// Strips trailing newlines
+		return "TerminalOutput [" + output.replaceFirst("\n+$", "") + "]";
+	}
+
 }
