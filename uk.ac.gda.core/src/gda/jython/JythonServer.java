@@ -137,9 +137,6 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	// part of the Localizable interface
 	private boolean isLocal = false;
 
-	// the current script being run
-	private volatile int currentScriptPosition = 0;
-
 	private final JythonServerStatusHolder statusHolder = new JythonServerStatusHolder(this);
 
 	// the current scan object
