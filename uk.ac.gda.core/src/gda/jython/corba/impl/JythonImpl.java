@@ -220,7 +220,9 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	public int addFacade(String facadeName, String hostName, String username, String fullname, String visitID)
 			throws CorbaDeviceException {
 		try {
-			return jythonServer.addFacade(this, facadeName, hostName, username, fullname, visitID);
+			// Register this facade as an observer to receive Jython events
+			jythonServer.addIObserver(this);
+			return jythonServer.addFacade(facadeName, hostName, username, fullname, visitID);
 		} catch (Exception de) {
 			throw new CorbaDeviceException(de.getMessage());
 		}

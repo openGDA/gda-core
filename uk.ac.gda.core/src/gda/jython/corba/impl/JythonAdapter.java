@@ -333,8 +333,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullname, String visitID) {
-		terminal = anIObserver;
+	public int addFacade(String JSFIdentifier, String hostName, String username, String fullname, String visitID) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				logger.info("JSFIdentifier = " + StringUtils.quote(JSFIdentifier));
@@ -1125,5 +1124,23 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	@Override
 	public boolean runsource(String command, String JSFIdentifier, InputStream in) {
 		throw new UnsupportedOperationException("It is not currently possible to specify stdin across CORBA");
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		terminal = observer;
+		logger.debug("Set terminal to: {}", observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		terminal = null;
+		logger.debug("Removed terminal: {}", observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		terminal = null;
+		logger.debug("Removed terminal");
 	}
 }

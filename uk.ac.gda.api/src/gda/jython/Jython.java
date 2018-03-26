@@ -33,13 +33,13 @@ import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.completion.AutoCompletion;
-import gda.observable.IObserver;
+import gda.observable.IObservable;
 
 /**
  * The distributed interface for the JythonServer object. This interface should not be operated directly, but via the
  * InterfaceProvider.
  */
-public interface Jython extends Findable {
+public interface Jython extends Findable, IObservable {
 
 	/**
 	 * Name of this object. This should agree with the string used in Castor.
@@ -124,10 +124,9 @@ public interface Jython extends Findable {
 	public boolean runsource(String command, String JSFIdentifier, InputStream stdin);
 
 	/**
-	 * Foe use by the JythonServerFacade class. Allows an instance of this class operating in a different process to
+	 * For use by the JythonServerFacade class. Allows an instance of this class operating in a different process to
 	 * remotely register itself with a JythonServer.
 	 *
-	 * @param anIObserver
 	 * @param JSFIdentifier
 	 * @param hostName
 	 * @param username
@@ -137,7 +136,7 @@ public interface Jython extends Findable {
 	 * @throws DeviceException
 	 *             - thrown if an error during authentication/authorisation
 	 */
-	public int addFacade(IObserver anIObserver, String JSFIdentifier, String hostName, String username, String fullName, String visitID)
+	public int addFacade(String JSFIdentifier, String hostName, String username, String fullName, String visitID)
 			throws DeviceException;
 
 

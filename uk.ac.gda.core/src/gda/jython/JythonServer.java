@@ -77,13 +77,13 @@ import gda.jython.commands.InputCommands;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
-import gda.jython.corba.impl.JythonImpl;
 import gda.jython.server.JlineSshServer;
 import gda.jython.server.JlineTelnetConnectionManager;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
 import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -117,11 +117,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	// the Jython interpreter
 	private GDAJythonInterpreter interp = null;
 
-	// There may be to facades - localFacade distributes output within the
-	// server, remoteFacade distributes it to CORBA - see setFacade().
-	private IObserver localFacade = null;
-
-	private IObserver remoteFacade = null;
+	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	// whether interpreter initialization has completed
 	private boolean initialized = false;
@@ -654,19 +650,10 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@Override
-	public int addFacade(IObserver anIObserver, String uniqueFacadeName, String hostName, String username, String fullName,
+	public int addFacade(String uniqueFacadeName, String hostName, String username, String fullName,
 			String visitID) throws DeviceException {
 
 		try {
-			// JythonServer is allowed to have two facades. The remoteFacade is responsible for distributing stuff out
-			// to CORBA and must be a JythonImpl. The localFacade will normally be an instance of JythonServerFacade
-			// within the same ObjectServer.
-			if (remoteFacade == null && anIObserver instanceof JythonImpl) {
-				remoteFacade = anIObserver;
-			} else if (localFacade == null) {
-				localFacade = anIObserver;
-			}
-
 			// get the authoriser defined by java property
 			Authoriser authoriser = AuthoriserProvider.getAuthoriser();
 
@@ -895,13 +882,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	void updateIObservers(Object messageObject) {
-		// localFacade will be null during configure phase, and before implFactory made
-		if (localFacade != null) {
-			localFacade.update(null, messageObject);
-		}
-		if (remoteFacade != null) {
-			remoteFacade.update(null, messageObject);
-		}
+		observableComponent.notifyIObservers(null, messageObject);
 	}
 
 	private synchronized void stopAll() {
@@ -1485,4 +1466,25 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			logger.error("Could not print message: {}", text, e);
 		}
 	}
+
+	@Override
+	public void addIObserver(IObserver anIObserver) {
+		observableComponent.addIObserver(anIObserver);
+		logger.debug("Added IObserver: {}. Now have {} observers\"", anIObserver, observableComponent.getNumberOfObservers());
+		logger.trace("Observers: {}", observableComponent.getObservers());
+	}
+
+	@Override
+	public void deleteIObserver(IObserver anIObserver) {
+		observableComponent.deleteIObserver(anIObserver);
+		logger.debug("Removed IObserver: {}. Now have {} observers", anIObserver, observableComponent.getNumberOfObservers());
+		logger.trace("Observers: {}", observableComponent.getObservers());
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+		logger.debug("Removed all IObservers");
+	}
+
 }
