@@ -36,7 +36,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	public void configure() {
 		this.inputNames = new String[] { getName() };
 		xes.addIObserver(this);
-		configured = true;
+		setConfigured(true);
 	}
 
 	@Override
