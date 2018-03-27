@@ -19,6 +19,7 @@
 
 package gda.observable;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -157,6 +158,26 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	@Override
 	public boolean isBeingObserved() {
 		return !myIObservers.isEmpty();
+	}
+
+	/**
+	 * Get the current number of observers, for classes wishing to know about their current observers e.g. for logging.
+	 *
+	 * @return The current number of observers
+	 * @since 9.8
+	 */
+	public int getNumberOfObservers() {
+		return myIObservers.size();
+	}
+
+	/**
+	 * Get an unmodifiable view of the current observers, useful for classes wishing to know about their current observers e.g. for logging.
+	 *
+	 * @return The current observers
+	 * @since 9.8
+	 */
+	public Set<IObserver> getObservers() {
+		return Collections.unmodifiableSet(myIObservers);
 	}
 
 }

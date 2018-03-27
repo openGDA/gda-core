@@ -19,8 +19,14 @@
 
 package gda.observable;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -118,6 +124,43 @@ public class ObservableComponentTest {
 
 		// Now shouldn't be being observed again
 		assertFalse(oc.isBeingObserved());
+	}
+
+	@Test
+	public void testNumberOfObservers() {
+		ObservableComponent oc = new ObservableComponent();
+
+		// Initially no observers
+		assertThat(oc.getNumberOfObservers(), is(equalTo(0)));
+
+		// Add one observer
+		oc.addIObserver(mock(IObserver.class));
+
+		// Should now have one
+		assertThat(oc.getNumberOfObservers(), is(equalTo(1)));
+	}
+
+	@Test
+	public void testGettingObservers() {
+		ObservableComponent oc = new ObservableComponent();
+
+		// Initially no observers
+		assertThat(oc.getObservers(), is(empty()));
+
+		// Add one observer
+		IObserver observer = mock(IObserver.class);
+		oc.addIObserver(observer);
+
+		// Should now have only that one
+		assertThat(oc.getObservers(), contains(observer));
+	}
+
+	@Test(expected=UnsupportedOperationException.class)
+	public void testGettingObserversReturnsUnmodifiableView() {
+		ObservableComponent oc = new ObservableComponent();
+
+		// Try to add an observer should throw
+		oc.getObservers().add(mock(IObserver.class));
 	}
 
 	/**
