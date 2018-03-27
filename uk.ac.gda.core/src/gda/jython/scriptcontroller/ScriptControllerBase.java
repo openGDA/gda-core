@@ -44,9 +44,17 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 
 	boolean local = false; // for distribution by default
 
+	private boolean configured = false;
+
 	@Override
 	public void configure() throws FactoryException {
 		doImport();
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	@Override

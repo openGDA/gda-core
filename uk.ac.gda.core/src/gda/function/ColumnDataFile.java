@@ -19,12 +19,6 @@
 
 package gda.function;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.util.QuantityFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -38,12 +32,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import gda.configuration.properties.LocalProperties;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.util.QuantityFactory;
+
 /**
  * Reads a file which contains columnar data and allows access to the columns. The file format is: # Any line beginning
  * with # is ignored xvalue1 yonevalue1 ytwovalue1 ythreevalue1... xvalue2 yonevalue2 ytwovalue2 ythreevalue2... xvalue3
  * yonevalue3 ytwovalue3 ythreevalue3... ... ...
  */
-public class ColumnDataFile implements Findable, Configurable {
+public class ColumnDataFile extends ConfigurableBase implements Findable {
 	public static final String GDA_FUNCTION_COLUMN_DATA_FILE_LOOKUP_DIR = "gda.function.columnDataFile.lookupDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(ColumnDataFile.class);
@@ -293,5 +293,6 @@ public class ColumnDataFile implements Findable, Configurable {
 	public void configure() throws FactoryException {
 		logger.debug("ColumnDataFile configure called");
 		readTheFile();
+		setConfigured(true);
 	}
 }

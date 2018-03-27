@@ -19,26 +19,15 @@
 
 package gda.function;
 
-import gda.factory.FactoryException;
-
 import org.jscience.physics.quantities.Quantity;
 
 /**
  * Identity function (yValue = xValue).
  */
 public class IdentityFunction extends Function {
-	/**
-	 * FIXME remove empty constructor
-	 */
-	public IdentityFunction() {
-	}
 
 	@Override
 	public Quantity evaluate(Quantity xValue) {
 		return (xValue);
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 }

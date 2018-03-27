@@ -19,10 +19,9 @@
 
 package gda.function;
 
-import gda.factory.FactoryException;
-import gda.util.QuantityFactory;
-
 import org.jscience.physics.quantities.Quantity;
+
+import gda.util.QuantityFactory;
 
 /**
  * Similar to the IdentityFunction, but holds an offset.
@@ -35,10 +34,6 @@ public class OffsetFunction extends Function {
 	@Override
 	public Quantity evaluate(Quantity value) {
 		return value.plus(QuantityFactory.createFromObject(offset, value.getUnit()));
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 
 	/**

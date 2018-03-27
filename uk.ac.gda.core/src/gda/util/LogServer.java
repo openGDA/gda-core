@@ -10,7 +10,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.net.SimpleSocketServer;
 import ch.qos.logback.classic.net.SocketNode;
 import ch.qos.logback.core.joran.spi.JoranException;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.util.logging.LogbackUtils;
 
@@ -45,9 +45,9 @@ import gda.util.logging.LogbackUtils;
  * 	is an xml configuration file fed to {@link JoranConfigurator}
  * .
  */
-public class LogServer implements Configurable, BeanNameAware {
+public class LogServer extends ConfigurableBase implements BeanNameAware {
 
-	static Logger logger = LoggerFactory.getLogger(LogServer.class);
+	private static Logger logger = LoggerFactory.getLogger(LogServer.class);
 
 	private static final String CONFIG_FILE_PROPERTY = "gda.logserver.xml";
 
@@ -175,6 +175,7 @@ public class LogServer implements Configurable, BeanNameAware {
 			logger.error(msg, e);
 			throw new FactoryException(msg, e);
 		}
+		setConfigured(true);
 	}
 
 }

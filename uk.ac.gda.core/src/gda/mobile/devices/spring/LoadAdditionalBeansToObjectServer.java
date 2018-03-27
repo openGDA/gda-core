@@ -73,7 +73,7 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 	private boolean allowExceptionInConfigure = LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 	private GenericApplicationContext createdContext;
 	private String name;
-
+	private boolean configured = false;
 
 	public void loadAdditionalBeans(List<String> filepaths) {
 
@@ -182,6 +182,12 @@ public class LoadAdditionalBeansToObjectServer extends ApplicationObjectSupport 
 	@Override
 	public void configure() throws FactoryException {
 		JYTHON_NAMESPACE.placeInJythonNamespace(getName(), this);
+		configured = true;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
 	}
 
 	@Override

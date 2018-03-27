@@ -30,7 +30,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import gda.data.ObservablePathProvider;
 import gda.data.PathChanged;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.observable.IObserver;
 
 /**
@@ -92,7 +92,7 @@ import gda.observable.IObserver;
  * 		<property name="local" value="true" />
  * </pre></code><p>
  */
-public class RedirectableFileLogger implements LineLogger, IObserver, Configurable {
+public class RedirectableFileLogger extends ConfigurableBase implements LineLogger, IObserver {
 
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RedirectableFileLogger.class);
 
@@ -102,8 +102,6 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 
 	private ObservablePathProvider pathProvider;
 
-	private boolean configured = false;
-
 	private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r?\\n");
 
 	public RedirectableFileLogger(ObservablePathProvider logFilePathProvider) {
@@ -112,7 +110,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 
 	@Override
 	public void configure() {
-		if(configured) {
+		if (isConfigured()) {
 			return;
 		}
 
@@ -141,7 +139,7 @@ public class RedirectableFileLogger implements LineLogger, IObserver, Configurab
 		// register for path updates
 		pathProvider.addIObserver(this); //FIXME: potential race condition
 
-		configured = true;
+		setConfigured(true);
 	}
 
 	private void setFile(String logfile) {

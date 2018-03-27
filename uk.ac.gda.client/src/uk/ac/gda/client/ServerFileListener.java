@@ -31,13 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.rcp.DataProject;
 
-public class ServerFileListener implements IObserver, Configurable {
+public class ServerFileListener extends ConfigurableBase implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(ServerFileListener.class);
 
 	private IProject dataProject;
@@ -80,6 +80,7 @@ public class ServerFileListener implements IObserver, Configurable {
 			clientFileAnnouncer = Finder.getInstance().find(clientFileAnnouncerName);
 		}
 		clientFileAnnouncer.addIObserver(this);
+		setConfigured(true);
 	}
 
 	public void findDataProject() {

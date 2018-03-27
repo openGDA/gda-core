@@ -19,13 +19,12 @@
 
 package gda.function;
 
-import gda.factory.FactoryException;
-import gda.util.QuantityFactory;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.jscience.physics.quantities.Quantity;
+
+import gda.util.QuantityFactory;
 
 /**
  * Function of form: y = a * trigFunc( b + x) where trigFunc is sin, cos or tan
@@ -58,11 +57,6 @@ public class SimpleTrigFunction extends Function {
 		}
 
 		return yValue;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-
 	}
 
 	/**

@@ -19,12 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.factory.Finder;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,13 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Configurable {
+import gda.configuration.properties.LocalProperties;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
+
+public class DefaultDataWriterFactory extends ConfigurableBase implements DataWriterFactory {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDataWriterFactory.class);
 
 
 	private String name;
 	private Map<String, IDataWriterExtender> dataWriterExtenders = new LinkedHashMap<String, IDataWriterExtender>();
-	private boolean configured;
 
 	@Override
 	public DataWriter createDataWriter() throws FactoryException {
@@ -140,7 +138,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 	 */
 	public void addDataWriterExtender(String dataWriterExtenderName) {
 
-		if (!configured) {
+		if (!isConfigured()) {
 			// might not exist then, put a placeholder
 			this.dataWriterExtenders.put(dataWriterExtenderName, null);
 		} else {
@@ -178,7 +176,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 				dataWriterExtenders.put(dweName, findByName(dweName));
 			}
 		}
-		configured = true;
+		setConfigured(true);
 	}
 
 	private IDataWriterExtender findByName(String dweName) {

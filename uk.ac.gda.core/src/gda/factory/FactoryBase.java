@@ -19,18 +19,18 @@
 
 package gda.factory;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceBase;
-
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceBase;
+
 /**
  * Base class for object factories.
  */
-public abstract class FactoryBase implements Factory {
+public abstract class FactoryBase extends ConfigurableBase implements Factory {
 
 	/**
 	 * Property to control if exceptions are allowed in configure method of devices- useful for testing. Values are True or False[Default]
@@ -69,6 +69,7 @@ public abstract class FactoryBase implements Factory {
 				}
 			}
 		}
+		setConfigured(true);
 	}
 	/**
 	 * @return True if exceptions allowed in configure - useful for testing

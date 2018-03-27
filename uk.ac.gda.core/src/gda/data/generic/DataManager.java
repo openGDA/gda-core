@@ -19,11 +19,6 @@
 
 package gda.data.generic;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Configurable;
-import gda.factory.Findable;
-import gda.jython.JythonServerFacade;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
@@ -31,6 +26,12 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.DataManagerInterface;
+import gda.factory.ConfigurableBase;
+import gda.factory.Findable;
+import gda.jython.JythonServerFacade;
 
 /**
  * <p>
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 
-public class DataManager implements Configurable, Serializable, Findable, gda.data.DataManagerInterface {
+public class DataManager extends ConfigurableBase implements Serializable, Findable, DataManagerInterface {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataManager.class);
 
@@ -73,6 +74,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 		} else {
 			JythonServerFacade.getInstance().placeInJythonNamespace("dataman", this);
 		}
+		setConfigured(true);
 	}
 
 	/**
