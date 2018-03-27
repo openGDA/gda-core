@@ -18,12 +18,6 @@
 
 package gda.scan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.device.detector.DetectorWithReadout;
-import gda.device.scannable.ScannableUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -37,6 +31,11 @@ import java.util.concurrent.FutureTask;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
 
 /**
  * Base class for scan classes which can act as a dimension in a multi-dimensional concurrentscan
@@ -62,8 +61,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	}
 
 	private PointPositionInLine pointPositionInLine;
-
-	private boolean detectorWithReadoutDeprecationWarningGiven = false;
 
 	final protected PointPositionInLine getPointPositionInLine() {
 		return pointPositionInLine;
@@ -207,17 +204,6 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					if (isScannableToBeMoved(scannable).hasStart()) {
 						scannable.atLevelMoveStart();
 					}
-				}
-			}
-
-			// on detectors (technically scannables) that implement DetectorWithReadout call waitForReadoutComplete
-			for (Scannable scannable : scannablesAtThisLevel) {
-				if (scannable instanceof DetectorWithReadout) {
-					if (!detectorWithReadoutDeprecationWarningGiven ) {
-						logger.warn("The DetectorWithReadout interface is deprecated. Set gda.scan.concurrentScan.readoutConcurrently to true instead (after reading the 8.24 release note");
-						detectorWithReadoutDeprecationWarningGiven = true;
-					}
-					((DetectorWithReadout) scannable).waitForReadoutCompletion();
 				}
 			}
 
