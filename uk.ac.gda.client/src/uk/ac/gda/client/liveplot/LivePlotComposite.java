@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,7 +96,6 @@ import gda.plots.XYDataHandler;
 import gda.rcp.GDAClientActivator;
 import gda.scan.AxisSpec;
 import gda.scan.IScanDataPoint;
-import gda.util.FileUtil;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
@@ -121,9 +122,9 @@ public class LivePlotComposite extends Composite {
 	public static final String MEMENTO_XYDATA_YAXISNAME = "xydata_yAxisName";
 	public static final String MEMENTO_XYDATA_VISIBLE = "xydata_visible";
 	public static final String MEMENTO_XYDATA_NAME = "xydata_name";
-	static public final String MEMENTO_ARCHIVEFILENAME = "xydata_archivefilename";
-	static public final String MEMENTO_XYDATA_DATAFILENAME = "xydata_datafilename";
-	static public final String MEMENTO_XYDATA_SCANNUMBER = "xydata_scannumber";
+	public static final String MEMENTO_ARCHIVEFILENAME = "xydata_archivefilename";
+	public static final String MEMENTO_XYDATA_DATAFILENAME = "xydata_datafilename";
+	public static final String MEMENTO_XYDATA_SCANNUMBER = "xydata_scannumber";
 	private static final int[] WEIGHTS_NORMAL = new int[] { 80, 20 };
 	private static final int[] WEIGHTS_NO_LEGEND = new int[] { 100, 0 };
 	protected SubLivePlotView plotView;
@@ -1083,12 +1084,12 @@ class LiveData {
 	}
 
 	public void deleteArchive(String archiveFolder) {
-		if(isArchived()){
-			File f= new File(getArchivePath(archiveFolder, archiveFilename));
-			if( !f.delete())
+		if (isArchived()) {
+			File f = Paths.get(archiveFolder, archiveFilename).toFile();
+			if (!f.delete())
 				logger.warn("Unable to delete file " + f.getAbsolutePath());
 			archiveFilename = null;
-			//ensure the archive daya exists in case it is referenced somewhere
+			// ensure the archive data exists in case it is referenced somewhere
 			resetArchive(which);
 		}
 
@@ -1173,7 +1174,7 @@ class LiveData {
 	}
 
 	public void setVisible(boolean visibility, String archiveFolder) {
-		if (visibility) // if we are to maek visible then unarchive
+		if (visibility) // if we are to make visible then unarchive
 			unarchive(archiveFolder);
 		if (archive != null)
 			archive.getAppearance().setVisible(visibility);
@@ -1182,7 +1183,7 @@ class LiveData {
 	public void unarchive(String archiveFolder) {
 		try {
 			if (archiveFilename != null) {
-				String archiveFilenameCopy = getArchivePath(archiveFolder, archiveFilename);
+				String archiveFilenameCopy = Paths.get(archiveFolder, archiveFilename).toString();
 				logger.info("XYData.unarchive from " + archiveFilename);
 				FileInputStream f_in = null;
 				ObjectInputStream obj_in = null;
@@ -1247,15 +1248,12 @@ class LiveData {
 		return LivePlotComposite.getColour(lineNumber);
 	}
 
-	private static String  getArchivePath(String archiveFolder, String filename){
-		return archiveFolder + System.getProperty("file.separator") + filename;
-	}
 	private String persistToFilePath(String archiveFolder, String target_filename) throws IOException {
 		// create a unique file in the workspace
-		String archivedFilePath = getArchivePath(archiveFolder, target_filename);
+		String archivedFilePath = Paths.get(archiveFolder, target_filename).toString();
 
-		if( this.isArchived()){
-			FileUtil.copy(archiveFolder + File.separator + this.archiveFilename, archivedFilePath);
+		if (this.isArchived()) {
+			Files.copy(Paths.get(archiveFolder, this.archiveFilename), Paths.get(archivedFilePath));
 		}
 		else {
 			File file = new File(archivedFilePath);
