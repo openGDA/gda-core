@@ -308,6 +308,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				pbean.setPause(false);
 				publisher.broadcast(pbean);
 			}
+			publisher.disconnect();
 		}
 	}
 
@@ -343,26 +344,24 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			@SuppressWarnings("rawtypes")
 			Enumeration  e  = qb.getEnumeration();
 
-			String jMSMessageID = null;
-			while (e.hasMoreElements()) {
+			String jmsMessageId = null;
+			while (jmsMessageId == null && e.hasMoreElements()) {
 				Message m = (Message)e.nextElement();
 				if (m==null) continue;
 				if (m instanceof TextMessage) {
 					TextMessage t = (TextMessage)m;
 
 					final U qbean = service.unmarshal(t.getText(), null);
-					if (qbean==null) continue;
-					if (isSame(qbean, bean)) {
-						jMSMessageID = t.getJMSMessageID();
-						break;
+					if (qbean != null && isSame(qbean, bean)) {
+						jmsMessageId = t.getJMSMessageID();
 					}
 				}
 			}
 
 			qb.close();
 
-			if (jMSMessageID != null) {
-				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
+			if (jmsMessageId != null) {
+				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
 				Message m = consumer.receive(1000);
 				consumer.close();
 				return m != null; // It might have been removed ok
@@ -378,6 +377,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				publisher.broadcast(pbean);
 			}
 			try {
+				publisher.disconnect();
 				if (send!=null)     send.close();
 				if (session!=null)  session.close();
 			} catch (Exception e) {
@@ -389,8 +389,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public boolean replace(U bean, String queueName) throws EventException {
-
-
 		PauseBean pbean = new PauseBean(queueName);
 		pbean.setMessage("Pause to replace '"+bean.getName()+"' ");
 
@@ -430,6 +428,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				pbean.setPause(false);
 				publisher.broadcast(pbean);
 			}
+			publisher.disconnect();
 		}
 
 	}
