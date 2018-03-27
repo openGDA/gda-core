@@ -38,8 +38,7 @@ import gda.scan.ScanDataPointVar;
 import gda.util.simpleServlet.FindableSimpleServlet;
 
 /**
- *
- * first sets of lines is a nested scan the first scannable has 3 positions, the second 2 positions
+ * First sets of lines is a nested scan the first scannable has 3 positions, the second 2 positions
  * and the 3rd 100, so there are 6 combinations of first and second scannables.
  * There are 2 extra scannables being monitored so the total number of lines per combination is 4
  * making 4*6 lines = 24.
@@ -49,19 +48,20 @@ import gda.util.simpleServlet.FindableSimpleServlet;
  *
  * following sets of lines are repeats of the first and second.
  *
- * An example of using this class is XYPlotViewTest:
- *
- * 		ScanDataPointHandlerTester addDataQueue = new ScanDataPointHandlerTester(this);
-		for(int i=0; i< 3; i++){
-			File f =  new File(scratchFolder + File.separator + Integer.toString(i)+".nxs");
-			gda.util.FileUtil.copy(testdataFile, f);
-			addDataQueue.startAddingData(f.getAbsolutePath());
-			while( addDataQueue.isAddingData()){
-				delay(1000);
-			}
-			switch(i){
-			case 0:
-				'test' results
+ * An example of using this class:
+ *<pre>
+ * ScanDataPointHandlerTester addDataQueue = new ScanDataPointHandlerTester(this);
+ * for (int i = 0; i < 3; i++) {
+ * 	Path fileData = Paths.get(scratchFolder, Integer.toString(i) + ".nxs");
+ * 	Files.copy(Paths.get(testdataFile.toString()), fileData);
+ * 	addDataQueue.startAddingData(fileData.toAbsolutePath().toString());
+ * 	while (addDataQueue.isAddingData()) {
+ * 		delay(1000);
+ * 	}
+ * 	switch(i){
+ * 	case 0:
+ * 		'test' results
+ *</pre>
  */
 public class ScanDataPointHandlerTester implements Runnable {
 
