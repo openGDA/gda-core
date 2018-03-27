@@ -22,12 +22,15 @@ import org.eclipse.scanning.api.event.EventException;
  *
  * @author Matthew Gerring
  */
-public interface IConnection {
+public interface IConnection extends AutoCloseable {
 
 	/**
 	 * Call to disconnect any resources which we no longer need.
 	 * The resource may have timed out so it might not be connected,
 	 * in that case it silently returns.
+	 * Note, that the method {@link #close()}, inherited from {@link AutoCloseable} calls this method,
+	 * which means that if an object of a class implementing {@link IConnection} is used with
+	 * a try-with-resources block this method will be called automatically when exiting that block.
 	 *
 	 * @throws EventException if resource could not be disconnected.
 	 */
@@ -40,5 +43,14 @@ public interface IConnection {
 	 * @return <code>true</code> if connected, <code>false</code> otherwise
 	 */
 	public boolean isConnected();
+
+	/**
+	 * Implements {@link AutoCloseable#close()} to call {@link #disconnect()}.
+	 * Note: this method should <em>not</em> be overridden.
+	 */
+	@Override
+	public default void close() throws EventException {
+		disconnect();
+	}
 
 }

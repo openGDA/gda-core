@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.event.remote;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.scanning.api.event.EventException;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-abstract class AbstractRemoteService implements IConnection, Closeable {
+abstract class AbstractRemoteService implements IConnection {
 
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractRemoteService.class);
 
@@ -59,15 +57,6 @@ abstract class AbstractRemoteService implements IConnection, Closeable {
 	 */
 	void init() throws EventException {
 
-	}
-
-	@Override
-	public void close() throws IOException {
-		try {
-			disconnect();
-		} catch (EventException e) {
-			throw new IOException(e);
-		}
 	}
 
 	@Override
