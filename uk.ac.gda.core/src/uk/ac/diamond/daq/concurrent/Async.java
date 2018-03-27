@@ -291,7 +291,7 @@ public final class Async {
 	 * the task is variable.<p>
 	 * This differs from {@link #scheduleWithFixedDelay(Runnable, long, long, TimeUnit)} in that it renames
 	 * the thread before running the task.
-	 * The name is created using {@link String#format} with the given nameFormat and args
+	 * The name is created using {@link String#format} with the given nameFormat and args.
 	 *
 	 * @param target The task to run
 	 * @param delay The time before the initial execution
@@ -397,7 +397,7 @@ public final class Async {
 	/**
 	 * Submit a callable object to be run asynchronously. This method is a duplicate of {@link #submit(Callable)}
 	 * and only exists to work around a Jython bug where incorrect type resolution is used (Callable python objects
-	 * are used as Runnables instead so return types are lost).<p>
+	 * are used as Runnables instead so return values are lost).<p>
 	 *
 	 * In most cases, Jython functions and methods are callable. If a method needs parameters passed to it, a lambda can
 	 * be used. eg
@@ -516,6 +516,11 @@ public final class Async {
 		private final String name;
 		private final Callable<V> target;
 
+		/**
+		 * Wrap a {@link Callable} so that the thread that runs it is renamed before execution.
+		 * @param name The name for the thread that runs the given Callable
+		 * @param target The Callable to wrap
+		 */
 		public ThreadNamingCallableWrapper(String name, Callable<V> target) {
 			Objects.requireNonNull(name, "Thread name must not be null");
 			Objects.requireNonNull(target, "Target callable must not be null");
@@ -555,6 +560,11 @@ public final class Async {
 		private final String name;
 		private final Runnable target;
 
+		/**
+		 * Wrap a {@link Runnable} so that the thread that runs it is renamed before execution.
+		 * @param name The name for the thread that runs the given Runnable
+		 * @param target The Runnable to wrap
+		 */
 		public ThreadNamingRunnableWrapper(String name, Runnable target) {
 			Objects.requireNonNull(name, "Thread name must not be null");
 			Objects.requireNonNull(target, "Target runnable must not be null");
