@@ -22,6 +22,7 @@ package gda.spring.remoting;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Localizable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,8 +37,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.StringUtils;
-
-import uk.ac.gda.remoting.ServiceInterface;
 
 /**
  * Base class to be extended by classes that can import remote objects into a Spring application context.

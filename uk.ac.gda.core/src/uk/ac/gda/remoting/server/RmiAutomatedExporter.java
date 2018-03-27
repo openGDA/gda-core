@@ -36,7 +36,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Localizable;
 import gda.observable.IObservable;
-import uk.ac.gda.remoting.ServiceInterface;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class will automatically create RMI exports for beans defined in Spring which define a service interface via the

@@ -47,7 +47,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Findable;
-import uk.ac.gda.remoting.ServiceInterface;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This test automated RMI exporting by actually exporting services locally then checking they can be found and what
