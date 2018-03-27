@@ -19,6 +19,8 @@
 package uk.ac.gda.remoting.server;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Localizable;
 import gda.observable.IObservable;
@@ -56,7 +59,16 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 
 	public static final String AUTO_EXPORT_RMI_PREFIX = "gda-auto-export/";
 
+	/** Property that allows the RMI port to be changed. it defaults to 1099 the default RMI port */
+	public static final String RMI_PORT_PROPERTY = "uk.ac.gda.remoting.rmiPort";
+
+	/** The port used to expose both the RMI registry and services */
+	private static final int RMI_PORT = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
+
 	private ApplicationContext applicationContext;
+
+	/** List of all the exporters this is to allow them to be unbound at shutdown */
+	private final List<RmiServiceExporter> exporters = new ArrayList<>();
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
@@ -76,11 +88,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	private void exportAll() {
 		logger.info("Starting automated RMI exports...");
 
-		final Map<String, Findable> allFindableBeans = applicationContext.getBeansOfType(Findable.class);
-		final Map<String, Findable> allRmiExportableBeans = allFindableBeans.entrySet().stream()
-				.filter(this::hasServiceInterfaceAnnotation) // Removes beans without @ServiceInterface
-				.filter(this::isNotLocal) // Removes beans declared as local
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		final Map<String, Findable> allRmiExportableBeans = getRmiExportableBeans();
 
 		logger.debug("Exporting {} beans over RMI...", allRmiExportableBeans.size());
 
@@ -97,6 +105,14 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 		logger.info("Completed RMI exports");
 	}
 
+	private Map<String, Findable> getRmiExportableBeans() {
+		final Map<String, Findable> allFindableBeans = applicationContext.getBeansOfType(Findable.class);
+		return allFindableBeans.entrySet().stream()
+				.filter(this::hasServiceInterfaceAnnotation) // Removes beans without @ServiceInterface
+				.filter(this::isNotLocal) // Removes beans declared as local
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+	}
+
 	/**
 	 * Export the object over RMI, this includes setting up events if needed.
 	 *
@@ -107,6 +123,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	private void export(String name, Findable bean, Class<?> serviceInterface) {
 		logger.trace("Exporting '{}' with interface '{}'...", name, serviceInterface.getName());
 		final RmiServiceExporter serviceExporter = new RmiServiceExporter();
+		serviceExporter.setRegistryPort(RMI_PORT);
+		serviceExporter.setServicePort(RMI_PORT);
 		serviceExporter.setService(bean);
 		serviceExporter.setServiceName(AUTO_EXPORT_RMI_PREFIX + name);
 		serviceExporter.setServiceInterface(serviceInterface);
@@ -120,6 +138,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 		}
 
 		setupEventDispatchIfSupported(bean);
+
+		exporters.add(serviceExporter);
 	}
 
 	private void setupEventDispatchIfSupported(Findable toBeExported) {
@@ -170,5 +190,18 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 
 	private boolean isNotLocal(Entry<String, Findable> entry) {
 		return !isLocal(entry);
+	}
+
+	/**
+	 * Try's to unbind all the RMI services exported. Failures will be logged only.
+	 */
+	public void shutdown() {
+		for (RmiServiceExporter exporter : exporters) {
+			try {
+				exporter.destroy();
+			} catch (Exception e) {
+				logger.error("Failed to unbind RMI service", exporter);
+			}
+		}
 	}
 }
