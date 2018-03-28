@@ -38,12 +38,11 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.TimerStatus;
-import gda.factory.Configurable;
+import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DiffractionMetadata;
@@ -58,7 +57,7 @@ import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
  * This listens to SDPs and the NcdDetectorSystem Timer to send updates to the client with either live raw data, stored
  * raw data or processed (reduced) data from the SDP.
  */
-public class ListenerDispatcher implements Findable, IObserver, Configurable, IScanDataPointObserver {
+public class ListenerDispatcher extends ConfigurableBase implements Findable, IScanDataPointObserver {
 
 	private class RequestObject {
 		public RequestObject(String type, String entity) {
@@ -88,6 +87,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IS
 	@Override
 	public void configure() throws FactoryException {
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
+		setConfigured(true);
 	}
 
 	@Override
@@ -221,7 +221,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IS
 			Runnable anotherUpdate = new Runnable() {
 				@Override
 				public void run() {
-					det.notifyIObservers(det, rateCollection);
+					det.notifyRateCollection(rateCollection);
 				}
 			};
 			new Thread(anotherUpdate).start();

@@ -18,13 +18,6 @@
 
 package uk.ac.gda.server.ncd.beans;
 
-import gda.data.PathConstructor;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.BatonChanged;
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,9 +31,15 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.PathConstructor;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonChanged;
+import gda.observable.IObserver;
 import uk.ac.gda.util.io.FileUtils;
 
-public class PerVisitMaskLocation implements StoredDetectorInfo, IObserver, Configurable {
+public class PerVisitMaskLocation extends ConfigurableBase implements StoredDetectorInfo, IObserver {
 
 	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
 
@@ -77,6 +76,7 @@ public class PerVisitMaskLocation implements StoredDetectorInfo, IObserver, Conf
 			throw new FactoryException("Could not find (or create) directory processing/masks in visit directory", e);
 		}
 		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(this);
+		setConfigured(true);
 	}
 
 	@Override

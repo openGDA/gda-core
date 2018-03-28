@@ -18,9 +18,9 @@
 
 package uk.ac.gda.server.ncd.meta;
 
-import gda.factory.FactoryException;
+import gda.factory.ConfigurableBase;
 
-public abstract class NcdMetaBaseProvider implements INcdMetaProvider {
+public abstract class NcdMetaBaseProvider extends ConfigurableBase implements INcdMetaProvider {
 	private String name;
 	@Override
 	public void setName(String name) {
@@ -30,9 +30,5 @@ public abstract class NcdMetaBaseProvider implements INcdMetaProvider {
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	@Override
-	public void configure() throws FactoryException {
 	}
 }

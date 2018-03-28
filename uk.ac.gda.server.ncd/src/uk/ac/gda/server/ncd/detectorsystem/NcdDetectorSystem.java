@@ -149,7 +149,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 		if (frames == 0) {
 			throw new DeviceException("trying to read out 0 frames");
 		}
-		
+
 		nxdata.setPlottableValue(getName(), (double) frames);
 
 		logger.debug("starting to read physical detectors");
@@ -358,7 +358,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 	public void atCommandFailure() throws DeviceException {
 		atScanEnd();
 	}
-	
+
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if ("CalibrationLabels".equalsIgnoreCase(attributeName))
@@ -435,5 +435,9 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	public void setScanEndActions(Collection<NcdAction> scanEndActions) {
 		this.scanEndActions = scanEndActions;
+	}
+
+	public void notifyRateCollection(Collection<Object> rateCollection) {
+		notifyIObservers(this, rateCollection);
 	}
 }

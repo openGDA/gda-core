@@ -55,6 +55,7 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	private File file;
 	private IScanDataPoint lastScanDataPoint;
 	private String filename;
+	private boolean configured = false;
 
 	public void setFilename(String filename) {
 		this.filename = filename;
@@ -69,8 +70,13 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 		} else {
 			logger.error("Can't configure scan list - filename not set");
 		}
+		configured = true;
 	}
 
+	@Override
+	public boolean isConfigured() {
+		return configured;
+	}
 
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
