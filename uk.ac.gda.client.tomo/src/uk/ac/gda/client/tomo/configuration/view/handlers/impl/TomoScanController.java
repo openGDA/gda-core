@@ -18,19 +18,18 @@
 
 package uk.ac.gda.client.tomo.configuration.view.handlers.impl;
 
-import gda.jython.IScanDataPointObserver;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObservable;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
+import gda.observable.IObservable;
+import gda.scan.IScanDataPoint;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 import uk.ac.gda.client.tomo.configuration.view.handlers.ITomoScanController;
@@ -136,7 +135,7 @@ public class TomoScanController implements ITomoScanController {
 	private boolean isJythonScanRunning() {
 		boolean isJythonScanRunning = false;
 		try {
-			isJythonScanRunning = Jython.RUNNING == JythonServerFacade.getCurrentInstance().getScanStatus();
+			isJythonScanRunning = JythonStatus.RUNNING == JythonServerFacade.getCurrentInstance().getScanStatus();
 		} catch (Exception ex) {
 			logger.error("Problem extracting jython scan running status", ex);
 		}

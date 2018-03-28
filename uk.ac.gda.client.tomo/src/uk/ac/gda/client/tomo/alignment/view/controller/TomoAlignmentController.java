@@ -18,12 +18,6 @@
 
 package uk.ac.gda.client.tomo.alignment.view.controller;
 
-import gda.device.DeviceException;
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gov.aps.jca.TimeoutException;
-
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -47,6 +41,11 @@ import org.eclipse.swt.graphics.RGB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
+import gov.aps.jca.TimeoutException;
 import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 import uk.ac.gda.client.tomo.TiltPlotPointsHolder;
 import uk.ac.gda.client.tomo.TomoViewController;
@@ -792,7 +791,7 @@ public class TomoAlignmentController extends TomoViewController {
 	}
 
 	public void stopTiltPreparation() {
-		if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
+		if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
 			InterfaceProvider.getCommandAborter().abortCommands();
 		}
 	}
