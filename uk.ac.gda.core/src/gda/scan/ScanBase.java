@@ -54,8 +54,8 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServer.JythonServerThread;
+import gda.jython.JythonStatus;
 import gda.scan.Scan.ScanStatus;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
@@ -242,7 +242,7 @@ public abstract class ScanBase implements NestableScan {
 	 * @return boolean
 	 */
 	public boolean scanRunning() {
-		return getStatus().asJython() == Jython.RUNNING;
+		return getStatus().asJython() == JythonStatus.RUNNING;
 	}
 
 	private static double sortArgs(double start, double stop, double step) {
@@ -1163,7 +1163,7 @@ public abstract class ScanBase implements NestableScan {
 				cancelReadoutAndPublishCompletion();
 
 				logger.info("Ending scan and rethrowing exception");
-				
+
 				// normally this exception would be thrown at the end of the following finally clause.
 				//However if the call to endScan() below results in an exception, it will be lost. So save it:
 				exceptionFromMainTryClause = e;
@@ -1208,8 +1208,8 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public void runScan() throws InterruptedException, Exception {
 
-		int currentStatus = getScanStatusHolder().getScanStatus();
-		if (currentStatus != Jython.IDLE) {
+		JythonStatus currentStatus = getScanStatusHolder().getScanStatus();
+		if (currentStatus != JythonStatus.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
 		signalScanStarted();

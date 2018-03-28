@@ -47,21 +47,6 @@ public interface Jython extends Findable {
 	public static final String SERVER_NAME = "command_server";
 
 	/**
-	 * Script, scan or queue not in use
-	 */
-	public static int IDLE = 0;
-
-	/**
-	 * Script, scan or queue in progress but paused
-	 */
-	public static int PAUSED = 1;
-
-	/**
-	 * Script, scan or queue in progress and not paused
-	 */
-	public static int RUNNING = 2;
-
-	/**
 	 * String passed to IObservers of the CommandServer that it is waiting for input via the setRawInput method
 	 */
 	public static final String RAW_INPUT_REQUESTED = "raw input requested";
@@ -255,7 +240,7 @@ public interface Jython extends Findable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
 	 */
-	public int getScanStatus(String JSFIdentifier);
+	public JythonStatus getScanStatus(String JSFIdentifier);
 
 	/**
 	 * Returns the status of the script (running, idle, paused).
@@ -264,7 +249,7 @@ public interface Jython extends Findable {
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 * @return int
 	 */
-	public int getScriptStatus(String JSFIdentifier);
+	public JythonStatus getScriptStatus(String JSFIdentifier);
 
 	/**
 	 * Returns information about each active command thread
@@ -277,11 +262,11 @@ public interface Jython extends Findable {
 	 * Sets the script status.
 	 *
 	 * @param status
-	 *            int
+	 *            JythonStatus of script
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
 	 */
-	public void setScriptStatus(int status, String JSFIdentifier);
+	public void setScriptStatus(JythonStatus status, String JSFIdentifier);
 
 	/**
 	 * Pass a copy of an object to the Jython interpreter. This object must be relatively simple otherwise it will not

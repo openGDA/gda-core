@@ -19,23 +19,23 @@
 
 package gda.scan;
 
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.jython.Jython;
-
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.Vector;
 
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.jython.JythonStatus;
+
 /**
  * Interface for all scans
  */
 public interface Scan extends Serializable {
-	
+
 	public enum ScanStatus {
-		
+
 		// Before runScan()
 		NOTSTARTED ("Not started"){
 			@Override
@@ -51,21 +51,21 @@ public interface Scan extends Serializable {
 				return EnumSet.of(PAUSED, FINISHING_EARLY, TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE, COMPLETED_OKAY);
 			}
 		},
-		
+
 		// When the scan code has noticed the request from a static somewhere
 		PAUSED ("Paused") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(RUNNING,FINISHING_EARLY, TIDYING_UP_AFTER_STOP);
 			}
-		},  
+		},
 		FINISHING_EARLY ("Finishing") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
 				return EnumSet.of(COMPLETED_EARLY);
 			}
 		},  // When a bit of the code has noticed the request from a static somewhere
-		
+
 		TIDYING_UP_AFTER_STOP ("Stopping") {
 			@Override
 			public Set<ScanStatus> possibleFollowUps() {
@@ -78,19 +78,19 @@ public interface Scan extends Serializable {
 				return EnumSet.of(TIDYING_UP_AFTER_FAILURE, COMPLETED_AFTER_FAILURE);
 			}
 		},
-		
+
 		COMPLETED_OKAY ("Complete"),
-		
+
 		COMPLETED_EARLY ("Completed early"),
-		
+
 		COMPLETED_AFTER_STOP ("Aborted"),
-		
+
 		COMPLETED_AFTER_FAILURE ("Failed");
-		
+
 		public Set<ScanStatus> possibleFollowUps() {
 			return EnumSet.noneOf(ScanStatus.class);
 		}
-		
+
 		public boolean isComplete() {
 			return (EnumSet.of(COMPLETED_OKAY, COMPLETED_EARLY, COMPLETED_AFTER_STOP, COMPLETED_AFTER_FAILURE).contains(this));
 		}
@@ -102,19 +102,19 @@ public interface Scan extends Serializable {
 		public boolean isAborting() {
 			return EnumSet.of(TIDYING_UP_AFTER_STOP, TIDYING_UP_AFTER_FAILURE).contains(this);
 		}
-		
-		public int asJython() {
+
+		public JythonStatus asJython() {
 			if (this == PAUSED) {
-				return Jython.PAUSED;
+				return JythonStatus.PAUSED;
 			} else if (isComplete() || EnumSet.of(NOTSTARTED).contains(this)) {
-				return Jython.IDLE;
+				return JythonStatus.IDLE;
 			} else if (isRunning()) {
-				return Jython.RUNNING;
+				return JythonStatus.RUNNING;
 			} else {
 				throw new AssertionError("No mapping from " + this.name());
 			}
 		}
-		
+
 		private final String string;
 
 		private ScanStatus(final String text) {
@@ -127,7 +127,7 @@ public interface Scan extends Serializable {
 		}
 
 	}
-	
+
 	/**
 	 * Name of the thread which all scans run within when started by their runScan method.
 	 */
@@ -153,7 +153,7 @@ public interface Scan extends Serializable {
 	 * Does the work of creating a new thread and calling the run() method. Inheriting classes may also declare a
 	 * runScan method with arguments identical to their constructor. The convention would be to create a new scan
 	 * object, and then call this runScan method.
-	 * 
+	 *
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
@@ -162,7 +162,7 @@ public interface Scan extends Serializable {
 	/**
 	 * The method in which the work of the scan is performed. This method assumes that the data handler has already been
 	 * created and the baton claimed.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void doCollection() throws Exception;
@@ -170,14 +170,14 @@ public interface Scan extends Serializable {
 	/**
 	 * Creates a dataHandler, waits until the baton is free and then claims it. This should be performed once in a
 	 * collection of scans, before any calls to doCollection().
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void prepareForCollection() throws Exception;
 
 	/**
 	 * Returns the list of all the Scannable objects which are part of this scan
-	 * 
+	 *
 	 * @return Vector of Scannables
 	 */
 	public Vector<Scannable> getScannables();
@@ -185,21 +185,21 @@ public interface Scan extends Serializable {
 	/**
 	 * Sets the list of all the Scannable objects. This should only be used for a parent scan giving its list to a child
 	 * scan and not for setting up a scan (that work is done by ScanBase.setUp).
-	 * 
+	 *
 	 * @param allScannables
 	 */
 	public void setScannables(Vector<Scannable> allScannables);
 
 	/**
 	 * Returns the list of Detector objects which form part of the scan.
-	 * 
+	 *
 	 * @return Vector of Detectors
 	 */
 	public Vector<Detector> getDetectors();
 
 	/**
 	 * Sets the list of Detectors for this scan.
-	 * 
+	 *
 	 * @see Scan#setScannables(Vector)
 	 * @param allDetectors
 	 */
@@ -207,21 +207,21 @@ public interface Scan extends Serializable {
 
 	/**
 	 * Returns true if this scan is nested inside another scan.
-	 * 
+	 *
 	 * @return if this scan is a child
 	 */
 	public boolean isChild();
 
 	/**
 	 * Tells the scan if it is a child.
-	 * 
+	 *
 	 * @param child
 	 */
 	public void setIsChild(boolean child);
 
 	/**
 	 * Returns the reference to the DataWriter that this scan is using.
-	 * 
+	 *
 	 * @return the DataWriter
 	 */
 	public DataWriter getDataWriter();
@@ -229,30 +229,30 @@ public interface Scan extends Serializable {
 	/**
 	 * Gives the scan a reference to the DataWriter it should use to record data. This will
 	 * create a new ScanDataPointPipeline appropriate for the Scannables to be scanned.
-	 * 
+	 *
 	 * @param dh
 	 */
 	public void setDataWriter(DataWriter dh);
 
-	
+
 	/**
 	 * Sets the scan data point pipeline used to populate, write and broadcast ScanDataPoints. Should
 	 * not normally be set directly except on a child (or sub) scan.
 	 * @param scanDataPointPipeline
 	 */
 	public void setScanDataPointPipeline(ScanDataPointPipeline scanDataPointPipeline);
-	
+
 	/**
 	 * Returns the ScanDataPoint pipeline.
 	 */
 	public ScanDataPointPipeline getScanDataPointPipeline();
-	
-	
+
+
 	/**
 	 * Return a unique identifier for this scan. This is useful for plotting etc. The same id will be included in every
 	 * ScanDataPoint sent out by the scan and will be the same for all the scans in a multiregion or mulit-dimensional
 	 * scan.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getName();
@@ -279,7 +279,7 @@ public interface Scan extends Serializable {
 	 */
 	void setStepId(IScanStepId IScanStepId);
 
-	
+
 	void setScanPlotSettings(ScanPlotSettings scanPlotSettings);
 
 	/**
@@ -298,12 +298,12 @@ public interface Scan extends Serializable {
 	 *         in a multi-dimensional scan.
 	 */
 	public int getTotalNumberOfPoints();
-	
+
 	/**
 	 * @return The unique id of the scan. Null if not set
 	 */
 	public int getScanNumber();
-	
+
 	/**
 	 * Set this scan to complete current scan data point and complete normally without doing any further data points.
 	 */
@@ -312,7 +312,7 @@ public interface Scan extends Serializable {
 	public boolean isFinishEarlyRequested();
 
 	/**
-	 * 
+	 *
 	 * @return The {@link ScanStatus}
 	 */
 	public ScanStatus getStatus();

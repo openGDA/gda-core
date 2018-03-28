@@ -30,44 +30,39 @@ public class JythonServerStatus implements Serializable {
 	/**
 	 * Status of the currently running script
 	 */
-	public int scriptStatus;
+	public final JythonStatus scriptStatus;
 
 	/**
 	 * Status of the currently running scan (only one can run at once).
 	 */
-	public int scanStatus;
+	public final JythonStatus scanStatus;
 
-	/**
-	 * Default constructor.
-	 */
-	public JythonServerStatus() {
-	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param scriptStatus
 	 * @param scanStatus
 	 */
-	public JythonServerStatus(int scriptStatus, int scanStatus) {
+	public JythonServerStatus(JythonStatus scriptStatus, JythonStatus scanStatus) {
 		this.scriptStatus = scriptStatus;
 		this.scanStatus = scanStatus;
 	}
 
 	public boolean isScriptOrScanPaused(){
-		return scriptStatus==Jython.PAUSED || scanStatus==Jython.PAUSED;
+		return scriptStatus==JythonStatus.PAUSED || scanStatus==JythonStatus.PAUSED;
 	}
 
 	public boolean areScriptAndScanIdle(){
-		return scriptStatus==Jython.IDLE  && scanStatus==Jython.IDLE;
+		return scriptStatus==JythonStatus.IDLE  && scanStatus==JythonStatus.IDLE;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + scanStatus;
-		result = prime * result + scriptStatus;
+		result = prime * result + scanStatus.ordinal();
+		result = prime * result + scriptStatus.ordinal();
 		return result;
 	}
 
@@ -89,7 +84,6 @@ public class JythonServerStatus implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Command Server status: script=" + scriptStatus + ", scan=" + scanStatus +
-			" (" + Jython.IDLE + "=IDLE, " + Jython.PAUSED + "=PAUSED, " + Jython.RUNNING + "=RUNNING)";
+		return String.format("Command Server status: script=%s, scan=%s", scriptStatus, scanStatus);
 	}
 }

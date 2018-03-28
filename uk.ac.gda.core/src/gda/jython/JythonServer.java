@@ -732,20 +732,20 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@Override
-	public int getScanStatus(String jsfIdentifier) {
+	public JythonStatus getScanStatus(String jsfIdentifier) {
 		if (currentScan == null){
-			return Jython.IDLE;
+			return JythonStatus.IDLE;
 		}
 		return currentScan.getStatus().asJython();
 	}
 
 	@Override
-	public int getScriptStatus(String jsfIdentifier) {
+	public JythonStatus getScriptStatus(String jsfIdentifier) {
 		return statusHolder.getScriptStatus();
 	}
 
 	@Override
-	public void setScriptStatus(int newStatus, String jsfIdentifier) {
+	public void setScriptStatus(JythonStatus newStatus, String jsfIdentifier) {
 		statusHolder.setScriptStatus(newStatus);
 	}
 

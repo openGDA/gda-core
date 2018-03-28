@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -20,28 +19,32 @@
 package gda.jython;
 
 /**
- * Interface used by some classes to holder the script status
- * Provided to ensure loose coupling between callers and implementation
+ * JythonStatus represents the three possible states of a Jython script, scan or queue.
+ * <p>
+ * Do not change the order of these: the ordinal values are used in the CORBA Jython interface
  */
-public interface IScriptController {
-	/**
-	 * @return status see values in Jython e.g. JYTHON.IDLE
-	 */
-	public JythonStatus getScriptStatus();
+public enum JythonStatus {
 
 	/**
-	 *
-	 * @param status see values in Jython e.g. JYTHON.IDLE
+	 * Script, scan or queue not in use
 	 */
-	public void setScriptStatus(JythonStatus status);
+	IDLE,
 
 	/**
-	 * @see Jython#pauseCurrentScript
+	 * Script, scan or queue in progress but paused
 	 */
-	public void pauseCurrentScript();
+	PAUSED,
 
 	/**
-	 * @see Jython#resumeCurrentScript
+	 * Script, scan or queue in progress and not paused
 	 */
-	public void resumeCurrentScript();
+	RUNNING;
+
+	// cached for efficiency
+	// TODO remove this once we drop CORBA
+	private static final JythonStatus[] cachedValues = JythonStatus.values();
+
+	public static JythonStatus fromInt(int value) {
+		return cachedValues[value];
+	}
 }

@@ -69,8 +69,8 @@ import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerStatus;
+import gda.jython.JythonStatus;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
@@ -586,22 +586,28 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	private void updateScanStatus(StatusLineContributionItem status) {
-		final int scan = InterfaceProvider.getScanStatusHolder().getScanStatus();
+		final JythonStatus scan = InterfaceProvider.getScanStatusHolder().getScanStatus();
 		updateStatus(status, scan, "Scan");
 	}
 
 	private void updateScriptStatus(StatusLineContributionItem status) {
-		final int script = InterfaceProvider.getScriptController().getScriptStatus();
+		final JythonStatus script = InterfaceProvider.getScriptController().getScriptStatus();
 		updateStatus(status, script, "Script");
 	}
 
-	private void updateStatus(StatusLineContributionItem status, int scan, final String postFix) {
-		if (scan == Jython.IDLE) {
+	private void updateStatus(StatusLineContributionItem status, JythonStatus scan, final String postFix) {
+		switch (scan) {
+		case IDLE:
 			setStatusLineText(status, "No " + postFix + " running");
-		} else if (scan == Jython.PAUSED) {
+			break;
+		case PAUSED:
 			setStatusLineText(status, "Paused " + postFix, "control_pause_blue.png");
-		} else if (scan == Jython.RUNNING) {
+			break;
+		case RUNNING:
 			setStatusLineText(status, "Running " + postFix, "computer_go.png");
+			break;
+		default:
+			throw new IllegalStateException("Unreachable");
 		}
 	}
 

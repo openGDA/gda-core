@@ -18,21 +18,6 @@
 
 package uk.ac.gda.client.test;
 
-import gda.TestHelpers;
-import gda.device.Scannable;
-import gda.device.scannable.DummyScannable;
-import gda.jython.IScanDataPointObserver;
-import gda.jython.IScanDataPointProvider;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerStatus;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.rcp.util.UIScanDataPointEventService;
-import gda.rcp.views.scan.AbstractScanPlotView;
-import gda.scan.IScanDataPoint;
-import gda.scan.ScanDataPoint;
-import gda.scan.ScanEvent;
-
 import java.io.File;
 import java.net.URL;
 import java.util.List;
@@ -47,6 +32,21 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
+import gda.TestHelpers;
+import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
+import gda.jython.IScanDataPointObserver;
+import gda.jython.IScanDataPointProvider;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerStatus;
+import gda.jython.JythonStatus;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.rcp.util.UIScanDataPointEventService;
+import gda.rcp.views.scan.AbstractScanPlotView;
+import gda.scan.IScanDataPoint;
+import gda.scan.ScanDataPoint;
+import gda.scan.ScanEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotData;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
@@ -108,7 +108,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 			}
 		};
 
-		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(1, 0));
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.PAUSED, JythonStatus.IDLE));
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != 0)
 			throw new Exception("There are points in the service and there should be none.");
@@ -129,7 +129,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 					+ UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() + " and line index is "
 					+ lineIndex);
 
-		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(0, 0)); // Stop does not reset, test this
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.IDLE, JythonStatus.IDLE)); // Stop does not reset, test this
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != (lineIndex - 1))
 			throw new Exception("Current points are size "

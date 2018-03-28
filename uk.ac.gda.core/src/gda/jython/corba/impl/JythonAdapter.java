@@ -19,24 +19,6 @@
 
 package gda.jython.corba.impl;
 
-import gda.device.DeviceException;
-import gda.device.corba.CorbaDeviceException;
-import gda.factory.corba.util.EventService;
-import gda.factory.corba.util.EventSubscriber;
-import gda.factory.corba.util.NameFilter;
-import gda.factory.corba.util.NetService;
-import gda.jython.Jython;
-import gda.jython.UserMessage;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.commandinfo.CommandThreadEvent;
-import gda.jython.commandinfo.ICommandThreadInfo;
-import gda.jython.completion.AutoCompletion;
-import gda.jython.corba.CorbaJython;
-import gda.jython.corba.CorbaJythonHelper;
-import gda.observable.IObserver;
-import gda.scan.ScanDataPointClient;
-import gda.scan.ScanDataPointVar;
-
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -51,6 +33,25 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.factory.corba.util.EventService;
+import gda.factory.corba.util.EventSubscriber;
+import gda.factory.corba.util.NameFilter;
+import gda.factory.corba.util.NetService;
+import gda.jython.Jython;
+import gda.jython.JythonStatus;
+import gda.jython.UserMessage;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.jython.commandinfo.ICommandThreadInfo;
+import gda.jython.completion.AutoCompletion;
+import gda.jython.corba.CorbaJython;
+import gda.jython.corba.CorbaJythonHelper;
+import gda.observable.IObserver;
+import gda.scan.ScanDataPointClient;
+import gda.scan.ScanDataPointVar;
 
 /**
  * A client side implementation of the adapter pattern for the Jython class
@@ -372,10 +373,10 @@ public class JythonAdapter implements Jython, EventSubscriber {
 	}
 
 	@Override
-	public int getScanStatus(String JSFIdentifier) {
+	public JythonStatus getScanStatus(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				return jythonServer.getScanStatus(JSFIdentifier);
+				return JythonStatus.values()[jythonServer.getScanStatus(JSFIdentifier)];
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -387,14 +388,14 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				// throw new DeviceException(ex.message);
 			}
 		}
-		return -99;
+		return null;
 	}
 
 	@Override
-	public int getScriptStatus(String JSFIdentifier) {
+	public JythonStatus getScriptStatus(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				return jythonServer.getScriptStatus(JSFIdentifier);
+				return JythonStatus.fromInt(jythonServer.getScriptStatus(JSFIdentifier));
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {
@@ -406,14 +407,14 @@ public class JythonAdapter implements Jython, EventSubscriber {
 				// throw new DeviceException(ex.message);
 			}
 		}
-		return -99;
+		return null;
 	}
 
 	@Override
-	public void setScriptStatus(int status, String JSFIdentifier) {
+	public void setScriptStatus(JythonStatus status, String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
-				jythonServer.setScriptStatus(status, JSFIdentifier);
+				jythonServer.setScriptStatus(status.ordinal(), JSFIdentifier);
 			} catch (COMM_FAILURE cf) {
 				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
 			} catch (org.omg.CORBA.TRANSIENT ct) {

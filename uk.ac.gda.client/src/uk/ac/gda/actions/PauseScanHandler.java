@@ -18,14 +18,14 @@
 
 package uk.ac.gda.actions;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonStatus;
 
 public class PauseScanHandler extends AbstractHandler {
 
@@ -38,32 +38,32 @@ public class PauseScanHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			int   scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
-			int scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
+			JythonStatus scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
+			JythonStatus scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
 
 			logger.debug("Pause/Resume Scan button pressed, scan status={}, scriptStatus={}", scanStatus, scriptStatus);
 
 			boolean somethingPaused = false;
 
 			switch (scanStatus) {
-				case Jython.IDLE: // then we are only thinking about a script here
-					if (scriptStatus == Jython.PAUSED) {
+				case IDLE: // then we are only thinking about a script here
+					if (scriptStatus == JythonStatus.PAUSED) {
 						InterfaceProvider.getScriptController().resumeCurrentScript();
 					} else
-					if (scriptStatus == Jython.RUNNING) {
+					if (scriptStatus == JythonStatus.RUNNING) {
 						InterfaceProvider.getScriptController().pauseCurrentScript();
 						somethingPaused = true;
 					}
 					break;
 
-				case Jython.PAUSED:
+				case PAUSED:
 					InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-					if (scriptStatus == Jython.PAUSED) {
+					if (scriptStatus == JythonStatus.PAUSED) {
 						InterfaceProvider.getScriptController().resumeCurrentScript();
 					}
 					break;
 
-				case Jython.RUNNING:
+				case RUNNING:
 					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 					// TODO: Investigate whether script should always be paused, or only paused when running.
 					InterfaceProvider.getScriptController().pauseCurrentScript();

@@ -17,7 +17,7 @@ Created on 24 Jun 2010
 '''
 from gda.device.scannable import ScannableMotionBase
 from java.lang import Thread, Runnable
-from gda.jython import JythonServerFacade, Jython
+from gda.jython import JythonServerFacade, JythonStatus
 from gda.device.scannable.scannablegroup import ScannableGroup
 
 class ContinuousRocking(ScannableGroup, Runnable):
@@ -50,10 +50,10 @@ class ContinuousRocking(ScannableGroup, Runnable):
     def run(self):
         '''rocking motion of the specified scannable during scan. This call must be non-blocking.'''
         while(self.runThread):
-            if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING):
+            if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING):
                 if not self.pd.isBusy():
                     self.pd.asynchronousMoveTo(self.getUpperGdaLimits()[0])
-            if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING):
+            if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING):
                 if not self.pd.isBusy():
                     self.pd.asynchronousMoveTo(self.getLowerGdaLimits()[0])
     

@@ -42,7 +42,6 @@ import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.IScanDataPointObserver;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
 import gda.jython.commandinfo.CommandThreadEvent;
@@ -285,24 +284,24 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 					logger.debug("run(): JythonServerStatus {}", jss);
 
 					switch (jss.scriptStatus) {
-					case Jython.RUNNING:
+					case RUNNING:
 						clockStart();
 						break;
-					case Jython.IDLE:
+					case IDLE:
 						clockStop();
 						break;
 					}
 
 					switch (jss.scanStatus) {                       // deprecated? currently only scan=IDLE occurs
-					case Jython.IDLE:
+					case IDLE:
 						client.scanStatus.setText("IDLE");
 						client.scanPoint.setText("[0] / [0]");
 						client.progressBar.setSelection(10000);
 						break;
-					case Jython.PAUSED:
+					case PAUSED:
 						client.scanStatus.setText("PAUSED");
 						break;
-					case Jython.RUNNING:
+					case RUNNING:
 						client.scanStatus.setText("RUNNING");
 						started = new Date();
 						client.elapsedTime.setText("00:00:00");
