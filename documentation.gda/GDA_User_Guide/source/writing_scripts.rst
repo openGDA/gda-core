@@ -73,7 +73,7 @@ or use a backslash. For example::
    if (width == 0 and height == 0 and
    colour == 'red' and emphasis == 'strong'):
        f()
-    						
+
 Documentation Standards and help
 --------------------------------
 
@@ -381,3 +381,38 @@ saved after every change. Here is example code on how to use this::
    >>> String mystring = config.getString("mythings.myint")
    >>> String[] stringArray = config.getStringArray("otherthings.mylist")
    >>> List stringList = config.getList("otherthings.mylist")
+
+
+Logging
+-------
+
+When running long scripts it can often be useful to log what is happening as it
+goes along. Jython has a built in logging library and this can be used to send
+messages to the central GDA logs as well as to the console. This can be
+preferable to simply printing to the terminal as the source can be tracked and
+it can be disabled without editing scripts.
+
+To use logging in your scripts import `logging <https://docs.python.org/2/library/logging.html>`_ and create a logger.::
+
+    >>> import logging
+    >>> logger = logging.getLogger('script_name')
+    >>>
+    >>> # To use the logger
+    >>> logger.info('This message will be printed to the console and the logs')
+    script_name: This message will be printed to the console and the logs
+
+If your script uses `error handling <#error-handling-in-scripts>`_, the logger from above can extract stacktraces
+to help debug the causes. This is done using the ``exc_info`` keyword to include
+the current exception::
+
+    >>> try:
+    ...     # with stage_x being a faulty motor
+    ...     stage_x.getPosition()
+    ... except DeviceException as de:
+    ...     logger.error('Failed to get motor position', exc_info=True)
+    ...
+    script_name: Failed to get motor position - Error getting position
+      gda.device.MotorException: <message of underlying motor error>
+
+The full stack trace is written to the logs. Only the underlying causes are
+displayed to the user.

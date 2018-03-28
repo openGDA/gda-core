@@ -59,6 +59,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.logging.JythonLogHandler;
 import gda.jython.translator.Translator;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
@@ -491,6 +492,7 @@ public class GDAJythonInterpreter {
 						+ "    pydoc.help(obj)\n"
 						+ "    print\n");
 
+				initialiseLoggingRedirection();
 				populateNamespace();
 				runStationStartupScript();
 
@@ -501,6 +503,31 @@ public class GDAJythonInterpreter {
 				initialized = true;
 			}
 		}
+	}
+
+	/**
+	 * Adds two default handlers to the jython logging package.
+	 * <p>
+	 * One redirects all logs to the main GDA logs (including full stacktraces), the other
+	 * writes messages (above INFO level) to the console for the user. Console messages include a list
+	 * of exception causes but omits the full traceback.
+	 * <p>
+	 * See the python logging docs <a href="https://docs.python.org/2/library/logging.html">here</a>.
+	 *
+	 * @see JythonLogHandler
+	 */
+	private void initialiseLoggingRedirection() {
+		String logInit = "import logging\n"
+				+ "from loghandling import JythonLogRedirector, JythonTerminalPrinter\n"
+				+ "_root_logger = logging.getLogger()\n"
+				+ "_root_logger.level = 0\n" // set levels to 0 as slf4j filters logging
+				+ "_root_logger.addHandler(JythonLogRedirector())\n"
+				+ "_root_logger.addHandler(JythonTerminalPrinter(logging.INFO))\n"
+				+ "del logging\n"
+				+ "del JythonLogRedirector\n"
+				+ "del JythonTerminalPrinter\n"
+				+ "del _root_logger\n\n";
+		exec(logInit);
 	}
 
 	/**
