@@ -46,8 +46,8 @@ import gda.hrpd.pmac.EpicsCVScanController.CurrentState;
 import gda.hrpd.pmac.SafePosition;
 import gda.hrpd.pmac.UnsafeOperationException;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
@@ -756,10 +756,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 					if (retrycount > 3) {
 						InterfaceProvider.getTerminalPrinter().print(
 								"Abort current CV scan/script: maximum number of retry exceeded.");
-						if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING) {
+						if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING) {
 							JythonServerFacade.getInstance().abortCommands();
 						}
-						if (JythonServerFacade.getInstance().getScriptStatus() == Jython.RUNNING) {
+						if (JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING) {
 							JythonServerFacade.getInstance().abortCommands();
 						}
 						stop();
