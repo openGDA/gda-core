@@ -49,25 +49,25 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	private String sampleID=null;
 	private Map<String, String> map=new HashedMap<>();
 
-	
+
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if (simpleUDPServer!=null){
 				simpleUDPServer.addIObserver(this);
 			}
 			super.configure();
-			configured=true;
+			setConfigured(true);
 		}
 	}
 	@Override
 	public void close() throws DeviceException {
-		if (configured) {
+		if (isConfigured()) {
 			if (simpleUDPServer!=null){
 				simpleUDPServer.deleteIObserver(this);
 			}
 			super.close();
-			configured=false;
+			setConfigured(false);
 		}
 	}
 	@Override
@@ -76,7 +76,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 			return;
 		}
 		Thread resultThread=new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				long starttimer=System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 						logger.warn("No calibrant data filename provided, so cannot start data reduction.");
 						return;
 					}
-						
+
 					command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+filename;
 					setCurrentCalibrantDataFilename(filename);
 				} else {
@@ -154,7 +154,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 						return msg;
 					}
 				};
-				final ExecutorService executor = Executors.newFixedThreadPool(1);		
+				final ExecutorService executor = Executors.newFixedThreadPool(1);
 				final Future<String> submit = executor.submit(r);
 				String result;
 				try {
