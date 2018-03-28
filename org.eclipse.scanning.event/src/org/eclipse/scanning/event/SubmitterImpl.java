@@ -16,11 +16,10 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.Connection;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
-import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
@@ -50,25 +49,25 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 		setSubmitQueueName(submitQueue);
 	}
 
-	@Override
-	public void submit(T bean) throws EventException {
-		Connection send = null;
-		Session session  = null;
-		MessageProducer producer = null;
+	private MessageProducer producer = null;
 
-		try {
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-			send = connectionFactory.createConnection();
+	private MessageProducer getMessageProducer() throws JMSException {
+		if (producer == null) {
+			final Queue queue = createQueue(getSubmitQueueName());
 
-			session = send.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue = session.createQueue(getSubmitQueueName());
-
-			producer = session.createProducer(queue);
+			producer = getQueueSession().createProducer(queue);
 			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 			producer.setPriority(priority);
 			producer.setTimeToLive(lifeTime);
+		}
 
-			logger.trace("submit({}) using {} , {} , {} and {}", bean, connectionFactory, send, session, producer);
+		return producer;
+	}
+
+	@Override
+	public void submit(T bean) throws EventException {
+		try {
+			logger.trace("submitting to queue {}: {}", getSubmitQueueName(), bean);
 
 			if (bean.getSubmissionTime()<1) bean.setSubmissionTime(System.currentTimeMillis());
 			if (bean.getUserName()==null) bean.setUserName(System.getProperty("user.name"));
@@ -81,34 +80,39 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 				throw new EventException("Unable to marshall bean "+bean, e);
 			}
 
-			TextMessage message = session.createTextMessage(json);
+			TextMessage message = getQueueSession().createTextMessage(json);
 
 			message.setJMSMessageID(bean.getUniqueId());
 			message.setJMSExpiration(getLifeTime());
-			producer.send(message);
+			getMessageProducer().send(message);
 
 			// Deals with paused consumers by publishing something directly after submission.
 			// If there is a topic we tell everyone that we sent something to it in case the consumer is paused.
 			if (getStatusTopicName() != null) {
-				publishToStatusTopic(session, json);
+				publishToStatusTopic(json);
 			}
 
 			logger.trace("submit({}) completed, closing...", bean);
 		} catch (Exception e) {
-			throw new EventException("Problem opening connection to queue! ", e);
-		} finally {
-			try {
-				if (send!=null) send.close();
-				if (session!=null) session.close();
-				if (producer!=null) producer.close();
-			} catch (Exception e) {
-				throw new EventException("Cannot close connection as expected!", e);
-			}
+			throw new EventException("Could not submit bean to queue " + getSubmitQueueName(), e);
 		}
 	}
 
-	private void publishToStatusTopic(Session session, String json) {
+	@Override
+	public void disconnect() throws EventException{
+		if (producer != null) {
+			try {
+				producer.close();
+			} catch (JMSException e) {
+				logger.error("Could not close messsage producer for queue " + getSubmitQueueName(), e);
+			}
+		}
+		super.disconnect();
+	}
+
+	private void publishToStatusTopic(String json) {
 		try {
+			final Session session = getQueueSession();
 			TextMessage msg = session.createTextMessage(json);
 			Topic topic = session.createTopic(getStatusTopicName());
 			MessageProducer prod = session.createProducer(topic);

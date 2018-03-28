@@ -77,7 +77,13 @@ abstract class AbstractConnection implements IURIConnection {
 	}
 
 	private void createQueueSession() throws JMSException {
+		if (connection == null) createConnection();
 		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+	}
+
+	protected QueueSession getQueueSession() throws JMSException {
+		if (queueSession == null) createQueueSession();
+		return queueSession;
 	}
 
 	/**
