@@ -564,14 +564,15 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (items != null && !items.isEmpty()) {
 			pause(); // note, sets the awaitPause flag, this thread continues
 
-			IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), getCommandTopicName());
-			pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
-			pauser.setStatusSetAddRequired(true);
+			try (IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), getCommandTopicName())) {
+				pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
+				pauser.setStatusSetAddRequired(true);
 
-			PauseBean pbean = new PauseBean();
-			pbean.setQueueName(getSubmitQueueName()); // The queue we are pausing
-			pbean.setPause(true);
-			pauser.broadcast(pbean);
+				PauseBean pbean = new PauseBean();
+				pbean.setQueueName(getSubmitQueueName()); // The queue we are pausing
+				pbean.setPause(true);
+				pauser.broadcast(pbean);
+			}
 		}
 	}
 
