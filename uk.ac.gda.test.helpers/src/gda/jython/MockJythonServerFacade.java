@@ -18,18 +18,6 @@
 
 package gda.jython;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.commandinfo.CommandThreadEvent;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.scan.IScanDataPoint;
-import gda.scan.Scan;
-import gda.scan.ScanDataPoint;
-import gda.scan.ScanEvent;
-import gda.scan.ScanInformation;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +30,18 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commandinfo.CommandThreadEvent;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.scan.IScanDataPoint;
+import gda.scan.Scan;
+import gda.scan.ScanDataPoint;
+import gda.scan.ScanEvent;
+import gda.scan.ScanInformation;
+
 /**
  * Mock implementation of interfaces usually provided by JythonServerFacade to be used when running tests outside of gda
  * This implementation is used if you set the property JythonServerFacade.dummy to true
@@ -53,7 +53,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
 
-	private volatile int scanStatus = Jython.IDLE;
+	private volatile JythonStatus scanStatus = JythonStatus.IDLE;
 
 	private HashMap<String, Object> hashTable = new HashMap<String, Object>();
 	private int authorisationLevel = 0;
@@ -104,12 +104,12 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 		terminalOutput += text + "\n";
 	}
 
-	public void setScanStatus(int newStatus) {
+	public void setScanStatus(JythonStatus newStatus) {
 		scanStatus = newStatus;
 	}
 
 	@Override
-	public int getScanStatus() {
+	public JythonStatus getScanStatus() {
 		return scanStatus;
 	}
 
@@ -170,18 +170,18 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
-	public void setScriptStatus(int newStatus) {
+	public void setScriptStatus(JythonStatus newStatus) {
 		scanStatus = newStatus;
 	}
 
 	@Override
-	public int getScriptStatus() {
+	public JythonStatus getScriptStatus() {
 		return scanStatus;
 	}
 
 	@Override
 	public void abortCommands() {
-		scanStatus = Jython.IDLE;
+		scanStatus = JythonStatus.IDLE;
 	}
 
 	@Override
