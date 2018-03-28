@@ -79,6 +79,9 @@ public class ConsumerView extends EventConnectionView {
 
 	private IEventService service;
 
+	private IPublisher<KillBean> commandTopicPublisher;
+	private IPublisher<AdministratorMessage> adminTopicPublisher;
+
 	public ConsumerView() {
 		this.service = ServiceHolder.getEventService();
 	}
@@ -100,15 +103,28 @@ public class ConsumerView extends EventConnectionView {
 		consumers = new ConcurrentHashMap<>();
 		viewer.setInput(consumers);
 
-        createActions();
-        try {
+		createActions();
+		try {
 			createTopicListener(new URI(Activator.getJmsUri()));
 		} catch (Exception e) {
 			logger.error("Cannot listen to topic of command server!", e);
 		}
 
-        final String partName = getSecondaryIdAttribute("partName");
-        if (partName!=null) setPartName(partName);
+		try {
+			commandTopicPublisher = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.CMD_TOPIC);
+		} catch (Exception e) {
+			logger.error("Cannot create publisher to command topic", e);
+		}
+		try {
+			adminTopicPublisher = service.createPublisher(new URI(Activator.getJmsUri()),
+				EventConstants.ADMIN_MESSAGE_TOPIC);
+		} catch (Exception e) {
+			logger.error("Cannot create publisher to admin topic", e);
+		}
+
+
+		final String partName = getSecondaryIdAttribute("partName");
+		if (partName != null) setPartName(partName);
 	}
 
 	/**
@@ -195,6 +211,16 @@ public class ConsumerView extends EventConnectionView {
 		} catch (Exception ne) {
 			logger.warn("Problem stopping topic listening for "+oldBeat.getTopicName(), ne);
 		}
+		try {
+			if (commandTopicPublisher != null) commandTopicPublisher.disconnect();
+		} catch (Exception e) {
+			logger.warn("Problem disconnecting publisher for " + commandTopicPublisher.getTopicName(), e);
+		}
+		try {
+			if (adminTopicPublisher != null) adminTopicPublisher.disconnect();
+		} catch (Exception e) {
+			logger.warn("Problem disconnecting publisher for " + adminTopicPublisher.getTopicName(), e);
+		}
 	}
 
 	private void createActions() {
@@ -255,9 +281,10 @@ public class ConsumerView extends EventConnectionView {
 	    if (!ok) return;
 
 
-	    boolean notify = MessageDialog.openQuestion(getSite().getShell(), "Warn Users", "Would you like to warn users before stopping the consumer?\n\n"
-						                        + "If you say yes, a popup will open on users clients to warn about the imminent stop.");
-        if (notify) {
+		boolean notify = MessageDialog.openQuestion(getSite().getShell(), "Warn Users",
+				"Would you like to warn users before stopping the consumer?\n\n"
+						+ "If you say yes, a popup will open on users clients to warn about the imminent stop.");
+		if (notify) {
 
 		final AdministratorMessage msg = new AdministratorMessage();
 		msg.setTitle("'"+bean.getConsumerName()+"' will shutdown.");
@@ -266,45 +293,45 @@ public class ConsumerView extends EventConnectionView {
 				       "however they should complete.\n\n"+
 		               "Runs yet to be started will be picked up when\n"+
 		               "'"+bean.getConsumerName()+"' restarts.");
-		try {
-			final IPublisher<AdministratorMessage> send = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.ADMIN_MESSAGE_TOPIC);
-			send.broadcast(msg);
+			try {
+				adminTopicPublisher.broadcast(msg);
 			} catch (Exception e) {
 				logger.error("Cannot notify of shutdown!", e);
 			}
-        }
+		}
 
-	    final KillBean kbean = new KillBean();
-		kbean.setMessage("Requesting a termination of "+bean.getConsumerName());
-	    kbean.setConsumerId(bean.getConsumerId());
-		send(bean, kbean);
-
+		final KillBean killBean = new KillBean();
+		killBean.setMessage("Requesting a termination of " + bean.getConsumerName());
+		killBean.setConsumerId(bean.getConsumerId());
+		sendKillBean(killBean, bean.getConsumerName());
 	}
 
 	private void restart() {
+		HeartbeatBean bean = getSelection();
+		if (bean == null)
+			return;
 
-	    HeartbeatBean bean = getSelection();
-	    if (bean==null) return;
+		boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Confirm Retstart",
+				"If you restart this consumer other people's running jobs may be lost.\n\n"
+						+ "Are you sure that you want to continue?");
+		if (!ok)
+			return;
 
-	    boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Confirm Retstart", "If you restart this consumer other people's running jobs may be lost.\n\n"
-				                                                                      + "Are you sure that you want to continue?");
-	    if (!ok) return;
-
-	    final KillBean kbean = new KillBean();
-	    kbean.setExitProcess(false);
-		kbean.setMessage("Requesting a restart of "+bean.getConsumerName());
-	    kbean.setConsumerId(bean.getConsumerId());
-	    kbean.setRestart(true);
-		send(bean, kbean);
+		final KillBean killBean = new KillBean();
+		killBean.setExitProcess(false);
+		killBean.setMessage("Requesting a restart of " + bean.getConsumerName());
+		killBean.setConsumerId(bean.getConsumerId());
+		killBean.setRestart(true);
+		sendKillBean(killBean, bean.getConsumerName());
 
 		consumers.clear();
-        viewer.refresh();
+		viewer.refresh();
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			logger.error("Refreshing consumers that we can process", e);
 		}
-        viewer.refresh();
+		viewer.refresh();
 	}
 
 	private HeartbeatBean getSelection() {
@@ -312,13 +339,11 @@ public class ConsumerView extends EventConnectionView {
 		return (HeartbeatBean)((IStructuredSelection)viewer.getSelection()).getFirstElement();
 	}
 
-	private void send(HeartbeatBean bean, KillBean kbean) {
-
+	private void sendKillBean(KillBean kbean, String consumerName) {
 		try {
-			final IPublisher<KillBean> send = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.CMD_TOPIC);
-			send.broadcast(kbean);
+			commandTopicPublisher.broadcast(kbean);
 		} catch (Exception e) {
-			logger.error("Cannot terminate consumer "+bean.getConsumerName(), e);
+			logger.error("Cannot terminate consumer " + consumerName, e);
 		}
 	}
 

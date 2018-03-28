@@ -119,16 +119,18 @@ public class StatusQueueView extends EventConnectionView {
 	private static final Logger logger = LoggerFactory.getLogger(StatusQueueView.class);
 
 	// UI
-	private TableViewer                       viewer;
-	private DelegatingSelectionProvider       selectionProvider;
+	private TableViewer viewer;
+	private DelegatingSelectionProvider selectionProvider;
 
 	// Data
-	private Map<String, StatusBean>           queue;
-	private boolean                           hideOtherUsersResults = false;
+	private Map<String, StatusBean> queue;
+	private boolean hideOtherUsersResults = false;
 
-	private ISubscriber<IBeanListener<StatusBean>>           topicMonitor;
+	private ISubscriber<IBeanListener<StatusBean>> topicMonitor;
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminMonitor;
-	private ISubmitter<StatusBean>                           queueConnection;
+	private ISubmitter<StatusBean> queueConnection;
+	private IPublisher<StatusBean> statusTopicPublisher;
+	private IPublisher<PauseBean> commandTopicPublisher;
 
 	private Action openResultsAction;
 	private Action rerunAction;
@@ -178,6 +180,20 @@ public class StatusQueueView extends EventConnectionView {
 
 		} catch (Exception e) {
 			logger.error("Cannot listen to topic of command server!", e);
+		}
+
+		try {
+			statusTopicPublisher = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.STATUS_TOPIC);
+		} catch (Exception e) {
+			logger.error("Cannot create publisher to status topic", e);
+		}
+
+		try {
+			commandTopicPublisher = service.createPublisher(getUri(), EventConstants.CMD_TOPIC);
+			commandTopicPublisher.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
+			commandTopicPublisher.setStatusSetAddRequired(true);
+		} catch (Exception e) {
+			logger.error("Cannot create publisher to command topic", e);
 		}
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
@@ -258,6 +274,16 @@ public class StatusQueueView extends EventConnectionView {
 			if (adminMonitor!=null) adminMonitor.disconnect();
 		} catch (Exception ne) {
 			logger.warn("Problem stopping topic listening for "+getTopicName(), ne);
+		}
+		try {
+			if (statusTopicPublisher != null) statusTopicPublisher.disconnect();
+		} catch (Exception e) {
+			logger.warn("Problem disconnecting publisher from status topic", e);
+		}
+		try {
+			if (commandTopicPublisher != null) commandTopicPublisher.disconnect();
+		} catch (Exception e) {
+			logger.warn("Problem disconnecting publisher from command topic", e);
 		}
 	}
 
@@ -434,14 +460,10 @@ public class StatusQueueView extends EventConnectionView {
 		try {
 			pauseConsumer.setChecked(!currentState); // We are toggling it.
 
-			IPublisher<PauseBean> pauser = service.createPublisher(getUri(), EventConstants.CMD_TOPIC);
-			pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
-			pauser.setStatusSetAddRequired(true);
-
-			PauseBean pbean = new PauseBean();
-			pbean.setQueueName(getSubmissionQueueName()); // The queue we are pausing
-			pbean.setPause(pauseConsumer.isChecked());
-			pauser.broadcast(pbean);
+			PauseBean pauseBean = new PauseBean();
+			pauseBean.setQueueName(getSubmissionQueueName()); // The queue we are pausing
+			pauseBean.setPause(pauseConsumer.isChecked());
+			commandTopicPublisher.broadcast(pauseBean);
 
 		} catch (Exception e) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot pause queue "+getSubmissionQueueName(),
@@ -489,9 +511,7 @@ public class StatusQueueView extends EventConnectionView {
 					bean.setMessage("Pause of "+bean.getName());
 				}
 
-				IPublisher<StatusBean> terminate = service.createPublisher(getUri(), getTopicName());
-				terminate.broadcast(bean);
-
+				statusTopicPublisher.broadcast(bean);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
 					"Cannot pause "+bean.getName()+"\n\nPlease contact your support representative.",
@@ -578,9 +598,7 @@ public class StatusQueueView extends EventConnectionView {
 				bean.setStatus(org.eclipse.scanning.api.event.status.Status.REQUEST_TERMINATE);
 				bean.setMessage("Termination of "+bean.getName());
 
-				IPublisher<StatusBean> terminate = service.createPublisher(getUri(), getTopicName());
-				terminate.broadcast(bean);
-
+				statusTopicPublisher.broadcast(bean);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot terminate "+bean.getName(), "Cannot terminate "+bean.getName()+"\n\nPlease contact your support representative.",
 						new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
