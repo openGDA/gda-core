@@ -423,10 +423,9 @@ public class FocusScanResultPage extends WizardPage {
 			statusBean.setStatus(Status.REQUEST_TERMINATE);
 			statusBean.setMessage("Termination of " + statusBean.getName());
 
-			try {
-				// then publish the bean to the status topic
-				final IPublisher<StatusBean> publisher = eventService.createPublisher(
-						getActiveMqUri(), EventConstants.STATUS_TOPIC);
+			// then publish the bean to the status topic
+			try (final IPublisher<StatusBean> publisher = eventService.createPublisher(
+						getActiveMqUri(), EventConstants.STATUS_TOPIC)) {
 				publisher.broadcast(statusBean);
 			} catch (URISyntaxException | EventException e) {
 				logger.error("Could not send terminate request", e);

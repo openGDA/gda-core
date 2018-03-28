@@ -69,9 +69,8 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 			throw new IllegalStateException("Event service not set - should be set by OSGi DS");
 		}
 
-		try {
-			URI jmsUri = new URI(LocalProperties.getActiveMQBrokerURI());
-			IPublisher<PauseBean> publisher = eventService.createPublisher(jmsUri, EventConstants.CMD_TOPIC);
+		try (IPublisher<PauseBean> publisher = eventService.createPublisher(
+					new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.CMD_TOPIC)) {
 			publisher.setStatusSetName(EventConstants.CMD_SET);
 			publisher.setStatusSetAddRequired(true);
 
