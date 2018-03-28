@@ -21,7 +21,7 @@ from gda.epics import CAClient
 from gda.device.scannable import PseudoDevice
 from java import lang
 from java.lang import Thread, Runnable
-from gda.jython import JythonServerFacade, Jython
+from gda.jython import JythonServerFacade, JythonStatus
 
 class EpicsPVWithMonitorListener(PseudoDevice, MonitorListener, Runnable):
 	'''create a scannable that monitors the EPICS PV value changes and update its value passively. 
@@ -82,10 +82,10 @@ class EpicsPVWithMonitorListener(PseudoDevice, MonitorListener, Runnable):
 	def run(self):
 	#	print "Thread: " + self.getName() + " started"
 		while (self.runThread):
-			if (JythonServerFacade.getInstance().getScanStatus() == Jython.RUNNING and self.currenttemp >= float(MAXTEMP)):
+			if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.RUNNING and self.currenttemp >= float(MAXTEMP)):
 				JythonServerFacade.getInstance().pauseCurrentScan()	
 				print "Scan paused as temperature " + self.getName() +" returns: "+str(self.currenttemp)
-			elif (JythonServerFacade.getInstance().getScanStatus() == Jython.PAUSED and self.currenttemp <= float(MINTEMP)):
+			elif (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED and self.currenttemp <= float(MINTEMP)):
 				print "Scan resumed as temperature " + self.getName() +" returns: "+str(self.currenttemp)
 				JythonServerFacade.getInstance().resumeCurrentScan()
 			sleep(10)
