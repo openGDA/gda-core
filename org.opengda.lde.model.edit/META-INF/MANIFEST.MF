@@ -13,7 +13,5 @@ Export-Package: org.opengda.lde.model.edit,
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.lde.model;visibility:=reexport,
  org.eclipse.emf.edit;visibility:=reexport,
- org.eclipse.swt,
  uk.ac.gda.common
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.jface.resource
