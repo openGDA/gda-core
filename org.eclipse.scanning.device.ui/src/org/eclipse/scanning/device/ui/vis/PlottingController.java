@@ -233,13 +233,10 @@ public class PlottingController implements ISelectionProvider, IAdaptable {
 	}
 
 	private void sendAxisConfiguration(AxisConfiguration conf) {
-		try {
-			IEventService eservice = ServiceHolder.getEventService();
-			IPublisher<AxisConfiguration> publisher = eservice.createPublisher(
-					new URI(CommandConstants.getScanningBrokerUri()), EventConstants.AXIS_CONFIGURATION_TOPIC);
+		IEventService eventService = ServiceHolder.getEventService();
+		try (IPublisher<AxisConfiguration> publisher = eventService.createPublisher(
+					new URI(CommandConstants.getScanningBrokerUri()), EventConstants.AXIS_CONFIGURATION_TOPIC)) {
 			publisher.broadcast(conf);
-			publisher.disconnect();
-
 		} catch (Exception ne) {
 			logger.error("Cannot publish " + conf, ne);
 		}
