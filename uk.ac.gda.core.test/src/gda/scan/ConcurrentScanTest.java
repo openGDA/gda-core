@@ -55,7 +55,6 @@ import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.detector.DetectorWithReadout;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.PositionCallableProvider;
 
@@ -88,7 +87,6 @@ public class ConcurrentScanTest {
 
 
 
-	interface DetectorWithReadoutDetector extends Detector, DetectorWithReadout{}
 	static String testScratchDirectoryName;
 
 	protected Scannable lev4;
@@ -97,9 +95,9 @@ public class ConcurrentScanTest {
 	protected Scannable lev6;
 	protected Scannable lev6b;
 
-	protected DetectorWithReadoutDetector detlev9a;
-	protected DetectorWithReadoutDetector detlev9b;
-	protected DetectorWithReadoutDetector detlev5;
+	protected Detector detlev9a;
+	protected Detector detlev9b;
+	protected Detector detlev5;
 
 	/**
 	 * Setups of environment for the tests
@@ -286,7 +284,6 @@ public class ConcurrentScanTest {
 		inOrder.verify(detlev5).atLevelStart();
 		inOrder.verify(lev5a).atLevelMoveStart();
 		inOrder.verify(lev5b).atLevelMoveStart();
-		inOrder.verify(detlev5).waitForReadoutCompletion();
 		inOrder.verify(lev5a).asynchronousMoveTo(pos5a);
 		inOrder.verify(lev5b).asynchronousMoveTo(pos5b);
 		inOrder.verify(detlev5).collectData();
@@ -304,8 +301,6 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev6).atLevelEnd();
 		inOrder.verify(detlev9a).atLevelStart();
 		inOrder.verify(detlev9b).atLevelStart();
-		inOrder.verify(detlev9a).waitForReadoutCompletion();
-		inOrder.verify(detlev9b).waitForReadoutCompletion();
 		inOrder.verify(detlev9a).collectData();
 		inOrder.verify(detlev9b).collectData();
 		inOrder.verify(detlev9a).waitWhileBusy();
@@ -1138,8 +1133,8 @@ public class ConcurrentScanTest {
 		verify(detlev5, never()).asynchronousMoveTo(anyObject());
 	}
 
-	private DetectorWithReadoutDetector createDetector(String name, int level) throws DeviceException {
-		DetectorWithReadoutDetector det = mock(DetectorWithReadoutDetector.class, name);
+	private Detector createDetector(String name, int level) throws DeviceException {
+		Detector det = mock(Detector.class, name);
 		when(det.getName()).thenReturn(name);
 		when(det.getInputNames()).thenReturn(new String[] {});
 		when(det.getExtraNames()).thenReturn(new String[] { "ct1", "ct2" });
