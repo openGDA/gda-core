@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -248,68 +249,84 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
+	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
+		final IPublisher<PauseBean> publisher = createPausePublisher();
+		final boolean isAlreadyPaused = isQueuePaused(queueName);
+
+		// create a pause bean
+		final PauseBean pauseBean = new PauseBean(queueName);
+		pauseBean.setMessage(pauseMessage);
+		try {
+			// send the pause bean if we're not already paused, to signal the queue consumer to pause
+			if (!isAlreadyPaused) publisher.broadcast(pauseBean);
+			// perform the task while the queue is paused
+			return task.call();
+		} catch (EventException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new EventException(e);
+		} finally {
+			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
+			if (!isAlreadyPaused) {
+				pauseBean.setPause(false);
+				publisher.broadcast(pauseBean);
+			}
+			// disconnect the publisher
+			publisher.disconnect();
+		}
+	}
+
 	@Override
 	public boolean reorder(U bean, String queueName, int amount) throws EventException {
 
 		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
 
-		PauseBean pbean = new PauseBean(queueName);
-		pbean.setMessage("Pause to reorder '"+bean.getName()+"' "+amount);
+		final String pauseMessage = "Pause to reorder '" + bean.getName() + "' " + amount;
+		return doWhilePaused(queueName, pauseMessage, () -> doReorder(bean, queueName, amount));
+	}
 
-		IPublisher<PauseBean> publisher = createPausePublisher();
-		final boolean isAlreadyPaused = isQueuePaused(queueName);
-		if (!isAlreadyPaused) publisher.broadcast(pbean);
+	private boolean doReorder(U bean, String queueName, int amount) throws EventException {
+		// We are paused, read the queue
+		List<U> submitted = getQueue(queueName);
+		if (submitted==null || submitted.isEmpty())
+			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
-		try {
-
-			// We are paused, read the queue
-			List<U> submitted = getQueue(queueName);
-			if (submitted==null || submitted.isEmpty())
-				throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
-
-			Collections.reverse(submitted); // It comes out with the head at 0 and tail at size-1
-			boolean found = false;
-			int index = -1;
-			for (U u : submitted) {
-				index++;
-				if (u.getUniqueId().equals(bean.getUniqueId())) {
-					found=true;
-					break;
-				}
+		Collections.reverse(submitted); // It comes out with the head at 0 and tail at size-1
+		boolean found = false;
+		int index = -1;
+		for (U u : submitted) {
+			index++;
+			if (u.getUniqueId().equals(bean.getUniqueId())) {
+				found=true;
+				break;
 			}
-			if (!found) throw new EventException("Cannot find bean '"+bean.getName()+"' in submission queue!\nIt might be running now.");
-
-			if (index<1 && amount<0) throw new EventException("'"+bean.getName()+"' is already at the tail of the submission queue.");
-			if (index+amount>submitted.size()-1) throw new EventException("'"+bean.getName()+"' is already at the head of the submission queue.");
-
-			clearQueue(queueName);
-
-			U existing = submitted.get(index);
-			if (amount>0) {
-				submitted.add(index+amount+1, existing);
-				submitted.remove(index);
-			} else {
-				submitted.add(index+amount, existing);
-				submitted.remove(index+1);
-			}
-
-			Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
-
-			@SuppressWarnings("unchecked")
-			ISubmitter<U> submitter = this instanceof ISubmitter
-					                ? (ISubmitter<U>)this
-					                : eservice.createSubmitter(getUri(), queueName);
-
-			for (U u : submitted) submitter.submit(u);
-
-			return true; // It was reordered
-		} finally {
-			if (!isAlreadyPaused) {
-				pbean.setPause(false);
-				publisher.broadcast(pbean);
-			}
-			publisher.disconnect();
 		}
+		if (!found) throw new EventException("Cannot find bean '"+bean.getName()+"' in submission queue!\nIt might be running now.");
+
+		if (index<1 && amount<0) throw new EventException("'"+bean.getName()+"' is already at the tail of the submission queue.");
+		if (index+amount>submitted.size()-1) throw new EventException("'"+bean.getName()+"' is already at the head of the submission queue.");
+
+		clearQueue(queueName);
+
+		U existing = submitted.get(index);
+		if (amount>0) {
+			submitted.add(index+amount+1, existing);
+			submitted.remove(index);
+		} else {
+			submitted.add(index+amount, existing);
+			submitted.remove(index+1);
+		}
+
+		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
+
+		try (@SuppressWarnings("unchecked")
+					ISubmitter<U> submitter = this instanceof ISubmitter ?
+						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+			for (U u : submitted)
+				submitter.submit(u);
+		}
+
+		return true; // It was reordered
 	}
 
 	private IPublisher<PauseBean> createPausePublisher() {
@@ -321,35 +338,31 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public boolean remove(U bean, String queueName) throws EventException {
+		final String pauseMessage = "Pause to remove '"+bean.getName()+"' ";
+		return doWhilePaused(queueName, pauseMessage, () -> doRemove(bean, queueName));
+	}
 
+	private boolean doRemove(U bean, String queueName) throws EventException {
 		QueueConnection send = null;
 		QueueSession session = null;
-
-		PauseBean pbean = new PauseBean(queueName);
-		pbean.setMessage("Pause to remove '"+bean.getName()+"' ");
-
-		IPublisher<PauseBean> publisher = createPausePublisher();
-		final boolean isAlreadyPaused = isQueuePaused(queueName);
-		if (!isAlreadyPaused) publisher.broadcast(pbean);
-
+		final QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
 		try {
-
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-			send  = connectionFactory.createQueueConnection(); // This times out when the server is not there.
-			session  = send.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue   = session.createQueue(queueName);
+			send = connectionFactory.createQueueConnection(); // This times out when the server is not there.
+			session = send.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+			Queue queue = session.createQueue(queueName);
 			send.start();
 
 			QueueBrowser qb = session.createBrowser(queue);
-			@SuppressWarnings("rawtypes")
-			Enumeration  e  = qb.getEnumeration();
-
 			String jmsMessageId = null;
+			@SuppressWarnings("rawtypes")
+			Enumeration e = qb.getEnumeration();
+
 			while (jmsMessageId == null && e.hasMoreElements()) {
-				Message m = (Message)e.nextElement();
-				if (m==null) continue;
+				Message m = (Message) e.nextElement();
+				if (m == null)
+					continue;
 				if (m instanceof TextMessage) {
-					TextMessage t = (TextMessage)m;
+					TextMessage t = (TextMessage) m;
 
 					final U qbean = service.unmarshal(t.getText(), null);
 					if (qbean != null && isSame(qbean, bean)) {
@@ -361,7 +374,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			qb.close();
 
 			if (jmsMessageId != null) {
-				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
+				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '" + jmsMessageId + "'");
 				Message m = consumer.receive(1000);
 				consumer.close();
 				return m != null; // It might have been removed ok
@@ -369,68 +382,54 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 			return false; // It was not removed
 		} catch (Exception ne) {
-			throw new EventException("Cannot remove item "+bean, ne);
+			throw new EventException("Cannot remove item " + bean, ne);
 
-		}  finally {
-			if (!isAlreadyPaused) {
-				pbean.setPause(false);
-				publisher.broadcast(pbean);
-			}
+		} finally {
 			try {
-				publisher.disconnect();
-				if (send!=null)     send.close();
-				if (session!=null)  session.close();
+				if (send != null)
+					send.close();
+				if (session != null)
+					session.close();
 			} catch (Exception e) {
 				throw new EventException("Cannot close connection as expected!", e);
 			}
 		}
-
 	}
 
 	@Override
 	public boolean replace(U bean, String queueName) throws EventException {
-		PauseBean pbean = new PauseBean(queueName);
-		pbean.setMessage("Pause to replace '"+bean.getName()+"' ");
+		final String pauseMessage = "Pause to replace '"+bean.getName()+"' ";
+		return doWhilePaused(queueName, pauseMessage, () -> doReplace(bean, queueName));
+	}
 
-		IPublisher<PauseBean> publisher = createPausePublisher();
-		final boolean isAlreadyPaused = isQueuePaused(queueName);
-		if (!isAlreadyPaused) publisher.broadcast(pbean);
+	private boolean doReplace(U bean, String queueName) throws EventException {
+		// We are paused, read the queue
+		List<U> submitted = getQueue(queueName);
+		if (submitted == null || submitted.isEmpty())
+			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
-		try {
-
-			// We are paused, read the queue
-			List<U> submitted = getQueue(queueName);
-			if (submitted==null || submitted.size()<1) throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
-
-			boolean found = false;
-			for (int i = 0; i < submitted.size(); i++) {
-				U u = submitted.get(i);
-				if (u.getUniqueId().equals(bean.getUniqueId())) {
-					found=true;
-					submitted.set(i, bean);
-					break;
-				}
+		boolean found = false;
+		for (int i = 0; i < submitted.size(); i++) {
+			U u = submitted.get(i);
+			if (u.getUniqueId().equals(bean.getUniqueId())) {
+				found = true;
+				submitted.set(i, bean);
+				break;
 			}
-			if (!found) throw new EventException("Cannot find bean '"+bean.getName()+"' in submission queue!\nIt might be running now.");
-
-			clearQueue(queueName);
-
-			ISubmitter<U> submitter = this instanceof ISubmitter
-					                ? (ISubmitter<U>)this
-					                : (ISubmitter<U>)eservice.createSubmitter(getUri(), queueName);
-
-		    for (U u : submitted) submitter.submit(u);
-
-		    return true; // It was reordered
-
-		} finally {
-			if (!isAlreadyPaused) {
-				pbean.setPause(false);
-				publisher.broadcast(pbean);
-			}
-			publisher.disconnect();
 		}
+		if (!found)
+			throw new EventException("Cannot find bean '" + bean.getName() + "' in submission queue!\nIt might be running now.");
 
+		clearQueue(queueName);
+
+		try (@SuppressWarnings("unchecked")
+				ISubmitter<U> submitter = this instanceof ISubmitter ?
+						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+			for (U u : submitted) {
+				submitter.submit(u);
+			}
+		}
+		return true; // It was reordered
 	}
 
 	/**
