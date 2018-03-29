@@ -32,11 +32,17 @@ public interface XasScan {
 	 *
 	 * @return String name of scan type e.g. XANES
 	 */
-	public abstract String getScanType();
+	String getScanType();
 
-	public abstract void doCollection(ISampleParameters sampleBean, IScanParameters scanBean,
+	/** Configure the XasScan object for data collection.
+	 * i.e. set the beamline-specific parameter objects to be used to prepare for and run the scan(s).
+	 * This should be called before running {@link #doCollection}. */
+	void configureCollection(ISampleParameters sampleBean, IScanParameters scanBean,
 			IDetectorParameters detectorBean, IOutputParameters outputBean,
 			IDetectorConfigurationParameters detectorConfigurationBean, String experimentFullPath, int numRepetitions)
 			throws Exception;
 
+	/** Start the data collection. The {@code configure} method of each parameter object is called in the correct order
+	 * and the scan(s) started. The {@link #configureCollection} should be run first to set the parameter objects. */
+	void doCollection() throws Exception;
 }
