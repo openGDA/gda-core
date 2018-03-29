@@ -33,7 +33,7 @@ import gda.configuration.properties.LocalProperties;
  * <p>
  * It is thread safe due to the use of a {@link CopyOnWriteArraySet} being used to hold the {@link IObserver}'s.
  */
-public class ObservableComponent implements IObservable, IIsBeingObserved {
+public class ObservableComponent implements IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(ObservableComponent.class);
 	private static final String TIME_TO_UPDATE_WARNING_PROPERTY = "gda.observable.notificationWarningTime";
 	private static final int TIME_TO_UPDATE_WARNING_DEFAULT_MILLIS = 100; //ms
@@ -155,7 +155,6 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 		}
 	}
 
-	@Override
 	public boolean isBeingObserved() {
 		return !myIObservers.isEmpty();
 	}

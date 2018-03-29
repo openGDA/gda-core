@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A Component that may be used by Observable objects to maintain its list of Observers
  */
-public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
+public class ObservableUtil<E> implements Observable<E> {
 
 	private Vector<Observer<E>> myObservers = new Vector<Observer<E>>();
 
@@ -137,7 +137,6 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 		}
 	}
 
-	@Override
 	public boolean isBeingObserved() {
 		return !myObservers.isEmpty();
 	}
