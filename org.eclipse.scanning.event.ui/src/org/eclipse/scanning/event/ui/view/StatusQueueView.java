@@ -285,6 +285,12 @@ public class StatusQueueView extends EventConnectionView {
 		} catch (Exception e) {
 			logger.warn("Problem disconnecting publisher from command topic", e);
 		}
+
+		try {
+			if (queueConnection != null) queueConnection.disconnect();
+		} catch (EventException e) {
+			logger.warn("Problem disconnecting from queue connection", e);
+		}
 	}
 
 	/**
