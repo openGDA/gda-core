@@ -68,6 +68,12 @@ public class RunExperimentNewQueueCommandHandler extends RunExperimentCommandHan
 		return submitter;
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		submitter.dispose();
+	}
+
 	private CommandBean createCommandBean(final Command command) {
 		ExperimentCommandBean bean = new ExperimentCommandBean();
 		bean.setCommand(command);

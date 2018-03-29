@@ -46,6 +46,14 @@ public class CommandBeanSubmitter {
 		submitter = createScanSubmitter();
 	}
 
+	public void dispose() {
+		try {
+			submitter.disconnect();
+		} catch (EventException e) {
+			logger.warn("Could not disconnect command bean submitter", e);
+		}
+	}
+
 	private ISubmitter<CommandBean> createScanSubmitter() {
 		IEventService eventService = EventServiceHolder.getEventService();
 		if (eventService == null) {
