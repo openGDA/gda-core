@@ -285,7 +285,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	@SuppressWarnings("squid:S1141")
 	protected void submit() {
-		try {
+		try (ISubmitter<ScanBean> submitter = ServiceHolder.getEventService().createSubmitter(
+				new URI(CommandConstants.getScanningBrokerUri()), EventConstants.SUBMISSION_QUEUE)) {
 
 			// Send it off
 			ScanBean bean=null;
@@ -298,7 +299,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			}
 			bean.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 
-			ISubmitter<ScanBean> submitter = ServiceHolder.getEventService().createSubmitter(new URI(CommandConstants.getScanningBrokerUri()), EventConstants.SUBMISSION_QUEUE);
 			if (logger.isDebugEnabled()) { // Test used because output message does work.
 				logger.debug("Submitting Bean to queue: {}", ServiceHolder.getMarshallerService().marshal(bean));
 				logger.debug("Submitter isConnected = {}", submitter.isConnected());
@@ -316,7 +316,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 		} catch (Exception ne) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot Submit Scan", "There was a problem submitting the scan.\n\nPlease contact your support representative.", new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage(), ne));
-		    logger.error("Unable to submit scan", ne);
+			logger.error("Unable to submit scan", ne);
 		}
 	}
 
