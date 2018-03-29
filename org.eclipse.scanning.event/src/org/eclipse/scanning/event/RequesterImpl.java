@@ -29,7 +29,6 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 
 	private ResponseConfiguration responseConfiguration;
 
-
 	RequesterImpl(URI uri, String reqTopic, String resTopic, IEventService eservice) {
 		super(uri, reqTopic, resTopic, eservice);
 		long     time = ResponseConfiguration.DEFAULT.getTimeout();
@@ -44,41 +43,34 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 
 	@Override
 	public T post(final T request) throws EventException, InterruptedException {
-        return post(request, null);
+		return post(request, null);
 	}
 
 	@Override
-	public T post(final T request, ResponseConfiguration.ResponseWaiter waiter) throws EventException, InterruptedException {
+	public T post(final T request, ResponseConfiguration.ResponseWaiter waiter)
+			throws EventException, InterruptedException {
 
-		// Something to listen
-        final ISubscriber<IBeanListener<T>>  receive = eservice.createSubscriber(getUri(), getResponseTopic());
+		try (
+			final IPublisher<T> publisher = eservice.createPublisher(getUri(), getRequestTopic());
+			final ISubscriber<IBeanListener<T>> subscriber = eservice.createSubscriber(getUri(), getResponseTopic())) {
 
-        // Something to send
-        final IPublisher<T>  send    = eservice.createPublisher(getUri(), getRequestTopic());
-
-        try {
-		// Just listen to our id changing.
-	        receive.addListener(request.getUniqueId(), new IBeanListener<T>() {
+			// Just listen to our id changing.
+			subscriber.addListener(request.getUniqueId(), new IBeanListener<T>() {
 				@Override
 				public void beanChangePerformed(BeanEvent<T> evt) {
 					T response = evt.getBean();
-					request.merge(response);  // The bean must implement merge, for instance DeviceRequest.
+					request.merge(response); // The bean must implement merge, for instance DeviceRequest.
 					responseConfiguration.countDown();
 				}
 			});
 
-	        // Send the request
-	        send.broadcast(request);
+			// Send the request
+			publisher.broadcast(request);
 
-	        responseConfiguration.latch(waiter); // Wait or die trying
+			responseConfiguration.latch(waiter); // Wait or die trying
 
-	        return request;
-
-        } finally {
-
-	        receive.disconnect();
-	        send.disconnect();
-        }
+			return request;
+		}
 	}
 
 	@Override
