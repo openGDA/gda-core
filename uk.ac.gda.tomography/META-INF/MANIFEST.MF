@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="8.24.0",
  org.eclipse.emf.transaction,
  org.eclipse.emf.workspace,
- uk.ac.gda.epics;bundle-version="1.0.0"
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.diamond.daq.jython.api
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
