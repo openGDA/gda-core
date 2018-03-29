@@ -137,7 +137,6 @@ public final class GeneralCommands {
 			availableInterfaces.remove("Flushable");
 			availableInterfaces.remove("RobotListener");
 			availableInterfaces.remove("Observer");
-			availableInterfaces.remove("IIsBeingObserved");
 			availableInterfaces.remove("Metadata");
 			availableInterfaces.remove("IPlotManager");
 			availableInterfaces.remove("PlotServerDevice");

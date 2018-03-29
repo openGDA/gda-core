@@ -20,7 +20,7 @@
 package gda.factory.corba.util;
 
 import gda.configuration.properties.LocalProperties;
-import gda.observable.IIsBeingObserved;
+import gda.observable.ObservableComponent;
 
 /**
  * NameFilter Class
@@ -33,24 +33,24 @@ public final class NameFilter implements Filter {
 
 	private static String eventChannelName = LocalProperties.get("gda.eventChannelName", "local.eventChannel");
 
-	private final IIsBeingObserved isBeingObserved;
+	private final ObservableComponent observable;
 
 	/**
 	 * @param shortName
-	 * @param isBeingObserved
+	 * @param observable
 	 */
-	public NameFilter(String shortName, IIsBeingObserved isBeingObserved) {
+	public NameFilter(String shortName, ObservableComponent observable) {
 
 		if (shortName == null || shortName.length() == 0)
 			throw new IllegalArgumentException("FilterBase.FilterBase: Error - name is null or zero length");
 		this.shortName = shortName;
 		this.name = MakeEventChannelName(shortName);
-		this.isBeingObserved = isBeingObserved;
+		this.observable = observable;
 	}
 
 	@Override
 	public ACCEPTANCE apply(TimedStructuredEvent event) {
-		if (isBeingObserved != null && !isBeingObserved.isBeingObserved())
+		if (observable != null && !observable.isBeingObserved())
 			return ACCEPTANCE.NOT;
 		final String eventName = event.getHeader().eventName;
 		return (eventName != null) && name.equals(eventName) ? ACCEPTANCE.EXCLUSIVE : ACCEPTANCE.NOT;

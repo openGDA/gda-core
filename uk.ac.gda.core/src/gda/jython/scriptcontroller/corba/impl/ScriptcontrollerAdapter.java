@@ -36,7 +36,6 @@ import gda.factory.corba.util.NetService;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.jython.scriptcontroller.corba.CorbaScriptController;
 import gda.jython.scriptcontroller.corba.CorbaScriptControllerHelper;
-import gda.observable.IIsBeingObserved;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -46,10 +45,7 @@ import gda.scan.ScanDataPointVar;
 /**
  * A client side implementation of the adapter pattern for the ScriptController class
  */
-public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, EventSubscriber, IObservable,
-		IIsBeingObserved
-
-{
+public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, EventSubscriber, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptcontrollerAdapter.class);
 
@@ -79,7 +75,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 		this.name = name;
 
 		// subscribe to events coming over CORBA from the impl
-		EventService.getInstance().subscribe(this, new NameFilter(name, this));
+		EventService.getInstance().subscribe(this, new NameFilter(name, observable));
 	}
 
 	@Override
@@ -243,11 +239,6 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 	 */
 	private void notifyIObservers(Object theObserved, Object changeCode) {
 		observable.notifyIObservers(theObserved, changeCode);
-	}
-
-	@Override
-	public boolean isBeingObserved() {
-		return observable.isBeingObserved();
 	}
 
 }
