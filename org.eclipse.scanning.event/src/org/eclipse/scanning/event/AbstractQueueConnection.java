@@ -359,8 +359,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 			while (jmsMessageId == null && e.hasMoreElements()) {
 				Message m = (Message) e.nextElement();
-				if (m == null)
-					continue;
 				if (m instanceof TextMessage) {
 					TextMessage t = (TextMessage) m;
 
