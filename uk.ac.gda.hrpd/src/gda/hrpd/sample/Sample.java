@@ -19,17 +19,6 @@
 
 package gda.hrpd.sample;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Localizable;
-import gda.hrpd.SampleInfo;
-import gda.hrpd.data.ExcelWorkbook;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -37,6 +26,17 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.factory.ConfigurableBase;
+import gda.factory.FactoryException;
+import gda.factory.Localizable;
+import gda.hrpd.SampleInfo;
+import gda.hrpd.data.ExcelWorkbook;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
 /**
  * This class reads the sample information data from a table in an Excel spreadsheet (default to sheet 0) and/or writes
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * should be user's home directory.
  */
 @SuppressWarnings("serial")
-public class Sample implements Configurable, Localizable, SampleInfo {
+public class Sample extends ConfigurableBase implements Localizable, SampleInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Sample.class);
 
 	private String carouselNo;
@@ -77,7 +77,6 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	private String name = "Sample";
 
-	private boolean configured = false;
 	private boolean saveExperimentSummary = false;
 
 	private ExcelWorkbook excel;
@@ -97,7 +96,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			if ((sampleInfoFile = getSampleInfoFile()) != null) {
 				// XML object configuration
 				if (sampleInfoFile.startsWith("/")) {
@@ -120,7 +119,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 			}
 
 			File file = new File(this.filename);
-			
+
 			if (!file.exists()) {
 				logger.debug("Cannot find Sample Information file {}.", this.filename);
 				logger.info("You may maunally input information per sample using object 'si' from JythonTerminal." );
@@ -133,7 +132,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 			if (!file.canWrite()){
 				logger.warn("Can not write to file {}. Permission denied. Scan will not be able to save data to this file. ", this.filename);
 			}
-			configured = true;
+			setConfigured(true);
 		}
 	}
 
@@ -188,7 +187,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	/**
 	 * read existing data only {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.hrpd.SampleInfo#loadSampleInfo(int)
 	 */
 	@Override
@@ -215,7 +214,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	/**
 	 * to support modification option {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.hrpd.SampleInfo#saveSampleInfo(int)
 	 */
 	@Override
@@ -392,7 +391,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 	public void setSampleInfoFile(String sampleInfoFile) {
 		String oldFile = this.sampleInfoFile;
 		this.sampleInfoFile = sampleInfoFile;
-		if (configured) {
+		if (isConfigured()) {
 			try {
 				reconfigure(sampleInfoFile);
 			} catch (FactoryException e) {
@@ -431,7 +430,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 			logger.debug("Cannot find file {}", this.filename);
 			throw new FactoryException("Cannot find file " + this.filename);
 		}
-		configured = false;
+		setConfigured(false);
 		configure();
 	}
 
@@ -449,7 +448,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 	/**
 	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
 	 * and placed on the name server.
-	 * 
+	 *
 	 * @return true for local only objects
 	 */
 	@Override
@@ -460,7 +459,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 	/**
 	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
 	 * be instantiated and placed on the name server.
-	 * 
+	 *
 	 * @param local
 	 *            true if a local only implementation.
 	 */
@@ -471,7 +470,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	/**
 	 * Check whether the configure method should be called when the server is instantiated.
-	 * 
+	 *
 	 * @return true if configuration is required at startup.
 	 */
 	public boolean isConfigureAtStartup() {
@@ -480,7 +479,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	/**
 	 * Set a flag to inform the server whether the configure method should be called at startup.
-	 * 
+	 *
 	 * @param configureAtStartup
 	 *            true to configure at startup.
 	 */
@@ -505,7 +504,7 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument
@@ -513,13 +512,5 @@ public class Sample implements Configurable, Localizable, SampleInfo {
 	 */
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
-	}
-
-	/**
-	 * @see gda.hrpd.SampleInfo#isConfigured()
-	 */
-	@Override
-	public boolean isConfigured() {
-		return this.configured;
 	}
 }
