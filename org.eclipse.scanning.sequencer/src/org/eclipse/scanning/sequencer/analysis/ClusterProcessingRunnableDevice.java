@@ -15,7 +15,6 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.eclipse.dawnsci.analysis.api.processing.IOperationBean;
 import org.eclipse.scanning.api.ModelValidationException;
@@ -49,8 +48,6 @@ public class ClusterProcessingRunnableDevice extends AbstractRunnableDevice<Clus
 
 	public static final String NEXUS_FILE_EXTENSION = ".nxs";
 
-	private static ISubmitter<StatusBean> submitter = null;
-
 	private IOperationBean operationBean;
 
 	public ClusterProcessingRunnableDevice() {
@@ -72,22 +69,10 @@ public class ClusterProcessingRunnableDevice extends AbstractRunnableDevice<Clus
         }
 	}
 
-	private ISubmitter<StatusBean> getSubmitter() throws Exception {
-		if (submitter == null) {
-			submitter = createSubmitter();
-		}
-		return submitter;
-	}
-
 	private ISubmitter<StatusBean> createSubmitter() throws Exception {
-		try {
-			URI uri = new URI(CommandConstants.getScanningBrokerUri());
-			IEventService eventService = ServiceHolder.getEventService();
-			return eventService.createSubmitter(uri, PROCESSING_QUEUE_NAME);
-		} catch (URISyntaxException e) {
-			logger.error("Could not create URI " , e);
-			throw e;
-		}
+		URI uri = new URI(CommandConstants.getScanningBrokerUri());
+		IEventService eventService = ServiceHolder.getEventService();
+		return eventService.createSubmitter(uri, PROCESSING_QUEUE_NAME);
 	}
 
 	private IOperationBean createOperationBean(ScanInformation scanInfo) {
@@ -152,8 +137,8 @@ public class ClusterProcessingRunnableDevice extends AbstractRunnableDevice<Clus
 	@Override
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		if (operationBean != null) {
-			try {
-				getSubmitter().submit((StatusBean) operationBean);
+			try (ISubmitter<StatusBean> submitter = createSubmitter()) {
+				submitter.submit((StatusBean) operationBean);
 			} catch (Exception e) {
 				logger.error("Could not submit processing bean for processing step" + getName());
 			}
