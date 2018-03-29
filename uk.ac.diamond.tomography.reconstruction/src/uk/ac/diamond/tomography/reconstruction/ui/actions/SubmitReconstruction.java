@@ -67,31 +67,30 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
 
 	    if (!ok) return;
 
-        try {
-    	    final TomoBean tBean = new TomoBean();
-    	    tBean.setProjectName("A test tomography reconstruction");
-    	    tBean.setFileName(resource.getLocation().toOSString());
-    	    tBean.setRunDirectory("/dls/p45/test/");
-    	    tBean.setName("Test Recon "+resource.getName());
+		final IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.scanning.event.ui");
+		final String uri        = store.getString("org.dawnsci.commandserver.URI");
+		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
 
-    		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.scanning.event.ui");
-    		final String uri        = store.getString("org.dawnsci.commandserver.URI");
-    		final String queueName  = "scisoft.tomo.SUBMISSION_QUEUE";
+		final IEventService service = ActiveMQServiceHolder.getEventService();
+		try (final ISubmitter<TomoBean> submitter = service.createSubmitter(new URI(uri), queueName)) {
+			final TomoBean tBean = new TomoBean();
+			tBean.setProjectName("A test tomography reconstruction");
+			tBean.setFileName(resource.getLocation().toOSString());
+			tBean.setRunDirectory("/dls/p45/test/");
+			tBean.setName("Test Recon " + resource.getName());
 
-			final IEventService service = ActiveMQServiceHolder.getEventService();
-			final ISubmitter<TomoBean> submitter = service.createSubmitter(new URI(uri), queueName);
+			submitter.submit(tBean);
 
-    		submitter.submit(tBean);
+			final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE",
+					"scisoft.tomo.STATUS_TOPIC", "scisoft.tomo.SUBMISSION_QUEUE");
+			EclipseUtils.getPage().showView(StatusQueueView.ID, secondId, IWorkbenchPage.VIEW_VISIBLE);
 
-    		final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE", "scisoft.tomo.STATUS_TOPIC", "scisoft.tomo.SUBMISSION_QUEUE");
-		    EclipseUtils.getPage().showView(StatusQueueView.ID, secondId, IWorkbenchPage.VIEW_VISIBLE);
+		} catch (Exception e) {
 
-        } catch (Exception e) {
+			ErrorDialog.openError(Display.getDefault().getActiveShell(), "Cannot submit reconstruction", "Please contact your support representative.",
+					new Status(IStatus.ERROR, "uk.ac.diamond.tomography.reconstruction", e.getMessage()));
 
-        	ErrorDialog.openError(Display.getDefault().getActiveShell(), "Cannot submit reconstruction", "Please contact your support representative.",
-        			  new Status(IStatus.ERROR, "uk.ac.diamond.tomography.reconstruction", e.getMessage()));
-
-        	logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 
