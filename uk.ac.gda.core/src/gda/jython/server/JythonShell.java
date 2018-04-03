@@ -41,7 +41,6 @@ import org.jline.reader.Reference;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
-import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +112,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
 		read.setOpt(Option.DISABLE_EVENT_EXPANSION); // prevent escape characters being ignored
 		read.unsetOpt(Option.HISTORY_IGNORE_SPACE); // don't ignore lines that start with space
-		rawInput = new JlineInputStream();
+		rawInput = new JlineInputStream(read);
 		shellNumber = counter.getAndIncrement();
 	}
 
@@ -254,44 +253,6 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	 */
 	private void setTitle(String title) {
 		rawWrite(String.format("\033]0;%s\007", title));
-	}
-
-	/**
-	 * InputStream to be used when a command needs to read from StdIn
-	 * <p>
-	 * Lets Jline handle the input to enable movement in the line etc
-	 */
-	class JlineInputStream extends InputStream {
-		@Override
-		public int read() throws IOException {
-			// This should never be called but just pass through to socket input if it is
-			logger.warn("Unexpected call to JlineInputStream.read()", new Exception("Non-error -> stack trace for unexpected call"));
-			return terminal.input().read();
-		}
-
-		/**
-		 * Use LineReader to wrap input stream and provide readline-like input support
-		 */
-		@Override
-		public int read(byte[] buf, int offset, int len) throws IOException {
-			String line;
-			try {
-				// We don't want the raw_input line to be kept in the history
-				read.setVariable(LineReader.DISABLE_HISTORY, true);
-				line = read.readLine(new String(buf, 0, offset));
-			} catch (EndOfFileException eof) { // ctrl-d while editing
-				throw Py.EOFError("EOF when reading a line");
-			} catch (UserInterruptException uie) { // ctrl-c while editing
-				throw Py.KeyboardInterrupt("KeyboardInterrupt");
-			} finally {
-				read.setVariable(LineReader.DISABLE_HISTORY, false);
-			}
-			byte[] bytes = line.getBytes();
-			for (int i = 0; i < bytes.length; i++) {
-				buf[i+offset] = bytes[i];
-			}
-			return bytes.length;
-		}
 	}
 
 	/**
