@@ -469,15 +469,15 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		}
 
 		// validate file dir if set
-		if (model.getFileDir() != null) {
+		if (getFileDir() != null) {
 
-			final File fileDir = new File(model.getFileDir());
+			final File fileDir = new File(getFileDir());
 			if (!fileDir.exists()) {
-				throw new ModelValidationException("The output dir for malcolm does not exist: " + model.getFileDir(),
+				throw new ModelValidationException("The output dir for malcolm does not exist: " + getFileDir(),
 						model, "fileDir");
 			}
 			if (!fileDir.isDirectory()) {
-				throw new ModelValidationException("The output dir for malcolm is not a directory: " + model.getFileDir(),
+				throw new ModelValidationException("The output dir for malcolm is not a directory: " + getFileDir(),
 						model, "fileDir");
 			}
 		}
@@ -732,7 +732,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		DummyMalcolmModel model = getModel();
 		if (model.getDummyDetectorModels().isEmpty()) return;
 
-		String dirPath = model.getFileDir();
+		String dirPath = getFileDir();
 		if (!dirPath.endsWith("/")) {
 			dirPath += "/";
 		}

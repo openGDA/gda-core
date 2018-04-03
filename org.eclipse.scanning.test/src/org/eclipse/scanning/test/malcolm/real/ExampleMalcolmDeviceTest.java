@@ -94,11 +94,12 @@ public class ExampleMalcolmDeviceTest {
 
 			MalcolmModel pmac1 = new MalcolmModel();
 			pmac1.setExposureTime(23.1);
-			pmac1.setFileDir("/path/to/ixx-1234");
 
 			// Set the generator on the device
 			// Cannot set the generator from @PreConfigure in this unit test.
 			((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(scan);
+			// Set the file directory on the device
+			((AbstractMalcolmDevice<?>)malcolmDevice).setFileDir("/path/to/ixx-1234");
 
 			// Call configure
 			malcolmDevice.configure(pmac1);

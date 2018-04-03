@@ -49,6 +49,7 @@ import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -76,6 +77,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final DummyMalcolmModel model = createMalcolmModel();
 
 		malcolmDevice = dservice.createRunnableDevice(model);
+		((IMalcolmDevice<?>) malcolmDevice).setFileDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
 		((AbstractMalcolmDevice<?>) malcolmDevice).addRunListener(new IRunListener() {
 			@Override
@@ -103,7 +105,6 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	protected DummyMalcolmModel createMalcolmModelTwoDetectors() {
 		DummyMalcolmModel model = new DummyMalcolmModel();
 		model.setTimeout(10 * 60); // increased timeout for debugging purposes
-		model.setFileDir(malcolmOutputDir);
 
 		DummyMalcolmControlledDetectorModel det1Model = new DummyMalcolmControlledDetectorModel();
 		det1Model.setName("detector");

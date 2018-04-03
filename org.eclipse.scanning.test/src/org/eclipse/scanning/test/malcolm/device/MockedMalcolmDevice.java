@@ -424,4 +424,16 @@ class MockedMalcolmDevice extends AbstractMalcolmDevice<MapMalcolmModel> {
 		return null;
 	}
 
+	private String fileDir;
+
+	@Override
+	public void setFileDir(String fileDir) {
+		this.fileDir = fileDir;
+	}
+
+	@Override
+	public String getFileDir() {
+		return fileDir;
+	}
+
 }

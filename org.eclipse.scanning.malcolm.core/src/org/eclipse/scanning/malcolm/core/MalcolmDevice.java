@@ -73,7 +73,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	// broadcast every 250 milliseconds
 	private static final long POSITION_COMPLETE_FREQ = Long.getLong("org.eclipse.scanning.malcolm.core.positionCompleteFrequency", 250);
 
-	private static enum Timeout {
+	private enum Timeout {
 		STANDARD("org.eclipse.scanning.malcolm.core.timeout", Duration.ofSeconds(5)),
 		CONFIG("org.eclipse.scanning.malcolm.core.configureTimeout", Duration.ofMinutes(10)),
 		RUN("org.eclipse.scanning.malcolm.core.runTimeout", Duration.ofDays(2));
@@ -422,7 +422,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			((CompoundModel<?>) pointGenerator.getModel()).setDuration(exposureTime);
 		}
 
-		final String fileDir = model.getFileDir();
 		String fileTemplate = null;
 		if (fileDir != null) {
 			fileTemplate = new File(fileDir).getName() + "-%s." + FILE_EXTENSION_H5;

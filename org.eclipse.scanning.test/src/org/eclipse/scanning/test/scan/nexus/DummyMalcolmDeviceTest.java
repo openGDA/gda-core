@@ -128,7 +128,6 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	public static DummyMalcolmModel createModel(File dir) {
 		DummyMalcolmModel model = new DummyMalcolmModel();
-		model.setFileDir(dir.getAbsolutePath());
 
 		DummyMalcolmControlledDetectorModel det1Model = new DummyMalcolmControlledDetectorModel();
 		det1Model.setName("detector");
@@ -201,7 +200,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 			// load the nexus entry for the file (may be cached from a previous dataset)
 			NXentry entry = nexusEntries.get(filename);
 			if (entry == null) {
-				entry = getNexusEntry(model.getFileDir() + "/" + filename);
+				entry = getNexusEntry(malcolmDevice.getFileDir() + "/" + filename);
 				nexusEntries.put(filename, entry);
 			}
 			assertNotNull(entry);

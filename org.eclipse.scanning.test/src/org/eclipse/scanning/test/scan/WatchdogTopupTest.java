@@ -206,12 +206,11 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	}
 
 
-	private DummyMalcolmModel createModel() throws IOException {
+	private DummyMalcolmModel createModel() {
 
 		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel(dir);
 		model.setExposureTime(0.001);
 		model.setAxesToMove(Arrays.asList("x", "y"));
-		assertNotNull(model.getFileDir());
 		return model;
 	}
 

@@ -248,12 +248,11 @@ public class EpicsV4ConnectorTest {
 
 			MalcolmModel pmac1 = new MalcolmModel();
 			pmac1.setExposureTime(23.1);
-			pmac1.setFileDir("/TestFile/Dir");
 
 			// Set the generator on the device
 			// Cannot set the generator from @PreConfigure in this unit test.
 			((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(scan);
-
+			((AbstractMalcolmDevice<?>) malcolmDevice).setFileDir("/TestFile/Dir");
 			epicsv4Device.stop();
 
 			try {
@@ -303,12 +302,11 @@ public class EpicsV4ConnectorTest {
 
 			MalcolmModel pmac1 = new MalcolmModel();
 			pmac1.setExposureTime(23.1);
-			pmac1.setFileDir("/TestFile/Dir");
 
 			// Set the generator on the device
 			// Cannot set the generator from @PreConfigure in this unit test.
 			((AbstractMalcolmDevice<?>)modelledDevice).setPointGenerator(scan);
-
+			((AbstractMalcolmDevice<?>)modelledDevice).setFileDir("/TestFile/Dir");
 			// Call configure
 			modelledDevice.configure(pmac1);
 

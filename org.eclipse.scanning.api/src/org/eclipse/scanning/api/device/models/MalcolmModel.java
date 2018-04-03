@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.device.models;
 import java.util.List;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.annotation.ui.FileType;
 
 /**
  * The model for a malcolm device that writes h5 files.
@@ -24,24 +23,9 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 	public MalcolmModel() {
 		setTimeout(60*60*24); // 1 Day
 	}
-	/**
-	 * The folder for malcolm to create its HDF5 files in. This is set by the scan, any value
-	 * set by the user will be overwritten.
-	 */
-	@FieldDescriptor(visible=false, file=FileType.NEW_FOLDER)
-	private String fileDir;
 
 	@FieldDescriptor(editable=false)
 	private List<String> axesToMove;
-
-	@Override
-	public String getFileDir() {
-		return fileDir;
-	}
-
-	public void setFileDir(String fileDir) {
-		this.fileDir = fileDir;
-	}
 
 	@Override
 	public List<String> getAxesToMove() {
@@ -57,7 +41,6 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((axesToMove == null) ? 0 : axesToMove.hashCode());
-		result = prime * result + ((fileDir == null) ? 0 : fileDir.hashCode());
 		return result;
 	}
 
@@ -74,11 +57,6 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 			if (other.axesToMove != null)
 				return false;
 		} else if (!axesToMove.equals(other.axesToMove))
-			return false;
-		if (fileDir == null) {
-			if (other.fileDir != null)
-				return false;
-		} else if (!fileDir.equals(other.fileDir))
 			return false;
 		return true;
 	}

@@ -292,7 +292,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 		ScanRequest<?> req = bean.getScanRequest();
 
-		// check for a malcolm device, if one is found, set its output dir on the model
+		// check for a malcolm device, if one is found, set its output dir
 		// and point generator on the malcolm device itself
 		if (bean.getFilePath() == null) return;
 
@@ -317,7 +317,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		}
 		final File malcolmOutputDir = new File(scanDir, scanFileNameNoExtn);
 		malcolmOutputDir.mkdir(); // create the new malcolm output directory for the scan
-		malcolmModel.setFileDir(malcolmOutputDir.toString());
 		logger.debug("Device {} set malcolm output dir to {}", malcolmModel.getName(), malcolmOutputDir);
 
 		// Set the point generator for the malcolm device
@@ -325,6 +324,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		final IRunnableDeviceService service = Services.getRunnableDeviceService();
 		IRunnableDevice<?> malcolmDevice = service.getRunnableDevice(malcolmDeviceName);
 		((IMalcolmDevice<?>) malcolmDevice).setPointGenerator(gen);
+		((IMalcolmDevice<?>) malcolmDevice).setFileDir(malcolmOutputDir.toString());
 		logger.debug("Malcolm device(s) initialized");
 	}
 

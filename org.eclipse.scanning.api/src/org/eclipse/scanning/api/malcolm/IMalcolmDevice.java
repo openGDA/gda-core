@@ -81,4 +81,15 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IMalcolmEven
 	 * @param pointGenerator point generator
 	 */
 	public void setPointGenerator(IPointGenerator<?> pointGenerator);
+
+	/**
+	 * Set the directory where malcolm will write its h5 files to. The directory should exist at
+	 * the point that the malcolm device is configured, malcolm is not responsible for creating it.
+	 */
+	public void setFileDir(String fileDir);
+
+	/**
+	 * Get the directory where malcolm will write its h5 files to.
+	 */
+	public String getFileDir();
 }

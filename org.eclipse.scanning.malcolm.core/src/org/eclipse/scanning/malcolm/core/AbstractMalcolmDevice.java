@@ -68,6 +68,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	private IMalcolmConnectorService<MalcolmMessage> connector;
 
 	protected IPointGenerator<?> pointGenerator;
+	protected String fileDir;
 
 	public AbstractMalcolmDevice(IMalcolmConnectorService<MalcolmMessage> connector,
 			IRunnableDeviceService runnableDeviceService) throws MalcolmDeviceException {
@@ -87,6 +88,16 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	public IPointGenerator<?> getPointGenerator() {
 		return pointGenerator;
+	}
+
+	@Override
+	public void setFileDir(String fileDir) {
+		this.fileDir = fileDir;
+	}
+
+	@Override
+	public String getFileDir() {
+		return fileDir;
 	}
 
 	/**
