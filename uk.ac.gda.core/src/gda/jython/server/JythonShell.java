@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jython.GDAJythonInterpreter;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
 import gda.jython.completion.AutoCompletion;
@@ -58,13 +59,20 @@ import gda.util.Version;
  * It has no knowledge of the connection type
  */
 class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObserver {
+	private static final Logger logger = LoggerFactory.getLogger(JythonShell.class);
 
 	private static final String PS1 = ">>> ";
 	private static final String PS2 = "... ";
 	private static final String JYTHON_SERVER_HISTORY_FILE = "jython_server.history";
 	private static final String WELCOME_BANNER;
 	private static final String BANNER_FILE_NAME = "welcome_banner.txt";
-	private static final Logger logger = LoggerFactory.getLogger(JythonShell.class);
+	/**
+	 * Widget reference to accept full buffer.
+	 * <p>
+	 * With multi-line editing, a return while editing the middle of the buffer is interpreted as a new line.
+	 * This enables the full input to be submitted from any point.
+	 */
+	private static final String ACCEPT_BUFFER = "accept-full-buffer";
 	/** Template to use for title. The shell number should be added for each instance*/
 	private static final String TITLE_TEMPLATE;
 	private static final AtomicInteger counter = new AtomicInteger(0);
@@ -100,7 +108,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 				.terminal(term)
 				.appName("GDA")
 				.completer(new GdaJythonCompleter())
-				.parser(GdaJythonLine::new)
+				.parser(new JythonShellParser(GDAJythonInterpreter::translateScriptToGDA))
 				.variable(LineReader.HISTORY_FILE, historyFile)
 				.variable(LineReader.SECONDARY_PROMPT_PATTERN, PS2)
 				.variable(LineReader.ERRORS, 40)
@@ -112,7 +120,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
 		read.setOpt(Option.DISABLE_EVENT_EXPANSION); // prevent escape characters being ignored
 		read.unsetOpt(Option.HISTORY_IGNORE_SPACE); // don't ignore lines that start with space
-		rawInput = new JlineInputStream(read);
+		rawInput = new JlineInputStream(terminal);
 		shellNumber = counter.getAndIncrement();
 	}
 
@@ -123,27 +131,33 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		logger.info("Starting jython shell {}", shellNumber);
 		running = true;
 		init();
-		StringBuilder fullCommand = new StringBuilder();
-		String command = "";
-		boolean needMore = false;
+		String command;
 		while (running) {
 			try {
-				command = read.readLine(needMore ? PS2 : PS1);
-				fullCommand.append(command);
-				needMore = server.runsource(fullCommand.toString(), rawInput);
-				if (!needMore) {
-					fullCommand = new StringBuilder();
-				} else {
-					fullCommand.append('\n');
-				}
+				command = read.readLine(PS1);
+				runCommand(command);
 			} catch (UserInterruptException uie) {
-				fullCommand = new StringBuilder();
-				needMore = false;
-				rawWrite("KeyboardInterrupt\n");
-			} catch (EndOfFileException eof) {
-				logger.info("EOF in Jython shell #{} (Ctrl-d)", shellNumber);
-				return;
+				terminal.writer().println("KeyboardInterrupt");
+				continue;
+			} catch (EndOfFileException eol) {
+				logger.info("Closing shell");
+				break;
 			}
+		}
+	}
+
+	/**
+	 * Run given command on the server.
+	 * <p>
+	 * Prints a warning to users if incomplete command was passed (most likely from a parsing/translation error).
+	 * @param command Jython command to run
+	 */
+	private void runCommand(String command) {
+		logger.debug("Running command: {}", command);
+		boolean incomplete = server.runsource(command, rawInput);
+		if (incomplete) {
+			logger.warn("Incomplete command was treated as complete by parser. Command: {}", command);
+			rawWrite("Previous command was not executed correctly, please contact GDA support\n");
 		}
 	}
 
@@ -171,6 +185,34 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		KeyMap<Binding> mainKeyMap = read.getKeyMaps().get(LineReader.MAIN);
 		// Ctrl-space autocompletes
 		mainKeyMap.bind(new Reference(LineReader.MENU_COMPLETE), KeyMap.ctrl(' '));
+
+		// Ctrl-up/down should scroll through history. If each 'line' of history is multiple lines,
+		// scrolling one at a time is not ideal.
+		mainKeyMap.bind(new Reference(LineReader.UP_HISTORY), "\033[1;5A"); // ctrl-up
+		mainKeyMap.bind(new Reference(LineReader.DOWN_HISTORY), "\033[1;5B"); // ctrl-down
+
+		// Alt-Enter should accept the full buffer even if the cursor is part way through
+		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), KeyMap.alt('\n'));
+		read.getWidgets().put(ACCEPT_BUFFER, this::acceptBuffer);
+	}
+
+	/**
+	 * Accept the full buffer as a command.
+	 * <p>
+	 * Accepting a line while in the middle of the buffer is interpreted as a new line.
+	 * This moves the cursor to the end of the buffer then calls accept line.
+	 *
+	 * @return true if successful, false otherwise
+	 */
+	private boolean acceptBuffer() {
+		try {
+			logger.trace("Accepting full buffer");
+			read.getBuffer().cursor(read.getBuffer().length());
+			read.callWidget(LineReader.ACCEPT_LINE);
+			return true;
+		} catch (IllegalStateException ise) {
+			return false;
+		}
 	}
 
 	@Override

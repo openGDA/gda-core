@@ -18,12 +18,17 @@
 
 package gda.jython.server;
 
+import static org.jline.reader.LineReader.DISABLE_COMPLETION;
+import static org.jline.reader.LineReader.DISABLE_HISTORY;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
 import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +42,13 @@ class JlineInputStream extends InputStream {
 	private static final Logger logger = LoggerFactory.getLogger(JlineInputStream.class);
 	private final LineReader reader;
 
-	JlineInputStream(LineReader reader) {
-		this.reader = reader;
+	JlineInputStream(Terminal terminal) {
+		this.reader = LineReaderBuilder.builder()
+				.appName("JlineInput")
+				.terminal(terminal)
+				.variable(DISABLE_HISTORY, true)
+				.variable(DISABLE_COMPLETION, true)
+				.build();
 	}
 
 	@Override
@@ -55,15 +65,11 @@ class JlineInputStream extends InputStream {
 	public int read(byte[] buf, int offset, int len) throws IOException {
 		String line;
 		try {
-			// We don't want the raw_input line to be kept in the history
-			reader.setVariable(LineReader.DISABLE_HISTORY, true);
 			line = reader.readLine(new String(buf, 0, offset));
 		} catch (EndOfFileException eof) { // ctrl-d while editing
 			throw Py.EOFError("EOF when reading a line");
 		} catch (UserInterruptException uie) { // ctrl-c while editing
 			throw Py.KeyboardInterrupt("KeyboardInterrupt");
-		} finally {
-			reader.setVariable(LineReader.DISABLE_HISTORY, false);
 		}
 		byte[] bytes = line.getBytes();
 		for (int i = 0; i < bytes.length; i++) {

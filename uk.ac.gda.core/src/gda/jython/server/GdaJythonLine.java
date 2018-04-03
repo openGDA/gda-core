@@ -18,14 +18,14 @@
 
 package gda.jython.server;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.jline.reader.ParsedLine;
-import org.jline.reader.Parser.ParseContext;
 
 /**
  * The result of splitting a line of input into words/parts ready for providing completions
@@ -40,17 +40,19 @@ class GdaJythonLine implements ParsedLine {
 	private final String line;
 	private final int cursor;
 
-	@SuppressWarnings("unused") // context is passed and ignored. It's a strange API
-	GdaJythonLine(String line, int posn, ParseContext context) {
-		this.line = line;
+	GdaJythonLine(String line, int posn) {
 		String before = line.substring(0, posn);
 		String after = line.substring(posn);
+		int startOfLine = before.lastIndexOf('\n') + 1;
+		int endOfline = after.indexOf('\n');
+		endOfline = endOfline == -1 ? after.length() : endOfline;
+		cursor = posn - startOfLine;
+		this.line = line.substring(startOfLine, posn + endOfline);
 		List<String> wordsBefore = Arrays.asList(PARSE.split(before, -1));
 		List<String> wordsAfter = Arrays.asList(PARSE.split(after))
 				.stream()
 				.filter(w -> !w.isEmpty())
-				.collect(Collectors.toList());
-		cursor = posn;
+				.collect(toList());
 		word = wordsBefore.get(wordsBefore.size()-1);
 		wordCursor = word.length();
 		// If the first character of the line is a non word, beforeWords will

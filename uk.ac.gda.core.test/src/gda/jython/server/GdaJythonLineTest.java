@@ -18,6 +18,7 @@
 
 package gda.jython.server;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jline.reader.ParsedLine;
-import org.jline.reader.Parser.ParseContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -57,17 +57,18 @@ public class GdaJythonLineTest {
 		// Array of {line, cursor, expectedResult}
 		return Arrays.asList(new Object[][] {
 			// ParseResult(word, line, wordCursor, wordIndex, cursor, words)
-			{"ab", 2, new ParseResult("ab", "ab", 2, 0, 2, Arrays.asList("ab"))},
-			{"[ab]", 3, new ParseResult("ab", "[ab]", 2, 0, 3, Arrays.asList("ab"))},
-			{"[ ( ab ) ]", 5, new ParseResult("a", "[ ( ab ) ]", 1, 0, 5, Arrays.asList("a", "b"))},
-			{"ab=cd", 5, new ParseResult("cd", "ab=cd", 2, 1, 5, Arrays.asList("ab", "cd"))},
-			{"ab = cd", 7, new ParseResult("cd", "ab = cd", 2, 1, 7, Arrays.asList("ab", "cd"))},
-			{"ab cd", 5, new ParseResult("cd", "ab cd", 2, 1, 5, Arrays.asList("ab", "cd"))},
-			{"ab=cd", 3, new ParseResult("", "ab=cd", 0, 1, 3, Arrays.asList("ab", "", "cd"))},
-			{"ab=cd", 4, new ParseResult("c", "ab=cd", 1, 1, 4, Arrays.asList("ab", "c", "d"))},
-			{"ab>=cd", 4, new ParseResult("", "ab>=cd", 0, 1, 4, Arrays.asList("ab", "", "cd"))},
-			{"ab_cd", 4, new ParseResult("ab_c", "ab_cd", 4, 0, 4, Arrays.asList("ab_c", "d"))},
-			{"[abc, def, ghi]", 9, new ParseResult("def", "[abc, def, ghi]", 3, 1, 9, Arrays.asList("abc", "def", "ghi"))},
+			{"ab", 2, new ParseResult("ab", "ab", 2, 0, 2, asList("ab"))},
+			{"[ab]", 3, new ParseResult("ab", "[ab]", 2, 0, 3, asList("ab"))},
+			{"[ ( ab ) ]", 5, new ParseResult("a", "[ ( ab ) ]", 1, 0, 5, asList("a", "b"))},
+			{"ab=cd", 5, new ParseResult("cd", "ab=cd", 2, 1, 5, asList("ab", "cd"))},
+			{"ab = cd", 7, new ParseResult("cd", "ab = cd", 2, 1, 7, asList("ab", "cd"))},
+			{"ab cd", 5, new ParseResult("cd", "ab cd", 2, 1, 5, asList("ab", "cd"))},
+			{"ab=cd", 3, new ParseResult("", "ab=cd", 0, 1, 3, asList("ab", "", "cd"))},
+			{"ab=cd", 4, new ParseResult("c", "ab=cd", 1, 1, 4, asList("ab", "c", "d"))},
+			{"ab>=cd", 4, new ParseResult("", "ab>=cd", 0, 1, 4, asList("ab", "", "cd"))},
+			{"ab_cd", 4, new ParseResult("ab_c", "ab_cd", 4, 0, 4, asList("ab_c", "d"))},
+			{"[abc, def, ghi]", 9, new ParseResult("def", "[abc, def, ghi]", 3, 1, 9, asList("abc", "def", "ghi"))},
+			{"if 3 > 4:\n\tprint 'foobar'", 14, new ParseResult("pri", "\tprint 'foobar'", 3, 3, 4, asList("if", "3", "4", "pri", "nt", "foobar"))},
 		});
 	}
 
@@ -80,7 +81,7 @@ public class GdaJythonLineTest {
 
 	@Test
 	public void testLineParsing() {
-		check(new GdaJythonLine(inputLine, cursor, ParseContext.COMPLETE), expected);
+		check(new GdaJythonLine(inputLine, cursor), expected);
 	}
 
 
