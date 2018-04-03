@@ -82,7 +82,7 @@ class JythonTelnetConnection extends Connection {
 	 */
 	@Override
 	protected void doRun() throws Exception {
-		try (JythonShell shell = new JythonShell(terminal)) {
+		try (JythonShell shell = new JythonShell(terminal, getConnectionData().getEnvironment())) {
 			// Issue deprecation warning in red
 			terminal.writer().format(
 					"\033[1;31m%s\033[0m",

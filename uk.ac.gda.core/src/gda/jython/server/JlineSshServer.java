@@ -30,6 +30,7 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.jline.builtins.ssh.ShellCommand;
 import org.jline.builtins.ssh.ShellFactoryImpl;
 import org.jline.builtins.ssh.Ssh.ExecuteParams;
+import org.jline.builtins.ssh.Ssh.ShellParams;
 import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,6 @@ import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 
 public class JlineSshServer {
-
 	private static final Logger logger = LoggerFactory.getLogger(JlineSshServer.class);
 
 	/** Property holding the directory in which to look for SSH public keys */
@@ -69,9 +69,8 @@ public class JlineSshServer {
 		// and close the connection.
 		server.getProperties().put(FactoryManager.NIO2_READ_TIMEOUT, 0); // 0 -> no timeout
 		server.setShellFactory(new ShellFactoryImpl(params -> {
-			logger.info("Running SSH shell as {}", params.getEnv().get("USER"));
 			try {
-				runShell(params.getTerminal());
+				runShell(params);
 			} finally {
 				params.getCloser().run();
 			}
@@ -109,8 +108,9 @@ public class JlineSshServer {
 		}
 	}
 
-	private void runShell(Terminal term) {
-		try (JythonShell shell = new JythonShell(term)) {
+	private void runShell(ShellParams params) {
+		Terminal term = params.getTerminal();
+		try (JythonShell shell = new JythonShell(term, params.getEnv())) {
 			shell.run();
 		} catch (Exception e) {
 			term.writer().format("Error connecting to GDA: '%s'", e.getMessage());

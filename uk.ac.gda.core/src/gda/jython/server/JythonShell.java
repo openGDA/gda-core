@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -66,6 +68,13 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	private static final String JYTHON_SERVER_HISTORY_FILE = "jython_server.history";
 	private static final String WELCOME_BANNER;
 	private static final String BANNER_FILE_NAME = "welcome_banner.txt";
+
+	/** The environment variable holding the user's preferred theme */
+	private static final String THEME_ENVIRONMENT_VARIABLE = "GDA_THEME";
+	/** Property used to define the default syntax highlighting theme */
+	private static final String JYTHON_SHELL_THEME_PROPERTY = "gda.remote.colours";
+	/** Default theme if none is set by user */
+	private static final String DEFAULT_THEME;
 	/**
 	 * Widget reference to accept full buffer.
 	 * <p>
@@ -90,6 +99,7 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 				Version.getRelease(),
 				LocalProperties.isDummyModeEnabled() ? "(dummy)": ""
 				);
+		DEFAULT_THEME = LocalProperties.get(JYTHON_SHELL_THEME_PROPERTY, null);
 	}
 
 	private final JythonServerFacade server;
@@ -100,15 +110,22 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	private volatile boolean running;
 
 	JythonShell(Terminal term) throws Exception {
+		this(term, new HashMap<>());
+	}
+
+	JythonShell(Terminal term, Map<String, String> env) throws Exception {
+		logger.info("Running SSH shell as {}", env.getOrDefault("USER", "UNKNOWN"));
 		terminal = term;
 		server = JythonServerFacade.getCurrentInstance();
 		final String gdaVar = LocalProperties.getVarDir();
 		File historyFile = new File(gdaVar, JYTHON_SERVER_HISTORY_FILE);
+		String theme = env.getOrDefault(THEME_ENVIRONMENT_VARIABLE, DEFAULT_THEME);
 		read = LineReaderBuilder.builder()
 				.terminal(term)
 				.appName("GDA")
 				.completer(new GdaJythonCompleter())
 				.parser(new JythonShellParser(GDAJythonInterpreter::translateScriptToGDA))
+				.highlighter(Highlighters.getHighlighter(theme))
 				.variable(LineReader.HISTORY_FILE, historyFile)
 				.variable(LineReader.SECONDARY_PROMPT_PATTERN, PS2)
 				.variable(LineReader.ERRORS, 40)
