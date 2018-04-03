@@ -104,7 +104,8 @@ public class JythonCompleter implements TextCompleter {
 		int position = 0;
 		if (!completeOnEmpty && (before.isEmpty() || before.matches("\\s+"))) {
 			if (before.matches("\\t*")) {
-				completions.add(new AutoCompleteOption("\t" + before, CompletionType.NONE));
+				completions.add(new AutoCompleteOption("\t", CompletionType.NONE));
+				position = before.length();
 			} else {
 				//don't add a tab to spaces or mixed tabs/spaces
 				//do nothing / leave list empty;

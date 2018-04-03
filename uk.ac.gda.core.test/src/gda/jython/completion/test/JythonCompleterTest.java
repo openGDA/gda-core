@@ -67,10 +67,10 @@ public class JythonCompleterTest {
 
 	@Test
 	public void testEmptyCompletionWithoutCompleteOnEmpty() {
-		Collection<String> expectedGlobals = Arrays.asList(new String[] {"\t"});
-		Collection<String> actualGlobals = jc.getCompletionsFor("", 0).getStrings();
+		Collection<String> expected = Arrays.asList(new String[] {"\t"});
+		Collection<String> actual = jc.getCompletionsFor("", 0).getStrings();
 
-		assertEquals("Expected globals not present", expectedGlobals, actualGlobals);
+		assertEquals("Expected tab completion not present", expected, actual);
 	}
 
 	@Test
@@ -78,14 +78,14 @@ public class JythonCompleterTest {
 		jc.setCompleteOnEmpty(true);
 		Collection<String> expectedGlobals = Arrays.asList(new String[] {"abs", "pos"});
 		Collection<String> actualGlobals = jc.getCompletionsFor("\t", 1).getStrings();
-		assertEquals("Expected globals not present", expectedGlobals, actualGlobals);
+		assertEquals("Completing on a single tab should suggest the global variables", expectedGlobals, actualGlobals);
 	}
 
 	@Test
 	public void testTabCompletionWithoutCompleteOnEmpty() {
-		Collection<String> expectedGlobals = Arrays.asList(new String[] {"\t\t"});
+		Collection<String> expectedGlobals = Arrays.asList(new String[] {"\t"});
 		Collection<String> actualGlobals = jc.getCompletionsFor("\t", 1).getStrings();
-		assertEquals("Expected globals not present", expectedGlobals, actualGlobals);
+		assertEquals("Completing on a single tab should suggest a single tab", expectedGlobals, actualGlobals);
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class JythonCompleterTest {
 	public void testSpaceCompletionWithoutCompleteOnEmpty() {
 		Collection<String> expectedGlobals = Arrays.asList(new String[] {});
 		Collection<String> actualGlobals = jc.getCompletionsFor(" ", 1).getStrings();
-		assertEquals("Expected globals not present", expectedGlobals, actualGlobals);
+		assertEquals("No completions should be suggested for single space", expectedGlobals, actualGlobals);
 	}
 
 	@Test
