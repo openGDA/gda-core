@@ -579,10 +579,10 @@ public class GDAJythonInterpreter {
 	 */
 	protected void exec(String input) throws PyException {
 		// translate script into true Jython line by line
-		PyString tempFile = translateScriptToGDA(input);
+		String translated = translateScriptToGDA(input);
 		// pass entire script to interpreter
 		try {
-			interactiveConsole.exec(tempFile);
+			interactiveConsole.exec(new PyUnicode(translated));
 		} catch (PyException e) {
 			interactiveConsole.showexception(e);
 			throw e;
@@ -697,7 +697,7 @@ public class GDAJythonInterpreter {
 	 * @return a string of the same Jython code (translated to true Jython where required) which will run in its own
 	 *         thread
 	 */
-	public static PyString translateScriptToGDA(String input) {
+	public static String translateScriptToGDA(String input) {
 		String output = "";
 		String[] lines = input.split("\n");
 
@@ -720,7 +720,7 @@ public class GDAJythonInterpreter {
 			}
 		}
 
-		return new PyUnicode(output);
+		return output;
 	}
 
 	/**
