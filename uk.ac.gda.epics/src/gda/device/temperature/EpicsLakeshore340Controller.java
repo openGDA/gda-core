@@ -53,7 +53,7 @@ import gov.aps.jca.event.MonitorListener;
 </bean>
  * }
  */
-public class EpicsLakeshore340Controller extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class EpicsLakeshore340Controller extends DeviceBase implements Configurable, Findable, ILakeshoreController, InitializationListener {
 	/**
 	 *
 	 */
@@ -64,14 +64,6 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * the logger instance
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLakeshore340Controller.class);
-	/**
-	 *
-	 */
-	public final double MAX_RAMP_RATE = 2.0; // Kevin/min
-	/**
-	 *
-	 */
-	public final double MIN_RAMP_RATE = 2.0; // K/min
 
 	/**
 	 * Channel 0 temp
@@ -245,6 +237,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return target temp
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getTargetTemp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -262,6 +255,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return temp
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getTemp() throws DeviceException {
 		switch (readbackChannel) {
 		case 0:
@@ -283,6 +277,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return channel 0 temperature
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getChannel0Temp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -300,6 +295,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return channel 1 temperature
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getChannel1Temp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -317,6 +313,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return channel 2 temperature
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getChannel2Temp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -334,6 +331,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @return channel 3 temperature
 	 * @throws DeviceException
 	 */
+	@Override
 	public double getChannel3Temp() throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -362,6 +360,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * @param k
 	 * @throws DeviceException
 	 */
+	@Override
 	public void setTargetTemp(double k) throws DeviceException {
 		if (connState.equals("Disabled")) {
 			throw new IllegalStateException("The device " + getName() + " is not connected.");
@@ -429,6 +428,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 *
 	 * @return Disabled or Enabled
 	 */
+	@Override
 	public String getConnectionState() {
 		return connState;
 	}
@@ -461,6 +461,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 * check if the hardware is connected in EPICS
 	 * @return True or False
 	 */
+	@Override
 	public boolean isConnected() {
 		return connState.equals("Enabled");
 	}
@@ -507,10 +508,12 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 		}
 	}
 
+	@Override
 	public int getReadbackChannel() {
 		return readbackChannel;
 	}
 
+	@Override
 	public void setReadbackChannel(int readbackChannel) {
 		if (isConfigured()) {
 			throw new IllegalStateException("Cannot change readback channel once configured");

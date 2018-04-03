@@ -47,13 +47,13 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(GdaLakeshore340.class);
 
-	protected EpicsLakeshore340Controller controller;
+	protected ILakeshoreController controller;
 
-	public EpicsLakeshore340Controller getController() {
+	public ILakeshoreController getController() {
 		return controller;
 	}
 
-	public void setController(EpicsLakeshore340Controller controller) {
+	public void setController(ILakeshoreController controller) {
 		this.controller = controller;
 	}
 
@@ -94,7 +94,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 				setController((EpicsLakeshore340Controller) Finder.getInstance().find(EpicsLakeshore340ControllerName));
 
 			if (controller != null) {
-				logger.debug("Controller {} found", EpicsLakeshore340ControllerName);
+				logger.debug("Controller {} found", controller.getName());
 				if (controller.isConfigureAtStartup()) {
 					int i = 0;
 					while (!controller.isConfigured()) {
@@ -197,7 +197,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 			throw new DeviceException("Invalid ramp final temperature");
 
 		logger.debug("Ramp rate in K/hour is " + rate);
-		if (rate >= controller.MIN_RAMP_RATE || rate <= controller.MAX_RAMP_RATE)
+		if (rate >= ILakeshoreController.MIN_RAMP_RATE || rate <= ILakeshoreController.MAX_RAMP_RATE)
 			throw new DeviceException("Invalid ramp rate for temperature");
 
 		//controller.setRampRate(rate);
