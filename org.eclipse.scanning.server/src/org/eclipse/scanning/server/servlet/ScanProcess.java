@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -350,7 +351,8 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			scanModel.setFilePath(bean.getFilePath());
 
 			scanModel.setDetectors(getDetectors(req.getDetectors()));
-			scanModel.setScannables(getScannables(getScannableNames(generator)));
+
+			scanModel.setScannables(getScannables(getGdaScannableNames(scanModel, generator)));
 			scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
 			scanModel.setMonitorsPerScan(getScannables(req.getMonitorNamesPerScan()));
 			scanModel.setScanMetadata(req.getScanMetadata());
@@ -378,6 +380,32 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			broadcast(bean);
 			if (e instanceof EventException) throw (EventException)e;
 			throw new EventException(e);
+		}
+	}
+
+	/**
+	 * Filter out scannables controlled by Malcolm from all scannables in request
+	 * @param scanModel
+	 * @param generator
+	 * @return Names of GDA-controlled scannables
+	 */
+	private List<String> getGdaScannableNames(ScanModel scanModel, IPointGenerator<?> generator) {
+		final Set<String> malcolmScannables = scanModel.getDetectors().stream()
+												.filter(IMalcolmDevice.class::isInstance)
+												.map(IMalcolmDevice.class::cast)
+												.flatMap(m -> getAxesToMove(m).stream())
+												.collect(Collectors.toSet());
+
+		return getScannableNames(generator).stream()
+				.filter(scannable -> !malcolmScannables.contains(scannable))
+				.collect(Collectors.toList());
+	}
+
+	private Set<String> getAxesToMove(IMalcolmDevice<?> malcolmDevice) {
+		try {
+			return malcolmDevice.getAxesToMove();
+		} catch (ScanningException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

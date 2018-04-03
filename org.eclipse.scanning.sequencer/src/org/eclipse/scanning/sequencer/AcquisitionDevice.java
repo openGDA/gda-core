@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
@@ -50,7 +49,6 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
@@ -206,32 +204,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (scannables == null) {
 			scannables = connectorService.getScannables(model.getPositionIterable());
 		}
-
-		// calculate the names of the axes controlled by malcolm device(s)
-		try {
-			final Set<String> malcolmControlledAxes = model.getDetectors().stream().
-					filter(IMalcolmDevice.class::isInstance).
-					map(IMalcolmDevice.class::cast).
-					flatMap(m -> getAxesToMove(m).stream()).
-					collect(Collectors.toSet());
-
-			scannables = scannables.stream().
-					filter(s -> !malcolmControlledAxes.contains(s.getName())).
-					collect(Collectors.toList());
-
-			model.setScannables(scannables);
-		} catch (RuntimeException e) {
-			if (e.getCause() instanceof ScanningException) throw (ScanningException) e.getCause();
-			throw e;
-		}
-	}
-
-	private Set<String> getAxesToMove(IMalcolmDevice<?> malcolmDevice) {
-		try {
-			return malcolmDevice.getAxesToMove();
-		} catch (ScanningException e) {
-			throw new RuntimeException(e);
-		}
+		model.setScannables(scannables);
 	}
 
 	private IPositioner createPositioner(ScanModel model) throws ScanningException {
