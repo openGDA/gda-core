@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -23,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
@@ -112,7 +112,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	}
 
 	@Override
-	public void resume() throws EventException  {
+	public void resume() throws EventException {
 		try {
 			controller.resume(getClass().getName());
 		} catch (ScanningException | InterruptedException e) {
@@ -126,7 +126,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		if (bean.getStatus()==Status.COMPLETE) return; // Nothing to terminate.
 		try {
 			if (controller!=null) controller.abort(getClass().getName());
-		} catch (ScanningException  | InterruptedException e) {
+		} catch (ScanningException | InterruptedException e) {
 			throw new EventException(e);
 		}
 	}
@@ -150,10 +150,10 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 			this.controller = createRunnableDevice(bean, gen);
 
-			if (blocking) {  // Normally the case
+			if (blocking) { // Normally the case
 				executeBlocking(controller, bean);
 			} else {
-				executeNonBlocking(controller, bean);
+				executeNonBlocking(controller);
 			}
 
 			if (!bean.getStatus().isFinal()) { // don't overwrite a final status, e.g. ABORTED or FAILED
@@ -188,7 +188,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		}
 	}
 
-	private void executeNonBlocking(IDeviceController controller, ScanBean bean) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
+	private void executeNonBlocking(IDeviceController controller) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
 
 		logger.debug("Running non-blocking device {}", controller.getDevice().getName());
 		controller.getDevice().start(null);
@@ -201,29 +201,29 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.warn("Cannot perform end position when scan is async. (Scan has not been cancelled, end has been ignored.)");
 	}
 
-	private void executeBlocking(IDeviceController controller, ScanBean bean) throws ScanningException, InterruptedException, TimeoutException, ExecutionException, EventException, UnsupportedLanguageException, ScriptExecutionException {
+	private void executeBlocking(IDeviceController controller, ScanBean bean) throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
 
 		logger.debug("Running blocking controller {}", controller.getName());
 		controller.getDevice().run(null); // Runs until done
 
 		// Run a script, if any has been requested
 		runScript(bean.getScanRequest().getAfter(), bean.getScanRequest()::setAfterResponse);
-        setPosition(bean.getScanRequest().getEnd(), "end");
+		setPosition(bean.getScanRequest().getEnd(), "end");
 	}
 
 	private void setPosition(IPosition pos, String location) throws ScanningException, InterruptedException {
 		if (pos!=null) {
 			positioner.setPosition(pos);
-			logger.debug("The "+location+" position {} is reached.", pos);
+			logger.debug("The {} position {} is reached.", location, pos);
 		}
 	}
 
-	private void validateRequest(ScanBean bean) throws ValidationException, InstantiationException, IllegalAccessException {
+	private void validateRequest(ScanBean bean) throws InstantiationException, IllegalAccessException {
 		if (!Boolean.getBoolean("org.eclipse.scanning.server.servlet.scanProcess.disableValidate")) {
 			logger.debug("Validating run : {}", bean);
 			final ScanRequest<?> sr = bean.getScanRequest();
 			if (sr.getDetectors()!=null && sr.getDetectors().isEmpty()) sr.setDetectors(null);
-		    Services.getValidatorService().validate(sr);
+			Services.getValidatorService().validate(sr);
 			logger.debug("Validating passed : {}", bean);
 		} else {
 			logger.warn("The run {} has validation switched off.", bean);
@@ -288,7 +288,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	 * @throws EventException
 	 * @throws ScanningException
 	 */
-	private void initializeMalcolmDevice(ScanBean bean, IPointGenerator<?> gen) throws EventException, ScanningException {
+	private void initializeMalcolmDevice(ScanBean bean, IPointGenerator<?> gen) throws ScanningException {
 
 		ScanRequest<?> req = bean.getScanRequest();
 
@@ -296,20 +296,15 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		// and point generator on the malcolm device itself
 		if (bean.getFilePath() == null) return;
 
-		String malcolmDeviceName = null;
-		MalcolmModel malcolmModel = null;
 		final Map<String, Object> detectorMap = req.getDetectors();
 		if (detectorMap == null) return;
 
-		for (String detName : detectorMap.keySet()) {
-			if (detectorMap.get(detName) instanceof MalcolmModel) {
-				malcolmDeviceName = detName;
-				malcolmModel = (MalcolmModel) detectorMap.get(detName);
-				break;
-			}
-		}
-
-		if (malcolmModel == null) return;
+		final Entry<String, Object> malcolmModelEntry = detectorMap.entrySet().stream()
+				.filter(entry -> entry.getValue() instanceof MalcolmModel)
+				.findFirst().orElse(null);
+		if (malcolmModelEntry == null) return;
+		final String malcolmDeviceName = malcolmModelEntry.getKey();
+		final MalcolmModel malcolmModel = (MalcolmModel) malcolmModelEntry.getValue();
 
 		// Set the malcolm output directory. This is new dir in the same parent dir as the
 		// scan file and with the same name as the scan file (minus the file extension)
@@ -333,7 +328,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Malcolm device(s) initialized");
 	}
 
-	private void runScript(ScriptRequest req, Consumer<ScriptResponse<?>> cons) throws EventException, UnsupportedLanguageException, ScriptExecutionException {
+	private void runScript(ScriptRequest req, Consumer<ScriptResponse<?>> cons) throws UnsupportedLanguageException, ScriptExecutionException {
 		if (req==null) return; // Nothing to do
 		if (scriptService==null) throw new ScriptExecutionException("No script service is available, cannot run script request "+req);
 		ScriptResponse<?> res = scriptService.execute(req);
@@ -341,14 +336,13 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		cons.accept(res);
 	}
 
-	private IDeviceController createRunnableDevice(ScanBean bean, IPointGenerator<?> gen) throws ScanningException, EventException {
+	private IDeviceController createRunnableDevice(ScanBean bean, IPointGenerator<?> generator) throws ScanningException, EventException {
 
 		ScanRequest<?> req = bean.getScanRequest();
 		if (req==null) throw new ScanningException("There must be a scan request to run a scan!");
 
 		try {
 			final ScanModel scanModel = new ScanModel();
-			IPointGenerator<?> generator = getGenerator(req);
 			scanModel.setPositionIterable(generator);
 
 			ScanEstimator estimator = new ScanEstimator(Services.getGeneratorService(), bean.getScanRequest());
@@ -370,13 +364,13 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			configureDetectors(req.getDetectors(), scanModel, generator);
 
 			IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
-			IDeviceController controller = Services.getWatchdogService().create(device);
-			if (controller.getObjects()!=null) scanModel.setAnnotationParticipants(controller.getObjects());
+			IDeviceController theController = Services.getWatchdogService().create(device);
+			if (theController.getObjects()!=null) scanModel.setAnnotationParticipants(theController.getObjects());
 
 			logger.debug("Configuring {} with {}", device.getName(), scanModel);
 			device.configure(scanModel);
 			logger.debug("Configured {}", device.getName());
-		    return controller;
+			return theController;
 
 		} catch (Exception e) {
 			bean.setStatus(Status.FAILED);
@@ -389,7 +383,11 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	private void configureDetectors(Map<String, Object> dmodels, ScanModel model, IPointGenerator<?> generator) throws Exception {
 
-		logger.debug("Configuring detectors {}", dmodels!=null?dmodels.keySet():null);
+		if (dmodels==null) {
+			logger.debug("No detectors to configure");
+			return;
+		}
+		logger.debug("Configuring detectors {}", dmodels.keySet());
 		for (IRunnableDevice<?> device : model.getDetectors()) {
 
 			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
@@ -409,7 +407,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
 		}
-		logger.debug("Configured detectors {}", dmodels!=null?dmodels.keySet():null);
+		logger.debug("Configured detectors {}", dmodels.keySet());
 	}
 
 	private Collection<String> getScannableNames(Iterable<IPosition> gen) {
@@ -445,12 +443,11 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 			final IRunnableDeviceService service = Services.getRunnableDeviceService();
 
-			for (String name : detectors.keySet()) {
-				Object dmodel = detectors.get(name);
-				IRunnableDevice<Object> detector = service.getRunnableDevice(name);
+			for (Entry<String, ?> detectorEntry : detectors.entrySet()) {
+				IRunnableDevice<Object> detector = service.getRunnableDevice(detectorEntry.getKey());
 				if (detector==null) {
-					detector = service.createRunnableDevice(dmodel, false);
-					detector.setName(name); // Not sure if this is ok. For now name must match that in table
+					detector = service.createRunnableDevice(detectorEntry.getValue(), false);
+					detector.setName(detectorEntry.getKey()); // Not sure whether this is ok. For now name must match that in table
 				}
 				ret.add(detector);
 			}

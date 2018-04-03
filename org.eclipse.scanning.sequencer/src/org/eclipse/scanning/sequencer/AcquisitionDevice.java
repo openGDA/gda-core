@@ -104,8 +104,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * Used for clients that would like to wait until the run. Most useful
 	 * if the run was started with a start() call then more work is done, then
 	 * a latch() will join with the start and return once it is finished.
-	 *
-	 * If the start hangs, so will calling latch, there is no timeout.
+	 * <p>
+	 * If the start hangs, so will calling latch: there is no timeout.
 	 *
 	 */
 	private CountDownLatch scanFinishedLatch;
@@ -129,7 +129,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	AcquisitionDevice() {
 		super(ServiceHolder.getRunnableDeviceService());
-		this.stateChangeLock      = new ReentrantLock();
+		this.stateChangeLock = new ReentrantLock();
 		this.shouldResumeCondition = stateChangeLock.newCondition();
 		setName("solstice_scan");
 		setPrimaryScanDevice(true);
@@ -262,7 +262,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private AnnotationManager createAnnotationManager(ScanModel model) throws ScanningException {
+	private AnnotationManager createAnnotationManager(ScanModel model) {
 		Collection<Object> globalParticipants = ((IScanService)runnableDeviceService).getScanParticipants();
 		AnnotationManager manager = new AnnotationManager(SequencerActivator.getInstance());
 		manager.addDevices(model.getScannables());
@@ -377,7 +377,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		positionComplete(pos, location.getOuterCount(), location.getOuterSize());
 	}
 
-	private void fireFirst(IPosition firstPosition) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, ScanningException, EventException {
+	private void fireFirst(IPosition firstPosition) throws IllegalAccessException, InvocationTargetException, InstantiationException, ScanningException, EventException {
 
 		// Notify that we will do a run and provide the first position.
 		annotationManager.invoke(ScanStart.class, firstPosition);
@@ -527,8 +527,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// Setup the bean to sent
 		getBean().setSize(size);
 		ScanInformation scanInfo = getModel().getScanInformation();
-        getBean().setStartTime(System.currentTimeMillis());
-        getBean().setEstimatedTime(scanInfo.getEstimatedScanTime());
+		getBean().setStartTime(System.currentTimeMillis());
+		getBean().setEstimatedTime(scanInfo.getEstimatedScanTime());
 		getBean().setPreviousStatus(getBean().getStatus());
 		getBean().setStatus(Status.RUNNING);
 
@@ -551,7 +551,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// Will send the state of the scan off.
 		try {
 			annotationManager.invoke(ScanEnd.class, lastPosition);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException  | EventException e) {
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
 			throw new ScanningException(e);
 		}
 		setDeviceState(DeviceState.ARMED); // Fires!
@@ -582,7 +582,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * @return true if state has not been set to a rest one, i.e. we are still scanning.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("squid:S2274")
 	private boolean checkShouldContinue() throws Exception {
 
 		// return false if the scan has been set to a rest state (i.e. ABORTED) or ABORTING
@@ -641,7 +640,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		doWorkWithStateChangeLock(this::abortInternal, null, "abort", false, true);
 	}
 
-	private void abortInternal()  throws ScanningException, InterruptedException{
+	private void abortInternal() throws ScanningException, InterruptedException{
 
 		setDeviceState(DeviceState.ABORTING);
 		positioner.abort();
@@ -697,7 +696,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void seekInternal(int stepNumber) throws ScanningException, InterruptedException {
 
 		if (stepNumber<0) throw new ScanningException("Seek position is invalid "+stepNumber);
-		if (stepNumber>location.getTotalSize())  throw new ScanningException("Seek position is invalid "+stepNumber);
+		if (stepNumber>location.getTotalSize()) throw new ScanningException("Seek position is invalid "+stepNumber);
 		this.positionIterator = location.createPositionIterator();
 		IPosition pos = location.seek(stepNumber, positionIterator);
 		positioner.setPosition(pos);
