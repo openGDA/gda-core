@@ -165,21 +165,22 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 */
 	@Override
 	public void setPositions(String[] newPositions) {
-
-		if (newPositions.length != 2) {
-			throw new IllegalArgumentException("Positions array must have 2 elements");
-		}
-
-		if (newPositions[0] == null || newPositions[1] == null || newPositions[0].isEmpty() || newPositions[1].isEmpty()) {
-			throw new IllegalArgumentException("Positions array cannot have empty elements");
-		}
-
-		super.setPositionsInternal(Arrays.asList(newPositions));
+		setPositions(Arrays.asList(newPositions));
 	}
 
 	@Override
 	public void setPositions(Collection<String> positions) {
-		setPositions(positions.toArray(new String[positions.size()]));
+		if (positions.size() != 2) {
+			throw new IllegalArgumentException("Positions array must have 2 elements");
+		}
+
+		for (String position : positions) {
+			if (position == null || position.isEmpty()) {
+				throw new IllegalArgumentException("Positions array cannot have empty elements");
+			}
+		}
+
+		super.setPositionsInternal(positions);
 	}
 
 	@Override
