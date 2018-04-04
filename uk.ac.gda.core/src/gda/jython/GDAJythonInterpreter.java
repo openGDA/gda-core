@@ -19,6 +19,8 @@
 
 package gda.jython;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
 
@@ -705,29 +707,9 @@ public class GDAJythonInterpreter {
 	 *         thread
 	 */
 	public static String translateScriptToGDA(String input) {
-		String output = "";
-		String[] lines = input.split("\n");
-
-		for (String line : lines) {
-			line = translator.translate(line);
-
-			// check if the line is in fact multiple lines (i.e. contains
-			// \n's)
-			// this would be not matter if 'line' was being passed directly
-			// to
-			// the interpreter
-			// but as we are building a script file, it is important to keep
-			// the
-			// correct
-			// indention level
-
-			String[] subLines = line.split("\n");
-			for (String subLine : subLines) {
-				output += subLine + "\n";
-			}
-		}
-
-		return output;
+		return stream(input.split("\n", -1))
+				.map(translator::translate)
+				.collect(joining("\n"));
 	}
 
 	/**
