@@ -317,6 +317,6 @@ public class EpicsSimpleBinaryTest {
 	@Test
 	public void testCheckPositionValidWrongValue() throws Exception {
 		configureWithPv();
-		assertEquals("Opennot in array of acceptable strings", positioner.checkPositionValid("Open"));
+		assertEquals("Open not in array of acceptable strings", positioner.checkPositionValid("Open"));
 	}
 }

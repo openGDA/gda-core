@@ -30,7 +30,6 @@ import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -54,8 +53,7 @@ import gov.aps.jca.event.PutListener;
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
-public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, MonitorListener, Scannable,
-		InitializationListener {
+public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, MonitorListener, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
 
@@ -91,9 +89,10 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		this.pvName = pvName;
 	}
 
-	void checkConfigured() throws DeviceException {
-		if (!isConfigured())
+	private void checkConfigured() throws DeviceException {
+		if (!isConfigured()) {
 			throw new DeviceException(getName() + " is not yet configured");
+		}
 	}
 
 	@Override
@@ -106,23 +105,22 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 					try {
 						// remove any final :
 						if (epicsRecordName.endsWith(":")) {
-							epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(":"));
+							epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(':'));
 						}
 
 						createChannelAccess(epicsRecordName);
 					} catch (Exception e) {
-						logger.error("Error while trying to configure: " + getName() + " : " + e.getMessage());
-						throw new FactoryException("Error while trying to configure: " + getName() + " : " + e.getMessage());
+						final String message = String.format("Error while trying to configure: %s", getName());
+						logger.error(message, e);
+						throw new FactoryException(message, e);
 					}
-				} else if (getDeviceName() != null) {
-					SimpleBinaryType simpleBinaryConfig;
+				} else if (deviceName != null) {
 					try {
-						simpleBinaryConfig = Configurator.getConfiguration(getDeviceName(), SimpleBinaryType.class);
+						final SimpleBinaryType simpleBinaryConfig = Configurator.getConfiguration(deviceName, SimpleBinaryType.class);
 						createChannelAccess(simpleBinaryConfig.getRECORD().getPv());
 					} catch (ConfigurationNotFoundException e) {
-						logger.error("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
+						logger.error("Can NOT find EPICS configuration for motor {}", deviceName, e);
 					}
-
 				}
 			}
 			this.inputNames = new String[] { getName() };
@@ -147,15 +145,15 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 */
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
-		DBR dbr = arg0.getDBR();
+		final DBR dbr = arg0.getDBR();
 		if (dbr.isENUM()) {
-			int dmovValue = ((DBR_Enum) dbr).getEnumValue()[0];
+			final int dmovValue = ((DBR_Enum) dbr).getEnumValue()[0];
 			this.notifyIObservers(this, dmovValue);
 		} else if (dbr.isSTS()) {
-			int dmovValue = ((DBR_STS_Enum) dbr).getEnumValue()[0];
+			final int dmovValue = ((DBR_STS_Enum) dbr).getEnumValue()[0];
 			this.notifyIObservers(this, dmovValue);
 		} else {
-			logger.error("errorwith MonitorEvent from" + epicsRecordName + "should return ENUM type value.");
+			logger.error("Error in MonitorEvent from {}: should return ENUM type value.", epicsRecordName);
 		}
 	}
 
@@ -179,8 +177,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 			throw new IllegalArgumentException("Positions array must have 2 elements");
 		}
 
-		if (newPositions[0] == null || newPositions[1] == null || newPositions[0].isEmpty()
-				|| newPositions[1].isEmpty()) {
+		if (newPositions[0] == null || newPositions[1] == null || newPositions[0].isEmpty() || newPositions[1].isEmpty()) {
 			throw new IllegalArgumentException("Positions array cannot have empty elements");
 		}
 
@@ -190,13 +187,11 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	@Override
 	public void setPositions(Collection<String> positions) {
 		setPositions(positions.toArray(new String[positions.size()]));
-
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-
-		String positionString = position.toString();
+		final String positionString = position.toString();
 
 		checkConfigured();
 		if (readonly) {
@@ -210,7 +205,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 				controller.caput(controlChnl, positionString, pcbl);
 			}
 		} catch (Exception e) {
-			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo",e);
+			throw new DeviceException(getName() + " exception in rawAsynchronousMoveTo", e);
 		}
 	}
 
@@ -223,7 +218,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		try {
 			return controller.cagetString(controlChnl);
 		} catch (Exception e) {
-			throw new DeviceException(e.getMessage(), e);
+			throw new DeviceException(e);
 		}
 	}
 
@@ -242,16 +237,9 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		}
 		final String posString = position.toString();
 		if (!containsPosition(posString)) {
-			return posString + "not in array of acceptable strings";
+			return posString + " not in array of acceptable strings";
 		}
 		return null;
-	}
-
-	/**
-	 * @return the epicsRecordName
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
 	}
 
 	/**
@@ -262,10 +250,6 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		this.epicsRecordName = epicsRecordName;
 	}
 
-	public boolean isReadonly() {
-		return readonly;
-	}
-
 	/**
 	 * Set to true to prevent attempts to change the pv through this class
 	 *
@@ -273,10 +257,6 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 */
 	public void setReadonly(boolean readonly) {
 		this.readonly = readonly;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
 	}
 
 	public void setDeviceName(String deviceName) {
@@ -297,13 +277,11 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 			}
 			logger.info("{}: put completed", getName());
 		}
-
 	}
 
 	@Override
 	public void initializationCompleted() {
 		logger.info("{}: initialisation completed", getName());
-
 	}
 
 }
