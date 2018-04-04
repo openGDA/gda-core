@@ -198,7 +198,7 @@ public class ParameterValuesForBean {
 	static public void addAliases(XStream xstream) {
 		xstream.alias("ParameterValuesForScanBean", ParameterValuesForBean.class);
 		xstream.alias("ParameterValue", ParameterValue.class);
-		xstream.addImplicitCollection(ParameterValuesForBean.class, "parameterValue");
+		xstream.addImplicitCollection(ParameterValuesForBean.class, "parameterValues");
 	}
 
 	static public XStream getXStream() {

@@ -322,10 +322,20 @@ public class SpreadsheetViewComposite {
 
 	/** Update the viewConfig to add parameters for generic sample parameter motors */
 	private void updateViewConfig() {
-		// Fist remove the previously added items...
-		viewConfig.getParameters().removeAll(viewConfigForSampleParameterMotors.getParameters());
-		viewConfigForSampleParameterMotors.setParameters(SpreadsheetViewHelperClasses.getSampleParameterMotorConfig(parameterValuesForScanFiles.get(0)));
-		viewConfig.getParameters().addAll(viewConfigForSampleParameterMotors.getParameters());
+
+		// Fist remove the previously added generic motor params from view config
+		List<ParameterConfig> configForSampleParamMotors = viewConfigForSampleParameterMotors.getParameters();
+		if (configForSampleParamMotors != null) {
+			viewConfig.getParameters().removeAll(configForSampleParamMotors);
+		}
+
+		// Get generic motor params from the first sample parameters xml file
+		List<ParameterConfig> motorParamFromScanFile = SpreadsheetViewHelperClasses.getSampleParameterMotorConfig(parameterValuesForScanFiles.get(0));
+		viewConfigForSampleParameterMotors.setParameters(motorParamFromScanFile);
+		if (motorParamFromScanFile != null) {
+			viewConfig.getParameters().addAll(motorParamFromScanFile);
+		}
+
 	}
 
 	private void addLoadSaveControls(final Composite parent) {
@@ -423,7 +433,7 @@ public class SpreadsheetViewComposite {
 
 	private void addGenerateScanControls(final Composite parent) {
 
-		Group group = new Group(parent, SWT.DEFAULT);
+		Group group = new Group(parent, SWT.NONE);
 		group.setText("Generate new XML files");
 		group.setLayout(new GridLayout(2, true));
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(group);
