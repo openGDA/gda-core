@@ -33,7 +33,6 @@ import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.SimpleBinaryType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
@@ -43,9 +42,7 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_STS_Enum;
 import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
-import gov.aps.jca.event.PutListener;
 
 /**
  * Similar to EpicsValve, except looks at a single pv which can only have positions 0 or 1, and uses the values "Out"
@@ -53,7 +50,7 @@ import gov.aps.jca.event.PutListener;
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
-public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, MonitorListener, InitializationListener {
+public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
 
@@ -72,8 +69,6 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 
 	private String pvName;
 
-	private PutCallbackListener pcbl;
-
 	/**
 	 * Constructor
 	 */
@@ -81,8 +76,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		super();
 		super.setPositionsInternal(Arrays.asList("Out", "In"));
 		controller = EpicsController.getInstance();
-		channelManager = new EpicsChannelManager(this);
-		pcbl = new PutCallbackListener();
+		channelManager = new EpicsChannelManager(this::initializationCompleted);
 	}
 
 	public void setPvName(String pvName) {
@@ -132,7 +126,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 
 	private void createChannelAccess(String pv) throws FactoryException {
 		try {
-			controlChnl = channelManager.createChannel(pv, this,MonitorType.STS, false);
+			controlChnl = channelManager.createChannel(pv, this::monitorChanged, MonitorType.STS, false);
 		} catch (CAException e) {
 			throw new FactoryException(getName() + ": can not create channel to " + pv);
 		}
@@ -143,8 +137,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	/**
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 	 */
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
+	private void monitorChanged(MonitorEvent arg0) {
 		final DBR dbr = arg0.getDBR();
 		if (dbr.isENUM()) {
 			final int dmovValue = ((DBR_Enum) dbr).getEnumValue()[0];
@@ -202,7 +195,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 
 		try {
 			if (containsPosition(positionString)) {
-				controller.caput(controlChnl, positionString, pcbl);
+				controller.caput(controlChnl, positionString, this::putCompleted);
 			}
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " exception in rawAsynchronousMoveTo", e);
@@ -263,24 +256,16 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		this.deviceName = deviceName;
 	}
 
-	private class PutCallbackListener implements PutListener {
-		volatile PutEvent event = null;
+	private void putCompleted(PutEvent ev) {
+		logger.debug("caputCallback complete for {}", getName());
 
-		@Override
-		public void putCompleted(PutEvent ev) {
-			logger.debug("caputCallback complete for {}", getName());
-			event = ev;
-
-			if (event.getStatus() != CAStatus.NORMAL) {
-				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(),
-						event.getStatus());
-			}
-			logger.info("{}: put completed", getName());
+		if (ev.getStatus() != CAStatus.NORMAL) {
+			logger.error("Put failed. Channel {} : Status {}", ((Channel) ev.getSource()).getName(), ev.getStatus());
 		}
+		logger.info("{}: put completed", getName());
 	}
 
-	@Override
-	public void initializationCompleted() {
+	private void initializationCompleted() {
 		logger.info("{}: initialisation completed", getName());
 	}
 
