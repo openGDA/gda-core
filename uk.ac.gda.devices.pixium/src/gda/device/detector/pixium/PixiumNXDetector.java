@@ -159,7 +159,6 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
 			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
 		}
-		print("Scan data will write to : "+ scanFilename);
 		currentPointNumber=0;
 		super.atScanStart();
 	}
