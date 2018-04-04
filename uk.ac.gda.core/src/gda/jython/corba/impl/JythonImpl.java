@@ -492,6 +492,15 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 	}
 
 	@Override
+	public boolean hasAlias(String command, String jsfIdentifier) throws CorbaDeviceException {
+		try {
+			return jythonServer.hasAlias(command, jsfIdentifier);
+		} catch (Exception de) {
+			throw new CorbaDeviceException(de.getMessage());
+		}
+	}
+
+	@Override
 	public String locateScript(String scriptToRun) throws CorbaDeviceException {
 		try {
 			return jythonServer.locateScript(scriptToRun);

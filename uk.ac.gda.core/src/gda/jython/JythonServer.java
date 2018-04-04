@@ -1245,6 +1245,11 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@Override
+	public boolean hasAlias(String command, String jsfIdentifier) {
+		return GDAJythonInterpreter.getTranslator().hasAlias(command);
+	}
+
+	@Override
 	public String locateScript(String scriptToRun) {
 		return jythonScriptPaths.pathToScript(scriptToRun);
 	}

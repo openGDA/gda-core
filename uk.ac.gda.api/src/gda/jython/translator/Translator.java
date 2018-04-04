@@ -78,12 +78,5 @@ public interface Translator extends AliasedCommandProvider {
 	 */
 	public void removeAlias(String command);
 
-	/**
-	 * Checks if the the given command is aliased (either vararg or not)
-	 * @param command the string to check
-	 * @return whether the command is aliased or not
-	 */
-	public boolean hasAlias(String command);
-
 	public boolean ignoreRestOfLine(String thisGroup);
 }

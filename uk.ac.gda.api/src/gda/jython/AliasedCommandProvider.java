@@ -32,4 +32,11 @@ public interface AliasedCommandProvider {
 	 * @return the list of variable argument alias
 	 */
 	public Collection<String> getAliasedVarargCommands();
+
+	/**
+	 * Checks if the the given command is aliased (either vararg or not)
+	 * @param command the string to check
+	 * @return whether the command is aliased or not
+	 */
+	public boolean hasAlias(String command);
 }
