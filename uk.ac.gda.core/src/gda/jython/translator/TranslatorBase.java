@@ -19,7 +19,9 @@
 
 package gda.jython.translator;
 
-import java.util.Vector;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,9 +30,9 @@ import java.util.regex.Pattern;
  */
 public abstract class TranslatorBase implements Translator {
 
-	protected Vector<String> aliases = new Vector<String>();
+	protected Collection<String> aliases = new CopyOnWriteArraySet<>();
 
-	protected Vector<String> vararg_aliases = new Vector<String>();
+	protected Collection<String> varargAliases = new CopyOnWriteArraySet<>();
 	/**
 	 * The public function to perform the translation. This translates a complete instruction for the interpreter,
 	 * including multi-line or multi-command strings.
@@ -114,11 +116,22 @@ public abstract class TranslatorBase implements Translator {
 
 
 	@Override
-	public Vector<String> getAliasedCommands(){
-		return aliases;
+	public Collection<String> getAliasedCommands(){
+		return new HashSet<>(aliases);
 	}
 	@Override
-	public Vector<String> getAliasedVarargCommands(){
-		return vararg_aliases;
+	public Collection<String> getAliasedVarargCommands(){
+		return new HashSet<>(varargAliases);
+	}
+
+	@Override
+	public boolean hasAlias(String command) {
+		return aliases.contains(command) || varargAliases.contains(command);
+	}
+
+	@Override
+	public void removeAlias(String command) {
+		aliases.remove(command);
+		varargAliases.remove(command);
 	}
 }

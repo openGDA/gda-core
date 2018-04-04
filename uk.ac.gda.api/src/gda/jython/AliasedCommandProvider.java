@@ -18,18 +18,18 @@
 
 package gda.jython;
 
-import java.util.Vector;
+import java.util.Collection;
 
 public interface AliasedCommandProvider {
 	/**
 	 * Returns the list of alias in the GDA command server
 	 * @return the aliased commands
 	 */
-	public Vector<String> getAliasedCommands();
+	public Collection<String> getAliasedCommands();
 
 	/**
 	 * Returns the list of variable argument alias in the GDA command server
 	 * @return the list of variable argument alias
 	 */
-	public Vector<String> getAliasedVarargCommands();
+	public Collection<String> getAliasedVarargCommands();
 }

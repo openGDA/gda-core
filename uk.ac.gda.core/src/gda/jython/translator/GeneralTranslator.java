@@ -19,14 +19,14 @@
 
 package gda.jython.translator;
 
-import gda.jython.InterfaceProvider;
-
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jython.InterfaceProvider;
 
 /**
  * An abstract class to provide a translation facility for GDA scripting syntax.
@@ -93,7 +93,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 			} else if (args[0].equals("vararg_alias")) {
 				// assume next arg is the name of the function
 				if (args.length == 2) {
-					vararg_aliases.add(args[1]);
+					varargAliases.add(args[1]);
 					thisGroup = "";
 				}
 			}
@@ -105,7 +105,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 
 				String eval = InterfaceProvider.getCommandRunner().evaluateCommand("dir()");
 				// test we are not trying to overwrite an aliased command
-				if (aliases.contains(leftOfOperator.trim()) || this.vararg_aliases.contains(leftOfOperator.trim())) {
+				if (hasAlias(leftOfOperator.trim())) {
 					if (eval.contains(test)){
 						thisGroup = "raise Exception(\"Trying to overwrite an aliased method: " + leftOfOperator.trim()
 						+ "\")";
@@ -147,9 +147,9 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 				}
 
 				thisGroup += ")";
-			} else if (vararg_aliases.contains(args[0]) && args.length > 1) {
+			} else if (varargAliases.contains(args[0]) && args.length > 1) {
 				thisGroup = addBracketsToVarArgAlias(thisGroup);
-			} else if (vararg_aliases.contains(args[0]) && args.length == 1) {
+			} else if (varargAliases.contains(args[0]) && args.length == 1) {
 				args = splitGroup(removeTrailingComment(thisGroup));
 				thisGroup = args[0] + "()";
 			} else if (startsWithVarArgAlias(args[0])){
@@ -231,7 +231,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 			return false;
 		}
 		String firstPart = string.substring(0,index);
-		return vararg_aliases.contains(firstPart);
+		return varargAliases.contains(firstPart);
 	}
 
 	/**
@@ -517,7 +517,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 
 	@Override
 	public void addAliasedVarargCommand(String commandName) {
-		vararg_aliases.add(commandName);
+		varargAliases.add(commandName);
 	}
 
 	@Override

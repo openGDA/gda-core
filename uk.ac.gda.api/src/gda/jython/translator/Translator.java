@@ -19,7 +19,7 @@
 
 package gda.jython.translator;
 
-import java.util.Vector;
+import gda.jython.AliasedCommandProvider;
 
 /**
  * The interface that supports GDA extended jython syntax.  It allows dynamically adding special keyword into GDA at 
@@ -30,7 +30,7 @@ import java.util.Vector;
  * All classes should return the original string in the event of an error during the translation, so that the Jython may
  * create a syntax error message.
  */
-public interface Translator {
+public interface Translator extends AliasedCommandProvider {
 	/**
 	 * The method called by GDAJythonInterpreter to perform the translation of any line of Jython
 	 * 
@@ -70,10 +70,20 @@ public interface Translator {
 	 * @param commandName
 	 */
 	public void addAliasedVarargCommand(String commandName);
-	
-	public Vector<String> getAliasedCommands();
-	
-	public Vector<String> getAliasedVarargCommands();
+
+	/**
+	 * Remove the given command from the held lists of aliases.
+	 * This will remove the command from both vararg and non-vararg lists
+	 * @param command to remove
+	 */
+	public void removeAlias(String command);
+
+	/**
+	 * Checks if the the given command is aliased (either vararg or not)
+	 * @param command the string to check
+	 * @return whether the command is aliased or not
+	 */
+	public boolean hasAlias(String command);
 
 	public boolean ignoreRestOfLine(String thisGroup);
 }

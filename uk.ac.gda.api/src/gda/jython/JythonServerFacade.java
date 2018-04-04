@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.python.core.PyException;
@@ -792,12 +792,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public Vector<String> getAliasedCommands() {
+	public Collection<String> getAliasedCommands() {
 		return commandServer.getAliasedCommands(name);
 	}
 
 	@Override
-	public Vector<String> getAliasedVarargCommands() {
+	public Collection<String> getAliasedVarargCommands() {
 		return commandServer.getAliasedVarargCommands(name);
 	}
 

@@ -1235,12 +1235,12 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@Override
-	public Vector<String> getAliasedCommands(String jsfIdentifier) {
+	public Collection<String> getAliasedCommands(String jsfIdentifier) {
 		return GDAJythonInterpreter.getTranslator().getAliasedCommands();
 	}
 
 	@Override
-	public Vector<String> getAliasedVarargCommands(String jsfIdentifier) {
+	public Collection<String> getAliasedVarargCommands(String jsfIdentifier) {
 		return GDAJythonInterpreter.getTranslator().getAliasedVarargCommands();
 	}
 
