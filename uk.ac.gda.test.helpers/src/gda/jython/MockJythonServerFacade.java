@@ -285,6 +285,11 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	}
 
 	@Override
+	public boolean hasAlias(String command) {
+		return false;
+	}
+
+	@Override
 	public ClientDetails getMyDetails() {
 		return myDetails;
 	}
