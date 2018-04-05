@@ -94,29 +94,28 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 		if (!isConfigured()) {
 			if (pvName != null) {
 				createChannelAccess(pvName);
-			} else {
-				if (epicsRecordName != null) {
-					try {
-						// remove any final :
-						if (epicsRecordName.endsWith(":")) {
-							epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(':'));
-						}
+			} else if (epicsRecordName != null) {
+				try {
+					// remove any final :
+					if (epicsRecordName.endsWith(":")) {
+						epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(':'));
+					}
 
-						createChannelAccess(epicsRecordName);
-					} catch (Exception e) {
-						final String message = String.format("Error while trying to configure: %s", getName());
-						logger.error(message, e);
-						throw new FactoryException(message, e);
-					}
-				} else if (deviceName != null) {
-					try {
-						final SimpleBinaryType simpleBinaryConfig = Configurator.getConfiguration(deviceName, SimpleBinaryType.class);
-						createChannelAccess(simpleBinaryConfig.getRECORD().getPv());
-					} catch (ConfigurationNotFoundException e) {
-						logger.error("Can NOT find EPICS configuration for motor {}", deviceName, e);
-					}
+					createChannelAccess(epicsRecordName);
+				} catch (Exception e) {
+					final String message = String.format("Error while trying to configure: %s", getName());
+					logger.error(message, e);
+					throw new FactoryException(message, e);
+				}
+			} else if (deviceName != null) {
+				try {
+					final SimpleBinaryType simpleBinaryConfig = Configurator.getConfiguration(deviceName, SimpleBinaryType.class);
+					createChannelAccess(simpleBinaryConfig.getRECORD().getPv());
+				} catch (ConfigurationNotFoundException e) {
+					logger.error("Can NOT find EPICS configuration for motor {}", deviceName, e);
 				}
 			}
+
 			this.inputNames = new String[] { getName() };
 			this.outputFormat = new String[] { "%s" };
 			channelManager.tryInitialize(100);
