@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +41,6 @@ import org.eclipse.ui.PlatformUI;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -64,6 +64,7 @@ import uk.ac.gda.ui.utils.ProjectUtils;
  */
 public class ScriptProjectCreator {
 
+	private static final String PYDEV_INTERPRETER_VERSION = IPythonNature.JYTHON_VERSION_2_7;
 	private static final String JYTHON_MAJOR_VERSION = "2";
 	private static final String JYTHON_MINOR_VERSION = "7";
 	private static final String JYTHON_VERSION = JYTHON_MAJOR_VERSION + "." + JYTHON_MINOR_VERSION;
@@ -192,7 +193,7 @@ public class ScriptProjectCreator {
 	 * Base method of this class for setting up script projects
 	 *  which calls other class methods to: create a Jython interpreter if preferences are set,
 	 * create script projects in the client, manage which projects are shown (created) based on preferences,
-	 * add PyDev nature to these projects and add script projects to working set
+	 * add PyDev nature to these projects and add script projects to working set.
 	 */
 	public static void createProjects(IProgressMonitor monitor) throws Exception {
 		monitor.subTask("Checking existence of projects");
@@ -200,12 +201,13 @@ public class ScriptProjectCreator {
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
 
 
-		//The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
-		//if set to anything. It is not set by default
-		if (chkGDASyntax && System.getProperty("gda.client.jython.automatic.interpreter") == null) {
+		// The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
+		// if set to anything. It is not set by default.
+		if (chkGDASyntax && (System.getProperty("gda.client.jython.automatic.interpreter") == null)) {
 			monitor.subTask("Checking if interpreter already exists");
-			if (isInterpreterCreationRequired(monitor))
+			if (isInterpreterCreationRequired()) {
 				createInterpreter(monitor);
+			}
 		}
 
 		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
@@ -274,11 +276,11 @@ public class ScriptProjectCreator {
 
 		if (chkGDASyntax) {
 			if (!hasPythonNature) {
-				// Assumes that the interpreter named PydevConstants.INTERPRETER_NAME has been created.
+				// Adds pydev nature of PYDEV_INTERPRETER_VERSION and set to use default interpreter for that version
 				// NOTE Very important to start the name with a '/'
 				// or pydev creates the wrong kind of nature.
-				PythonNature.addNature(project, monitor, IPythonNature.JYTHON_VERSION_2_7,
-						"/" + project.getName() + "/src", null, INTERPRETER_NAME, null);
+				PythonNature.addNature(project, monitor, PYDEV_INTERPRETER_VERSION,
+						"/" + project.getName() + "/src", null, IPythonNature.DEFAULT_INTERPRETER, null);
 			}
 		} else {
 			if (hasPythonNature) {
@@ -292,75 +294,21 @@ public class ScriptProjectCreator {
 	}
 
 	/**
-	 * The method PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(...) can never return in some
-	 * circumstances because of a bug in pydev. Therefore this is dealt with in InterpreterThread.
+	 * Checks the list of interpreters registered in PyDev for a Jython Interpreter matching the correct version. Used to
+	 * determine whether a new one needs to be created.
 	 *
 	 * @return true if new interpreter required
 	 */
-	private static boolean isInterpreterCreationRequired(final IProgressMonitor monitor) {
-
-		final InterpreterThread checkInterpreter = new InterpreterThread(monitor);
-		checkInterpreter.start();
-
-		int totalTimeWaited = 0;
-		while (!checkInterpreter.isFinishedChecking()) {
-			try {
-				if (totalTimeWaited > 4000) {
-					logger.error("Unable to call getInterpreterInfo() method on pydev, assuming interpreter is already created.");
-					return false;
-				}
-				Thread.sleep(100);
-				totalTimeWaited += 100;
-			} catch (InterruptedException ne) {
-				break;
-			}
+	private static boolean isInterpreterCreationRequired() {
+		logger.debug("Checking for any existing Jython Interpreters in Pydev");
+		IInterpreterInfo[] infos = PydevPlugin.getJythonInterpreterManager().getInterpreterInfos();
+		final boolean correctInterpreterVersionPresent = Arrays.stream(infos)
+				.anyMatch(info -> (info.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_JYTHON)
+						&& info.getVersion().equals(JYTHON_VERSION));
+		if (correctInterpreterVersionPresent) {
+			logger.info("Found a PyDev Jython interpreter of version {})", JYTHON_VERSION);
 		}
-		return !checkInterpreter.isInterpreter();
-	}
-
-	/**
-	 *Thread to check if the desired interpreter already exists within PyDev. Will throw an error in logs if it doesn't.
-	 */
-	private static class InterpreterThread extends Thread {
-		private static final Logger logger = LoggerFactory.getLogger(InterpreterThread.class);
-
-		private IInterpreterInfo info = null;
-		private IProgressMonitor monitor;
-		private boolean finishedCheck = false;
-
-		private InterpreterThread(final IProgressMonitor monitor) {
-			super("Interpreter Info");
-			setDaemon(true);// This is not that important
-			this.monitor = monitor;
-		}
-
-		@Override
-		public void run() {
-			// Might never return...
-			try {
-				//Attempts to get interpreter info for a Jython interpreter called INTERPRETER_NAME (doesn't actually check version)
-				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(INTERPRETER_NAME, monitor);
-			} catch (MisconfigurationException e) {
-				logger.error("Jython is not configured properly", e);
-			}
-			finishedCheck = true;
-		}
-
-		/**
-		 * Check if Jython interpreter called INTERPRETER_NAME exists
-		 * @return true if it does exist
-		 */
-		private boolean isInterpreter() {
-			return info != null;
-		}
-
-		/**
-		 * Used to confirm to main thread that a check for existing interpreter actually completed
-		 * @return true when run method completed
-		 */
-		private boolean isFinishedChecking() {
-			return finishedCheck;
-		}
-
+		// If present return false - creation not required
+		return !correctInterpreterVersionPresent;
 	}
 }
