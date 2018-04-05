@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython.server;
+package gda.jython.server.shell;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * Tries to create a syntax highlighter but defaults to an no-op implementation if the required
  * jython module (pygments) is not available.
  */
-public final class Highlighters {
+final class Highlighters {
 	private static final Logger logger = LoggerFactory.getLogger(Highlighters.class);
 	/** Default no-op Highlighter to use if Pygments is not available */
 	private static final Highlighter NON_HIGHLIGHTER = (r, b) -> new AttributedString(b);

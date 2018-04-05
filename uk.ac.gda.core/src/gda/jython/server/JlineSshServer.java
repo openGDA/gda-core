@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
+import gda.jython.server.shell.JythonShell;
 import gda.scan.IScanDataPoint;
 
 public class JlineSshServer {

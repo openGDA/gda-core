@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython.server;
+package gda.jython.server.shell;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;

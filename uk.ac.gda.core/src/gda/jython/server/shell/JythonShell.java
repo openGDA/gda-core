@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython.server;
+package gda.jython.server.shell;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -60,7 +60,7 @@ import gda.util.Version;
  * <p>
  * It has no knowledge of the connection type
  */
-class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObserver {
+public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObserver {
 	private static final Logger logger = LoggerFactory.getLogger(JythonShell.class);
 
 	private static final String PS1 = ">>> ";
@@ -109,11 +109,11 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 	private final int shellNumber;
 	private volatile boolean running;
 
-	JythonShell(Terminal term) throws Exception {
+	public JythonShell(Terminal term) throws Exception {
 		this(term, new HashMap<>());
 	}
 
-	JythonShell(Terminal term, Map<String, String> env) throws Exception {
+	public JythonShell(Terminal term, Map<String, String> env) throws Exception {
 		logger.info("Running SSH shell as {}", env.getOrDefault("USER", "UNKNOWN"));
 		terminal = term;
 		server = JythonServerFacade.getCurrentInstance();

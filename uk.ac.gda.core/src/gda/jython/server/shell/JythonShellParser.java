@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython.server;
+package gda.jython.server.shell;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 9.8
  */
-public class JythonShellParser implements Parser {
+class JythonShellParser implements Parser {
 	private static final Logger logger = LoggerFactory.getLogger(JythonShellParser.class);
 
 	/** This is never used anywhere but is required by the compile command so it's here */

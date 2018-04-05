@@ -34,6 +34,8 @@ import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.server.shell.JythonShell;
+
 /**
  * Telnet connection to the JythonServer
  *

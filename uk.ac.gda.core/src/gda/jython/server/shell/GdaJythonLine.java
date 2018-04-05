@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.jython.server;
+package gda.jython.server.shell;
 
 import static java.util.stream.Collectors.toList;
 
