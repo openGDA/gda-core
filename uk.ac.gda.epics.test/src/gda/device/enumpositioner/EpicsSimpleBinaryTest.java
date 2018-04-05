@@ -28,6 +28,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -46,6 +47,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.observable.IObserver;
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -87,6 +89,7 @@ public class EpicsSimpleBinaryTest {
 		controlChannel = mock(Channel.class);
 		channelManager = mock(EpicsChannelManager.class);
 		when(channelManager.createChannel(anyString(), any(MonitorListener.class), any(MonitorType.class), anyBoolean())).thenReturn(controlChannel);
+		when(controller.cagetLabels(any(Channel.class))).thenReturn(new String[] { "Open", "Close" });
 
 		positioner = new EpicsSimpleBinary();
 		positioner.setName(POSITIONER_NAME);
@@ -164,14 +167,14 @@ public class EpicsSimpleBinaryTest {
 
 	@Test(expected = DeviceException.class)
 	public void testRawAsynchronousMoveToNotConfigured() throws Exception {
-		positioner.rawAsynchronousMoveTo("In");
+		positioner.rawAsynchronousMoveTo("Open");
 	}
 
 	@Test(expected = DeviceException.class)
 	public void testRawAsynchronousMoveToReadOnly() throws Exception {
 		configureWithPv();
 		positioner.setReadonly(true);
-		positioner.rawAsynchronousMoveTo("In");
+		positioner.rawAsynchronousMoveTo("Open");
 	}
 
 	@Test(expected = DeviceException.class)
@@ -201,10 +204,10 @@ public class EpicsSimpleBinaryTest {
 	 */
 	private void rawAsynchronousMoveToValidPosition(CAStatus status) throws Exception {
 		configureWithPv();
-		positioner.rawAsynchronousMoveTo("In");
+		positioner.rawAsynchronousMoveTo("Open");
 
 		final ArgumentCaptor<PutListener> putListenerCaptor = ArgumentCaptor.forClass(PutListener.class);
-		verify(controller).caput(eq(controlChannel), eq("In"), putListenerCaptor.capture());
+		verify(controller).caput(eq(controlChannel), eq("Open"), putListenerCaptor.capture());
 
 		putListenerCaptor.getValue().putCompleted(new PutEvent(controlChannel, DBRType.STRING, 1, status));
 	}
@@ -253,12 +256,27 @@ public class EpicsSimpleBinaryTest {
 	@Test
 	public void testMonitorChangedInvalidEventType() throws Exception {
 		configureWithPv();
+		reset(observer); // configuration may have sent events to observer, so clear them here
 
 		final ArgumentCaptor<MonitorListener> monitorListenerCaptor = ArgumentCaptor.forClass(MonitorListener.class);
 		verify(channelManager).createChannel(eq(PV_NAME), monitorListenerCaptor.capture(), eq(MonitorType.STS), eq(false));
 
 		monitorListenerCaptor.getValue().monitorChanged(new MonitorEvent(controlChannel, new DBR_Byte(), CAStatus.NORMAL));
 		verify(observer, never()).update(any(Object.class), any(Object.class));
+	}
+
+	@Test
+	public void testGetPositions() throws Exception {
+		configureWithPv();
+		final List<String> expectedPositions = Arrays.asList("Open", "Close");
+		assertEquals(expectedPositions, positioner.getPositionsList());
+	}
+
+	@Test
+	public void testGetPositionsEpicsFails() throws Exception {
+		when(controller.cagetLabels(any(Channel.class))).thenThrow(new CAException("Exception getting positions"));
+		configureWithPv();
+		assertTrue(positioner.getPositionsList().isEmpty());
 	}
 
 	@Test
@@ -298,14 +316,14 @@ public class EpicsSimpleBinaryTest {
 	@Test
 	public void testGetPosition() throws Exception {
 		configureWithPv();
-		when(controller.cagetString(any(Channel.class))).thenReturn("In");
-		assertEquals("In", positioner.getPosition());
+		when(controller.cagetString(any(Channel.class))).thenReturn("Open");
+		assertEquals("Open", positioner.getPosition());
 	}
 
 	@Test
 	public void testCheckPositionValid() throws Exception {
 		configureWithPv();
-		assertNull(positioner.checkPositionValid("In"));
+		assertNull(positioner.checkPositionValid("Open"));
 	}
 
 	@Test
@@ -317,6 +335,6 @@ public class EpicsSimpleBinaryTest {
 	@Test
 	public void testCheckPositionValidWrongValue() throws Exception {
 		configureWithPv();
-		assertEquals("Open not in array of acceptable strings", positioner.checkPositionValid("Open"));
+		assertEquals("InvalidPos not in array of acceptable strings", positioner.checkPositionValid("InvalidPos"));
 	}
 }

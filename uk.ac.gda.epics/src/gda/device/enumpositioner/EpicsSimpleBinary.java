@@ -74,7 +74,6 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	 */
 	public EpicsSimpleBinary() {
 		super();
-		super.setPositionsInternal(Arrays.asList("Out", "In"));
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this::initializationCompleted);
 	}
@@ -116,10 +115,19 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 				}
 			}
 
+			setPositionsFromEpics();
 			this.inputNames = new String[] { getName() };
 			this.outputFormat = new String[] { "%s" };
 			channelManager.tryInitialize(100);
 			setConfigured(true);
+		}
+	}
+
+	private void setPositionsFromEpics() {
+		try {
+			setPositionsInternal(Arrays.asList(controller.cagetLabels(controlChnl)));
+		} catch (Exception e) {
+			logger.error("Cannot get positions from Epics controller", e);
 		}
 	}
 
@@ -169,6 +177,7 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 
 	@Override
 	public void setPositions(Collection<String> positions) {
+		logger.warn("Overwriting position values read from Epics is deprecated");
 		if (positions.size() != 2) {
 			throw new IllegalArgumentException("Positions array must have 2 elements");
 		}
