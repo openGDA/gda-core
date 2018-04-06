@@ -121,6 +121,8 @@ public class StatusQueueView extends EventConnectionView {
 	// UI
 	private TableViewer viewer;
 	private DelegatingSelectionProvider selectionProvider;
+	private Job queueJob;
+	private boolean queueJobAgain = false;
 
 	// Data
 	private Map<String, StatusBean> queue;
@@ -157,7 +159,7 @@ public class StatusQueueView extends EventConnectionView {
 		content.setLayout(new GridLayout(1, false));
 		Util.removeMargins(content);
 
-		this.viewer   = new TableViewer(content, SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+		this.viewer   = new TableViewer(content, SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL);
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -304,12 +306,15 @@ public class StatusQueueView extends EventConnectionView {
 
 		getSite().getShell().getDisplay().asyncExec(() -> {
 				if (queue.containsKey(bean.getUniqueId())) {
+					logger.trace("mergeBean(id={}) Merging existing bean: {}", bean.getUniqueId(), bean);
 					queue.get(bean.getUniqueId()).merge(bean);
-					viewer.refresh();
-					updateActions();
 				} else {
+					logger.trace("mergeBean(id={}) Adding new bean:       {}", bean.getUniqueId(), bean);
+					queue.put(bean.getUniqueId(), bean);
 					reconnect();
 				}
+				viewer.refresh();
+				updateActions();
 			});
 	}
 
@@ -914,7 +919,7 @@ public class StatusQueueView extends EventConnectionView {
 		try {
 			updateQueue();
 		} catch (Exception e) {
-			logger.error("Cannot resolve uri for activemq server of "+getSecondaryIdAttribute("uri"));
+			logger.error("Cannot resolve uri for activemq server of "+getSecondaryIdAttribute("uri"), e);
 		}
 	}
 
@@ -948,6 +953,8 @@ public class StatusQueueView extends EventConnectionView {
 					// This form of filtering is not at all secure because we
 					// give the full list of the queue to the clients.
 				}
+				// We want the newest items at the top, so reverse the list.
+				Collections.reverse(retained);
 				return retained.toArray(new StatusBean[retained.size()]);
 			}
 		};
@@ -963,30 +970,44 @@ public class StatusQueueView extends EventConnectionView {
 	 * Read Queue and return in submission order.
 	 */
 	private synchronized void updateQueue() {
-
-		final Job queueJob = new Job("Connect and read queue") {
+		if (logger.isTraceEnabled()) {
+			logger.trace("updateQueue() called from {} (abridged)",
+				Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
+		}
+		if (queueJob != null) {
+			logger.debug(    "updateQueue()                   queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
+			if (queueJob.getState() != Job.RUNNING) {
+				queueJob.schedule(100);
+				logger.debug("updateQueue() schedule() called queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
+			} else {					// If job is already running then a call to schedule(), as above, would do
+				queueJobAgain = true;	// nothing, so instead ask the job to schedule itself again after it completes.
+				logger.debug("updateQueue() queueJobAgain set queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
+			}
+			return;
+		}
+		queueJob = new Job("Connect and read queue") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
+					logger.debug("updateQueue Job run({})", monitor);
+
 					monitor.beginTask("Connect to command server", 10);
 					monitor.worked(1);
 
 					queueConnection.setBeanClass(getBeanClass());
-					List<StatusBean> runningList = queueConnection.getQueue(getQueueName());
-					Collections.reverse(runningList); // The list comes out with the head @ 0 but we have the last submitted at 0 in our table.
+					List<StatusBean> runList = queueConnection.getQueue(getQueueName());
 					monitor.worked(1);
 
 					List<StatusBean> submittedList = queueConnection.getQueue(getSubmissionQueueName());
-					Collections.reverse(submittedList); // The list comes out with the head @ 0 but we have the last submitted at 0 in our table.
 					monitor.worked(1);
 
-					// We reverse the queue because it comes out date ascending and we want newest submissions first.
+					// We leave the list in reverse order so we can insert entries at the start by adding to the end
 					final Map<String,StatusBean> ret = new LinkedHashMap<>();
-					for (StatusBean bean : submittedList) {
+					for (StatusBean bean : runList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
 					monitor.worked(1);
-					for (StatusBean bean : runningList) {
+					for (StatusBean bean : submittedList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
 					monitor.worked(1);
@@ -996,6 +1017,10 @@ public class StatusQueueView extends EventConnectionView {
 							viewer.refresh();
 							updateActions();
 						});
+					// Given that these lists could be large, only summarise the count of beans with each status in each list.
+					logger.info("updateQueue Job run({}) completed, submittedList beans {}, runningList beans {}", monitor,
+							submittedList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())),
+								  runList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())));
 					monitor.done();
 
 					return Status.OK_STATUS;
@@ -1008,12 +1033,18 @@ public class StatusQueueView extends EventConnectionView {
 									new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()))
 						);
 					return Status.CANCEL_STATUS;
+				} finally {
+					if (queueJobAgain) {
+						queueJobAgain = false;
+						schedule(100);
+					}
 				}
 			}
 		};
-		queueJob.setPriority(Job.INTERACTIVE);
+		queueJob.setPriority(Job.SHORT);
 		queueJob.setUser(true);
 		queueJob.schedule();
+		logger.debug("updateQueue() scheduled as thread {}", queueJob.getThread());
 	}
 
 	private Class<StatusBean> getBeanClass() {
