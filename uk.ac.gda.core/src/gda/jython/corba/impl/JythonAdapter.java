@@ -886,6 +886,25 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		return null;
 	}
 
+	@Override
+	public boolean hasAlias(String command, String jsfIdentifier) {
+		for (int i = 0; i < NetService.RETRY; i++) {
+			try {
+				return jythonServer.hasAlias(command, jsfIdentifier);
+			} catch (COMM_FAILURE cf) {
+				jythonServer = CorbaJythonHelper.narrow(netService.reconnect(name));
+			} catch (org.omg.CORBA.TRANSIENT ct) {
+				// This exception is thrown when the ORB failed to connect to
+				// the object
+				// primarily when the server has failed.
+				break;
+			} catch (CorbaDeviceException ex) {
+				// throw new DeviceException(ex.message);
+			}
+		}
+		return false;
+	}
+
 	private Vector<String> convert2Vector(String[] aliaslist) {
 		Vector<String> me = new Vector<String>();
 		for (String each : aliaslist) {

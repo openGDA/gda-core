@@ -125,6 +125,8 @@ interface CorbaJython : gda::_factory::corba::CorbaFindable
     
     stringArray getAliasedVarargCommand(in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
 
+    boolean hasAlias(in string command, in string JSFIdentifier) raises (device::corba::CorbaDeviceException);
+
     boolean requestBaton(in string uniqueIdentifier) raises (device::corba::CorbaDeviceException);
 
 	void returnBaton(in string uniqueIdentifier) raises (device::corba::CorbaDeviceException);

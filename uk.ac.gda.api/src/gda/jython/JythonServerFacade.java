@@ -802,6 +802,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
+	public boolean hasAlias(String command) {
+		return commandServer.hasAlias(command, name);
+	}
+
+	@Override
 	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
 		return commandServer.getAllFromJythonNamespace();
 	}

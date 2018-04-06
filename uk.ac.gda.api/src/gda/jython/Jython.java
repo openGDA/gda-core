@@ -437,6 +437,13 @@ public interface Jython extends Findable {
 	public Collection<String> getAliasedVarargCommands(String JSFIdentifier);
 
 	/**
+	 * Check if given command is aliased
+	 * @param command
+	 * @return True if command is an alias
+	 */
+	public boolean hasAlias(String command, String jsfIdentifier);
+
+	/**
 	 * Returns the contents of the top-level Jython namespace.
 	 *
 	 * @return Map
