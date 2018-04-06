@@ -12,6 +12,8 @@
 package org.eclipse.scanning.server.servlet;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -99,11 +101,18 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 		bean.setPreviousStatus(Status.SUBMITTED);
 		bean.setStatus(Status.QUEUED);
+
+		final Instant startTime = Instant.now();
+
 		broadcast(bean);
+
+		final Instant timeNow = Instant.now();
+		if (Duration.between(startTime, timeNow).toMillis() > 100) { logger.warn("ScanProcess() took {}ms to run broadcast(bean);", Duration.between(startTime, timeNow).toMillis()); }
 	}
 
 	@Override
 	public void pause() throws EventException {
+		logger.trace("pause() {} with controller {}", bean, controller);
 		try {
 			controller.pause(getClass().getName(), null);
 		} catch (ScanningException | InterruptedException e) {
@@ -113,6 +122,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	@Override
 	public void resume() throws EventException {
+		logger.trace("resume() {} with controller {}", bean, controller);
 		try {
 			controller.resume(getClass().getName());
 		} catch (ScanningException | InterruptedException e) {
@@ -122,6 +132,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	@Override
 	public void terminate() throws EventException {
+		logger.trace("terminate() {} with controller {}", bean, controller);
 
 		if (bean.getStatus()==Status.COMPLETE) return; // Nothing to terminate.
 		try {

@@ -15,6 +15,8 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -659,6 +661,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private void executeBean(U bean) throws EventException, InterruptedException {
+		final Instant startTime = Instant.now();
 		// If the bean changed after being submitted to the submission queue, and that change was published to the
 		// status topic, the bean we've consumed from the submission queue will be out of date, but the override map will
 		// have the updated bean, so use that instead
@@ -671,6 +674,9 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		LOGGER.trace("Moving {} to {}", bean, statusSetSubmitter.getSubmitQueueName());
 		statusSetSubmitter.submit(bean);
 
+		Instant timeNow = Instant.now();
+		if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to statusSetSubmitter.submit complete", Duration.between(startTime, timeNow).toMillis()); }
+
 		if (processMap.containsKey(bean.getUniqueId())) {
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
 		}
@@ -681,6 +687,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			bean.setStatus(Status.TERMINATED);
 			bean.setMessage("Run aborted before started");
 			statusTopicPublisher.broadcast(bean);
+
+			timeNow = Instant.now();
+			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to statusTopicPublisher.broadcast complete", Duration.between(startTime, timeNow).toMillis()); }
+
 			return;
 		}
 
@@ -691,7 +701,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		try {
 			IConsumerProcess<U> process = runner.createProcess(bean, statusTopicPublisher);
+
+			timeNow = Instant.now();
+			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to runner.createProcess complete", Duration.between(startTime, timeNow).toMillis()); }
+
 			processMap.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
+
+			timeNow = Instant.now();
+			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to processMap.put complete", Duration.between(startTime, timeNow).toMillis()); }
 
 			process.start(); // Depending on the process may run in a separate thread (default is not to)
 		} catch (Exception e) {

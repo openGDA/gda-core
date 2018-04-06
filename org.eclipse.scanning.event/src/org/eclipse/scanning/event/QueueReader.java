@@ -12,10 +12,14 @@
 package org.eclipse.scanning.event;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -63,6 +67,8 @@ public final class QueueReader<T> {
 	 * @throws EventException
 	 */
 	public List<T> getBeans(final URI uri, final String queueName, final Class<T> beanClass) throws EventException {
+		final Instant startTime = Instant.now();
+
 		QueueConnection connection = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
@@ -88,6 +94,13 @@ public final class QueueReader<T> {
 			throw new EventException("Could not read beans from queue", e);
 		} finally {
 			closeConnection(connection);
+
+			final Instant timeNow = Instant.now();
+
+			if (Duration.between(startTime, timeNow).toMillis() > 100) {
+				logger.warn("getBeans() took {}ms, called from {} (abridged)", Duration.between(startTime, timeNow).toMillis(),
+						Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
+			}
 		}
 	}
 

@@ -12,6 +12,8 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -305,16 +307,23 @@ public class StatusQueueView extends EventConnectionView {
 	private void mergeBean(final StatusBean bean) {
 
 		getSite().getShell().getDisplay().asyncExec(() -> {
+				final Instant jobStartTime = Instant.now();
+
 				if (queue.containsKey(bean.getUniqueId())) {
 					logger.trace("mergeBean(id={}) Merging existing bean: {}", bean.getUniqueId(), bean);
 					queue.get(bean.getUniqueId()).merge(bean);
+					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "merge complete");
 				} else {
 					logger.trace("mergeBean(id={}) Adding new bean:       {}", bean.getUniqueId(), bean);
 					queue.put(bean.getUniqueId(), bean);
+					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "bean added");
 					reconnect();
+					warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "reconnect request complete");
 				}
 				viewer.refresh();
+				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "refresh complete");
 				updateActions();
+				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "updateActions complete");
 			});
 	}
 
@@ -991,31 +1000,38 @@ public class StatusQueueView extends EventConnectionView {
 				try {
 					logger.debug("updateQueue Job run({})", monitor);
 
+					final Instant jobStartTime = Instant.now();
 					monitor.beginTask("Connect to command server", 10);
-					monitor.worked(1);
 
 					queueConnection.setBeanClass(getBeanClass());
+					updateProgress(jobStartTime, monitor, "Queue connection set");
+
 					List<StatusBean> runList = queueConnection.getQueue(getQueueName());
-					monitor.worked(1);
+					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
 					List<StatusBean> submittedList = queueConnection.getQueue(getSubmissionQueueName());
-					monitor.worked(1);
+					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end
 					final Map<String,StatusBean> ret = new LinkedHashMap<>();
 					for (StatusBean bean : runList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
-					monitor.worked(1);
+					updateProgress(jobStartTime, monitor, "Run/running jobs added to view list");
+
 					for (StatusBean bean : submittedList) {
 						ret.put(bean.getUniqueId(), bean);
 					}
-					monitor.worked(1);
+					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
 
 					getSite().getShell().getDisplay().syncExec(() -> {
+							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "start");
 							viewer.setInput(ret);
+							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "setInput complete");
 							viewer.refresh();
+							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "refresh complete");
 							updateActions();
+							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "updateActions complete");
 						});
 					// Given that these lists could be large, only summarise the count of beans with each status in each list.
 					logger.info("updateQueue Job run({}) completed, submittedList beans {}, runningList beans {}", monitor,
@@ -1039,6 +1055,12 @@ public class StatusQueueView extends EventConnectionView {
 						schedule(100);
 					}
 				}
+			}
+
+			private void updateProgress(Instant jobStartTime, IProgressMonitor monitor, String subTask) {
+				monitor.subTask(subTask);
+				monitor.worked(1);
+				warnIfDelayed(jobStartTime, "updateQueue Job progress", subTask);
 			}
 		};
 		queueJob.setPriority(Job.SHORT);
@@ -1269,5 +1291,12 @@ public class StatusQueueView extends EventConnectionView {
 	private String getLocation(final StatusBean statusBean) {
 		if (statusBean instanceof ScanBean) return ((ScanBean)statusBean).getFilePath();
 		return statusBean.getRunDirectory();
+	}
+
+	private void warnIfDelayed(Instant jobStartTime, String beforeInterval, String afterInterval) {
+		Instant timeNow = Instant.now();
+		if (Duration.between(jobStartTime, timeNow).toMillis() > 100) {
+			logger.warn("{} took {}ms to {}", beforeInterval, Duration.between(jobStartTime, timeNow).toMillis(), afterInterval);
+		}
 	}
 }

@@ -40,8 +40,12 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.remote.RemoteServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EventServiceImpl implements IEventService {
+
+	private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
 	private static IEventConnectorService eventConnectorService;
 
@@ -56,22 +60,26 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	public static void setEventConnectorService(IEventConnectorService eventService) {
+		logger.trace("setEventConnectorService({})", eventService);
 		EventServiceImpl.eventConnectorService = eventService;
 	}
 
 	@Override
 	public <T extends EventListener> ISubscriber<T> createSubscriber(URI uri, String topicName) {
+		logger.trace("createSubscriber({}, {}) using {} and {}", uri, topicName, eventConnectorService, this);
 		return new SubscriberImpl<>(uri, topicName, eventConnectorService);
 	}
 
 
 	@Override
 	public <U> IPublisher<U> createPublisher(URI uri, String topicName) {
+		logger.trace("createPublisher({}, {}) using {} and {}", uri, topicName, eventConnectorService, this);
 		return new PublisherImpl<>(uri, topicName, eventConnectorService);
 	}
 
 	@Override
 	public <U extends StatusBean> ISubmitter<U> createSubmitter(URI uri, String queueName) {
+		logger.trace("createSubmitter({}, {}) using {} and {}", uri, queueName, eventConnectorService, this);
 		SubmitterImpl<U> submitter = new SubmitterImpl<>(uri, queueName, eventConnectorService, this);
 		submitter.setStatusTopicName(EventConstants.STATUS_TOPIC); // They may always change it later.
 		return submitter;
@@ -92,30 +100,34 @@ public class EventServiceImpl implements IEventService {
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName, String statusQueueName,
 			String statusTopicName, String heartbeatTopicName, String commandTopicName) throws EventException {
+		logger.trace("createConsumer({}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName, commandTopicName, eventConnectorService, this);
 		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName,
 				commandTopicName, eventConnectorService, this);
-
 	}
 
 	@Override
 	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException {
+		logger.trace("checkHeartbeat({}, {}, {}) using {} and {}", uri, patientName, listenTime, eventConnectorService, this);
 		HeartbeatChecker checker = new HeartbeatChecker(this, uri, patientName, listenTime);
 		checker.checkPulse();
 	}
 
 	@Override
 	public <T extends INameable> void checkTopic(URI uri, String patientName, long listenTime, String topicName, Class<T> beanClass) throws EventException, InterruptedException {
+		logger.trace("checkTopic({}, {}, {}, {}, {}) using {} and {}", uri, patientName, listenTime, topicName, beanClass, eventConnectorService, this);
 		TopicChecker<T> checker = new TopicChecker<>(this, uri, patientName, listenTime, topicName, beanClass);
 		checker.checkPulse();
 	}
 
 	@Override
 	public <T extends IdBean> IRequester<T> createRequestor(URI uri, String requestTopic, String responseTopic) throws EventException {
+		logger.trace("createRequestor({}, {}, {}) using {} and {}", uri, requestTopic, responseTopic, eventConnectorService, this);
 		return new RequesterImpl<>(uri, requestTopic, responseTopic, this);
 	}
 
 	@Override
 	public <T extends IdBean> IResponder<T> createResponder(URI uri, String requestTopic, String responseTopic) throws EventException {
+		logger.trace("createResponder({}, {}, {}) using {} and {}", uri, requestTopic, responseTopic, eventConnectorService, this);
 		return new ResponderImpl<>(uri, requestTopic, responseTopic, this);
 	}
 
@@ -126,6 +138,7 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <T> IQueueReader<T> createQueueReader(URI uri, String queueName) {
+		logger.trace("createQueueReader({}, {}) using {} and {}", uri, queueName, eventConnectorService, this);
 		return new QueueReaderImpl<>(uri, queueName, this);
 	}
 
@@ -133,6 +146,9 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public synchronized <T> T createRemoteService(URI uri, Class<T> serviceClass) throws EventException {
+		logger.trace("createRemoteService({}, {}) using {} and {}", uri, serviceClass, eventConnectorService, this);
+
+		T service = null;
 		if (cachedServices==null) cachedServices = new HashMap<>(7);
 		try {
 			String key = ""+uri+serviceClass.getName();
@@ -140,7 +156,7 @@ public class EventServiceImpl implements IEventService {
 				@SuppressWarnings("unchecked")
 				SoftReference<T> ref = (SoftReference<T>)cachedServices.get(key);
 				if (ref.get()!=null) {
-					T service = ref.get();
+					service = ref.get();
 					if (service instanceof IConnection) {
 						IConnection connection = (IConnection)service;
 						if (!connection.isConnected()) {
@@ -154,11 +170,16 @@ public class EventServiceImpl implements IEventService {
 					}
 				}
 			}
-			T service = RemoteServiceFactory.getRemoteService(uri, serviceClass, this);
+			service = RemoteServiceFactory.getRemoteService(uri, serviceClass, this);
 			cachedServices.put(key, new SoftReference<T>(service));
+			logger.trace("createRemoteService({}, {}) returning", uri, serviceClass);
 			return service;
 		} catch (InstantiationException | IllegalAccessException e) {
+			logger.error("createRemoteService({}, {}) failed", uri, serviceClass, e);
 			throw new EventException("There problem creating service for "+serviceClass, e);
+		} finally {
+			// Also log in finally so that we see unhandled runtime errors, and also so we can see how service
+			logger.trace("createRemoteService({}, {}) service = ", uri, serviceClass, service); // init got.
 		}
 	}
 
