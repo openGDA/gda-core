@@ -19,6 +19,14 @@
 
 package gda.device.detector.datalogger;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.StringTokenizer;
+import java.util.concurrent.ScheduledFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DataLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,11 +37,7 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Findable;
 import gda.factory.Finder;
-
-import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.concurrent.Async;
 
 // import gda.device.datalogger.DataLoggerPanel;
 
@@ -44,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see gda.device.serial.SerialComm
  */
-public class HPDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Runnable, Scannable {
+public class HPDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(HPDataLogger.class);
 
@@ -112,7 +116,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	private StringWriter writer;
 
-	private Thread runner;
+	private ScheduledFuture<?> backgroundReadingTask;
 
 	// **** Default constructor, getter and setter methods for CASTOR ****
 	// //
@@ -165,8 +169,8 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 					maxNumBytesToRead = noOfChannels * numBytesReadPerChannel + 2;
 				}
 
-				runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName() + " " + getName());
-				runner.start();
+				backgroundReadingTask = Async.scheduleAtFixedRate(this::readAndNotify, 0, pollTime, MILLISECONDS,
+						"%s(%s)", getClass().getName(), getName());
 			} catch (DeviceException de) {
 				logger.error("Exception while connecting the Serial Port" + de);
 			}
@@ -205,10 +209,16 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	 * Sets the class pollTime variable.
 	 *
 	 * @param pollTime
-	 *            The pollTime to set.
+	 *            The pollTime to set in milliseconds.
 	 */
 	public void setPolltime(long pollTime) {
 		this.pollTime = pollTime;
+		if (backgroundReadingTask != null && !backgroundReadingTask.isDone()) {
+			long delay = backgroundReadingTask.getDelay(MILLISECONDS);
+			backgroundReadingTask.cancel(false);
+			backgroundReadingTask = Async.scheduleAtFixedRate(this::readAndNotify, delay, pollTime, MILLISECONDS,
+					"%s(%s)", getClass().getName(), getName());
+		}
 	}
 
 	// **** Methods for the DataLogger itself **** //
@@ -425,33 +435,25 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Calls readValuesToStrings() and fills the dataStringValues array, then notifies its observers. DataLoggerMonitor
-	 * should display the data and scans should ignore the data. Called each time the pollTime elapses, implementing
-	 * Runnable interface.
+	 * should display the data and scans should ignore the data.
+	 * <p>
+	 * Should not be run directly. This is used as the target of a background process running this method at fixed
+	 * intervals.
+	 *
+	 * @see #setPolltime(long)
 	 */
-	@Override
-	public void run() {
-		if (runner == null) {
-			logger.warn("No thread to read data logger values for " + this.getName());
-		}
-
-		while (runner != null) {
-			try {
-				if (connected) {
-					// Read from Datalogger and convert to string array
-					// which is desired format for DataLoggerMonitor
-					// display.
-					readValuesToStrings();
-					notifyIObservers(this, dataStringValues);
-					logger.debug("DataLogger run Notified observers");
-				}
-
-				Thread.sleep(pollTime);
-			} catch (DeviceException de) {
-				logger.error("Error running DataLogger", de);
-			} catch (InterruptedException ie) {
-				logger.error("DataLogger interrupted", ie);
-				return;
+	private void readAndNotify() {
+		try {
+			if (connected) {
+				// Read from Datalogger and convert to string array
+				// which is desired format for DataLoggerMonitor
+				// display.
+				readValuesToStrings();
+				notifyIObservers(this, dataStringValues);
+				logger.debug("DataLogger run Notified observers");
 			}
+		} catch (DeviceException de) {
+			logger.error("Error running DataLogger", de);
 		}
 	}
 

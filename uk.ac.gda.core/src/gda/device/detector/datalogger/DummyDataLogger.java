@@ -19,15 +19,20 @@
 
 package gda.device.detector.datalogger;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.concurrent.ScheduledFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DataLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.factory.Findable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * A simulator class for a DataLogger. It has four arrays of eight numbers which change according to the
@@ -35,10 +40,11 @@ import org.slf4j.LoggerFactory;
  * pollDone() method changes the dataValues in rotation and notifies the DataLogger's observers.
  *
  */
-public class DummyDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Runnable, Scannable {
+public class DummyDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyDataLogger.class);
 
+	/** Time in milliseconds between reading data logger */
 	private long pollTime = 1000;
 
 	// private int loggerID = -1;
@@ -78,7 +84,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	private double[] valuesDouble4 = { 15.0, 25.0, 35.0, 45.0, 55.0, 65.0, 75.0, 85.0 };
 
-	private Thread runner;
+	private ScheduledFuture<?> backgroundReadingTask;
 
 	private int status = 0;
 
@@ -101,9 +107,8 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 		try {
 			connect();
-
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName() + " " + getName());
-			runner.start();
+			backgroundReadingTask = Async.scheduleAtFixedRate(this::readAndNotify, 0, pollTime, MILLISECONDS,
+					"%s(%s)", getClass().getName(), getName());
 		} catch (DeviceException e) {
 			logger.error("DummyDataLogger: Exception caught in configure. " + e.toString());
 		}
@@ -141,10 +146,16 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 	 * Sets the local pollTime variable.
 	 *
 	 * @param pollTime
-	 *            The pollTime to set.
+	 *            The pollTime to set in milliseconds.
 	 */
 	public void setPolltime(long pollTime) {
 		this.pollTime = pollTime;
+		if (backgroundReadingTask != null && !backgroundReadingTask.isDone()) {
+			long delay = backgroundReadingTask.getDelay(MILLISECONDS);
+			backgroundReadingTask.cancel(false);
+			backgroundReadingTask = Async.scheduleAtFixedRate(this::readAndNotify, delay, pollTime, MILLISECONDS,
+					"%s(%s)", getClass().getName(), getName());
+		}
 	}
 
 	// **** Methods for the DummyDataLogger itself **** //
@@ -283,30 +294,21 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Calls readValuesToStrings() and fills the dataStringValues array, then notifies its observers. DataLoggerMonitor
-	 * should display the data and scans should ignore the data. Called each time the pollTime elapses, implementing
-	 * Runnable interface.
+	 * should display the data and scans should ignore the data.
+	 * <p>
+	 * Should not be run directly. This is used as the target of a background process running this method at fixed
+	 * intervals.
+	 *
+	 * @see #setPolltime(long)
 	 */
-	@Override
-	public void run() {
-		if (runner == null) {
-			logger.warn("No thread to read data logger values for " + this.getName());
-		}
-
-		while (runner != null) {
-			try {
-				if (connected) {
-					// Read from Datalogger and convert to string array
-					// which is desired format for DataLoggerMonitor
-					// display.
-					readValuesToStrings();
-					status = Detector.STANDBY;
-					notifyIObservers(this, dataStringValues);
-				}
-				Thread.sleep(pollTime);
-			} catch (InterruptedException ie) {
-				logger.error("DummyDataLogger: run() interrupted", ie);
-				return;
-			}
+	private void readAndNotify() {
+		if (connected) {
+			// Read from Datalogger and convert to string array
+			// which is desired format for DataLoggerMonitor
+			// display.
+			readValuesToStrings();
+			status = Detector.STANDBY;
+			notifyIObservers(this, dataStringValues);
 		}
 	}
 
