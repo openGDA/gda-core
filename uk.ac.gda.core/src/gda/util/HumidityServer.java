@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * HumidityServer Class
  */
-public class HumidityServer implements Runnable {
+public class HumidityServer {
 	private static final Logger logger = LoggerFactory.getLogger(HumidityServer.class);
 
 	protected Socket socket;
@@ -68,13 +68,10 @@ public class HumidityServer implements Runnable {
 		this.port = port;
 
 		// Start the thread dealing with remote commands.
-		uk.ac.gda.util.ThreadManager.getThread(this).start();
+		new Thread(this::runServer, "HumidityServer").start();
 	}
 
-	// Runnable interface.
-
-	@Override
-	public void run() {
+	private void runServer() {
 		ServerSocket serverSocket = null;
 		BufferedReader reader = null;
 		try {
