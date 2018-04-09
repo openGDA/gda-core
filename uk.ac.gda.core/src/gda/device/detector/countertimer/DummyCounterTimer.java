@@ -106,7 +106,7 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 	public void configure() throws FactoryException {
 		super.configure();
 
-		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName() + " " + getName());
+		runner = new Thread(this, getClass().getName() + " " + getName());
 		runner.start();
 
 		// Wait for the runner thread to start before returning (i.e. declaring
