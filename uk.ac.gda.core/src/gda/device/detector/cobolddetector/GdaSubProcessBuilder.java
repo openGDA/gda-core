@@ -19,13 +19,19 @@
 
 package gda.device.detector.cobolddetector;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Initiate a secondary process to GDA
@@ -36,7 +42,6 @@ public class GdaSubProcessBuilder {
 
 	private ArrayList<String> args = new ArrayList<String>();
 	private ProcessBuilder pb;
-	private String reply = "";
 
 	/**
 	 *
@@ -63,56 +68,42 @@ public class GdaSubProcessBuilder {
 
 		pb.command(args);
 
-		Thread processThread = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
+		Future<String> command = Async.submit(() -> {
+				StringBuilder reply = new StringBuilder();
 				String line = "";
-				try {
-					Process p = pb.start();
+				Process p = pb.start();
 
-					BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					Thread.sleep(200);
-					p.waitFor();
-					if (br.ready())
-						logger.info("GdaSubProcessBuilder: " + args.get(0) + ", reply = ");
-					else
-						logger.info("GdaSubProcessBuilder: no reply from " + args.get(0));
+				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				Thread.sleep(200);
+				p.waitFor();
+				if (br.ready())
+					logger.info("GdaSubProcessBuilder: " + args.get(0) + ", reply = ");
+				else
+					logger.info("GdaSubProcessBuilder: no reply from " + args.get(0));
 
-					int i = 0;
-					while (br.ready() && i++ < 20) {
-						line = br.readLine();
-						reply = reply.concat(line);
-						logger.info(line);
-					}
-					p.getInputStream().close();
-					br.close();
-				} catch (Exception e) {
-					throw new RuntimeException("Error in GdaSubProcessBuilder.processThread", e);
+				int i = 0;
+				while (br.ready() && i++ < 20) {
+					line = br.readLine();
+					reply.append(line);
+					logger.info(line);
 				}
-			}
+				p.getInputStream().close();
+				br.close();
+				return reply.toString();
 		});
-
-		processThread.start();
-
-		int timeout = 5000;
-		int wait = 0;
 		if (sync)
 			try {
-				while (processThread.isAlive() && wait < timeout) {
-					Thread.sleep(300);
-					wait += 300;
-				}
+				return command.get(5000, MILLISECONDS);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				String msg = "Thread interrupted while waiting for command to complete";
 				logger.error(msg, e);
 				throw new RuntimeException(msg);
+			} catch (ExecutionException e) {
+				logger.error("Exception running external command: {}", proc, e.getCause());
+			} catch (TimeoutException e) {
+				logger.error("External command took too long to complete", e);
 			}
-
-		if (reply.toLowerCase().contains("exception") || reply.toLowerCase().contains("error")
-				|| reply.toLowerCase().contains("overflow")) {
-			logger.error(reply);
-		}
-		return reply;
+		return "";
 	}
 }
