@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * SocketServer Class
  */
-public class SocketServer implements Runnable {
+public class SocketServer {
 	private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
 	protected Socket socket;
@@ -70,13 +70,10 @@ public class SocketServer implements Runnable {
 		this.port = port;
 
 		// Start the thread dealing with remote commands.
-		uk.ac.gda.util.ThreadManager.getThread(this).start();
+		new Thread(this::runServer, "SocketServer").start();
 	}
 
-	// Runnable interface.
-
-	@Override
-	public void run() {
+	private void runServer() {
 		ServerSocket serverSocket = null;
 		BufferedReader reader = null;
 
