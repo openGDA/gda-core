@@ -19,11 +19,16 @@
 
 package gda.util;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * Class passed by Poller to PollerListener. The contents are not very useful but specifying the Poller and
  * PollerListener in this way makes the mechanism analagous to the ActionListener mechanism.
+ *
+ * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
+ *     see DAQ-1197
  */
-
+@Deprecated
 public class PollerEvent {
 	private Poller poller;
 

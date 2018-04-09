@@ -20,12 +20,16 @@
 package gda.util;
 
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Class which loops forever calling methods at specified time interval. Classes which want to have methods called must
  * implement the PollerListener interface.
+ *
+ * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
+ *     see DAQ-1197
  */
-
+@Deprecated
 public class Poller implements Runnable {
 	private Thread thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
 

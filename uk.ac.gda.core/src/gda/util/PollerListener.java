@@ -19,9 +19,15 @@
 
 package gda.util;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * Classes which want to use a Poller must implement this interface.
+ *
+ * @deprecated These classes replicate {@link ScheduledExecutorService} behaviour and should be replaced if possible.
+ *     see DAQ-1197
  */
+@Deprecated
 public interface PollerListener {
 	/**
 	 * Method to be called automatically by Poller at regular, preset intervals
