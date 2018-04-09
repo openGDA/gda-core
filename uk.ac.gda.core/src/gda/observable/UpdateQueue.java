@@ -24,7 +24,7 @@ import java.util.Vector;
  * In response to an update method on an IObserver being called the data is added to the queue and processed in an
  * update queue
  */
-public class UpdateQueue implements Runnable {
+public class UpdateQueue {
 	Vector<UpdateQueueItem> items = new Vector<UpdateQueueItem>();
 	private final UpdateQueueItem[] itemsToBeHandledType = new UpdateQueueItem[0];
 	private boolean killed = false;
@@ -39,7 +39,7 @@ public class UpdateQueue implements Runnable {
 		synchronized (items) {
 			items.add(new UpdateQueueItem(observer, theObserved, changeCode));
 			if (thread == null) {
-				thread = uk.ac.gda.util.ThreadManager.getThread(this);
+				thread = new Thread(this::runUpdateLoop, "UpdateQueue.addUpdateEvent");
 				thread.start();
 			}
 			items.notifyAll();
@@ -53,8 +53,7 @@ public class UpdateQueue implements Runnable {
 		killed = true;
 	}
 
-	@Override
-	public void run() {
+	private void runUpdateLoop() {
 		while (!killed) {
 			UpdateQueueItem[] itemsToBeHandled = null;
 			try {
