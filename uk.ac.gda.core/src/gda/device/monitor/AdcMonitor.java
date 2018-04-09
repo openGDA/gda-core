@@ -19,25 +19,23 @@
 
 package gda.device.monitor;
 
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Adc;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.factory.Finder;
 
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Class to monitor an ADC
  */
 
-public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scannable {
+public class AdcMonitor extends MonitorBase implements Monitor, Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(AdcMonitor.class);
-
-	private Thread runner;
 
 	private Adc adc;
 
@@ -62,8 +60,7 @@ public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scanna
 		if ((adc = (Adc) Finder.getInstance().find(adcName)) == null) {
 			logger.error("Adc " + adcName + " not found");
 		} else {
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
-			runner.start();
+			new Thread(this::run, getClass().getName()).start();
 		}
 	}
 
@@ -110,8 +107,7 @@ public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scanna
 		return pollTime;
 	}
 
-	@Override
-	public synchronized void run() {
+	private synchronized void run() {
 		while (true) {
 			try {
 				Double value = new Double(adc.getVoltage(channel));
