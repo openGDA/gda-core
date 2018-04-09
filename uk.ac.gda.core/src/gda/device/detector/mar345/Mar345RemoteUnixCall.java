@@ -71,12 +71,7 @@ public class Mar345RemoteUnixCall {
 	public static void start345Daemon() {
 		try {
 			start(LocalProperties.get("gda.device.detector.mar345.scan345Command"));
-			runtime.addShutdownHook(uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-				@Override
-				public void run() {
-					stop345Daemon();
-				}
-			}));
+			runtime.addShutdownHook(new Thread(Mar345RemoteUnixCall::stop345Daemon));
 		} catch (Exception ex) {
 			logger.debug("Error starting daemon", ex);
 		}
