@@ -37,7 +37,7 @@ import gda.device.TimerStatus;
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
-public class DummyTfg extends DeviceBase implements Timer, Runnable {
+public class DummyTfg extends DeviceBase implements Timer {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTfg.class);
 
@@ -82,7 +82,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	@Override
 	public void configure() {
 		timeFrameGenerator = new TimeFrameGenerator();
-		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+		runner = new Thread(this::runTfg, getClass().getName());
 		runner.start();
 		logger.debug("Configuring dummy tfg " + getName());
 		setConfigured(true);
@@ -324,8 +324,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 		return obj;
 	}
 
-	@Override
-	public synchronized void run() {
+	private synchronized void runTfg() {
 		while (true) {
 			completed = false;
 			try {
@@ -369,12 +368,12 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 		}
 	}
 
-	private class TimeFrameGenerator implements Runnable {
+	private class TimeFrameGenerator {
 		/**
 		 *
 		 */
 		public TimeFrameGenerator() {
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+			runner = new Thread(this::runFrameGenerator, getClass().getName());
 			runner.start();
 		}
 
@@ -385,8 +384,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 			notify();
 		}
 
-		@Override
-		public synchronized void run() {
+		private synchronized void runFrameGenerator() {
 			while (true) {
 				try {
 					wait();
