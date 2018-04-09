@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -82,6 +82,7 @@ import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
 import gda.scan.ScanEvent;
 import gda.util.PropertyUtils;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.HelpHandler;
 
@@ -92,7 +93,7 @@ import uk.ac.gda.client.HelpHandler;
  * data points missed by the view not being present. For now always use this view as a default visible one and this
  * issue will not be as bad.
  */
-public class JythonTerminalView extends ViewPart implements Runnable, IScanDataPointObserver, Terminal {
+public class JythonTerminalView extends ViewPart implements IScanDataPointObserver, Terminal {
 
 	// The output panel is similar to the details panel at the bottom of the
 	// "Variables" view used when debugging. See these classes:
@@ -151,6 +152,8 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	private TextViewerWordWrapToggleAction wordWrapAction;
 	private IJythonContext mockJythonContext;
 
+	private Future<?> displayUpdate;
+
 	/***/
 	public JythonTerminalView() {
 		try {
@@ -175,7 +178,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		fetchOldHistory();
 
 		// Refresh the terminal output at 20 Hz
-		Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new SimpleOutputUpdater(), 0, 50, TimeUnit.MILLISECONDS);
+		displayUpdate = Async.scheduleAtFixedRate(new SimpleOutputUpdater(), 0, 50, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -361,8 +364,11 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		}
 	}
 
-	@Override
-	public void run() {
+	/**
+	 * Run the command currently in the {@link #txtInput}. If this is a continuation of a previous
+	 * multiline command, it will be appended to the current command before being run.
+	 */
+	private void runCommand() {
 		if (jsf == null) {
 			jsf = JythonServerFacade.getInstance();
 			jsf.addIObserver(this);
@@ -617,7 +623,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				addCommandToHistory(inputText);
 				txtInput.setText("");
 			} else {
-				uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+				Async.execute(this::runCommand);
 			}
 		}
 		// if its the history command
@@ -642,7 +648,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 			// if stringToMatch is a number, then use that command
 			if (stringIsAnInteger(stringToMatch)) {
 				txtInput.setText(cmdHistory.get(Integer.parseInt(stringToMatch)));
-				uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+				Async.execute(this::runCommand);
 				return;
 			}
 			// else search backwards through the history to find a match
@@ -661,7 +667,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 				}
 			}
 			if (foundOne) {
-				uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+				Async.execute(this::runCommand);
 			} else {
 				appendOutput("" + "\n");
 				txtInput.setText("");
@@ -691,7 +697,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 		// everything else, pass to the Command Server in a separate thread to
 		// stop the GUI freezing.
 		else {
-			uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+			Async.execute(this::runCommand);
 		}
 	}
 
@@ -956,6 +962,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IScanDataP
 	public void dispose() {
 		if(autoCompleter!=null){
 			autoCompleter.dispose();
+		}
+		if (displayUpdate != null) {
+			displayUpdate.cancel(true);
 		}
 		if (!ClientManager.isTestingMode()) {
 			jsf.deleteOutputTerminal(this);
