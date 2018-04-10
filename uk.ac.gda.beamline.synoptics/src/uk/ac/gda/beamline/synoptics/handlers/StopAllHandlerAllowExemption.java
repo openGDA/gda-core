@@ -27,7 +27,7 @@ import gda.observable.IObserver;
  */
 public class StopAllHandlerAllowExemption extends AbstractHandler {
 
-	public static final String ID = "uk.ac.gda.beamline.StopAllCommand";
+	public static final String ID = "uk.ac.gda.beamline.synoptics.StopAllCommand";
 	private static final Logger logger = LoggerFactory.getLogger(StopAllHandlerAllowExemption.class);
 
 	@Override
