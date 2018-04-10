@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.beamline.synoptics.handlers.StopAllHandlerAllowExemption"
+            commandId="uk.ac.gda.beamline.synoptics.StopAllCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.beamline.synoptics.handlers.StopAllHandlerAllowExemption"
+            description="Stop all scannables except excluded"
+            id="uk.ac.gda.beamline.synoptics.StopAllCommand"
+            name="Stop All">
+      </command>
+   </extension>
+
+</plugin>

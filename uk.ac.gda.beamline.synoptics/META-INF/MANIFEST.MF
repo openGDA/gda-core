@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synoptics
-Bundle-SymbolicName: uk.ac.gda.beamline.synoptics
+Bundle-SymbolicName: uk.ac.gda.beamline.synoptics;singleton:=true
 Bundle-Version: 1.0.0.qualifer
 Bundle-Activator: uk.ac.gda.beamline.synoptics.Activator
 Bundle-Vendor: Diamond Light Source Ltd
