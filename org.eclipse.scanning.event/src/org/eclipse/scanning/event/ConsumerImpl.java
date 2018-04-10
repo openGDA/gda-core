@@ -54,7 +54,6 @@ import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
@@ -336,38 +335,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void awaitStart() throws InterruptedException {
 		if (latchStart!=null) latchStart.await();
-	}
-
-	/**
-	 * Finds and returns the most recent pause bean sent to the command queue.
-	 * @param submissionQueueName name of submission queue
-	 * @return pause bean
-	 */
-	private PauseBean getPauseBean(String submissionQueueName) {
-
-		IQueueReader<PauseBean>   qr=null;
-		try {
-			qr = eservice.createQueueReader(getUri(), EventConstants.CMD_SET);
-			qr.setBeanClass(PauseBean.class);
-			List<PauseBean> pausedList = qr.getQueue();
-
-			// The most recent bean in the queue is the latest
-			for (PauseBean pauseBean : pausedList) {
-				if (submissionQueueName.equals(pauseBean.getQueueName())) return pauseBean;
-			}
-
-		} catch (Exception ne) {
-			LOGGER.error("Cannot get queue "+EventConstants.CMD_SET, ne);
-			return null;
-
-		} finally {
-			try {
-				if (qr!=null) qr.disconnect();
-			} catch (EventException e) {
-				LOGGER.error("Cannot get disconnect "+EventConstants.CMD_SET, e);
-			}
-		}
-		return null;
 	}
 
 	private void startProcessManager() throws EventException {

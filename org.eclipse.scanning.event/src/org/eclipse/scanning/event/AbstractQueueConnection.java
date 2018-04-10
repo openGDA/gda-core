@@ -477,7 +477,12 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return bean!=null ? bean.isPause() : false;
 	}
 
-	private PauseBean getPauseBean(String submissionQueueName) {
+	/**
+	 * Finds and returns the most recent pause bean sent to the command queue.
+	 * @param submissionQueueName name of submission queue
+	 * @return pause bean
+	 */
+	protected PauseBean getPauseBean(String submissionQueueName) {
 
 		IQueueReader<PauseBean>   qr=null;
 		try {
