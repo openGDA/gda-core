@@ -22,7 +22,7 @@ import gda.jython.PanicStopEvent;
 import gda.observable.IObserver;
 /**
  * StopAll command implementation that displays a blocking dialog to user until this command process on GDA server is
- * finished. It supports
+ * finished. It supports exclusion of specified scannables defined in localStation.py
  *
  */
 public class StopAllHandlerAllowExemption extends AbstractHandler {
