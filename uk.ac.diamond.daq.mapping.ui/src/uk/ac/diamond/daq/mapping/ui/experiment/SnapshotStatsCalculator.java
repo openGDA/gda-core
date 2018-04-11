@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.Slice;
@@ -36,7 +37,7 @@ public class SnapshotStatsCalculator {
 	}
 
 	public double calculateSliceCount(IDataset dataset, int index) {
-		Dataset data = (Dataset) dataset.getSliceView(new Slice(index, index+1, 1));
+		Dataset data = DatasetUtils.convertToDataset(dataset.getSliceView(new Slice(index, index+1, 1)));
 		IndexIterator iterator = data.getIterator();
 		double val = 0;
 		while (iterator.hasNext()) {
@@ -51,12 +52,13 @@ public class SnapshotStatsCalculator {
 	public double calculateStdDev(IDataset dataset) {
 		double sumOfSquaresOfPixelMinusMean = 0;
 		double mean = calculateMean(dataset);
-		for (int i=0; i<dataset.getShape()[0]; i++) {
-			for (int j=0; j<dataset.getShape()[1]; j++) {
-				double pixel = dataset.getDouble(i,j);
-				if (!Double.isNaN(pixel)) {
-					sumOfSquaresOfPixelMinusMean += Math.pow((pixel-mean),2);
-				}
+
+		Dataset data = DatasetUtils.convertToDataset(dataset);
+		IndexIterator iterator = data.getIterator();
+		while (iterator.hasNext()) {
+			double pixel = data.getElementDoubleAbs(iterator.index);
+			if (!Double.isNaN(pixel)) {
+				sumOfSquaresOfPixelMinusMean += Math.pow((pixel-mean),2);
 			}
 		}
 		return Math.sqrt(sumOfSquaresOfPixelMinusMean / dataset.getSize());
@@ -73,13 +75,10 @@ public class SnapshotStatsCalculator {
 	 */
 	public int countBadPoints(IDataset dataset, double tolerance) {
 		int saturated = 0;
-
-		for (int i=0; i<dataset.getShape()[0]; i++) {
-			for (int j=0; j<dataset.getShape()[1]; j++) {
-				if (dataset.getDouble(i, j) > tolerance) {
-					saturated++;
-				}
-			}
+		Dataset data = DatasetUtils.convertToDataset(dataset);
+		IndexIterator iterator = data.getIterator();
+		while (iterator.hasNext()) {
+			if (data.getElementDoubleAbs(iterator.index) > tolerance) saturated++;
 		}
 		return saturated;
 	}
