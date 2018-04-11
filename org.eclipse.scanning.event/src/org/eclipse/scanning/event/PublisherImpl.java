@@ -76,25 +76,10 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 		int priority = message instanceof ConsumerCommandBean ? 8 : 4;
 
 		String json = service.marshal(message);
-		TextMessage msg = createTextMessage(json);
+		TextMessage msg = getSession().createTextMessage(json);
+
 		producer.send(msg, DeliveryMode.NON_PERSISTENT, priority, messageLifetime);
 		if (out!=null) out.println(json);
-	}
-
-	private TextMessage createTextMessage(String json) throws JMSException {
-
-		if (connection==null) createConnection();
-		if (session == null)  createSession();
-
-		TextMessage message = null;
-		try {
-			message = session.createTextMessage(json);
-		} catch (javax.jms.IllegalStateException ne) {
-			createConnection();
-			createSession();
-			message = session.createTextMessage(json);
-		}
-		return message;
 	}
 
 	private boolean statusSetAddRequired = false;

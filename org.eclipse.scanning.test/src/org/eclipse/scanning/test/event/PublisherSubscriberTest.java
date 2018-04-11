@@ -26,16 +26,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -48,57 +43,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PublisherSubscriberTest extends BrokerTest {
-
-	private static class TestBeanListener implements IBeanListener<StatusBean> {
-
-		private List<StatusBean> beansReceived = Collections.synchronizedList(new ArrayList<>());
-
-		private List<String> listenerStartEndEvents = Collections.synchronizedList(new ArrayList<>());
-
-		private final CountDownLatch countdown;
-
-		private long sleepTime = 50;
-
-		public TestBeanListener(int numBeansExpected) {
-			countdown = new CountDownLatch(numBeansExpected);
-		}
-
-		@Override
-		public void beanChangePerformed(BeanEvent<StatusBean> event) {
-			beansReceived.add(event.getBean());
-			listenerStartEndEvents.add(event.getBean().getName() + " start");
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			} finally {
-				listenerStartEndEvents.add(event.getBean().getName() + " end");
-				countdown.countDown();
-			}
-		}
-
-		public List<StatusBean> getBeansReceived() {
-			return beansReceived;
-		}
-
-		public List<String> getListenerStartEndEvents() {
-			return listenerStartEndEvents;
-		}
-
-		public void awaitBeans() throws InterruptedException {
-			countdown.await(1, TimeUnit.SECONDS);
-			Thread.sleep(100); // extra sleep to check there aren't more beans than expected
-		}
-
-		public long getSleepTime() {
-			return sleepTime;
-		}
-
-		public void setSleepTime(long sleepTime) {
-			this.sleepTime = sleepTime;
-		}
-
-	}
 
 	private IPublisher<StatusBean> publisher;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
