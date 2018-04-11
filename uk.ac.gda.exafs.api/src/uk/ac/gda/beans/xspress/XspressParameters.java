@@ -47,6 +47,8 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	private List<DetectorElement> detectorList;
 	private String readoutMode;
 
+	private double deadtimeCorrectionEnergy = 0;
+
 	private boolean editIndividualElements;
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
@@ -226,5 +228,15 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
+	}
+
+	/** Get the energy to be used for the 'Deadtime correction calculation' (xspress2, xspress4). Energy in keV */
+	public double getDeadtimeCorrectionEnergy() {
+		return deadtimeCorrectionEnergy;
+	}
+
+	/** Set the energy to be used for the 'Deadtime correction calculation' (xspress2, xspress4). Energy in keV */
+	public void setDeadtimeCorrectionEnergy(double deadtimeCorrectionEnergy) {
+		this.deadtimeCorrectionEnergy = deadtimeCorrectionEnergy;
 	}
 }

@@ -5,6 +5,7 @@
     <regionType>Virtual Scaler</regionType>
     <readoutMode>Scalers and MCA</readoutMode>
     <editIndividualElements>false</editIndividualElements>
+    <deadtimeCorrectionEnergy>0.0</deadtimeCorrectionEnergy>
     <DetectorElement>
         <name>Element0</name>
         <number>0</number>
