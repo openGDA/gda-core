@@ -1688,7 +1688,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	 * Clear the CA channels and reclaim the resources.
 	 */
 	public void clearup() {
-		if (!isConfigured()) {
+		if (isConfigured()) {
 			if (theChannel != null) {
 				controller.destroy(theChannel);
 				theChannel = null;
