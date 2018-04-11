@@ -309,11 +309,21 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addDtcEnergyUpdateListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
 		// Hide/show output options
 		setShowOutputOptionsFromPreference();
+
+		// Show/hide deadtime correction energy control
+		setShowDTCEnergyFromPreference();
 
 		// setup data store and fetch stored data, if any
 		createDataStore();
@@ -325,6 +335,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.autoscaleAxes();
 
 		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null ? true : false);
+	}
+
+	private void setShowDTCEnergyFromPreference() {
+		boolean showDtcEnergyControls = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_SHOW_DTC_ENERGY);
+		fluorescenceDetectorComposite.setShowDtcEnergyControls(showDtcEnergyControls);
 	}
 
 	/**
