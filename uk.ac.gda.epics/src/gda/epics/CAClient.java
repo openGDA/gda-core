@@ -921,7 +921,6 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	@Override
 	public void configure() throws FactoryException {
 		try {
-			super.configure();
 			if (!isConfigured()) {
 				if (pvName != null) {
 //					theChannel = controller.createChannel(pvName,this);
