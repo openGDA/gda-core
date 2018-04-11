@@ -46,6 +46,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.detector.TfgFFoverI0;
 import gda.device.detector.xspress.Xspress2Detector;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
+import gda.epics.DummyPV;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -510,6 +511,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.info("Setting scaler window1");
 			setScalerWindow(0); // apply to window1 only
 		}
+		setDtcEnergyKev(parameters.getDeadtimeCorrectionEnergy());
 	}
 
 	/**
@@ -588,6 +590,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + DTC_FACTORS);
 			pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + ROI_RES_GRADE_BIN);
 			pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + DTC_ENERGY_KEV);
+		} else {
+			pvDtcEnergyKev = new DummyPV<Double>("dummyPvBase"+DTC_ENERGY_KEV, 0.0);
 		}
 	}
 
