@@ -88,6 +88,7 @@ import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * This controls the information given to the Jython engine (GDAJythonInterpreter). This implements the Jython
@@ -580,9 +581,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 				}
 			}
 		}
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
+		Async.execute(() -> {
 				try {
 					// first stop any command queue that might be running
 					List<IFindableQueueProcessor> commandQueue = Finder.getInstance().listFindablesOfType(
@@ -610,9 +609,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 				// Setting the status to IDLE while scripts could still be running in the background is wrong.
 
 				updateIObservers(new PanicStopEvent());
-			}
-		}).start();
-
+			});
 	}
 
 	@Override
