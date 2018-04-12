@@ -19,17 +19,18 @@
 
 package gda.device.amplifier;
 
-import gda.device.DeviceException;
-import gda.device.Gpib;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.Gpib;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Class that implements the keithley Amplifier
@@ -104,17 +105,12 @@ public class Keithley extends AmplifierBase {
 		setZeroCheck(false);
 		sendCommand(CURRENT_SUPPRESS_SWITCH + 2 + COMMANDEXECUTOR);
 		notifyIObservers(this, "SUPPRESSING");
-		Thread tr = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-
-			@Override
-			public synchronized void run() {
+		Async.execute(() -> {
 				int count = 0;
 				String stat = "";
 				while (true) {
 					try {
-
 						wait(100);
-
 						if ((stat = getStatus()).equals("READY") || count == 3)
 							break;
 						count++;
@@ -125,10 +121,7 @@ public class Keithley extends AmplifierBase {
 					}
 				}
 				notifyIObservers(Keithley.this, stat);
-			}
-
-		}, getClass().getName());
-		tr.start();
+			}, getClass().getName());
 	}
 
 	@Override
