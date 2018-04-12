@@ -16,6 +16,8 @@
 
 package gda.rcp.views;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
@@ -55,6 +57,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * ContentProposalAdapter can be used to attach content proposal behavior to a control. This behavior includes obtaining
@@ -916,20 +920,12 @@ public class ContentProposalAdapter {
 				// before creating the popup. We do not use Jobs since this
 				// code must be able to run independently of the Eclipse
 				// runtime.
-				Runnable runnable = new Runnable() {
-					@Override
-					public void run() {
-						pendingDescriptionUpdate = true;
-						try {
-							Thread.sleep(POPUP_DELAY);
-						} catch (InterruptedException e) {
-						}
+				Async.schedule(() -> {
 						if (!isValid()) {
 							return;
 						}
-						getShell().getDisplay().syncExec(new Runnable() {
-							@Override
-							public void run() {
+						pendingDescriptionUpdate = true;
+						getShell().getDisplay().syncExec(() -> {
 								// Query the current selection since we have
 								// been delayed
 								IContentProposal p = getSelectedProposal();
@@ -939,26 +935,16 @@ public class ContentProposalAdapter {
 										if (infoPopup == null) {
 											infoPopup = new InfoPopupDialog(getShell());
 											infoPopup.open();
-											infoPopup.getShell().addDisposeListener(new DisposeListener() {
-												@Override
-												public void widgetDisposed(DisposeEvent event) {
-													infoPopup = null;
-												}
-											});
+											infoPopup.getShell().addDisposeListener(e -> infoPopup = null);
 										}
 										infoPopup.setContents(p.getDescription());
 									} else if (infoPopup != null) {
 										infoPopup.close();
 									}
 									pendingDescriptionUpdate = false;
-
 								}
-							}
-						});
-					}
-				};
-				Thread t = new Thread(runnable);
-				t.start();
+							});
+				}, POPUP_DELAY, MILLISECONDS);
 			}
 		}
 
@@ -1932,8 +1918,7 @@ public class ContentProposalAdapter {
 					});
 				}
 			};
-			Thread t = new Thread(runnable);
-			t.start();
+			Async.execute(runnable);
 		} else {
 			// Since we do not sleep, we must open the popup
 			// in an async exec. This is necessary because
