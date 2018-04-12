@@ -32,7 +32,7 @@ import gda.util.BusyFlag;
  * Class to communicate asynchronously with a Serial device FIXME is this temperature device specific or should there be
  * a general class shared by all serial devices ?
  */
-public class AsynchronousReaderWriter implements Runnable {
+public class AsynchronousReaderWriter {
 	private static final Logger logger = LoggerFactory.getLogger(AsynchronousReaderWriter.class);
 
 	private String debugName = "AsynchronousReaderWriter";
@@ -77,7 +77,7 @@ public class AsynchronousReaderWriter implements Runnable {
 		commandEndString = "\r";
 		replyEndString = REPLYOKEND;
 
-		deviceReadThread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+		deviceReadThread = new Thread(this::run, getClass().getName());
 		deviceReadThread.start();
 	}
 
@@ -217,8 +217,7 @@ public class AsynchronousReaderWriter implements Runnable {
 	 * The run method of deviceReadThread loops continuously (until stopThread flag is set to true) getting single
 	 * characters from the real controller and appending them to the reply buffer.
 	 */
-	@Override
-	public void run() {
+	private void run() {
 		// Loop until stopThread is set to true (by disconnect())
 		while (!stopThread) {
 			try {
