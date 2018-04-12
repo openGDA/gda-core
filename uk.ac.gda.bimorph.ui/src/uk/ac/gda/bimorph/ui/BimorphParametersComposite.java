@@ -161,11 +161,30 @@ public final class BimorphParametersComposite extends Composite {
 		if(btnGroupElectrodesTogether.getValue())
 			grouped = "True";
 
-		String command = "slitscanner.run(globals(),\"" + mirror + "\"," + increment + ",\"" + slitToScanSize + "\",\""
-		+ slitToScanPos + "\"," + slitSizeValue + ",\"" + otherSlitSizeScannableName + "\",\""
-		+ otherSlitPosScannableName + "\"," + slitStartValue + "," + slitEndValue + "," + slitStepValue
-		+ ",\"" + detector + "\"," + exposure + "," + settleTimeValue + "," + otherSlitSizeValue + "," + otherSlitPosValue + ","
-		+ autoOptimise + "," + grouped + ",\"" + groups_string + "\")";
+		String command = String.format(
+				"slitscanner.run("
+				+ "namespace=globals(), "
+				+ "mirrorName='%s', "
+				+ "increment=%s, "
+				+ "slitToScanSizeName='%s', "
+				+ "slitToScanPosName='%s', "
+				+ "slitSize=%s, "
+				+ "otherSlitSizeName='%s', "
+				+ "otherSlitPosName='%s', "
+				+ "slitStart=%s, "
+				+ "slitEnd=%s, "
+				+ "slitStep=%s, "
+				+ "detectorName='%s', "
+				+ "exposure=%s, "
+				+ "settleTime=%s, "
+				+ "otherSlitSizeValue=%s, "
+				+ "otherSlitPosValue=%s, "
+				+ "doOptimization=%s, "
+				+ "grouped=%s, "
+				+ "groups_string='%s')",
+				mirror, increment, slitToScanSize, slitToScanPos, slitSizeValue, otherSlitSizeScannableName, otherSlitPosScannableName,
+				slitStartValue, slitEndValue, slitStepValue, detector, exposure, settleTimeValue, otherSlitSizeValue, otherSlitPosValue,
+				autoOptimise, grouped, groups_string);
 
 		logger.info("Running bimorph command: {}", command);
 		JythonServerFacade.getInstance().runCommand(command);
@@ -217,9 +236,24 @@ public final class BimorphParametersComposite extends Composite {
 		if (method.getValue().equals("2"))
 			methodVal = 2;
 		
-		String command = "el = ellipse.EllipseCalculator(" + pixel_size + "," + p_1 + "," + q_1 + "," + theta_1 + ","
-				+ p_2 + "," + q_2 + "," + theta_2 + "," + i_sign + "," + detector_distance + "," + slit_start + ","
-				+ slit_end + "," + slit_step + ",\"" + column + "\"," + invVal + "," + methodVal + ")";
+		String command = String.format("el = ellipse.EllipseCalculator("
+				+ "pixel_size=%s, "
+				+ "p_1=%s, "
+				+ "q_1=%s, "
+				+ "theta_1=%s, "
+				+ "p_2=%s, "
+				+ "q_2=%s, "
+				+ "theta_2=%s, "
+				+ "i_sign=%s, "
+				+ "detector_distance=%s, "
+				+ "slit_start=%s, "
+				+ "slit_end=%s, "
+				+ "slit_step=%s, "
+				+ "column='%s', "
+				+ "inv=%s, "
+				+ "method=%s)",
+				pixel_size, p_1, q_1, theta_1, p_2, q_2, theta_2, i_sign, detector_distance, slit_start, slit_end, slit_step,
+				column, invVal, methodVal);
 
 		logger.info("Running calculateErrorFile command: {}", command);
 		JythonServerFacade.getInstance().print(command);
@@ -351,10 +385,27 @@ public final class BimorphParametersComposite extends Composite {
 			selectedDir="None";
 		
 		String slitToScanPos = slitPosScannable.getValue().toString();
-		
-		String command = "bimorph.runOptimisation(" + bimorphScannable + "," + "\"" + mirror_type + "\"" + ","
-				+ String.valueOf(noOfElectrodes) + "," + voltageInc + "," + files + "," + error_file + ","
-				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + ",'" + slitToScanPos + "')";
+		String command = String.format(
+				"bimorph.runOptimisation("
+				+ "bimorphScannable=%s, "
+				+ "mirror_type='%s', "
+				+ "numberOfElectrodes=%d, "
+				+ "voltageIncrement=%s, "
+				+ "files=%s, "
+				+ "error_file=%s, "
+				+ "desiredFocSize=%s, "
+				+ "user_offset='%s', "
+				+ "bm_voltages=%s, "
+				+ "beamOffset=%s, "
+				+ "autoDist=%s, "
+				+ "scalingFactor=%s, "
+				+ "scanDir='%s', "
+				+ "minSlitPos=%s, "
+				+ "maxSlitPos=%s, "
+				+ "slitPosScannableName='%s')",
+				bimorphScannable, mirror_type, noOfElectrodes, voltageInc, files, error_file, desiredFocSize, user_offset,
+				bm_voltages, beamOffsetValue, autoDist, scalingFactor, selectedDir, minSlitPos.getValue(), maxSlitPos.getValue(),
+				slitToScanPos);
 
 		logger.info("Running optimise script command: {}", command);
 		JythonServerFacade.getInstance().runCommand(command);
