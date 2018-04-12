@@ -49,19 +49,30 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 		setSubmitQueueName(submitQueue);
 	}
 
-	private MessageProducer producer = null;
+	private MessageProducer queueMessageProducer = null;
+	private MessageProducer topicMessageProducer = null;
 
-	private MessageProducer getMessageProducer() throws JMSException {
-		if (producer == null) {
+	private MessageProducer getQueueMessageProducer() throws JMSException {
+		if (queueMessageProducer == null) {
 			final Queue queue = createQueue(getSubmitQueueName());
 
-			producer = getQueueSession().createProducer(queue);
-			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-			producer.setPriority(priority);
-			producer.setTimeToLive(lifeTime);
+			queueMessageProducer = getSession().createProducer(queue);
+			queueMessageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
+			queueMessageProducer.setPriority(priority);
+			queueMessageProducer.setTimeToLive(lifeTime);
 		}
 
-		return producer;
+		return queueMessageProducer;
+	}
+
+	private MessageProducer getTopicMessageProducer() throws JMSException {
+		if (topicMessageProducer == null) {
+			final Session session = getSession();
+			final Topic topic = session.createTopic(getStatusTopicName());
+			topicMessageProducer = session.createProducer(topic);
+		}
+
+		return topicMessageProducer;
 	}
 
 	@Override
@@ -80,11 +91,11 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 				throw new EventException("Unable to marshall bean "+bean, e);
 			}
 
-			TextMessage message = getQueueSession().createTextMessage(json);
+			TextMessage message = getSession().createTextMessage(json);
 
 			message.setJMSMessageID(bean.getUniqueId());
 			message.setJMSExpiration(getLifeTime());
-			getMessageProducer().send(message);
+			getQueueMessageProducer().send(message);
 
 			// Deals with paused consumers by publishing something directly after submission.
 			// If there is a topic we tell everyone that we sent something to it in case the consumer is paused.
@@ -100,26 +111,29 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void disconnect() throws EventException{
-		if (producer != null) {
+		if (queueMessageProducer != null) {
 			try {
-				producer.close();
+				queueMessageProducer.close();
 			} catch (JMSException e) {
 				logger.error("Could not close messsage producer for queue " + getSubmitQueueName(), e);
 			}
 		}
+
 		super.disconnect();
 	}
 
+	/**
+	 * Publishes the given message to the status topic.
+	 * @param json
+	 */
 	private void publishToStatusTopic(String json) {
 		try {
-			final Session session = getQueueSession();
-			TextMessage msg = session.createTextMessage(json);
-			Topic topic = session.createTopic(getStatusTopicName());
-			MessageProducer prod = session.createProducer(topic);
-			prod.send(msg);
-			prod.close();
-		} catch (Exception ne) {
-			logger.error("Problem publishing to " + getStatusTopicName());
+			final Session session = getSession();
+			final MessageProducer producer = getTopicMessageProducer();
+			final TextMessage msg = session.createTextMessage(json);
+			producer.send(msg);
+		} catch (JMSException e) {
+			logger.error("Problem publishing to " + getStatusTopicName(), e);
 		}
 	}
 

@@ -45,6 +45,7 @@ abstract class AbstractConnection implements IURIConnection {
 	protected IEventConnectorService service;
 
 	protected QueueConnection connection;
+	protected Session session;
 	protected QueueSession queueSession;
 	private boolean connected = true;
 
@@ -76,6 +77,16 @@ abstract class AbstractConnection implements IURIConnection {
 		connection.start();
 	}
 
+	private void createSession() throws JMSException {
+		if (connection == null) createConnection();
+		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	}
+
+	protected Session getSession() throws JMSException {
+		if (session == null) createSession();
+		return session;
+	}
+
 	private void createQueueSession() throws JMSException {
 		if (connection == null) createConnection();
 		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -102,11 +113,13 @@ abstract class AbstractConnection implements IURIConnection {
 	public void disconnect() throws EventException {
 		try {
 			if (connection!=null) connection.close();
+			if (session != null) session.close();
 			if (queueSession!=null) queueSession.close();
 		} catch (JMSException ne) {
 			logger.error("Internal error - unable to close connection!", ne);
 		} finally {
 			connection = null;
+			session = null;
 			queueSession = null;
 		}
 		setConnected(false);

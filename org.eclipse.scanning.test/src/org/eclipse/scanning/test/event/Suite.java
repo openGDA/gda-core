@@ -19,6 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	SerializationTest.class,
 	ScanEventTest.class,
 	ConsumerTest.class,
+	SubmitterTest.class,
 	PauseTest.class,
 	MappingScanTest.class,
 	AnyBeanEventTest.class,

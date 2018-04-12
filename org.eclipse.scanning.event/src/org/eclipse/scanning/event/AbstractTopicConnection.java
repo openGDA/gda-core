@@ -21,23 +21,15 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 
 import javax.jms.JMSException;
-import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.core.ITopicConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract superclass for objects that publish or subscribe to a topic.
  */
 public abstract class AbstractTopicConnection extends AbstractConnection implements ITopicConnection {
-
-	private static final Logger logger = LoggerFactory.getLogger(AbstractTopicConnection.class);
-
-	protected Session session;
 
 	AbstractTopicConnection(URI uri, String topic, IEventConnectorService service) {
 		super(uri, topic, service);
@@ -55,27 +47,8 @@ public abstract class AbstractTopicConnection extends AbstractConnection impleme
 	 * @throws JMSException
 	 */
 	protected Topic createTopic(String topicName) throws JMSException {
-		if (connection==null) createConnection();
-		if (session == null)  createSession();
-		return session.createTopic(topicName);
+		return getSession().createTopic(topicName);
 	}
 
-	protected void createSession() throws JMSException {
-		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-	}
-
-	@Override
-	public void disconnect() throws EventException {
-		super.disconnect();
-
-		if (session != null) {
-			try {
-				session.close();
-			} catch (JMSException e) {
-				logger.error("Could not close session", e);
-			}
-			session = null;
-		}
-	}
 
 }
