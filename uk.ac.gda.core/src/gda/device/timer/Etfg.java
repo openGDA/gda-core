@@ -93,9 +93,9 @@ public class Etfg extends Tfg {
 			setStartMethod(startMethod);
 			break;
 		default:
+			super.setAttribute(attributeName, value);
 			break;
 		}
-		super.setAttribute(attributeName, value);
 	}
 
 	public void setDriveAndInversion(int drv, int inv) throws DeviceException {
