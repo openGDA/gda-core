@@ -18,6 +18,8 @@
 
 package uk.ac.gda.bimorph.ui;
 
+import static org.eclipse.jface.dialogs.MessageDialog.openError;
+
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldComposite;
@@ -35,11 +37,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 public final class BimorphParametersComposite extends Composite {
+	private static final Logger logger = LoggerFactory.getLogger(BimorphParametersComposite.class);
 	private FieldComposite slitSizeScannable;
 	private FieldComposite slitPosScannable;
 	private FieldComposite otherSlitSizeScannable;
@@ -161,7 +166,8 @@ public final class BimorphParametersComposite extends Composite {
 		+ otherSlitPosScannableName + "\"," + slitStartValue + "," + slitEndValue + "," + slitStepValue
 		+ ",\"" + detector + "\"," + exposure + "," + settleTimeValue + "," + otherSlitSizeValue + "," + otherSlitPosValue + ","
 		+ autoOptimise + "," + grouped + ",\"" + groups_string + "\")";
-		
+
+		logger.info("Running bimorph command: {}", command);
 		JythonServerFacade.getInstance().runCommand(command);
 
 		String elec = JythonServerFacade.getInstance().evaluateCommand(mirror + ".numOfChans");
@@ -215,18 +221,21 @@ public final class BimorphParametersComposite extends Composite {
 				+ p_2 + "," + q_2 + "," + theta_2 + "," + i_sign + "," + detector_distance + "," + slit_start + ","
 				+ slit_end + "," + slit_step + ",\"" + column + "\"," + invVal + "," + methodVal + ")";
 
+		logger.info("Running calculateErrorFile command: {}", command);
 		JythonServerFacade.getInstance().print(command);
 		JythonServerFacade.getInstance().runCommand("import ellipse");
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Thread interrupted while waiting for ellipse import");
+			Thread.currentThread().interrupt();
 		}
 		JythonServerFacade.getInstance().runCommand(command);
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Thread interrupted while waiting for ellipse initialisation");
+			Thread.currentThread().interrupt();
 		}
 		JythonServerFacade.getInstance().runCommand("el.calcSlopes()");
 	}
@@ -250,30 +259,51 @@ public final class BimorphParametersComposite extends Composite {
 		
 		boolean autoDistVal = btnAutoDist.getValue();
 
-		if(voltageInc.equals(""))
-			System.out.println("Please enter a correct voltage increment");
-		if(error_file.equals(""))
-			System.out.println("Please enter a correct error file");
-		if(bm_voltages.equals(""))
-			System.out.println("Please enter correct voltages");
-		if(beamOffsetValue.equals(""))
-			System.out.println("Please enter a correct beam offset");
-		if(bimorphScannable.equals(""))
-			System.out.println("Please enter a correct bimorph scannable");
-		if(desiredFocSize.equals(""))
-			System.out.println("Please enter a correct desired focus size");
-		if(mirror.equals(""))
-			System.out.println("Please enter a correct mirror");
-		if(files.equals(""))
-			System.out.println("Please enter correct scan numbers");
-		if(presentDetDistVal==0)
-			System.out.println("Please enter a correct present detector distance");
-		if(slitScanDetDistVal==0)
-			System.out.println("Please enter a correct slit scan detector distance");
-		if(minSlitPos.getValue().toString().equals(""))
-			System.out.println("Please enter a correct min slit pos val");
-		if(maxSlitPos.getValue().toString().equals(""))
-			System.out.println("Please enter a correct max slit pos val");
+		if (voltageInc.equals("")) {
+			logger.error("VoltageInt is empty");
+			openError(null, "Missing Voltage Increment", "Please enter a correct voltage increment");
+			return;
+		} else if (error_file.equals("")) {
+			logger.error("Error file is empty");
+			openError(null, "Missing Error File", "Please enter a valid error file");
+			return;
+		} else if (bm_voltages.equals("")) {
+			logger.error("Current voltages is empty");
+			openError(null, "Missing Voltages", "Please enter correct voltages");
+			return;
+		} else if (beamOffsetValue.equals("")) {
+			logger.error("Beam offset is empty");
+			openError(null, "Missing Beam Offset", "Please enter a valid beam offset");
+			return;
+		} else if (bimorphScannable.equals("")) {
+			logger.error("Scannable name is empty");
+			openError(null, "Missing Bimorph Scannable", "Please enter a valid bimorph scannable name");
+			return;
+		} else if (desiredFocSize.equals("")) {
+			logger.error("Desired focus size is empty");
+			openError(null, "Missing Focus Size", "Please enter a correct desired focus size");
+			return;
+		} else if (files.equals("")) {
+			logger.error("Files list is empty");
+			openError(null, "Missing Scan Numbers", "Please enter correct scan numbers");
+			return;
+		} else if (presentDetDistVal==0) {
+			logger.error("Present detector distance is empty");
+			openError(null, "Missing Current Detector Distance", "Please enter a correct present detector distance");
+			return;
+		} else if (slitScanDetDistVal==0) {
+			logger.error("Slit scan detector distance is empty");
+			openError(null, "Missing Slit Scan Detector Distance", "Please enter a correct slit scan detector distance");
+			return;
+		} else if (minSlitPos.getValue().toString().equals("")) {
+			logger.error("Minimum slit position is empty");
+			openError(null, "Missing Minimum Slit Position", "Please enter a correct min slit pos val");
+			return;
+		} else if (maxSlitPos.getValue().toString().equals("")) {
+			logger.error("Maximum slit position is empty");
+			openError(null, "Missing Maximum Slit Position", "Please enter a correct max slit pos val");
+			return;
+		}
 		
 		String autoDist = "False";
 		if(autoDistVal)
@@ -309,7 +339,9 @@ public final class BimorphParametersComposite extends Composite {
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Thread interrupted while waiting for error file calculation", e);
+				Thread.currentThread().interrupt();
+				return;
 			}
 			errorFile.setValue(determineCurrentScanFileNumber());
 			error_file = errorFile.getValue().toString();
@@ -324,6 +356,7 @@ public final class BimorphParametersComposite extends Composite {
 				+ String.valueOf(noOfElectrodes) + "," + voltageInc + "," + files + "," + error_file + ","
 				+ desiredFocSize + "," + "\"" + user_offset + "\"" + "," + bm_voltages + "," + beamOffsetValue + "," + autoDist + "," + scalingFactor  +  ",'" + selectedDir + "'," + minSlitPos.getValue().toString() + "," +  maxSlitPos.getValue().toString() + ",'" + slitToScanPos + "')";
 
+		logger.info("Running optimise script command: {}", command);
 		JythonServerFacade.getInstance().runCommand(command);
 	}
 
@@ -534,7 +567,11 @@ public final class BimorphParametersComposite extends Composite {
 		btnRunSlitScan.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				runSlitScanScript();
+				try {
+					runSlitScanScript();
+				} catch (Exception ex) {
+					logger.error("Error running slit scan script", ex);
+				}
 			}
 		});
 		btnRunSlitScan.setText("   Run Slit Scan   ");
@@ -815,7 +852,11 @@ public final class BimorphParametersComposite extends Composite {
 		btnRunOptimisation.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				runOptimiseScript();
+				try {
+					runOptimiseScript();
+				} catch (Exception ex) {
+					logger.error("Error running optimisation script", ex);
+				}
 			}
 		});
 	}

@@ -20,6 +20,10 @@ from gda.scan import ConcurrentScan
 from gda.epics import CAClient
 from gdascripts.scannable.installStandardScannableMetadataCollection import meta
 
+import logging
+
+logger = logging.getLogger('bimorph.mirror_optimising')
+
 class TopupCountdown(ScannableMotionBase):
 
     def __init__(self, name):
@@ -84,6 +88,7 @@ def_mon.asynchronousMoveTo(1)
 defScanAborter = ScanAborter("scanAborter",def_mon, 0.2)
 
 def generatePositions(initialPos, increment):
+    logger.debug('Generating positions for initial position: %s, and increment: %d', initialPos, increment)
     #    initialPos=[0,0,0,0,0,0,0,0]
     #    increment=5
     positions=[]
@@ -98,6 +103,8 @@ def generatePositions(initialPos, increment):
     return positions
 
 def generateGroupedPositions(initialPos, increment, groups_string):
+    logger.debug('Generating positions for initial position: %s, increment: %d, and groups: %s',
+                 initialPos, increment, groups_string)
     
     #initialPos=[0]*16
     #increment=50
