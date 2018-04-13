@@ -59,7 +59,7 @@ import gda.jython.JythonStatus;
 import gda.scan.Scan.ScanStatus;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
-import uk.ac.gda.util.ThreadManager;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Base class for objects using the Scan interface.
@@ -600,15 +600,11 @@ public abstract class ScanBase implements NestableScan {
 					logger.info("running gda.scan.executeAtEnd {}", command);
 
 					final String[] commands = command.split(" ");
-					Thread commandThread = ThreadManager.getThread(new Runnable() {
-						@Override
-						public void run() {
-							logger.debug("Running command (scan end) - \'" + command + "\'.");
+					Async.execute(() -> {
+							logger.debug("Running command (scan end) - '{}'", command);
 							OSCommandRunner os = new OSCommandRunner(commands, true, null, null);
 							os.logOutput();
-						}
-					}, command);
-					commandThread.start();
+						});
 				}
 			}
 		} catch( DeviceException th){
