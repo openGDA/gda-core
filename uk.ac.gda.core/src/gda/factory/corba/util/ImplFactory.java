@@ -82,12 +82,8 @@ public abstract class ImplFactory {
 		//TODO All errors should lead to throwing a FactoryException - check error then lead to system exit
 		org.omg.PortableServer.Servant servant;
 
-		Runtime.getRuntime().addShutdownHook(uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-				shutdown();
-			}
-		}, getNamespace() + " ImplFactory shutdown"));
+		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown,
+				getNamespace() + " ImplFactory shutdown"));
 
 		List<Findable> findables = getFindablesToMakeAvailable();
 		for (Findable findable : findables) {
