@@ -18,6 +18,9 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import static gda.device.enumpositioner.ValvePosition.OPEN;
+import static gda.device.enumpositioner.ValvePosition.RESET;
+
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -26,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
-import gda.device.enumpositioner.ValveBase;
 import gda.device.scannable.ScannableBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;
@@ -69,7 +71,7 @@ public class ShutterChecker extends ScannableBase {
 		String position = (String) shutter.getPosition();
 		boolean first = true;
 		try {
-			while (!position.equals(ValveBase.OPEN)) {
+			while (!position.equals(OPEN)) {
 				if (first) {
 					updateUser("Experimental shutter closed during the scan. Waiting for it to be re-opened...");
 					first = false;
@@ -95,7 +97,7 @@ public class ShutterChecker extends ScannableBase {
 	private void checkShutterIsOpen() throws DeviceException {
 		// check if shutter open
 		String position = (String) shutter.getPosition();
-		if (!position.equals(ValveBase.OPEN)) {
+		if (!position.equals(OPEN)) {
 			logger.debug(getName() + " has position: " + position + " at start of scan, so will open shutter once PSS OK.");
 			try {
 				// if closed, is PSS OK to open it?
@@ -119,12 +121,12 @@ public class ShutterChecker extends ScannableBase {
 					updateUser("Search complete; opening shutter " + shutter.getName() + "...");
 				else
 					updateUser("Opening shutter " + shutter.getName() + "...");
-				shutter.moveTo(ValveBase.RESET);
+				shutter.moveTo(RESET);
 				Thread.sleep(100);
-				shutter.moveTo(ValveBase.OPEN);
+				shutter.moveTo(OPEN);
 				Thread.sleep(100);
 				position = (String) shutter.getPosition();
-				if (!position.equals(ValveBase.OPEN)) {
+				if (!position.equals(OPEN)) {
 					throw new DeviceException(
 							getName()
 									+ " failed to successfully open shutter "
