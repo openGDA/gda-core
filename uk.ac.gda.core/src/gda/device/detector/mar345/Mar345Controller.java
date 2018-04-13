@@ -131,7 +131,7 @@ public class Mar345Controller extends Observable implements Runnable {
 		statusReader = new Mar345StatusReader(statusFileName);
 
 		// Set up a status monitor on a separate thread
-		statusMonitor = uk.ac.gda.util.ThreadManager.getThread(this);
+		statusMonitor = new Thread(this, "Mar345Controller");
 		statusMonitor.start();
 
 		// Open command file
