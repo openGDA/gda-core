@@ -1765,7 +1765,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 			DBR dbr = mev.getDBR();
 			if (dbr != null && dbr.isENUM()) {
 				readingDone = ((DBR_Enum) dbr).getEnumValue()[0] == 0;
-				notifyIObservers(EpicsMcaController.this, (acquisitionDone & readingDone) ? MCAStatus.READY
+				notifyIObservers(EpicsMcaController.this, (acquisitionDone && readingDone) ? MCAStatus.READY
 						: MCAStatus.BUSY);
 			}
 		}

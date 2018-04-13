@@ -101,7 +101,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 		if (!isConfigured()) {
 			// Original implementation of EPICS interface
-			if ((getEpicsRecordNameSetPoint() != null) & (getEpicsRecordNameGetPoint() != null)) {
+			if ((getEpicsRecordNameSetPoint() != null) && (getEpicsRecordNameGetPoint() != null)) {
 
 				if (getEpicsRecordNameSetPoint().equals(getEpicsRecordNameGetPoint())) {
 					logger.warn("The EPICS record name set/set points may not be the same");
@@ -157,7 +157,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				}
 			}
 			// Two different deviceNames are used for get and set point respectively
-			else if ((getDeviceNameSetPoint() != null) & (getDeviceNameGetPoint() != null)) {
+			else if ((getDeviceNameSetPoint() != null) && (getDeviceNameGetPoint() != null)) {
 
 				if (getDeviceNameSetPoint().equals(getDeviceNameGetPoint())) {
 					logger.warn("The device name set point and device name get point may not be the same");
@@ -199,7 +199,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				} catch (CAException e) {
 					throw new FactoryException("failed to create Channel for Control Point Set", e);
 				}
-			} else if ((getPvNameSetPoint() != null) & (getPvNameGetPoint() != null)) {
+			} else if ((getPvNameSetPoint() != null) && (getPvNameGetPoint() != null)) {
 
 				if (getPvNameSetPoint().equals(getPvNameGetPoint())) {
 					logger.warn("The PV name set point and PV name get point may not be the same");

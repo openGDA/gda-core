@@ -19,6 +19,10 @@
 
 package gda.device.detector.xmap;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -28,10 +32,6 @@ import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents a Tfg and XMap combination. Since the Tfg will generally also be part of a TfgScaler combination there is
@@ -156,7 +156,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	@Override
 	public void start() throws DeviceException {
 		xmap.start();
-		if (!slave & timer != null) {
+		if (!slave && timer != null) {
 			timer.start();
 		}
 	}

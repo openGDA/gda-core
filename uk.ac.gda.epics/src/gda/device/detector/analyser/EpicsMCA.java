@@ -808,7 +808,7 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			DBR dbr = mev.getDBR();
 			if (dbr != null && dbr.isENUM()) {
 				readingDone = ((DBR_Enum) dbr).getEnumValue()[0] == 0;
-				notifyIObservers(EpicsMCA.this, (acquisitionDone & readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
+				notifyIObservers(EpicsMCA.this, (acquisitionDone && readingDone) ? MCAStatus.READY : MCAStatus.BUSY);
 			}
 		}
 	}

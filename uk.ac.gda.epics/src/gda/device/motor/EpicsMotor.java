@@ -823,7 +823,7 @@ public class EpicsMotor extends MotorBase implements Motor, InitializationListen
 		if (getStatus() == MotorStatus.FAULT)
 			throw new MotorException(getStatus(),
 					"moveTo aborted because EPICS Motor is at Fault status. Please check EPICS Screen.");
-		if (isAssertHomedBeforeMoving() & !isHomed()) {
+		if (isAssertHomedBeforeMoving() && !isHomed()) {
 			throw new MotorException(getStatus(),
 					"moveTo aborted because EPICS Motor is not homed (and assertHomedBeforeMoving is set)");
 		}
