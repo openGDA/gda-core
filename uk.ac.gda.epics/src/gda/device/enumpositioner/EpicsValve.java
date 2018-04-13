@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import static gda.device.enumpositioner.ValvePosition.CLOSE;
+import static gda.device.enumpositioner.ValvePosition.OPEN;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +44,7 @@ import gov.aps.jca.event.MonitorListener;
  * <P>
  * The stop method in this class does nothing as the valves operate too fast for such a method to be meaningful.
  */
-public class EpicsValve extends ValveBase implements EnumPositioner, MonitorListener, Scannable {
+public class EpicsValve extends EnumPositionerBase implements EnumPositioner, MonitorListener, Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsValve.class);
 
