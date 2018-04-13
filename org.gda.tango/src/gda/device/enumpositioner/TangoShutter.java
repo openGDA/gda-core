@@ -18,6 +18,9 @@
 
 package gda.device.enumpositioner;
 
+import static gda.device.enumpositioner.ValvePosition.CLOSE;
+import static gda.device.enumpositioner.ValvePosition.OPEN;
+
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -31,7 +34,7 @@ import gda.device.EnumPositionerStatus;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
 
-public class TangoShutter extends ValveBase implements EnumPositioner {
+public class TangoShutter extends EnumPositionerBase implements EnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoShutter.class);
 	private TangoDeviceProxy dev;
