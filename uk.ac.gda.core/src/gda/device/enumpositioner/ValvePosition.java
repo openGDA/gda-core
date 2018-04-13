@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,19 +18,15 @@
 
 package gda.device.enumpositioner;
 
-
 /**
- * Base class for positioners who which to act like valves i.e. just open and close positions.
+ * Commands for positioners that act like valves
  */
-public abstract class ValveBase extends EnumPositionerBase {
-
-	/** Open position */
+public class ValvePosition {
 	public static final String OPEN = "Open";
-
-	/** Close position */
 	public static final String CLOSE = "Close";
-
-	/** Reset position */
 	public static final String RESET = "Reset";
 
+	private ValvePosition() {
+		// Prevent instantiation
+	}
 }

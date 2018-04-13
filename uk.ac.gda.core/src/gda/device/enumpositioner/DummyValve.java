@@ -19,6 +19,9 @@
 
 package gda.device.enumpositioner;
 
+import static gda.device.enumpositioner.ValvePosition.CLOSE;
+import static gda.device.enumpositioner.ValvePosition.OPEN;
+
 import java.util.Arrays;
 
 import gda.device.DeviceException;
@@ -30,7 +33,7 @@ import gda.factory.FactoryException;
  * A dummy class for valves. If positions is not set then it has two possible positions: Open and Close.
  * Provide a list of positions to make it a general dummy positioner
  */
-public class DummyValve extends ValveBase {
+public class DummyValve extends EnumPositionerBase {
 
 	private String currentPosition;
 
