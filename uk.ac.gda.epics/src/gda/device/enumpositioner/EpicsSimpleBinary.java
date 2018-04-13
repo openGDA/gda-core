@@ -45,8 +45,8 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.PutEvent;
 
 /**
- * Similar to EpicsValve, except looks at a single pv which can only have positions 0 or 1, and uses the values "Out"
- * and "In" externally for those positions.
+ * Similar to EpicsValve, except looks at a single pv which can only have positions 0 or 1.<br>
+ * The external names of these positions are names are read from Epics, but can be overwritten (though this is not encouraged)
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
@@ -166,15 +166,22 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 	}
 
 	/**
-	 * The defaults are { "Out", "In" }. Use this method to override.
+	 * Override the Epics values for the external names of the positions (deprecated).
 	 *
-	 * @param newPositions
+	 * @param newPositions External names to set
 	 */
+	@Deprecated
 	@Override
 	public void setPositions(String[] newPositions) {
 		setPositions(Arrays.asList(newPositions));
 	}
 
+	/**
+	 * Override the Epics values for the external names of the positions (deprecated).
+	 *
+	 * @param positions External names to set
+	 */
+	@Deprecated
 	@Override
 	public void setPositions(Collection<String> positions) {
 		logger.warn("Overwriting position values read from Epics is deprecated");
