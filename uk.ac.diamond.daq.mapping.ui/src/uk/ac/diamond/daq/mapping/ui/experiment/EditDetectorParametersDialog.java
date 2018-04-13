@@ -296,7 +296,7 @@ public class EditDetectorParametersDialog extends Dialog {
 
 						final ILoaderService loaderService = context.get(ILoaderService.class);
 						final String datasetPath = MappingExperimentUtils.getDatasetPath(detectorModel.getModel().getName());
-						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor));
+						dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
 
 						if (dataset == null) {
 							throw new IllegalArgumentException(MessageFormat.format("No path {0} found in file {1}", datasetPath, filePath));
