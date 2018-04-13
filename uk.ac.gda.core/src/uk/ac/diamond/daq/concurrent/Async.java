@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -233,7 +234,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit) {
+	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit) {
 		return scheduleAtFixedRate(target, delay, period, unit, Thread.currentThread().getName());
 	}
 
@@ -258,7 +259,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
+	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
 		Objects.requireNonNull(target, "Runnable must not be null");
 		return SCHEDULER.scheduleAtFixedRate(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
 	}
@@ -280,7 +281,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit) {
+	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit) {
 		return scheduleWithFixedDelay(target, delay, period, unit, Thread.currentThread().getName());
 	}
 
@@ -306,7 +307,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
+	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
 		Objects.requireNonNull(target, "Runnable must not be null");
 		return SCHEDULER.scheduleWithFixedDelay(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
 	}
@@ -325,7 +326,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#schedule(Runnable, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> schedule(Runnable target, long delay, TimeUnit unit) {
+	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit) {
 		return schedule(target, delay, unit, Thread.currentThread().getName());
 	}
 
@@ -348,7 +349,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#schedule(Runnable, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static Future<?> schedule(Runnable target, long delay, TimeUnit unit, String nameFormat, Object... args) {
+	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit, String nameFormat, Object... args) {
 		Objects.requireNonNull(target, "Runnable must not be null");
 		return SCHEDULER.schedule(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, unit);
 	}
@@ -367,7 +368,7 @@ public final class Async {
 	 * @see Future
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
-	public static <T> Future<T> schedule(Callable<T> target, long delay, TimeUnit unit) {
+	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit) {
 		return schedule(target, delay, unit, Thread.currentThread().getName());
 	}
 
@@ -390,7 +391,7 @@ public final class Async {
 	 * @see Future
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
-	public static <T> Future<T> schedule(Callable<T> target, long delay, TimeUnit unit, String nameFormat, Object... args) {
+	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit, String nameFormat, Object... args) {
 		Objects.requireNonNull(target, "Callable must not be null");
 		return SCHEDULER.schedule(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target), delay, unit);
 	}
