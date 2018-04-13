@@ -318,7 +318,14 @@ public class FocusScanResultPage extends WizardPage {
 
 	private void handleMapEvent(MappedDataFile mappedDataFile) {
 		if (mappedDataFile == null) return;
+
 		if (future != null) return; // update job already running
+
+		//might have been loaded lazily, we need the data so force non-lazy load if empty file
+		if (mappedDataFile.getChildren().length == 0) {
+			mapFileController.loadLiveFile(mappedDataFile.getPath(), mappedDataFile.getLiveDataBean(), null, false);
+			return;
+		}
 
 		// clear any previously plotted data
 		plottingSystem.clear();
