@@ -23,20 +23,6 @@ http://www.eclipse.org/legal/epl-v10.html
    </license>
 
    <plugin
-         id="com.springsource.org.apache.mina.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.org.apache.sshd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.sun.mail.javax.mail"
          download-size="0"
          install-size="0"
