@@ -56,7 +56,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import gda.rcp.GDAClientActivator;
 import uk.ac.gda.common.rcp.util.BundleUtils;
-import uk.ac.gda.jython.PydevConstants;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
@@ -64,6 +63,18 @@ import uk.ac.gda.ui.utils.ProjectUtils;
  * and assign PyDev nature to the script projects.
  */
 public class ScriptProjectCreator {
+
+	private static final String JYTHON_MAJOR_VERSION = "2";
+	private static final String JYTHON_MINOR_VERSION = "7";
+	private static final String JYTHON_VERSION = JYTHON_MAJOR_VERSION + "." + JYTHON_MINOR_VERSION;
+	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
+	private static final String JYTHON_DIR = "jython" + JYTHON_VERSION;
+	private static final String JYTHON_JAR = "jython.jar";
+
+	/**
+	 * Name of the Jython interpreter that will be created within PyDev for the client.
+	 */
+	private static final String INTERPRETER_NAME = "Jython" + JYTHON_MAJOR_VERSION;
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
 	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
@@ -105,9 +116,9 @@ public class ScriptProjectCreator {
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
 
-		final Path interpreterPath = Paths.get(BundleUtils.getBundleLocation("uk.ac.diamond.jython").getAbsolutePath(),
-				"jython2.7");
-		final String executable = interpreterPath.resolve("jython.jar").toString();
+		final Path interpreterPath = Paths.get(BundleUtils.getBundleLocation(JYTHON_BUNDLE).getAbsolutePath(),
+				JYTHON_DIR);
+		final String executable = interpreterPath.resolve(JYTHON_JAR).toString();
 		if (!(new File(executable)).exists())
 			throw new Exception("Jython jar not found  :" + executable);
 
@@ -166,14 +177,14 @@ public class ScriptProjectCreator {
 
 		// java, java.lang, etc should be found now
 		info.restoreCompiledLibs(monitor);
-		info.setName(PydevConstants.INTERPRETER_NAME);
+		info.setName(INTERPRETER_NAME);
 
 		final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
 		HashSet<String> set = new HashSet<String>();
-		set.add(PydevConstants.INTERPRETER_NAME);
+		set.add(INTERPRETER_NAME);
 		man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
 
-		logger.info("Jython interpreter registered: " + PydevConstants.INTERPRETER_NAME);
+		logger.info("Jython interpreter registered: {}", INTERPRETER_NAME);
 	}
 
 
@@ -214,7 +225,7 @@ public class ScriptProjectCreator {
 					try {
 						project.delete(false, true, monitor);
 					} catch (CoreException e) {
-						logger.warn("Error deleting project " + projectName, e);
+						logger.warn("Error deleting project {}", projectName, e);
 					}
 				}
 			}
@@ -267,7 +278,7 @@ public class ScriptProjectCreator {
 				// NOTE Very important to start the name with a '/'
 				// or pydev creates the wrong kind of nature.
 				PythonNature.addNature(project, monitor, IPythonNature.JYTHON_VERSION_2_7,
-						"/" + project.getName() + "/src", null, PydevConstants.INTERPRETER_NAME, null);
+						"/" + project.getName() + "/src", null, INTERPRETER_NAME, null);
 			}
 		} else {
 			if (hasPythonNature) {
@@ -328,8 +339,7 @@ public class ScriptProjectCreator {
 			// Might never return...
 			try {
 				//Attempts to get interpreter info for a Jython interpreter called INTERPRETER_NAME (doesn't actually check version)
-				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(PydevConstants.INTERPRETER_NAME,
-						monitor);
+				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(INTERPRETER_NAME, monitor);
 			} catch (MisconfigurationException e) {
 				logger.error("Jython is not configured properly", e);
 			}
