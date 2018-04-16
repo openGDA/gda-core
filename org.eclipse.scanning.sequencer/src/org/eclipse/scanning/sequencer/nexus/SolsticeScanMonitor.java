@@ -23,6 +23,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_SOLSTICE_SCAN;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR;
 
@@ -38,6 +39,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,6 +62,7 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -103,7 +106,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 	private ILazyWriteableDataset scanDeadTimePercentDataset = null;
 
 	// State
-	private boolean malcolmScan = false;
+	private boolean writeGlobalUniqueKeys = true;
 	private final ScanModel model;
 	private Instant scanStartTime = null;
 	private int[] scanShape = null;
@@ -121,22 +124,32 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 			.flatMap(e -> e.getValue().stream())  // concatenate value lists into a single stream
 			.collect(Collectors.toList());  // collect in a list
 
-		this.nexusObjectProviders = nexusObjectProviderList;
-
 		final List<NexusObjectProvider<?>> detectors = nexusObjectProviderMap.get(ScanRole.DETECTOR);
 		// we can write the unique key for each position on move if all detectors write their own unique key
 		// TODO what about monitors?
 		if (detectors != null) {
 			writeAfterMovePerformed = detectors.stream().allMatch(n -> n.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH) != null);
 		}
+
+		setNexusObjectProviders(nexusObjectProviderList);
 	}
 
 	public void setNexusObjectProviders(List<NexusObjectProvider<?>> nexusObjectProviders) {
 		this.nexusObjectProviders = nexusObjectProviders;
+		writeGlobalUniqueKeys = shouldWriteGlobalUniqueKeys();
 	}
 
-	public void setMalcolmScan(boolean malcolmScan) {
-		this.malcolmScan = malcolmScan;
+	public void setWriteGlobalUniqueKeys(boolean writeGlobalUniqueKeys) {
+		this.writeGlobalUniqueKeys = writeGlobalUniqueKeys;
+	}
+
+	private boolean shouldWriteGlobalUniqueKeys() {
+		// the global unique keys dataset is used to determine whether processing can be performed for each point in the scan
+		// we don't write it if a device performs an inner scan (i.e. a malcolm device) or performs multiple exposures
+		// within each position that should be processed before the position has been completed
+		return !(model.getDetectors() != null && model.getDetectors().stream().anyMatch(IMalcolmDevice.class::isInstance)
+				|| nexusObjectProviders.stream().map(prov -> prov.getPropertyValue(PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS))
+						.filter(Objects::nonNull).anyMatch(Boolean.TRUE::equals));
 	}
 
 	/* (non-Javadoc)
@@ -213,14 +226,14 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		scanPointsCollection.addGroupNode(GROUP_NAME_KEYS, keysCollection);
 
 		// create the unique keys dataset (not for malcolm scans)
-		if (!malcolmScan) {
+		if (writeGlobalUniqueKeys) {
 			uniqueKeysDataset = keysCollection.initializeLazyDataset(FIELD_NAME_UNIQUE_KEYS, info.getRank(), Integer.class);
 		}
 
 		// set chunking for lazy datasets
 		if (info.getRank() > 0) {
 			final int[] chunk = info.createChunk(false, 8);
-			if (!malcolmScan) {
+			if (writeGlobalUniqueKeys) {
 				uniqueKeysDataset.setFillValue(0);
 				uniqueKeysDataset.setChunking(chunk);
 			}
@@ -386,7 +399,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 	 * @throws Exception
 	 */
 	private Object writePosition(IPosition position) {
-		if (!malcolmScan) {
+		if (writeGlobalUniqueKeys) {
 			IScanSlice rslice = IScanRankService.getScanRankService().createScanSlice(position);
 			SliceND sliceND = new SliceND(uniqueKeysDataset.getShape(), uniqueKeysDataset.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
 			final int uniqueKey = position.getStepIndex() + 1;

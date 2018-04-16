@@ -67,7 +67,7 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IMalcolmEven
 	 *
 	 * @return true if not in locked state, otherwise false.
 	 */
-	public boolean isLocked() throws MalcolmDeviceException ;
+	public boolean isLocked() throws MalcolmDeviceException;
 
 	/**
 	 * Returns the axes that this malcolm device can move.

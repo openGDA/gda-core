@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device.models;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 /**

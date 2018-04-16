@@ -20,6 +20,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -147,8 +148,12 @@ public class SolsticeScanMonitorTest {
 		public static final String EXTERNAL_FILE_NAME = "detector.nxs";
 
 		public ExternalFileWritingDetector() {
-			super("detector", NexusBaseClass.NX_DETECTOR);
-			addExternalFileName(EXTERNAL_FILE_NAME);
+			this("detector", EXTERNAL_FILE_NAME);
+		}
+
+		public ExternalFileWritingDetector(String name, String externalFileName) {
+			super(name, NexusBaseClass.NX_DETECTOR);
+			addExternalFileName(externalFileName);
 			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, MALCOLM_UNIQUE_KEYS_PATH);
 		}
 
@@ -179,16 +184,40 @@ public class SolsticeScanMonitorTest {
 
 	}
 
+	public static class SuppressGlobalUniqueKeysDetector extends ExternalFileWritingDetector {
+
+		private static final String EXTERNAL_FILE_NAME = "suppress.nxs";
+
+		public SuppressGlobalUniqueKeysDetector() {
+			super("suppress", EXTERNAL_FILE_NAME);
+			setPropertyValue(PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS, true);
+		}
+
+	}
+
+
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
 	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
 	@Test
 	public void testCreateNexusObject() throws Exception {
+		testCreateNexusObject(false);
+	}
+
+	@Test
+	public void testSuppressGlobalUniqueKeys() throws Exception {
+		testCreateNexusObject(true);
+	}
+
+	private void testCreateNexusObject(boolean suppressGlobalUniqueKeys) throws Exception {
 		// Arrange
 		List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
 		nexusObjectProviders.add(new ExternalFileWritingDetector());
 		nexusObjectProviders.add(new InternalUniqueKeysWritingDetector());
+		if (suppressGlobalUniqueKeys) {
+			nexusObjectProviders.add(new SuppressGlobalUniqueKeysDetector());
+		}
 		String[] positionerNames = new String[] { "xPos", "yPos" };
 		for (String positionerName : positionerNames) {
 			nexusObjectProviders.add(new ExternalFileWritingPositioner(positionerName));
@@ -284,18 +313,23 @@ public class SolsticeScanMonitorTest {
 		NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
 		assertNotNull(keysCollection);
 
-		DataNode uniqueKeysDataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
-		assertTrue(uniqueKeysDataNode!=null);
-		assertTrue(uniqueKeysDataNode.getDataset()!=null && uniqueKeysDataNode.getDataset() instanceof ILazyWriteableDataset);
-		ILazyWriteableDataset uniqueKeysDataset = (ILazyWriteableDataset) uniqueKeysDataNode.getDataset();
-		assertTrue(uniqueKeysDataset.getRank()==scanRank);
-		assertTrue(((LazyDataset) uniqueKeysDataset).getDType()==Dataset.INT32);
-		assertTrue(Arrays.equals(uniqueKeysDataset.getChunking(), expectedChunking));
-		MockLazySaver uniqueKeysSaver = new MockLazySaver();
-		uniqueKeysDataset.setSaver(uniqueKeysSaver);
+		final DataNode uniqueKeysDataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
+		if (suppressGlobalUniqueKeys) {
+			assertTrue(uniqueKeysDataNode == null);
+		} else {
+			assertTrue(uniqueKeysDataNode != null);
+			assertTrue(uniqueKeysDataNode.getDataset()!=null && uniqueKeysDataNode.getDataset() instanceof ILazyWriteableDataset);
+			ILazyWriteableDataset uniqueKeysDataset = (ILazyWriteableDataset) uniqueKeysDataNode.getDataset();
+			assertTrue(uniqueKeysDataset.getRank()==scanRank);
+			assertTrue(((LazyDataset) uniqueKeysDataset).getDType()==Dataset.INT32);
+			assertTrue(Arrays.equals(uniqueKeysDataset.getChunking(), expectedChunking));
+			MockLazySaver uniqueKeysSaver = new MockLazySaver();
+			uniqueKeysDataset.setSaver(uniqueKeysSaver);
+		}
 
 		// assert links to unique keys for devices that write their own
-		assertEquals(4, keysCollection.getNumberOfNodelinks());
+		final int expectedNumUniqueKeys = (nexusObjectProviders.size() - 1) + (uniqueKeysDataNode == null ? 0 : 1);
+		assertEquals(expectedNumUniqueKeys, keysCollection.getNumberOfNodelinks());
 		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
 			final String deviceName = objectProvider.getName();
 			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
