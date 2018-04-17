@@ -41,7 +41,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 
 	private List<String> positions = new ArrayList<>();
 	private volatile EnumPositionerStatus positionerStatus = EnumPositionerStatus.IDLE;
-	protected String name;
+
 	/**
 	 * sets the OutputFormat
 	 */
