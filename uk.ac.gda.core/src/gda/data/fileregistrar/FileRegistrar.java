@@ -23,9 +23,6 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
@@ -46,6 +43,7 @@ import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.scan.IScanDataPoint;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * <p>
@@ -91,9 +89,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private boolean local = false;
 
 	private boolean configured = false;
-
-	private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, 10, 1, TimeUnit.SECONDS,
-			new LinkedBlockingQueue<Runnable>());
 
 	@Override
 	public void configure() throws FactoryException {
@@ -236,7 +231,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 			files.clear();
 		}
 
-		threadPoolExecutor.submit(() -> {
+		Async.execute(() -> {
 			try {
 				logger.info("icatXMLCreator.registerFiles started: datasetId = {}", scanId);
 				icatXMLCreator.registerFiles(scanId, fileArr);
