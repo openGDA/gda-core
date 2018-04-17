@@ -18,8 +18,11 @@
 
 package gda.rcp.views.dashboard;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
@@ -52,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.GDAClientActivator;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
 public final class DashboardView extends ViewPart {
@@ -93,7 +97,7 @@ public final class DashboardView extends ViewPart {
 
 	private List<ScannableObject> data;
 
-	private Thread updater;
+	private Future<?> updater;
 
 	protected int sleeptime;
 
@@ -244,33 +248,32 @@ public final class DashboardView extends ViewPart {
 
 		updateSleepTime();
 
-		if (updater == null || !updater.isAlive()) {
-			updater = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					while (true) {
-						if (serverViewer.getControl().isDisposed()) {
-							logger.info("Dashboard disposed. Stopping dashboard update thread");
-							break;
-						}
-						refresh();
-						try {
-							Thread.sleep(sleeptime*1000-100);
-						} catch (InterruptedException e) {
-							logger.info("Dashboard update thread interupted. Stopping dashboard update thread", e);
-							break;
-						}
-					}
-				}
-			});
-			updater.start();
+		if (updater == null || updater.isDone()) {
+			resetUpdateProcessing();
 		}
 	}
 
 	private void updateSleepTime() {
 		int delay = GDAClientActivator.getDefault().getPreferenceStore().getInt(FREQUENCY_LABEL);
 		sleeptime = delay == 0 ? 2 : delay;
+		resetUpdateProcessing();
+	}
+
+	/**
+	 * Cancel the currently running update task and restart a new one.
+	 * Lets users change the update/refresh rate,
+	 */
+	private void resetUpdateProcessing() {
+		if (updater != null && !updater.isDone()) {
+			updater.cancel(false);
+		}
+		updater = Async.scheduleAtFixedRate(() -> {
+			if (serverViewer.getControl().isDisposed()) {
+				logger.info("Dashboard disposed. Stopping dashboard update thread");
+				throw new IllegalStateException("Dashboard view has been disposed");
+			}
+			refresh();
+		}, 0, sleeptime, SECONDS);
 	}
 
 	private void createRightClickMenu() {
@@ -415,5 +418,13 @@ public final class DashboardView extends ViewPart {
 	public void setFocus() {
 		if (this.serverViewer != null)
 			serverViewer.getControl().setFocus();
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (updater != null) {
+			updater.cancel(true);
+		}
 	}
 }
