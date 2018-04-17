@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -305,26 +306,19 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	@Override
-	public void start() throws EventException {
+	public synchronized void start() throws EventException {
+		if (isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is already running");
+
 		latchStart = new CountDownLatch(1);
-		final Thread consumerThread = new Thread("Consumer Thread "+getName()) {
-			@Override
-			public void run() {
-				try {
-					ConsumerImpl.this.run();
-				} catch (Exception ne) {
-					LOGGER.trace("Internal error running consumer "+getName(), ne);
-					try {
-						ConsumerImpl.this.stop();
-					} catch (EventException e) {
-						LOGGER.error("Cannot complete stop", ne);
-					}
-				}
-			}
-		};
-		consumerThread.setDaemon(true);
-		consumerThread.setPriority(Thread.NORM_PRIORITY-1);
-		consumerThread.start();
+		final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+			Thread thread = Executors.defaultThreadFactory().newThread(r);
+			thread.setName("Consumer Thread " + getName());
+			thread.setDaemon(true);
+			thread.setPriority(Thread.NORM_PRIORITY - 1);
+			return thread;
+		});
+
+		executor.submit(this::runAndStopIfError);
 	}
 
 	/**
@@ -385,9 +379,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	@Override
-	public void stop() throws EventException {
+	public synchronized void stop() throws EventException {
+		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
+
 		try {
-			heartbeatBroadcaster.stop();
+			if (heartbeatBroadcaster != null) {
+				heartbeatBroadcaster.stop();
+			}
+
 			setActive(false); // Stops event loop
 
 			@SuppressWarnings("unchecked")
@@ -409,8 +408,29 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		if (process!=null) process.terminate();
 	}
 
+	/**
+	 * Calls the {@link #run()} method. If that method throws an exception
+	 * then calls {@link #stop()}. This can only happen in {@link #processException(Exception)}
+	 * rethrows an exception.
+	 */
+	protected final void runAndStopIfError() {
+		try {
+			run();
+		} catch (Exception e) {
+			// only exceptions rethrown by processException are caught here
+			LOGGER.error("Internal error running consumer {}", getName(), e);
+			try {
+				ConsumerImpl.this.stop();
+			} catch (EventException e1) {
+				LOGGER.error("Cannot stop consumer", e1);
+			}
+		}
+	}
+
 	@Override
 	public void run() throws EventException {
+		if (isActive()) throw new IllegalStateException("Consumer is already running");
+
 		init();
 
 		// run the main event loop until setActive is false
