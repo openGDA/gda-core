@@ -32,7 +32,7 @@ import gda.factory.Finder;
 /**
  * Class to control the Couette shear cell
  */
-public class Couette extends DeviceBase implements Runnable, Shear {
+public class Couette extends DeviceBase implements Shear {
 
 	private static final Logger logger = LoggerFactory.getLogger(Couette.class);
 
@@ -99,7 +99,7 @@ public class Couette extends DeviceBase implements Runnable, Shear {
 		shearStatus.setGamma(1.0);
 		shearStatus.setAmplitude(1.0);
 
-		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+		runner = new Thread(this::runCouette, getClass().getName());
 	}
 
 	@Override
@@ -392,8 +392,7 @@ public class Couette extends DeviceBase implements Runnable, Shear {
 	 * The run method implementing the Runnable interface Used to update observers of current paramters
 	 */
 
-	@Override
-	public synchronized void run() {
+	private synchronized void runCouette() {
 		if (runner == null) {
 			logger.warn("No thread for Couette monitor " + this.getName());
 		}
