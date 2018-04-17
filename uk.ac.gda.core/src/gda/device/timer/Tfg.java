@@ -36,7 +36,7 @@ import gda.factory.Finder;
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
-public class Tfg extends DeviceBase implements Timer, Runnable {
+public class Tfg extends DeviceBase implements Timer {
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
 
 	public static final String CYCLES = "Cycles";
@@ -106,7 +106,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 		// if now defined
 		if (daServer != null ) {
 			// FIXME we might end up with more than one runner
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+			runner = new Thread(this::runTfg, getClass().getName());
 			runner.start();
 			setConfigured(true);
 		}
@@ -609,8 +609,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	/**
 	 * Do not use this method - it is used by the TFG object to create a monitor thread. Instead add an observer to the object
 	 */
-	@Override
-	public synchronized void run() {
+	private synchronized void runTfg() {
 		while (true) {
 			try {
 				wait();
