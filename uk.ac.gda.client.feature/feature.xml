@@ -141,20 +141,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.springsource.org.apache.sshd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.org.apache.mina.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.com.mindprod.ledatastream"
          download-size="0"
          install-size="0"
@@ -457,7 +443,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false" />
+         unpack="false"/>
 
    <plugin
          id="org.dawnsci.mapping.ui"
