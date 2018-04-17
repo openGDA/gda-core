@@ -29,12 +29,11 @@ import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
 import gda.observable.IObservable;
-import uk.ac.gda.util.ThreadManager;
 
 /**
  * A Dummy motor class
  */
-public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor {
+public class DummyMotor extends MotorBase implements IObservable, Motor {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyMotor.class);
 
@@ -116,7 +115,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	@Override
 	public void configure() {
-		runner = ThreadManager.getThread(this, getClass().getName());
+		runner = new Thread(this::runMotor, getClass().getName());
 		runner.start();
 
 		// We have to be sure that the monitoring thread is ready for
@@ -394,9 +393,8 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 * Does the position updating which simulates a move.
 	 */
 
-	@Override
 	@SuppressWarnings("squid:S2189") // Otherwise SonarLint complains about lack of end condition
-	public synchronized void run() {
+	private synchronized void runMotor() {
 		int i = 0;
 
 		while (true) {
