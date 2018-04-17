@@ -947,6 +947,9 @@
       <initializer
             class="uk.ac.gda.client.scripting.PreferenceInitializer">
       </initializer>
+      <initializer
+            class="gda.rcp.views.dashboard.PreferenceInitializer">
+      </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
