@@ -16,10 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.beamline.i20.scannable;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.ScannableMotionUnitsBase;
+import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
 import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.observable.IObserver;
