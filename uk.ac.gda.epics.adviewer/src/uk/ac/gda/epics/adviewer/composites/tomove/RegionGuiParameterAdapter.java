@@ -143,13 +143,14 @@ public class RegionGuiParameterAdapter implements
 		RectangularROIList roiList = new RectangularROIList();
 		for (IRegion region : roiCollection) {
 			IROI roi = region.getROI();
-			roiList.add((RectangularROI) roi); // TODO: Only works for
-												// rectangular regions
+			if (roi instanceof RectangularROI) {
+				roiList.add((RectangularROI) roi);
+			}
 		}
 		if (changedRoi instanceof RectangularROI) {
 			roiList.add(changedRoi);
 		}
-		changedParameters.put(GuiParameters.ROIDATA, changedRoi.getName());
+		changedParameters.put(GuiParameters.ROIDATA, changedRoi == null ? null : changedRoi.getName());
 		changedParameters.put(GuiParameters.ROIDATALIST, roiList);
 
 		observableComponent.notifyIObservers(this, changedParameters);
