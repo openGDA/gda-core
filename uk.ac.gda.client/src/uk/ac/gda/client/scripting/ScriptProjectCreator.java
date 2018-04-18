@@ -18,6 +18,11 @@
 
 package uk.ac.gda.client.scripting;
 
+import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP;
+import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP;
+import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY;
+import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +49,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PydevRootPrefs;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -210,6 +216,8 @@ public class ScriptProjectCreator {
 			}
 		}
 
+		setPydevPrefs();
+
 		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
 
 		for (String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
@@ -310,5 +318,21 @@ public class ScriptProjectCreator {
 		}
 		// If present return false - creation not required
 		return !correctInterpreterVersionPresent;
+	}
+
+	/**
+	 * Sets the Pydev preferences within the client that we assume all users of GDA would want.
+	 * This prevents interpreter not configured dialogs and Eclipse Pydev Preferences dialog.
+	 */
+	private static void setPydevPrefs() {
+		PydevPlugin.getDefault().getPreferenceStore().setValue(NOTIFY_NO_INTERPRETER_PY, false);
+		PydevPlugin.getDefault().getPreferenceStore().setValue(NOTIFY_NO_INTERPRETER_JY, false);
+		PydevPlugin.getDefault().getPreferenceStore().setValue(NOTIFY_NO_INTERPRETER_IP, false);
+		PydevPlugin.getDefault().getPreferenceStore().setValue(CHECK_CONSISTENT_ON_STARTUP, false);
+		PydevRootPrefs.setCheckPreferredPydevSettings(false);
+
+		// Prevent PyDev popping up a funding appeal dialog box on first use
+		// Diamond Light Source is already a Gold Sponsor of PyDev (via dawnsci)
+		System.setProperty("pydev.funding.hide", "true");
 	}
 }
