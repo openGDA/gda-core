@@ -32,6 +32,17 @@ public final class SolsticeConstants {
 	 */
 	public static final String PROPERTY_NAME_UNIQUE_KEYS_PATH = "uniqueKeys";
 
+	/**
+	 * Property name for a property used by GDA9+ to suppress writing the global unique keys dataset for a scan.
+	 * This dataset is not created if the value of this property is equal to {@link Boolean#TRUE} for any device a scan.
+	 * The global unique keys dataset is normally written to at the end of each position in a scan. It is used
+	 * to indicate that that position in a scan has been written to and processing can be performed. It should
+	 * be suppressed if processing is required in between points of the scan. This can be the case if a device in the
+	 * scan performs an inner scan, e.g. a malcolm device, or a detector writes data while a position in the scan is
+	 * being performed that required processing before the position is completed.
+	 */
+	public static final String PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS = "suppressGlobalUniqueKeys";
+
 	private SolsticeConstants() {
 		// private constructor to prevent instantiation
 	}

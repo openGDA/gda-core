@@ -70,13 +70,6 @@ public class MalcolmNexusScanFileManager extends NexusScanFileManager {
 	}
 
 	@Override
-	protected SolsticeScanMonitor createSolsticeScanMonitor(ScanModel scanModel) {
-		SolsticeScanMonitor scanPointsWriter = super.createSolsticeScanMonitor(scanModel);
-		scanPointsWriter.setMalcolmScan(true);
-		return scanPointsWriter;
-	}
-
-	@Override
 	protected int getScanRank(ScanModel model) throws ScanningException {
 		SubscanModerator moderator = new SubscanModerator(model.getPositionIterable(),
 				null, model.getDetectors(), ServiceHolder.getGeneratorService());
