@@ -7,9 +7,11 @@ import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.Se
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.equinox.app.IApplication;
@@ -119,9 +121,21 @@ public class GDAServerApplication implements IApplication {
 		final int serverPort = getPropertyService().getAsInt("gda.server.statusPort", 19999);
 		try {
 			statusPort = new ServerSocket(serverPort);
+			Executors.newSingleThreadExecutor().execute(this::acceptStatusPortConnections);
 			logger.debug("Opened status port on: {}", serverPort);
 		} catch (IOException e) {
 			logger.error("Opening status port on {} failed", serverPort, e);
+		}
+	}
+
+	private void acceptStatusPortConnections() {
+		while (true) {
+			try {
+				final Socket s = statusPort.accept();
+				s.close();
+			} catch (IOException e) {
+				logger.info("Exception occurred while accepting status port connection", e);
+			}
 		}
 	}
 
