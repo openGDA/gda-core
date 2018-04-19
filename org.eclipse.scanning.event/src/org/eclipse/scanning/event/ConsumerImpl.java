@@ -279,8 +279,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				producer.send(t);
 				producer.close();
 			}
-		} catch (Exception ne) {
-			throw new EventException("Cannot reorder queue!", ne);
+		} catch (Exception e) {
+			throw new EventException("Cannot reorder queue!", e);
 		} finally {
 			// Only resume if it wasn't in a paused state before this update
 			if (resumeAfter) {
@@ -870,6 +870,14 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		public void stop() throws EventException {
 			if (!broadcasting) throw new IllegalStateException("Cannot stop Heartbeat broadcaster; it is not running");
 			scheduler.shutdownNow();
+			if (lastBeat == null) {
+				lastBeat = new HeartbeatBean();
+				try {
+					updateHeartbeatBean(lastBeat);
+				} catch (UnknownHostException e) {
+					throw new EventException("Error encountered while broadcasting final heartbeat", e);
+				}
+			}
 			lastBeat.setConsumerStatus(ConsumerStatus.STOPPED);
 			publisher.broadcast(lastBeat);
 			broadcasting = false;
