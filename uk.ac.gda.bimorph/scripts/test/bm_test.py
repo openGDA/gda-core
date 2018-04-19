@@ -1,8 +1,12 @@
+from itertools import cycle, count
 import unittest
+from mock import MagicMock, Mock, call, patch
 from gda.configuration.properties import LocalProperties
+from test import roughly
 import bimorph
 import ellipse
 import inspect
+
 
 class TestBimorph(unittest.TestCase):
     
@@ -279,8 +283,424 @@ class TestBimorph(unittest.TestCase):
         voltages_array = ro.voltages
         voltages=self.jama_array_to_list(voltages_array)
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(TestBimorph)
+class TestBimorphOptimisation(unittest.TestCase):
+    def setUp(self):
+        self.mirror = Mock()
+        self.mirror.maxSafeVoltage = 20
+        self.mirror.minSafeVoltage = 10
+        self.mirror.maxSafeVoltDiff = 4
+        self.voltageController = Mock()
+        self._voltages = [10, 13, 16, 19]
+        self.voltageController.getVoltage.side_effect = lambda x: self._voltages[x]
+        self.voltageController.setVoltage.side_effect = lambda x, v: self._voltages.__setitem__(x, v)
+        self.mirror.numberOfElectrodes = len(self._voltages)
+        self.centroidReader = Mock()
+        self.centroidReader.getValue.side_effect = cycle((1,2,3,4))
+        self.slitMotor = Mock()
+        self.bo = bimorph.BimorphOptimiser(False, # verbose
+                                      self.mirror,
+                                      self.voltageController,
+                                      self.centroidReader,
+                                      [7,8,9,10], # slitPos
+                                      self.slitMotor,
+                                      4.0, # beamOffset
+                                      True, # auto offset
+                                      True, # auto dist
+                                      1.2) # scaling factor
+
+    def test_get_voltage(self):
+        electrode = 2
+        self.bo.getVoltage(electrode)
+        self.voltageController.getVoltage.assert_called_once_with(electrode)
+
+    def test_set_voltage(self):
+        self.bo.setVoltage(0, 12)
+        self.voltageController.setVoltage.assert_called_once_with(0, 12)
+
+    def test_set_voltage_out_of_range(self):
+        with self.assertRaises(ValueError):
+            self.bo.setVoltage(0, 23)
+        self.voltageController.setVoltage.assert_not_called()
+        with self.assertRaises(ValueError):
+            self.bo.setVoltage(0, 8)
+        self.voltageController.setVoltage.assert_not_called()
+
+    def test_set_voltage_large_diff(self):
+        with self.assertRaises(ValueError):
+            self.bo.setVoltage(1, 11)
+        self.voltageController.setVoltage.assert_not_called()
+        with self.assertRaises(ValueError):
+            self.bo.setVoltage(1, 15)
+        self.voltageController.setVoltage.assert_not_called()
+
+    @unittest.expectedFailure # setVoltage is currently broken for first/last voltages
+    def test_set_first_last_voltage(self):
+        self.bo.setVoltage(0, 10.2)
+        self.voltageController.setVoltage.assert_called_once_with(0, roughly(10.2))
+        self.bo.setVoltage(3, 18.2)
+        self.voltageController.setVoltage.assert_called_once_with(0, roughly(18.2))
+
+    def test_increment_voltage(self):
+        self.bo.incrementVoltage(1, 0.3)
+        self.voltageController.setVoltage.assert_called_once_with(1, roughly(13.3))
+
+    def test_increment_voltage_large_diff(self):
+        with self.assertRaises(ValueError):
+            self.bo.incrementVoltage(1, 1.4)
+        self.voltageController.setVoltage.assert_not_called()
+
+    def test_increment_voltage_outside_limit(self):
+        with self.assertRaises(ValueError):
+            self.bo.incrementVoltage(0, -0.5)
+        self.voltageController.setVoltage.assert_not_called()
+
+    def test_desired_centroids(self):
+        """I have no idea what this method does"""
+        desired_centroids = self.bo.getDesiredCentroids([1,2,3,4], [0.1, 0.2, 0.3, 0.4], 0.5)
+        self.assertEqual(roughly([6.58333333, 6.75, 6.91666666, 7.08333333]), desired_centroids)
+
+    def test_get_centroids(self):
+        centroids = self.bo.getCentroids()
+        self.slitMotor.assert_has_calls([call(7), call(8), call(9), call(10)])
+        self.assertEqual([1,2,3,4], centroids)
+
+    @unittest.expectedFailure # setVoltage is currently broken for first/last voltages
+    def test_force_voltages(self):
+        self.bo.forceVoltages(16.8)
+        self.voltageController.setVoltage.assert_has_calls([
+            call(0, 16.8),
+            call(1, 16.8),
+            call(2, 16.8),
+            call(3, 16.8)])
+
+    @unittest.expectedFailure # setVoltage is currently broken for first/last voltages
+    def test_interaction_matrix_with_auto_offset(self):
+        self.bo.auto_offset = True
+        matrix = self.bo.buildInteractionMatrix(self._voltages, 0.3)
+        matrix = [list(i) for i in matrix] # convert from jama Matrix
+
+    @unittest.expectedFailure # setVoltage is currently broken for first/last voltages
+    def test_interaction_matrix_without_auto_offset(self):
+        self.bo.auto_offset = False
+        self.bo.buildInteractionMatrix(self._voltages, 0.3)
+
+    @unittest.expectedFailure# setVoltage is currently broken for first/last voltages
+    def test_run(self):
+        self.bo.run([0.1, 0.2, 0.3, 0.4], # weights
+                    0.5, # desired focal size
+                    self._voltages, # initial voltages
+                    0.1, # increment
+                    [1,2,3,4], # centroids
+                    True, # auto dist
+                    0.1 # scaling factor
+                    )
+
+class TestRunOptimisation(unittest.TestCase):
+    def setUp(self):
+        self.bimorph_scannable = Mock()
+        self.bm_voltages = [10,13,16,19]
+        self.ro = bimorph.RunOptimisation(bimorphScannable=self.bimorph_scannable,
+                  mirror_type='vfm',
+                  numberOfElectrodes=4,
+                  voltageIncrement=0.1,
+                  files=[1234,1235,1236,1237,1238],
+                  error_file=1233,
+                  desiredFocSize=0.5,
+                  user_offset=1.4,
+                  bm_voltages=self.bm_voltages, 
+                  beamOffset=1.2,
+                  autoDist=True,
+                  scalingFactor=1.5,
+                  scanDir='/tmp/datadir', 
+                  minSlitPos=4.8, 
+                  maxSlitPos=12.3,
+                  slitPosScannableName='s1')
+
+    def test_call(self):
+        ro = Mock(spec=bimorph.RunOptimisation)
+        bimorph.RunOptimisation.__call__(ro)
+        ro.requestInputs.assert_called_once_with()
+        ro.calculateVoltages.assert_called_once_with()
+
+    @patch('bimorph.GDAMetadataProvider')
+    @patch('bimorph.ScanFileLoader')
+    @patch('bimorph.NumTracker')
+    def test_get_error_data_without_error_file(self, num_tracker, sfl, gdametaprovider):
+        self.ro.error_file = 0
+        num_tracker.return_value.getCurrentFileNumber.return_value = 1234
+        error_data = self.ro.getErrorData()
+        num_tracker.assert_called_once_with(gdametaprovider.getInstance().getMetadataValue())
+        sfl.assert_called_once_with(1234, '/tmp/datadir')
+        sfl().getSFH.assert_called_once_with()
+        self.assertEquals(sfl().getSFH(), error_data)
+
+    @patch('bimorph.ScanFileLoader')
+    def test_get_error_data(self, sfl):
+        error_data = self.ro.getErrorData()
+        sfl.assert_called_once_with(1233, '/tmp/datadir')
+        sfl().getSFH.assert_called_once_with()
+        self.assertEqual(error_data, sfl().getSFH())
+        
+    @patch('bimorph.PathConstructor')
+    @patch('bimorph.ScanFileLoader')
+    def test_get_error_data_without_data_directory(self, sfl, pc):
+        self.ro.scanDir = None
+        file_loader = Mock()
+        def mock_file_loader(file_number, path):
+            if path is None: raise ValueError('Null path')
+            else: return file_loader
+        sfl.side_effect = mock_file_loader
+        error_data = self.ro.getErrorData()
+
+        sfl.assert_has_calls([call(1233, None), call(1233, pc().getDefaultDataDir())])
+        file_loader.getSFH.assert_called_once_with()
+        self.assertEqual(file_loader.getSFH(), error_data)
+        
+    def test_get_column_names_peak2d(self):
+        ro = Mock(spec=bimorph.RunOptimisation)
+        ro.getColumnSuffix.return_value = 'testsuffix'
+        
+        names = bimorph.RunOptimisation.getColumnNames(ro, ['peak2d.testsuffix'])
+        
+        ro.nexusColumnNames.assert_called_once_with('peak2d.', 'testsuffix')
+        ro.nonNexusColumnNames.assert_not_called()
+        self.assertEquals(names, ro.nexusColumnNames.return_value)
+    
+    def test_get_column_names_pa(self):
+        ro = Mock(spec=bimorph.RunOptimisation)
+        ro.getColumnSuffix.return_value = 'testsuffix'
+        
+        names = bimorph.RunOptimisation.getColumnNames(ro, ['pa.testsuffix'])
+        
+        ro.nexusColumnNames.assert_called_once_with('pa.', 'testsuffix')
+        ro.nonNexusColumnNames.assert_not_called()
+        self.assertEquals(names, ro.nexusColumnNames.return_value)
+
+    def test_get_column_names_non_nexus(self):
+        ro = Mock(spec=bimorph.RunOptimisation)
+        ro.getColumnSuffix.return_value = 'testsuffix'
+        
+        names = bimorph.RunOptimisation.getColumnNames(ro, ['testsuffix'])
+        
+        ro.nonNexusColumnNames.assert_called_once_with('testsuffix')
+        ro.nexusColumnNames.assert_not_called()
+        self.assertEquals(names, ro.nonNexusColumnNames.return_value)
+
+    def test_nexus_column_names(self):
+        names = self.ro.nexusColumnNames('prefix', 'suffix')
+        self.assertEquals({'data_centroid': 'prefixsuffix',
+                           'err_centroid': 'prefixsuffix',
+                           'err_slit': 's1.s1'}, names)
+
+    def test_non_nexus_column_names(self):
+        names = self.ro.nonNexusColumnNames('suffix')
+        self.assertEquals({'data_centroid': 'suffix',
+                           'err_centroid': 'suffix',
+                           'err_slit': '/entry1/instrument/pa/idx'}, names)
+
+    def test_get_column_suffix(self):
+        self.ro.mirror_type = 'vfm'
+        self.assertEquals('peak2d_peaky', self.ro.getColumnSuffix())
+
+        self.ro.mirror_type = 'hfm'
+        self.assertEquals('peak2d_peakx', self.ro.getColumnSuffix())
+
+        self.ro.mirror_type = 'xyz'
+        with self.assertRaises(ValueError):
+            self.ro.getColumnSuffix()
+            
+    def test_get_slit_position_with_err_slit(self):
+        mock_data = Mock()
+        names = {'data_centroid': 'prefixsuffix',
+                'err_centroid': 'prefixsuffix',
+                'err_slit': 's1.s1'}
+        slit_position = self.ro.getSlitPos(names, ['s1.s1'], mock_data)
+        mock_data.getLazyDataset.assert_called_once_with('s1.s1')
+        mock_data.getLazyDataset().getSlice.assert_called_once_with(None)
+        mock_data.getLazyDataset().getSlice().getBuffer.assert_called_once_with()
+        self.assertEquals(mock_data.getLazyDataset().getSlice().getBuffer(), slit_position)
+
+    def test_get_slit_position_with_idx(self):
+        mock_data = Mock()
+        names = {'data_centroid': 'prefixsuffix',
+                'err_centroid': 'prefixsuffix',
+                'err_slit': '/entry/instrument/pa'}
+        slit_position = self.ro.getSlitPos(names, ['idx'], mock_data)
+        mock_data.getLazyDataset.assert_called_once_with(1)
+        mock_data.getLazyDataset().getSlice.assert_called_once_with(None)
+        mock_data.getLazyDataset().getSlice().getBuffer.assert_called_once_with()
+        self.assertEquals(mock_data.getLazyDataset().getSlice().getBuffer(), slit_position)
+
+    def test_get_slit_position_without_idx(self):
+        mock_data = Mock()
+        names = {'data_centroid': 'prefixsuffix',
+                'err_centroid': 'prefixsuffix',
+                'err_slit': '/entry/instrument/pa'}
+        slit_position = self.ro.getSlitPos(names, ['not_idx'], mock_data)
+        mock_data.getLazyDataset.assert_called_once_with(0)
+        mock_data.getLazyDataset().getSlice.assert_called_once_with(None)
+        mock_data.getLazyDataset().getSlice().getBuffer.assert_called_once_with()
+        self.assertEquals(mock_data.getLazyDataset().getSlice().getBuffer(), slit_position)
+
+    def test_limit_indices_with_two_limits(self):
+        self.ro.minSlitPos = 1.8
+        self.ro.maxSlitPos = 2.7
+        start, end = self.ro.getLimitIndices([0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4])
+        self.assertEquals(3, start)
+        self.assertEquals(5, end)
+    
+    @unittest.expectedFailure # lower limits only are broken
+    def test_limit_indices_with_lower_limit(self):
+        self.ro.minSlitPos = 1.8
+        self.ro.maxSlitPos = None
+        start, end = self.ro.getLimitIndices([0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4])
+        self.assertEquals(3, start)
+        self.assertEquals(7, end)
+    
+    def test_limit_indices_with_upper_limit(self):
+        self.ro.minSlitPos = None
+        self.ro.maxSlitPos = 2.7
+        start, end = self.ro.getLimitIndices([0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4])
+        self.assertEquals(0, start)
+        self.assertEquals(5, end)
+    
+    @unittest.expectedFailure # 'works' but does the wrong thing
+    def test_limit_indices_with_no_limits(self):
+        self.ro.minSlitPos = None
+        self.ro.maxSlitPos = None
+        indices = self.ro.getLimitIndices([0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4])
+        self.assertIs(None, indices)
+        self.fail('This should just return (0, len(slitPos))')
+        
+    def test_has_slit_pos_limit(self):
+        self.ro.minSlitPos = 1
+        self.ro.minSlitPos = 3
+        self.assertTrue(self.ro.hasSlitPosLimit())
+        
+        self.ro.minSlitPos = 1
+        self.ro.maxSlitPos = None
+        self.assertTrue(self.ro.hasSlitPosLimit())
+        
+        self.ro.minSlitPos = None
+        self.ro.maxSlitPos = 3
+        self.assertTrue(self.ro.hasSlitPosLimit())
+        
+        self.ro.minSlitPos = None
+        self.ro.maxSlitPos = None
+        self.assertFalse(self.ro.hasSlitPosLimit())
+    
+    @patch('bimorph.ScanFileLoader')
+    def test_centroid_matrix(self, sfl):
+        column_names = {'data_centroid': 'prefixsuffix',
+                'err_centroid': 'prefixsuffix',
+                'err_slit': 's1.s1'}
+        limit = (1, 4)
+        _mock_data_generator = count() # number generator
+        def create_mock_data_file():
+            df = MagicMock()
+            sfh = df.getSFH.return_value
+            sfh.getNames.return_value = ['peak2d.peak2d_peaky']
+            data_buffer = sfh.getLazyDataset.return_value.getSlice.return_value.getBuffer
+            data_buffer.return_value = [next(_mock_data_generator) for _ in range(5)]
+            return df
+        
+        mock_file_data = {1234: create_mock_data_file(),
+                          1235: create_mock_data_file(),
+                          1236: create_mock_data_file(),
+                          1237: create_mock_data_file(),
+                          1238: create_mock_data_file()}
+        def _load_file(f_number, scan_dir):
+            return mock_file_data[f_number]
+        sfl.side_effect = _load_file
+        
+        error_data = create_mock_data_file().getSFH()
+        
+        centroid = self.ro.getCentroidMatrix(error_data, column_names, limit)
+        
+        self.assertEquals(([[1, 2, 3], [6, 7, 8], [11, 12, 13], [16, 17, 18], [21, 22, 23]], [26, 27, 28]), centroid)
+        for df in mock_file_data.values():
+            df.getSFH.assert_called_once_with()
+            sfh = df.getSFH()
+            # called too many times
+            # sfh.getNames.assert_called_once_with()
+            sfh.getLazyDataset.assert_called_once_with('peak2d.peak2d_peaky')
+            ds = sfh.getLazyDataset()
+            ds.getSlice.assert_called_once_with(None)
+            ds.getSlice().getBuffer.assert_called_once_with()
+
+
+class TestBimorphMirror(unittest.TestCase):
+    def setUp(self):
+        self.bm = bimorph.BimorphMirror(4, # number of electrodes
+                                        20, # max voltage
+                                        10, # min voltage
+                                        5) # max voltage diff
+
+    def test_get_slit_position(self):
+        positions = self.bm.genSlitPos(3.0, 10.0, 2) # initial pos, final pos, points per electrode
+        self.assertEquals(roughly([3, 4, 5, 6, 7, 8, 9, 10]), positions)
+        positions = self.bm.genSlitPos(1.0, 9.0, 2)
+        self.assertEquals(roughly([1, 2.14285714, 3.28571429, 4.42857142, 5.57142857, 6.714285714, 7.85714286, 9.0]), positions)
+
+class TestBimorphFunctions(unittest.TestCase):
+    @patch('bimorph.RunOptimisation')
+    def test_run_optimisation(self, run_opt):
+        bimorph_mirror = Mock()
+        mirror_type = 'vfm'
+        number_of_electrodes = 4
+        voltage_increment = 0.1
+        files = ['a', 'b', 'c', 'd']
+        error_file = 'error_file'
+        desired_foc_size = 0.5
+        user_offset = 0.8
+        bm_voltages = [1,2,3,4]
+        beam_offset = 1.2
+        auto_dist = True
+        scaling_factor = 1.5
+        scan_dir = '/scan/directory'
+        min_slit_pos = 10
+        max_slit_pos = 20
+        slit_pos_scannable_name = 's1'
+        optimisation = bimorph.runOptimisation(bimorph_mirror,
+                                               mirror_type,
+                                               number_of_electrodes,
+                                               voltage_increment,
+                                               files,
+                                               error_file,
+                                               desired_foc_size,
+                                               user_offset,
+                                               bm_voltages,
+                                               beam_offset,
+                                               auto_dist,
+                                               scaling_factor,
+                                               scan_dir,
+                                               min_slit_pos,
+                                               max_slit_pos,
+                                               slit_pos_scannable_name)
+        run_opt.assert_called_once_with(bimorph_mirror,
+                                               mirror_type,
+                                               number_of_electrodes,
+                                               voltage_increment,
+                                               files,
+                                               error_file,
+                                               desired_foc_size,
+                                               user_offset,
+                                               bm_voltages,
+                                               beam_offset,
+                                               auto_dist,
+                                               scaling_factor,
+                                               scan_dir,
+                                               min_slit_pos,
+                                               max_slit_pos,
+                                               slit_pos_scannable_name)
+        optimisation.assert_called_once_with()
+        self.assertEqual(run_opt(), optimisation)
+
+    def test_footprint(self):
+        """I think this is just dividing..."""
+        self.assertEqual(8, bimorph.footprint(32, 4))
+        self.assertEqual(roughly(3.2), bimorph.footprint(15.04, 4.7))
+
 
 if __name__ == '__main__':
     unittest.main()
