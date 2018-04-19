@@ -16,13 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.beamline.i20.scannable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.DummyPersistentScannable;
+import gda.device.scannable.ScannableMotionUnitsBase;
+import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
