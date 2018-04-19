@@ -108,59 +108,7 @@ def generateGroupedPositions(initialPos, increment, group_string):
             positions[i] += increment
         yield positions[:]
 
-#This is now depricated as the SlitScanner class below should be used instead. This has been left as some beamlines may still use it.
-def getData(mirror, 
-        increment, 
-        slitToScanSize, # scannable to move slit width
-        slitToScanPos, # scannable to move slit position
-        slitSize, # width of slit in mm
-        otherSlitSize, # scannable to move other slit width
-        otherSlitPos, # scannable to move other slit position
-        slitStart, 
-        slitEnd, 
-        slitStep,
-        detector,
-        exposure=768,
-        settleTime=300,
-        otherSlitSizeValue = 7.0 ):
-
-    targetPositions = generatePositions(mirror.getPosition(), increment)
-    pos([otherSlitPos, 0.]) #@UndefinedVariable
-    pos([otherSlitSize, otherSlitSizeValue]) #@UndefinedVariable
-    pos([slitToScanSize, slitSize]) #@UndefinedVariable
-    for position in targetPositions:
-        print "moving mirror to " + `position`
-        pos([mirror, position]) #@UndefinedVariable
-        print "mirror is now at " + `mirror()`
-        print "Sleeping for " + `settleTime` + "s"
-        sleep(settleTime)
-        print "Slept"
-        scanCompleted = False
-        beam_was_down = False
-        while(not scanCompleted):
-            # loop until beam okay
-            while( not self.scanAborter.isOK()): #@UndefinedVariable
-                print "beam was down. checking again in 30s."
-                sleep(30)
-                beam_was_down = True
-            # try the scan    
-            try:
-                if beam_was_down:
-                    print "Beam has come back up. Waiting 10 minutes"
-                    sleep(10*60)
-                print "beam is ok so now trying scan"
-                scan([slitToScanPos, slitStart, slitEnd, slitStep, detector, exposure, peak2d, self.scanAborter, bm_topup]) #@UndefinedVariable
-                scanCompleted = True
-            except java.lang.InterruptedException, e: # th scan always throws these
-                if( self.scanAborter.isOK()): # Race condition here. rob W @UndefinedVariable
-                    raise e
-                else:
-                    print "scan aborted due to drop in beam current"
-                    # and try again from start
-
-
 #This class is for use with the rich bean editor for bimorph optimisation (BimorphParameters).
-#This deprecates the getData method above.
 #It can also be used from the console as follows.
 #from gdascripts.bimorph.bimorph_mirror_optimising import SlitScanner
 #slitscanner = SlitScanner()
