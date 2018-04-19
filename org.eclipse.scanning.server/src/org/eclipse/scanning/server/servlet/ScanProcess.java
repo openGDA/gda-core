@@ -166,16 +166,17 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				bean.setPercentComplete(100);
 			}
 			broadcast(bean);
-		} catch (Exception ne) {
-			logger.error("Cannot execute run "+getBean().getName()+" "+getBean().getUniqueId(), ne);
+			logger.debug("Completed run normally : {}", bean);
+		} catch (Exception e) {
+			logger.error("Cannot execute run {} {}", getBean().getName(), getBean().getUniqueId(), e);
 			bean.setPreviousStatus(bean.getStatus());
 			bean.setStatus(Status.FAILED);
-			bean.setMessage(ne.getMessage());
+			bean.setMessage(e.getMessage());
 			broadcast(bean);
 
 			// rethrow the exception as an EventException
-			if (ne instanceof EventException) throw (EventException)ne;
-			throw new EventException(ne);
+			if (e instanceof EventException) throw (EventException)e;
+			throw new EventException(e);
 		}
 	}
 

@@ -132,11 +132,25 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	public void disconnect() throws EventException {
 		if (isActive()) stop();
 
-		statusSetSubmitter.disconnect();
-		statusTopicPublisher.disconnect();
-		if (heartbeatBroadcaster!=null) heartbeatBroadcaster.disconnect();
-		if (commandTopicSubscriber!=null) commandTopicSubscriber.disconnect();
-		if (beanOverrideMap!=null) beanOverrideMap.clear();
+		if (statusSetSubmitter != null) {
+			statusSetSubmitter.disconnect();
+			statusSetSubmitter = null;
+		}
+		if (statusTopicPublisher != null) {
+			statusTopicPublisher.disconnect();
+			statusTopicPublisher = null;
+		}
+		if (heartbeatBroadcaster != null) {
+			heartbeatBroadcaster.disconnect();
+			heartbeatBroadcaster = null;
+		}
+		if (commandTopicSubscriber != null)  {
+			commandTopicSubscriber.disconnect();
+			commandTopicSubscriber = null;
+		}
+		if (beanOverrideMap != null) {
+			beanOverrideMap.clear();
+		}
 
 		super.disconnect();
 	}
@@ -221,6 +235,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	 * @throws EventException
 	 */
 	protected void updateQueue(U bean) throws EventException {
+		LOGGER.debug("Updating bean on queue {}", bean);
 		boolean resumeAfter = !awaitPaused;
 		Session session = null;
 		QueueBrowser queueBrowser = null;
@@ -427,6 +442,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
+	/**
+	 * The main consume method for a consumer. When the consumer is running, one thread will be running this
+	 * method (typically a thread created by calling the {@link #start()} method, while the consumer is
+	 * controlled by calling methods such as {@link #pause()} or {@link #resume()} in other threads.
+	 */
 	@Override
 	public void run() throws EventException {
 		if (isActive()) throw new IllegalStateException("Consumer is already running");
@@ -434,20 +454,39 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		init();
 
 		// run the main event loop until setActive is false
-		while (isActive()) {
-			try {
-				checkPaused(); // blocks until not paused.
-				if (isActive()) { // Might have paused for a long time.
-					consume();
-				}
-			} catch (Exception e) {
-				// if processException returns false, break out of the loop to exit the consumer
-				setActive(processException(e));
+		try {
+			while (isActive()) {
+				consumeNextMessage();
 			}
+		} catch (Exception e) {
+			LOGGER.warn("Consumer {} exiting run() method with exception", getName(), e);
+			throw e;
+		}
+		LOGGER.info("Consumer for queue {} exiting run() method normally", getName());
+	}
+
+	/**
+	 * This method performs all the tasks required in one iteration of the main loop of the {@link #run()} method, namely:<ol>
+	 * <li>Checks if the consumer should pause, and if so does until it is notified to resume (see {@link #checkPaused()};</li>
+	 * <li>Consumes the next message (see {@link #consume()});</li>
+	 * <li>Handles any exception thrown by consuming the message, see {@link #processException(Exception)}.</li>
+	 * </ol>
+	 * @throws EventException
+	 */
+	private void consumeNextMessage() throws EventException {
+		try {
+			checkPaused(); // blocks until not paused.
+			if (isActive()) { // isActive could have been set to false while we were paused
+				consume();
+			}
+		} catch (Exception e) {
+			// if processException returns false, break out of the loop to exit the consumer
+			setActive(processException(e));
 		}
 	}
 
 	private void init() throws EventException {
+		LOGGER.debug("Initializing consumer for queue {}", getSubmitQueueName());
 		this.waitTime = 0;
 
 		if (runner!=null) {
@@ -549,6 +588,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		List<U> items = getSubmissionQueue();
 		if (items != null && !items.isEmpty()) {
+			LOGGER.debug("Pausing consumer {} on start ", getName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
 			try (IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), getCommandTopicName())) {
@@ -578,11 +618,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		try {
 			if (isActive() && awaitPaused) {
 				setActive(false);
-				LOGGER.info("Pausing consumer {}", getSubmitQueueName());
+				LOGGER.info("Consumer pausing {}", getName());
 				while (awaitPaused) {
 					shouldResumeCondition.await(); // Until unpaused
 				}
-				LOGGER.info("Resuming consumer {}", getSubmitQueueName());
+				LOGGER.info("Consumer resuming {}", getName());
 				setActive(true);
 			}
 		} finally {
@@ -603,7 +643,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			awaitPaused = true;
 			if (messageConsumer!=null) messageConsumer.close();
 			messageConsumer = null; // Force unpaused consumers to make a new connection.
-			LOGGER.info("{} is paused", getName());
+			LOGGER.info("Consumer signalled to pause {}", getName());
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
@@ -624,7 +664,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			awaitPaused = false;
 			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
 			shouldResumeCondition.signalAll();
-			LOGGER.info("{} is running", getName());
+			LOGGER.info("Consumer signalled to resume {}", getName());
 		} finally {
 			consumerStateChangeLock.unlock();
 		}

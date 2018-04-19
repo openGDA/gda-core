@@ -144,7 +144,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	@Override
 	public void configure(ScanModel model) throws ScanningException {
-
+		logger.debug("Configuring with model: {}", model);
 		long before = System.currentTimeMillis();
 
 		setDeviceState(DeviceState.CONFIGURING);
