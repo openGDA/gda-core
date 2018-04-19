@@ -66,7 +66,7 @@ import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
  * Class creates/removes script projects and XML projects if required to by preferences. Also can automatically create a Jython Interpreter
- * and assign PyDev nature to the script projects.
+ * and assign Pydev nature to the script projects.
  */
 public class ScriptProjectCreator {
 
@@ -79,7 +79,7 @@ public class ScriptProjectCreator {
 	private static final String JYTHON_JAR = "jython.jar";
 
 	/**
-	 * Name of the Jython interpreter that will be created within PyDev for the client.
+	 * Name of the Jython interpreter that will be created within Pydev for the client.
 	 */
 	private static final String INTERPRETER_NAME = "Jython" + JYTHON_MAJOR_VERSION;
 
@@ -118,6 +118,7 @@ public class ScriptProjectCreator {
 	 */
 	private static void createInterpreter(IProgressMonitor monitor) throws Exception {
 
+		logger.debug("Stating creation of Jython interpreter");
 		final IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
@@ -196,30 +197,15 @@ public class ScriptProjectCreator {
 
 
 	/**
-	 * Base method of this class for setting up script projects
-	 *  which calls other class methods to: create a Jython interpreter if preferences are set,
-	 * create script projects in the client, manage which projects are shown (created) based on preferences,
-	 * add PyDev nature to these projects and add script projects to working set.
+	 * Creates or recreates the list of workspace projects base upon these preferences. This is called from setupInterpreterAndProjects
+	 * method and when the project visibility preferences are changed as we don't need the interpreter check in that case.
 	 */
 	public static void createProjects(IProgressMonitor monitor) throws Exception {
 		monitor.subTask("Checking existence of projects");
+		logger.debug("Recreating the list of script projects");
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
-
-
-		// The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
-		// if set to anything. It is not set by default.
-		if (chkGDASyntax && (System.getProperty("gda.client.jython.automatic.interpreter") == null)) {
-			monitor.subTask("Checking if interpreter already exists");
-			if (isInterpreterCreationRequired()) {
-				createInterpreter(monitor);
-			}
-		}
-
-		setPydevPrefs();
-
 		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
-
 		for (String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
 			String projectName = JythonServerFacade.getInstance().getProjectNameForPath(path);
 			boolean shouldShowProject = checkShowProjectPref(path, store);
@@ -301,7 +287,7 @@ public class ScriptProjectCreator {
 	}
 
 	/**
-	 * Checks the list of interpreters registered in PyDev for a Jython Interpreter matching the correct version. Used to
+	 * Checks the list of interpreters registered in Pydev for a Jython Interpreter matching the correct version. Used to
 	 * determine whether a new one needs to be created.
 	 *
 	 * @return true if new interpreter required
@@ -313,7 +299,7 @@ public class ScriptProjectCreator {
 				.anyMatch(info -> (info.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_JYTHON)
 						&& info.getVersion().equals(JYTHON_VERSION));
 		if (correctInterpreterVersionPresent) {
-			logger.info("Found a PyDev Jython interpreter of version {})", JYTHON_VERSION);
+			logger.info("Found a Jython version {} interpreter", JYTHON_VERSION);
 		}
 		// If present return false - creation not required
 		return !correctInterpreterVersionPresent;
@@ -334,4 +320,25 @@ public class ScriptProjectCreator {
 		// Diamond Light Source is already a Gold Sponsor of PyDev (via dawnsci)
 		System.setProperty("pydev.funding.hide", "true");
 	}
+
+	/**
+	 * Method to call when client starts up or the check syntax preference is modified. Creates Jython interpreter if
+	 * required and if preferences are set. Then calls createProjects method which populates the workspace with the
+	 * script projects and adds natures.
+	 */
+	public static void setupInterpreterAndProjects(IProgressMonitor monitor) throws Exception {
+		// The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
+		// if set to anything. It is not set by default
+		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
+		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
+		if (chkGDASyntax && (System.getProperty("gda.client.jython.automatic.interpreter") == null)) {
+			monitor.subTask("Checking if interpreter creation is required");
+			if (isInterpreterCreationRequired()) {
+				createInterpreter(monitor);
+			}
+		}
+		createProjects(monitor);
+		setPydevPrefs();
+	}
 }
+
