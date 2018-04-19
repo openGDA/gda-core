@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -46,7 +44,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanWizard;
@@ -65,7 +62,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		try {
-			scannableDeviceService = getScannableDeviceService();
+			scannableDeviceService = getMappingView().getScannableDeviceService();
 		} catch (Exception e) {
 			LOGGER.error("Error creating IScannableDeviceService", e);
 		}
@@ -126,12 +123,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 		wizardDialog.setPageSize(focusScanWizard.getPreferredPageSize());
 		wizardDialog.open();
 		// note: no action to take here as the zone plate is moved in FocusScanWizard.performFinish() if OK pressed
-	}
-
-	private IScannableDeviceService getScannableDeviceService() throws Exception {
-		IEventService eventService = getService(IEventService.class);
-		URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-		return eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
 	}
 
 	private void updateConfiguredScannableSummary() {
