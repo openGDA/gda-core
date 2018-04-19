@@ -19,6 +19,8 @@
 
 package gda.events.jms;
 
+import static javax.jms.DeliveryMode.NON_PERSISTENT;
+
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
@@ -29,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 
-import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
@@ -48,10 +49,11 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmsEventDispatcher.class);
 
-	/**
-	 * If an event being dispatched is older than this value a warning will be logged
-	 */
-	private static final int QUEUE_TIME_WARNING_MS = 1000; // In ms
+	/** If an event being dispatched is older than this value a warning will be logged */
+	private static final long QUEUE_TIME_WARNING_MS = 1000L; // 1 sec
+
+	/** The time after which undelivered events will be discarded */
+	private static final long MESSAGE_EXPIRATION_TIME_MS = 15 * 60 * 1000L; // 15 mins
 
 	// Maps to cache Topic and MessageProducer for performance
 	private final ConcurrentMap<String, Topic> topicMap = new ConcurrentHashMap<>();
@@ -209,11 +211,13 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 			logger.trace("Creating publisher for topic: {}", key);
 			try {
 				// Not got a publisher for this topic so make one
-				MessageProducer publisher = session.createProducer(getTopic(key));
+				final MessageProducer publisher = session.createProducer(getTopic(key));
 
-				// Guarantee message delivery (as much as possible)
-				// Maybe NON_PERSISTENT would be ok here, and would improve throughput but be cautious for now.
-				publisher.setDeliveryMode(DeliveryMode.PERSISTENT);
+				// Use non-persistent we don't want events to survive a ActiveMQ broker restart
+				publisher.setDeliveryMode(NON_PERSISTENT);
+
+				// We want to ensure events don't last too long
+				publisher.setTimeToLive(MESSAGE_EXPIRATION_TIME_MS);
 
 				return publisher;
 			} catch (JMSException e) {
