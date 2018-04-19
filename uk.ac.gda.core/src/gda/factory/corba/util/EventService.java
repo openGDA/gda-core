@@ -96,7 +96,7 @@ public class EventService {
 	 *
 	 * @return the event dispatcher
 	 */
-	public EventDispatcher getEventDispatcher() {
+	public synchronized EventDispatcher getEventDispatcher() {
 		if (eventDispatcher == null) {
 			if (usingJMS) {
 				eventDispatcher = new JmsEventDispatcher();
