@@ -272,31 +272,30 @@ public class ScriptProjectCreator {
 	}
 
 	/**
-	 * Uses ProjectUtils to create the script project in the workspace and also adds PyDev specific (.pydevproject) and
-	 * PyDev Eclipse nature (in .project) when chkGDASyntax is true. Otherwise removes just the nature from .project
+	 * Uses ProjectUtils to create the script project in the workspace and also sets correct Pydev natures. This is done
+	 * in such a way that the Pydev specific nature will be assigned to the project regardless of whether automatic
+	 * interpreter setup is enabled. This means the project should have the correct nature if .py files from the project
+	 * are opened before any further interpreter configuration in the workspace.
 	 */
 	private static IProject createJythonProject(final String projectName, final String importFolder,
 			final boolean chkGDASyntax, IProgressMonitor monitor) throws CoreException {
 
 		IProject project = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
 				monitor);
-		boolean hasPythonNature = PythonNature.getPythonNature(project) != null;
 
-		if (chkGDASyntax) {
-			if (!hasPythonNature) {
-				// Adds pydev nature of PYDEV_INTERPRETER_VERSION and set to use default interpreter for that version
-				// NOTE Very important to start the name with a '/'
-				// or pydev creates the wrong kind of nature.
-				PythonNature.addNature(project, monitor, PYDEV_INTERPRETER_VERSION,
-						"/" + project.getName() + "/src", null, IPythonNature.DEFAULT_INTERPRETER, null);
-			}
-		} else {
-			if (hasPythonNature) {
-				// This should do the same as removing the Pydev config but neither
-				// prevent it being added when a python file is edited.
-				PythonNature.removeNature(project, monitor);
-				// This method removes just the nature in .project
-			}
+		// Removes Pydev nature from the Eclipse project settings file: .project
+		PythonNature.removeNature(project, monitor);
+
+		// Adds Pydev nature to Eclipse .project AND Pydev's specific project nature in .pydevproject for our Jython
+		// version. Note that this method is only useful if the nature in .project doesn't exist hence the removeNature
+		// method is always called first in case the .pydevproject nature is wrong.
+		PythonNature.addNature(project, monitor, PYDEV_INTERPRETER_VERSION, "/" + project.getName() + "/src", null,
+				IPythonNature.DEFAULT_INTERPRETER, null);
+
+		// Then finally remove the Eclipse Pydev nature if we don't want chkGDASyntax i.e. don't have an interpreter (or
+		// don't have one that we've set up at least) This will be re-added by Pydev when a python file is opened however.
+		if (!chkGDASyntax) {
+			PythonNature.removeNature(project, monitor);
 		}
 		return project;
 	}
