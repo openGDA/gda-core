@@ -18,17 +18,20 @@
 
 package gda.device.continuouscontroller;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * A dummy traectory move controller useful for debugging and for illustration.
@@ -45,13 +48,12 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 
 	private volatile boolean going = false;
 
-	private Thread goingThread;
-
-
 	/**
 	 * If true simulate a move when asked to move.
 	 */
 	public boolean simulate = false;
+
+	private Future<?> moveTask;
 
 
 	public DummyTrajectoryMoveController() {
@@ -127,8 +129,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 	@Override
 	public void startMove() {
 		if (simulate) {
-			goingThread = new Thread(new SimulatedMoveTask());
-			goingThread.start();
+			moveTask = Async.submit(new SimulatedMoveTask());
 		} else {
 			InterfaceProvider.getTerminalPrinter().print(MessageFormat.format(
 					"{0}.startMove() with {1} points and {2} period.\n",
@@ -173,11 +174,15 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 	}
 
 	@Override
-	public void waitWhileMoving() throws InterruptedException {
-		if (goingThread == null) {
+	public void waitWhileMoving() throws DeviceException, InterruptedException {
+		if (moveTask == null) {
 			return;
 		}
-		goingThread.join();
+		try {
+			moveTask.get();
+		} catch (ExecutionException e) {
+			throw new DeviceException("Error moving " + getName(), e.getCause());
+		}
 	}
 
 	@Override
