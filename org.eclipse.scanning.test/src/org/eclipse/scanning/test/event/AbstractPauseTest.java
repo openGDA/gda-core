@@ -204,8 +204,8 @@ public class AbstractPauseTest extends BrokerTest{
 	}
 
 	@Test
-	public void checkDAQ_342() throws Exception {
-
+	public void testReorderedScans() throws Exception {
+		// see JIRA bug DAQ-342
 		consumer.setRunner(new FastRunCreator<StatusBean>(0,100,10,100, true));
 		consumer.start();
 
