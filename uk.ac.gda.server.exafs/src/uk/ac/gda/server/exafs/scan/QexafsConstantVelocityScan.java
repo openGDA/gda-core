@@ -93,7 +93,10 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 
 	public Object[] parseArguments() {
 		double acquisitionTime = (scan_time) / numberPoints;
-		Object[] args = new Object[10];
+		// First four arguments are [scannable, start, stop, step]
+		// then for each detector args [detector, exposure time].
+		int n_args = 4 + 2*nxDetectorList.size();
+		Object[] args = new Object[n_args];
 		args[0] = qexafsScanable;
 		args[1] = new Double(start);
 		args[2] = new Double(end);

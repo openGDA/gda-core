@@ -19,13 +19,14 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
-import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -38,7 +39,6 @@ public class Xspress3ScanOperationsv2 {
 
 	private Xspress3Controller controller;
 	private int currentScanNumber;
-	private int[] currentDimensions;
 	private String detectorName;
 	private boolean readDataFromFile;
 	private int lengthOfEachScanLine;
@@ -59,10 +59,8 @@ public class Xspress3ScanOperationsv2 {
 		this.readDataFromFile = readDataFromFile;
 		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		currentScanNumber = currentscan.getScanNumber();
-		currentDimensions = currentscan.getDimensions();
-
-		int numDimensions = currentscan.getDimensions().length;
-		lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
+		int[] currentDimensions = currentscan.getDimensions();
+		lengthOfEachScanLine = currentDimensions[currentDimensions.length - 1];
 		controller.doStop();
 		// to improve performance start acquisition at the start of the map and then wait for triggers
 		// to be more generic replace by the total size of the scan
@@ -73,7 +71,7 @@ public class Xspress3ScanOperationsv2 {
 		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 
 		if (readDataFromFile) {
-			prepareFileWriting(currentDimensions);
+			prepareFileWriting();
 		}
 		lineNumber = 0;
 		clearAndStart();
@@ -95,7 +93,7 @@ public class Xspress3ScanOperationsv2 {
 	/*
 	 * Must be called after currentScanNumber updated SR it seems that from scanBase the prepareForCollection for detectors is called after prepareScanNumber
 	 */
-	private void prepareFileWriting(int[] numDimensions) throws DeviceException {
+	private void prepareFileWriting() throws DeviceException {
 		// make sure that the callback is enable before to start a scan otherwise no data can be saved in the HDF5 file.
 		controller.setFileEnableCallBacks(UPDATE_CTRL.Enable);
 		// make sure that the Capture Mode is et to Stream otherwise the scan file
@@ -104,15 +102,14 @@ public class Xspress3ScanOperationsv2 {
 		controller.setFileArrayCounter(0);
 		String scanNumber = Long.toString(currentScanNumber);
 		// /dls/iXX/20XX/cm1234-5/tmp/xspress3/12345/0.hdf
-		String filePath = PathConstructor.createFromRCPProperties();
-		filePath += "tmp" + File.separator + detectorName + File.separator + scanNumber;
-		File filePathTester = new File(filePath);
+		Path filePath = Paths.get(PathConstructor.getVisitDirectory(), "tmp", detectorName, scanNumber);
+		File filePathTester = filePath.toFile();
 		if (!filePathTester.exists()) {
 			filePathTester.mkdirs();
 		}
 		// make sure that the NDAttribute is off
 		//
-		controller.setFilePath(filePath);
+		controller.setFilePath(filePath.toString());
 		controller.setNextFileNumber(0);
 		controller.setHDFAttributes(false);
 		controller.setHDFPerformance(false);
@@ -143,9 +140,8 @@ public class Xspress3ScanOperationsv2 {
 		// check if the EPICS HDF file writer is ready
 		if (readDataFromFile) {
 			long startTime = System.currentTimeMillis();
-			long timeForFileWriterToBePrepared = 0L;
 			while (!controller.isSavingFiles()) {
-				timeForFileWriterToBePrepared = System.currentTimeMillis() - startTime;
+				long timeForFileWriterToBePrepared = System.currentTimeMillis() - startTime;
 				if (timeForFileWriterToBePrepared > MONITOR_FILE_TIMEOUT)
 					throw new DeviceException("Timeout monitoring Xspress3 CAPTURE_RBV PV.");
 			}
