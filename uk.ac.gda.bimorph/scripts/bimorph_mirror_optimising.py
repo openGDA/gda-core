@@ -121,7 +121,7 @@ def generateGroupedPositions(initialPos, increment, groups_string):
         else:
             start=end=int(g)  
         for i in range(start-1,end):
-            initialPos[i]=increment
+            initialPos[i] += increment
             
         positions.append(initialPos[:])
         

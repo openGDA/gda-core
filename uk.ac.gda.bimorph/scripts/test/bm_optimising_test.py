@@ -38,9 +38,9 @@ class TestBimorphOptimisationFunctions(unittest.TestCase):
         init_poisitions = [1,2,3,4,5]
         generated_positions = bmo.generateGroupedPositions(init_poisitions, 1, '1-2,3,4-5')
         expected_positions = [[1,2,3,4,5],
-                              [1,1,3,4,5],
-                              [1,1,1,4,5],
-                              [1,1,1,1,1]]
+                              [2,3,3,4,5],
+                              [2,3,4,4,5],
+                              [2,3,4,5,6]]
         self.assertEqual(generated_positions, expected_positions)
 
     def test_topup_countdown_outside_topup(self):
