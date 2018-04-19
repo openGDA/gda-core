@@ -25,7 +25,7 @@ class TestBimorphOptimisationFunctions(unittest.TestCase):
 
     def test_generate_positions(self):
         init_positions = [1,2,3,4,5]
-        generated_positions = bmo.generatePositions(init_positions, 1)
+        generated_positions = list(bmo.generatePositions(init_positions, 1))
         expected_positions = [[1,2,3,4,5],
                               [2,2,3,4,5],
                               [2,3,3,4,5],
@@ -36,7 +36,7 @@ class TestBimorphOptimisationFunctions(unittest.TestCase):
 
     def test_generate_grouped_positions(self):
         init_poisitions = [1,2,3,4,5]
-        generated_positions = bmo.generateGroupedPositions(init_poisitions, 1, '1-2,3,4-5')
+        generated_positions = list(bmo.generateGroupedPositions(init_poisitions, 1, '1-2,3,4-5'))
         expected_positions = [[1,2,3,4,5],
                               [2,3,3,4,5],
                               [2,3,4,4,5],

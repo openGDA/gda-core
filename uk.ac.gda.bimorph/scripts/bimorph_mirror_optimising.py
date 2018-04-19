@@ -89,43 +89,24 @@ defScanAborter = ScanAborter("scanAborter",def_mon, 0.2)
 
 def generatePositions(initialPos, increment):
     logger.debug('Generating positions for initial position: %s, and increment: %d', initialPos, increment)
-    #    initialPos=[0,0,0,0,0,0,0,0]
-    #    increment=5
-    positions=[]
-    positions.append(initialPos)
-    for i in range(1,len(initialPos)+1):
-        newPos=[]
-        for j in range(len(initialPos)):
-            newPos.append(initialPos[j])
-        for k in range(i):
-            newPos[k]+=increment
-        positions.append(newPos)
-    return positions
+    positions = initialPos[:]
+    yield positions[:]
+    for i, v in enumerate(positions):
+        positions[i] = v + increment
+        yield positions[:]
 
-def generateGroupedPositions(initialPos, increment, groups_string):
+def generateGroupedPositions(initialPos, increment, group_string):
+                 initialPos, increment, group_string)
     logger.debug('Generating positions for initial position: %s, increment: %d, and groups: %s',
-                 initialPos, increment, groups_string)
-    
-    #initialPos=[0]*16
-    #increment=50
-    #groups_string="1-3,4,5,6,7,8,9,10,11,12,13,14-16"
-    
-    positions = []
-    positions.append(initialPos[:])
-    groups = groups_string.split(",")
-    for g in groups:
-        loc = g.find("-")
-        if loc!=-1:
-            start=int(g[:loc])
-            end=int(g[loc+1:])
-        else:
-            start=end=int(g)  
-        for i in range(start-1,end):
-            initialPos[i] += increment
-            
-        positions.append(initialPos[:])
-        
-    return positions
+                 initialPos, increment, group_string)
+    # split string into tuples eg '1-2,3,4-5' -> (1,2),(3,3),(4,5)
+    groups = (map(int, g.split('-')) if '-' in g else (int(g),)*2 for g in group_string.split(','))
+    positions = initialPos[:]
+    yield positions[:]
+    for s, e in groups:
+        for i in range(s-1, e):
+            positions[i] += increment
+        yield positions[:]
 
 #This is now depricated as the SlitScanner class below should be used instead. This has been left as some beamlines may still use it.
 def getData(mirror, 
@@ -143,8 +124,7 @@ def getData(mirror,
         settleTime=300,
         otherSlitSizeValue = 7.0 ):
 
-    targetPositions = generatePositions(mirror.getPosition(),increment)
-    print targetPositions
+    targetPositions = generatePositions(mirror.getPosition(), increment)
     pos([otherSlitPos, 0.]) #@UndefinedVariable
     pos([otherSlitSize, otherSlitSizeValue]) #@UndefinedVariable
     pos([slitToScanSize, slitSize]) #@UndefinedVariable
@@ -245,7 +225,6 @@ class SlitScanner():
         else:
             targetPositions = generateGroupedPositions(self.mirror.getPosition()[0:number_electrodes], self.increment, groups_string)
         
-        print targetPositions
         self.otherSlitPos(self.otherSlitPosValue)
         self.otherSlitSize(self.otherSlitSizeValue)
         self.slitToScanSize(self.slitSize)
