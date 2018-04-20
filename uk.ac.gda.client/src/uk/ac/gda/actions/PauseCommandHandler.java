@@ -25,56 +25,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
 
-public class PauseScanHandler extends AbstractHandler {
+/**
+ * Handler to respond to the GUI pause button being pressed.
+ *
+ * Pauses current scan or script depending on what is running.
+ */
+public class PauseCommandHandler extends AbstractHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(PauseScanHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(PauseCommandHandler.class);
 
 	/**
-	 * Returns if the button should be checked (ie something was pause), true or if there was nothing to pause or a
-	 * resume happened then false.
+	 * Pauses or resumes the scan or script depending on current state of Jython Server.
+	 *
+	 * @return null as specified by {@link AbstractHandler#execute(ExecutionEvent)}.
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			JythonStatus scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
-			JythonStatus scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
+			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
+			logger.debug("Pause/Resume button pressed, scan status={}, scriptStatus={}", status.scanStatus, status.scriptStatus);
 
-			logger.debug("Pause/Resume Scan button pressed, scan status={}, scriptStatus={}", scanStatus, scriptStatus);
-
-			boolean somethingPaused = false;
-
-			switch (scanStatus) {
-				case IDLE: // then we are only thinking about a script here
-					if (scriptStatus == JythonStatus.PAUSED) {
+			switch (status.scanStatus) {
+				case IDLE:
+					// Only a script could be running - set it to whatever it currently isn't
+					if (status.scriptStatus == JythonStatus.PAUSED) {
 						InterfaceProvider.getScriptController().resumeCurrentScript();
-					} else
-					if (scriptStatus == JythonStatus.RUNNING) {
+					} else if (status.scriptStatus == JythonStatus.RUNNING) {
 						InterfaceProvider.getScriptController().pauseCurrentScript();
-						somethingPaused = true;
 					}
 					break;
-
 				case PAUSED:
+					// Resume scan. If script is paused, leave it paused as the current scan could be being run independently
+					// while the script is paused in the background.
 					InterfaceProvider.getCurrentScanController().resumeCurrentScan();
-					if (scriptStatus == JythonStatus.PAUSED) {
-						InterfaceProvider.getScriptController().resumeCurrentScript();
-					}
 					break;
-
 				case RUNNING:
+					// Only pause scan - if it's part of a script, the script will wait anyway
 					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
-					// TODO: Investigate whether script should always be paused, or only paused when running.
-					InterfaceProvider.getScriptController().pauseCurrentScript();
-					somethingPaused = true;
 					break;
-
 				default:
-					logger.warn("PauseScanHandler:execute, scanStatus neither IDLE, PAUSED nor RUNNING!");
+					logger.warn("PauseScanHandler:execute, unexpected scanStatus {}", status.scanStatus);
 			}
-
-			return somethingPaused;
+			return null; // as per AbstractHandler#execute javadoc
 		} catch (Exception ne) {
 			throw new ExecutionException("Error pausing scan", ne);
 		}
