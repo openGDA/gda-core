@@ -1042,15 +1042,23 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		final String jythonServerThreadId = UUID.randomUUID().toString();
 		String cmd = "";
 		JythonServer server = null;
+		boolean scripted;
 
-		public JythonServerThread() {
-			// Use the Jython bundle loader as the TCCL
-			this.setContextClassLoader(Py.class.getClassLoader());
-		}
 		/**
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
 		public int authorisationLevel;
+
+		public JythonServerThread() {
+			// Use the Jython bundle loader as the TCCL
+			this.setContextClassLoader(Py.class.getClassLoader());
+
+			Thread current = Thread.currentThread();
+			if (current instanceof JythonServerThread) {
+				// Any command run from a script should also be thought of as a script
+				scripted = ((JythonServerThread)current).scripted;
+			}
+		}
 
 		public String getJythonServerThreadId() {
 			return jythonServerThreadId;
@@ -1065,9 +1073,20 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		}
 
 		/**
+		 * Check if this thread is running a script
+		 * <p>
+		 * Used when pausing scripts.
+		 * @return true if this thread represents a script
+		 */
+		public boolean isScript() {
+			return scripted;
+		}
+
+		/**
 		 * Override flag
 		 */
 		public boolean hasBeenAuthorised = false;
+
 	}
 
 	/*
@@ -1144,6 +1163,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			this.interpreter = server.interp;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
+			scripted = true;
 		}
 
 		@Override

@@ -56,6 +56,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonStatus;
+import gda.jython.ScriptBase;
 import gda.scan.Scan.ScanStatus;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
@@ -164,6 +165,8 @@ public abstract class ScanBase implements NestableScan {
 	// TODO This should be null for non-parents. For now we make it null in setIsChild(true)
 	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
 
+	private final boolean isScripted;
+
 	@Override
 	public int getScanNumber() {
 		return scanNumber;
@@ -186,9 +189,11 @@ public abstract class ScanBase implements NestableScan {
 			JythonServerThread currentThread = (JythonServerThread) Thread.currentThread();
 			permissionLevel = currentThread.authorisationLevel;
 			threadHasBeenAuthorised = currentThread.hasBeenAuthorised;
+			isScripted = currentThread.isScript();
 		} else {
 			permissionLevel = InterfaceProvider.getAuthorisationHolder().getAuthorisationLevel();
 			threadHasBeenAuthorised = false;
+			isScripted = false;
 		}
 	}
 
@@ -228,6 +233,9 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected void waitIfPaused() throws InterruptedException{
+		if (isScripted) {
+			ScriptBase.checkForPauses();
+		}
 		while (getStatus() == ScanStatus.PAUSED) {
 			if (isFinishEarlyRequested()) {
 				return;

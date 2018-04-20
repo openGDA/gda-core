@@ -22,12 +22,17 @@ package gda.jython;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServer.JythonServerThread;
+
 /**
  * This class supplies a namespace for volatile variables which scripts may want to refer to while running.
  */
 public abstract class ScriptBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptBase.class);
+
+	/** Cache thread check to prevent repeated casting and instance checks during scans */
+	private static final ThreadLocal<Boolean> respectPauses = new ThreadLocal<>();
 
 	/**
 	 * allows UI/users to pause/resume scripts
@@ -57,6 +62,9 @@ public abstract class ScriptBase {
 	 */
 	public static void checkForPauses() throws InterruptedException {
 		// TODO: GDA-5776 Script status is only changed if this method is called.
+		if (!shouldRespectPauses()) {
+			logger.warn("ScriptBase.checkForPauses called from outside script ({})", Thread.currentThread().getName());
+		}
 		checkForInterruption();
 		if (paused ) {
 			JythonServerFacade.getInstance().setScriptStatus(JythonStatus.PAUSED);
@@ -66,16 +74,33 @@ public abstract class ScriptBase {
 			}
 			JythonServerFacade.getInstance().setScriptStatus(JythonStatus.RUNNING);
 		}
-
 		checkForInterruption();
+	}
+
+	/**
+	 * Check if this thread should be respecting the paused flag. If this is not a script, the paused flag
+	 * should have no effect
+	 *
+	 * @return Whether this thread is a script
+	 */
+	private static boolean shouldRespectPauses() {
+		Boolean pause = respectPauses.get();
+		if (pause == null) {
+			Thread current = Thread.currentThread();
+			// This thread should only pause if it is representing a script
+			pause = (current instanceof JythonServerThread) && ((JythonServerThread)current).isScript();
+			respectPauses.set(pause); //cache to prevent further casting/type checking
+			logger.debug("Thread ({}) set to {} ScriptBase.paused flag", current.getName(), pause ? "respect" : "ignore");
+		}
+		return pause;
 	}
 
 	public static void checkForInterruption() throws InterruptedException {
 		if (Thread.interrupted()) { // clears as read
-			logger.info("Raising InterruptedException as thread was interrupted:", Thread.currentThread()
+			logger.info("Raising InterruptedException as thread was interrupted: {}", Thread.currentThread()
 					.getName());
 			logger.warn("GDA-5776 - *not* calling setScriptStatus(JythonStatus.IDLE");
-			throw new InterruptedException();
+			throw new InterruptedException("Script interrupted");
 		}
 	}
 }
