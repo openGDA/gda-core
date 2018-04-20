@@ -16,23 +16,29 @@ import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
-public class FastRunCreator<T extends StatusBean> implements IProcessCreator<T> {
+/**
+ * An {@link IProcessCreator} whose {@link IProcessCreator#createProcess(Object, IPublisher)}
+ * method creates and returns a {@link DryRunProcess}, a process that simulates a scan from
+ * the point of view of a consumer.
+ * @param <T>
+ */
+public class DryRunProcessCreator<T extends StatusBean> implements IProcessCreator<T> {
 
 	private boolean blocking;
 	private long sleep;
 	private int start, stop, step;
 
-	public FastRunCreator() {
+	public DryRunProcessCreator() {
 		this(true);
 	}
 
-	public FastRunCreator(boolean blocking) {
+	public DryRunProcessCreator(boolean blocking) {
 		this(50, blocking);
 	}
-	public FastRunCreator(long sleep, boolean blocking) {
+	public DryRunProcessCreator(long sleep, boolean blocking) {
 		this(0, 100, 10, sleep, blocking);
 	}
-	public FastRunCreator(int start, int stop, int step, long sleep, boolean blocking) {
+	public DryRunProcessCreator(int start, int stop, int step, long sleep, boolean blocking) {
 		this.sleep = sleep;
 		this.blocking = blocking;
 		this.start = start;

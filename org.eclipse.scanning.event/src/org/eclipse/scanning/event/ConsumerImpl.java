@@ -632,14 +632,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void pause() throws EventException {
-		if (!isActive()) return; // Nothing to pause
-		try {
-			consumerStateChangeLock.lockInterruptibly();
-		} catch (Exception ne) {
-			throw new EventException(ne);
-		}
+		// If we're already awaiting pause
+		if (awaitPaused) return;
 
 		try {
+			consumerStateChangeLock.lockInterruptibly();
+
 			awaitPaused = true;
 			if (messageConsumer!=null) messageConsumer.close();
 			messageConsumer = null; // Force unpaused consumers to make a new connection.
@@ -653,18 +651,17 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void resume() throws EventException {
-		if (isActive()) return;
+		// No need to do anything if we're not paused or awaiting pause
+		if (!awaitPaused) return;
 		try {
 			consumerStateChangeLock.lockInterruptibly();
-		} catch (Exception ne) {
-			throw new EventException(ne);
-		}
 
-		try {
 			awaitPaused = false;
 			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
 			shouldResumeCondition.signalAll();
 			LOGGER.info("Consumer signalled to resume {}", getName());
+		} catch (Exception ne) {
+			throw new EventException(ne);
 		} finally {
 			consumerStateChangeLock.unlock();
 		}

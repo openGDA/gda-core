@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.dry.FastRunCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,7 +36,7 @@ public class ScanRequestWithProcessingTest extends AbstractScanCommandsTest {
 
 		pconsumer = eservice.createConsumer(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_SET", "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
-		pconsumer.setRunner(new FastRunCreator(0, 1, 1, 10, false));
+		pconsumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
 		pconsumer.start();
 	}
 

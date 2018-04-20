@@ -50,7 +50,7 @@ import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.dry.FastRunCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.Constants;
@@ -120,7 +120,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void testSimpleConsumer() throws Exception {
-		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -148,7 +148,7 @@ public class AbstractConsumerTest extends BrokerTest {
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
-			fconsumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 50L, true));
+			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.cleanQueue(consumer.getSubmitQueueName());
 			fconsumer.start(); // No bean!
 
@@ -169,7 +169,7 @@ public class AbstractConsumerTest extends BrokerTest {
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
-			fconsumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 50L, true));
+			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.cleanQueue(consumer.getSubmitQueueName());
 			fconsumer.start();// It's going now, we can submit
 
@@ -223,13 +223,13 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Ignore("TODO Figure out why noit reliable in travis, works locally")
 	@Test
 	public void testConsumerStop() throws Exception {
-		testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
+		testStop(new DryRunProcessCreator<StatusBean>(0, 100, 1, 100L, true));
 	}
 
 	@Ignore("TODO Figure out why noit reliable in travis, works locally")
 	@Test
 	public void testConsumerStopNonBlockingProcess() throws Exception {
-		testStop(new FastRunCreator<StatusBean>(0, 100, 1, 100L, false));
+		testStop(new DryRunProcessCreator<StatusBean>(0, 100, 1, 100L, false));
 	}
 
 	private void testStop(IProcessCreator<StatusBean> dryRunCreator) throws Exception {
@@ -250,7 +250,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void testKillingAConsumer() throws Exception {
-		consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 1, 100L, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 1, 100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -272,7 +272,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testAbortingAJobRemotely() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -291,7 +291,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testAbortingAJobRemotelyNoBeanClass() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -361,7 +361,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		HeartbeatListener listener = new HeartbeatListener(5);
 		subscriber.addListener(listener);
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		Instant broadcastStartTime = Instant.now();
 		consumer.start();
@@ -382,7 +382,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void uncheckedHeartbeat() throws Exception {
 		ISubscriber<IHeartbeatListener> subscriber = null;
 		try {
-			consumer.setRunner(new FastRunCreator<StatusBean>(100L, true));
+			consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 			consumer.cleanQueue(consumer.getSubmitQueueName());
 			consumer.start();
 
@@ -435,7 +435,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Ignore("Test gives unpredicatable errors on travis.")
 	@Test
 	public void testMultipleSubmissions() throws Exception {
-		consumer.setRunner(new FastRunCreator<StatusBean>(0, 100, 50, 100L, false));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 100L, false));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 
@@ -478,7 +478,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void testMultipleSubmissionsUsingThreads() throws Exception {
-		consumer.setRunner(new FastRunCreator<StatusBean>(100L, false));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, false));
 		consumer.cleanQueue(consumer.getSubmitQueueName());
 		consumer.start();
 

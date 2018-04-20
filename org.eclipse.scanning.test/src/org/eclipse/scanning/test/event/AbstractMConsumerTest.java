@@ -34,7 +34,7 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunCreator;
-import org.eclipse.scanning.api.event.dry.FastRunCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
@@ -156,13 +156,13 @@ public class AbstractMConsumerTest extends BrokerTest{
     @Test
     public void testReorderingAPausedQueueTwoConsumers() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100, true));
 		consumer.start();
 
 		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), consumer.getSubmitQueueName(), consumer.getStatusSetName(), consumer.getStatusTopicName(), EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
-			consumer2.setRunner(new FastRunCreator<StatusBean>(100, true));
+			consumer2.setRunner(new DryRunProcessCreator<StatusBean>(100, true));
 			consumer2.start();
 
 			// Bung ten things on there.
