@@ -639,8 +639,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			consumerStateChangeLock.lockInterruptibly();
 
 			awaitPaused = true;
-			if (messageConsumer!=null) messageConsumer.close();
-			messageConsumer = null; // Force unpaused consumers to make a new connection.
 			LOGGER.info("Consumer signalled to pause {}", getName());
 		} catch (Exception ne) {
 			throw new EventException(ne);
@@ -657,7 +655,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			consumerStateChangeLock.lockInterruptibly();
 
 			awaitPaused = false;
-			// We don't have to actually start anything again because the getMessage(...) call reconnects automatically.
 			shouldResumeCondition.signalAll();
 			LOGGER.info("Consumer signalled to resume {}", getName());
 		} catch (Exception ne) {
