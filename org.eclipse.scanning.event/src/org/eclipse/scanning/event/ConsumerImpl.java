@@ -632,19 +632,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	@Override
 	public void pause() throws EventException {
-		// If we're already awaiting pause
-		if (awaitPaused) return;
-
-		try {
-			consumerStateChangeLock.lockInterruptibly();
-
-			awaitPaused = true;
-			LOGGER.info("Consumer signalled to pause {}", getName());
-		} catch (Exception ne) {
-			throw new EventException(ne);
-		} finally {
-			consumerStateChangeLock.unlock();
-		}
+		awaitPaused = true;
+		LOGGER.info("Consumer signalled to pause {}", getName());
 	}
 
 	@Override
