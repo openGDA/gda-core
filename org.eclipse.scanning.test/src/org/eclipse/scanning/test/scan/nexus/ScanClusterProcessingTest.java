@@ -23,7 +23,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.dry.FastRunCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -72,7 +72,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 		consumer = eventService.createConsumer(uri, PROCESSING_QUEUE_NAME,
 				"scisoft.operation.STATUS_SET", "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
-		consumer.setRunner(new FastRunCreator(0, 1, 1, 10, false));
+		consumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
 		consumer.start();
 	}
 

@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.dry.FastRunCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
@@ -60,7 +60,7 @@ public class AbstractPauseTest extends BrokerTest{
 	@Test
 	public void testPausingAConsumerByID() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100,false));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -91,7 +91,7 @@ public class AbstractPauseTest extends BrokerTest{
 	@Test
 	public void testPausingAConsumerByQueueName() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(100,false));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100,false));
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -122,7 +122,7 @@ public class AbstractPauseTest extends BrokerTest{
 	@Test
 	public void testReorderingAPausedQueue() throws Exception {
 
-		consumer.setRunner(new FastRunCreator<StatusBean>(0,100,10,100, true));
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
 		consumer.start();
 
 		// Bung ten things on there.
@@ -204,9 +204,9 @@ public class AbstractPauseTest extends BrokerTest{
 	}
 
 	@Test
-	public void checkDAQ_342() throws Exception {
-
-		consumer.setRunner(new FastRunCreator<StatusBean>(0,100,10,100, true));
+	public void testReorderedScans() throws Exception {
+		// see JIRA bug DAQ-342
+		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0,100,10,100, true));
 		consumer.start();
 
 		Thread.sleep(500);
@@ -246,6 +246,42 @@ public class AbstractPauseTest extends BrokerTest{
 		Thread.sleep(500);
 		assertTrue(consumer.isActive());
 
+	}
+
+	@Test
+	public void testPauseResumeWhenScanRunning() throws Exception {
+		consumer.setRunner(new DryRunProcessCreator<>(0, 100, 10, 100, true)); // each scan takes 1 second
+		consumer.start();
+
+		// Submit two beans
+		StatusBean bean = null;
+		for (int i = 0; i < 2; i++) {
+			bean = new StatusBean();
+			bean.setName("Submission"+i);
+			bean.setStatus(Status.SUBMITTED);
+			bean.setHostName(InetAddress.getLocalHost().getHostName());
+			bean.setMessage("Hello World");
+			bean.setUniqueId(UUID.randomUUID().toString());
+			bean.setUserName(String.valueOf(i));
+			submitter.submit(bean);
+		}
+
+		Thread.sleep(200); // make sure we're in the first scan
+
+		// pause the queue and immediately resume it
+		IPublisher<PauseBean> commandPublisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		commandPublisher.setStatusSetName(EventConstants.CMD_SET);
+		commandPublisher.setStatusSetAddRequired(true);
+
+		PauseBean pauseBean = new PauseBean();
+		pauseBean.setQueueName(consumer.getSubmitQueueName());
+		commandPublisher.broadcast(pauseBean);
+		pauseBean.setPause(false);
+		commandPublisher.broadcast(pauseBean);
+
+		Thread.sleep(1200); // wait long enough for the first scan to finish
+
+		assertTrue(consumer.isActive()); // check the consumer has been resumed
 	}
 
 	private StatusBean doSubmit() throws Exception {
