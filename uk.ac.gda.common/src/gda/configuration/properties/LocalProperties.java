@@ -392,6 +392,8 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_DATASERVER_PORT = "gda.dataserver.port";
 
+	/** Property to disable Corba and use RMI for RPC and JMS for events */
+	public static final String CORBA_DISABLED = "gda.remoting.disableCorba";
 
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
@@ -786,6 +788,7 @@ public final class LocalProperties {
 	 * Properties that should not be set and the reason
 	 */
 	private static final Map<String, String> obsoletePropertyToReason = new HashMap<>();
+
 	static {
 		obsoletePropertyToReason.put("gda.objectDelimiter", "it is not used any more");
 		obsoletePropertyToReason.put("gda.eventreceiver.purge", "CorbaEventReceiver does not purge events any more");
@@ -807,5 +810,10 @@ public final class LocalProperties {
 
 	public static String[] getStringArray(String propertyName) {
 		return propConfig.getStringArray(propertyName);
+	}
+
+	public static boolean isCorbaDisabled() {
+		return check(CORBA_DISABLED);
+
 	}
 }
