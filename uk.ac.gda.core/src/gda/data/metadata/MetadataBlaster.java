@@ -18,6 +18,7 @@
 
 package gda.data.metadata;
 
+import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
@@ -25,9 +26,11 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(Device.class)
 public class MetadataBlaster extends DeviceBase implements IObserver {
 
 	private MetadataEntry sme;
