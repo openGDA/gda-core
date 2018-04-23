@@ -44,7 +44,7 @@ import gda.observable.ObservableComponent;
  * java parameter {@code gda.device.monitor.resumeScan} setting. This monitor behaviour can be switched on and off as
  * required.
  */
-public class IonChamberBeamMonitor extends MonitorBase implements Runnable, IObserver, IBeamMonitor {
+public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBeamMonitor {
 	/**
 	 * the logger instance
 	 */
@@ -133,7 +133,9 @@ public class IonChamberBeamMonitor extends MonitorBase implements Runnable, IObs
 	 */
 	private void startMonitoring() {
 		if (isConfigured() && monitorOn) {
-			uk.ac.gda.util.ThreadManager.getThread(this).start();
+			Thread thread = new Thread(this::runBeamMonitor, "IonChamberBeamMonitor");
+			thread.setDaemon(true);
+			thread.start();
 		}
 	}
 
@@ -195,12 +197,9 @@ public class IonChamberBeamMonitor extends MonitorBase implements Runnable, IObs
 
 	/**
 	 * defines actions of the beam monitor thread. On beam down, all scans in jython pause; on beam back, the scan
-	 * resumes or restart; on interruption, abort any scan. {@inheritDoc}
-	 *
-	 * @see java.lang.Runnable#run()
+	 * resumes or restart; on interruption, abort any scan.
 	 */
-	@Override
-	public void run() {
+	private void runBeamMonitor() {
 		while (monitorOn) {
 			boolean aboveThreshold = aboveThreshold(getCurrentValue());
 			if (!aboveThreshold) {
