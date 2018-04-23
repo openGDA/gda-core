@@ -594,11 +594,11 @@ public class DummyDAServer extends DAServer {
 		key = 0;
 	}
 
-	private class TimeFrameGenerator implements Runnable {
+	private class TimeFrameGenerator {
 		Thread runner;
 
 		public synchronized void start() {
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+			runner = new Thread(this::runFrameGenerator, getClass().getName());
 			currentState = "RUNNING";
 			runner.start();
 		}
@@ -615,8 +615,7 @@ public class DummyDAServer extends DAServer {
 				runner.interrupt();
 		}
 
-		@Override
-		public synchronized void run() {
+		private synchronized void runFrameGenerator() {
 			try {
 				currentState = "RUNNING";
 				for (currentCycleNumber = cycles; currentCycleNumber > 0; currentCycleNumber--) {
