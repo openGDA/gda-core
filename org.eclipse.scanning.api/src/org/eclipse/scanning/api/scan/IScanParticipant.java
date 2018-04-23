@@ -38,8 +38,9 @@ package org.eclipse.scanning.api.scan;
  * does the archiving.
  * <pre>
         {@literal <bean id="FileRegistrar" class="gda.data.fileregistrar.FileRegistrar" init-method="register">}
+        {@literal         <constructor-arg ref="icat_xml_creator" />}
         {@literal         <property name="name" value="FileRegistrar" />}
-        {@literal         <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />
+        {@literal         <property name="directory" value="/dls/bl-misc/dropfiles2/icat/dropZone/}${gda.instrument}-" />}
         {@literal </bean>}
 
  *  </pre>
