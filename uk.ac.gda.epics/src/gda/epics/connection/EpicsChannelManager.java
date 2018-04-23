@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +36,7 @@ import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * EPICS channel (connection, monitor) manager.
@@ -92,9 +91,6 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 	 * Creation phase completed flag. (sync on unconnectedCriticalChannels)
 	 */
 	protected boolean creationPhaseCompleted = false;
-
-	/** Thread pool for executing notification of initialization complete */
-	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	/**
 	 * Default constructor.
@@ -471,17 +467,13 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 	 */
 	private void notifyInitializationCompleted() {
 		if (initializationListener != null) {
-			try {
-				threadPool.submit(() -> {
-					try {
-						initializationListener.initializationCompleted();
-					} catch( Exception e) {
-						logger.error("Error while notifying initalization complete",e);
-					}
-				});
-			} catch (Throwable th) {
-				logger.error(th.getMessage(),th);
-			}
+			Async.submit(() -> {
+				try {
+					initializationListener.initializationCompleted();
+				} catch(Exception e) {
+					logger.error("Error while notifying initalization complete",e);
+				}
+			});
 		}
 	}
 
