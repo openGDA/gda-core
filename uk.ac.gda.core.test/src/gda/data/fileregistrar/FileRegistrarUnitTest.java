@@ -89,18 +89,17 @@ public class FileRegistrarUnitTest {
 		FileRegistrarServiceHolder.setFilePathService(filePathService);
 	}
 
+	@SuppressWarnings("unused")
 	@Test(expected = FactoryException.class)
 	public void testIcatXMLCreatorRequired() throws Exception {
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.configure();
+		new FileRegistrar(null);
 	}
 
 	@Test
 	public void testRegisterFile() throws Exception {
 		when(filePathService.getScanNumber()).thenReturn(123);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 
 		// registerFile() will throw an exception because there is no JythonServerFacade
@@ -125,8 +124,7 @@ public class FileRegistrarUnitTest {
 
 		when(filePathService.getScanNumber()).thenReturn(123);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 		try {
 			fileRegistrar.registerFiles(SCAN_FILES);
@@ -149,8 +147,7 @@ public class FileRegistrarUnitTest {
 	public void testAddScanFile() throws Exception {
 		when(filePathService.getScanNumber()).thenReturn(123);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 		fileRegistrar.addScanFile(SCAN_FILE);
 		fileRegistrar.scanEnd();
@@ -168,8 +165,7 @@ public class FileRegistrarUnitTest {
 	public void testAddScanFiles() throws Exception {
 		when(filePathService.getScanNumber()).thenReturn(123);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 		for (int i = 0; i < SCAN_FILES.length; i++) {
 			fileRegistrar.addScanFile(SCAN_FILES[i]);
@@ -191,8 +187,7 @@ public class FileRegistrarUnitTest {
 	public void testAddScanFilesPathServiceFails() throws Exception {
 		when(filePathService.getScanNumber()).thenThrow(new Exception("Cannot get scan number"));
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 		for (int i = 0; i < SCAN_FILES.length; i++) {
 			fileRegistrar.addScanFile(SCAN_FILES[i]);
@@ -234,8 +229,7 @@ public class FileRegistrarUnitTest {
 
 		final IDataWriterExtender dataWriterExtender = mock(IDataWriterExtender.class);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
-		fileRegistrar.setIcatXMLCreator(icatXmlCreator);
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.setClientFileAnnouncer(scanObserver);
 		fileRegistrar.addData(dataWriterExtender, dataPoint1);
 		fileRegistrar.addData(dataWriterExtender, dataPoint2);
@@ -251,12 +245,12 @@ public class FileRegistrarUnitTest {
 	}
 
 	@Test
-	public void testRegister() {
+	public void testRegister() throws Exception {
 		final IScanService scanService = mock(IScanService.class);
 		FileRegistrarServiceHolder.setRunnableDeviceService(scanService);
 		final ArgumentCaptor<FileRegistrar> fileRegistrarCaptor = ArgumentCaptor.forClass(FileRegistrar.class);
 
-		final FileRegistrar fileRegistrar = new FileRegistrar();
+		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);
 		fileRegistrar.register();
 
 		verify(scanService).addScanParticipant(fileRegistrarCaptor.capture());

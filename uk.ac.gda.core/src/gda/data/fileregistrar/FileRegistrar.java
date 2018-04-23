@@ -37,7 +37,6 @@ import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.DeviceBase;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
@@ -72,13 +71,21 @@ import uk.ac.diamond.daq.concurrent.Async;
  * </pre>
  *
  */
-public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable, Configurable {
+public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable {
+
+	public FileRegistrar(ArchiveFileCreator icatXMLCreator) throws FactoryException {
+		super();
+		if (icatXMLCreator == null) {
+			throw new FactoryException("icatXMLCreator is not set");
+		}
+		this.icatXMLCreator = icatXMLCreator;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(FileRegistrar.class);
 
 	private IScanDataPoint lastScanDataPoint = null;
 
-	private ArchiveFileCreator icatXMLCreator;
+	private final ArchiveFileCreator icatXMLCreator;
 
 	private ClientFileAnnouncer clientFileAnnouncer;
 
@@ -87,21 +94,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private String name;
 
 	private boolean local = false;
-
-	private boolean configured = false;
-
-	@Override
-	public void configure() throws FactoryException {
-		if (icatXMLCreator == null) {
-			throw new FactoryException("icatXMLCreator is not set");
-		}
-		configured = true;
-	}
-
-	@Override
-	public boolean isConfigured() {
-		return configured;
-	}
 
 	/**
 	 * Entry point in GDA8 scanning to register a file
@@ -217,7 +209,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 				scanId = "scan-" + lastScanDataPoint.getScanIdentifier();
 			} else {
 				final IFilePathService pathService = FileRegistrarServiceHolder.getFilePathService();
-				String id; // to get over the fact the datasetId is final
+				String id; // to get over the fact the scanId is final
 				try {
 					int scanNumber = pathService.getScanNumber();
 					id = "scan-" + scanNumber;
@@ -262,10 +254,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	public ArchiveFileCreator getIcatXMLCreator() {
 		return icatXMLCreator;
-	}
-
-	public void setIcatXMLCreator(ArchiveFileCreator icatXMLCreator) {
-		this.icatXMLCreator = icatXMLCreator;
 	}
 
 	@Override
