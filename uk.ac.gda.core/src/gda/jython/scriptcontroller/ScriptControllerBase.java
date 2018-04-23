@@ -25,11 +25,13 @@ import gda.factory.Localizable;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Concrete implementation of Scriptcontroller. The attributes defined through the script controller interface are such
  * that this class should not need to be sub-classed.
  */
+@ServiceInterface(Scriptcontroller.class)
 public class ScriptControllerBase extends ObservableComponent implements Scriptcontroller, Configurable, Localizable {
 
 	String name;

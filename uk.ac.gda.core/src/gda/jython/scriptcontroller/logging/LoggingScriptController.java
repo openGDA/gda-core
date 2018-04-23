@@ -18,12 +18,6 @@
 
 package gda.jython.scriptcontroller.logging;
 
-import gda.commandqueue.JythonScriptProgressProvider;
-import gda.configuration.properties.LocalProperties;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -44,12 +38,20 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.commandqueue.JythonScriptProgressProvider;
+import gda.configuration.properties.LocalProperties;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
 /**
  * A script controller which logs in a Derby database all the ScriptControllerLoggingMessage objects which are passed
  * through it.
  * <p>
  * It provides the tools to enable other classes to extract information about the contents of the database.
  */
+@ServiceInterface(ILoggingScriptController.class)
 public class LoggingScriptController extends ScriptControllerBase implements ILoggingScriptController {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoggingScriptController.class);
