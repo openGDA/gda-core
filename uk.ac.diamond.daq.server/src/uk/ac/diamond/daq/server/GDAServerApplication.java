@@ -66,10 +66,15 @@ public class GDAServerApplication implements IApplication {
 			try {
 				processes.put(LOG, configurationService.getLogServerCommand().execute());
 				logger.info("Log server starting");
-				processes.put(NAME, configurationService.getNameServerCommand().execute());
-				logger.info("Name server starting");
-				processes.put(EVENT, configurationService.getEventServerCommand().execute());
-				logger.info("Channel/Event server starting");
+				if (isCorbaEnabled()) {
+					processes.put(NAME, configurationService.getNameServerCommand().execute());
+					logger.info("Name server starting");
+					processes.put(EVENT, configurationService.getEventServerCommand().execute());
+					logger.info("Channel/Event server starting");
+				}
+				else {
+					logger.info("Corba is disabled");
+				}
 				// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
 				Thread.sleep(SERVER_WAIT_MILLIS);
 			}
@@ -107,6 +112,11 @@ public class GDAServerApplication implements IApplication {
 			logger.info("GDA server application ended");
 		}
 		return IApplication.EXIT_OK;
+	}
+
+	private boolean isCorbaEnabled() {
+		// TODO Here use the PropertyService for now but once backed by sys properties will not be needed.
+		return !getPropertyService().getAsBoolean("gda.remoting.disableCorba", false);
 	}
 
 	/**
