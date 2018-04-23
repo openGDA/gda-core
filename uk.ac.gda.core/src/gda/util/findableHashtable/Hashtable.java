@@ -20,11 +20,12 @@
 package gda.util.findableHashtable;
 
 import gda.device.DeviceException;
+import gda.factory.Findable;
 
 /**
- * An extended hashtable that can be 'found' and accessed via CORBA.
+ * An extended hashtable that can be 'found' and accessed remotely
  */
-public interface Hashtable {
+public interface Hashtable extends Findable {
 	/**
 	 * Add a boolean entry to the hashtable.
 	 *

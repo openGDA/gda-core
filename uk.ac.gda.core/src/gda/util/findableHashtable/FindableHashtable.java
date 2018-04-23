@@ -21,15 +21,12 @@ package gda.util.findableHashtable;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Localizable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-/**
- *
- */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class FindableHashtable extends java.util.Hashtable implements gda.util.findableHashtable.Hashtable, Findable,
-		Configurable, Localizable {
+@ServiceInterface(Hashtable.class)
+public class FindableHashtable extends java.util.Hashtable implements Hashtable, Configurable, Localizable {
 	private boolean local = false;
 
 	/**
