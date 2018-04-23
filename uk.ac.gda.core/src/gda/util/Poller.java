@@ -30,8 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
  *     see DAQ-1197
  */
 @Deprecated
-public class Poller implements Runnable {
-	private Thread thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+public class Poller {
+	private Thread thread = new Thread(this::runPolling, getClass().getName());
 
 	private long pollTime = 10000;
 
@@ -101,8 +101,7 @@ public class Poller implements Runnable {
 	/**
 	 * The thread run method.
 	 */
-	@Override
-	public synchronized void run() {
+	private synchronized void runPolling() {
 		while (isPollerRunning()) {
 			notifyListeners();
 
@@ -142,7 +141,7 @@ public class Poller implements Runnable {
 	 */
 	public void start() {
 		setPollerRunning(true);
-		thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+		thread = new Thread(this::runPolling, getClass().getName());
 		thread.start();
 	}
 
