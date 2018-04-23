@@ -28,7 +28,7 @@ import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.motor.EpicsMotor.STATUSCHANGE_REASON;
 
-class MoveEventQueue implements Runnable {
+class MoveEventQueue {
 
 	private class MoveEvent {
 		final MotorStatus newStatus;
@@ -80,7 +80,8 @@ class MoveEventQueue implements Runnable {
 			if (add) {
 				items.add(new MoveEvent(motor, newStatus, reason));
 				if (thread == null) {
-					thread = uk.ac.gda.util.ThreadManager.getThread(this);
+					thread = new Thread(this::runEventQueue, "MoveEventQueue processing");
+					thread.setDaemon(true);
 					thread.start();
 				}
 				items.notifyAll();
@@ -92,8 +93,7 @@ class MoveEventQueue implements Runnable {
 		killed = true;
 	}
 
-	@Override
-	public void run() {
+	private void runEventQueue() {
 		while (!killed) {
 			try {
 				MoveEvent[] itemsToBeHandled = null;
