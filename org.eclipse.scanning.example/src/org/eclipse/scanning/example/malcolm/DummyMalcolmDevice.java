@@ -733,6 +733,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		if (model.getDummyDetectorModels().isEmpty()) return;
 
 		String dirPath = getFileDir();
+		if (dirPath == null) return; // we can run without writing Nexus
 		if (!dirPath.endsWith("/")) {
 			dirPath += "/";
 		}
