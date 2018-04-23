@@ -36,7 +36,7 @@ import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 import gda.rcp.ncd.Activator;
 import gda.rcp.ncd.NcdController;
-import uk.ac.gda.util.ThreadManager;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class NcdScanControlComposite extends Composite {
 
@@ -63,8 +63,7 @@ public class NcdScanControlComposite extends Composite {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			logger.info("Stop requested from NCD Button Panel");
-			Thread thread = ThreadManager.getThread(NcdScanControlComposite.this::stopScan);
-			thread.start();
+			Async.execute(NcdScanControlComposite.this::stopScan);
 		}
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
