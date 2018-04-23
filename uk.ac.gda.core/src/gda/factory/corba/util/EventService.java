@@ -40,7 +40,9 @@ public class EventService {
 	private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 
 	public static final String USE_JMS_EVENTS = "gda.events.useJMS";
-	public final boolean usingJMS = LocalProperties.check(USE_JMS_EVENTS);
+
+	/** If JMS events is specifically requested or if Corba is disabled */
+	private final boolean usingJMS = LocalProperties.check(USE_JMS_EVENTS) || LocalProperties.isCorbaDisabled();
 
 	private org.omg.CORBA.ORB orb;
 

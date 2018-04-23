@@ -258,10 +258,12 @@ public class SpringObjectServer extends ObjectServer {
 	public void shutdown() {
 		super.shutdown();
 
-		// Get the root ImplFactory Bean started by Jacorb/Spring by name
-		ImplFactory root = applicationContext.getBean("ImplFactory#0", ImplFactory.class);
-		if (root != null) {
-			root.shutdown();
+		if (!LocalProperties.isCorbaDisabled()) {
+			// Get the root ImplFactory Bean started by Jacorb/Spring by name
+			ImplFactory root = applicationContext.getBean("ImplFactory#0", ImplFactory.class);
+			if (root != null) {
+				root.shutdown();
+			}
 		}
 	}
 
@@ -277,7 +279,9 @@ public class SpringObjectServer extends ObjectServer {
 		 */
 		addAdapterFactoryToFinder();
 		configureAllConfigurablesInApplicationContext(applicationContext);
-		startOrbRunThread();
+		if (!LocalProperties.isCorbaDisabled()) {
+			startOrbRunThread();
+		}
 	}
 
 

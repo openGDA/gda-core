@@ -78,6 +78,9 @@ public class NetService {
 	 * @throws FactoryException
 	 */
 	public static synchronized NetService getInstance() throws FactoryException {
+		if (LocalProperties.isCorbaDisabled()) {
+			throw new IllegalStateException("Should not be using the NetService Corba is disabled");
+		}
 		if (instance == null) {
 			instance = new NetService();
 			instance.init();

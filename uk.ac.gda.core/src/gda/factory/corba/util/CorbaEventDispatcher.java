@@ -72,6 +72,9 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	private Object previousEvent;
 
 	public CorbaEventDispatcher(EventChannel eventChannel, ORB orb, boolean batchMode) {
+		if (LocalProperties.isCorbaDisabled()) {
+			throw new IllegalStateException("Should not be using CorbaEventDispatcher Corba is disabled");
+		}
 		this.batchMode = batchMode;
 
 		if(batchMode){

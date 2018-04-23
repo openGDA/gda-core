@@ -63,6 +63,9 @@ public class AdapterFactory extends ConfigurableBase implements Factory {
 	 *            the name service
 	 */
 	public AdapterFactory(String name, NetService netService) {
+		if (LocalProperties.isCorbaDisabled()) {
+			throw new IllegalStateException("Should not be using the AdapterFactory Corba is disabled");
+		}
 		this.name = name;
 		this.netService = netService;
 	}

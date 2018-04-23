@@ -228,7 +228,7 @@ public abstract class ObjectServer implements Runnable {
 	 * @throws FactoryException
 	 */
 	public void configure() throws FactoryException {
-		if (!localObjectsOnly) {
+		if (!localObjectsOnly && !LocalProperties.isCorbaDisabled()) {
 			logger.info("Calling NetService.getInstance()");
 			netService = NetService.getInstance();
 			logger.info("Calling EventService.getInstance()");
