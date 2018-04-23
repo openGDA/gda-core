@@ -129,7 +129,7 @@ public class GDAServerApplication implements IApplication {
 	}
 
 	private void acceptStatusPortConnections() {
-		while (true) {
+		while (!statusPort.isClosed()) {
 			try {
 				final Socket s = statusPort.accept();
 				s.close();
