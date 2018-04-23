@@ -18,6 +18,8 @@
 
 package gda.device.temperature;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.util.Date;
@@ -36,6 +38,7 @@ import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.Poller;
 import gda.util.PollerEvent;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * 4K temperature control supports Lakeshore 340 device using EpicsLakeshore340Controller.
@@ -269,38 +272,21 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		//controller.ramp();
 		busy = true;
 		notify();
-		Thread update = uk.ac.gda.util.ThreadManager.getThread(new UpdateThread(this), "feedback thread");
-		update.start();
+		Async.scheduleAtFixedRate(this::notifyUsersOfPosition, 5, 5, SECONDS);
 	}
 
 	/**
-	 * print current values to Jython Terminal during temperature change by "pos" command.
-	 *
-	 * @author fy65
+	 * Notify users of current position for use during moves
 	 */
-	class UpdateThread implements Runnable {
-		GdaLakeshore340 ocs;
-
-		public UpdateThread(GdaLakeshore340 lakeshore340) {
-			this.ocs =lakeshore340;
-		}
-
-		@Override
-		public void run() {
-			try {
-				while (isBusy()) {
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// noop
-					}
-					JythonServerFacade.getInstance().print(ocs.toString() + " " + stateString);
-				}
-			} catch (DeviceException e) {
-				logger.error("Failed to get feedback values from EPICS.", e);
+	private void notifyUsersOfPosition() {
+		try {
+			if (!isBusy()) {
+				throw new IllegalStateException(getName() + " has completed its move");
 			}
+			JythonServerFacade.getInstance().print(toString() + " " + stateString);
+		} catch (DeviceException e) {
+			logger.error("Failed to get feedback values from EPICS.", e);
 		}
-
 	}
 
 	/**
