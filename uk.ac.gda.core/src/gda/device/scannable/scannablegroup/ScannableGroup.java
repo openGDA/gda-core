@@ -40,10 +40,12 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A logical group of scannables
  */
+@ServiceInterface(IScannableGroup.class)
 public class ScannableGroup extends ScannableBase implements Configurable, IScannableGroup, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
