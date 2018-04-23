@@ -33,11 +33,13 @@ import gda.factory.FactoryException;
 import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A concrete implementation of the {@link Metadata} interface. The class stores a list of {@link IMetadataEntry} objects
  * and provides access to those objects and their contents. Metadata can be added programatically or configured via XML.
  */
+@ServiceInterface(Metadata.class)
 public class GdaMetadata extends ConfigurableBase implements Metadata, Localizable, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(GdaMetadata.class);
 	private String name;
