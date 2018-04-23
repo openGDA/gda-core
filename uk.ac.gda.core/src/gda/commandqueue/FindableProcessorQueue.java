@@ -18,9 +18,6 @@
 
 package gda.commandqueue;
 
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -30,12 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
 /**
  * FindableProcessorQueue implements Processor and Queue
  * The implementation of Queue is done using delegation to the Queue
  * object set using the setQueue method
  *
  */
+@ServiceInterface(IFindableQueueProcessor.class)
 public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable, IObserver, InitializingBean {
 	ObservableComponent obsComp = new ObservableComponent();
 
