@@ -149,7 +149,7 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 			shutter.addIObserver(this);
 			timer.addActionListener(new TimerListener(statusLabel));
 			update(this, shutter);
-			uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName()).start();
+			new Thread(this, getClass().getName()).start();
 		} catch (Exception e) {
 			// if the shutter is not found the JPanel will be empty
 			logger.warn("exception configuring {}: {}", shutter.getName(), e);

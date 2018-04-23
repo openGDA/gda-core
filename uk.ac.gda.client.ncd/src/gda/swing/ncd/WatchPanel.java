@@ -19,8 +19,6 @@
 
 package gda.swing.ncd;
 
-import gda.jython.JythonServerFacade;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -41,6 +39,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jython.JythonServerFacade;
 
 /**
  * WatchPanel Class
@@ -88,7 +88,7 @@ public class WatchPanel extends JPanel {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void configure() {
 		if (configured) {
@@ -170,7 +170,7 @@ public class WatchPanel extends JPanel {
 				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
 		// start a thread which will constantly updates this panel
-		Thread updateWatches = uk.ac.gda.util.ThreadManager.getThread(new UpdateWatches(this));
+		Thread updateWatches = new Thread(new UpdateWatches(this));
 		updateWatches.setPriority(Thread.MIN_PRIORITY);
 		updateWatches.start();
 		configured = true;
@@ -181,7 +181,7 @@ public class WatchPanel extends JPanel {
 	 * be a button to hide this panel as well. Defaults to true as for the JythonTerminal which has its own means to
 	 * unhide this panel. Other users might want to set it to false prior to the configure() call. If done after that
 	 * you will have the 'Hide' button already.
-	 * 
+	 *
 	 * @param value
 	 */
 	public void setAutoHide(boolean value) {
@@ -190,7 +190,7 @@ public class WatchPanel extends JPanel {
 
 	/**
 	 * Check if autohide is enabled
-	 * 
+	 *
 	 * @return autohide
 	 */
 	public boolean isAutoHide() {
@@ -199,7 +199,7 @@ public class WatchPanel extends JPanel {
 
 	/**
 	 * Removes the Device identified by watch from the WatchList
-	 * 
+	 *
 	 * @param watch
 	 *            String
 	 */
@@ -219,7 +219,7 @@ public class WatchPanel extends JPanel {
 	/**
 	 * Adds an object to the list of objects whose positions are displayed in a subpanel on the JythonTerminal
 	 * interface. If the subpanel is not visible, then this method also makes it visible.
-	 * 
+	 *
 	 * @param watch
 	 *            String
 	 */
@@ -279,7 +279,7 @@ public class WatchPanel extends JPanel {
 					}
 				}
 				} catch (Exception e) {
-					// this exists to keep the update thread running even if there is an intermediate 
+					// this exists to keep the update thread running even if there is an intermediate
 					// error talking to the command server
 					logger.warn("Caught exception while trying to update: ", e);
 				}

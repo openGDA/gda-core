@@ -34,7 +34,6 @@ import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import uk.ac.gda.util.ThreadManager;
 
 /**
  * Controls the MarCCD Mosaic detector.
@@ -91,7 +90,7 @@ public class MarCCDDetector extends DetectorBase implements Runnable {
 			mc = new MarCCDController(host, port);
 			mc.initialize();
 			if (readoutThread == null) {
-				readoutThread = ThreadManager.getThread(this, getName() + " readout");
+				readoutThread = new Thread(this, getName() + " readout");
 				readoutThread.start();
 			}
 			if (tracker == null) {
