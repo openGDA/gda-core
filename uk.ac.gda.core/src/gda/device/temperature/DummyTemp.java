@@ -35,7 +35,7 @@ import gda.util.PollerEvent;
 /**
  * Simulator device for temperature controllers
  */
-public class DummyTemp extends TemperatureBase implements Runnable, Temperature {
+public class DummyTemp extends TemperatureBase implements Temperature {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemp.class);
 
@@ -69,7 +69,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	public void configure() throws FactoryException {
 		super.configure();
 		if (runner == null) {
-			runner = uk.ac.gda.util.ThreadManager.getThread(this);
+			runner = new Thread(this::runDummyTemp);
 			runner.setName(getClass().getName()+":"+getName());
 			runner.start();
 		}
@@ -341,8 +341,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	/**
 	 * The run method implementing the Runnable interface Uses the runner thread to poll the temperature
 	 */
-	@Override
-	public synchronized void run() {
+	private synchronized void runDummyTemp() {
 		if (runner == null)
 			logger.debug("Thread created for temperature monitor is null");
 
