@@ -57,8 +57,8 @@ import gda.jython.JythonServerFacade;
 import gda.rcp.ncd.Activator;
 import gda.rcp.ncd.NcdController;
 import gda.rcp.ncd.widgets.ShutterGroup;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.util.ThreadManager;
 
 public class NcdButtonPanelView extends ViewPart {
 
@@ -158,29 +158,19 @@ public class NcdButtonPanelView extends ViewPart {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			logger.info("Stop requested from NCD Button Panel");
-			Thread thread = ThreadManager.getThread(new Runnable() {
-
-				@Override
-				public void run() {
+			Async.execute(() -> {
 					try {
 						NcdController.getInstance().getNcdDetectorSystem().stop();
 					} catch (DeviceException de) {
 						// Create the required Status object
 						final Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error Stopping Tfg", de);
 
-						Display.getDefault().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
+						Display.getDefault().asyncExec(() -> {
 								// Display the dialog
 								ErrorDialog.openError(Display.getDefault().getActiveShell(), "DeviceException", "Error Stopping Tfg", status);
-							}
 						});
 					}
-
-				}
 			});
-			thread.start();
 		}
 
 		@Override
