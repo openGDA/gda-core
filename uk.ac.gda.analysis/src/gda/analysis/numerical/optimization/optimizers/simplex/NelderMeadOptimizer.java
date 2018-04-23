@@ -46,7 +46,7 @@ import gda.analysis.numerical.optimization.optimizers.IOptimizer;
 /**
  * Nelder Mead Minimisation class
  */
-public class NelderMeadOptimizer implements Runnable, IOptimizer {
+public class NelderMeadOptimizer implements IOptimizer {
 	/**
 	 * number of unknown parameters to be estimated
 	 */
@@ -834,7 +834,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 		if (action == null) // if thread is not running
 		{
 			System.out.println("Nelder Mead Optimizer started");
-			action = uk.ac.gda.util.ThreadManager.getThread(this); // Instantiate the new thread
+			action = new Thread(this::runOptimizer); // Instantiate the new thread
 			action.start(); // Start it
 		} else {
 			System.out.println("A Nelder Mead Optimization is already running");
@@ -866,8 +866,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 		}
 	}
 
-	@Override
-	public void run() {
+	private void runOptimizer() {
 		Thread thisThread = Thread.currentThread();
 		while (action == thisThread) {
 			runNelderMead();
