@@ -49,7 +49,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(SHOW_CONFIG_SCRIPTS, false);
 		store.setDefault(SHOW_GDA_SCRIPTS, false);
 		store.setDefault(SHOW_XML_CONFIG, false);
-		store.setDefault(CHECK_SCRIPT_SYNTAX, false);
+		store.setDefault(CHECK_SCRIPT_SYNTAX, true);
 		store.setDefault(GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
 
