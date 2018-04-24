@@ -19,12 +19,12 @@
 package uk.ac.gda.client.scripting;
 
 
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import gda.rcp.GDAClientActivator;
 
 public class JythonPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -33,22 +33,18 @@ public class JythonPreferencePage extends FieldEditorPreferencePage implements I
 	public JythonPreferencePage() {
 		super(GRID);
 		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
-		setDescription("Preferences for the Scripts perspective. For instance it automatically closes XML file editors for the GDA confguration.");
+		setDescription("Preferences for the Script projects imported into the workspace.");
 	}
 
 	@Override
 	protected void createFieldEditors() {
 		BooleanFieldEditor showConfig = new BooleanFieldEditor(PreferenceConstants.SHOW_CONFIG_SCRIPTS,
-				"Show all the scripts in the GDA Configuration", getFieldEditorParent());
+				"Show the script projects from this GDA Configuration", getFieldEditorParent());
 		addField(showConfig);
 
 		BooleanFieldEditor showGDA = new BooleanFieldEditor(PreferenceConstants.SHOW_GDA_SCRIPTS,
-				"Show all the scripts in the GDA", getFieldEditorParent());
+				"Show all the script projects from core GDA", getFieldEditorParent());
 		addField(showGDA);
-
-		BooleanFieldEditor showXML = new BooleanFieldEditor(PreferenceConstants.SHOW_XML_CONFIG,
-				"Show all the XML in the GDA Configuration", getFieldEditorParent());
-		addField(showXML);
 
 		BooleanFieldEditor chkGDASyntax = new BooleanFieldEditor(PreferenceConstants.CHECK_SCRIPT_SYNTAX,
 				"Syntax check scripts during file editing", getFieldEditorParent());

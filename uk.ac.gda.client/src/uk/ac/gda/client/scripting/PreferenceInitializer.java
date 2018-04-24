@@ -23,9 +23,7 @@ import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_DEFAU
 import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_CONFIG_SCRIPTS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_GDA_SCRIPTS;
-import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_XML_CONFIG;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -48,7 +46,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		store.setDefault(SHOW_CONFIG_SCRIPTS, false);
 		store.setDefault(SHOW_GDA_SCRIPTS, false);
-		store.setDefault(SHOW_XML_CONFIG, false);
 		store.setDefault(CHECK_SCRIPT_SYNTAX, true);
 		store.setDefault(GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
@@ -90,24 +87,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 								ScriptProjectCreator.setupInterpreterAndProjects(monitor);
 								return Status.OK_STATUS;
 							} catch (Exception e) {
-								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
-							}
-						}
-					};
-					job.setUser(true);
-					job.schedule();
-				}
-				if (prop.equals(SHOW_XML_CONFIG)) {
-
-					logger.debug("Change xml property: {} to {}", prop, event.getNewValue());
-					Job job = new Job("Create/Hide XML project") {
-
-						@Override
-						protected IStatus run(IProgressMonitor monitor) {
-							try {
-								ScriptProjectCreator.handleShowXMLConfig(monitor);
-								return Status.OK_STATUS;
-							} catch (CoreException e) {
 								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
 							}
 						}

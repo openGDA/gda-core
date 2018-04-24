@@ -58,14 +58,13 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import gda.rcp.GDAClientActivator;
 import uk.ac.gda.common.rcp.util.BundleUtils;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**
- * Class creates/removes script projects and XML projects if required to by preferences. Also can automatically create a Jython Interpreter
+ * Class creates/removes script projects as required by preferences. Also can automatically create a Jython Interpreter
  * and assign Pydev nature to the script projects.
  */
 public class ScriptProjectCreator {
@@ -85,33 +84,6 @@ public class ScriptProjectCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
 	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
-
-	private static String getProjectNameXMLConfig() {
-		return getProjectName("gda.scripts.user.xml.project.name", "XML - Config");
-	}
-
-	private static String getProjectName(final String property, final String defaultValue) {
-		String projectName = LocalProperties.get(property);
-		if (projectName == null)
-			projectName = defaultValue;
-		return projectName;
-	}
-
-	public static void handleShowXMLConfig(IProgressMonitor monitor) throws CoreException {
-		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
-		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
-			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
-					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", null, null, monitor);
-		} else {
-			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			final IProject project = root.getProject(getProjectNameXMLConfig());
-			if (project.exists()) {
-				// exists so delete
-				project.delete(false, true, monitor);
-			}
-		}
-
-	}
 
 	/**
 	 * We programmatically create a Jython Interpreter so that the user does not have to.
