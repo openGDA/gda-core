@@ -47,7 +47,7 @@ public final class PathEditorProvider {
 		pathToEditor = new HashMap<>();
 		pathToEditor.put(GridModel.class, GridPathEditor.class);
 		pathToEditor.put(RasterModel.class, RasterPathEditor.class);
-		pathToEditor.put(SpiralModel.class, FermatSpiralPathEditor.class);
+		pathToEditor.put(SpiralModel.class, SpiralPathEditor.class);
 		pathToEditor.put(LissajousModel.class, LissajousCurvePathEditor.class);
 		pathToEditor.put(RandomOffsetGridModel.class, RandomOffsetGridPathEditor.class);
 		pathToEditor.put(OneDStepModel.class, OneDStepModelPathEditor.class);

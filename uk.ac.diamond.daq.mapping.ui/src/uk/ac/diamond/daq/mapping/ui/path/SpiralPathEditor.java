@@ -24,19 +24,27 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class FermatSpiralPathEditor extends AbstractPathEditor {
+public class SpiralPathEditor extends AbstractPathEditor {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
 
 		final Composite composite = super.createEditorPart(parent);
-		new Label(composite, SWT.NONE).setText("Scale");
+		Label scaleLabel = new Label(composite, SWT.NONE);
+		scaleLabel.setText("Scale");
 		Text scaleText = new Text(composite, SWT.BORDER);
 		grabHorizontalSpace.applyTo(scaleText);
 
-		binder.bind(scaleText, "scale", getModel(), val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
+		binder.bind(scaleText, "scale", getModel(),
+				val -> ((double) val == 0.0) ? ValidationStatus.error("Scale cannot be zero!") : ValidationStatus.ok());
 
 		makeContinuousControl(composite, getModel());
+
+		String scaleDescription = "This parameter gives approximately both "
+				+ "the distance between arcs and the arclength between consecutive points.";
+
+		scaleLabel.setToolTipText(scaleDescription);
+		scaleText.setToolTipText(scaleDescription);
 
 		return composite;
 	}
