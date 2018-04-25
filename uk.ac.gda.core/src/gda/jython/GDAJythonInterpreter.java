@@ -529,6 +529,7 @@ public class GDAJythonInterpreter {
 		String logInit = "import logging\n"
 				+ "from loghandling import JythonLogRedirector, JythonTerminalPrinter\n"
 				+ "_root_logger = logging.getLogger()\n"
+				+ "_root_logger.name = 'gda.jython.root'\n"
 				+ "_root_logger.level = 0\n" // set levels to 0 as slf4j filters logging
 				+ "_root_logger.addHandler(JythonLogRedirector())\n"
 				+ "_root_logger.addHandler(JythonTerminalPrinter(logging.INFO))\n"
