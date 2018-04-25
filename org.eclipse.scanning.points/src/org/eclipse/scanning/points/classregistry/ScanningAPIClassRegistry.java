@@ -59,6 +59,7 @@ import org.eclipse.scanning.api.points.models.LissajousModel;
 import org.eclipse.scanning.api.points.models.MultiStepModel;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.OneDStepModel;
+import org.eclipse.scanning.api.points.models.OverlapGridModel;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.RepeatedPointModel;
@@ -133,6 +134,7 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, StepModel.class);
 		registerClass(tmp, MultiStepModel.class);
 		registerClass(tmp, GenericModel.class);
+		registerClass(tmp, OverlapGridModel.class);
 
 		// scan.ui
 		registerClass(tmp, ControlEnumNode.class);
