@@ -26,8 +26,10 @@ import org.python.core.PyList;
 class SpiralGenerator extends AbstractGenerator<SpiralModel> {
 
 	SpiralGenerator() {
-		setLabel("Fermat Spiral");
-		setDescription("Creates a spiral scaled around the center of a bounding box.");
+		setLabel("Spiral");
+		setDescription("Creates a spiral scaled around the center of a bounding region. "
+				+ "This is an Archimedean spiral with polar form: r=b*theta. The 'Scale' parameter gives approximately "
+				+ "both the distance between arcs and the arclength between consecutive points.");
 		setIconPath("icons/scanner--spiral.png"); // This icon exists in the rendering bundle
 	}
 

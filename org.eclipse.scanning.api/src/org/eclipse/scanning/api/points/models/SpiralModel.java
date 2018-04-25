@@ -17,11 +17,11 @@ public class SpiralModel extends AbstractBoundingBoxModel {
 	private double scale = 1;
 
 	public SpiralModel() {
-		setName("Fermat Spiral");
+		setName("Spiral");
 	}
 	public SpiralModel(String fastName, String slowName, double scale, BoundingBox box) {
 		super(fastName, slowName, box);
-		setName("Fermat Spiral");
+		setName("Spiral");
 		this.scale = scale;
 	}
 
