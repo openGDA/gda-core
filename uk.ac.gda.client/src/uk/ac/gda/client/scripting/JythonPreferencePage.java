@@ -46,9 +46,6 @@ public class JythonPreferencePage extends FieldEditorPreferencePage implements I
 				"Show all the script projects from core GDA", getFieldEditorParent());
 		addField(showGDA);
 
-		BooleanFieldEditor chkGDASyntax = new BooleanFieldEditor(PreferenceConstants.CHECK_SCRIPT_SYNTAX,
-				"Syntax check scripts during file editing", getFieldEditorParent());
-		addField(chkGDASyntax);
 	}
 
 	@Override

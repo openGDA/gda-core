@@ -35,16 +35,6 @@ public class PreferenceConstants {
 	public static final String SHOW_GDA_SCRIPTS        = "uk.ac.gda.pydev.show.python.gda.project";
 
 	/**
-	 * Syntax check scripts during file editing
-	 *
-	 * Also add PyDev Jython  nature to project on creation.
-	 * Ensures a Jython interpreter exists
-	 *
-	 * Default is true
-	 */
-	public static final String CHECK_SCRIPT_SYNTAX = "uk.ac.gda.pydev.check.script.syntax";
-
-	/**
 	 * Name of preference to set TRUE if java jars in gda.libs are to be added to ClassPath for PyDev interpreter Taken
 	 * to be FALSE if not set.
 	 */

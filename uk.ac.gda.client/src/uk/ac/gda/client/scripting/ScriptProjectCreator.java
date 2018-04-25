@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.scripting;
 
+import static org.python.pydev.editor.PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME;
 import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP;
 import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP;
 import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY;
@@ -49,6 +50,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.plugin.preferences.PydevRootPrefs;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -69,6 +71,10 @@ import uk.ac.gda.ui.utils.ProjectUtils;
  */
 public class ScriptProjectCreator {
 
+	private ScriptProjectCreator() {
+		throw new IllegalStateException("Utility class - no instantiation");
+	}
+
 	private static final String PYDEV_INTERPRETER_VERSION = IPythonNature.JYTHON_VERSION_2_7;
 	private static final String JYTHON_MAJOR_VERSION = "2";
 	private static final String JYTHON_MINOR_VERSION = "7";
@@ -83,7 +89,7 @@ public class ScriptProjectCreator {
 	private static final String INTERPRETER_NAME = "Jython" + JYTHON_MAJOR_VERSION;
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptProjectCreator.class);
-	private static Map<String, IProject> pathProjectMap = new HashMap<String, IProject>();
+	private static Map<String, IProject> pathProjectMap = new HashMap<>();
 
 	/**
 	 * We programmatically create a Jython Interpreter so that the user does not have to.
@@ -160,7 +166,7 @@ public class ScriptProjectCreator {
 		info.setName(INTERPRETER_NAME);
 
 		final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
-		HashSet<String> set = new HashSet<String>();
+		HashSet<String> set = new HashSet<>();
 		set.add(INTERPRETER_NAME);
 		man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
 
@@ -176,13 +182,12 @@ public class ScriptProjectCreator {
 		monitor.subTask("Checking existence of projects");
 		logger.debug("Recreating the list of script projects");
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
-		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
-		List<IAdaptable> scriptProjects = new ArrayList<IAdaptable>();
+		List<IAdaptable> scriptProjects = new ArrayList<>();
 		for (String path : JythonServerFacade.getInstance().getAllScriptProjectFolders()) {
 			String projectName = JythonServerFacade.getInstance().getProjectNameForPath(path);
 			boolean shouldShowProject = checkShowProjectPref(path, store);
 			if (shouldShowProject) {
-				final IProject newProject = createJythonProject(projectName, path, chkGDASyntax, monitor);
+				final IProject newProject = createJythonProject(projectName, path, monitor);
 				scriptProjects.add(newProject);
 				pathProjectMap.put(path, newProject);
 			} else {
@@ -236,7 +241,7 @@ public class ScriptProjectCreator {
 	 * are opened before any further interpreter configuration in the workspace.
 	 */
 	private static IProject createJythonProject(final String projectName, final String importFolder,
-			final boolean chkGDASyntax, IProgressMonitor monitor) throws CoreException {
+			IProgressMonitor monitor) throws CoreException {
 
 		IProject project = ProjectUtils.createImportProjectAndFolder(projectName, "src", importFolder, null, null,
 				monitor);
@@ -250,11 +255,6 @@ public class ScriptProjectCreator {
 		PythonNature.addNature(project, monitor, PYDEV_INTERPRETER_VERSION, "/" + project.getName() + "/src", null,
 				IPythonNature.DEFAULT_INTERPRETER, null);
 
-		// Then finally remove the Eclipse Pydev nature if we don't want chkGDASyntax i.e. don't have an interpreter (or
-		// don't have one that we've set up at least) This will be re-added by Pydev when a python file is opened however.
-		if (!chkGDASyntax) {
-			PythonNature.removeNature(project, monitor);
-		}
 		return project;
 	}
 
@@ -290,20 +290,21 @@ public class ScriptProjectCreator {
 
 		// Prevent PyDev popping up a funding appeal dialog box on first use
 		// Diamond Light Source is already a Gold Sponsor of PyDev (via dawnsci)
+		// This is handled in {@link PydevShowBrowserMessage#show()}
+		// Using both these preventions should ensure that it is never shown.
+		// Set the show time to be max long i.e. a long time in the future
 		System.setProperty("pydev.funding.hide", "true");
+		PydevPrefs.getPreferenceStore().setValue(PYDEV_FUNDING_SHOW_AT_TIME, Long.MAX_VALUE);
 	}
 
 	/**
-	 * Method to call when client starts up or the check syntax preference is modified. Creates Jython interpreter if
-	 * required and if preferences are set. Then calls createProjects method which populates the workspace with the
-	 * script projects and adds natures.
+	 * Method to call when client starts up (ApplicationWorkbenchAdvisor). Creates Jython interpreter if required. Then
+	 * calls createProjects method which populates the workspace with the script projects and adds natures.
 	 */
 	public static void setupInterpreterAndProjects(IProgressMonitor monitor) throws Exception {
 		// The behaviour of the property: gda.client.jython.automatic.interpreter is to prevent auto interpreter set up
 		// if set to anything. It is not set by default
-		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
-		boolean chkGDASyntax = store.getBoolean(PreferenceConstants.CHECK_SCRIPT_SYNTAX);
-		if (chkGDASyntax && (System.getProperty("gda.client.jython.automatic.interpreter") == null)) {
+		if (System.getProperty("gda.client.jython.automatic.interpreter") == null) {
 			monitor.subTask("Checking if interpreter creation is required");
 			if (isInterpreterCreationRequired()) {
 				createInterpreter(monitor);

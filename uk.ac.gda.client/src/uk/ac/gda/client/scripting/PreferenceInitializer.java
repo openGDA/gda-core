@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.scripting;
 
-import static uk.ac.gda.client.scripting.PreferenceConstants.CHECK_SCRIPT_SYNTAX;
 import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_CONFIG_SCRIPTS;
@@ -46,7 +45,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		store.setDefault(SHOW_CONFIG_SCRIPTS, false);
 		store.setDefault(SHOW_GDA_SCRIPTS, false);
-		store.setDefault(CHECK_SCRIPT_SYNTAX, true);
 		store.setDefault(GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
 
@@ -67,24 +65,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 						protected IStatus run(IProgressMonitor monitor) {
 							try {
 								ScriptProjectCreator.createProjects(monitor);
-								return Status.OK_STATUS;
-							} catch (Exception e) {
-								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
-							}
-						}
-					};
-					job.setUser(true);
-					job.schedule();
-				}
-				if (prop.equals(CHECK_SCRIPT_SYNTAX)) {
-
-					logger.debug("Change script property: {} to {}", prop, event.getNewValue());
-					Job job = new Job("Setup Jython interpreter and projects") {
-
-						@Override
-						protected IStatus run(IProgressMonitor monitor) {
-							try {
-								ScriptProjectCreator.setupInterpreterAndProjects(monitor);
 								return Status.OK_STATUS;
 							} catch (Exception e) {
 								return new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, e.getMessage(), e);
