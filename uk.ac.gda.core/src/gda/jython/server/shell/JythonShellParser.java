@@ -109,7 +109,7 @@ class JythonShellParser implements Parser {
 			// If we're not trying to accept the line to run it, it doesn't matter about syntax checking
 			return;
 		}
-		if (cursor < source.length()) {
+		if (cursor < source.length() && source.contains("\n")) {
 			// We're still editing the source
 			throw new EOFError(0, 0, "still editing"); // Not used anywhere
 		}
