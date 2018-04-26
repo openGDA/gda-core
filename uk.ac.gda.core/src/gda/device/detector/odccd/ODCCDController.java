@@ -21,19 +21,15 @@ package gda.device.detector.odccd;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.SocketTimeoutException;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.ODCCD;
 import gda.device.detector.DetectorBase;
-import gda.factory.Configurable;
-import gda.factory.Findable;
 
 /**
  * <p>
@@ -47,7 +43,7 @@ import gda.factory.Findable;
  * </p>
  */
 
-public class ODCCDController extends DetectorBase implements Configurable, Serializable, Findable, Detector, ODCCD {
+public class ODCCDController extends DetectorBase implements ODCCD {
 
 	private static final Logger logger = LoggerFactory.getLogger(ODCCDController.class);
 

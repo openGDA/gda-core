@@ -40,12 +40,11 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
-import gda.factory.Configurable;
 
 /**
  * A base implementation of a generic Motor for all real motor types, which are therefore subclasses of this class.
  */
-public abstract class MotorBase extends DeviceBase implements Motor, Serializable, Configurable {
+public abstract class MotorBase extends DeviceBase implements Motor, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MotorBase.class);
 

@@ -19,13 +19,13 @@
 
 package gda.factory;
 
-import gda.jython.accesscontrol.RbacUtils;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import gda.jython.accesscontrol.RbacUtils;
 
 /**
  * A class to instantiate objects defined in the XML, using Castor. Objects are stored in a LinkedHashMap, with the
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @since GDA 4.0
  */
-public class ObjectFactory extends FactoryBase implements Factory, Configurable, Serializable, Reconfigurable {
+public class ObjectFactory extends FactoryBase implements Serializable, Reconfigurable {
 
 	private String name;
 	private Map<String, Findable> findablesByName = new LinkedHashMap<String, Findable>();

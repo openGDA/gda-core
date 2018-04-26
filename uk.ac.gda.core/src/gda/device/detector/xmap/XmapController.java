@@ -21,13 +21,11 @@ package gda.device.detector.xmap;
 
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.factory.Findable;
 
 /**
  *
  */
-public interface XmapController  extends Device, Configurable, Findable{
+public interface XmapController  extends Device {
 
 	/**
 	 * Clears all MCAs and starts data collection

@@ -18,12 +18,6 @@
 
 package gda.data.metadata;
 
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +27,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implements IObserver, Configurable {
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
+
+public class SubdirectoryMetadataEntry extends PersistantMetadataEntry implements IObserver {
 
 	Map<String, String> visit2subdir = new HashMap<String, String>();
 	String currentvisit = "";

@@ -41,15 +41,13 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.util.BusyFlag;
 
 /**
  * Provides Ethernet communications with OS9/Linux DAServer
  */
-public class DAServer extends DeviceBase implements Configurable, Findable {
+public class DAServer extends DeviceBase {
 
 	public static final double CLOCKRATE = 12.5e-09;
 	private static final Logger logger = LoggerFactory.getLogger(DAServer.class);

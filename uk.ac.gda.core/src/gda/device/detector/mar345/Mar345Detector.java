@@ -19,23 +19,19 @@
 
 package gda.device.detector.mar345;
 
+import java.io.File;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Mar345;
-import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.jython.JythonServerFacade;
-
-import java.io.File;
-import java.io.Serializable;
 
 /**
  * MAR345 Detector Class.
  */
-public class Mar345Detector extends DetectorBase implements Configurable, Serializable, Findable, Mar345, Scannable {
+public class Mar345Detector extends DetectorBase implements Mar345 {
 	/** The mar controller object */
 	private Mar345Controller m345 = null;
 

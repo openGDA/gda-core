@@ -30,12 +30,11 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import gda.factory.Configurable;
 
 /**
  * Base class for all Detectors.
  */
-public abstract class DetectorBase extends ScannableBase implements Serializable, Configurable, Detector {
+public abstract class DetectorBase extends ScannableBase implements Serializable, Detector {
 
 	private static final Logger logger = LoggerFactory.getLogger(DetectorBase.class);
 

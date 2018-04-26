@@ -20,9 +20,8 @@ package gda.device.syringepump;
 
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
 
-public interface SyringePumpController extends Device, Configurable {
+public interface SyringePumpController extends Device {
 
 	boolean isBusy() throws DeviceException;
 

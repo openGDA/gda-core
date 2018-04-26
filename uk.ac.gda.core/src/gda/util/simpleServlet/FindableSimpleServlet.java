@@ -18,18 +18,16 @@
 
 package gda.util.simpleServlet;
 
-import gda.device.Device;
+import java.lang.reflect.InvocationTargetException;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * FindableSimpleServlet Class
  */
-public class FindableSimpleServlet extends DeviceBase implements Device, Configurable {
+public class FindableSimpleServlet extends DeviceBase {
 
 	/**
 	 * Servlet Name

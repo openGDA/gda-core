@@ -20,15 +20,11 @@
 package gda.device.detector.analyser;
 
 import gda.device.Analyser;
-import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
-import gda.factory.Configurable;
-
-import java.io.Serializable;
 
 /**
  * Base class for classes implmenting the Analyser interface
  */
-public abstract class AnalyserBase extends DetectorBase implements Analyser, Serializable, Configurable, Scannable {
+public abstract class AnalyserBase extends DetectorBase implements Analyser {
 
 }

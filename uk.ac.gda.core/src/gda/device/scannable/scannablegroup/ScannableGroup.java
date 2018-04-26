@@ -46,7 +46,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * A logical group of scannables
  */
 @ServiceInterface(IScannableGroup.class)
-public class ScannableGroup extends ScannableBase implements Configurable, IScannableGroup, IObserver {
+public class ScannableGroup extends ScannableBase implements IScannableGroup, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableGroup.class);
 
