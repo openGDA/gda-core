@@ -31,9 +31,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.OXCS700Type;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.jython.JythonServerFacade;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -47,7 +45,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * This class is designed to support Oxford Cryostream 700 and Phenix Crystat .
  */
-public class CryoController extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class CryoController extends DeviceBase implements InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(CryoController.class);
 	public final double MAX_RAMP_RATE = 360.0; // Kevin/hour
 	public final double MIN_RAMP_RATE = 1.0; // K/hour

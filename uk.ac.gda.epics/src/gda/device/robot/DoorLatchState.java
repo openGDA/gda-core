@@ -29,9 +29,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.SimplePvType;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
@@ -41,7 +39,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * Class for the experimental hutch door latch state, used by robot to decide when safety needs to be checked.
  */
-public class DoorLatchState extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class DoorLatchState extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(DoorLatchState.class);
 

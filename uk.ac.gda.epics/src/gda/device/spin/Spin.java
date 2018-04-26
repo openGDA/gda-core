@@ -33,9 +33,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.SimpleBinaryType;
 import gda.epics.interfaces.SimplePvType;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
@@ -45,7 +43,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * Spin class
  */
-public class Spin extends ScannableBase implements Configurable, Findable, ISpin, InitializationListener {
+public class Spin extends ScannableBase implements ISpin, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(Spin.class);
 

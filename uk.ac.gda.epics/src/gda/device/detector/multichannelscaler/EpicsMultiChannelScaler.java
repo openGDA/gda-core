@@ -29,9 +29,7 @@ import gda.device.DeviceException;
 import gda.device.MCAStatus;
 import gda.device.detector.DetectorBase;
 import gda.device.enumpositioner.EpicsSimpleMbbinary;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
@@ -44,8 +42,7 @@ import gov.aps.jca.Channel;
  * used for the map key so the order of detector outputs from totally independent detectors
  * can be easily sorted in output.
  */
-public class EpicsMultiChannelScaler extends DetectorBase implements Configurable, Findable, Detector, IObserver,
-		EpicsMcsSis3820 {
+public class EpicsMultiChannelScaler extends DetectorBase implements IObserver, EpicsMcsSis3820 {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMultiChannelScaler.class);
 

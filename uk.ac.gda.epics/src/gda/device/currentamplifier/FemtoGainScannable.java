@@ -27,10 +27,9 @@ import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 
-public class FemtoGainScannable extends ScannableBase implements Configurable {
+public class FemtoGainScannable extends ScannableBase {
 
 	private String pvName;
 	private PV<String> pv;

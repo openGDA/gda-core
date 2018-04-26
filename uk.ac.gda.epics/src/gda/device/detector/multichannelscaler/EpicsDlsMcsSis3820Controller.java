@@ -33,9 +33,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.McaGroupType;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
@@ -53,7 +51,7 @@ import gov.aps.jca.event.MonitorListener;
  * as PV only because we only use it to collect spectrum data from detectors, all the controls for MCAs are wrapped by
  * this template. This may change in the future.
  */
-public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class EpicsDlsMcsSis3820Controller extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDlsMcsSis3820Controller.class);
 

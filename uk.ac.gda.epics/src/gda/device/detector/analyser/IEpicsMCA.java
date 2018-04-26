@@ -20,13 +20,12 @@ package gda.device.detector.analyser;
 
 import gda.device.Analyser;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
 
 /**
  * Interface to a class that communicates with an epics MCA record.<br>
  * The MCA record controls and acquires data from a multichannel analyser (MCA).
  */
-public interface IEpicsMCA extends Analyser, Configurable {
+public interface IEpicsMCA extends Analyser {
 	/**
 	 * Clears the mca, but does not return until the clear has been done.
 	 *

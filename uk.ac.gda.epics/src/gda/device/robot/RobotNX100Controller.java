@@ -38,9 +38,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.Nx100Type;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -56,7 +54,7 @@ import gov.aps.jca.event.PutListener;
 /**
  * RobotNX100Controller Class
  */
-public class RobotNX100Controller extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class RobotNX100Controller extends DeviceBase implements InitializationListener {
 
 	/**
 	 * logging instance

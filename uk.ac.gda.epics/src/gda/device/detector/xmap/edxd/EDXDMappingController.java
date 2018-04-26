@@ -25,14 +25,13 @@ import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCASimple;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.epicsdevice.ReturnType;
-import gda.factory.Configurable;
 import gov.aps.jca.TimeoutException;
 
 /**
  * This class describes the EDXD detector on I12, it is made up of 24 subdetectors:
  * EDXDMappingElement instances, each wrapping an EpicsMCASimple instance.
  */
-public class EDXDMappingController extends EDXDController implements Configurable, IEDXDMappingController {
+public class EDXDMappingController extends EDXDController implements IEDXDMappingController {
 
 	// Setup the logging facilities
 	private static final Logger logger = LoggerFactory.getLogger(EDXDMappingController.class);

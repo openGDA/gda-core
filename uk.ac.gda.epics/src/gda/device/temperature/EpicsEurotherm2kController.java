@@ -29,9 +29,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.Eurotherm2kType;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
@@ -43,7 +41,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * This class is designed to support Cyberstar Blower, MRI Furnace, and Stoe Furnace.
  */
-public class EpicsEurotherm2kController extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class EpicsEurotherm2kController extends DeviceBase implements InitializationListener {
 
 	/**
 	 * the logger instance

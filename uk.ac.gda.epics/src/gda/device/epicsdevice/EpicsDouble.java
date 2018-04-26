@@ -31,7 +31,6 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
@@ -46,7 +45,7 @@ import gov.aps.jca.event.MonitorListener;
  */
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
-public class EpicsDouble extends ScannableBase implements Configurable, InitializationListener {
+public class EpicsDouble extends ScannableBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDouble.class);
 

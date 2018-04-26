@@ -23,9 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 
 /**
  * This class is designed to emulate Lake shore 340 temperature controller.
@@ -39,7 +37,7 @@ import gda.factory.Findable;
 </bean>
  * }
  */
-public class DummyLakeshore340Controller extends DeviceBase implements Configurable, Findable, ILakeshoreController {
+public class DummyLakeshore340Controller extends DeviceBase implements ILakeshoreController {
 	/**
 	 *
 	 */

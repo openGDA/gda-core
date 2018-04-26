@@ -31,7 +31,6 @@ import gda.device.epicsdevice.EpicsMonitorEvent;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
 import gda.device.epicsdevice.XmapEpicsDevice;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -44,7 +43,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
 /**
  * This class describes an EDXD detector made up of 24 subdetectors
  */
-public class EDXDController extends DetectorBase implements Configurable {
+public class EDXDController extends DetectorBase {
 	private static final Logger logger = LoggerFactory.getLogger(EDXDController.class);
 
 	private boolean isBusy = false;

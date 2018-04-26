@@ -31,9 +31,7 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.SimpleMcaType;
 import gda.epics.xml.EpicsRecord;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
@@ -51,7 +49,7 @@ import gov.aps.jca.event.MonitorListener;
  * @see <a href="http://cars9.uchicago.edu/software/epics/mcaRecord.html">MCARecord</a>
  * @since 7.3
  */
-public class EpicsMcaController extends DeviceBase implements Configurable, Findable, InitializationListener {
+public class EpicsMcaController extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMcaController.class);
 
