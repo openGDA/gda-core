@@ -18,19 +18,24 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractModelEditor;
 
 /**
  * Parent class for all path editors used in RegionAndPathSection.
  */
-public abstract class AbstractPathEditor  extends AbstractModelEditor<IScanPathModel> {
+public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathModel> {
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
 	private Button continuous;
 	private Label continuousLabel;
 
@@ -66,6 +71,15 @@ public abstract class AbstractPathEditor  extends AbstractModelEditor<IScanPathM
 		continuous.setEnabled(enabled);
 		continuous.setSelection(enabled);
 		continuousLabel.setEnabled(enabled);
+	}
+
+	protected Object[] getBeamDimensions() throws ScanningException {
+		try {
+			return (Object[]) getScannableDeviceService().getScannable("beamDimensions").getPosition();
+		} catch (EventException e) {
+			logger.error("Could not get scannable device service", e);
+			throw new ScanningException("Could not get scannable device service", e);
+		}
 	}
 
 }

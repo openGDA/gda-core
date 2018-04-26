@@ -18,25 +18,18 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Objects;
-
-import javax.inject.Inject;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractModelEditor;
 
@@ -47,18 +40,13 @@ public abstract class AbstractRegionEditor extends AbstractModelEditor<IMappingS
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionEditor.class);
 
-	@Inject
-	private IEventService eventService;
-	private IScannableDeviceService scannableDeviceService;
-
 	/**
 	 * @param scannableName
 	 * @return the scannable's lower limit, or {@code -Double.MAX_VALUE} if something has gone wrong
 	 */
 	protected double getLowerLimit(String scannableName) {
 		try {
-			if (Objects.isNull(scannableDeviceService)) scannableDeviceService = createScannableDeviceService();
-			return (double) Objects.requireNonNull(scannableDeviceService.getScannable(scannableName).getMinimum());
+			return (double) Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMinimum());
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read lower limit for scannable {}", scannableName, e);
 		} catch (NullPointerException npe) {
@@ -73,23 +61,13 @@ public abstract class AbstractRegionEditor extends AbstractModelEditor<IMappingS
 	 */
 	protected double getUpperLimit(String scannableName) {
 		try {
-			if (Objects.isNull(scannableDeviceService)) scannableDeviceService = createScannableDeviceService();
-			return (double) Objects.requireNonNull(scannableDeviceService.getScannable(scannableName).getMaximum());
+			return (double) Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMaximum());
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read upper limit for scannable {}", scannableName, e);
 		} catch (NullPointerException npe) {
 			logger.warn("Upper limit not configured for scannable {}", scannableName, npe);
 		}
 		return Double.MAX_VALUE;
-	}
-
-	private IScannableDeviceService createScannableDeviceService() throws EventException {
-		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			return eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
-		} catch (EventException | URISyntaxException e) {
-			throw new EventException("Could not create remote service", e);
-		}
 	}
 
 	/**
