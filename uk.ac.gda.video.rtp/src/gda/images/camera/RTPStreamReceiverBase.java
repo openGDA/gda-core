@@ -44,7 +44,6 @@ import javax.media.rtp.event.RemotePayloadChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Configurable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -61,7 +60,7 @@ import gda.factory.Localizable;
  * <p>The entire connection can be terminated using {@link #closeConnection()}, and then started again using
  * {@link #createConnection()} (which will also resume image capture once the connection has been established).
  */
-public abstract class RTPStreamReceiverBase<E> extends ConfigurableBase implements VideoReceiver<E>, Findable, Configurable, ReceiveStreamListener, ControllerListener, Localizable {
+public abstract class RTPStreamReceiverBase<E> extends ConfigurableBase implements VideoReceiver<E>, Findable, ReceiveStreamListener, ControllerListener, Localizable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RTPStreamReceiverBase.class);
 

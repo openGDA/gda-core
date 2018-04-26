@@ -18,11 +18,6 @@
 
 package gda.images.camera;
 
-import gda.factory.Configurable;
-import gda.factory.Findable;
-import gda.images.camera.mjpeg.FrameCaptureTask;
-import gda.images.camera.mjpeg.SwtFrameCaptureTask;
-
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -34,13 +29,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.graphics.ImageData;
 
-public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData> implements Findable, Configurable {
+import gda.factory.Findable;
+import gda.images.camera.mjpeg.FrameCaptureTask;
+import gda.images.camera.mjpeg.SwtFrameCaptureTask;
+
+public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData> implements Findable {
 
 	public class LatestDecoderserviceFactory implements ExecutorServiceFactory {
 
 		@Override
 		public ExecutorService create(ThreadFactory decoderThreadFactory) {
-			return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS,	new LatestLinkedBlockingQueue<Runnable>(), decoderThreadFactory);			
+			return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS,	new LatestLinkedBlockingQueue<Runnable>(), decoderThreadFactory);
 		}
 	}
 
@@ -51,11 +50,11 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 
 	public MotionJpegOverHttpReceiverSwt() {
 		super();
-		//we are only interested in decoding and processing the lastest image 
+		//we are only interested in decoding and processing the lastest image
 		setImageQueue(new LatestImageDataBlockingQueue());
 		setExecutiveServiceFactory( new LatestDecoderserviceFactory());
 	}
-	
+
 
 	@Override
 	protected FrameCaptureTask<ImageData> createFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService, BlockingQueue<Future<ImageData>> receivedImages) {
@@ -98,31 +97,31 @@ class LatestLinkedBlockingQueue<E> extends LinkedBlockingQueue<E>{
 	LatestLinkedBlockingQueue(){
 		super(1);
 	}
-	
+
 	@Override
 	public boolean offer(E e) {
 		super.clear();
 		return super.offer(e);
 	}
-	
+
 }
 class LatestImageDataBlockingQueue extends LinkedBlockingQueue<Future<ImageData>>{
 
 	LatestImageDataBlockingQueue(){
 		super(1);
 	}
-	
+
 	@Override
 	public boolean offer(Future<ImageData> e) {
 		Vector<Future<ImageData>> c = new Vector<Future<ImageData>>();
 		super.drainTo(c);
 		for( Future<ImageData> f : c){
-			//we need to cancel all futures so that threads 
+			//we need to cancel all futures so that threads
 			//accessing the result will not wait forever now that they
 			//will no longer be processed.
 			f.cancel(true);
 		}
 		return super.offer(e);
 	}
-	
+
 }
