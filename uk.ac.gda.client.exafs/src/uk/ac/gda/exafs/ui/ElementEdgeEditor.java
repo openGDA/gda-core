@@ -576,8 +576,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			x.setName("Energy (eV)");
 			y.setName("\u0394E (eV)");
 			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new Dataset[] { y }), null);
-			exafsProfile = (ILineTrace) traces.get(0);
-			exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+			if (traces!=null && traces.size()>0) {
+				exafsProfile = (ILineTrace) traces.get(0);
+				exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+			} else {
+				exafsProfile = null;
+			}
 		}
 
 		public void plot() {
@@ -587,6 +591,9 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
+			if (exafsProfile==null) {
+				return Status.CANCEL_STATUS;
+			}
 			try {
 				Object scanBean = editingBean;
 				if (monitor.isCanceled())

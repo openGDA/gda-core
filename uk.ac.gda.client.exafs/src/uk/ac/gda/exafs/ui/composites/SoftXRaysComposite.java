@@ -179,7 +179,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				Object value = detectorType.getValue();
-				if (value.equals("Silicon Soft X-Rays")) {
+				if (value != null && value.equals("Silicon Soft X-Rays")) {
 					String name = (String) e.getValue();
 					File file = new File(configFileName.getFolder(), name);
 					if (!file.exists())
