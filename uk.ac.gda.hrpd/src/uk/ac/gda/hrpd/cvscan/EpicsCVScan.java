@@ -28,9 +28,7 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.scan.Scan.ScanStatus;
 import gov.aps.jca.CAException;
@@ -44,7 +42,7 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-public class EpicsCVScan extends DeviceBase implements InitializationListener, Configurable, Findable {
+public class EpicsCVScan extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCVScan.class);
 
