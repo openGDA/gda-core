@@ -18,20 +18,19 @@
 
 package uk.ac.gda.devices.bssc.ispyb;
 
-import gda.device.DeviceBase;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-import gda.observable.IObserver;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceBase;
+import gda.device.corba.impl.DeviceAdapter;
+import gda.device.corba.impl.DeviceImpl;
+import gda.factory.FactoryException;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
+import gda.observable.IObserver;
 
 /**
 	This class receives UDP datagrams containing a string of format prefix:message, which is
@@ -39,19 +38,19 @@ import org.slf4j.LoggerFactory;
 */
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class UDPListener extends DeviceBase implements Configurable {
+public class UDPListener extends DeviceBase {
 	private static final Logger logger = LoggerFactory.getLogger(UDPListener.class);
 	boolean running = true;
 	private int port=9876;
 	private String prefix="";
 
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if(isRunning())
 			startReading();
 	}
-	
+
 	/**
 	 * @return true if the file is being monitored
 	 */
@@ -76,9 +75,9 @@ public class UDPListener extends DeviceBase implements Configurable {
 			@Override
 			public void run() {
 				try (DatagramSocket serverSocket = new DatagramSocket(port)) {
-					
+
 					byte[] receiveData = new byte[1024];
-					
+
 					while (running) {
 						DatagramPacket receivePacket = new DatagramPacket(
 								receiveData, receiveData.length);
@@ -114,7 +113,7 @@ public class UDPListener extends DeviceBase implements Configurable {
 
 	/**
 	 * @param args
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static void main(String[] args) throws FactoryException {
 		UDPListener simpleUDPServer = new UDPListener();

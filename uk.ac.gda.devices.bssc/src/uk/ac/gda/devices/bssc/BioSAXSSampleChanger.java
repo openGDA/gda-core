@@ -1,14 +1,5 @@
 package uk.ac.gda.devices.bssc;
 
-/*
- * Project: BSSC - BioSAXS Sample Changer Date Author Changes 01.07.09 Gobbo Created Copyright 2009 by European
- * Molecular Biology Laboratory - Grenoble
- */
-
-import gda.device.DeviceBase;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-
 import org.embl.BaseException;
 import org.embl.ThreadTools;
 import org.embl.bssc.scDevSamplePath.FocusPosition;
@@ -22,19 +13,27 @@ import org.embl.net.TransportProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * Project: BSSC - BioSAXS Sample Changer Date Author Changes 01.07.09 Gobbo Created Copyright 2009 by European
+ * Molecular Biology Laboratory - Grenoble
+ */
+
+import gda.device.DeviceBase;
+import gda.factory.FactoryException;
+
 /**
  * A BSSC Java client implementation example for remote controlling the Sample Changer.
- * 
+ *
  * @author <a href="mailto:alexgobbo@gmail.com">Alexandre Gobbo</a>
  */
-public class BioSAXSSampleChanger extends DeviceBase implements scServerInterface, Configurable {
+public class BioSAXSSampleChanger extends DeviceBase implements scServerInterface {
 	private static final Logger logger = LoggerFactory.getLogger(BioSAXSSampleChanger.class);
 
 	private int port = 9555;
 	private String hostname = "localhost";
 	private scServerInterface proxy = null;
 	private ExporterClient ec = null;
-	
+
 	public int getPort() {
 		return port;
 	}
@@ -95,7 +94,7 @@ public class BioSAXSSampleChanger extends DeviceBase implements scServerInterfac
 			return true;
 		}
 	}
-	
+
 	public void onEvent(Event event) {
 		logger.info("RECEIVED EVENT: " + event.toString());
 	}
@@ -518,7 +517,7 @@ public class BioSAXSSampleChanger extends DeviceBase implements scServerInterfac
 	public void setSampleType(String arg0) throws BaseException {
 		proxy.setSampleType(SampleType.valueOf(arg0));
 	}
-	
+
 	@Override
 	public void setSampleType(SampleType arg0) throws BaseException {
 		proxy.setSampleType(arg0);
@@ -547,7 +546,7 @@ public class BioSAXSSampleChanger extends DeviceBase implements scServerInterfac
 	public void setViscosityLevel(String arg0) throws BaseException {
 		proxy.setViscosityLevel(ViscosityLevel.valueOf(arg0));
 	}
-	
+
 	@Override
 	public void setViscosityLevel(ViscosityLevel arg0) throws BaseException {
 		proxy.setViscosityLevel(arg0);
