@@ -21,6 +21,14 @@ package gda.data.fileregistrar;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+
+import org.eclipse.january.dataset.Dataset;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
@@ -30,13 +38,6 @@ import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
-
-import java.io.File;
-
-import org.eclipse.january.dataset.Dataset;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -102,8 +103,7 @@ public class FileRegistrarTest {
 		when(m.getMetadataValue("instrument")).thenReturn("p45");
 		IcatXMLCreator ixmlc = new IcatXMLCreator();
 		ixmlc.setMetadata(m);
-		FileRegistrar fr = new FileRegistrar();
-		fr.setIcatXMLCreator(ixmlc);
+		FileRegistrar fr = new FileRegistrar(ixmlc);
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 		runScanToCreateFile(fr);
 		// FIXME this should actually test something eventually
