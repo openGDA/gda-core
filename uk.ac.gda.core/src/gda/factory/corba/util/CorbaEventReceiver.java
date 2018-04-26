@@ -142,7 +142,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 /**
  * Queue for handling Corba events
  */
-class PushEventQueue implements Runnable {
+class PushEventQueue {
 
 	public static final String GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK = "gda.eventreceiver.queue.length.check";
 
@@ -158,7 +158,7 @@ class PushEventQueue implements Runnable {
 	PushEventQueue(CorbaEventReceiver receiver){
 		this.receiver = receiver;
 		// Setup the receiver thread
-		thread = uk.ac.gda.util.ThreadManager.getThread(this, "EventReceiver:PushEventQueue");
+		thread = new Thread(this::runEventQueue, "EventReceiver:PushEventQueue");
 		thread.start();
 	}
 
@@ -172,8 +172,8 @@ class PushEventQueue implements Runnable {
 	public void dispose() {
 		killed = true;
 	}
-	@Override
-	public void run() {
+
+	private void runEventQueue() {
 		List<TimedStructuredEvent> lastItemsHandled = null;
 		while (!killed) {
 			try {
