@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
-import uk.ac.gda.util.ThreadManager;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class ElogEntry {
 
@@ -155,18 +155,13 @@ public class ElogEntry {
 	 *
 	 */
 	public void postAsync() {
-		Thread t = ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
+		Async.execute(() -> {
 				try {
 					post();
 				} catch (Exception e) {
 					logger.error("Error posting ElogEntry", e);
-				}
-			}
-		}, "ElogEntry: "+title);
-
-		t.start();
+				}},
+				"ElogEntry: %s", title);
 	}
 
 	private String buildContent() throws ELogEntryException {
@@ -356,18 +351,13 @@ public class ElogEntry {
 	public static void postAsyn(final String title, final String content, final String userID, final String visit,
 			final String logID, final String groupID, final String[] fileLocations) {
 
-		Thread t = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
+		Async.execute(() -> {
 				try {
 					ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations);
 				} catch (Exception e) {
 					logger.error("Error posting ElogEntry", e);
-				}
-			}
-		}, "ElogEntry: "+title);
-
-		t.start();
+				}},
+				"ElogEntry: %s", title);
 	}
 
 	/**
