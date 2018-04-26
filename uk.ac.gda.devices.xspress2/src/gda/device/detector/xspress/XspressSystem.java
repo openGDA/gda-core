@@ -18,24 +18,21 @@
 
 package gda.device.detector.xspress;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.DetectorBase;
-import gda.device.detector.NexusDetector;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
+import gda.device.detector.NexusDetector;
+import gda.factory.FactoryException;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public abstract class XspressSystem extends DetectorBase implements NexusDetector, XspressDetector, Scannable, Configurable {
+public abstract class XspressSystem extends DetectorBase implements NexusDetector, XspressDetector {
 	private static final Logger logger = LoggerFactory.getLogger(XspressSystem.class);
 
 	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";

@@ -28,11 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.Timer;
 import gda.device.XmapDetector;
 import gda.device.detector.DetectorBase;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -46,7 +44,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * Implementation of the Vortex XMAP detector. XMAP detector works in two modes. FAst MApping mode and Normal mode. This
  * implementation is only for the Normal mode.
  */
-public class Xmap extends DetectorBase implements XmapDetector, Detector, Scannable, Configurable, IObserver {
+public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 	private static final long serialVersionUID = 2780213150490777588L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Xmap.class);

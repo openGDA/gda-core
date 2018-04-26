@@ -24,7 +24,6 @@ import gda.device.XmapDetector;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.PositionCallableProvider;
-import gda.factory.Configurable;
 
 /**
  * For using Xia XMap within the AbstractContinuousScanLine-style trajectory scans.
@@ -32,8 +31,7 @@ import gda.factory.Configurable;
  * @author rjw82
  *
  */
-public interface HardwareTriggeredNexusXmap extends XmapDetector,HardwareTriggerableDetector,
-		PositionCallableProvider<NexusTreeProvider>, Configurable, NexusDetector {
+public interface HardwareTriggeredNexusXmap extends XmapDetector, HardwareTriggerableDetector, PositionCallableProvider<NexusTreeProvider>, NexusDetector {
 
 	public String getHDFFileName()throws DeviceException;
 	public void waitForFile(String fileName)throws DeviceException, InterruptedException;
