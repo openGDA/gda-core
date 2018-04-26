@@ -20,13 +20,17 @@ package uk.ac.gda.client.scripting;
 
 public class PreferenceConstants {
 
+	private PreferenceConstants() {
+		throw new IllegalStateException("PreferenceConstants class (no instantiation)");
+	}
+
 	/**
-	 * Create projects linking to beamline specific scripts. Not user editable
+	 * Create projects linking to beamline specific scripts.
 	 */
 	public static final String SHOW_CONFIG_SCRIPTS     = "uk.ac.gda.pydev.show.python.config.project";
 
 	/**
-	 * Create projects linking to GDA plugin scripts. Not user editable
+	 * Create projects linking to GDA plugin scripts.
 	 */
 	public static final String SHOW_GDA_SCRIPTS        = "uk.ac.gda.pydev.show.python.gda.project";
 
@@ -39,7 +43,7 @@ public class PreferenceConstants {
 	 * Also add PyDev Jython  nature to project on creation.
 	 * Ensures a Jython interpreter exists
 	 *
-	 * Default is false
+	 * Default is true
 	 */
 	public static final String CHECK_SCRIPT_SYNTAX = "uk.ac.gda.pydev.check.script.syntax";
 

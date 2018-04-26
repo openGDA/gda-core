@@ -928,9 +928,6 @@
       <startup
             class="gda.rcp.client.ReducedGUIStartup">
       </startup>
-      <startup
-            class="uk.ac.gda.client.scripting.ScriptProjectCreator">
-      </startup>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
