@@ -28,19 +28,17 @@ import fr.esrf.TangoApi.DeviceAttribute;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.TangoDeviceProxy;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoLimaDetector extends DetectorBase implements Detector, Scannable, Configurable, InitializingBean {
+public class TangoLimaDetector extends DetectorBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoLimaDetector.class);
 	private TangoDeviceProxy dev = null;

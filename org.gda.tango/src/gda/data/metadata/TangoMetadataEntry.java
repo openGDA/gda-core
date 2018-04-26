@@ -21,13 +21,12 @@ package gda.data.metadata;
 import fr.esrf.TangoApi.DeviceAttribute;
 import fr.esrf.TangoDs.TangoConst;
 import gda.device.TangoDeviceProxy;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 
 /**
  * A class to provide metadata from an attribute within a Tango server
  */
-public class TangoMetadataEntry extends MetadataEntry implements Configurable {
+public class TangoMetadataEntry extends MetadataEntry {
 
 	private String attributeName;
 	private TangoDeviceProxy deviceProxy = null;
@@ -41,7 +40,7 @@ public class TangoMetadataEntry extends MetadataEntry implements Configurable {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public TangoDeviceProxy getTangoDeviceProxy() {
 		return deviceProxy;
 	}
