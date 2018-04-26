@@ -25,9 +25,7 @@ import gda.device.DeviceBase;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
 import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAStatusException;
@@ -37,7 +35,7 @@ import gov.aps.jca.event.MonitorListener;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
-public class SweepUpdater extends DeviceBase implements Configurable, Findable {
+public class SweepUpdater extends DeviceBase {
 	private static final Logger logger = LoggerFactory.getLogger(SweepUpdater.class);
 
 	private EpicsController epicsController;
