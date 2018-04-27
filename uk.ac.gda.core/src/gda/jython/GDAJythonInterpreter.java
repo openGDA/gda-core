@@ -37,7 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -61,7 +61,6 @@ import org.springframework.util.StringUtils;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.translator.Translator;
@@ -541,21 +540,15 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * Adds OEs (and their DOFs) and Scannables to the Jython namespace.
+	 * Adds all Scannables from the Finder to the Jython namespace.
 	 */
 	private void populateNamespace() {
-		logger.info("populating Jython namespace...");
-		Finder finder = Finder.getInstance();
+		logger.info("Populating Jython namespace...");
 
-		// all Scannable objects should be also placed into the namespace.
-		List<Findable> scannables = finder.listAllObjects("Scannable");
-		for (Findable findable : scannables) {
-			try {
-				interactiveConsole.set(findable.getName(), findable);
-			} catch (Exception e) {
-				logger.error("Error adding '{}' to namespace", findable.getName(), e);
-			}
-		}
+		final Map<String, Scannable> nameToScannable = Finder.getInstance().getFindablesOfType(Scannable.class);
+		nameToScannable.forEach(this::placeInJythonNamespace);
+
+		logger.info("Finished populating Jython namespace, added {} Scannables", nameToScannable.size());
 	}
 
 	/**
@@ -652,6 +645,7 @@ public class GDAJythonInterpreter {
 	 */
 	protected void placeInJythonNamespace(String objectName, Object obj) {
 		interactiveConsole.set(objectName, obj);
+		logger.debug("Added '{}' to Jython namespace", objectName);
 	}
 
 	/**
