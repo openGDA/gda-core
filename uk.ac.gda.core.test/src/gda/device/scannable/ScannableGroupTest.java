@@ -19,13 +19,13 @@
 
 package gda.device.scannable;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class ScannableGroupTest extends TestCase {
 		s1 = new DummyScannable("s1");
 		s2 = new DummyScannable("s2");
 
-		Factory factory = new MapFactory("test", null);
+		final Factory factory = new MapFactory("test", null);
 		factory.addFindable(s1);
 		factory.addFindable(s2);
 
@@ -71,9 +71,9 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testNewlyInstantiatedScannableGroup() {
-		ScannableGroup sg = new ScannableGroup();
+		final ScannableGroup sg = new ScannableGroup();
 		assertEquals(EMPTY_SCANNABLE_LIST, sg.getGroupMembers());
-		assertArraysEqual(EMPTY_NAME_ARRAY, sg.getGroupMemberNames());
+		assertArrayEquals(EMPTY_NAME_ARRAY, sg.getGroupMemberNames());
 	}
 
 	/**
@@ -83,18 +83,18 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testConfiguringScannableGroupUsingMembers() throws Exception {
-		ScannableGroup sg = new ScannableGroup();
-		sg.setGroupMembers(arrayListOf(s1));
+		final ScannableGroup sg = new ScannableGroup();
+		sg.setGroupMembers(asList(s1));
 
 		assertFalse("Expected ScannableGroup to be unconfigured", sg.isConfigured());
-		assertEquals(arrayListOf(s1), sg.getGroupMembers());
-		assertArraysEqual(EMPTY_NAME_ARRAY, sg.getGroupMemberNames());
+		assertEquals(asList(s1), sg.getGroupMembers());
+		assertArrayEquals(EMPTY_NAME_ARRAY, sg.getGroupMemberNames());
 
 		sg.configure();
 
 		assertTrue("Expected ScannableGroup to be configured", sg.isConfigured());
-		assertEquals(arrayListOf(s1), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s1"), sg.getGroupMemberNames());
+		assertEquals(asList(s1), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s1"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -104,18 +104,18 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testConfiguringScannableGroupUsingMemberNames() throws Exception {
-		ScannableGroup sg = new ScannableGroup();
-		sg.setGroupMemberNames(arrayListOf("s2"));
+		final ScannableGroup sg = new ScannableGroup();
+		sg.setGroupMemberNames(asList("s2"));
 
 		assertFalse("Expected ScannableGroup to be unconfigured", sg.isConfigured());
 		assertEquals(EMPTY_SCANNABLE_LIST, sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s2"), sg.getGroupMemberNames());
+		assertArrayEquals(arrayOf("s2"), sg.getGroupMemberNames());
 
 		sg.configure();
 
 		assertTrue("Expected ScannableGroup to be configured", sg.isConfigured());
-		assertEquals(arrayListOf(s2), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s2"), sg.getGroupMemberNames());
+		assertEquals(asList(s2), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -126,19 +126,19 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testConfiguringScannableGroupUsingMembersAndNames() throws Exception {
-		ScannableGroup sg = new ScannableGroup();
-		sg.setGroupMembers(arrayListOf(s1));
-		sg.setGroupMemberNames(arrayListOf("s2"));
+		final ScannableGroup sg = new ScannableGroup();
+		sg.setGroupMembers(asList(s1));
+		sg.setGroupMemberNames(asList("s2"));
 
 		assertFalse("Expected ScannableGroup to be unconfigured", sg.isConfigured());
-		assertEquals(arrayListOf(s1), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s2"), sg.getGroupMemberNames());
+		assertEquals(asList(s1), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s2"), sg.getGroupMemberNames());
 
 		sg.configure();
 
 		assertTrue("Expected ScannableGroup to be configured", sg.isConfigured());
-		assertEquals(arrayListOf(s1, s2), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s1", "s2"), sg.getGroupMemberNames());
+		assertEquals(asList(s1, s2), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s1", "s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -149,10 +149,10 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testAddingGroupMemberAfterConfiguration() throws Exception {
-		ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
+		final ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
 		sg.addGroupMember(s2);
-		assertEquals(arrayListOf(s1, s2), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s1", "s2"), sg.getGroupMemberNames());
+		assertEquals(asList(s1, s2), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s1", "s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -163,10 +163,10 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testSettingGroupMembersAfterConfiguration() throws Exception {
-		ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
-		sg.setGroupMembers(arrayListOf(s2));
-		assertEquals(arrayListOf(s2), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s2"), sg.getGroupMemberNames());
+		final ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
+		sg.setGroupMembers(asList(s2));
+		assertEquals(asList(s2), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -178,10 +178,10 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testAddingGroupMemberNameAfterConfiguration() throws Exception {
-		ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
+		final ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
 		sg.addGroupMemberName("s2");
-		assertEquals(arrayListOf(s1), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s1", "s2"), sg.getGroupMemberNames());
+		assertEquals(asList(s1), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s1", "s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -192,10 +192,10 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testSettingGroupMemberNamesAfterConfiguration() throws Exception {
-		ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
-		sg.setGroupMemberNames(arrayListOf("s2"));
-		assertEquals(arrayListOf(s1), sg.getGroupMembers());
-		assertArraysEqual(arrayOf("s2"), sg.getGroupMemberNames());
+		final ScannableGroup sg = createAndCheckScannableGroupContaining(s1);
+		sg.setGroupMemberNames(asList("s2"));
+		assertEquals(asList(s1), sg.getGroupMembers());
+		assertArrayEquals(arrayOf("s2"), sg.getGroupMemberNames());
 	}
 
 	/**
@@ -203,12 +203,11 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testScanHooks() throws Exception {
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s2", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
 
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s2", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
-
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
 
 		group.atPointEnd();
 		group.atPointStart();
@@ -221,8 +220,7 @@ public class ScannableGroupTest extends TestCase {
 		group.stop();
 
 
-		for (Scannable scannable : new Scannable[] {s1,s2,s3})
-		{
+		for (Scannable scannable : new Scannable[] {s1,s2,s3}) {
 			verify(scannable, times(1)).atPointEnd();
 			verify(scannable, times(1)).atPointStart();
 			verify(scannable, times(1)).atScanLineEnd();
@@ -242,23 +240,23 @@ public class ScannableGroupTest extends TestCase {
 	@Test
 	public void testInputAndExtraOrder() throws Exception {
 
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
 				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
 
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
 
-		String[] inputNames = group.getInputNames();
-		String[] extraNames = group.getExtraNames();
-		String[] outputFormat = group.getOutputFormat();
-		Object[] position = (Object[]) group.getPosition();
+		final String[] inputNames = group.getInputNames();
+		final String[] extraNames = group.getExtraNames();
+		final String[] outputFormat = group.getOutputFormat();
+		final Object[] position = (Object[]) group.getPosition();
 
-		assertArraysEqual(new String[] { "input1", "input2", "input3" }, inputNames);
-		assertArraysEqual(new String[] { "extra1", "extra2" }, extraNames);
+		assertArrayEquals(new String[] { "input1", "input2", "input3" }, inputNames);
+		assertArrayEquals(new String[] { "extra1", "extra2" }, extraNames);
 		// GDA-5794 from here
-		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
-		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
+		assertArrayEquals(new Object[] {10., 20., 10., 3., .901}, position);
+		assertArrayEquals(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
 	}
 
 	/**
@@ -266,37 +264,36 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testInputAndExtraOrderWithZIEScannable() throws Exception {
-		Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
-		Scannable zie2 = MockFactory.createMockZieScannable("zie2", 5);  // arbitrary level
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
+		final Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
+		final Scannable zie2 = MockFactory.createMockZieScannable("zie2", 5);  // arbitrary level
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
 				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
 
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, zie2, s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, zie2, s3});
 
-		String[] inputNames = group.getInputNames();
-		String[] extraNames = group.getExtraNames();
-		String[] outputFormat = group.getOutputFormat();
-		Object[] position = (Object[]) group.getPosition();
+		final String[] inputNames = group.getInputNames();
+		final String[] extraNames = group.getExtraNames();
+		final String[] outputFormat = group.getOutputFormat();
+		final Object[] position = (Object[]) group.getPosition();
 
-		assertArraysEqual(new String[] { "input1", "input2", "input3" }, inputNames);
-		assertArraysEqual(new String[] { "extra1", "extra2" }, extraNames);
+		assertArrayEquals(new String[] { "input1", "input2", "input3" }, inputNames);
+		assertArrayEquals(new String[] { "extra1", "extra2" }, extraNames);
 		// GDA-5794 from here
-		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
-		assertArraysEqual(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
+		assertArrayEquals(new Object[] {10., 20., 10., 3., .901}, position);
+		assertArrayEquals(new String[] {"%1.1g", "%2.2g","%4.4g","%3.3f","%5.5g"}, outputFormat);
 	}
 	/**
 	 * @throws Exception
 	 */
 	@Test
 	public void testIsPositionValid() throws Exception {
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
 
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
-
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
 		assertTrue(group.checkPositionValid(new Double[]{1.,2.,3.}) == null);
 		assertTrue(group.checkPositionValid(new Double[]{1.,2.,3.,4.}) != null);
 
@@ -308,11 +305,11 @@ public class ScannableGroupTest extends TestCase {
 	@Test
 	public void testArrays() throws Exception {
 
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"}, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input1"}, new String[0], new String[] {"%5.5g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra1"}, new String[] {"%5.5g"},5,null);
 
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1,s2,s3});
 		assertEquals(3,group.getInputNames().length);
 		assertEquals(2,group.getExtraNames().length);
 		assertEquals(5,group.getOutputFormat().length);
@@ -324,13 +321,13 @@ public class ScannableGroupTest extends TestCase {
 	 */
 	@Test
 	public void testMoveTo() throws Exception {
-		Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
-		Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
+		final Scannable zie1 = MockFactory.createMockZieScannable("zie1", 5);  // arbitrary level
+		final Scannable s1 = MockFactory.createMockScannable("s1", new String[]{"input1", "input2"}, new String[] {"extra1"},
 				new String[] {"%1.1g","%2.2g","%3.3f"},5,new Double[]{10.,20.,3.});
-		Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
-		Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
+		final Scannable s2 = MockFactory.createMockScannable("s2", new String[]{"input3"}, new String[0], new String[] {"%4.4g"},5,10.);
+		final Scannable s3 = MockFactory.createMockScannable("s3", new String[0], new String[] {"extra2"}, new String[] {"%5.5g"},5,.901);
 
-		ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, s3});
+		final ScannableGroup group = new ScannableGroup("group", new Scannable[] {s1, zie1, s2, s3});
 
 		group.asynchronousMoveTo(new Object[] {10., 20., 10.});
 		verify(s1).asynchronousMoveTo(new Object[] {10., 20.});
@@ -339,7 +336,7 @@ public class ScannableGroupTest extends TestCase {
 		verify(s3).asynchronousMoveTo(new Object[] {});
 		Object[] position = (Object[]) group.getPosition();
 
-		assertArraysEqual(new Object[] {10., 20., 10., 3., .901}, position);
+		assertArrayEquals(new Object[] {10., 20., 10., 3., .901}, position);
 	}
 
 	@Test
@@ -373,7 +370,7 @@ public class ScannableGroupTest extends TestCase {
 
 	private static ScannableGroup createAndCheckScannableGroupContaining(Scannable scannable) throws Exception {
 		ScannableGroup sg = new ScannableGroup();
-		sg.setGroupMembers(Arrays.asList(scannable));
+		sg.setGroupMembers(asList(scannable));
 		sg.configure();
 		assertTrue(sg.isConfigured());
 		assertEquals(1, sg.getGroupMembers().size());
@@ -382,20 +379,8 @@ public class ScannableGroupTest extends TestCase {
 		assertEquals(scannable.getName(), sg.getGroupMemberNames()[0]);
 		return sg;
 	}
-
-	private static <T> ArrayList<T> arrayListOf(@SuppressWarnings("unchecked") T... items) {
-		return new ArrayList<T>(Arrays.asList(items));
-	}
-
 	private static <T> T[] arrayOf(@SuppressWarnings("unchecked") T... items) {
 		return items;
-	}
-
-	private static <T> void assertArraysEqual(T[] one, T[] two) {
-		assertEquals(one.length, two.length);
-		for (int i=0; i<one.length; i++) {
-			assertEquals(one[i], two[i]);
-		}
 	}
 
 }
