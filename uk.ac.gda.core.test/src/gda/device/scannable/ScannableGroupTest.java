@@ -32,11 +32,11 @@ import java.util.List;
 import org.junit.Test;
 
 import gda.MockFactory;
+import gda.TestHelpers;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.Finder;
-import gda.factory.MapFactory;
 import junit.framework.TestCase;
 
 /**
@@ -57,7 +57,7 @@ public class ScannableGroupTest extends TestCase {
 		s1 = new DummyScannable("s1");
 		s2 = new DummyScannable("s2");
 
-		final Factory factory = new MapFactory("test", null);
+		final Factory factory = TestHelpers.createTestFactory("test");
 		factory.addFindable(s1);
 		factory.addFindable(s2);
 
