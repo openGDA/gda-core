@@ -34,9 +34,6 @@ public class PreferenceConstants {
 	 */
 	public static final String SHOW_GDA_SCRIPTS        = "uk.ac.gda.pydev.show.python.gda.project";
 
-	public static final String SHOW_XML_CONFIG         = "uk.ac.gda.pydev.show.xml.config.project";
-
-
 	/**
 	 * Syntax check scripts during file editing
 	 *
