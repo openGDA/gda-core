@@ -371,15 +371,15 @@ public class ScannableGroupTest extends TestCase {
 		assertEquals(expectedResult, result);
 	}
 
-	private ScannableGroup createAndCheckScannableGroupContaining(Scannable... scannables) throws Exception {
+	private static ScannableGroup createAndCheckScannableGroupContaining(Scannable scannable) throws Exception {
 		ScannableGroup sg = new ScannableGroup();
-		sg.setGroupMembers(new ArrayList<Scannable>(Arrays.asList(scannables)));
+		sg.setGroupMembers(Arrays.asList(scannable));
 		sg.configure();
 		assertTrue(sg.isConfigured());
 		assertEquals(1, sg.getGroupMembers().size());
-		assertSame(s1, sg.getGroupMembers().get(0));
+		assertSame(scannable, sg.getGroupMembers().get(0));
 		assertEquals(1, sg.getGroupMemberNames().length);
-		assertEquals("s1", sg.getGroupMemberNames()[0]);
+		assertEquals(scannable.getName(), sg.getGroupMemberNames()[0]);
 		return sg;
 	}
 
