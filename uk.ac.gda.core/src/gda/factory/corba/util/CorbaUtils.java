@@ -19,9 +19,11 @@
 
 package gda.factory.corba.util;
 
-import gda.factory.Findable;
+import java.util.Arrays;
 
 import org.springframework.util.ClassUtils;
+
+import gda.factory.Findable;
 
 /**
  * CORBA-related utility methods.
@@ -96,5 +98,30 @@ public class CorbaUtils {
 		String.class,
 		NetService.class
 	};
+
+	/**
+	 * This will inspect a {@link Findable} on the server side to see which Corba adaptor it would use on the client and
+	 * which interfaces would be available. It then constructs some text to help people switch from RMI to Corba.
+	 * <p>
+	 * This should be removed once Corba is removed.
+	 *
+	 * @param findable
+	 *            The findable to inspect
+	 * @return A string explaining the actions to take to export the findable over RMI
+	 * @throws ClassNotFoundException
+	 *             If the class loading fails
+	 * @since GDA 9.8
+	 */
+	public static String getRmiInterfaces(Findable findable) throws ClassNotFoundException {
+		final StringBuilder sb = new StringBuilder(
+				"@ServiceInterface should be added to class: " + findable.getClass().getName() + "\n");
+		final String adaptorClass = getAdapterClassName(findable.getClass());
+		sb.append("Corba adaptor class is: " + adaptorClass + "\n");
+		final Class<?>[] adaptorClassInterfaces = Class.forName(adaptorClass).getInterfaces();
+		sb.append("Most likely @ServiceInterface: " + adaptorClassInterfaces[0].getName() + "\n");
+		sb.append("All possible interfaces: ");
+		sb.append(Arrays.toString(adaptorClassInterfaces));
+		return sb.toString();
+	}
 
 }
