@@ -570,7 +570,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
-		return numFramesToAcquire;
+		return desiredPoint;
 	}
 
 	@Override
