@@ -60,10 +60,10 @@ import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.memory.Scaler;
 import gda.device.motor.DummyMotor;
 import gda.device.timer.Etfg;
+import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.ObjectFactory;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import uk.ac.gda.beans.DetectorROI;
@@ -138,7 +138,7 @@ public class ScansSetupUsingXmlTest {
 												qexafs_xspress, qexafs_counterTimer01, qexafsFfI0,
 												qexafsScannable, asciidatawriterConfig};
 
-		ObjectFactory factory = new ObjectFactory();
+		final Factory factory = TestHelpers.createTestFactory("test");
 		for(Findable f : findables) {
 			factory.addFindable(f);
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(f.getName(), f);

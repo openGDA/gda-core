@@ -54,7 +54,7 @@ public class XanesScanParametersTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
-		Factory testFactory = TestHelpers.createTestFactory("XanesScanParametersTest");
+		final Factory testFactory = TestHelpers.createTestFactory("test");
 		DummyScannable qcm_energy = new DummyScannable();
 		qcm_energy.setName("qcm_energy");
 		testFactory.addFindable(qcm_energy);

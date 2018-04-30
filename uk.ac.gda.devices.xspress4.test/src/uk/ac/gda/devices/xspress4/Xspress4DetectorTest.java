@@ -44,10 +44,10 @@ import gda.device.detector.DummyDAServer;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
 import gda.device.timer.Tfg;
+import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.ObjectFactory;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
@@ -134,7 +134,7 @@ public class Xspress4DetectorTest {
 		// Findables the server needs to know about
 		Findable[] findables = new Findable[] { xspress4detector, controllerForDetector, dummyScannableMotor };
 
-		ObjectFactory factory = new ObjectFactory();
+		final Factory factory = TestHelpers.createTestFactory("test");
 		for (Findable f : findables) {
 			factory.addFindable(f);
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(f.getName(), f);
