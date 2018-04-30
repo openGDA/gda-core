@@ -29,6 +29,7 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.DatasetException;
@@ -226,7 +227,7 @@ final public class NexusExtractor implements INexusDataGetter {
 				String n = it.next();
 				NodeLink l = c.getNodeLink(n);
 				Node nn = l.getDestination();
-				Attribute a = nn.getAttribute(NexusFile.NXCLASS);
+				Attribute a = nn.getAttribute(NexusConstants.NXCLASS);
 				String nc = a == null ? "" : a.getFirstElement();
 				if (nc.isEmpty() && l.isDestinationData()) {
 					nc = SDSClassName;
@@ -240,7 +241,7 @@ final public class NexusExtractor implements INexusDataGetter {
 			Iterator<? extends Attribute> ait = c.getAttributeIterator();
 			while (ait.hasNext()) {
 				Attribute a = ait.next();
-				if (NexusFile.NXCLASS.equals(a.getName()))
+				if (NexusConstants.NXCLASS.equals(a.getName()))
 						continue; // skip NX_class
 
 				RESPONSE response2 = loop(new Attr(c, a.getName(), a), mon);
