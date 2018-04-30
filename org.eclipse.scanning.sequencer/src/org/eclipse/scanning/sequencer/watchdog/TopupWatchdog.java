@@ -220,13 +220,13 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 		}
 	}
 
-	private boolean isPositionValid(long t) {
-		long w  = model.getWarmup();
-		long c  = model.getCooloff();
-		long p  = model.getPeriod();
-		long Tf = model.getTopupTime();
+	private boolean isPositionValid(long time) {
+		long warmup  = model.getWarmup();
+		long cooldown  = model.getCooloff();
+		long period  = model.getPeriod(); // TODO: should use period scannable for this
+		long topupTime = model.getTopupTime();
 
-		return t > c && t < ((p-Tf)-w);
+		return time > cooldown && time < (period - topupTime) - warmup;
 	}
 
 	@ScanStart

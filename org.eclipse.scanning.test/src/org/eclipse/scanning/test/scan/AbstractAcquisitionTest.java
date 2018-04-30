@@ -186,7 +186,7 @@ public abstract class AbstractAcquisitionTest {
 		return createTestScanner(null, null, device, null, 2, axisNames, filePath);
 	}
 
-    private <T> IDeviceController createTestScanner(IScannable<?>     monitorPerPoint,
+    protected <T> IDeviceController createTestScanner(IScannable<?>     monitorPerPoint,
 		                                         IScannable<?>     monitorPerScan,
 		                                         IRunnableDevice<T> device,
 		                                         T dmodel,
@@ -197,7 +197,8 @@ public abstract class AbstractAcquisitionTest {
 		List<IScanPathModel> models = new ArrayList<>();
 		if (dims>2) {
 			for (int i = dims; i>2; i--) {
-				models.add(new StepModel("T"+i, 290, 292, 1));
+				String axisName = axisNames != null ? axisNames.get(i - 1) : "T" + i;
+				models.add(new StepModel(axisName, 290, 292, 1));
 			}
 		}
 		// Create scan points for a grid and make a generator
