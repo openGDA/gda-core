@@ -197,7 +197,12 @@ public class GdaThreadFactoryBuilder {
 	 *
 	 * @since 9.8
 	 */
-	public static class Threads {
+	public static final class Threads {
+
+		private Threads() {
+			// Prevent instances
+		}
+
 		/**
 		 * Create a Thread builder set to build daemon threads. This is the default.
 		 * @return A GdaThreadFactoryBuilder
