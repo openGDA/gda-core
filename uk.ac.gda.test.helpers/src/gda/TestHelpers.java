@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.Dataset;
@@ -373,7 +374,7 @@ class SimpleScannable extends ConfigurableBase implements Scannable, INeXusInfoW
 		try {
 			if (units != null && units.length > 0) {
 				Dataset ad = DatasetFactory.createFromObject(units[0]);
-				ad.setName("units");
+				ad.setName(NexusConstants.UNITS);
 				Attribute a = file.createAttribute(ad);
 				file.addAttribute(node, a);
 			}
