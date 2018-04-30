@@ -152,11 +152,7 @@ public final class GeneralCommands {
 			String output = String.join("\n", availableInterfaces);
 
 			// print out to the Jython interpreter directly (so output is formatted correctly)
-			try {
-				InterfaceProvider.getTerminalPrinter().print(output);
-			} catch (Exception e) {
-				// do nothing
-			}
+			InterfaceProvider.getTerminalPrinter().print(output);
 		}
 	}
 
