@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class UpdatePlotQueue implements Runnable {
+public class UpdatePlotQueue {
 	private static final Logger logger = LoggerFactory.getLogger(UpdatePlotQueue.class);
 
 	private Vector<XYDataHandler> items = new Vector<XYDataHandler>();
@@ -55,7 +55,7 @@ public class UpdatePlotQueue implements Runnable {
 				return;
 			items.add(simplePlot);
 			if (thread == null) {
-				thread = uk.ac.gda.util.ThreadManager.getThread(this, "XYDataHandler:UpdatePlotQueue");
+				thread = new Thread(this::runPlotQueueUpdates, "XYDataHandler:UpdatePlotQueue");
 			}
 			items.notifyAll();
 		}
@@ -63,8 +63,7 @@ public class UpdatePlotQueue implements Runnable {
 			thread.start();
 	}
 
-	@Override
-	public void run() {
+	private void runPlotQueueUpdates() {
 		while (!killed) {
 			try {
 				XYDataHandler[] itemsToBeHandled = null;
