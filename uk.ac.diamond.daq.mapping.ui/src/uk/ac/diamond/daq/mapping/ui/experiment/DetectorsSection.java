@@ -356,7 +356,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private boolean isMappingMalcolmDevice(DeviceInformation<?> malcolmDeviceInfo) {
 		try {
-			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() == 2;
+			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() <= 2;
 		} catch (ScanningException | EventException e) {
 			logger.error("Cannot get axes for malcolm device " + malcolmDeviceInfo.getName(), e);
 			return false;
