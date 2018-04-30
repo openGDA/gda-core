@@ -32,7 +32,7 @@ import gda.analysis.utilities.Precision;
  *          longer starts at 1 (Fortran leftover) Removed lmder and simplified lmdif calling method Added LSQFunction
  *          object and machine precision calcs...
  */
-public class minpackOptimizer implements IOptimizer, Runnable {
+public class minpackOptimizer implements IOptimizer {
 	/**
 	 * machine precision
 	 */
@@ -1896,7 +1896,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 		if (action == null) // if thread is not running
 		{
 			System.out.println("LM Optimizer started");
-			action = uk.ac.gda.util.ThreadManager.getThread(this); // Instantiate the new thread
+			action = new Thread(this::runOptimizer); // Instantiate the new thread
 			action.start(); // Start it
 		} else {
 			System.out.println("A Levenberg Marquardt Optimization is already running");
@@ -1915,8 +1915,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	/**
 	 * Thread
 	 */
-	@Override
-	public void run() {
+	private void runOptimizer() {
 		optimize();
 		action = null;
 	}

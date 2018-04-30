@@ -17,7 +17,7 @@ import gda.analysis.numerical.optimization.objectivefunction.AbstractObjectiveFu
  * optimization termination if function doesn't change Altered DEProblem evaluate method Added max no of generations
  * Changed public to private classes Changed DeProblem to AbstractCostFunction
  */
-public class DEOptimizer implements Runnable {
+public class DEOptimizer {
 	/* ======Public variables====================================== */
 	private DERandom deRandom = new DERandom();
 
@@ -368,7 +368,7 @@ public class DEOptimizer implements Runnable {
 
 		if (action == null) // if thread is not running
 		{
-			action = uk.ac.gda.util.ThreadManager.getThread(this); // Instantiate the new thread
+			action = new Thread(this::runOptimizer); // Instantiate the new thread
 			action.start(); // Start it
 		}
 	}
@@ -398,8 +398,7 @@ public class DEOptimizer implements Runnable {
 	/**
 	 * The main method for the thread
 	 */
-	@Override
-	public void run()
+	private void runOptimizer()
 	// Let it run! The optimization is taking place here!;
 	{
 		while (action != null) // as long as there is an active thread
