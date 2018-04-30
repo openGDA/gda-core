@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistentFile;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.widgets.Display;
@@ -74,7 +75,7 @@ public class CreateMapHandler extends AbstractHandler {
 
 			// create a persistent file and add the data and axis.
 			final IPersistentFile persistentFile = persistenceService.createPersistentFile(filePath);
-			persistentFile.setData(snapshot.getDataset(), snapshot.getxAxis(), snapshot.getyAxis()); // handles null for axes
+			persistentFile.setData(snapshot.getDataset(), new IDataset[] {snapshot.getyAxis(), snapshot.getxAxis()}); // handles null for axes
 
 			// send an event to update the Mapped Data view
 			updateMappedDataView(filePath);
