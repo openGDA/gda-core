@@ -51,6 +51,7 @@ import gov.aps.jca.dbr.TIME;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutListener;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Control devices using the Epics Valve/Shutter template.
@@ -362,14 +363,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 			} else {
 				// Release current corba thread as creating a channel can be
 				// blocking
-				Thread t = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-					@Override
-					public void run() {
-						setValueInNewThread(pvName, value);
-					}
-				});
-				t.setPriority(java.lang.Thread.MIN_PRIORITY);
-				t.start();
+				Async.execute(() -> setValueInNewThread(pvName, value));
 			}
 
 		} catch (CAStatusException e) {
@@ -417,14 +411,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 				// Release current corba thread as creating a channel can be
 				// blocking
 				final String pvNameFinal = pvName;
-				Thread t = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-					@Override
-					public void run() {
-						setValueInNewThread(pvNameFinal, value);
-					}
-				});
-				t.setPriority(java.lang.Thread.MIN_PRIORITY);
-				t.start();
+				Async.execute(() -> setValueInNewThread(pvNameFinal, value));
 			}
 
 		} catch (CAStatusException e) {
@@ -729,11 +716,8 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 					final String fpvName = pvName;
 					// Release current corba thread as creating a channel can be
 					// blocking
-					Thread t = uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-						@Override
-						public void run() {
+					Async.execute(() -> {
 							try {
-								// try{
 								switch (fsetMode) {
 								case VALUE:
 								case CLOSECHANNEL:
@@ -744,20 +728,10 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 									deleteObserver(request, (fvalue == null) ? fepicsDevice : (IObserver) fvalue);
 									break;
 								}
-								// }
-								// catch (CAException e){
-								// throw new DeviceException("AddObserver", e);
-								// }
-								// catch (TimeoutException e){
-								// throw new DeviceException("AddObserver", e);
-								// }
 							} catch (Exception e) {
 								logger.error("EpicsDevice.setAttribute:addObserver failed for '{}'", fpvName, e);
 							}
-						}
 					});
-					t.setPriority(java.lang.Thread.MIN_PRIORITY);
-					t.start();
 				}
 			} else {
 				setValue(pvName, value, putTimeout);
@@ -1087,12 +1061,7 @@ final class MonitorListenerImpl implements MonitorListener {
 		// I need to use a separate thread otherwise this is part of the
 		// addObserver thread from the client
 		// It is run from within epicsDevice.addObserver which is synchronized
-		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
-			@Override
-			public void run() {
-				epicsDevice.notifyIObservers(this, lastEvent);
-			}
-		}).start();
+		Async.execute(() -> epicsDevice.notifyIObservers(this, lastEvent));
 	}
 }
 
