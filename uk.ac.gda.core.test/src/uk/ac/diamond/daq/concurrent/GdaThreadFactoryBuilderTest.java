@@ -95,11 +95,15 @@ public class GdaThreadFactoryBuilderTest {
 				handler,
 				t.getUncaughtExceptionHandler());
 
-		// If no exception handler is set, the ThreadGroup is returned
-		factory = Threads.factory();
-		t = factory.newThread(task);
+	}
+
+	@Test
+	public void testDefaultExceptionHandlerIsUsedByDefault() throws Exception {
+		// If no exception handler is set, a default handler is used
+		ThreadFactory factory = Threads.factory();
+		Thread t = factory.newThread(task);
 		assertEquals("Default UncaughtExceptionHandler not used when creating threads",
-				t.getThreadGroup(),
+				GdaThreadFactoryBuilder.DEFAULT_EXCEPTION_HANDLER,
 				t.getUncaughtExceptionHandler());
 	}
 

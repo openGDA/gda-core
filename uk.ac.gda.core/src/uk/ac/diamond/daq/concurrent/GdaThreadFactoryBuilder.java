@@ -23,6 +23,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * {@link ThreadFactory} implementation to help creation of {@link ExecutorService}s. Instances should not be
@@ -47,11 +50,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see ExecutorService
  */
 public class GdaThreadFactoryBuilder {
+
 	/** Counter give automatically named factories unique names */
 	private static final AtomicInteger factoryCounter = new AtomicInteger();
 
 	/** The template to use when group name is not set directly */
 	private static final String GROUP_NAME_TEMPLATE = "GdaThreadFactoryGroup-%d";
+
+	/** Default {@link UncaughtExceptionHandler} - just logs the error and the thread it came from */
+	public static final UncaughtExceptionHandler DEFAULT_EXCEPTION_HANDLER = new GdaExceptionHandler();
 
 	/** Threads are given a unique name based on a given name and an id */
 	private final AtomicInteger threadCounter = new AtomicInteger();
@@ -74,7 +81,7 @@ public class GdaThreadFactoryBuilder {
 	/** The handler for uncaught exceptions thrown in created threads
 	 * @see Thread#setUncaughtExceptionHandler(UncaughtExceptionHandler)
 	 */
-	private UncaughtExceptionHandler handler;
+	private UncaughtExceptionHandler handler = DEFAULT_EXCEPTION_HANDLER;
 
 	private GdaThreadFactoryBuilder() {
 	}
@@ -291,5 +298,15 @@ public class GdaThreadFactoryBuilder {
 		public static ThreadFactory factory() {
 			return new GdaThreadFactoryBuilder().factory();
 		}
+	}
+
+	private static final class GdaExceptionHandler implements UncaughtExceptionHandler {
+		private static final Logger logger = LoggerFactory.getLogger(GdaExceptionHandler.class);
+
+		@Override
+		public void uncaughtException(Thread t, Throwable e) {
+			logger.error("Unhandled exception from thread: {}", t.getName(), e);
+		}
+
 	}
 }
