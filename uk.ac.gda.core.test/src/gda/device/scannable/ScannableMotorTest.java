@@ -49,14 +49,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.ScannableMotion;
+import gda.factory.Factory;
 import gda.factory.Finder;
-import gda.factory.ObjectFactory;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
@@ -97,7 +98,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testConfigureWithMotorName() throws Exception {
-		final ObjectFactory factory = new ObjectFactory();
+		final Factory factory = TestHelpers.createTestFactory("test");
 		final Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
 

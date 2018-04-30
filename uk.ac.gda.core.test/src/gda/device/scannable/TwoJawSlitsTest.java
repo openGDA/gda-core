@@ -33,18 +33,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import gda.TestHelpers;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
+import gda.factory.Factory;
 import gda.factory.Finder;
-import gda.factory.ObjectFactory;
 
 /**
  * Tests the two Scannable classes used to operate a slit operated by two motors
  */
 public class TwoJawSlitsTest {
 
-	private ObjectFactory factory;
+	private Factory factory;
 
 	//these names must be unique else they clash with motors in other tests!!!
 	private static final String motorName1 = "TwoJawSlitsTestMotor01";
@@ -66,7 +67,7 @@ public class TwoJawSlitsTest {
 
 	@Before
 	public void setUp() throws Exception {
-		factory = new ObjectFactory();
+		factory = TestHelpers.createTestFactory("test");
 		Finder.getInstance().removeAllFactories();
 		Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
