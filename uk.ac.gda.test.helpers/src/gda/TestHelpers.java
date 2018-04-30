@@ -60,6 +60,10 @@ import gda.util.TestUtils;
  */
 public class TestHelpers {
 
+	private TestHelpers() {
+		// prevent instantiation
+	}
+
 	/**
 	 * Sets up of environment for the a test Set property so that output is to Nexus format file
 	 * Uses MockJythonServerFacade and MockJythonServer to configure InterfaceProvider
