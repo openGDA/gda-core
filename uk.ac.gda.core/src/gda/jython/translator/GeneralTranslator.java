@@ -87,13 +87,13 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 			else if (args[0].equals("alias")) {
 				// assume next arg is the name of the function
 				if (args.length == 2) {
-					aliases.add(args[1]);
+					addAliasedCommand(args[1]);
 					thisGroup = "";
 				}
 			} else if (args[0].equals("vararg_alias")) {
 				// assume next arg is the name of the function
 				if (args.length == 2) {
-					varargAliases.add(args[1]);
+					addAliasedVarargCommand(args[1]);
 					thisGroup = "";
 				}
 			}
@@ -513,11 +513,13 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	@Override
 	public void addAliasedCommand(String commandName) {
 		aliases.add(commandName);
+		logger.debug("Added alias command: {}", commandName);
 	}
 
 	@Override
 	public void addAliasedVarargCommand(String commandName) {
 		varargAliases.add(commandName);
+		logger.debug("Added vararg alias command: {}", commandName);
 	}
 
 	@Override
