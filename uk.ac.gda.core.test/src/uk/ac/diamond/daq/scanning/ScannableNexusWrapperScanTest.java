@@ -143,7 +143,6 @@ import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.MapFactory;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
@@ -336,7 +335,7 @@ public class ScannableNexusWrapperScanTest {
 		NexusDataWriter.setLocationmap(locationMap);
 		NexusDataWriter.setMetadatascannables(legacyMetadataScannables);
 
-		Factory factory = new MapFactory("testFactory");
+		final Factory factory = TestHelpers.createTestFactory("testFactory");
 		factory.addFindable(new SampleAngleScannable("salong", false));
 		factory.addFindable(new SampleAngleScannable("saperp", true));
 		factory.addFindable(new DummyScannable("sax", 5.0));
