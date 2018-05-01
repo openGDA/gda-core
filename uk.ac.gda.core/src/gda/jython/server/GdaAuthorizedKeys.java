@@ -29,10 +29,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.UserPrincipal;
 import java.security.PublicKey;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.sshd.common.util.Pair;
 import org.apache.sshd.common.util.io.ModifiableFileWatcher;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
@@ -145,12 +145,12 @@ public class GdaAuthorizedKeys implements PublickeyAuthenticator {
 		}
 		try {
 			checkOwnership(keys.getPath(), username);
-			Pair<String, Object> violations = ModifiableFileWatcher.validateStrictConfigFilePermissions(keys.getPath());
+			SimpleImmutableEntry<String, Object> violations = ModifiableFileWatcher.validateStrictConfigFilePermissions(keys.getPath());
 			// Violations will report that the file is not owned by the current user. In our case it shouldn't be as gda2
 			// is running the server.
 			// If the permissions are set incorrectly the returned pair is <message, invalid_permission>
-			if (violations != null && !violations.getSecond().equals(username)) {
-				logger.error("{}", violations.getFirst());
+			if (violations != null && !violations.getValue().equals(username)) {
+				logger.error("{}", violations.getKey());
 				return false;
 			}
 		} catch (IllegalStateException | IOException e) {
