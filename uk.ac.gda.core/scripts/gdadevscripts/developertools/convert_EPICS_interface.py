@@ -161,7 +161,7 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                     write(ET._escape_cdata(text, encoding))
                 for e in elem:
                     _serialize_xml(write, e, encoding, qnames, None)
-                write("\n\t</" + tag + ">")
+                write("</" + tag + ">")
             else:
                 write(" />")
     if elem.tail:
