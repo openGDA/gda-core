@@ -70,7 +70,7 @@ public class AbstractScanTest extends BrokerTest {
 	@Test
 	public void testSetSimplePosition() throws Exception {
 
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
 		pos.setPosition(new MapPosition("x:0:1, y:0:2"));
 
 		IScannable<Number> x = connector.getScannable("x");
@@ -93,7 +93,7 @@ public class AbstractScanTest extends BrokerTest {
 	@Test
 	public void testLevels() throws Exception {
 
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
 
 		final List<String> scannablesMoved = new ArrayList<>(6);
 		pos.addPositionListener(new IPositionListener() {
@@ -136,7 +136,7 @@ public class AbstractScanTest extends BrokerTest {
 			}
 		}
 
-		IPositioner positioner   = dservice.createPositioner();
+		IPositioner positioner   = dservice.createPositioner("test");
 
 		final List<String> levelsMoved = new ArrayList<>(6);
 		positioner.addPositionListener(new IPositionListener() {

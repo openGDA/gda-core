@@ -36,8 +36,8 @@ public class PositionDelegate {
 	private IPublisher<Location>          publisher;
 	private INameable                     device;
 
-	public PositionDelegate() {
-		this(null, null);
+	public PositionDelegate(INameable device) {
+		this(null, device);
 	}
 
 	/**

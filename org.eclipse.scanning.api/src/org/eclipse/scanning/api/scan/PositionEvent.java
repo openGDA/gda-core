@@ -19,10 +19,9 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.points.IPosition;
 
 /**
- *
+ * An event describing a change of position.
  *
  * @author Matthew Gerring
- *
  */
 public class PositionEvent extends EventObject {
 
@@ -34,11 +33,11 @@ public class PositionEvent extends EventObject {
 	private int          level;
 	private List<? extends ILevel> levelObjects;
 
-	private INameable device;
+	private final IPosition position;
 
 	public PositionEvent(IPosition position, INameable device) {
-		super(position);
-		this.device = device;
+		super(device);
+		this.position = position;
 	}
 
 	/**
@@ -51,7 +50,7 @@ public class PositionEvent extends EventObject {
 	 * @return
 	 */
 	public IPosition getPosition() {
-		return (IPosition)getSource();
+		return position;
 	}
 
 	public int getLevel() {
@@ -71,11 +70,7 @@ public class PositionEvent extends EventObject {
 	}
 
 	public INameable getDevice() {
-		return device;
-	}
-
-	public void setDevice(INameable device) {
-		this.device = device;
+		return (INameable) getSource();
 	}
 
 }

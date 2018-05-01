@@ -14,6 +14,7 @@ package org.eclipse.scanning.sequencer;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -42,8 +43,8 @@ final class DeviceWriter extends DeviceRunner {
 	 *
 	 * @param detectors
 	 */
-	DeviceWriter(Collection<IRunnableDevice<?>> detectors) {
-		super(detectors);
+	DeviceWriter(INameable source, Collection<IRunnableDevice<?>> detectors) {
+		super(source, detectors);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -41,8 +42,8 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	private List<IScannable<?>>         monitors;
 	private List<IScannable<?>>         scannables;
 
-	ScannablePositioner(IScannableDeviceService service) {
-
+	ScannablePositioner(IScannableDeviceService service, INameable parent) {
+		super(parent);
 		setLevelCachingAllowed(false);
 		this.connectorService = service;
 

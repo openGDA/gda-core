@@ -120,8 +120,8 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	@Test
 	public void testDrivePositioner() throws Exception {
 
-		IPositioner pos1 = dservice.createPositioner();
-		IPositioner pos2 = rservice.createPositioner();
+		IPositioner pos1 = dservice.createPositioner("test");
+		IPositioner pos2 = rservice.createPositioner("test");
 
 		// Set them up the same.
 		pos1.setPosition(new MapPosition("test", 0, 0));
@@ -134,9 +134,9 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	@Test
 	public void testThatAbortDoesNotChangeHardware() throws Exception {
 
-		IPositioner pos1 = dservice.createPositioner();
+		IPositioner pos1 = dservice.createPositioner("test");
 		if (rservice==null) rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
-		IPositioner pos2 = rservice.createPositioner();
+		IPositioner pos2 = rservice.createPositioner("test");
 		pos1.setPosition(new MapPosition("x", 0, 0));
 		pos2.setPosition(new MapPosition("x", 0, 0));
 

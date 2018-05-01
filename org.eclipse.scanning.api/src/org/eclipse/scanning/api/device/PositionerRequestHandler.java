@@ -80,7 +80,7 @@ public class PositionerRequestHandler implements IRequestHandler<PositionerReque
 			return positioners.get(id).get();
 		}
 
-		IPositioner positioner = dservice.createPositioner();
+		IPositioner positioner = dservice.createPositioner("positioner " + id);
 		positioners.put(request.getUniqueId(), new SoftReference<IPositioner>(positioner));
 		return positioner;
 	}

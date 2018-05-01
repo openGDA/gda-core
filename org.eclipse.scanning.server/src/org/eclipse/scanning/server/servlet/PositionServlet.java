@@ -44,11 +44,11 @@ public class PositionServlet extends AbstractSubscriberServlet<IPosition> {
 
 		try {
 			IRunnableDeviceService service = Services.getRunnableDeviceService();
-			IPositioner    poser   = service.createPositioner();
-		    poser.setPosition(position);
+			IPositioner poser   = service.createPositioner(this.getClass().getSimpleName());
+			poser.setPosition(position);
 
-		    // TODO Figure out how to broadcast success nicely.
-		    //response.broadcast(position);
+			// TODO Figure out how to broadcast success nicely.
+			//response.broadcast(position);
 
 		} catch (ScanningException | InterruptedException ne) {
 			throw new EventException(ne);

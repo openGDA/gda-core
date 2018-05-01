@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -66,7 +67,16 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	}
 
 	@Override
-	public IPositioner createPositioner() throws ScanningException {
+	public IPositioner createPositioner(INameable parent) throws ScanningException {
+		try {
+			return new _Positioner(uri, eservice);
+		} catch (EventException e) {
+			throw new ScanningException("Cannot create a positioner!", e);
+		}
+	}
+
+	@Override
+	public IPositioner createPositioner(String name) throws ScanningException {
 		try {
 			return new _Positioner(uri, eservice);
 		} catch (EventException e) {

@@ -91,7 +91,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 		if (bean.getScanRequest().getStart()!=null || bean.getScanRequest().getEnd()!=null) {
 			try {
-				this.positioner = Services.getRunnableDeviceService().createPositioner();
+				this.positioner = Services.getRunnableDeviceService().createPositioner(this.getClass().getSimpleName());
 			} catch (ScanningException e) {
 				throw new EventException(e);
 			}

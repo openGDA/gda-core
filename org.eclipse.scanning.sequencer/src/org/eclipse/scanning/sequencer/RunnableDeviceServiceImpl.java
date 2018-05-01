@@ -178,10 +178,31 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 	@Override
-	public final IPositioner createPositioner() throws ScanningException {
+	public final IPositioner createPositioner(INameable parent) throws ScanningException {
 		// Try to set a deviceService if it is null
 		if (deviceConnectorService==null) deviceConnectorService = getDeviceConnector();
-		return new ScannablePositioner(deviceConnectorService);
+		return new ScannablePositioner(deviceConnectorService, parent);
+	}
+
+	@Override
+	public final IPositioner createPositioner(String name) throws ScanningException {
+		// Try to set a deviceService if it is null
+		if (deviceConnectorService==null) deviceConnectorService = getDeviceConnector();
+
+		final INameable nameable = new INameable() {
+
+			@Override
+			public void setName(String name) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public String getName() {
+				return name;
+			}
+		};
+
+		return new ScannablePositioner(deviceConnectorService, nameable);
 	}
 
 

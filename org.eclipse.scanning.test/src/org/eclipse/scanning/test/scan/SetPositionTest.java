@@ -45,7 +45,7 @@ public class SetPositionTest {
 	public void testMoveNoExtraGetPosition() throws Exception {
 
 		// Something without
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsGood:0:20"));
 
         assertEquals(0, cpsGood.getCount("getPosition"));
@@ -58,7 +58,7 @@ public class SetPositionTest {
 	public void testMoveExtraGetPosition() throws Exception {
 
 		// Something without
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsBad:0:20"));
 
         assertEquals(1, cpsBad.getCount("getPosition"));
@@ -72,7 +72,7 @@ public class SetPositionTest {
 	public void testMoveTwoThingsTogether() throws Exception {
 
 		// Something without
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("cpsBad:0:20, cpsGood:0:20"));
 
         assertEquals(0, cpsGood.getCount("getPosition"));

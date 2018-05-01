@@ -39,7 +39,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
         assertEquals(new Double(20d), a.getPosition());
@@ -50,7 +50,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -64,7 +64,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -78,7 +78,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -92,7 +92,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -108,7 +108,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> a   = connector.getScannable("a");
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
 		a.setTolerance(1d);
@@ -142,7 +142,7 @@ public class ToleranceTest {
 		IScannable<Double> bnd   = connector.getScannable("bnd");
         assertEquals(new Double(1.0), bnd.getTolerance());
 
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
         assertEquals(new Double(3.14), bnd.getPosition());
 
@@ -166,7 +166,7 @@ public class ToleranceTest {
         assertEquals(new Double(1.0), bnd.getTolerance());
 
         bnd.setTolerance(0d);
-		IPositioner     pos    = dservice.createPositioner();
+		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
         assertEquals(new Double(3.14), bnd.getPosition());
 

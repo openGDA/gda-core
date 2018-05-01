@@ -14,6 +14,7 @@ package org.eclipse.scanning.sequencer;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ITimeoutable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -37,7 +38,8 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 
 	private Collection<IRunnableDevice<?>>  devices;
 
-	DeviceRunner(Collection<IRunnableDevice<?>> devices) {
+	DeviceRunner(INameable source, Collection<IRunnableDevice<?>> devices) {
+		super(source);
 		this.devices = devices;
 
 		long timeout = calculateTimeout(devices);

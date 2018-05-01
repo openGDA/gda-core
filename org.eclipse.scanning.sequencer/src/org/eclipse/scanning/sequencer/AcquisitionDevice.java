@@ -174,7 +174,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// add the scan information to the context - it is created if not set on the scan model
 		annotationManager.addContext(getScanInformation(location.getTotalSize()));
 		annotationManager.addContext(getPublisher());
-		exposureManager = new ExposureTimeManager();
+		exposureManager = new ExposureTimeManager(this);
 		exposureManager.addDevices(model.getDetectors());
 
 		// create the nexus file, if appropriate
@@ -184,9 +184,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 		// create the runners and writers
 		if (model.getDetectors()!=null) {
-			runners = new DeviceRunner(model.getDetectors());
+			runners = new DeviceRunner(this, model.getDetectors());
 			if (nexusScanFileManager.isNexusWritingEnabled()) {
-				writers = new DeviceWriter(model.getDetectors());
+				writers = new DeviceWriter(this, model.getDetectors());
 			} else {
 				writers = LevelRunner.createEmptyRunner();
 			}
@@ -233,7 +233,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private IPositioner createPositioner(ScanModel model) throws ScanningException {
-		IPositioner poser = runnableDeviceService.createPositioner();
+		IPositioner poser = runnableDeviceService.createPositioner(this);
 
 		// We allow monitors which can block a position until a setpoint is
 		// reached or add an extra record to the NeXus file.

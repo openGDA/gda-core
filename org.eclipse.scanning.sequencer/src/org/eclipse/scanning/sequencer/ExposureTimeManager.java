@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
@@ -38,8 +39,8 @@ class ExposureTimeManager extends LevelRunner<IRunnableDevice<?>> {
 	private List<Integer>            levels;
 	private double                   tolerance = 0.0001; // 10% of a microsecond
 
-	public ExposureTimeManager() {
-		super();
+	public ExposureTimeManager(INameable source) {
+		super(source);
 		devices = new ArrayList<>(7);
 	}
 

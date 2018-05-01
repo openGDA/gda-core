@@ -64,8 +64,8 @@ abstract class LevelRunner<L extends ILevel> {
 	private PositionDelegate            pDelegate;
 	private boolean                     levelCachingAllowed=true;
 
-	protected LevelRunner() {
-		pDelegate = new PositionDelegate();
+	protected LevelRunner(INameable device) {
+		pDelegate = new PositionDelegate(device);
 	}
 
 	/**
@@ -382,7 +382,7 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	public static <T extends ILevel> LevelRunner<T> createEmptyRunner() {
-		return new LevelRunner<T>() {
+		return new LevelRunner<T>(null) {
 
 			@Override
 			protected boolean run(IPosition position, boolean block) {

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.scan.event;
 
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
@@ -31,9 +32,21 @@ public interface IPositionerService {
 	 * It takes into account the levels of the scannbles.
 	 * It is blocking until all the scannables have reached the desired location.
 	 *
-	 * @return
+	 * @param parent the parent device
+	 * @return the positioner
 	 * @throws ScanningException
 	 */
-	IPositioner createPositioner() throws ScanningException;
+	IPositioner createPositioner(INameable parent) throws ScanningException;
+
+	/**
+	 * This method sets the value of the scannables named to this position.
+	 * It takes into account the levels of the scannbles.
+	 * It is blocking until all the scannables have reached the desired location.
+	 *
+	 * @param name the name of the positioner
+	 * @return the positioner
+	 * @throws ScanningException
+	 */
+	IPositioner createPositioner(String name) throws ScanningException;
 
 }
