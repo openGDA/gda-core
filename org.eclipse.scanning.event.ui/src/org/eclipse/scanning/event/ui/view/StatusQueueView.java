@@ -465,7 +465,7 @@ public class StatusQueueView extends EventConnectionView {
 		Action action = new Action("Pause "+getPartName()+" Queue. Does not pause running job.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				togglePausedConsumer(this);
+				pauseConsumerActionRun(this);
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
@@ -473,7 +473,7 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	protected void togglePausedConsumer(IAction pauseConsumer) {
+	private void pauseConsumerActionRun(IAction pauseConsumer) {
 
 		// The button can get out of sync if two clients are used.
 		final boolean currentState = queueConnection.isQueuePaused(getSubmissionQueueName());
@@ -503,7 +503,7 @@ public class StatusQueueView extends EventConnectionView {
 		Action action = new Action("Pause job.\nPauses a running job.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
-				pauseJob();
+				pauseActionRun();
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause.png"));
@@ -512,7 +512,7 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	protected void pauseJob() {
+	private void pauseActionRun() {
 
 		for(StatusBean bean : getSelection()) {
 
@@ -549,14 +549,14 @@ public class StatusQueueView extends EventConnectionView {
 				.getImageDescriptor(ISharedImages.IMG_ELCL_REMOVE)) {
 			@Override
 			public void run() {
-				removeJob();
+				removeActionRun();
 			}
 		};
 		action.setEnabled(false);
 		return action;
 	}
 
-	protected void removeJob() {
+	private void removeActionRun() {
 
 		for(StatusBean bean : getSelection()) {
 
@@ -598,14 +598,14 @@ public class StatusQueueView extends EventConnectionView {
 		Action action = new Action("Stop job", Activator.getImageDescriptor("icons/control-stop-square.png")) {
 			@Override
 			public void run() {
-				stopJob();
+				stopActionRun();
 			}
 		};
 		action.setEnabled(false);
 		return action;
 	}
 
-	protected void stopJob() {
+	private void stopActionRun() {
 		for(StatusBean bean : getSelection()) {
 			if (bean.getStatus().isActive()) {
 			try {
@@ -639,7 +639,7 @@ public class StatusQueueView extends EventConnectionView {
 			@Override
 			public void run() {
 				try {
-					purgeQueues();
+					clearQueueActionRun();
 				} catch (EventException e) {
 					logger.error("Canot purge queues", e);
 				}
@@ -647,7 +647,7 @@ public class StatusQueueView extends EventConnectionView {
 		};
 	}
 
-	protected void purgeQueues() throws EventException {
+	private void clearQueueActionRun() throws EventException {
 
 		boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Clear Queues",
 			"Are you sure you would like to remove all items from the queue "+getQueueName()+" and "+
@@ -691,7 +691,7 @@ public class StatusQueueView extends EventConnectionView {
 			@Override
 			public void run() {
 				for (StatusBean bean : getSelection()) {
-					openResults(bean);
+					openResultsActionRun(bean);
 				}
 			}
 		};
@@ -703,7 +703,7 @@ public class StatusQueueView extends EventConnectionView {
 	 *
 	 * @param bean
 	 */
-	private void openResults(StatusBean bean) {
+	private void openResultsActionRun(StatusBean bean) {
 
 		if (bean == null) return;
 
@@ -728,7 +728,7 @@ public class StatusQueueView extends EventConnectionView {
 		return new Action("Open...", Activator.getImageDescriptor("icons/application-dock-090.png")) {
 			@Override
 			public void run() {
-				openSelection();
+				openActionRun();
 			}
 		};
 	}
@@ -736,7 +736,7 @@ public class StatusQueueView extends EventConnectionView {
 	/**
 	 * Pushes any previous run back into the UI
 	 */
-	protected void openSelection() {
+	private void openActionRun() {
 
 		final List<StatusBean> beans = getSelection();
 		if (beans.isEmpty()) {
@@ -761,7 +761,7 @@ public class StatusQueueView extends EventConnectionView {
 		Action action = new Action("Edit...", Activator.getImageDescriptor("icons/modify.png")) {
 			@Override
 			public void run() {
-				editSelection();
+				editActionRun();
 			}
 		};
 		action.setEnabled(false);
@@ -772,7 +772,7 @@ public class StatusQueueView extends EventConnectionView {
 	 * Edits a not run yet selection
 	 */
 	@SuppressWarnings({"squid:S3776", "squid:S135"})
-	protected void editSelection() {
+	private void editActionRun() {
 
 		for (StatusBean bean : getSelection()) {
 			if (bean.getStatus()!=org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
@@ -812,7 +812,7 @@ public class StatusQueueView extends EventConnectionView {
 		Action action = new Action("Rerun...", Activator.getImageDescriptor("icons/rerun.png")) {
 			@Override
 			public void run() {
-				rerunSelection();
+				rerunActionRun();
 			}
 		};
 		action.setEnabled(false);
@@ -820,7 +820,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	@SuppressWarnings("squid:S3776")
-	protected void rerunSelection() {
+	private void rerunActionRun() {
 
 		for (StatusBean bean : getSelection()) {
 			try {
@@ -1256,7 +1256,7 @@ public class StatusQueueView extends EventConnectionView {
 				if (rect.contains(pt)) {
 					final StatusBean bean = (StatusBean)item.getData();
 					if (bean.getStatus().isFinal())
-						openResults(bean);
+						openResultsActionRun(bean);
 				}
 			}
 		};
