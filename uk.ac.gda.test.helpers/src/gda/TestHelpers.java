@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
@@ -864,7 +865,8 @@ class Data extends NexusGroupData {
 }
 
 class TestFactory implements Factory {
-	private HashMap<String, Findable> findables = new HashMap<String, Findable>();
+	private final Map<String, Findable> findables = new HashMap<>();
+	private String name;
 
 	public TestFactory(String name) {
 		setName(name);
@@ -888,12 +890,12 @@ class TestFactory implements Factory {
 
 	@Override
 	public List<String> getFindableNames() {
-		return null;
+		return new ArrayList<>(findables.keySet());
 	}
 
 	@Override
 	public List<Findable> getFindables() {
-		return new ArrayList<Findable>();
+		return new ArrayList<>(findables.values());
 	}
 
 	@Override
@@ -906,8 +908,6 @@ class TestFactory implements Factory {
 		return true;
 	}
 
-	private String name;
-
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -915,6 +915,7 @@ class TestFactory implements Factory {
 
 	@Override
 	public void configure() throws FactoryException {
+		throw new FactoryException("TestFactory does not support configuration");
 	}
 
 	@Override
