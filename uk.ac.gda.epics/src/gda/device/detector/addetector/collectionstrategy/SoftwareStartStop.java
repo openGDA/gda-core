@@ -89,6 +89,7 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 		logger.trace("saveState() called, restoreAcquireState={}", restoreAcquireState);
 		if (restoreAcquireState) {
 			savedAcquireState = getAdBase().getAcquireState();
+			existingStateSaved=true;
 			logger.debug("Saved state now savedAcquireState={}", savedAcquireState);
 		}
 	}
@@ -102,6 +103,7 @@ public class SoftwareStartStop extends AbstractADCollectionStrategy {
 			} else {
 				getAdBase().stopAcquiring();
 			}
+			existingStateSaved=false;
 			logger.debug("Restored state to savedAcquireState={})", savedAcquireState);
 		}
 	}

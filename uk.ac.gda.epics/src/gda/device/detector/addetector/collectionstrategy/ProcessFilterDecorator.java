@@ -119,6 +119,7 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 			enableFilterSaved = ndProcess.getEnableFilter();
 			dataTypeOutSaved = ndProcess.getDataTypeOut();
 			callbackEnabledSaved = ndProcess.getPluginBase().isCallbackEnabled();
+			existingStateSaved=true;
 			logger.debug("Saved State now filterTypeSaved={}, numFilterSaved={}, resetFilterSaved={}, autoResetFilterSaved={}, filterCallbacksSaved={}, enableFilterSaved={}, dataTypeOutSaved={}, callbackEnabledSaved={}", filterTypeSaved, numFilterSaved, numFilterSaved, autoResetFilterSaved,filterCallbacksSaved,enableFilterSaved,dataTypeOutSaved,callbackEnabledSaved);
 		}
 	}
@@ -126,7 +127,7 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 	@Override
 	public void restoreState() throws Exception {
 		logger.trace("restoreState() called, restoreState={}", restoreState);
-		if (isRestoreState()) {
+		if (isRestoreState() && existingStateSaved) {
 			ndProcess.setFilterType(filterTypeSaved);
 			ndProcess.setNumFilter(numFilterSaved);
 			ndProcess.setResetFilter(resetFilterSaved);
@@ -139,7 +140,7 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 			} else {
 				 ndProcess.getPluginBase().disableCallbacks();
 			}
-
+			existingStateSaved=false;
 			logger.debug("Restored state to filterTypeSaved={}, numFilterSaved={}, resetFilterSaved={}, autoResetFilterSaved={}, filterCallbacksSaved={}, enableFilterSaved={}, dataTypeOutSaved={}, callbackEnabledSaved={}", filterTypeSaved, numFilterSaved, numFilterSaved, autoResetFilterSaved,filterCallbacksSaved,enableFilterSaved,dataTypeOutSaved,callbackEnabledSaved);
 		}
 		getDecoratee().restoreState();

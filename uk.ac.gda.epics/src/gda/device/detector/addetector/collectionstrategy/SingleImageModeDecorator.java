@@ -18,11 +18,11 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.device.detector.areadetector.v17.ImageMode;
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.scan.ScanInformation;
 
 /**
  * Configure image mode as Single.
@@ -45,6 +45,7 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 		if (restoreNumImagesAndImageMode) {
 			savedNumImages = getAdBase().getNumImages();
 			savedImageMode = getAdBase().getImageMode();
+			existingStateSaved=true;
 			logger.debug("Saved State now savedNumImages={}, savedImageMode={}", savedNumImages, savedImageMode);
 		}
 	}
@@ -52,7 +53,7 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 	@Override
 	public void restoreState() throws Exception {
 		logger.trace("restoreState() called, restoreNumImagesAndImageMode={}", restoreNumImagesAndImageMode);
-		if (restoreNumImagesAndImageMode) {
+		if (restoreNumImagesAndImageMode && existingStateSaved) {
 			final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set NumImages or ImageMode
 			getAdBase().stopAcquiring();
 			getAdBase().setNumImages(savedNumImages);
@@ -60,6 +61,7 @@ public class SingleImageModeDecorator extends AbstractADCollectionStrategyDecora
 			if (acquireStatus == 1) {
 				getAdBase().startAcquiring();
 			}
+			existingStateSaved=false;
 			logger.debug("Restored state to savedNumImages={}, savedImageMode={} (stop/restart={})", savedNumImages, savedImageMode, acquireStatus);
 		}
 		getDecoratee().restoreState();

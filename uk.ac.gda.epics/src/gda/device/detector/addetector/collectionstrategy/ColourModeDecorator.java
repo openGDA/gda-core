@@ -18,12 +18,12 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableBiMap;
+
+import gda.scan.ScanInformation;
 
 public class ColourModeDecorator extends AbstractADCollectionStrategyDecorator {
 
@@ -72,6 +72,7 @@ public class ColourModeDecorator extends AbstractADCollectionStrategyDecorator {
 		getDecoratee().saveState();
 		if (restoreColourMode) {
 			colourModeSaved = getAdBase().getColorMode();
+			existingStateSaved=true;
 			logger.debug("Saved state to colourModeSaved={},{} (stop/restart={})",
 				colourModeSaved, ColourMode.fromInteger(colourModeSaved), getAdBase().getAcquireState());
 		}
@@ -81,12 +82,13 @@ public class ColourModeDecorator extends AbstractADCollectionStrategyDecorator {
 	public void restoreState() throws Exception {
 		final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set time
 		logger.trace("restoreState() called, restoreColourMode={}, acquireStatus={}", restoreColourMode, acquireStatus);
-		if (restoreColourMode) {
+		if (restoreColourMode && existingStateSaved) {
 			getAdBase().stopAcquiring();
 			getAdBase().setColorMode(colourModeSaved);
 			if (acquireStatus == 1) {
 				getAdBase().startAcquiring();
 			}
+			existingStateSaved=false;
 			logger.debug("Restored state to colourModeSaved={},{} (stop/restart={})",
 				colourModeSaved, ColourMode.fromInteger(colourModeSaved), acquireStatus);
 		}
