@@ -80,12 +80,7 @@ public class StopAllHandlerAllowExemption extends AbstractHandler {
 	//expecting a stopJythonScannables.py script to be provided by beamline for customisation on excluded scannables.
 	//please see example in i21-config for stopJythonScannables.py
 	private void stopJythonScannablesExceptExcluded(CountDownLatch latch) {
-		String locateScript = JythonServerFacade.getInstance().locateScript("stopJythonScannables.py");
-		if (locateScript != null) {
-			JythonServerFacade.getInstance().runScript(locateScript);
-		} else {
-			logger.info("'stopJythonScannables.py' script file is not provided in this beamline to customise 'Stop All'" );
-		}
+		JythonServerFacade.getInstance().runCommand("stopJythonScannablesExceptExcluded()");
 		latch.countDown();
 	}
 
