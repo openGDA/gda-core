@@ -26,6 +26,7 @@ package gda.device.detector.nxdetector;
  */
 public abstract class CollectionStrategyDecoratableBase implements CollectionStrategyDecoratableInterface {
 
+	protected boolean existingStateSaved=false;
 	protected boolean suppressSave;
 	protected boolean suppressRestore;
 }
