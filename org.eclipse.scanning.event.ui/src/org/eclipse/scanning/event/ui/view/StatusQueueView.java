@@ -462,7 +462,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action pauseConsumerActionCreate() {
-		Action action = new Action("Pause "+getPartName()+" Queue. Does not pause running job.", IAction.AS_CHECK_BOX) {
+		Action action = new Action("Pause "+getPartName()+". Does not pause running job.", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				pauseConsumerActionRun(this);
@@ -635,7 +635,8 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action clearQueueActionCreate() {
-		return new Action("Clear Queue") {
+		return new Action("Clear Queue", PlatformUI.getWorkbench().getSharedImages()
+				.getImageDescriptor(ISharedImages.IMG_ELCL_REMOVEALL)) {
 			@Override
 			public void run() {
 				try {
