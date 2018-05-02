@@ -41,10 +41,22 @@ import gda.observable.IObserver;
 import gov.aps.jca.event.PutListener;
 
 /**
- * EpicsDevice class which is placed on the Finder by EpicsDeviceFactory when that factory is created by the
- * ObjectServer if a java property has been set.
+ * A FindableEpicsDevice object, though it implements XmapEpicsDevice, can in principle used for low-level access to many different devices.
  * <p>
- * This is essentially a list of pv's held on the finder under a common name.
+ * It manages a map of "field names" to PVs, for example:
+ *
+ * <pre>
+ * {@code <entry key="SETNBINS" value="BL08I-EA-DET-02:MCA1.NUSE" /> }
+ * </pre>
+ *
+ * and Epics channel access (via an EpicsDevice) and translates calls such as:
+ *
+ * <pre>
+ *
+ * {@code setValue("SETNBINS", "" numberOfBins) }
+ * </pre>
+ *
+ * to the appropriate channel access call, using the PV mapping.
  */
 @ExposedType(name="findableepicsdevice")
 public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
@@ -58,19 +70,16 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 	protected boolean dummy = false;
 
 	public FindableEpicsDevice() {
-		setConfigured(false);
 		// do nothing
 	}
 
-	/**
-	 * Constructor to use when you have constructed the EpicsDEvice yourself - not by CASTOR
-	 */
 	public FindableEpicsDevice(String name, EpicsDevice epicsDevice) {
 		this.epicsDevice = epicsDevice;
-		setConfigured(true);
 		setName(name);
 		setDummy(epicsDevice.isInDummyMode());
+		setConfigured(true);
 	}
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
@@ -160,52 +169,42 @@ public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-		try {
-			// logger.info("getAttribute - in " + getName() + " "
-			// +attributeName);
-			checkConfigured();
-			return epicsDevice.getAttribute(attributeName);
-		} finally {
-			// logger.info("getAttribute - out " + getName() + " "
-			// +attributeName);
-		}
+		checkConfigured();
+		return epicsDevice.getAttribute(attributeName);
 	}
 
 	@Override
 	public void setAttribute(final String attributeName, final Object value) throws DeviceException {
-		try {
-			// logger.info("setAttribute - in " + getName() + " " +
-			// attributeName);
-			checkConfigured();
-			epicsDevice.setAttribute(attributeName, value);
-		} finally {
-			// logger.info("setAttribute - out " + getName() + " "
-			// +attributeName);
-		}
+		checkConfigured();
+		epicsDevice.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public void addIObserver(IObserver anIObserver) {
-		if (isConfigured())
+		if (isConfigured()) {
 			epicsDevice.addIObserver(anIObserver);
+		}
 	}
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
-		if (isConfigured())
+		if (isConfigured()) {
 			epicsDevice.deleteIObserver(anIObserver);
+		}
 	}
 
 	@Override
 	public void deleteIObservers() {
-		if (isConfigured())
+		if (isConfigured()) {
 			epicsDevice.deleteIObservers();
+		}
 	}
 
 	@Override
 	public IEpicsChannel createEpicsChannel(ReturnType returnType, String record, String field, double putTimeout) {
-		if (isConfigured())
+		if (isConfigured()) {
 			return epicsDevice.createEpicsChannel(returnType, record, field, putTimeout);
+		}
 		return null;
 	}
 
