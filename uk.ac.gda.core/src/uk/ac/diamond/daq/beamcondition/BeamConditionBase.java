@@ -34,19 +34,13 @@ public abstract class BeamConditionBase implements BeamCondition, Findable {
 	private String name;
 
 	@Override
-	public void waitForBeam() {
+	public void waitForBeam() throws InterruptedException {
 		RateLimiter logLimit = RateLimiter.create(0.1);
 		while (!beamOn()) {
 			if (logLimit.tryAcquire()) {
 				logger.debug("{} - Waiting for correct beamline conditions", name);
 			}
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				logger.error("Thread interrupted while '{}' waiting for correct beam conditions", name, e);
-				Thread.currentThread().interrupt();
-				break;
-			}
+			Thread.sleep(50);
 		}
 	}
 
