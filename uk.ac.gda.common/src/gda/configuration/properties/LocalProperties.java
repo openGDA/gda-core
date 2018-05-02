@@ -798,6 +798,7 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault", "it is not used any more");
 		obsoletePropertyToReason.put("gda.jython.socket", "It was associated with telnet access which has been deprecated");
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState", "It has been deprecated and will be removed in GDA 9.10");
+		obsoletePropertyToReason.put("gda.epics.EpicsDeviceFactory", "it is not used any more: see DAQ-1156");
 	}
 
 	public static void checkForObsoleteProperties() {
