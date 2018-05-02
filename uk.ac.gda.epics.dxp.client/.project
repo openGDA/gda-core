@@ -21,12 +21,12 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.zeroturnaround.eclipse.rebelXmlBuilder</name>
+			<name>org.zeroturnaround.eclipse.remoting.remotingBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.zeroturnaround.eclipse.remoting.remotingBuilder</name>
+			<name>org.zeroturnaround.eclipse.rebelXmlBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
