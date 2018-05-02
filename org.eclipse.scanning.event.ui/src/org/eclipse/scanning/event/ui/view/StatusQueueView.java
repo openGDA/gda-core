@@ -130,6 +130,8 @@ public class StatusQueueView extends EventConnectionView {
 
 	// Data
 	private Map<String, StatusBean> queue;
+	private List<StatusBean> runList = new ArrayList<>();
+	private List<StatusBean> submittedList =  new ArrayList<>();
 	private boolean hideOtherUsersResults = false;
 
 	private ISubscriber<IBeanListener<StatusBean>> topicMonitor;
@@ -211,25 +213,54 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void updateActions() {
 		List<StatusBean> selection = getSelection();
-		boolean anySelectedSubmitted = selection.stream().anyMatch(x -> x.getStatus()==org.eclipse.scanning.api.event.status.Status.SUBMITTED);
-		boolean anySelectedNonNull = selection.stream().anyMatch(x -> x.getStatus()!=null);
 
-		removeActionUpdate(anySelectedNonNull);
-		rerunActionUpdate(!selection.isEmpty());
-		upActionUpdate(anySelectedSubmitted);
-		editActionUpdate(anySelectedSubmitted);
-		downActionUpdate(anySelectedSubmitted);
+		List<String> selectedUniqueIds= selection.stream().map(sb -> sb.getUniqueId()).collect(Collectors.toList());
+
+		List<StatusBean> selectedInSubmittedList = submittedList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+		List<StatusBean> selectedInRunList = runList.stream()
+				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
+				.collect(Collectors.toList());
+
+		List<StatusBean> activeInRunList = runList.stream()
+				.filter(sb -> sb.getStatus().isActive())
+				.collect(Collectors.toList());
+
+		boolean anyFinalSelectedInRunList = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isFinal());
+		boolean anySelectedInSubmittedList = !selectedInSubmittedList.isEmpty();
+
+		removeActionUpdate(selectedInSubmittedList, selectedInRunList);
+		rerunActionUpdate(selection);
+		upActionUpdate(anySelectedInSubmittedList);
+		editActionUpdate(anySelectedInSubmittedList);
+		downActionUpdate(anySelectedInSubmittedList);
 
 		boolean anyRunning = queue.values().stream().anyMatch(x -> x.getStatus().isRunning());
 		boolean anyPaused = queue.values().stream().anyMatch(x -> x.getStatus().isPaused() );
 
-		stopActionUpdate(anyRunning);
-		pauseActionUpdate(anyRunning, anyPaused, anySelectedSubmitted);
+		stopActionUpdate(selectedInRunList);
+		pauseActionUpdate(anyRunning, anyPaused, anySelectedInSubmittedList);
 
-		openResultsActionUpdate(true);
-		openActionUpdate(true);
+		openResultsActionUpdate(anyFinalSelectedInRunList);
+		openActionUpdate(anySelectedInSubmittedList);
 		detailsActionUpdate(true);
-		clearQueueActionUpdate(true);
+
+		// Some sanity checks
+		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
+		warnIfListContainsStatus("queued status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.QUEUED);
+		warnIfListContainsStatus("queued status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.QUEUED);
+	}
+
+	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
+		List<StatusBean> matchingStatusList = list.stream()
+				.filter(x -> x.getStatus()==status)
+				.collect(Collectors.toList());
+
+			if (!matchingStatusList.isEmpty()) {
+				logger.warn("{} {}", description, matchingStatusList);
+			}
 	}
 
 	/**
@@ -409,8 +440,8 @@ public class StatusQueueView extends EventConnectionView {
 		if (dropDown != null) dropDown.add(new Separator());
 	}
 
-	private void upActionUpdate(boolean anySelectedSubmitted) {
-		upAction.setEnabled(anySelectedSubmitted);
+	private void upActionUpdate(boolean anySelectedInSubmittedList) {
+		upAction.setEnabled(anySelectedInSubmittedList);
 	}
 
 	private Action upActionCreate() {
@@ -437,8 +468,8 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private void downActionUpdate(boolean anySelectedSubmitted) {
-		downAction.setEnabled(anySelectedSubmitted);
+	private void downActionUpdate(boolean anySelectedInSubmittedList) {
+		downAction.setEnabled(anySelectedInSubmittedList);
 	}
 
 	private Action downActionCreate() {
@@ -548,8 +579,11 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void removeActionUpdate(boolean anySelectedNonNull) {
-		removeAction.setEnabled(anySelectedNonNull);
+	private void removeActionUpdate(List<StatusBean> selectedInSubmittedList, List<StatusBean> selectedInRunList) {
+		boolean anySelectedInSubmittedList = !selectedInSubmittedList.isEmpty();
+		boolean anySelectedInRunListAreFinal = selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isFinal());
+
+		removeAction.setEnabled(anySelectedInSubmittedList || anySelectedInRunListAreFinal);
 	}
 
 	private Action removeActionCreate() {
@@ -598,8 +632,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void stopActionUpdate(boolean anyRunning) {
-		stopAction.setEnabled(anyRunning);
+	private void stopActionUpdate(List<StatusBean> selectedInRunList) {
+		stopAction.setEnabled(selectedInRunList.stream().anyMatch(sb -> sb.getStatus().isActive()));
 	}
 
 	private Action stopActionCreate() {
@@ -638,8 +672,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void clearQueueActionUpdate(boolean enabled) {
-		clearQueueAction.setEnabled(enabled);
+	private void clearQueueActionUpdate() {
+		clearQueueAction.setEnabled(!submittedList.isEmpty() || !runList.isEmpty());
 	}
 
 	private Action clearQueueActionCreate() {
@@ -691,8 +725,8 @@ public class StatusQueueView extends EventConnectionView {
 		return resultsHandlers;
 	}
 
-	private void openResultsActionUpdate(boolean enabled) {
-		openResultsAction.setEnabled(enabled);
+	private void openResultsActionUpdate(boolean anyFinalSelectedInRunList) {
+		openResultsAction.setEnabled(anyFinalSelectedInRunList);
 	}
 
 	private Action openResultsActionCreate() {
@@ -729,8 +763,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void openActionUpdate(boolean enabled) {
-		openAction.setEnabled(enabled);
+	private void openActionUpdate(boolean anySelectedInSubmittedList) {
+		openAction.setEnabled(anySelectedInSubmittedList);
 	}
 
 	private Action openActionCreate() {
@@ -762,8 +796,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void editActionUpdate(boolean anySelectedSubmitted) {
-		editAction.setEnabled(anySelectedSubmitted);
+	private void editActionUpdate(boolean anySelectedInSubmittedList) {
+		editAction.setEnabled(anySelectedInSubmittedList);
 	}
 
 	private Action editActionCreate() {
@@ -828,8 +862,8 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void rerunActionUpdate(boolean enable) {
-		rerunAction.setEnabled(enable);
+	private void rerunActionUpdate(List<StatusBean> selection) {
+		rerunAction.setEnabled(!selection.isEmpty());
 	}
 
 	private Action rerunActionCreate() {
@@ -1030,10 +1064,10 @@ public class StatusQueueView extends EventConnectionView {
 					queueConnection.setBeanClass(getBeanClass());
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					List<StatusBean> runList = queueConnection.getQueue(getQueueName());
+					runList = queueConnection.getQueue(getQueueName());
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					List<StatusBean> submittedList = queueConnection.getQueue(getSubmissionQueueName());
+					submittedList = queueConnection.getQueue(getSubmissionQueueName());
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end
