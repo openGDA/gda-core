@@ -27,6 +27,7 @@ import gda.device.EtlDetector;
 import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.EpicsScaler;
+import gda.device.detector.EpicsScaler.CountMode;
 import gda.device.enumpositioner.EpicsSimpleMbbinary;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
@@ -72,6 +73,8 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	private boolean shutterOpened=false;
 
+	private CountMode countMode;
+
 	public boolean isShutterOpened() {
 		return shutterOpened;
 	}
@@ -115,6 +118,14 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 		if(!shutterOpened) {
 			openShutter();
 		}
+
+		if (scaler.isControlCountMode()) {
+			// cache existing count mode at scan start
+			countMode = scaler.getCountMode();
+			if (countMode != CountMode.oneShot) {
+				scaler.setCountMode(CountMode.oneShot);
+			}
+		}
 	}
 	public void openShutter() throws DeviceException {
 		if (fastshutter != null) {
@@ -130,6 +141,12 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void atScanEnd() throws DeviceException {
 		if(shutterOpened) {
 			closeShutter();
+		}
+		if (scaler.isControlCountMode()) {
+			// restore count mode at scan end
+			if (countMode==CountMode.autoCount) {
+				scaler.setCountMode(CountMode.autoCount);
+			}
 		}
 	}
 	public void closeShutter() throws DeviceException{

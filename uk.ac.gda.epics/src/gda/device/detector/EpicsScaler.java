@@ -38,8 +38,10 @@ import gda.epics.interfaces.SimpleScalerType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
@@ -48,7 +50,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * Epics scaler class.
  */
-public class EpicsScaler extends DetectorBase implements Detector, InitializationListener {
+public class EpicsScaler extends DetectorBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsScaler.class);
 
@@ -57,6 +59,8 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 	private static final long serialVersionUID = 1L;
 
 	private Channel count = null;
+
+	private Channel countMode=null;
 
 	private Channel numberOfChannels = null;
 
@@ -94,6 +98,12 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 	 */
 	private String[] channelNameValues;
 
+	private boolean controlCountMode;
+
+	public static enum CountMode{
+		oneShot,
+		autoCount
+	}
 	/**
 	 * Constructor.
 	 */
@@ -163,52 +173,49 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 		try {
 			// PV to start or stop counting
 			count = channelManager.createChannel(pvName + ".CNT", new CNTMonitorListener(), false);
-			// autoCount = channelManager.createChannel(recordName + ".CONT");
-			// delay, in seconds, that the record is to wait after CNT goes to 1
-			// before actually causing counting to begin
-			// delay = channelManager.createChannel(recordName + ".DLY");
-			// autoDelay = channelManager.createChannel(recordName + ".DLY1");
-			// enginerring units
-			// engUnits = channelManager.createChannel(recordName + ".EGU");
-			// The frequency (in Hz) of the clock signal counted by scaler 1
-//			frequencyChannel = channelManager.createChannel(pvName + ".FREQ", null, false, frequency);
-			// The number of channels actually supported by the underlying
-			// hardware
+			if (isControlCountMode()) {
+				countMode = channelManager.createChannel(pvName + ":AutoCount");
+			}
+			// The number of channels actually supported by the underlying hardware
 			numberOfChannels = channelManager.createChannel(pvName + ".NCH", false);
-			// specifies the hardware to be controlled
-			// outputSpec = channelManager.createChannel(recordName + ".OUT");
-			// The number of digits to the right of the decimal that are to be
-			// displayed by MEDM and other channel-access clients
-			// precision = channelManager.createChannel(recordName + ".PREC");
-			// This field specifies the rate in Hz. at which the scaler record
-			// posts scaler information while counting is in progress.
-			// If this field is zero, counts are displayed only after counting
-			// has stopped
-			// rate = channelManager.createChannel(recordName + ".RATE");
-			// autoRate = channelManager.createChannel(recordName + ".RAT1");
-			// scalerState =
-			// channelManager.createChannel(recordName + ".SS", false);
-			// This field is a proxy for the value field, S1, associated with
-			// scaler 1. Whenever S1 changes, the record will set T = S1/FREQ.
-			// timer = channelManager.createChannel(recordName + ".T", false);
 			// This field is a proxy for the preset field, PR1, associated with
 			// scaler 1. Whenever TP changes, the record will set PR1 = TP*FREQ
 			timePreset = channelManager.createChannel(pvName + ".TP", false);
-			// autoTimePreset = channelManager.createChannel(recordName +
-			// ".TP1", false);
-			// userState = channelManager.createChannel(recordName + ".US",
-			// false);
-			// Version number of the recScaler.c code.
-			// version = channelManager.createChannel(recordName + ".VERS",
-			// false);
-			// channel = channelManager.createChannel(recordName);
+
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 			channelManager.tryInitialize(100);
 		} catch (Throwable th) {
 			throw new FactoryException("Scaler - " + getName() + " faield to create control channels", th);
 		}
+	}
 
+	public CountMode getCountMode() throws DeviceException {
+		if (!isControlCountMode()) throw new IllegalStateException("Count Mode control is not supported!");
+		try {
+			int countmode = controller.cagetInt(countMode);
+			if (countmode==CountMode.oneShot.ordinal()) {
+				return CountMode.oneShot;
+			} else if (countmode==CountMode.autoCount.ordinal()) {
+				return CountMode.autoCount;
+			} else {
+				logger.error("{}: count mode {} is not supported.", getName(), countmode);
+				throw new DeviceException(getName() + ": Count Mode from scaler is not supported!");
+			}
+		} catch (TimeoutException | CAException | InterruptedException e) {
+			logger.error("Failed to get Count Mode from scaler", e);
+			throw new DeviceException("Failed to get Count Mode from scaler", e);
+		}
+	}
+
+	public void setCountMode(CountMode value) throws DeviceException {
+		if (!isControlCountMode()) throw new IllegalStateException("Count Mode control is not supported!");
+		try {
+			controller.caput(countMode, value.ordinal());
+		} catch (CAException | InterruptedException e) {
+			logger.error("Failed to set Count Mode", e);
+			throw new DeviceException("Failed to set Count Mode to "+value.name(), e);
+		}
 	}
 
 	/**
@@ -296,8 +303,6 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 			for (int i = 0; i < channels; i++) {
 				// date type returned is long. may need to be revisited at some
 				// point
-				// /////////////System.out.println("the values are " +
-				// channelValues[i]);
 				channelValues[i] = controller.cagetInt(scalerValues[i]);
 			}
 			return channelValues;
@@ -673,6 +678,14 @@ public class EpicsScaler extends DetectorBase implements Detector, Initializatio
 	public String getDetectorType() throws DeviceException {
 		// TODO Auto-generated method stub
 		return "EPICS";
+	}
+
+	public boolean isControlCountMode() {
+		return controlCountMode;
+	}
+
+	public void setControlCountMode(boolean controlCountMode) {
+		this.controlCountMode = controlCountMode;
 	}
 
 }
