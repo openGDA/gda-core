@@ -50,9 +50,10 @@
 
 	<!-- To enable use of a simulated AD uncomment this import -->
 	<!-- <import resource="simulated_area_detector.xml"/> -->
-	<corba:export namespace="${gda.beamline.name}" />
 
-	
+	<!-- Exports objects over RMI -->
+	<bean class="uk.ac.gda.remoting.server.RmiAutomatedExporter" />
+
 	<!--  
 	      IMPORTANT: this will start processing the scanning queue. 
 	      detectors must be created before doing this.
