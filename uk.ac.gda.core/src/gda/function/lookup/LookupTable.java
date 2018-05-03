@@ -42,6 +42,7 @@ import gda.function.Lookup;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.QuantityFactory;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class provides a generic lookup function for looking up the value for a scannable (scannable name as column
@@ -59,6 +60,7 @@ import gda.util.QuantityFactory;
  * </ul>
  * it uses a MultiValuedMap object to store the lookup table.
  */
+@ServiceInterface(Lookup.class)
 public class LookupTable extends ConfigurableBase implements Lookup, Localizable {
 	/**
 	 * the logger instance
