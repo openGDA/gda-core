@@ -18,10 +18,10 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.scan.ScanInformation;
 
 /**
  * Configure trigger mode.
@@ -58,6 +58,7 @@ public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator 
 		getDecoratee().saveState();
 		if (restoreTriggerMode) {
 			savedTriggerMode = getAdBase().getTriggerMode();
+			existingStateSaved=true;
 			logger.debug("Saved State now savedTriggerMode={}", savedTriggerMode);
 		}
 	}
@@ -65,9 +66,10 @@ public class TriggerModeDecorator extends AbstractADCollectionStrategyDecorator 
 	@Override
 	public void restoreState() throws Exception {
 		logger.trace("restoreState() called, restoreTriggerMode={}, savedTriggerMode={}", restoreTriggerMode, savedTriggerMode);
-		if (restoreTriggerMode) {
+		if (restoreTriggerMode && existingStateSaved) {
 			// TODO: Some detectors need detector to be stopped to set TriggerMode
 			getAdBase().setTriggerMode(savedTriggerMode);
+			existingStateSaved=false;
 			logger.debug("Restored state to savedTriggerMode={} (stop/restart=NA)", savedTriggerMode);
 		}
 		getDecoratee().restoreState();

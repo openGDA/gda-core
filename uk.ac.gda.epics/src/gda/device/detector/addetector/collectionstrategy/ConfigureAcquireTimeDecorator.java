@@ -18,10 +18,10 @@
 
 package gda.device.detector.addetector.collectionstrategy;
 
-import gda.scan.ScanInformation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.scan.ScanInformation;
 
 public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyDecorator {
 
@@ -49,6 +49,7 @@ public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyD
 		getDecoratee().saveState();
 		if (restoreAcquireTime) {
 			acquireTimeSaved = getAdBase().getAcquireTime();
+			existingStateSaved=true;
 			logger.debug("Saved State now acquireTimeSaved={}", acquireTimeSaved);
 		}
 	}
@@ -56,13 +57,14 @@ public class ConfigureAcquireTimeDecorator extends AbstractADCollectionStrategyD
 	@Override
 	public void restoreState() throws Exception {
 		logger.trace("restoreState() called, restoreAcquireTime={}, acquireTimeSaved={}", restoreAcquireTime, acquireTimeSaved);
-		if (restoreAcquireTime) {
+		if (restoreAcquireTime && existingStateSaved) {
 			final int acquireStatus = getAdBase().getAcquireState(); // TODO: Not all detectors need detector to be stopped to set time
 			getAdBase().stopAcquiring();
 			getAdBase().setAcquireTime(acquireTimeSaved);
 			if (acquireStatus == 1) {
 				getAdBase().startAcquiring();
 			}
+			existingStateSaved=false;
 			logger.debug("Restored state to acquireTimeSaved={} (stop/restart={})", acquireTimeSaved, acquireStatus);
 		}
 		getDecoratee().restoreState();

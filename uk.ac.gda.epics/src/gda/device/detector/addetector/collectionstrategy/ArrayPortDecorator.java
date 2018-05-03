@@ -49,6 +49,7 @@ public class ArrayPortDecorator extends AbstractADCollectionStrategyDecorator {
 		getDecoratee().saveState();
 		if (restoreArrayPort) {
 			savedArrayPort = getNdArray().getPluginBase().getNDArrayPort_RBV();
+			existingStateSaved=true;
 			logger.debug("Saved State now savedArrayPort={}", savedArrayPort);
 		}
 	}
@@ -56,8 +57,9 @@ public class ArrayPortDecorator extends AbstractADCollectionStrategyDecorator {
 	@Override
 	public void restoreState() throws Exception {
 		logger.trace("restoreState() called, restoreArrayPort={}", restoreArrayPort);
-		if (restoreArrayPort) {
+		if (restoreArrayPort && existingStateSaved) {
 			getNdArray().getPluginBase().setNDArrayPort(savedArrayPort);
+			existingStateSaved=false;
 			logger.debug("Restored state to savedArrayPort={}", savedArrayPort);
 		}
 		getDecoratee().restoreState();
