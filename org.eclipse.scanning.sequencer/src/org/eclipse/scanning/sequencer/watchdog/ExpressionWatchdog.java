@@ -63,10 +63,10 @@ public class ExpressionWatchdog extends AbstractWatchdog implements IPositionLis
 	private static Logger logger = LoggerFactory.getLogger(ExpressionWatchdog.class);
 
 	private IExpressionEngine engine;
-	private IPosition         lastCompletedPoint;
+	private IPosition lastCompletedPoint;
 
 
-	private List<IScannable<?>>       scannables;
+	private List<IScannable<?>> scannables;
 	private static IExpressionService expressionService;
 
 	public ExpressionWatchdog() {
@@ -113,7 +113,7 @@ public class ExpressionWatchdog extends AbstractWatchdog implements IPositionLis
 		if (requirePause) {
 
 			if (!ok) {
-			    controller.pause(getId(), model); // Will not pause if already paused.
+				controller.pause(getId(), model); // Will not pause if already paused.
 
 			} else {
 				if (lastCompletedPoint!=null) {

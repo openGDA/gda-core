@@ -74,9 +74,13 @@ class DeviceController implements IDeviceController {
 
 		states.put(id, DeviceState.PAUSED);
 		models.put(id, model); // May be null
-		if (device.getDeviceState()!=DeviceState.RUNNING) return; // Cannot pause it.
+		if (device.getDeviceState() != DeviceState.RUNNING) {
+			logger.debug("Controller ignoring pause request from {} as device state is {}, expected {}",
+					id, device.getDeviceState(), DeviceState.RUNNING);
+			return; // Cannot pause it.
+		}
 		if (bean!=null&&model!=null) bean.setMessage(model.getMessage());
-		logger.debug("Controller pausing on {} because of id {}", getName(), id);
+		logger.info("Controller pausing on {} because of id {}", getName(), id);
 		device.pause();
 	}
 	@Override

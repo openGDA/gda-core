@@ -174,7 +174,7 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 			//logger.info("Topup time is "+time+" ms");
 			processPosition(time);
 		} catch (Exception ne) {
-			logger.error("Cannot process position "+pos, ne);
+			logger.error("Cannot process position {}", pos, ne);
 		}
 	}
 
@@ -193,7 +193,7 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 		// We ignore events while processing an event.
 		// Events are frequent and blocking is bad.
 		if (busy) {
-			logger.info("Event '"+model.getCountdownName()+"'@"+t+" has been ignored.");
+			logger.info("Event '{}'@{} has been ignored.", t, model.getCountdownName());
 			return;
 		}
 
@@ -213,7 +213,6 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 					rewind = false;
 				}
 				controller.resume(getId());
-
 			}
 		} finally {
 			busy = false;
@@ -231,10 +230,9 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 
 	@ScanStart
 	public void start(ScanBean bean) throws Exception {
+		logger.debug("Watchdog starting on {}", controller.getName());
 
-		logger.debug("Watchdog starting on "+controller.getName());
-
-		// A scannble may optionally be defined to check that the mode of the machine
+		// A scannable may optionally be defined to check that the mode of the machine
 		// fits with this watch dog. If it does not then there will be a nice exception
 		// to the user and the scan will fail. This watch dog should not be operational
 		// unless the mode is 8
@@ -253,10 +251,10 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 			}
 			((IPositionListenable)topup).addPositionListener(this);
 
-			long t = getValueMs(((Number)topup.getPosition()).doubleValue(), countdownUnit);
-			processPosition(t); // Pauses the starting scan if topup already running.
+			long time = getValueMs(((Number)topup.getPosition()).doubleValue(), countdownUnit);
+			processPosition(time); // Pauses the starting scan if topup already running.
 
-			logger.debug("Watchdog started on "+controller.getName());
+			logger.debug("Watchdog started on {}", controller.getName());
 		} catch (Exception ne) {
 			logger.error("Cannot start watchdog!", ne);
 		}
@@ -269,12 +267,12 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 
 	@ScanFinally
 	public void stop() {
-		logger.debug("Watchdog stopping on "+controller.getName());
+		logger.debug("Watchdog stopping on {}", controller.getName());
 		try {
 		    IScannable<?> topup = getScannable(model.getCountdownName());
 		    ((IPositionListenable)topup).removePositionListener(this);
 
-		    logger.debug("Watchdog stopped on "+controller.getName());
+			logger.info("Watchdog stopped on {}", controller.getName());
 		} catch (ScanningException ne) {
 			logger.error("Cannot stop watchdog!", ne);
 		}
