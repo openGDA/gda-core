@@ -144,7 +144,12 @@ public class GDAServerApplication implements IApplication {
 				final Socket s = statusPort.accept();
 				s.close();
 			} catch (IOException e) {
-				logger.info("Exception occurred while accepting status port connection", e);
+				if (statusPort.isClosed()) {
+					// Normal shutdown case. The port is closed while waiting to accept
+					logger.debug("Stopping accepting status port connections");
+					break;
+				}
+				logger.error("Exception occurred while accepting status port connection", e);
 			}
 		}
 	}
