@@ -21,6 +21,9 @@ package uk.ac.gda.remoting.client;
 import static gda.factory.corba.util.EventService.USE_JMS_EVENTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyObject;
@@ -47,6 +50,7 @@ import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 
@@ -134,7 +138,32 @@ public class RmiProxyFactoryTest {
 
 		final Scannable foundMockScannable = rmiProxyFactory.getFindable("mockScannable");
 		assertThat(foundMockScannable, is(notNullValue()));
-		assertThat(foundMockScannable.getName(), is("mockScannable"));
+		assertThat(foundMockScannable.getName(), is(equalTo("mockScannable")));
+	}
+
+	@Test
+	public void testGettingFindableNames() throws Exception {
+		Scannable mockScannable = mock(Scannable.class);
+		when(mockScannable.getName()).thenReturn("mockScannable");
+		exportObject(mockScannable, "mockScannable", Scannable.class);
+
+		// Auto import
+		rmiProxyFactory.afterPropertiesSet();
+
+		assertThat(rmiProxyFactory.getFindableNames(), contains("mockScannable"));
+	}
+
+	@Test
+	public void testGettingAllFindables() throws Exception {
+		Scannable mockScannable = mock(Scannable.class);
+		when(mockScannable.getName()).thenReturn("mockScannable");
+		exportObject(mockScannable, "mockScannable", Scannable.class);
+
+		// Auto import
+		rmiProxyFactory.afterPropertiesSet();
+
+		assertThat(rmiProxyFactory.getFindables(), hasSize(1));
+		assertThat(rmiProxyFactory.getFindables().iterator().next().getName(), is("mockScannable"));
 	}
 
 	@Test
@@ -149,7 +178,7 @@ public class RmiProxyFactoryTest {
 		// Also check through the finder
 		final Scannable foundMockScannable = Finder.getInstance().find("mockScannable");
 		assertThat(foundMockScannable, is(notNullValue()));
-		assertThat(foundMockScannable.getName(), is("mockScannable"));
+		assertThat(foundMockScannable.getName(), is(equalTo("mockScannable")));
 	}
 
 	@Test
@@ -168,7 +197,7 @@ public class RmiProxyFactoryTest {
 		// Check methods calls work
 		assertThat(remoteScannable.getName(), is("mockScannable"));
 		assertThat((Double) remoteScannable.getPosition(), is(closeTo(33.34, 0.01)));
-		assertThat(remoteScannable.isBusy(), is(false));
+		assertThat(remoteScannable.isBusy(), is(equalTo(false)));
 
 		// Check the right number of calls were made
 		verify(mockScannable, times(1)).getPosition();
@@ -196,6 +225,40 @@ public class RmiProxyFactoryTest {
 		verify(mockScannable, never()).addIObserver(anyObject());
 		verify(mockScannable, never()).deleteIObserver(anyObject());
 		verify(mockScannable, never()).deleteIObservers();
+	}
+
+	@Test
+	public void testContainsExportableObjectsReturnsFalse() throws Exception {
+		assertThat(rmiProxyFactory.containsExportableObjects(), is(equalTo(false)));
+	}
+
+	@Test
+	public void testIsLocalReturnsFalse() throws Exception {
+		assertThat(rmiProxyFactory.isLocal(), is(equalTo(false)));
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testGetFindableThrowsWhenNotConfigured() throws Exception {
+		// Should throw
+		rmiProxyFactory.getFindable("anything");
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testGetFindableNamesThrowsWhenNotConfigured() throws Exception {
+		// Should throw
+		rmiProxyFactory.getFindableNames();
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testGetFindablesThrowsWhenNotConfigured() throws Exception {
+		// Should throw
+		rmiProxyFactory.getFindables();
+	}
+
+	@Test(expected=UnsupportedOperationException.class)
+	public void testAddFindableThrows() throws Exception {
+		// Should throw you can't add objects
+		rmiProxyFactory.addFindable(mock(Findable.class));
 	}
 
 }

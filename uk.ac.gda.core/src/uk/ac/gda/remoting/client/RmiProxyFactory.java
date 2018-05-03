@@ -80,12 +80,22 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 
 	/**
 	 * This {@link Map} holds the {@link Findable}s this Factory can provide. It is filled by the
-	 * {@link #afterPropertiesSet()} method.
+	 * {@link #configure()} method.
 	 */
 	private final Map<String, Findable> nameToFindable = new ConcurrentHashMap<>();
 
 	@Override
-	public void afterPropertiesSet() throws FactoryException {
+	public void afterPropertiesSet() throws Exception {
+		// Spring will call this before configure is called on all objects.
+		// Needs to be configured early because the configure() method of other objects may use the Finder.
+		configure();
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		if(isConfigured()) {
+			return; // Already configured so do nothing
+		}
 		logger.info("Configuring RmiProxyFactory...");
 
 		// Get the available objects from the server RMI registry
@@ -142,6 +152,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 		// Register as a factory with the finder
 		Finder.getInstance().addFactory(this);
 		logger.info("Finished importing. {} RMI objects have been imported", nameToFindable.size());
+		setConfigured(true);
 	}
 
 	@Override
@@ -162,17 +173,26 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 
 	@Override
 	public List<Findable> getFindables() {
+		if(!isConfigured()) {
+			throw new IllegalStateException("RmiProxyFactory is not yet configured");
+		}
 		return new ArrayList<>(nameToFindable.values());
 	}
 
 	@Override
 	public List<String> getFindableNames() {
+		if(!isConfigured()) {
+			throw new IllegalStateException("RmiProxyFactory is not yet configured");
+		}
 		return new ArrayList<>(nameToFindable.keySet());
 	}
 
 	@SuppressWarnings("unchecked") // We don't know what type the caller is expecting so this might throw!
 	@Override
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
+		if(!isConfigured()) {
+			throw new IllegalStateException("RmiProxyFactory is not yet configured");
+		}
 		return (T) nameToFindable.get(name);
 	}
 
