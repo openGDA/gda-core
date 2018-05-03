@@ -146,12 +146,12 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 */
 	public ScannableNexusWrapper() {
 		super(ScannableDeviceConnectorService.getInstance());
-		this.positionDelegate = new PositionDelegate();
+		this.positionDelegate = new PositionDelegate(this);
 	}
 
 	ScannableNexusWrapper(Scannable scannable) {
 		setScannable(scannable);
-		this.positionDelegate = new PositionDelegate();
+		this.positionDelegate = new PositionDelegate(this);
 	}
 
 	/**
