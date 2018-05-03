@@ -193,4 +193,62 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, Localizab
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
 	}
+
+
+	/**
+	 * Convenience method for getting metadata from Jython
+	 * <pre>
+	 * >>> metadata['visit']
+	 * 'ab1234-5'
+	 * >>> # is equivalent to
+	 * >>> metadata.getMetadataValue('visit')
+	 * 'ab1234-5'
+	 * >>>
+	 * </pre>
+	 * NB. this will return an empty string if no matching metadata entry is present
+	 *
+	 * @param metaname The name of the metadata to get
+	 *
+	 * @see #getMetadataValue(String)
+	 */
+	public String __getitem__(String metaname) {
+		return getMetadataValue(metaname);
+	}
+
+	/**
+	 * Convenience method for setting metadata from Jython
+	 * <pre>
+	 * >>> metadata['visit'] = 'ab1234-5'
+	 * >>> # is equivalent to
+	 * >>> metadata.setMetadataValue('visit', 'ab1234-5')
+	 * </pre>
+	 * NB this will not add a new metadata entry if an existing one is not present
+	 *
+	 * @param metaname The name of the metadata to set
+	 * @param metavalue The new value of the metadata entry
+	 *
+	 * @see #setMetadataValue(String, String)
+	 */
+	public void __setitem__(String metaname, String metavalue) {
+		setMetadataValue(metaname, metavalue);
+	}
+
+	/**
+	 * Convenience method for checking if a metadata entry is present from Jython.
+	 * <pre>
+	 * >>> 'visit' in metadata
+	 * True
+	 * >>> 'foobar' in metadata
+	 * False
+	 * </pre>
+	 *
+	 * @param name The metadata entry to check
+	 * @return True if there is a metadata entry present for the given name
+	 */
+	public boolean __contains__(Object name) {
+		if (name instanceof String) {
+			return metadataEntries.containsKey(name);
+		}
+		return false;
+	}
 }
