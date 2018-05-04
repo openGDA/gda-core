@@ -237,7 +237,7 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
                     fi
                 fi                                             # then ping the server until it responds.
 
-                nc -w 0 "${server_machine}" "$GDA_STATUS_PORT" # checks whether the status port is open, 0 if yes, 1 if no
+                nc -z "${server_machine}" "$GDA_STATUS_PORT" # checks whether the status port is open, 0 if yes, 1 if no
                 if [[ "$?" == 0 ]]; then
                     if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then    # if we are using zenity progress bar then change
                         echo "#\nServer started"                                        # its text when startup is successful for 2 seconds
