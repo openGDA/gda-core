@@ -350,30 +350,18 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 		checkStateForRunCommand();
 
-		// check to see if this is a print command, if it is then it is not good
-		// to create a separate thread for it, but just to print it straight to
-		// the screen
-		// If this becomes a big issue, a new thread should be created to run
-		// all the print statements, but sequentially
-		if (command.startsWith("print")) {
-			// do this immediately
-			this.interp.exec(command);
-
-		} else {
-
-			// See bug #335 for why this must repeat most of the code of the
-			// runCommand(String, String) method.
-			try {
-				int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
-				RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
-				runCommandThreads.add(runner);
-				// start the thread and return immediately.
-				runner.start();
-				clearThreads();
-				notifyRefreshCommandThreads();
-			} catch (Exception ex) {
-				logger.info("Command Terminated", ex);
-			}
+		// See bug #335 for why this must repeat most of the code of the
+		// runCommand(String, String) method.
+		try {
+			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
+			runCommandThreads.add(runner);
+			// start the thread and return immediately.
+			runner.start();
+			clearThreads();
+			notifyRefreshCommandThreads();
+		} catch (Exception ex) {
+			logger.info("Command Terminated", ex);
 		}
 	}
 

@@ -72,8 +72,7 @@ public interface Jython extends Findable, IObservable {
 	public String evaluateCommand(String command, String JSFIdentifier);
 
 	/**
-	 * Executes the Jython command in a new thread (unless the command starts
-	 * with the text 'print').
+	 * Executes the Jython command in a new thread.
 	 *
 	 * @param command
 	 *            String
