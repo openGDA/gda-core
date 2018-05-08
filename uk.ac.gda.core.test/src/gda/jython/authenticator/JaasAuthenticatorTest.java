@@ -21,9 +21,10 @@ package gda.jython.authenticator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import gda.configuration.properties.LocalProperties;
 
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Test case for the JaasAuthenticator class
@@ -38,7 +39,7 @@ public class JaasAuthenticatorTest {
 		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "gda.jython.authenticator.JaasAuthenticator");
 		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_REALM, "FED.CCLRC.AC.UK");
 		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_KDC, "fed.cclrc.ac.uk");
-		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_CONFFILE, "/home/rjw82/workspaces/trunk/i02/properties/jaas.cclrc.conf");
+		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_CONFFILE, "/path/to/a/file");
 		@SuppressWarnings("unused")
 		JaasAuthenticator authenticator = (JaasAuthenticator) AuthenticatorProvider.getAuthenticator();
 	}
