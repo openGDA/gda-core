@@ -263,7 +263,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 			// needs to use the same scan number
 			if (createSrsFile) {
-				srsFile.configureScanNumber(scanNumber);
+				srsFile.configureScanNumber(this.scanNumber);
 			}
 			fileNumberConfigured = true;
 		}
