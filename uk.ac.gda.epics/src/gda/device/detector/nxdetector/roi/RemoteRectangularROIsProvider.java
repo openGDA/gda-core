@@ -20,12 +20,14 @@ package gda.device.detector.nxdetector.roi;
 
 import java.util.List;
 
+import gda.factory.Findable;
+
 /**
  * Interface for use with RMI to allow ROIs to be updated from the client
  *
  * @author James Mudd
  */
-public interface RemoteRectangularROIsProvider {
+public interface RemoteRectangularROIsProvider extends Findable{
 
 	/**
 	 * Update the ROIs list on the server, which can the be picked up when a scan is started

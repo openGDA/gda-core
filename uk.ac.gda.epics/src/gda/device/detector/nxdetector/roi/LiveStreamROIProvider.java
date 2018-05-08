@@ -24,12 +24,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
 /**
  * Intended to be the server side object providing the {@link RemoteRectangularROIsProvider} interface for clients to update ROIs over RMI.
  *
  * @author James Mudd
  */
-public class LiveStreamROIProvider implements RemoteRectangularROIsProvider {
+@ServiceInterface(RemoteRectangularROIsProvider.class)
+public class LiveStreamROIProvider extends FindableBase implements RemoteRectangularROIsProvider {
 
 	private static Logger logger = LoggerFactory.getLogger(LiveStreamROIProvider.class);
 
