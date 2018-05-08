@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.january;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="[1.2.0,2.0.0)",
- uk.ac.gda.tomography;bundle-version="1.0.0"
+ uk.ac.gda.tomography;bundle-version="1.0.0",
+ uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework

@@ -37,14 +37,15 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
-import gda.factory.Findable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.pco.LiveModeUtil;
 import uk.ac.gda.tomography.devices.ITomographyDetector;
 
 /**
  * Tomography implementation for the PCO camera.
  */
-public class PCOTomography implements ITomographyDetector, Findable {
+@ServiceInterface(ITomographyDetector.class)
+public class PCOTomography implements ITomographyDetector {
 	private static final double PRC_MIN_TIME = 0.4;
 
 	private String name;
