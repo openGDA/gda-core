@@ -205,7 +205,7 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
     unset ssh_tunnel_activated                                      # Cancel the flag allowing entry  when starting in live mode on the workstation
 
     if [[ ${GDA_OPERATION,,} != "stop" ]]; then
-        # Starting/restarting; wait for the server's Telnet port to be acsssible so that any gda_servers_post scripts don't run before the servers are started.
+        # Starting/restarting; wait for the server's status port to be accessible so that any gda_servers_post scripts don't run before the servers are started.
         # A zenity progress bar is displayed whilst this is happening allowing startup to be aborted by pressing Cancel, closing the window or pressing 
         # Ctrl-C in the original terminal. This must be updated by echoed output preferably from a subshell to make the bar animate and enable the Cancel
         # functionality. If GDA_NO_PROMPT is true or there is no X display then the old style advancing minuses are displayed in the terminal instead, 

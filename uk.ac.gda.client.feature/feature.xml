@@ -421,7 +421,7 @@
          version="0.0.0"/>
 
    <!--
-   Jline and sshd are not "really" needed by the client as they provide telnet/ssh server access.
+   Jline and sshd are not "really" needed by the client as they provide ssh server access.
    However they are required as the client depends on core which uses these plugins.
    -->
    <plugin
