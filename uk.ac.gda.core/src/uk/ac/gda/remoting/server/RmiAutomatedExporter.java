@@ -87,6 +87,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	 */
 	private void exportAll() {
 		logger.info("Starting automated RMI exports...");
+		logger.debug("RMI services on port '{}' with prefix '{}'", rmiPort, AUTO_EXPORT_RMI_PREFIX);
 
 		final Map<String, Findable> allRmiExportableBeans = getRmiExportableBeans();
 
@@ -102,7 +103,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			export(name, bean, serviceInterface);
 		}
 
-		logger.info("Completed RMI exports");
+		logger.info("Completed RMI exports. Exported {} objects", allRmiExportableBeans.size());
 	}
 
 	private Map<String, Findable> getRmiExportableBeans() {
