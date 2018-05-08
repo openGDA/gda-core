@@ -20,12 +20,15 @@
 package gda.device.enumpositioner;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A dummy class implementing the EnumPositioner for testing.
  */
+@ServiceInterface(EnumPositioner.class)
 public class DummyEnumPositioner extends EditableEnumPositionerBase {
 	private int currentPositionIndex = 0;
 
