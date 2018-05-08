@@ -45,7 +45,7 @@ public class LocalPersistence {
 	}
 
 	/**
-	 * Creates a Java Persistence API EntityManagerFactory associated with the GDA's local database. As the telnet
+	 * Creates a Java Persistence API EntityManagerFactory associated with the GDA's local database. As the ssh
 	 * and RCP clients use different classloaders (because of how their listeners are created) it is necessary to
 	 * switch the ThreadContextClassLoader to this bundle's ClassLoader to guarantee that the persistence.xml resource
 	 * can be correctly loaded when creating the EntityManager. It is reset again afterwards

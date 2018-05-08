@@ -78,7 +78,6 @@ import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.server.JlineSshServer;
-import gda.jython.server.JlineTelnetConnectionManager;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
@@ -110,8 +109,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	public static final String SERVERNAME = "command_server";
 	public static final String NULL = String.valueOf((char)0);
 
-	@Deprecated
-	public static final String TELNET_PORT_PROPERTY = "gda.jython.socket";
 	public static final String SSH_PORT_PROPERTY = "gda.server.ssh.port";
 
 	private boolean atStartup = true;
@@ -155,8 +152,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 	private ScriptPaths jythonScriptPaths;
 
-	@Deprecated
-	private int telnetPort = LocalProperties.getAsInt(TELNET_PORT_PROPERTY, -1);
 	private final int sshPort = LocalProperties.getAsInt(SSH_PORT_PROPERTY, -1);
 
 	private String gdaStationScript;
@@ -220,19 +215,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	 */
 	public void removeDefault(Scannable scannable) {
 		defaultScannables.remove(scannable);
-	}
-
-	/**
-	 * Sets the port number that will accept telnet connections to this server.
-	 *
-	 * @param remotePort the port number
-	 *
-	 * @deprecated Set the {@value #SSH_PORT_PROPERTY} property instead to allow SSH access
-	 */
-	@Deprecated
-	public void setRemotePort(int remotePort) {
-		telnetPort = remotePort;
-		logger.error("remotePort should not be set via Spring. Use the property {} for ssh", SSH_PORT_PROPERTY);
 	}
 
 	/**
@@ -312,9 +294,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 			// open a socket for communication, if a port has been defined - not during reset_namespace
 			if (atStartup) {
-				if (telnetPort != -1) {
-					JlineTelnetConnectionManager.runServer(telnetPort);
-				}
 				if (sshPort != -1) {
 					JlineSshServer.runServer(sshPort);
 				}
