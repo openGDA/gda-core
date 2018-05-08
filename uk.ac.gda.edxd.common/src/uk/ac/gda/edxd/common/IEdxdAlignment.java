@@ -18,7 +18,9 @@
 
 package uk.ac.gda.edxd.common;
 
-public interface IEdxdAlignment {
+import gda.factory.Findable;
+
+public interface IEdxdAlignment extends Findable {
 
 	/**
 	 * @return full fileName of the last calibration the last saved energy calibration file from the cached
@@ -58,7 +60,7 @@ public interface IEdxdAlignment {
 
 	/**
 	 * Request to run the energy calibration
-	 * 
+	 *
 	 * @return filename of the saved energy calibration once it is performed.
 	 */
 	String runEnergyCalibration();
@@ -80,14 +82,14 @@ public interface IEdxdAlignment {
 
 	/**
 	 * Request to run the Q Calibration.
-	 * 
+	 *
 	 * @return the filename of the Q Calibration once the Q calibration is performed.
 	 */
 	String runQAxisCalibration();
 
 	/**
 	 * Request to load the energy calibration file into the server memory.
-	 * 
+	 *
 	 * @param fileName
 	 *            - of the file that contains energy calibration values
 	 */
@@ -95,7 +97,7 @@ public interface IEdxdAlignment {
 
 	/**
 	 * Request to load the Q calibration file
-	 * 
+	 *
 	 * @param fileName
 	 *            - of the file that contains Q Calibration values
 	 */
@@ -115,14 +117,14 @@ public interface IEdxdAlignment {
 
 	/**
 	 * Request to start the eh1 camera
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void startEh1Camera() throws Exception;
 
 	/**
 	 * request to start the eh2 camera
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void startEh2Camera() throws Exception;

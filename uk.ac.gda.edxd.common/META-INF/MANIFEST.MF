@@ -5,7 +5,8 @@ Bundle-SymbolicName: uk.ac.gda.edxd.common
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.gda.edxd.common.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ uk.ac.gda.api
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.edxd.common

@@ -23,7 +23,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
 import gda.jython.JythonServerFacade;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.edxd.calibration.edxdcalibration.COLLIMATOR;
 import uk.ac.gda.edxd.calibration.edxdcalibration.CalibrationConfig;
 import uk.ac.gda.edxd.calibration.edxdcalibration.DocumentRoot;
@@ -32,7 +34,8 @@ import uk.ac.gda.edxd.calibration.edxdcalibration.HUTCH;
 import uk.ac.gda.edxd.calibration.edxdcalibration.util.EdxdCalibrationResourceHandler;
 import uk.ac.gda.edxd.common.IEdxdAlignment;
 
-public class EDXDAlignment implements IEdxdAlignment {
+@ServiceInterface(IEdxdAlignment.class)
+public class EDXDAlignment extends FindableBase implements IEdxdAlignment {
 	private static final Logger logger = LoggerFactory.getLogger(EDXDAlignment.class);
 
 	private EdxdCalibrationResourceHandler edxdCalibrationResourceHandler;
