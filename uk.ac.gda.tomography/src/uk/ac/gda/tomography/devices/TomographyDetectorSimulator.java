@@ -18,15 +18,15 @@
 
 package uk.ac.gda.tomography.devices;
 
-import gda.device.DeviceException;
-
 import java.awt.Point;
 import java.awt.Rectangle;
 
-/**
- *
- */
-public class TomographyDetectorSimulator implements ITomographyDetector {
+import gda.device.DeviceException;
+import gda.factory.FindableBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
+@ServiceInterface(ITomographyDetector.class)
+public class TomographyDetectorSimulator extends FindableBase implements ITomographyDetector {
 
 	@Override
 	public void setExposureTime(double collectionTime) throws Exception {

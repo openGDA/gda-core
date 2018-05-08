@@ -18,22 +18,23 @@
 
 package uk.ac.gda.tomography.devices;
 
-import gda.device.DeviceException;
-
 import java.awt.Point;
 import java.awt.Rectangle;
+
+import gda.device.DeviceException;
+import gda.factory.Findable;
 
 /**
  * This class needs to be implements in order to get the Tomography alignment client working. The requirements by the
  * graphical elements are such that the detector sends or sets the EPICS elements as asked. A good place to look for an
  * implementation is "gda.device.detector.pco.PCOTomography" in the "uk.ac.gda.devices.pco" plug-in.
- * 
+ *
  * @author rsr31645 - Ravi Somayaji
  */
-public interface ITomographyDetector {
+public interface ITomographyDetector extends Findable {
 	/**
 	 * Exposure time on the detector to be set when this method is invoked.
-	 * 
+	 *
 	 * @param collectionTime
 	 * @throws Exception
 	 */
@@ -42,7 +43,7 @@ public interface ITomographyDetector {
 	/**
 	 * The MJpeg streamer is set-up and made ready. The detector acquisition is started in "Continuous" mode. The proc
 	 * scale factor is set on the proc plugin
-	 * 
+	 *
 	 * @param acqTime
 	 * @param binX
 	 * @param binY
@@ -55,7 +56,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * Set roi2 roiStart to the values provided.
-	 * 
+	 *
 	 * @param roiStart
 	 * @throws Exception
 	 */
@@ -64,7 +65,7 @@ public interface ITomographyDetector {
 	/**
 	 * This sets up the MJpeg streamer for the zoomed images. On the tomography alignment GUI the zoomed images are
 	 * displayed on the right. The display ROI is set and the bin values are set.
-	 * 
+	 *
 	 * @param roi
 	 * @param bin
 	 * @throws Exception
@@ -85,14 +86,14 @@ public interface ITomographyDetector {
 
 	/**
 	 * Sets the flat field correction on the proc plug-ins of the detector to "enabled".
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void enableFlatField() throws Exception;
 
 	/**
 	 * Sets the flat field correction on the proc plug-ins of the detector to "disabled".
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void disableFlatField() throws Exception;
@@ -118,7 +119,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * Sets the file number on the tiff plugin - this will be used when the plugin writes a tiff file the next time.
-	 * 
+	 *
 	 * @param fileNumber
 	 * @throws Exception
 	 */
@@ -146,7 +147,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * This method is invoked when a flat image needs to be taken
-	 * 
+	 *
 	 * @param expTime
 	 *            - exposure time to be set on the detector.
 	 * @param numberOfImages
@@ -172,7 +173,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * This method is invoked when dark images need to be taken.
-	 * 
+	 *
 	 * @param numberOfImages
 	 *            - number of dark images to be taken.
 	 * @param acqTime
@@ -184,7 +185,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * This is called when the acquisition and any file capture activities need to be stopped.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void abort() throws Exception;
@@ -192,14 +193,14 @@ public interface ITomographyDetector {
 	/**
 	 * Sets the file saver format to hdf. The detector then delegates any file saving activity to the hdf plugin on the
 	 * detector.
-	 * 
+	 *
 	 * @param hdfFormat
 	 */
 	void setHdfFormat(boolean hdfFormat);
 
 	/**
 	 * Resets only the file format
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void resetFileFormat() throws Exception;
@@ -211,7 +212,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * In addition to its own resets, this method also calls reset on all plugins
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void resetAll() throws Exception;
@@ -219,7 +220,7 @@ public interface ITomographyDetector {
 	/**
 	 * The tilt alignment is generally done on a known sample - the data that needs to be collected can be cropped on
 	 * the y axis so that data processing can be relieved of memory issues.
-	 * 
+	 *
 	 * @param minY
 	 *            - the minimum y value
 	 * @param maxY
@@ -232,14 +233,14 @@ public interface ITomographyDetector {
 
 	/**
 	 * Reset the values of minY and maxY the initial values
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void resetAfterTiltToInitialValues() throws Exception;
 
 	/**
 	 * Sets the proc scale factor to the given value
-	 * 
+	 *
 	 * @param factor
 	 *            - value to which the proc scale should be set
 	 * @throws Exception
@@ -248,7 +249,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * Set the scaling divisor on the ROI1
-	 * 
+	 *
 	 * @param divisor
 	 * @throws Exception
 	 */
@@ -268,7 +269,7 @@ public interface ITomographyDetector {
 	/**
 	 * The PCO detector can be controlled using an external hardware trigger - however, for the tomography alignment it
 	 * is important that this is set to <code>false</code>
-	 * 
+	 *
 	 * @param val
 	 */
 	void setExternalTriggered(Boolean val);
@@ -276,21 +277,21 @@ public interface ITomographyDetector {
 	/**
 	 * Invoked to initialise the detector properties - in case of the PCO detector, an image needs to be taken so that
 	 * the array values are passed to all the plugins.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void initDetector() throws Exception;
 
 	/**
 	 * Request to disable the dark subtraction flag on the area detector.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void disableDarkSubtraction() throws Exception;
 
 	/**
 	 * Request to enable the dark subtraction flag on the area detector.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void enableDarkSubtraction() throws Exception;
@@ -303,7 +304,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * Update the scale value on the proc1 plugin.
-	 * 
+	 *
 	 * @param newScale
 	 * @throws Exception
 	 */
@@ -311,7 +312,7 @@ public interface ITomographyDetector {
 
 	/**
 	 * Set offset and scale on the proc plugins of the detector.
-	 * 
+	 *
 	 * @param offset
 	 * @param scale
 	 * @throws Exception
@@ -320,14 +321,14 @@ public interface ITomographyDetector {
 
 	/**
 	 * method called when acquisition is stopped to update exposure time - should continue where it left off
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void resumeAcquisition() throws Exception;
 
 	/**
 	 * method invoked to call histogram stat collection
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void setupHistoStatCollection(int binSize) throws Exception;
