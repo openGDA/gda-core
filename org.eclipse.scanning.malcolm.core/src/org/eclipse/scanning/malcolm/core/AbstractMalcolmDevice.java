@@ -211,13 +211,13 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		return connectionDelegate.createUnsubscribeMessage();
 	}
 
-	protected void subscribe(MalcolmMessage message, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
-		connector.subscribe(this, message, listener);
+	protected void subscribe(MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
+		connector.subscribe(this, subscribeMessage, listener);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected MalcolmMessage unsubscribe(MalcolmMessage message, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
-		return connector.unsubscribe(this, message, listener);
+	protected MalcolmMessage unsubscribe(MalcolmMessage unsubscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
+		return connector.unsubscribe(this, unsubscribeMessage, listener);
 	}
 
 	protected void subscribeToConnectionStateChange(IMalcolmListener<Boolean> listener) throws MalcolmDeviceException {

@@ -93,10 +93,10 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	// Standard timeout for Malcolm Calls
 
 	// Subscriber messages
-    private MalcolmMessage stateSubscriber;
-    private MalcolmMessage scanSubscriber;
+	private MalcolmMessage stateSubscriber;
+	private MalcolmMessage scanSubscriber;
 
-    // Our connection to the outside.
+	// Our connection to the outside.
 	private IPublisher<ScanBean> publisher;
 
 	// Data should be in model?
@@ -178,11 +178,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	 * Gets the iterator of the points of the inner scan from the {@link SubscanModerator}.
 	 * @param moderator the SubscanModerator
 	 */
-    @PointStart
-    public void scanPoint(SubscanModerator moderator) {
-    	final Iterable<IPosition> scanPositions = moderator.getInnerIterable();
-        scanPositionIterator = scanPositions.iterator();
-    }
+	@PointStart
+	public void scanPoint(SubscanModerator moderator) {
+		final Iterable<IPosition> scanPositions = moderator.getInnerIterable();
+		scanPositionIterator = scanPositions.iterator();
+	}
 
 	protected void sendScanEvent(MalcolmEvent<MalcolmMessage> event) {
 		final MalcolmMessage msg = event.getBean();
@@ -278,7 +278,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 			if (msg.getType().isError()) { // Currently used for debugging the device.
 				logger.error("Error message encountered: {}", msg);
-				Thread.dumpStack();
 			}
 
 			logger.debug("Sending malcolm event: {}", meb);
@@ -329,7 +328,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
-
 		} catch (Exception ne) {
 			throw new MalcolmDeviceException(this, "Cannot connect to device '" + getName() + "'", ne);
 		}
@@ -345,10 +343,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			}
 
 			return MalcolmUtil.getHealth(reply);
-
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
-
 		} catch (Exception ne) {
 			throw new MalcolmDeviceException(this, "Cannot connect to device '" + getName() + "'", ne);
 		}
@@ -564,7 +560,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			if (!stateContainer.isEmpty()) return stateContainer.get(0);
 
 			if (countedDown) {
-			    throw new MalcolmDeviceException("The countdown of "+time+" "+unit+" timed out waiting for state change for device "+getName());
+				throw new MalcolmDeviceException("The countdown of "+time+" "+unit+" timed out waiting for state change for device "+getName());
 			} else {
 				throw new MalcolmDeviceException("A problem occured trying to latch state change for device "+getName());
 			}
@@ -606,7 +602,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 
-
 		@SuppressWarnings("unchecked")
 		Map<String, Object> wholeBlockMap = (Map<String, Object>) reply.getValue();
 		return wholeBlockMap.values().stream().
@@ -626,6 +621,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	public static final class EpicsMalcolmModel {
+
 		private final IPointGenerator<?> generator;
 		private final List<String> axesToMove;
 		private final String fileDir;

@@ -31,7 +31,7 @@ public class MalcolmMessage {
 
 	private Type   type;
 
-	private long   id;
+	private long   id; // TODO can probably get rid of id as epicsv4 has its own internal id
 	private String param;
 	private String endpoint;
 	private MalcolmMethod method;

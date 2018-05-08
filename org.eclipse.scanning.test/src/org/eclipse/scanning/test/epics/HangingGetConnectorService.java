@@ -17,9 +17,13 @@ public class HangingGetConnectorService extends EpicsV4ConnectorService {
 	}
 
 	@Override
-	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) throws Exception {
-		latch.await();
-        return null;
+	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		return null;
 	}
 
 	@Override

@@ -26,7 +26,8 @@ public class DeviceRunner {
 	public IEPICSv4Device start() throws Exception {
 		String deviceName = getTestDeviceName();
 
-		Constructor<IEPICSv4Device> constructor = (Constructor<IEPICSv4Device>)deviceClass.getConstructor(String.class);
+		@SuppressWarnings("unchecked")
+		Constructor<IEPICSv4Device> constructor = (Constructor<IEPICSv4Device>) deviceClass.getConstructor(String.class);
 		IEPICSv4Device device = constructor.newInstance(deviceName);
 
 		Thread worker = new Thread(()->execute(device), "EPICSv4 Runner "+deviceName);

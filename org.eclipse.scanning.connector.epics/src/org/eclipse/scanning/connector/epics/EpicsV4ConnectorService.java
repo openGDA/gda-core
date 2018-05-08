@@ -15,9 +15,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
@@ -71,7 +71,7 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 
     public EpicsV4ConnectorService() {
 		mapper = new EpicsV4MessageMapper();
-		this.listeners = new Hashtable<Long, Collection<EpicsV4MonitorListener>>(7);
+		this.listeners = new ConcurrentHashMap<>();
 		pvaClient = PvaClient.get("pva"); // Should this be "pva" or the no-argument one?
 	}
 
@@ -82,7 +82,7 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 
 	@Override
 	public void disconnect() throws MalcolmDeviceException {
-        //pvaClient.destroy();
+        //pvaClient.destroy(); // Commented out as we never need to disconnect
 	}
 
 	public PVStructure pvMarshal(Object anyObject) throws Exception {
@@ -95,66 +95,57 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 
 	@Override
 	public MalcolmMessage send(IMalcolmDevice<?> device, MalcolmMessage message) throws MalcolmDeviceException {
-
-		MalcolmMessage result = new MalcolmMessage();
-
 		try {
-
 			switch (message.getType()) {
 			case CALL:
-				result = sendCallMessage(device, message);
-				break;
+				return sendCallMessage(device, message);
 			case GET:
-				result = sendGetMessage(device, message);
-				break;
+				return sendGetMessage(device, message);
 			case PUT:
-				result = sendPutMessage(device, message);
-				break;
+				return sendPutMessage(device, message);
 			default:
-				throw new Exception("Unexpected MalcolmMessage type: " + message.getType());
+				throw new IllegalArgumentException("Unexpected MalcolmMessage type: " + message.getType());
 			}
-
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			result.setEndpoint(message.getEndpoint());
-			result.setId(message.getId());
-			result.setMessage("Error sending message " + message.getEndpoint() + ": " + e.getMessage());
-			result.setType(Type.ERROR);
+			logger.error(e.getMessage(), e);
+			final MalcolmMessage errorMalcolmMessage = new MalcolmMessage();
+			errorMalcolmMessage.setEndpoint(message.getEndpoint());
+			errorMalcolmMessage.setId(message.getId());
+			errorMalcolmMessage.setMessage("Error sending message " + message.getEndpoint() + ": " + e.getMessage());
+			errorMalcolmMessage.setType(Type.ERROR);
+			return errorMalcolmMessage;
 		}
-		return result;
 	}
 
 	@Override
-	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage msg, IMalcolmListener<MalcolmMessage> listener)
+	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener)
 			throws MalcolmDeviceException {
 
 		try {
-			EpicsV4ClientMonitorRequester monitorRequester = new EpicsV4ClientMonitorRequester(listener, msg);
+			EpicsV4ClientMonitorRequester monitorRequester = new EpicsV4ClientMonitorRequester(listener, subscribeMessage);
 			PvaClientChannel pvaChannel = pvaClient.createChannel(device.getName(), "pva");
 			pvaChannel.issueConnect();
 			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
 			if (!status.isOK()) {
-				String errMEssage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
+				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
 						+ status.getMessage() + ")";
-				logger.error(errMEssage);
-				throw new Exception(errMEssage);
+				logger.error(errMessage);
+				throw new MalcolmDeviceException(device, errMessage);
 			}
 
-			PvaClientMonitor monitor = pvaChannel.monitor(msg.getEndpoint(), monitorRequester, monitorRequester);
+			PvaClientMonitor monitor = pvaChannel.monitor(subscribeMessage.getEndpoint(), monitorRequester, monitorRequester);
 
-			Collection<EpicsV4MonitorListener> ls = listeners.get(msg.getId());
+			Collection<EpicsV4MonitorListener> ls = listeners.get(subscribeMessage.getId());
 			if (ls == null) {
-				ls = new Vector<EpicsV4MonitorListener>(3);
-				listeners.put(msg.getId(), ls);
+				ls = Collections.synchronizedList(new ArrayList<>());
+				listeners.put(subscribeMessage.getId(), ls);
 			}
 
 			EpicsV4MonitorListener monitorListener = new EpicsV4MonitorListener(listener, monitor);
 			ls.add(monitorListener);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			logger.error(ex.getMessage());
-			throw new MalcolmDeviceException(device, ex.getMessage());
+		} catch (Exception e) {
+			logger.error("Could not subscribe to endpoint " + subscribeMessage.getEndpoint(), e);
+			throw new MalcolmDeviceException(device, e.getMessage());
 		}
 	}
 
@@ -167,17 +158,16 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 			pvaChannel.issueConnect();
 			Status status = pvaChannel.waitConnect(0); // Wait forever for this connection.
 			if (!status.isOK()) {
-				String errMEssage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
+				String errorMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
 						+ status.getMessage() + ")";
-				logger.error(errMEssage);
-				throw new Exception(errMEssage);
+				logger.error(errorMessage);
+				throw new MalcolmDeviceException(device, errorMessage);
 			}
 			pvaChannel.setStateChangeRequester(new StateChangeRequester(listener));
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			logger.error(ex.getMessage());
-			throw new MalcolmDeviceException(device, ex.getMessage());
+		} catch (Exception e) {
+			logger.error("Could not subscribe to connection state changes", e);
+			throw new MalcolmDeviceException(device, e.getMessage());
 		}
 	}
 
@@ -192,21 +182,16 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 		try {
 			if (removeListeners==null) { // Kill every subscriber
 
-				for (EpicsV4MonitorListener monitorListener : listeners.get(msg.getId()))
-				{
+				for (EpicsV4MonitorListener monitorListener : listeners.get(msg.getId())) {
 					monitorListener.getMonitor().stop();
 				}
 				listeners.remove(msg.getId());
 			} else {
 				Collection<EpicsV4MonitorListener> ls = listeners.get(msg.getId());
 				if (ls!=null) {
-
-					ArrayList<EpicsV4MonitorListener> toRemove = new ArrayList<EpicsV4MonitorListener>();
-
-					for (EpicsV4MonitorListener monitorListener : ls)
-					{
-						if (Arrays.asList(removeListeners).contains(monitorListener.getMalcolmListener()))
-						{
+					ArrayList<EpicsV4MonitorListener> toRemove = new ArrayList<>();
+					for (EpicsV4MonitorListener monitorListener : ls) {
+						if (Arrays.asList(removeListeners).contains(monitorListener.getMalcolmListener())) {
 							toRemove.add(monitorListener);
 							monitorListener.getMonitor().stop();
 						}
@@ -217,8 +202,7 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 			}
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			result.setMessage("Error unsubscribing from message Id " + msg.getId() + ": " + e.getMessage());
 			result.setType(Type.ERROR);
 			throw new MalcolmDeviceException(device, result.getMessage());
@@ -226,7 +210,7 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 		return result;
 	}
 
-	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) throws Exception {
+	protected MalcolmMessage sendGetMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
 
 		MalcolmMessage returnMessage = new MalcolmMessage();
 		PvaClientChannel pvaChannel = null;
@@ -236,9 +220,9 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 			pvaChannel.issueConnect();
 			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
 			if (!status.isOK()) {
-				String errMEssage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
+				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
 						+ status.getMessage() + ")";
-				throw new Exception(errMEssage);
+				throw new Exception(errMessage);
 			}
 
 			String requestString = message.getEndpoint();
@@ -247,76 +231,73 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 			pvaGet.issueConnect();
 			status = pvaGet.waitConnect();
 			if (!status.isOK()) {
-				String errMEssage = "CreateGet failed for '" + requestString + "' (" + status.getType() + ": "
+				String errMessage = "CreateGet failed for '" + requestString + "' (" + status.getType() + ": "
 						+ status.getMessage() + ")";
-				throw new Exception(errMEssage);
+				throw new Exception(errMessage);
 			}
 			PvaClientGetData pvaData = pvaGet.getData();
 			pvResult = pvaData.getPVStructure();
 			logger.debug("Get response = \n{}\nEND", pvResult);
 			returnMessage = mapper.convertGetPVStructureToMalcolmMessage(pvResult, message);
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			returnMessage.setType(Type.ERROR);
-			returnMessage.setMessage(ex.getMessage());
+			returnMessage.setMessage(e.getMessage());
 		}
 
 		if (pvaChannel != null) {
 			pvaChannel.destroy();
 		}
 
-        return returnMessage;
+		return returnMessage;
 	}
 
 	private MalcolmMessage sendPutMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
-
 		MalcolmMessage returnMessage = new MalcolmMessage();
-        returnMessage.setType(Type.RETURN);
-        returnMessage.setId(message.getId());
+		returnMessage.setType(Type.RETURN);
+		returnMessage.setId(message.getId());
 
-        if (message.getValue() == null) {
+		if (message.getValue() == null) {
 			returnMessage.setType(Type.ERROR);
 			returnMessage.setMessage("Unable to set field value to null: " + message.getEndpoint());
-        }
+		}
 
 		PvaClientChannel pvaChannel = null;
 
 		try {
 			String requestString = message.getEndpoint();
 
-			pvaChannel = pvaClient.createChannel(device.getName(),"pva");
+			pvaChannel = pvaClient.createChannel(device.getName(), "pva");
 			pvaChannel.issueConnect();
-	        Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-	        if(!status.isOK()) {
-			String errMEssage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": " + status.getMessage() + ")";
-			throw new Exception(errMEssage);
-	        }
-	        PvaClientPut pvaPut = pvaChannel.createPut(requestString);
-	        pvaPut.issueConnect();
-	        status = pvaPut.waitConnect();
-	        if(!status.isOK()) {
-			String errMEssage = "CreatePut failed for '" + requestString + "' (" + status.getType() + ": " + status.getMessage() + ")";
-			throw new Exception(errMEssage);
-		}
-	        PvaClientPutData putData = pvaPut.getData();
-	        PVStructure pvStructure = putData.getPVStructure();
+			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
+			if (!status.isOK()) {
+				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": " + status.getMessage() + ")";
+				throw new MalcolmDeviceException(device, errMessage);
+			}
+			PvaClientPut pvaPut = pvaChannel.createPut(requestString);
+			pvaPut.issueConnect();
+			status = pvaPut.waitConnect();
+			if (!status.isOK()) {
+				String errMessage = "CreatePut failed for '" + requestString + "' (" + status.getType() + ": " + status.getMessage() + ")";
+				throw new MalcolmDeviceException(device, errMessage);
+			}
+			PvaClientPutData putData = pvaPut.getData();
+			PVStructure pvStructure = putData.getPVStructure();
 
-	        mapper.populatePutPVStructure(pvStructure, message);
+			mapper.populatePutPVStructure(pvStructure, message);
 
-	        pvaPut.put();
-
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-			ex.printStackTrace();
+			pvaPut.put();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			returnMessage.setType(Type.ERROR);
-			returnMessage.setMessage("Error putting value into field " + message.getEndpoint() + ": " + ex.getMessage());
+			returnMessage.setMessage("Error putting value into field " + message.getEndpoint() + ": " + e.getMessage());
 		}
 
 		if (pvaChannel != null) {
 			pvaChannel.destroy();
 		}
 
-        return returnMessage;
+		return returnMessage;
 	}
 
 	private MalcolmMessage sendCallMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
@@ -332,48 +313,51 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 			PVStructure methodStructure = pvRequest.getStructureField("method");
 			PVStructure parametersStructure = pvRequest.getStructureField("parameters");
 
-			pvaChannel = pvaClient.createChannel(device.getName(),"pva");
+			pvaChannel = pvaClient.createChannel(device.getName(), "pva");
 			pvaChannel.issueConnect();
-	        Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-	        if(!status.isOK()) {
-			String errMEssage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": " + status.getMessage() + ")";
-			throw new Exception(errMEssage);
-	        }
+			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
+			if (!status.isOK()) {
+				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
+						+ status.getMessage() + ")";
+				throw new MalcolmDeviceException(errMessage);
+			}
 
 			logger.debug("Call method = \n{}\nEND", methodStructure);
-	        PvaClientRPC rpc = pvaChannel.createRPC(methodStructure);
-	        rpc.issueConnect();
-	        status = rpc.waitConnect();
-	        if(!status.isOK()) {
-			String errMEssage = "CreateRPC failed for '" + message.getMethod() + "' (" + status.getType() + ": " + status.getMessage() + ")";
-			throw new Exception(errMEssage);
-		}
+			PvaClientRPC rpc = pvaChannel.createRPC(methodStructure);
+			rpc.issueConnect();
+			status = rpc.waitConnect();
+
+			if (!status.isOK()) {
+				String errMessage = "CreateRPC failed for '" + message.getMethod() + "' (" + status.getType() + ": "
+						+ status.getMessage() + ")";
+				throw new MalcolmDeviceException(errMessage);
+			}
 			logger.debug("Call param = \n{}\nEND", parametersStructure);
-	        pvResult = rpc.request(parametersStructure);
+			pvResult = rpc.request(parametersStructure);
 			logger.debug("Call response = \n{}\nEND", pvResult);
 			returnMessage = mapper.convertCallPVStructureToMalcolmMessage(pvResult, message);
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-			ex.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error sending call to {} to malcolm with argument {}",
+					message.getMethod(), message.getArguments(), e);
 			returnMessage.setType(Type.ERROR);
-			returnMessage.setMessage(ex.getMessage());
+			returnMessage.setMessage(e.getMessage());
 		}
 
 		if (pvaChannel != null) {
 			pvaChannel.destroy();
 		}
 
-        return returnMessage;
+		return returnMessage;
 	}
 
 	@Override
 	public MessageGenerator<MalcolmMessage> createDeviceConnection(IMalcolmDevice<?> device) throws MalcolmDeviceException {
-		return (MessageGenerator<MalcolmMessage>) new EpicsV4MalcolmMessageGenerator(device, this);
+		return new EpicsV4MalcolmMessageGenerator(device, this);
 	}
 
 	@Override
 	public MessageGenerator<MalcolmMessage> createConnection() {
-		return (MessageGenerator<MalcolmMessage>) new EpicsV4MalcolmMessageGenerator(this);
+		return new EpicsV4MalcolmMessageGenerator(this);
 	}
 
 	class EpicsV4ClientMonitorRequester implements PvaClientMonitorRequester, PvaClientUnlistenRequester {
@@ -409,7 +393,7 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 		}
 	}
 
-	class StateChangeRequester implements PvaClientChannelStateChangeRequester {
+	private static class StateChangeRequester implements PvaClientChannelStateChangeRequester {
 		private IMalcolmListener<Boolean> listener;
 
 		public StateChangeRequester(IMalcolmListener<Boolean> listener) {
@@ -420,5 +404,6 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 		public void channelStateChange(PvaClientChannel channel, boolean isConnected) {
 			listener.eventPerformed(new MalcolmEvent<Boolean>(isConnected));
 		}
-    }
+	}
+
 }
