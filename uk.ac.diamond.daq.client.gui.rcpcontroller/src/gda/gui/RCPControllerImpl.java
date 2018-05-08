@@ -20,6 +20,7 @@ package gda.gui;
 
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Implementation of RCPController to run on the server.
@@ -33,6 +34,7 @@ import gda.observable.ObservableComponent;
  *		rcpController.openView("gda.rcp.mx.views.AlignmentPlot")
  *
  */
+@ServiceInterface(RCPController.class)
 public class RCPControllerImpl implements RCPController {
 
 	ObservableComponent obs = new ObservableComponent();
