@@ -22,9 +22,12 @@ import static java.util.Objects.requireNonNull;
 import static org.jline.keymap.KeyMap.alt;
 import static org.jline.keymap.KeyMap.ctrl;
 import static org.jline.reader.LineReader.ACCEPT_LINE;
+import static org.jline.reader.LineReader.BACKWARD_CHAR;
 import static org.jline.reader.LineReader.DOWN_HISTORY;
 import static org.jline.reader.LineReader.DOWN_LINE;
+import static org.jline.reader.LineReader.DOWN_LINE_OR_SEARCH;
 import static org.jline.reader.LineReader.ERRORS;
+import static org.jline.reader.LineReader.FORWARD_CHAR;
 import static org.jline.reader.LineReader.HISTORY_FILE;
 import static org.jline.reader.LineReader.KILL_WHOLE_LINE;
 import static org.jline.reader.LineReader.LINE_OFFSET;
@@ -32,6 +35,7 @@ import static org.jline.reader.LineReader.MENU_COMPLETE;
 import static org.jline.reader.LineReader.SECONDARY_PROMPT_PATTERN;
 import static org.jline.reader.LineReader.UP_HISTORY;
 import static org.jline.reader.LineReader.UP_LINE;
+import static org.jline.reader.LineReader.UP_LINE_OR_SEARCH;
 import static org.jline.reader.LineReader.WORDCHARS;
 import static org.jline.reader.LineReader.YANK;
 import static org.jline.utils.AttributedString.stripAnsi;
@@ -45,6 +49,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -59,6 +64,8 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.Reference;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.Widget;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.slf4j.Logger;
@@ -135,7 +142,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	/** The terminal to provide direct access to the user terminal */
 	private final Terminal terminal;
 	/** The terminal reader used to interact with the user */
-	private final LineReader read;
+	private final LineReaderImpl read;
 	/** InputStream that reads input through a JlineLineReader */
 	private final InputStream rawInput;
 	/** The unique ID of this shell */
@@ -156,7 +163,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		File historyFile = new File(gdaVar, JYTHON_SERVER_HISTORY_FILE);
 		String theme = env.getOrDefault(THEME_ENVIRONMENT_VARIABLE, DEFAULT_THEME);
 		colour = theme != null && !theme.isEmpty();
-		read = LineReaderBuilder.builder()
+		read = (LineReaderImpl) LineReaderBuilder.builder()
 				.terminal(term)
 				.appName("GDA")
 				.completer(new GdaJythonCompleter())
@@ -256,6 +263,38 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt(ctrl('M')));
 		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt('\n'));
 		read.getWidgets().put(ACCEPT_BUFFER, this::acceptBuffer);
+		addExecuteMessageChecks();
+	}
+
+	/** Automatically show execute prompt if needed when the buffer is changed. */
+	private void addExecuteMessageChecks() {
+		addExecuteCheck(FORWARD_CHAR);
+		addExecuteCheck(BACKWARD_CHAR);
+		addExecuteCheck(UP_LINE_OR_SEARCH);
+		addExecuteCheck(DOWN_LINE_OR_SEARCH);
+		addExecuteCheck(MOVE_LINE_DOWN);
+		addExecuteCheck(MOVE_LINE_UP);
+		addExecuteCheck(UP_HISTORY);
+		addExecuteCheck(DOWN_HISTORY);
+	}
+
+	/** Wrap the referenced widget to update the accept-line prompt after execution */
+	private void addExecuteCheck(String reference) {
+		Optional<Widget> current = Optional.ofNullable(read.getWidgets().get(reference));
+		read.getWidgets().put(reference, () -> {
+			return current
+					.map(Widget::apply)
+					.map(r -> {updateAcceptLinePrompt(); return r;}) // a bit of unpleasantness to avoid storing temporary result
+					.orElse(true);
+		});
+	}
+
+	/** Show a prompt on the right of the terminal to indicate when alt-enter is required to submit a multiline command */
+	private void updateAcceptLinePrompt() {
+		int cursor = read.getBuffer().cursor();
+		int length = read.getBuffer().length();
+		String msg = cursor == length ? "" : "Alt-Enter: Execute   ";
+		read.setRightPrompt("\033[1;31m" + msg + "");
 	}
 
 	/**
@@ -269,6 +308,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private boolean acceptBuffer() {
 		try {
 			logger.trace("Accepting full buffer");
+			read.setRightPrompt("");
 			read.getBuffer().cursor(read.getBuffer().length());
 			read.callWidget(ACCEPT_LINE);
 			return true;
