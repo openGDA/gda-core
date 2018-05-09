@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.eclipse.core.runtime.content.IContentDescriber;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -56,6 +57,12 @@ public class XasScanParametersTest {
 		energy.setName("energy");
 		testFactory.addFindable(energy);
 		Finder.getInstance().addFactory(testFactory);
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	@Test

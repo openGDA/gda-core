@@ -34,6 +34,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -396,6 +397,12 @@ public class ScansSetupUsingXmlTest {
 		setupScanFactory();
 		setupBeansFactory();
 		setupDatawriterConfig();
+	}
+
+	@After
+	public void tearDown() {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	/**

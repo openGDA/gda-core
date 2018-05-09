@@ -21,6 +21,7 @@ package uk.ac.gda.server.exafs.scan.preparers;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -62,6 +63,11 @@ public class OutputPreparerTest {
 		Mockito.when(jythonserverfacade.getFromJythonNamespace("mocked_sxcryo_scannable")).thenReturn(mocked_sxcryo_scannable);
 	}
 
+	@After
+	public void tearDown() {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
+	}
 
 	@Test
 	public void testNXMetaDataProviderUsage(){

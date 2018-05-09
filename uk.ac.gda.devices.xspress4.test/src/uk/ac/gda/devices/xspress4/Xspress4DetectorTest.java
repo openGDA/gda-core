@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.dataset.IDataset;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -79,6 +80,12 @@ public class Xspress4DetectorTest {
 		setupLocalProperties();
 		setupMotor();
 		setupDetectorObjects();
+	}
+
+	@After
+	public void tearDown() {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	private void setupDetectorObjects() throws FactoryException {
