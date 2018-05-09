@@ -488,11 +488,10 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener {
 
 	@Override
 	public void initializationCompleted() throws InterruptedException {
-		// initialse Profile choices
-		String[] profiles = getProfiles();
-		for (int i = 0; i < profiles.length; i++) {
-			if (profiles[i] != null || profiles[i] != "") {
-				this.profiles.add(profiles[i]);
+		// initialise Profile choices
+		for (String profileName : getProfiles()) {
+			if (profileName != null && !profileName.isEmpty()) {
+				this.profiles.add(profileName);
 			}
 		}
 		// initialise state variables
