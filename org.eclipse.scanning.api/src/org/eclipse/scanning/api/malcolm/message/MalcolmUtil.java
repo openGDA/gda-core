@@ -21,6 +21,14 @@ import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 
+/**
+ * TODO: try to simplify the method in this class, or even remove them.
+ * For example, MalcolmDevice.getDeviceState() calls getState with the malcolm message it
+ * received after calling GET with the endpoint 'state'. This check three possibilities for how
+ * the MalcolmMessage received might contain the state in its value field:
+ *    directly, as a ChoiceAttribute or in a Map. In reality, it will be encoded in one of these
+ *    ways in this case, and always the same one.
+ */
 public class MalcolmUtil {
 
 	/**

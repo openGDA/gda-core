@@ -63,6 +63,13 @@ import org.eclipse.scanning.api.scan.ScanningException;
 public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IMalcolmEventPublisher, ILatchableDevice, IAttributableDevice, IValidator<T> {
 
 	/**
+	 * Initializes the connection to the actual malcolm device. This methods must be called before
+	 * the malcolm device can be used.
+	 * @throws MalcolmDeviceException if the malcolm device could not be initialized
+	 */
+	public void initialize() throws MalcolmDeviceException;
+
+	/**
 	 * Attempts to determine if the device is locked doing something like a configure or a run.
 	 *
 	 * @return true if not in locked state, otherwise false.
@@ -92,4 +99,5 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IMalcolmEven
 	 * Get the directory where malcolm will write its h5 files to.
 	 */
 	public String getFileDir();
+
 }

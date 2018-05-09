@@ -68,6 +68,8 @@ public interface IMalcolmConnection {
 
 	/**
 	 * Listens to connection state changes on the device, notifying the specified listener of any change.
+	 * This method blocks with no timeout until the connection is made, therefore this method should be
+	 * called in a different thread.
 	 *
 	 * @param device the device to listen to
 	 * @param listener the listener to be notified of changes

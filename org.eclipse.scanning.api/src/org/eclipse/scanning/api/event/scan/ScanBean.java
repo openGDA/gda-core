@@ -138,6 +138,24 @@ public final class ScanBean extends StatusBean {
 		this.deviceState = state;
 	}
 
+	public ScanBean(ScanBean scanBean) {
+		merge(scanBean);
+	}
+
+	public void merge(ScanBean scanBean) {
+		super.merge(scanBean);
+		this.scanRequest = scanBean.scanRequest;
+		this.deviceName = scanBean.deviceName;
+		this.beamline = scanBean.beamline;
+		this.point = scanBean.point;
+		this.size = scanBean.size;
+		this.position = scanBean.position;
+		this.deviceState = scanBean.deviceState;
+		this.previousDeviceState = scanBean.previousDeviceState;
+		this.filePath = scanBean.filePath;
+		this.datasetPath = scanBean.datasetPath;
+		this.scanNumber = scanBean.scanNumber;
+	}
 
 	public String getFilePath() {
 		return filePath;

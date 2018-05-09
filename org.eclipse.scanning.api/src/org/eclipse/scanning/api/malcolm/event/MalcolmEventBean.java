@@ -202,8 +202,9 @@ public final class MalcolmEventBean {
 	@Override
 	public String toString() {
 		return "MalcolmEventBean [filePath=" + filePath + ", deviceName="
-				+ deviceName + ", beanline=" + beamline + ", percentComplete="
+				+ deviceName + ", beamline=" + beamline + ", percentComplete="
 				+ percentComplete + ", message=" + message + ", state=" + deviceState
+				+ ", previousState=" + previousState
 				+ ", datasetPath=" + datasetPath + ", oldShape="
 				+ Arrays.toString(oldShape) + ", newShape="
 				+ Arrays.toString(newShape) + "]";

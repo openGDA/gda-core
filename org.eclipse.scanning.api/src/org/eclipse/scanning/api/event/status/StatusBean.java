@@ -75,17 +75,18 @@ public class StatusBean extends IdBean {
 	 */
 	public void merge(StatusBean with) {
 		super.merge(with);
+		this.previousStatus  = with.previousStatus;
 		this.status          = with.status;
 		this.name            = with.name;
 		this.percentComplete = with.percentComplete;
-        this.userName        = with.userName;
-        this.hostName        = with.hostName;
-        this.submissionTime  = with.submissionTime;
-        this.message         = with.message;
-        this.runDirectory    = with.runDirectory;
-        this.properties      = with.properties;
-        this.startTime       = with.startTime;
-        this.estimatedTime   = with.estimatedTime;
+		this.userName = with.userName;
+		this.hostName = with.hostName;
+		this.submissionTime = with.submissionTime;
+		this.message = with.message;
+		this.runDirectory = with.runDirectory;
+		this.properties = with.properties;
+		this.startTime = with.startTime;
+		this.estimatedTime = with.estimatedTime;
 	}
 
 

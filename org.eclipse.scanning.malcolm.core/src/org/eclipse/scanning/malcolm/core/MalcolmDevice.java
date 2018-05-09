@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PointStart;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -60,19 +63,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice<M> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MalcolmDevice.class);
-
-	// Constants
-	private static final String STATE_ENDPOINT = "state";
-	private static final String HEALTH_ENDPOINT = "health";
-	private static final String CURRENT_STEP_ENDPOINT = "completedSteps";
-	private static final String FILE_EXTENSION_H5 = "h5";
-	private static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm Device Connection: ";
-
-	// Frequencies and Timeouts
-	// broadcast every 250 milliseconds
-	private static final long POSITION_COMPLETE_FREQ = Long.getLong("org.eclipse.scanning.malcolm.core.positionCompleteFrequency", 250);
-
+	/**
+	 * An enumeration of timeout property names and default values for different operations.
+	 */
 	private enum Timeout {
 		STANDARD("org.eclipse.scanning.malcolm.core.timeout", Duration.ofSeconds(5)),
 		CONFIG("org.eclipse.scanning.malcolm.core.configureTimeout", Duration.ofMinutes(10)),
@@ -89,6 +82,96 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
+	/**
+	 * A listener to the whether we are connected to malcolm.
+	 */
+	private class ConnectionStateListener implements IMalcolmListener<Boolean> {
+
+		private final ExecutorService executor;
+
+		public ConnectionStateListener() {
+			executor = Executors.newSingleThreadExecutor(r -> {
+				Thread thread = Executors.defaultThreadFactory().newThread(r);
+				thread.setName("Malcolm Connection Thread " + getName());
+				thread.setDaemon(true);
+				return thread;
+			});
+		}
+
+		public void subscribe() {
+			executor.submit(this::doSubscribe);
+		}
+
+		private void doSubscribe() {
+			try {
+				// Subscribe to state change events. This is done is a separate thread as this method
+				// blocks with no timeout until a connection is made
+				subscribeToConnectionStateChange(this);
+			} catch (MalcolmDeviceException e) {
+				logger.error("Could not subsribe to malcolm state changes for device ''{}''", getName());
+			}
+		}
+
+		/**
+		 * Handle a change in the connection state of this device. Event is sent by the communications layer.
+		 *
+		 * @param event
+		 *            containing <code>true</code> if the device has changed to being connected, <code>false</code> if
+		 *            it has been disconnected
+		 */
+		@Override
+		public void eventPerformed(MalcolmEvent<Boolean> event) {
+			final boolean connected = event.getBean();
+			try {
+				setAlive(connected);
+				if (connected) {
+					logger.info("Malcolm Device '{}' connection state changed to connected", getName());
+					executor.submit(this::connectedToMalcolm);
+				} else {
+					logger.warn("Malcolm Device '{}' connection state changed to not connected", getName());
+				}
+			} catch (Exception ne) {
+				logger.error("Problem dispatching message!", ne);
+			}
+		}
+
+		private void connectedToMalcolm() {
+			try {
+				if (!succesfullyInitialised) {
+					// if we failed to initialize on startup, try again now we have a connection
+					initialize();
+				}
+
+				logger.info("Connected to ''{}''. Current state: {}", getName(), getDeviceState());
+			} catch (MalcolmDeviceException ex) {
+				logger.warn("Unable to initialise/getDeviceState for device '{}' on reconnection", getName(), ex);
+			}
+		}
+
+		public void dispose() {
+			// TODO IMalcolmConnection currently offers no unsubscribeFromConnectionStateChange method
+			executor.shutdown();
+		}
+
+	}
+
+
+
+
+	private static final Logger logger = LoggerFactory.getLogger(MalcolmDevice.class);
+
+	// Constants
+	public static final String STATE_ENDPOINT = "state";
+	public static final String HEALTH_ENDPOINT = "health";
+	public static final String COMPLETED_STEPS_ENDPOINT = "completedSteps";
+	private static final String FILE_EXTENSION_H5 = "h5";
+	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm Device Connection: ";
+
+	// Frequencies and Timeouts
+	// broadcast every 250 milliseconds
+	public static final long POSITION_COMPLETE_INTERVAL = Long.getLong("org.eclipse.scanning.malcolm.core.positionCompleteInterval", 250);
+
+
 	// Listeners to malcolm endpoints
 	private final IMalcolmListener<MalcolmMessage> stateChangeListener = this::sendScanStateChange;
 	private final IMalcolmListener<MalcolmMessage> scanEventListener = this::sendScanEvent;
@@ -97,7 +180,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	private MalcolmMessage stateSubscribeMessage;
 	private MalcolmMessage scanSubscribeMessage;
 
-	// Our connection to the outside.
+	// Our connection to the outside. // TODO DAQ-1410 remove this publisher, only AcqusitionDevice should change the ScanBean
 	private IPublisher<ScanBean> publisher;
 
 	// Data should be in model?
@@ -106,9 +189,10 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	// Local data.
 	private long lastBroadcastTime = System.currentTimeMillis();
-	private int lastUpdateCount = 0;
+	private int lastUpdateCount = -1; // points are 0-indexed, so the first point has index 0
 	private boolean succesfullyInitialised = false;
-	private boolean subscribedToStateChange = false;
+
+	private ConnectionStateListener connectionStateListener;
 
 	public MalcolmDevice() {
 		super(Services.getConnectorService(), Services.getRunnableDeviceService());
@@ -123,52 +207,27 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	@Override
-	public void register() {
-		try {
-			super.register();
-			initialize();
-		} catch (MalcolmDeviceException e) {
-			logger.error("Could not initialize malcolm device " + getName(), e);
-		}
-	}
-
 	public void initialize() throws MalcolmDeviceException {
 		logger.debug("initialize() called");
-		try {
-			setAlive(false);
-			final DeviceState currentState = getDeviceState();
-			logger.debug("Connecting to ''{}''. Current state: {}", getName(), currentState);
 
-			stateSubscribeMessage = createSubscribeMessage(STATE_ENDPOINT);
-			subscribe(stateSubscribeMessage, stateChangeListener);
+		setAlive(false);
+		final DeviceState currentState = getDeviceState();
+		logger.debug("Connecting to ''{}''. Current state: {}", getName(), currentState);
 
-			scanSubscribeMessage  = createSubscribeMessage(CURRENT_STEP_ENDPOINT);
-			subscribe(scanSubscribeMessage, scanEventListener);
-
-			succesfullyInitialised = true;
-			setAlive(true);
-
-		} finally {
-			if (!subscribedToStateChange) {
-				subscribedToStateChange = true;
-
-				final Runnable subscribeTask = () -> {
-					try {
-						subscribeToConnectionStateChange(
-								e -> handleConnectionStateChange(e.getBean()));
-						handleConnectionStateChange(true);
-						setAlive(true);
-					} catch (MalcolmDeviceException ex) {
-						logger.error("Unable to subsribe to state change on '" + getName() + "'", ex);
-					}
-				};
-
-				final Thread subscriberThread = new Thread(subscribeTask);
-				subscriberThread.setDaemon(true);
-				subscriberThread.start();
-			}
+		if (connectionStateListener == null) {
+			connectionStateListener = new ConnectionStateListener();
+			connectionStateListener.subscribe();
 		}
 
+		stateSubscribeMessage = createSubscribeMessage(STATE_ENDPOINT);
+		subscribe(stateSubscribeMessage, stateChangeListener);
+
+		scanSubscribeMessage  = createSubscribeMessage(COMPLETED_STEPS_ENDPOINT);
+		subscribe(scanSubscribeMessage, scanEventListener);
+
+		setAlive(true);
+		succesfullyInitialised = true;
+		logger.debug("Malcolm device ''{}'' successfully initialized", getName());
 	}
 
 	/**
@@ -193,6 +252,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			return;
 		}
 
+		// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
 		ScanBean bean = getBean();
 		bean.setDeviceName(getName());
 		bean.setPreviousDeviceState(bean.getDeviceState());
@@ -204,6 +264,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		boolean newPoint = false;
 		Object value = msg.getValue();
 		if (value instanceof Map) {
+			// TODO: it's likely that its always the same one of these cases.
 			point = (Integer)((Map<?,?>)value).get("value");
 			bean.setPoint(point);
 			newPoint = true;
@@ -221,6 +282,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 			IPosition scanPosition = null;
 			for (int i = 0; i < positionDiff; i++) {
+				// TODO DAQ-1410 this is quite a bit of work to iterate through to the correct
+				// position, when the only thing that AcqusitionDevice (the only IPositionListener to this class)
+				// uses is the stepIndex, where we actually replace the value in the position with the value of 'point'
 				if (scanPositionIterator.hasNext()) {
 					scanPosition = scanPositionIterator.next();
 				}
@@ -229,7 +293,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			lastUpdateCount = point;
 
 			// fire position complete event to listeners
-			if (scanPosition != null && currentTime - lastBroadcastTime >= POSITION_COMPLETE_FREQ) {
+			if (scanPosition != null && currentTime - lastBroadcastTime >= POSITION_COMPLETE_INTERVAL) {
 				scanPosition.setStepIndex(point);
 				try {
 					logger.debug("Firing position complete: {}", scanPosition);
@@ -243,6 +307,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 
 		// publish the scan bean
+		// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
 		if (publisher != null) {
 			try {
 				logger.debug("Publishing updated scan bean: {}", bean);
@@ -260,6 +325,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			DeviceState newState = MalcolmUtil.getState(msg, false);
 
 			// Send scan state changed
+			// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
 			ScanBean bean = getBean();
 			bean.setDeviceName(getName());
 			bean.setPreviousDeviceState(bean.getDeviceState());
@@ -285,35 +351,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-	/**
-	 * Handle a change in the connection state of this device.
-	 * Event is sent by the communications layer.
-	 * @param connected true if the device has changed to being connected
-	 */
-	private void handleConnectionStateChange(boolean connected) {
-		try {
-			setAlive(connected);
-			if (connected) {
-				logger.info("Malcolm Device '{}' connection state changed to connected", getName());
-				new Thread(() -> {
-					try {
-						if (!succesfullyInitialised) {
-							initialize();
-						} else {
-							getDeviceState();
-						}
-					} catch (MalcolmDeviceException ex) {
-						logger.warn("Unable to initialise/getDeviceState for device '{}' on reconnection", getName(), ex);
-					}
-				}).start();
-			} else {
-				logger.warn("Malcolm Device '{}' connection state changed to not connected", getName());
-			}
-		} catch (Exception ne) {
-			logger.error("Problem dispatching message!", ne);
-		}
-	}
-
 	@Override
 	public DeviceState getDeviceState() throws MalcolmDeviceException {
 		try {
@@ -322,7 +359,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			if (reply.getType()==Type.ERROR) {
 				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 			}
-			return MalcolmUtil.getState(reply);
+			return MalcolmUtil.getState(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
 
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
@@ -340,7 +377,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 			}
 
-			return MalcolmUtil.getHealth(reply);
+			return MalcolmUtil.getHealth(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
 		} catch (Exception ne) {
@@ -379,6 +416,10 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			throw new ValidationException(mde);
 		}
 
+		// TODO: reply.getRawValue is probably the EpicsMalcolmModel. It may be modified, e.g. the
+		// exposure time may have been changed by malcolm to be a multiple of the clock speed. We
+		// should take the updated duration time and update it in the malcolm model and then
+		// return that. See JIRA ticket DAQ-1437
 		return reply.getRawValue();
 	}
 
@@ -411,6 +452,13 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		lastUpdateCount = 0;
 	}
 
+	/**
+	 * Create the {@link EpicsMalcolmModel} passed to the actual malcolm device. This is created from both the
+	 * {@link IMalcolmModel} that this {@link MalcolmDevice} has been configured with and information about
+	 * the scan, e.g. the scan path defined by the point generator, that have been set on this object.
+	 * @param model
+	 * @return
+	 */
 	private EpicsMalcolmModel createEpicsMalcolmModel(M model) {
 		double exposureTime = model.getExposureTime();
 
@@ -440,8 +488,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public void seek(int stepNumber) throws MalcolmDeviceException {
 		logger.debug("seek() called with step number {}", stepNumber);
-		LinkedHashMap<String, Integer> seekParameters = new LinkedHashMap<>();
-		seekParameters.put(CURRENT_STEP_ENDPOINT, stepNumber);
+		LinkedHashMap<String, Integer> seekParameters = new LinkedHashMap<>(); // TODO why is this a linked hash map
+		seekParameters.put(COMPLETED_STEPS_ENDPOINT, stepNumber);
 		final MalcolmMessage msg   = createCallMessage(MalcolmMethod.PAUSE, seekParameters);
 		final MalcolmMessage reply = wrap(()->send(msg, Timeout.CONFIG.toMillis()));
 		if (reply.getType()==Type.ERROR) {
@@ -502,6 +550,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 		if (scanSubscribeMessage != null) {
 			unsubscribe(scanSubscribeMessage, scanEventListener);
+		}
+
+		if (connectionStateListener != null) {
+			connectionStateListener.dispose();
+			connectionStateListener = null;
 		}
 
 		setAlive(false);
@@ -622,11 +675,38 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		return attribute.getValue();
 	}
 
+	/**
+	 * Instances of {@link EpicsMalcolmModel} are used to configure the actual malcolm device.
+	 * This class should be distinguished from the {@link IMalcolmModel} that this
+	 * class is configured with. The majority of the information contained in
+	 * an {@link EpicsMalcolmModel} describes the scan, e.g. the scan path
+	 * defined by the {@link IPointGenerator} and the directory to write to.
+	 */
 	public static final class EpicsMalcolmModel {
 
+		/**
+		 * A point generator describing the scan path.
+		 */
 		private final IPointGenerator<?> generator;
+
+		/**
+		 * The axes of the scan that malcolm should control. Can be <code>null</code>
+		 * in which case malcolm will control all the axes that it knows about.
+		 */
 		private final List<String> axesToMove;
+
+		/**
+		 * The directory in which malcolm should write its files for the scan,
+		 * typically something like e.g. {@code /dls/ixx/data/2018/cm12345-1/ixx-123456/}
+		 * where the final segment identifies the scan.
+		 */
 		private final String fileDir;
+
+		/**
+		 * A file template for the files that malcolm creates, e.g.
+		 * {@code ixx-123456-%s.h5}, where '%s' is the placeholder for malcolm to
+		 * insert the device name, e.g. {@code PANDABOX}.
+		 */
 		private final String fileTemplate;
 
 		public EpicsMalcolmModel(String fileDir, String fileTemplate,
@@ -651,6 +731,49 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		public IPointGenerator<?> getGenerator() {
 			return generator;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((axesToMove == null) ? 0 : axesToMove.hashCode());
+			result = prime * result + ((fileDir == null) ? 0 : fileDir.hashCode());
+			result = prime * result + ((fileTemplate == null) ? 0 : fileTemplate.hashCode());
+			result = prime * result + ((generator == null) ? 0 : generator.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			EpicsMalcolmModel other = (EpicsMalcolmModel) obj;
+			if (axesToMove == null) {
+				if (other.axesToMove != null)
+					return false;
+			} else if (!axesToMove.equals(other.axesToMove))
+				return false;
+			if (fileDir == null) {
+				if (other.fileDir != null)
+					return false;
+			} else if (!fileDir.equals(other.fileDir))
+				return false;
+			if (fileTemplate == null) {
+				if (other.fileTemplate != null)
+					return false;
+			} else if (!fileTemplate.equals(other.fileTemplate))
+				return false;
+			if (generator == null) {
+				if (other.generator != null)
+					return false;
+			} else if (!generator.equals(other.generator))
+				return false;
+			return true;
 		}
 
 	}

@@ -80,6 +80,21 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	}
 
 	@Override
+	public void register() {
+		try {
+			super.register();
+			initialize();
+		} catch (MalcolmDeviceException e) {
+			logger.error("Could not initialize malcolm device " + getName(), e);
+		}
+	}
+
+	@Override
+	public void initialize() throws MalcolmDeviceException {
+		// does nothing by default, subclasses may override
+	}
+
+	@Override
 	@PreConfigure
 	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
 		this.pointGenerator = pointGenerator;
@@ -235,7 +250,8 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	private MalcolmMessage call(MalcolmMethod method) throws MalcolmDeviceException {
 		final MalcolmMessage msg = messageGenerator.createCallMessage(method);
-		return malcolmConnection.send(this, msg);
+		MalcolmMessage reply = malcolmConnection.send(this, msg);
+		return reply;
 	}
 
 	/**

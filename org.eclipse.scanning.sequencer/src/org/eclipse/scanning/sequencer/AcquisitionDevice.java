@@ -153,10 +153,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 		setDeviceState(DeviceState.CONFIGURING);
 		setModel(model);
-		setBean(model.getBean() != null ? model.getBean() : new ScanBean());
+		setBean(model.getBean() != null ? model.getBean() : new ScanBean()); // TODO: this overwrite the bean just created with setDeviceState. Fix this
 		getBean().setPreviousStatus(getBean().getStatus());
 		getBean().setStatus(Status.QUEUED);
 
+		// TODO this sets the DeviceState on the bean to Ready. Fix this. Should still be configuring
 		initializeDetectorsWithScanBean(model);
 
 		// set the scannables on the scan model if not already set
@@ -249,6 +250,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			for (IRunnableDevice<?> device : model.getDetectors()) {
 				if (device instanceof AbstractRunnableDevice<?>) {
 					// TODO the same bean should not be shared between detectors
+					// TODO rework this as part of DAQ-1410
 					AbstractRunnableDevice<?> adevice = (AbstractRunnableDevice<?>)device;
 					DeviceState deviceState = adevice.getDeviceState();
 					ScanBean bean = getBean();
@@ -371,7 +373,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} finally {
 			close(errorFound, pos);
 			logger.debug("Scan completed with status {}", getBean().getStatus());
-			RunnableDeviceServiceImpl.setCurrentScanningDevice(null);
+			RunnableDeviceServiceImpl.setCurrentScanningDevice(null); // TODO fix this to not use a static method
 		}
 	}
 
@@ -417,7 +419,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			model.getDetectors().stream().
 				filter(device -> device.getRole() == DeviceRole.MALCOLM).
 				map(AbstractRunnableDevice.class::cast).
-				forEach(dev -> dev.addPositionListener(this));
+				forEach(dev -> dev.addPositionListener(this)); // TODO: use a method reference, instead of making MalcolmDevice implement IPositionListener
 		}
 	}
 

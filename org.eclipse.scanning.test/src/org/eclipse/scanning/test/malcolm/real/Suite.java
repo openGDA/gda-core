@@ -16,7 +16,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(org.junit.runners.Suite.class)
 @SuiteClasses({
-	ExampleMalcolmDeviceTest.class
+	ExampleMalcolmDeviceTest.class,
+	MalcolmDeviceTest.class,
+	MalcolmDeviceEventTest.class,
+	MalcolmDeviceScanTest.class
 })
 public class Suite {
 
