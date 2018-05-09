@@ -229,10 +229,9 @@ public class Spin extends ScannableBase implements ISpin, InitializationListener
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = getPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				positions.add(position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				positions.add(position);
 			}
 		}
 

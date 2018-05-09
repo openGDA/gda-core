@@ -128,11 +128,9 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		// borrowed from EpicsPneumatic
-		String[] position = getPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
 			}
 		}
 	}

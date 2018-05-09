@@ -681,12 +681,10 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 
 	@Override
 	public void initializationCompleted() {
-
 		try {
-			String[] position = getReadRates();
-			for (int i = 0; i < position.length; i++) {
-				if (position[i] != null || position[i] != "") {
-					readUpdateRates.add(position[i]);
+			for (String readRate : getReadRates()) {
+				if (readRate != null && !readRate.isEmpty()) {
+					readUpdateRates.add(readRate);
 				}
 			}
 		} catch (DeviceException e) {

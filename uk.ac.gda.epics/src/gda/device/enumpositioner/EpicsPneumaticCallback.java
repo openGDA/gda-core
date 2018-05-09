@@ -317,18 +317,16 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements Initia
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = getPositions();
-		String[] statusposition = getStatusPositions();
 		clearPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
 			}
 		}
 		this.statuspositions.clear();
-		for (int i = 0; i < statusposition.length; i++) {
-			if (statusposition[i] != null || statusposition[i] != "") {
-				this.statuspositions.add(statusposition[i]);
+		for (String statusPosition : getStatusPositions()) {
+			if (statusPosition != null && !statusPosition.isEmpty()) {
+				this.statuspositions.add(statusPosition);
 			}
 		}
 		logger.info("{} is initialised. Control positions available: {}, Status positions available: {}", getName(), getPositionsList(), statuspositions);

@@ -527,21 +527,22 @@ public class CryoController extends DeviceBase implements InitializationListener
 
 	@Override
 	public void initializationCompleted() {
-		String[] position;
 		try {
-			position = getPhases();
-			for (int i = 0; i < position.length; i++)
-				if (position[i] != null || position[i] != "")
-					phases.add(position[i]);
+			for (String phaseName : getPhases()) {
+				if (phaseName != null && !phaseName.isEmpty()) {
+					phases.add(phaseName);
+				}
+			}
 		} catch (DeviceException e) {
 			logger.error("failed to initialise phase IDs", e);
 			e.printStackTrace();
 		}
 		try {
-			position = getRunmodes();
-			for (int i = 0; i < position.length; i++)
-				if (position[i] != null || position[i] != "")
-					runmodes.add(position[i]);
+			for (String runMode : getRunmodes()) {
+				if (runMode != null && !runMode.isEmpty()) {
+					runmodes.add(runMode);
+				}
+			}
 		} catch (DeviceException e) {
 			logger.error("failed to initialise run mode labels.", e);
 			e.printStackTrace();

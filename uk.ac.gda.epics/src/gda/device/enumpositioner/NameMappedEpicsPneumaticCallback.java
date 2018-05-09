@@ -68,16 +68,14 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = super.getPositions();
-		String[] statusposition = super.getStatusPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
+		for (String position : super.getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
 			}
 		}
-		for (int i = 0; i < statusposition.length; i++) {
-			if (statusposition[i] != null || statusposition[i] != "") {
-				this.statuspositions.add(statusposition[i]);
+		for (String statusPosition : super.getStatusPositions()) {
+			if (statusPosition != null && !statusPosition.isEmpty()) {
+				this.statuspositions.add(statusPosition);
 			}
 		}
 		logger.info("{} is initialised.", getName());

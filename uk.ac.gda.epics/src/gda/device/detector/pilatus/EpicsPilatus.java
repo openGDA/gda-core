@@ -282,23 +282,19 @@ public class EpicsPilatus extends DetectorBase implements
 
 	@Override
 	public void initializationCompleted() {
-		String[] mode = null;
 		try {
-			mode = getModeLabels();
-			for (int i = 0; i < mode.length; i++) {
-				if (mode[i] != null || mode[i] != "") {
-					modeNames.add(mode[i]);
+			for (String modeLabel : getModeLabels()) {
+				if (modeLabel != null && !modeLabel.isEmpty()) {
+					modeNames.add(modeLabel);
 				}
 			}
 		} catch (DeviceException e) {
 			logger.error("Problem getting mode labels", e);
 		}
-		String[] gain = null;
 		try {
-			gain = getGainLabels();
-			for (int i = 0; i < gain.length; i++) {
-				if (gain[i] != null || gain[i] != "") {
-					gainNames.add(gain[i]);
+			for (String gainLabel : getGainLabels()) {
+				if (gainLabel != null && !gainLabel.isEmpty()) {
+					gainNames.add(gainLabel);
 				}
 			}
 		} catch (DeviceException e) {

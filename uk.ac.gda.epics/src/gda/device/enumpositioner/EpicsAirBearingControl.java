@@ -138,22 +138,22 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		String[] position = getPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
-				logger.info("{} has available position: {}", getName(), position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
+				logger.info("{} has available position: {}", getName(), position);
 			}
 		}
 		currentPosition=(String)rawGetPosition();
 		logger.info("{} is initialised. Number of positions: {} ", getName(), getNumberOfPositions());
-		String[] readposition = getReadPositions();
-		for (int i = 0; i < readposition.length; i++) {
-			if (readposition[i] != null || readposition[i] != "") {
-				readpositions.add(position[i]);
-				logger.info("{} has available read position: {}", getName(), position[i]);
+
+		for (String readposition : getReadPositions()) {
+			if (readposition != null && !readposition.isEmpty()) {
+				readpositions.add(readposition);
+				logger.info("{} has available read position: {}", getName(), readposition);
 			}
 		}
+
 		targetPosition=readpositions.get(controller.cagetEnum(setChannel));
 		initialised = true;
 		logger.info("{} is initialised. Number of read positions: {} ", getName(), readpositions.size());

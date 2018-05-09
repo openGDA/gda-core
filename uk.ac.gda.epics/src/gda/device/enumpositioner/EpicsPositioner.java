@@ -333,10 +333,9 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 
 	@Override
 	public void initializationCompleted() throws DeviceException, InterruptedException  {
-		final String[] position = getPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
 			}
 		}
 

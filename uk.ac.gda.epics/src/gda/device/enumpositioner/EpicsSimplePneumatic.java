@@ -189,16 +189,14 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 
 	@Override
 	public void initializationCompleted() throws DeviceException {
-		String[] position = getPositions();
-		String[] statusposition = getControlPositions();
-		for (int i = 0; i < position.length; i++) {
-			if (position[i] != null || position[i] != "") {
-				addPosition(position[i]);
+		for (String position : getPositions()) {
+			if (position != null && !position.isEmpty()) {
+				addPosition(position);
 			}
 		}
-		for (int i = 0; i < statusposition.length; i++) {
-			if (statusposition[i] != null || statusposition[i] != "") {
-				this.statuspositions.add(statusposition[i]);
+		for (String statusPosition : getControlPositions()) {
+			if (statusPosition != null && !statusPosition.isEmpty()) {
+				this.statuspositions.add(statusPosition);
 			}
 		}
 		logger.info("{} is initialised.", getName());
