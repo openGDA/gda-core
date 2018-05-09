@@ -47,7 +47,7 @@ import gov.aps.jca.Channel;
  */
 
 public class Epics8512CounterTimer extends gda.device.detector.DetectorBase implements
-		Runnable, IObserver, InitializationListener {
+		IObserver, InitializationListener {
 	private static final Logger logger=LoggerFactory.getLogger(Epics8512CounterTimer.class);
 	private boolean dummy = false;
 	private int totalChans;
@@ -77,7 +77,8 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 	public Epics8512CounterTimer() {
 
 		// This bit needed for dummy operation
-		runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName() + " " + getName());
+		runner = new Thread(this::runCounterTimer, getClass().getName() + " " + getName());
+		runner.setDaemon(true);
 		runner.start();
 		while (!waiting) {
 			Thread.yield();
@@ -347,8 +348,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 	}
 
 	// Used in dummy mode to simulate counter timing
-	@Override
-	public void run() {
+	private void runCounterTimer() {
 		try {
 			while (runner != null) {
 				synchronized (this) {
