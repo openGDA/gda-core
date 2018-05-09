@@ -19,6 +19,7 @@
 
 package gda.jython;
 
+import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
 
 import java.io.File;
@@ -85,7 +86,6 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
-import uk.ac.diamond.daq.concurrent.Async;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -982,35 +982,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	 * Remove references to terminated threads from the lists of threads.
 	 */
 	private synchronized void clearThreads() {
-		Collection<Thread> removeFromCommandThread = new ArrayList<>();
-		for (Thread thread : this.runCommandThreads) {
-			if (thread.getState() == Thread.State.TERMINATED) {
-				removeFromCommandThread.add(thread);
-			}
-		}
-		for (Thread thread : removeFromCommandThread) {
-			this.runCommandThreads.remove(thread);
-		}
-
-		Collection<Thread> removeFromSourceThread = new ArrayList<>();
-		for (Thread thread : this.runsourceThreads) {
-			if (thread.getState() == Thread.State.TERMINATED) {
-				removeFromSourceThread.add(thread);
-			}
-		}
-		for (Thread thread : removeFromSourceThread) {
-			this.runsourceThreads.remove(thread);
-		}
-
-		Collection<Thread> removeFromEvalThread = new ArrayList<>();
-		for (Thread thread : this.evalThreads) {
-			if (thread.getState() == Thread.State.TERMINATED) {
-				removeFromEvalThread.add(thread);
-			}
-		}
-		for (Thread thread : removeFromEvalThread) {
-			this.evalThreads.remove(thread);
-		}
+		runCommandThreads.removeIf(thread -> thread.getState() == TERMINATED);
+		runsourceThreads.removeIf(thread -> thread.getState() == TERMINATED);
+		evalThreads.removeIf(thread -> thread.getState() == TERMINATED);
 	}
 
 	/**
