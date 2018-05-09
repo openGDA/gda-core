@@ -37,26 +37,15 @@ function check_running_servers_ownership {
     fi
 }
 
-# Check that all servers in the array of those belonging to the current user were launched from
-# the same deployment target as those about to be launched and from the same deployment directory,
-# using the previously set matcher.
+# Find the process ids for the processes in the current $my_servers_arr
 #
-function check_matching_server_target {
-    local alien_count=0
+function find_pids_to_kill {
     pids_to_kill=""
-    for server_proc in "${my_servers_arr[@]}"
-    do
-        if [[ -z $(grep "$1" <<< "${server_proc}") ]]; then
-            ((alien_count++))
-        fi
-        pid=$(awk '{ print $2 }' <<< $server_proc)
+    for server_proc in "${my_servers_arr[@]}"; do
+        pid=$(awk '{ print $2 }' <<< $server_proc)   # extract the second column from the process ps output
         echo "pid: ${pid}"
         pids_to_kill+=" $pid"
     done
-    if [[ "$force" == false ]] && [[ $alien_count > 0 ]]; then
-        [[ $alien_count == 1 ]] && conjugate="is" || conjugate="are"
-        log_error_to_startup_file_and_exit "$alien_count of the running GDA Servers on ($HOSTNAME) $conjugate based on a different $2 than the one you are trying to restart/stop. Please examine and deal with this as appropriate or retry with --force"
-    fi
 }
 
 # Kill the process indicated by parameter 1 then sleep for parameter 2 seconds before checking
@@ -102,9 +91,6 @@ readonly USER_WORKSPACE=$USER_WORKSPACE_PARENT/$(whoami)
 readonly ECLIPSE_RUNTIME_CONFIG_DIRNAME=$(whoami)-$SERVER_INSTALL_DIRNAME
 readonly ECLIPSE_RUNTIME_CONFIG=$ECLIPSE_RUNTIME_CONFIG_PARENT/$ECLIPSE_RUNTIME_CONFIG_DIRNAME
 
-# Add java location to the path
-module load java/gda93
-
 # Resolve the input arguments - need the ':-' as beamline gda script uses set -o nounset
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
     ARGS_IN="$SSH_ORIGINAL_COMMAND"
@@ -135,8 +121,6 @@ if [[ "$ARGS_IN" == *"--jrebel"* ]]; then
     vm_args="$vm_args -agentpath:$rebel_parent/jrebel/lib/libjrebel64.so -Drebel.remoting_plugin=true -Drebel.remoting_port=8666 -Drebel.base=$rebel_parent/.jrebel"
 fi
 
-[[ "$ARGS_IN" == *"--force"* ]] && force=true || force=false
-
 #############################
 # Start/Restart/Stop handling
 #############################
@@ -159,19 +143,19 @@ if [[ "$ARGS_IN" =~ $START_ONLY_PATTERN  ]]; then
         exit_servers_to_kill "Name, Channel and/or Log"
     fi
 
-# If "--restart" or "--stop" were specified only proceed if the GDA server and Name/Channel/Log server processes to be terminated were
-# started by the current user from the same deployment target as that from which the operation is being requested .
+# If "--restart" or "--stop" were specified only proceed if the GDA server and Name/Channel/Log
+# server processes to be terminated were started by the current user.
 #
 elif [[ "$ARGS_IN" =~ $RESTART_OR_STOP_PATTERN ]]; then
     set_target_server_matcher
     # check if same user is restarting stopping application as owner of running one whose proc details are stored in $my_servers_arr
     check_running_servers_ownership "$ALL_RUNNING_GDA_OSGI_SERVERS" "GDA"
-    # now check the main application was started from the same server build using $my_servers_arr
-    check_matching_server_target ${TARGET_SERVER_MATCHER} "target"
+    # get the pid of the main GDA process
+    find_pids_to_kill
     OSGI_SERVER_PIDS_TO_KILL=$pids_to_kill
-    # repeat above tests for Name/Channel/Log servers via my_servers_arr and checking if deployment folder matches
+    # repeat above for Name/Channel/Log servers via my_servers_arr
     check_running_servers_ownership "$ALL_RUNNING_SUBORDINATE_SERVERS" "Name, Channel and/or Log"
-    check_matching_server_target ${GDA_WORKSPACE_PARENT} "deployment"
+    find_pids_to_kill
     for pid in $OSGI_SERVER_PIDS_TO_KILL; do
         kill_with_SIGKILL_if_necessary "$pid" "7" "Shutting down"
     done
