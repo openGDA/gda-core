@@ -388,6 +388,8 @@ public class ScannableNexusWrapperScanTest {
 	@After
 	public void deleteFile() {
 		output.delete();
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	public void readLegacySpringConfig(String path) throws Exception {

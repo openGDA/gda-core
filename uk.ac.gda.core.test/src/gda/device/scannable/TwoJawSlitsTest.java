@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -115,6 +116,12 @@ public class TwoJawSlitsTest {
 		position.setHardwareUnitString("mm");
 		position.setInitialUserUnits("mm"); // we talk in mm
 		position.configure();
+	}
+
+	@After
+	public void tearDown() {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	private Motor createMotor(String name) throws MotorException {

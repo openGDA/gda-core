@@ -94,6 +94,8 @@ public class ScannableMotorTest {
 	@After
 	public void tearDown() {
 		LocalProperties.clearProperty("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits");
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	@Test
