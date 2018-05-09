@@ -260,9 +260,6 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
         set -e                                    # Reinstate on error exit.
         echo
         echo "GDA Server $msg"
-        if [[ -n "${DISPLAY:-}" ]]; then
-            stty sane                             # Stop prompt hanging after exiting Telnet.
-        fi
     else
         echo
         # When shutting down a mismatched server target version or user will result in the server stop
