@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import org.dawnsci.mapping.ui.IMapClickEvent;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
+import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -29,17 +30,18 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.JythonServerFacade;
-import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
 
 public class StageMoveHandler implements EventHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(StageMoveHandler.class);
 
-	private MappingStageInfo mappingStageInfo;
+	private IStageScanConfiguration stageConfiguration;
 
-	public void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
-		this.mappingStageInfo = mappingStageInfo;
+	public void setMappingStageConfiguration(IStageScanConfiguration stageConfiguration) {
+		this.stageConfiguration = stageConfiguration;
 	}
 
 	@Override
@@ -50,46 +52,36 @@ public class StageMoveHandler implements EventHandler {
 			final ClickEvent clickEvent = mapClickEvent.getClickEvent();
 
 			// moveTo needs to run in UI thread as it displays a dialog asking for confirmation
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					moveTo(clickEvent.getxValue(), clickEvent.getyValue());
-				}
-			});
+			PlatformUI.getWorkbench().getDisplay().asyncExec(()->moveTo(clickEvent.getxValue(), clickEvent.getyValue()));
 		}
 	}
 
-	// FIXME This should be replaced by a method using the messaging to ask the server for a move.
-	@Deprecated
 	private void moveTo(final double xLocation, final double yLocation) {
 		logger.debug("moveTo({}, {})", xLocation, yLocation);
-		// Dialog to confirm move
-		// TODO Should be able to get this via injection in e4
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
-		// create a dialog with ok and cancel buttons and a question icon
+		String fastName = stageConfiguration.getActiveFastScanAxis();
+		String slowName = stageConfiguration.getActiveSlowScanAxis();
+
+		// Dialog to confirm move
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
 		dialog.setText("Go Here?");
 		dialog.setMessage("Do you want to move the stage to:\n"
-				+ mappingStageInfo.getActiveFastScanAxis() + " = " + xLocation +"\n"
-				+ mappingStageInfo.getActiveSlowScanAxis() + " = " + yLocation);
+				+ fastName + " = " + xLocation + "\n"
+				+ slowName + " = " + yLocation);
 
-		// Open dialog and await user selection
-		int returnCode = dialog.open();
-		// If user chose to cancel return without moving
-		if (returnCode == SWT.CANCEL) return;
+		if (dialog.open() == SWT.CANCEL) return;
 
-		// Get the Jython Server facade to do the move
-		// FIXME This should be replaced by a activeMQ message to move once that is available
-		JythonServerFacade jsf = JythonServerFacade.getInstance();
+		// Do the move
+		try {
+			Scannable fastAxis = Finder.getInstance().find(fastName);
+			fastAxis.asynchronousMoveTo(xLocation);
+			Scannable slowAxis = Finder.getInstance().find(slowName);
+			slowAxis.asynchronousMoveTo(yLocation);
+		} catch (DeviceException e) {
+			logger.error("Error encountered while moving stage", e);
+		}
 
-		// Do move
-		// Move x
-		String command = mappingStageInfo.getActiveFastScanAxis() + ".asynchronousMoveTo(" + xLocation + ")";
-		jsf.runCommand(command);
-		// Move y
-		command = mappingStageInfo.getActiveSlowScanAxis() + ".asynchronousMoveTo(" + yLocation + ")";
-		jsf.runCommand(command);
 	}
 
 }

@@ -5,5 +5,5 @@
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
    <property name="event.topics" type="String" value="org/dawnsci/mapping/ui/mapview/click"/>
-   <reference bind="setMappingStageInfo" cardinality="1..1" interface="uk.ac.diamond.daq.mapping.impl.MappingStageInfo" name="MappingStageInfo" policy="static"/>
+   <reference bind="setMappingStageConfiguration" cardinality="1..1" interface="org.eclipse.scanning.api.ui.IStageScanConfiguration" name="IStageScanConfiguration" policy="static"/>
 </scr:component>
