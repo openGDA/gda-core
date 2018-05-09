@@ -28,33 +28,37 @@ import gda.jython.completion.TextCompleter;
 
 /**
  * Static methods to get current implementation for various interfaces supported by JythonServerFacade and JythonServer
- * that are used by other classes in GDA. 
+ * that are used by other classes in GDA.
  * <p>
  * Provided to ensure loose coupling between callers and command runner
  * implementation. Allows the use of mock versions of the interfaces to allow stand alone testing
  */
-public class InterfaceProvider {
-	
+public final class InterfaceProvider {
+
 	private static final Logger logger = LoggerFactory.getLogger(InterfaceProvider.class);
 
-	static private ICommandRunner commandRunner;
-	static private ICurrentScanController currentScanController;
-	static private ITerminalPrinter terminalPrinter;
-	static private IScanStatusHolder scanStatusHolder;
-	static private IScriptController scriptController;
-	static private IJythonNamespace jythonNamespace;
-	static private IAuthorisationHolder authorisationHolder;
-	static private ICommandAborter commandAborter;
-	static private ICurrentScanInformationHolder currentScanHolder;
-	static private IJythonServerNotifer jythonServerNotifer;
-	static private IDefaultScannableProvider defaultScannableProvider;
-	static private IBatonStateProvider batonStateProvider;
-	static private JSFObserver jSFObserver;
-	static private IScanDataPointProvider scanDataPointProvider;
-	static private AliasedCommandProvider aliasedCommandProvider;
-	static private ICommandThreadInfoProvider commandInfoProvider;
+	private static ICommandRunner commandRunner;
+	private static ICurrentScanController currentScanController;
+	private static ITerminalPrinter terminalPrinter;
+	private static IScanStatusHolder scanStatusHolder;
+	private static IScriptController scriptController;
+	private static IJythonNamespace jythonNamespace;
+	private static IAuthorisationHolder authorisationHolder;
+	private static ICommandAborter commandAborter;
+	private static ICurrentScanInformationHolder currentScanHolder;
+	private static IJythonServerNotifer jythonServerNotifer;
+	private static IDefaultScannableProvider defaultScannableProvider;
+	private static IBatonStateProvider batonStateProvider;
+	private static JSFObserver jSFObserver;
+	private static IScanDataPointProvider scanDataPointProvider;
+	private static AliasedCommandProvider aliasedCommandProvider;
+	private static ICommandThreadInfoProvider commandInfoProvider;
 	private static IJythonServerStatusProvider jythonServerStatusProvider;
 	private static TextCompleter jythonCompleter;
+
+	private InterfaceProvider() {
+		// Prevent Instances
+	}
 
 	/**
 	 * @return current selected implementation of ICommandRunner
@@ -66,7 +70,7 @@ public class InterfaceProvider {
 		return aliasedCommandProvider;
 	}
 
-	
+
 	/**
 	 * @return current selected implementation of ICommandRunner
 	 */
@@ -126,7 +130,7 @@ public class InterfaceProvider {
 			scriptController = JythonServerFacade.getInstance();
 		}
 		return scriptController;
-	}	
+	}
 
 	/**
 	 * @return current selected implementation of IScriptStatusHolder
@@ -136,7 +140,7 @@ public class InterfaceProvider {
 			commandAborter = JythonServerFacade.getInstance();
 		}
 		return commandAborter;
-	}		
+	}
 	/**
 	 * @return current selected implementation of IJythonNamespace
 	 */
@@ -149,7 +153,7 @@ public class InterfaceProvider {
 
 	/**
 	 * IMPORTANT: this method is for scans which operate local to the Command Server
-	 * 
+	 *
 	 * @return JythonServer
 	 */
 	private static LocalJython getLocalJythonServerFromFinder() {
@@ -199,7 +203,7 @@ public class InterfaceProvider {
 		}
 		return authorisationHolder;
 	}
-	
+
 
 	/**
 	 * @return current selected implementation of IScanDataPointProvider
@@ -213,14 +217,14 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param jSFObserver
 	 */
 	public static void setJSFObserverForTesting(JSFObserver jSFObserver) {
 		logger.warn("setJSFObserverForTesting called");
 		InterfaceProvider.jSFObserver = jSFObserver;
 	}
-	
+
 	/**
 	 * @return current selected implementation of JSFObserver
 	 */
@@ -233,17 +237,17 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param scanDataPointProvider
 	 */
 	public static void setScanDataPointProviderForTesting(IScanDataPointProvider scanDataPointProvider) {
 		logger.warn("setScanDataPointProviderForTesting called");
 		InterfaceProvider.scanDataPointProvider = scanDataPointProvider;
 	}
-	
+
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param commandRunner
 	 */
 	public static void setCommandRunnerForTesting(ICommandRunner commandRunner) {
@@ -253,7 +257,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param currentScanController
 	 */
 	public static void setCurrentScanControllerForTesting(ICurrentScanController currentScanController) {
@@ -263,7 +267,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param terminalPrinter
 	 */
 	public static void setTerminalPrinterForTesting(ITerminalPrinter terminalPrinter) {
@@ -273,7 +277,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param scanStatusHolder
 	 */
 	public static void setScanStatusHolderForTesting(IScanStatusHolder scanStatusHolder) {
@@ -283,26 +287,26 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param panicStop
 	 */
 	public static void setPanicStopForTesting(ICommandAborter panicStop) {
 		logger.warn("setPanicStopForTesting called");
 		InterfaceProvider.commandAborter = panicStop;
-	}	
-	
+	}
+
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param scriptController
 	 */
 	public static void setScriptControllerForTesting(IScriptController scriptController) {
 		logger.warn("setScriptControllerForTesting called");
 		InterfaceProvider.scriptController = scriptController;
-	}	
+	}
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param jythonNamespace
 	 */
 	public static void setJythonNamespaceForTesting(IJythonNamespace jythonNamespace) {
@@ -312,7 +316,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param currentScanHolder
 	 */
 	public static void setCurrentScanInformationHolderForTesting(ICurrentScanInformationHolder currentScanHolder) {
@@ -322,7 +326,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param jythonServerNotifer
 	 */
 	public static void setJythonServerNotiferForTesting(IJythonServerNotifer jythonServerNotifer) {
@@ -332,7 +336,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * 
+	 *
 	 * @param defaultScannableProvider
 	 */
 	public static void setDefaultScannableProviderForTesting(IDefaultScannableProvider defaultScannableProvider) {
@@ -342,7 +346,7 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * @param authorisationHolder 
+	 * @param authorisationHolder
 	 */
 	public static void setAuthorisationHolderForTesting(IAuthorisationHolder authorisationHolder) {
 		logger.warn("setAuthorisationHolderForTesting called");
@@ -368,19 +372,19 @@ public class InterfaceProvider {
 
 	/**
 	 * call this only when you wish to run outside of gda when JythonServer does not exist
-	 * @param batonStateProvider 
+	 * @param batonStateProvider
 	 */
 	public static void setBatonStateProviderForTesting(IBatonStateProvider batonStateProvider) {
 		logger.warn("setBatonStateProviderForTesting called");
 		InterfaceProvider.batonStateProvider = batonStateProvider;
 	}
-	
+
 
 	public static void setAliasedCommandProvider(AliasedCommandProvider aliasedCommandProvider) {
 		logger.warn("setAliasedCommandProvider called");
 		InterfaceProvider.aliasedCommandProvider = aliasedCommandProvider;
 	}
-	
+
 	public static IJythonServerStatusProvider getJythonServerStatusProvider(){
 		if (jythonServerStatusProvider == null) {
 			jythonServerStatusProvider = getLocalJythonServerFromFinder();
@@ -391,5 +395,5 @@ public class InterfaceProvider {
 		logger.warn("setJythonServerStatusProviderForTesting called");
 		InterfaceProvider.jythonServerStatusProvider = jythonServerStatusProvider;
 	}
-		
+
 }
