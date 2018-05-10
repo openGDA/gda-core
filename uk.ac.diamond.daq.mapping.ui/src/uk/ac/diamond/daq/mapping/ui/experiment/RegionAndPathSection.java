@@ -20,11 +20,13 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -120,6 +122,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(RegionAndPathSection.class);
+	private static final String MAPPING_STAGE_KEY_JSON = "mappingStageAxes.json";
 
 	private final PropertyChangeListener pathBeanPropertyChangeListener = evt -> updatePoints();
 
@@ -327,7 +330,6 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		pathSelector.setSelection(new StructuredSelection(scanPathModel));
 
 		// Plot the scan region. This will cancel the region drawing event in the plotting system to avoid user confusion at startup
-		// TODO check if this is the preferred behaviour, or better to leave the drawing event active
 		plotter.updatePlotRegionFrom(scanRegion);
 	}
 
@@ -393,6 +395,33 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		canEditMappingStage = !isMalcolm;
 		((AbstractPathEditor) pathEditor).setContinuousEnabled(isMalcolm);
 
+	}
+
+	@Override
+	protected void saveState(Map<String, String> persistedState) {
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
+		final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
+		try {
+			persistedState.put(MAPPING_STAGE_KEY_JSON, marshaller.marshal(mappingStage));
+		} catch (Exception e) {
+			logger.error("Error saving mapping stage axes selection", e);
+		}
+	}
+
+	@Override
+	protected void loadState(Map<String, String> persistedState) {
+		String json = persistedState.get(MAPPING_STAGE_KEY_JSON);
+		if (json == null || json.isEmpty()) return;
+		IMarshallerService marshaller = getService(IMarshallerService.class);
+		try {
+			final MappingStageInfo savedStage = marshaller.unmarshal(json, MappingStageInfo.class);
+			final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
+			mappingStage.setActiveFastScanAxis(savedStage.getActiveFastScanAxis());
+			mappingStage.setActiveSlowScanAxis(savedStage.getActiveSlowScanAxis());
+			mappingStage.setAssociatedAxis(savedStage.getAssociatedAxis());
+		} catch (Exception e) {
+			logger.error("Error restoring mapping stage axes selection", e);
+		}
 	}
 }
 
