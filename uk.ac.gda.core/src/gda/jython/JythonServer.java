@@ -21,6 +21,7 @@ package gda.jython;
 
 import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
+import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -1045,11 +1046,17 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		/**
 		 * Constructor.
 		 *
-		 * @param interpreter
-		 * @param command
-		 * @param authorisationLevel
+		 * @param interpreter The interpreter used to run the command
+		 * @param command The command to run
+		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 *         Prevents moves of devices with protection levels higher than the level given.
+		 *
+		 * @throws NullPointerException if interpreter or command are <code>null</code>.
 		 */
 		public EvaluateRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel) {
+			requireNonNull(interpreter, "interpreter cannot be null");
+			requireNonNull(command, "command cannot be null");
+
 			this.interpreter = interpreter;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
@@ -1069,11 +1076,16 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		/**
 		 * Constructor.
 		 *
-		 * @param server
-		 * @param command
-		 * @param authorisationLevel
+		 * @param server The server used to run the command
+		 * @param command The command to run
+		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 *         Prevents moves of devices with protection levels higher than the level given.
+		 * @throws NullPointerException if server or command are <code>null</code>.
 		 */
 		public RunCommandRunner(JythonServer server, String command, int authorisationLevel) {
+			requireNonNull(server, "server cannot be null");
+			requireNonNull(command, "command cannot be null");
+
 			this.server = server;
 			this.interpreter = server.interp;
 			this.cmd = command;
@@ -1098,11 +1110,16 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		/**
 		 * Constructor.
 		 *
-		 * @param server
-		 * @param command
-		 * @param authorisationLevel
+		 * @param server The server used to run the command
+		 * @param command The command to run
+		 * @param authorisationLevel The authorisation of the user who requested this command be run.
+		 *         Prevents moves of devices with protection levels higher than the level given.
+		 * @throws NullPointerException if server or command are <code>null</code>.
 		 */
 		public RunScriptRunner(JythonServer server, String command, int authorisationLevel) {
+			requireNonNull(server, "server cannot be null");
+			requireNonNull(command, "command cannot be null");
+
 			this.server = server;
 			this.interpreter = server.interp;
 			this.cmd = command;
@@ -1155,11 +1172,16 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		 * @param interpreter The interpreter used to run the command
 		 * @param command The command to run
 		 * @param authorisationLevel The authorisation of the user who requested this command be run.
-		 *         Prevents moves of devices which protection levels higher than the level given.
+		 *         Prevents moves of devices with protection levels higher than the level given.
 		 * @param stdin InputStream to take input from. Can be null - will use {@link InputCommands#requestInput(String)}
 		 *         for input (input/raw_input) if so.
+		 *
+		 * @throws NullPointerException if interpreter or command are <code>null</code>.
 		 */
 		public RunSourceRunner(GDAJythonInterpreter interpreter, String command, int authorisationLevel, InputStream stdin) {
+			requireNonNull(interpreter, "interpreter cannot be null");
+			requireNonNull(command, "command cannot be null");
+
 			this.interpreter = interpreter;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
