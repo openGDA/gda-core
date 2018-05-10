@@ -65,6 +65,12 @@ public class ScannableGroupTest extends TestCase {
 		Finder.getInstance().addFactory(factory);
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
+	}
+
 	/**
 	 * Tests that a newly-instantiated {@link ScannableGroup} initially has no
 	 * group members or group member names.

@@ -19,19 +19,6 @@
 package gda.data.metadata;
 
 import static org.mockito.Mockito.when;
-import gda.MockFactory;
-import gda.TestHelpers;
-import gda.configuration.properties.LocalProperties;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.DummyScannable;
-import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.scan.ConcurrentScan;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +32,20 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.MockFactory;
+import gda.TestHelpers;
+import gda.configuration.properties.LocalProperties;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.DummyScannable;
+import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.scan.ConcurrentScan;
 
 public class NXMetaDataProviderTest {
 
@@ -145,6 +146,8 @@ public class NXMetaDataProviderTest {
 	@After
 	public void tearDown() {
 		LocalProperties.set("gda.nexus.metadata.provider.name", "");
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 	private void populateNXMetaDataProvider(NXMetaDataProvider metaDataProvider, int numEntries, String entryKeyRoot,

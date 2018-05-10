@@ -73,6 +73,9 @@ public class JythonServerTest {
 		jythonServer = null;
 		pathsList = null;
 		pathsArray = null;
+
+		// Remove factories from Finder so they do not affect other tests
+		Finder.getInstance().removeAllFactories();
 	}
 
 // TODO; 14 Nov 2016 Rework this test so that it is a unit test of JythonServer and can cope with
