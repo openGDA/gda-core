@@ -20,7 +20,7 @@ for word in "$@"; do
             GDA_ARGS+="--jrebel "
             ;;
         --force)
-            GDA_ARGS+="--force "
+            options_text+="\n\e[33mWARNING: The --force option is no longer necessary or supported; please remove it from your startup scripts\e[0m"
             ;;
         *)
             continue
@@ -59,6 +59,11 @@ function gda_zenity_progress {
     zenity --progress --width 550 --pulsate --auto-close \
             --title="GDA Server starting: Press Cancel or close window to Abort" \
             --text="\nStarting GDA Server on ${server_machine}"
+}
+
+function set_stop_message {
+    [[ "${GDA_OPERATION}" == "restart" ]] && extra=" and then restart" || extra=""
+    echo -e "\n\e[36mGDA Server will stop within 15 seconds (network permitting)${extra}, please wait...\e[0m"
 }
 
 function echo_if_not_in_remote_startup {
@@ -125,8 +130,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
     # must be prevented from entering here during abort as there is no terminal to echo to, which will cause exit 1 due to the set -e in gda_core
     if [[ "${ABORTING:-false}" == false ]] && [[ "${GDA_OPERATION}" != "start" ]]; then
-        [[ "${GDA_OPERATION}" == "restart" ]] && extra=" and then restart" || extra=""
-        echo -e "\n\e[36mGDA Server will stop within 15 seconds${extra}, please wait...\e[0m"
+        echo "$(set_stop_message)"
     fi
 
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}
@@ -169,8 +173,7 @@ else
     export JAVA_OPTS="-Dgda.deploytype=1"
 
     if [[ "${GDA_OPERATION}" != "start" ]]; then
-        [[ "${GDA_OPERATION}" == "restart" ]] && extra=" and then restart" || extra=""
-        echo_if_not_in_remote_startup -e "\n\e[36mGDA Server will stop within 15 seconds${extra}, please wait...\e[0m"
+        echo_if_not_in_remote_startup "$(set_stop_message)"
     fi
     echo_if_not_in_remote_startup -e "${options_text}"
 
