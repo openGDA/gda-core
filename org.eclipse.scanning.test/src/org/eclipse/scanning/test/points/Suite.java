@@ -33,7 +33,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	SpiralTest.class,
 	StaticTest.class,
 	StepTest.class,
-	JythonGeneratorTest.class
+	JythonGeneratorTest.class,
+	OverlapGridPathTest.class
 
 	// TODO Smoke tests?
 	//GridTestLarge.class,
