@@ -152,6 +152,11 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		while (running) {
 			try {
 				command = read.readLine(PS1);
+				if (command == null) {
+					// This is a problem with Jline. If the connection is lost, the EOF gets converted to null somewhere
+					logger.info("Connection lost - closing shell");
+					return;
+				}
 				runCommand(command);
 			} catch (UserInterruptException uie) {
 				terminal.writer().println("KeyboardInterrupt");
