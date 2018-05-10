@@ -19,8 +19,11 @@
 package gda.device.enumpositioner;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(EnumPositioner.class)
 public class IntegerMapperBasedEnumPositioner extends MapperBasedEnumPositionerBase<Integer> {
 
 	@Override
