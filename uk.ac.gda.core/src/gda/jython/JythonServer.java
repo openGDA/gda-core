@@ -985,6 +985,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		JythonServer server = null;
 		boolean scripted;
 
+		@Override
+		public abstract void run();
+
 		/**
 		 * The authorisation level of the user whose JythonServerFacade sent this command
 		 */
