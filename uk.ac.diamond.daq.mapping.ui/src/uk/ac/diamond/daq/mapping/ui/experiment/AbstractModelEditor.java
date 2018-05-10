@@ -18,15 +18,22 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 
 import javax.inject.Inject;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Base class for model (e.g. region, path) editors. Once the model is set, call createEditorPart.
@@ -40,6 +47,10 @@ public abstract class AbstractModelEditor<T> {
 
 	@Inject
 	private IStageScanConfiguration mappingStageInfo;
+
+	@Inject
+	private IEventService eventService;
+	private IScannableDeviceService scannableDeviceService;
 
 	/**
 	 * Apply to a control to make it fill horizontal space
@@ -116,6 +127,20 @@ public abstract class AbstractModelEditor<T> {
 	 */
 	protected String getSlowAxisName() {
 		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getActiveSlowScanAxis() : "Slow axis";
+	}
+
+	protected IScannableDeviceService getScannableDeviceService() throws EventException {
+		if (scannableDeviceService == null) scannableDeviceService = createScannableDeviceService();
+		return scannableDeviceService;
+	}
+
+	private IScannableDeviceService createScannableDeviceService() throws EventException {
+		try {
+			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			return eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
+		} catch (EventException | URISyntaxException e) {
+			throw new EventException("Could not create remote service", e);
+		}
 	}
 
 }
