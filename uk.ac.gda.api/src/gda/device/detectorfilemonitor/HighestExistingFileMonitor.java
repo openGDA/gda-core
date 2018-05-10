@@ -18,34 +18,29 @@
 
 package gda.device.detectorfilemonitor;
 
-
-
-
+import gda.factory.Findable;
 
 /**
- * Interface of object that can report the canonical path of an existing file 
+ * Interface of object that can report the canonical path of an existing file
  * that matches a given template with the highest index.
  * The filename is created by using String.format(template, index)
- * 
+ *
  * Useful when a detector takes a file name template and start number and then
  * automatically creates the filename for each frame.
- * 
- * Particularly useful when detectors cannot inform observers of the latest file 
- * 
+ *
+ * Particularly useful when detectors cannot inform observers of the latest file
+ *
  * updates observers with HighestExistingFileMonitorData
  */
-public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDataProvider{
+public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDataProvider, Findable {
 	public HighestExistingFileMonitorSettings getHighestExistingFileMonitorSettings();
 
 	public void setHighestExistingFileMonitorSettings(HighestExistingFileMonitorSettings highestExistingFileMonitorSettings);
 
-
-	
 	public long getDelayInMS();
 
 	public void setDelayInMS(long delay);
 
 	void setRunning(boolean running);
 	boolean isRunning();
-
 }

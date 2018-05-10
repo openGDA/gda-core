@@ -18,13 +18,6 @@
 
 package gda.device.detectorfilemonitor.impl;
 
-import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
-import gda.device.detectorfilemonitor.HighestExistingFileMonitorData;
-import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
-import gda.factory.Findable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,10 +27,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitorData;
+import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
 /**
  * Implementation of HighestExistingFileMonitor that checks for file existence.
  */
-public class SimpleHighestExistingFileMonitor implements HighestExistingFileMonitor, Findable, InitializingBean {
+@ServiceInterface(HighestExistingFileMonitor.class)
+public class SimpleHighestExistingFileMonitor implements HighestExistingFileMonitor, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleHighestExistingFileMonitor.class);
 	ObservableComponent obsComp = new ObservableComponent();
 
