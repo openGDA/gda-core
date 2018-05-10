@@ -18,12 +18,6 @@
 
 package uk.ac.diamond.daq.tomography.datacollection.ui.adviewer;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
-import gda.device.displayscaleprovider.DisplayScaleProvider;
-import gda.device.scannable.ScannableUtils;
-import gda.observable.IObserver;
-
 import org.apache.commons.math.linear.MatrixUtils;
 import org.apache.commons.math.linear.RealVector;
 import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
@@ -48,6 +42,12 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.IScannableMotor;
+import gda.device.Scannable;
+import gda.device.displayscaleprovider.DisplayScaleProvider;
+import gda.device.scannable.ScannableUtils;
+import gda.observable.IObserver;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 import uk.ac.gda.epics.adviewer.composites.imageviewer.NewImageListener;
 import uk.ac.gda.epics.adviewer.views.MJPegView;
@@ -207,13 +207,13 @@ public class DataCollectionMJPegViewInitialiser implements NewImageListener  {
 						if (vertMoveOnClickEnabled) {
 							double moveInY = pixelOffset.getEntry(1) / (scale.getPixelsPerMMInY() / 1000.);
 
-							ScannableMotionUnits sampleCentringYMotor = adControllerImpl.getSampleCentringYMotor();
+							Scannable sampleCentringYMotor = adControllerImpl.getSampleCentringYMotor();
 							sampleCentringYMotor.asynchronousMoveTo(ScannableUtils.getCurrentPositionArray(sampleCentringYMotor)[0] + moveInY);
 						}
 						if (horzMoveOnClickEnabled) {
 							double moveInX = -pixelOffset.getEntry(0) / (scale.getPixelsPerMMInX() / 1000.);
 
-							ScannableMotionUnits sampleCentringXMotor = adControllerImpl.getSampleCentringXMotor();
+							Scannable sampleCentringXMotor = adControllerImpl.getSampleCentringXMotor();
 							sampleCentringXMotor.asynchronousMoveTo(ScannableUtils.getCurrentPositionArray(sampleCentringXMotor)[0] + moveInX);
 						}
 					} catch (Exception e) {
@@ -682,7 +682,7 @@ public class DataCollectionMJPegViewInitialiser implements NewImageListener  {
 		try {
 			// in y move by -1 * move
 			move = x / ((x_axis ? scale.getPixelsPerMMInX() : -scale.getPixelsPerMMInY()) / 1000.);
-			ScannableMotionUnits sampleCentringMotor = x_axis ? adControllerImpl.getSampleCentringXMotor() : adControllerImpl.getSampleCentringYMotor();
+			Scannable sampleCentringMotor = x_axis ? adControllerImpl.getSampleCentringXMotor() : adControllerImpl.getSampleCentringYMotor();
 			sampleCentringMotor.asynchronousMoveTo(ScannableUtils.getCurrentPositionArray(sampleCentringMotor)[0] + move);
 		} catch (DeviceException e) {
 			logger.error("Error moving axis", e);

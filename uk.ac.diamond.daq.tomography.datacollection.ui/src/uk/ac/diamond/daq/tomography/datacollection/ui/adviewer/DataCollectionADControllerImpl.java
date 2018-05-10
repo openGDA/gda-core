@@ -18,17 +18,16 @@
 
 package uk.ac.diamond.daq.tomography.datacollection.ui.adviewer;
 
-import gda.device.EnumPositioner;
-import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
-import gda.device.displayscaleprovider.DisplayScaleProvider;
-import gda.jython.InterfaceProvider;
-import gda.rcp.views.CompositeFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.EnumPositioner;
+import gda.device.IScannableMotor;
+import gda.device.Scannable;
+import gda.device.displayscaleprovider.DisplayScaleProvider;
+import gda.jython.InterfaceProvider;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.epics.adviewer.ADControllerImpl;
 
 public class DataCollectionADControllerImpl extends  ADControllerImpl implements InitializingBean {
@@ -48,8 +47,8 @@ public class DataCollectionADControllerImpl extends  ADControllerImpl implements
 
 	private DisplayScaleProvider cameraScaleProvider;
 
-	private ScannableMotionUnits sampleCentringXMotor;
-	private ScannableMotionUnits sampleCentringYMotor;
+	private Scannable sampleCentringXMotor;
+	private Scannable sampleCentringYMotor;
 
 	private CompositeFactory stagesCompositeFactory;
 
@@ -195,19 +194,19 @@ public class DataCollectionADControllerImpl extends  ADControllerImpl implements
 		this.cameraScaleProvider = cameraScaleProvider;
 	}
 
-	public ScannableMotionUnits getSampleCentringXMotor() {
+	public Scannable getSampleCentringXMotor() {
 		return sampleCentringXMotor;
 	}
 
-	public void setSampleCentringXMotor(ScannableMotionUnits sampleCentringXMotor) {
+	public void setSampleCentringXMotor(Scannable sampleCentringXMotor) {
 		this.sampleCentringXMotor = sampleCentringXMotor;
 	}
 
-	public ScannableMotionUnits getSampleCentringYMotor() {
+	public Scannable getSampleCentringYMotor() {
 		return sampleCentringYMotor;
 	}
 
-	public void setSampleCentringYMotor(ScannableMotionUnits sampleCentringYMotor) {
+	public void setSampleCentringYMotor(Scannable sampleCentringYMotor) {
 		this.sampleCentringYMotor = sampleCentringYMotor;
 	}
 
