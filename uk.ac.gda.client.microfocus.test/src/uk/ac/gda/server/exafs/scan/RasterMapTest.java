@@ -18,20 +18,6 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.countertimer.BufferedScaler;
-import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.RealPositionReader;
-import gda.jython.commands.ScannableCommands;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.scan.ConcurrentScan;
-import gda.scan.ContinuousScan;
-import gda.scan.ScanPlotSettings;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -48,6 +34,19 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.countertimer.BufferedScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.RealPositionReader;
+import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.scan.ConcurrentScan;
+import gda.scan.ContinuousScan;
+import gda.scan.ScanPlotSettings;
 import uk.ac.diamond.daq.microfocus.api.RasterMapDetectorPreparer;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
@@ -116,9 +115,10 @@ public class RasterMapTest {
 
 		createMapScan();
 
-		mapscan.doCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
+		mapscan.configureCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
 				testHelper.getOutputParams(), testHelper.getXspressConfigurationParameters(),
 				testHelper.getExperimentalFullPath(), 1);
+		mapscan.doCollection();
 
 		// check that the the correct order of preparers and scan were called
 		InOrder inorder = Mockito.inOrder(testHelper.getBeamlinepreparer(), testHelper.getDetectorPreparer(),

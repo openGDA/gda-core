@@ -46,6 +46,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.detector.TfgFFoverI0;
 import gda.device.detector.xspress.Xspress2Detector;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
+import gda.epics.DummyPV;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -128,6 +129,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	private static final String ROI_RES_GRADE_BIN = ":ROI:BinY";
 	private PV<Integer> pvRoiResGradeBin = null;
+
+	private static final String DTC_ENERGY_KEV = ":DTC_ENERGY";
+	private PV<Double> pvDtcEnergyKev = null;
 
 	private double caputTimeout = 10.0; // Timeout for CACLient put operations (seconds)
 
@@ -334,10 +338,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void collectData() throws DeviceException {
-		controller.doStop();
-		controller.setNumFramesToAcquire(1);
-		controller.doErase();
-		controller.doStart();
+		logger.debug("Skip collectData");
+		// Don't need to do anything here, as detector is usually hardware triggered by Tfg during step scans and
+		// making calls here to controller.doErase(), controller.doStart() can cause triggers to be missed by the detector.
 	}
 
 	@Override
@@ -508,6 +511,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.info("Setting scaler window1");
 			setScalerWindow(0); // apply to window1 only
 		}
+		setDtcEnergyKev(parameters.getDeadtimeCorrectionEnergy());
 	}
 
 	/**
@@ -585,6 +589,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			pvArrayCounter = LazyPVFactory.newIntegerPV(pvBase + ARRAY_COUNTER);
 			pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + DTC_FACTORS);
 			pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + ROI_RES_GRADE_BIN);
+			pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + DTC_ENERGY_KEV);
+		} else {
+			pvDtcEnergyKev = new DummyPV<Double>("dummyPvBase"+DTC_ENERGY_KEV, 0.0);
 		}
 	}
 
@@ -1153,5 +1160,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			result = 1.0;
 		}
 		return result;
+	}
+
+	public void setDtcEnergyKev(double dtcEnergy) throws IOException {
+		pvDtcEnergyKev.putWait(dtcEnergy, caputTimeout);
+	}
+
+	public double getDtcEnergyKev() throws IOException {
+		return pvDtcEnergyKev.get();
 	}
 }

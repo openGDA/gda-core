@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.zebra.controller.Zebra;
+import gda.epics.CachedLazyPVFactory;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.util.QuantityFactory;
@@ -44,49 +46,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraQexafsScannable.class);
 
-	private String armTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_ARM_SEL";
-	private String armPV = "BL18B-OP-DCM-01:ZEBRA:PC_ARM";
-	private String disarmPV = "BL18B-OP-DCM-01:ZEBRA:PC_DISARM";
+	private Zebra zebraDevice = null;
 
-	private String gateTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_SEL";
-	private String gateStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START";
-	private String gateWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID";
-	private String numGatesPV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_NGATE";
-
-	private String pulseTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_SEL";
-	private String pulseStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_START";
-	private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
-	private String pulseStepPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP";
-
-	private String positionTrigPV = "BL18B-OP-DCM-01:ZEBRA:PC_ENC";
-	private String positionDirectionPV = "BL18B-OP-DCM-01:ZEBRA:PC_DIR";
-
-	private String startReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV";
-	// private String startReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV_CTS";
-	// private String stepSizeReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV";
-	private String stepSizeReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV_CTS";
-	private String widthReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV";
-	private String widthReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV_CTS";
-
-	private Channel armTrigSourceChnl;
-	private Channel armChnl;
-	private Channel disarmChnl;
-	private Channel gateTrigSourceChnl;
-	private Channel gateStartChnl;
-	private Channel gateWidthChnl;
-	private Channel numGatesChnl;
-	private Channel pulseTrigSourceChnl;
-	private Channel pulseStartChnl;
-	private Channel pulseWidthChnl;
-	private Channel pulseStepChnl;
-	private Channel positionTrigChnl;
-	private Channel positionDirectionChnl;
-	private Channel startReadback_deg_Chnl;
-	// private Channel startReadback_counts_Chnl;
-	// private Channel stepSizeReadback_deg_Chnl;
-	private Channel stepSizeReadback_counts_Chnl;
-	private Channel widthReadback_deg_Chnl;
-	private Channel widthReadback_counts_Chnl;
+	private CachedLazyPVFactory pvFactory;
+	private static final String PCArm = "PC_ARM";
+	private static final String PCPulseStepCountsRBV = "PC_PULSE_STEP:RBV_CTS";
+	private static final String PCGateWidthCountsRBV = "PC_GATE_WID:RBV_CTS";
 
 	private double startReadback_deg;
 
@@ -95,42 +60,16 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private double width_deg;
 
 	private double width_counts;
-	
-	protected Channel isArmedChnl;
+
 
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-
-		try {
-			armTrigSourceChnl = channelManager.createChannel(armTrigSourcePV, false);
-			armChnl = channelManager.createChannel(armPV, false);
-			disarmChnl = channelManager.createChannel(disarmPV, false);
-			gateTrigSourceChnl = channelManager.createChannel(gateTrigSourcePV, false);
-			gateStartChnl = channelManager.createChannel(gateStartPV, false);
-			gateWidthChnl = channelManager.createChannel(gateWidthPV, false);
-			numGatesChnl = channelManager.createChannel(numGatesPV, false);
-			pulseTrigSourceChnl = channelManager.createChannel(pulseTrigSourcePV, false);
-			pulseStartChnl = channelManager.createChannel(pulseStartPV, false);
-			pulseWidthChnl = channelManager.createChannel(pulseWidthPV, false);
-			pulseStepChnl = channelManager.createChannel(pulseStepPV, false);
-			positionTrigChnl = channelManager.createChannel(positionTrigPV, false);
-			positionDirectionChnl = channelManager.createChannel(positionDirectionPV, false);
-			startReadback_deg_Chnl = channelManager.createChannel(startReadback_deg_PV, false);
-			// startReadback_counts_Chnl = channelManager.createChannel(startReadback_counts_PV, false);
-			// stepSizeReadback_deg_Chnl = channelManager.createChannel(stepSizeReadback_deg_PV, false);
-			stepSizeReadback_counts_Chnl = channelManager.createChannel(stepSizeReadback_counts_PV, false);
-			widthReadback_deg_Chnl = channelManager.createChannel(widthReadback_deg_PV, false);
-			widthReadback_counts_Chnl = channelManager.createChannel(widthReadback_counts_PV, false);
-
-			
-			isArmedChnl = channelManager.createChannel("BL18B-OP-DCM-01:ZEBRA:PC_ARM_OUT",false);
-
-			channelManager.creationPhaseCompleted();
-
-		} catch (CAException e) {
-			throw new FactoryException("CAException while creating channels for " + getName(), e);
+		if (zebraDevice==null) {
+			throw new FactoryException("Zebra device has not been set");
 		}
+		pvFactory = new CachedLazyPVFactory(zebraDevice.getZebraPrefix());
+		channelManager.creationPhaseCompleted();
 	}
 
 	@Override
@@ -170,10 +109,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			if (!runUpOn) {
 				runupEnergy = angleToEV(startAngle);
 			}
-			
+
 			// always toggle before first movement in a scan
 			toggleEnergyControl();
-			
+
 			checkDeadbandAndMove(runupEnergy);
 			logger.debug("Time spent after moved to angle");
 
@@ -182,13 +121,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// fixed settings
 			logger.debug("Time before fixed zebra settings");
 			Boolean changeHasBeenMade = Boolean.FALSE;
-			changeHasBeenMade = caputTestChangeString(armTrigSourceChnl, "Soft", changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeString(gateTrigSourceChnl, "Position", changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeDouble(numGatesChnl, 1, changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeString(pulseTrigSourceChnl, "Position", changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeDouble(pulseStartChnl, 0.0, changeHasBeenMade);
-			// controller.caput(pulseWidthChnl, 0.0020);
-			changeHasBeenMade = caputTestChangeString(positionTrigChnl, "Enc1-4Av", changeHasBeenMade);
+			zebraDevice.setPCEnc(Zebra.PC_ENC_ENCSUM); //Enc1-4Av
+			zebraDevice.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
+			zebraDevice.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
+			zebraDevice.setPCGateNumberOfGates(1);
+			zebraDevice.setPCPulseSource(Zebra.PC_PULSE_SOURCE_POSITION);
+			zebraDevice.setPCPulseStart(0.0);
 
 			// variable settings
 			logger.debug("Time before variable zebra settings");
@@ -196,19 +134,19 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stopDeg = radToDeg(endAngle);
 			double stepDeg = Math.abs(radToDeg(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
-			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
-			changeHasBeenMade = caputTestChangeString(positionDirectionChnl, positionDirection, changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeDouble(gateStartChnl, startDeg, changeHasBeenMade);
-			changeHasBeenMade = caputTestChangeDouble(gateWidthChnl, width, changeHasBeenMade);
+
+			int positionDir = stopDeg > startDeg ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE;
+			zebraDevice.setPCDir(positionDir);
+			zebraDevice.setPCGateStart(startDeg);
+			zebraDevice.setPCGateWidth(width);
 
 			// this value is set by beamline staff, and is not altered by GDA. It MUST be < stepDeg
-			double pulseWidth = controller.cagetDouble(pulseWidthChnl);
+			double pulseWidth = zebraDevice.getPCPulseWidth();
 			if (pulseWidth > stepDeg) {
 				throw new DeviceException(
 						"Inconsistent Zebra parameters: the pulse width is greater than the required pulse step, so Zebra will not emit any pulses! You need to change you scan parameters or ask beamline staff.");
 			}
-
-			changeHasBeenMade = caputTestChangeDouble(pulseStepChnl, stepDeg, changeHasBeenMade);
+			zebraDevice.setPCPulseStep(stepDeg);
 
 			// Has a change been made, so do we need to wait for the template to complete processing?
 			// We must wait here if we have made a change so that any subsequent reads e.g. in getNumberOfDataPoints()
@@ -231,16 +169,6 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		}
 	}
 
-	private Boolean caputTestChangeString(Channel theChannel, String toPut, Boolean changeMade) throws CAException,
-			InterruptedException, TimeoutException {
-		String current = controller.cagetString(theChannel);
-		if (current.compareTo(toPut) != 0) {
-			controller.caput(theChannel, toPut.toString());
-			changeMade = Boolean.TRUE; // only update to true
-		}
-		return changeMade;
-	}
-
 	private Boolean caputTestChangeDouble(Channel theChannel, double toPut, Boolean changeMade) throws CAException,
 			InterruptedException, TimeoutException {
 		double current = controller.cagetDouble(theChannel);
@@ -256,8 +184,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	public int getNumberOfDataPoints() {
 		try {
 			// get the actual step size in degrees
-			double stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
-			double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
+			double stepSize_counts = pvFactory.getPVDouble(PCPulseStepCountsRBV).get();
+			double width_counts = pvFactory.getPVDouble(PCGateWidthCountsRBV).get();
+
 			Double readbackNumberOfCounts_floored = Math.floor(width_counts / stepSize_counts);
 			Double readbackNumberOfCounts = width_counts / stepSize_counts;
 
@@ -307,25 +236,25 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				logger.debug("Time before zebra arm with callback");
 				InterfaceProvider.getTerminalPrinter().print("Arming Zebra box to trigger detectors during mono move...");
 				logger.info("Arming Zebra box to trigger detectors during mono move...");
-				controller.caput(armChnl, 1);
-				int isArmed = controller.cagetInt(isArmedChnl);
+
+//				zebra.pcArm() - needs to do putNoWait(1) since callback waits forever.
+				// Only available in gda9 (using 'armNoWait' option), so do it manually here...
+				pvFactory.getPVInteger(PCArm).putNoWait(1);
 				int timeWaitingToArm = 0; // ms
-				while (isArmed == 0){
+				while (!zebraDevice.isPCArmed()){
 					Thread.sleep(100);
-					isArmed = controller.cagetInt(isArmedChnl);
 					timeWaitingToArm += 100;
-					
 					if(timeWaitingToArm > 20000){
 						throw new DeviceException("20s timeout waiting for Zebra to arm");
 					}
 				}
-			
+
 				// These will be used when calculating the real energy of each step in the scan, so readback once at this point.
 				logger.debug("Time before zebra readbacks");
-				startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
-				stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
-				width_deg = controller.cagetDouble(widthReadback_deg_Chnl);
-				width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
+				startReadback_deg = zebraDevice.getPCGateStartRBV();
+				stepSize_counts = pvFactory.getPVDouble(PCPulseStepCountsRBV).get();
+				width_deg = zebraDevice.getPCGateWidthRBV();
+				width_counts = pvFactory.getPVDouble(PCGateWidthCountsRBV).get();
 
 				// do the move asynchronously to this thread
 				InterfaceProvider.getTerminalPrinter().print("Mono move started.");
@@ -345,7 +274,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
-		
+		logger.debug("continuousMoveComplete() called");
 		// should ensure that the motor has finished moving before we carry on
 		if (isBusy()){
 			try {
@@ -359,12 +288,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				throw new DeviceException(e.getMessage(),e);
 			}
 		}
-		
+
 		long timeAtMethodStart = System.currentTimeMillis();
 		// return to regular running values
 		resetDCMSpeed();
 		try {
-			controller.caputWait(disarmChnl, 1);
+			zebraDevice.pcDisarm();
 		} catch (Exception e) {
 			logger.error("Exception while disarming the Zebra. But GDA will continue. This may cause an error later.", e);
 		}
@@ -380,7 +309,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			throw new DeviceException("Exception wile calculating frame energy", e);
 		}
 	}
-	
+
 	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
 			InterruptedException {
 		double countsPerDegree = width_deg / width_counts;
@@ -394,5 +323,13 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		Angle frameCentre_angle = (Angle) QuantityFactory.createFromObject(frameCentre_deg, NonSI.DEGREE_ANGLE);
 		double frameCentre_eV = angleToEV(frameCentre_angle);
 		return frameCentre_eV;
+	}
+
+	public Zebra getZebraDevice() {
+		return zebraDevice;
+	}
+
+	public void setZebraDevice(Zebra zebraDevice) {
+		this.zebraDevice = zebraDevice;
 	}
 }
