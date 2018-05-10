@@ -118,6 +118,18 @@ public class VGScientaController extends ConfigurableBase {
 	// This PV shoudn't be used set the EXPOSURE_TIME instead. I09-13
 	// private static final String STEP_TIME = "STEP_TIME";
 
+	// Sensor size and ROI PVs
+	private static final String SENSOR_SIZE_X = "MaxSizeX_RBV";
+	private static final String SENSOR_SIZE_Y = "MaxSizeY_RBV";
+	private static final String ROI_START_X = "MinX";
+	private static final String ROI_START_X_RBV = "Min_RBV";
+	private static final String ROI_START_Y = "MinY";
+	private static final String ROI_START_Y_RBV = "MinY_RBV";
+	private static final String ROI_SIZE_X = "SizeX";
+	private static final String ROI_SIZE_X_RBV = "SizeX_RBV";
+	private static final String ROI_SIZE_Y = "SizeY";
+	private static final String ROI_SIZE_Y_RBV = "SizeY_RBV";
+
 	/** Slices define the number of y channels, can be used to reduce the data */
 	private static final String SLICES = "SLICES";
 	private static final String SLICES_RBV = "SLICES_RBV";
@@ -178,6 +190,12 @@ public class VGScientaController extends ConfigurableBase {
 	 */
 	private double excitationEnergy;
 
+
+	/** The X size of the sensor as defined in SES (retrieved from EPICS) */
+	private int sensorXSize;
+	/** The Y size of the sensor as defined in SES (retrieved from EPICS) */
+	private int sensorYSize;
+
 	public String getBasePVName() {
 		return basePVName;
 	}
@@ -226,12 +244,32 @@ public class VGScientaController extends ConfigurableBase {
 			cameraFrameTime = 1.0 / cameraFrameRate;
 			logger.debug("Detected SES camera frame rate as: {} fps, and frame time: {} sec", cameraFrameRate, cameraFrameTime);
 
+			sensorXSize = getSensorXSize();
+			sensorYSize = getSensorYSize();
+			logger.debug("Detected SES sensor size as: {} x {} (Energy x Y)", sensorXSize, sensorYSize);
+
 		} catch (Exception e) {
 			logger.error("Configuring the analyser failed", e);
 		}
 
 		logger.info("Finished configuring analyser");
 		setConfigured(true);
+	}
+
+	/**
+	 * @return The X size of the sensor as set in SES
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getSensorXSize() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(SENSOR_SIZE_X));
+	}
+
+	/**
+	 * @return The Y size of the sensor as set in SES
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getSensorYSize() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(SENSOR_SIZE_Y));
 	}
 
 	/**
@@ -456,10 +494,17 @@ public class VGScientaController extends ConfigurableBase {
 		return EPICS_CONTROLLER.cagetInt(getChannel(FRAMES_RBV));
 	}
 
+	/**
+	 * Sets the number of slices for the Y axis
+	 * @param value Number of slices
+	 * @throws IllegalArgumentException If an invalid number of slices is requested
+	 */
 	public void setSlices(int value) throws Exception {
-		// TODO This should really check if slices < y region size but need to implement region handling here
 		if (value < 1) {
 			throw new IllegalArgumentException("Slices must be greater than or equal to 1");
+		}
+		if (value > getRoiYSize()) {
+			throw new IllegalArgumentException(String.format("Slices must be less than or equal to ROI Y size %d", getRoiYSize()));
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(SLICES), value);
 		logger.debug("Number of Slices set to: {}", value);
@@ -856,4 +901,130 @@ public class VGScientaController extends ConfigurableBase {
 		EPICS_CONTROLLER.caputWait(getChannel(ITERATIONS), value);
 		logger.debug("Number of Iterations set to: {}", value);
 	}
+
+	/**
+	 * Sets the X start position of the region of interest.
+	 * @param value X axis start position for the ROI
+	 * @throws IllegalArgumentException If the position requested is invalid
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	private void setRoiXStart(int value) throws Exception {
+		if (value < 1) {
+			throw new IllegalArgumentException("ROI X start position must be at least 1");
+		}
+		if (value > sensorXSize) {
+			throw new IllegalArgumentException(
+					String.format("ROI X start position must be less than X size of sensor: %d", sensorXSize));
+		}
+		EPICS_CONTROLLER.caput(getChannel(ROI_START_X), value);
+	}
+
+	/**
+	 * Sets the Y start position of the region of interest.
+	 * @param value Y axis start position for the ROI
+	 * @throws IllegalArgumentException If the position requested is invalid
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	private void setRoiYStart(int value) throws Exception {
+		if (value < 1) {
+			throw new IllegalArgumentException("ROI Y start position must be at least 1");
+		}
+		if (value > sensorYSize) {
+			throw new IllegalArgumentException(
+					String.format("ROI Y start position must be less than Y size of sensor: %d", sensorYSize));
+		}
+		EPICS_CONTROLLER.caput(getChannel(ROI_START_Y), value);
+	}
+
+	/**
+	 * Validates and then sets the X size of the region of interest.
+	 * @param value X axis size of the ROI
+	 * @throws IllegalArgumentException If the ROI size is larger than the sensor size
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	private void setRoiXSize(int value) throws Exception {
+		if (value < 1) {
+			throw new IllegalArgumentException("ROI X size must be at least 1");
+		}
+		if (value > sensorXSize) {
+			throw new IllegalArgumentException("ROI X size cannot be larger than sensor X size");
+		}
+		EPICS_CONTROLLER.caput(getChannel(ROI_SIZE_X), value);
+	}
+
+	/**
+	 * Retrieves the X size of the ROI from EPICS.
+	 * @return The X size of the ROI
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getRoiXSize() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(ROI_SIZE_X_RBV));
+	}
+
+	/**
+	 * Validates and then sets the Y size of the region of interest.
+	 * @param value Y axis size of the ROI
+	 * @throws IllegalArgumentException If the ROI size is larger than the sensor size
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	private void setRoiYSize(int value) throws Exception {
+		if (value > sensorYSize) {
+			throw new IllegalArgumentException("ROI Y cannot be larger than Y sensor size");
+		}
+		EPICS_CONTROLLER.caput(getChannel(ROI_SIZE_Y), value);
+	}
+
+	/**
+	 * Retrieves the Y size of the ROI from EPICS.
+	 * @return The Y size of the ROI
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public int getRoiYSize() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(ROI_SIZE_Y_RBV));
+	}
+
+	/**
+	 * Configures the detector using a DetectorConfiguration object with validation of parameters.
+	 * @param configuration DetectorConfiguration object.
+	 * @throws IllegalArgumentException if the supplied configuration if not possible.
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	public void setDetectorConfiguration(DetectorConfiguration configuration) throws Exception{
+		// Validate configuration
+		if (configuration.getSizeX() > sensorXSize) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI X size %d is bigger than detector X size %d",
+					configuration.getSizeX(), sensorXSize));
+		}
+		if (configuration.getSizeY() > sensorYSize) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI Y size %d is bigger than detector Y size %d",
+					configuration.getSizeY(), sensorYSize));
+		}
+
+		if(configuration.getStartX() + configuration.getSizeX() - 1 > sensorXSize) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI X stop %d is larger than detector X size %d",
+					configuration.getStartX() + configuration.getSizeX() - 1, sensorXSize));
+		}
+
+		if(configuration.getStartY() + configuration.getSizeY() - 1 > sensorYSize) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI Y stop %d is larger than detector Y size %d",
+					configuration.getStartY() + configuration.getSizeY() - 1, sensorYSize));
+		}
+
+		if (configuration.getSlices() < 1) {
+			throw new IllegalArgumentException("There must be at least 1 slice!");
+		}
+
+		if (configuration.getSlices() > configuration.getSizeY()) {
+			throw new IllegalArgumentException(String.format("Number of slices (%d) must be less than or equal to Y size (%d)",
+					configuration.getSlices(), configuration.getSizeY()));
+		}
+		// Looks possible lets set it up
+		setRoiXStart(configuration.getStartX());
+		setRoiYStart(configuration.getStartY());
+		setRoiXSize(configuration.getSizeX());
+		setRoiYSize(configuration.getSizeY());
+		setSlices(configuration.getSlices());
+		logger.info("Set detector ROI to: {}", configuration);
+	}
 }
+
