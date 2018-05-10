@@ -130,6 +130,11 @@ class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObser
 		while (running) {
 			try {
 				command = read.readLine(needMore ? PS2 : PS1);
+				if (command == null) {
+					// This is a problem with Jline. If the connection is lost, the EOF gets converted to null somewhere
+					logger.info("Connection lost - closing shell");
+					return;
+				}
 				fullCommand.append(command);
 				needMore = server.runsource(fullCommand.toString(), rawInput);
 				if (!needMore) {
