@@ -19,29 +19,27 @@
 
 package gda.device.peem.corba.impl;
 
-import gda.device.Device;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.Object;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.PEEM;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.peem.corba.CorbaPEEM;
 import gda.device.peem.corba.CorbaPEEMHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.Object;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the PEEM class
  */
-public class PeemAdapter extends DeviceAdapter implements PEEM, Findable, Device {
+public class PeemAdapter extends DeviceAdapter implements PEEM {
 	private CorbaPEEM corbaPeem;
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

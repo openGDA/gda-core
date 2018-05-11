@@ -19,29 +19,27 @@
 
 package gda.device.detector.uview.corba.impl;
 
-import gda.device.Scannable;
+import java.io.IOException;
+
+import org.omg.CORBA.COMM_FAILURE;
+
 import gda.device.UView;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.uview.corba.CorbaUView;
 import gda.device.detector.uview.corba.CorbaUViewHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import java.io.IOException;
-
-import org.omg.CORBA.COMM_FAILURE;
 
 /**
  * A client side implementation of the adapter pattern for the UView class
  */
-public class UviewAdapter extends DetectorAdapter implements UView, Findable, Scannable {
+public class UviewAdapter extends DetectorAdapter implements UView {
 
 	private CorbaUView corbaUView;
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
