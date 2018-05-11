@@ -19,24 +19,21 @@
 
 package gda.device.detector.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.Detector;
-import gda.device.Device;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.CorbaDetector;
 import gda.device.detector.corba.CorbaDetectorHelper;
 import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Detector class
  */
-public class DetectorAdapter extends ScannableAdapter implements Detector, Findable, Device, Scannable {
+public class DetectorAdapter extends ScannableAdapter implements Detector {
 	private CorbaDetector corbaDetector;
 
 	/**

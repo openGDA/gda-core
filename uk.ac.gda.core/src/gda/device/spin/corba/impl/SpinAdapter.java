@@ -19,28 +19,25 @@
 
 package gda.device.spin.corba.impl;
 
-import gda.device.Device;
-import gda.device.DeviceException;
-import gda.device.ISpin;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.spin.corba.CorbaSpin;
-import gda.device.spin.corba.CorbaSpinHelper;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import java.io.Serializable;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 import org.python.core.PyObject;
 
+import gda.device.DeviceException;
+import gda.device.ISpin;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.spin.corba.CorbaSpin;
+import gda.device.spin.corba.CorbaSpinHelper;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the motor class
  */
-public class SpinAdapter extends ScannableAdapter implements ISpin,Scannable, Device, Findable {
+public class SpinAdapter extends ScannableAdapter implements ISpin {
 
 	private CorbaSpin corbaSpin;
 

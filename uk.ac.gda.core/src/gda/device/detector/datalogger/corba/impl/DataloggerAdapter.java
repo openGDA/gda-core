@@ -19,24 +19,21 @@
 
 package gda.device.detector.datalogger.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DataLogger;
-import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.datalogger.corba.CorbaDataLogger;
 import gda.device.detector.datalogger.corba.CorbaDataLoggerHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the DataLogger class
  */
-public class DataloggerAdapter extends DetectorAdapter implements DataLogger, Detector, Findable, Scannable {
+public class DataloggerAdapter extends DetectorAdapter implements DataLogger {
 	private CorbaDataLogger corbaDataLogger;
 
 	/**

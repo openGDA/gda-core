@@ -30,12 +30,10 @@ import org.slf4j.LoggerFactory;
 import gda.device.DataLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.Serial;
 import gda.device.detector.DetectorBase;
 import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.concurrent.Async;
 
@@ -48,7 +46,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  *
  * @see gda.device.serial.SerialComm
  */
-public class HPDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Scannable {
+public class HPDataLogger extends DetectorBase implements DataLogger {
 
 	private static final Logger logger = LoggerFactory.getLogger(HPDataLogger.class);
 

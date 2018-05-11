@@ -18,16 +18,6 @@
 
 package gda.device.scannable.scannablegroup.corba.impl;
 
-import gda.device.Device;
-import gda.device.Scannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.scannablegroup.IScannableGroup;
-import gda.device.scannable.scannablegroup.corba.CorbaScannablegroup;
-import gda.device.scannable.scannablegroup.corba.CorbaScannablegroupHelper;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.factory.corba.util.NetService;
-
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TRANSIENT;
@@ -35,11 +25,18 @@ import org.python.core.PyObject;
 import org.python.expose.ExposedMethod;
 import org.python.expose.ExposedType;
 
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.scannablegroup.IScannableGroup;
+import gda.device.scannable.scannablegroup.corba.CorbaScannablegroup;
+import gda.device.scannable.scannablegroup.corba.CorbaScannablegroupHelper;
+import gda.factory.Finder;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the ScannableGroup class
  */
 @ExposedType(name = "scannablegroupadapter")
-public class ScannablegroupAdapter extends ScannableAdapter implements IScannableGroup, Findable, Device, Scannable {
+public class ScannablegroupAdapter extends ScannableAdapter implements IScannableGroup {
 
 	private CorbaScannablegroup corbaScannableGroup;
 

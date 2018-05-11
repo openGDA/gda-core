@@ -19,22 +19,21 @@
 
 package gda.device.timer.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.timer.corba.CorbaTimer;
 import gda.device.timer.corba.CorbaTimerHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the timer class
  */
-public class TimerAdapter extends DeviceAdapter implements Timer, Findable {
+public class TimerAdapter extends DeviceAdapter implements Timer {
 	private CorbaTimer corbaTimer;
 
 	/**

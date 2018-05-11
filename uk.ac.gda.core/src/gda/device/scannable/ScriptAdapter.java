@@ -19,7 +19,6 @@
 
 package gda.device.scannable;
 
-import gda.device.Scannable;
 import gda.jython.JythonServerFacade;
 
 /**
@@ -30,7 +29,7 @@ import gda.jython.JythonServerFacade;
  * <p>
  * The script must be located in folder known by the Jython interpreter.
  */
-public class ScriptAdapter extends ScannableBase implements Scannable {
+public class ScriptAdapter extends ScannableBase {
 
 	/**
 	 * This is the Jython documentation. Use it in the GDA Jython via the help command.

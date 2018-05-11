@@ -19,11 +19,6 @@
 
 package gda.device.modulator;
 
-import gda.device.DeviceBase;
-import gda.device.DeviceException;
-import gda.device.Modulator;
-import gda.factory.Findable;
-
 import java.text.DecimalFormat;
 
 import org.jscience.physics.quantities.Frequency;
@@ -31,11 +26,15 @@ import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.SI;
 
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
+import gda.device.Modulator;
+
 /**
  * Class to control the Photoelastic Modulator PEM-90
  */
 
-public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
+public class DummyPEM90 extends DeviceBase implements Modulator {
 	private static final double MAXWAVELENGTH = 19999.9;
 
 	private static final double MINWAVELENGTH = 00000.0;

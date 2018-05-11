@@ -19,24 +19,21 @@
 
 package gda.device.monitor.corba.impl;
 
-import gda.device.Device;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.Monitor;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.monitor.corba.CorbaMonitor;
 import gda.device.monitor.corba.CorbaMonitorHelper;
 import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Monitor class
  */
-public class MonitorAdapter extends ScannableAdapter implements Monitor, Findable, Device, Scannable {
+public class MonitorAdapter extends ScannableAdapter implements Monitor {
 	private CorbaMonitor corbaMonitor;
 
 	/**

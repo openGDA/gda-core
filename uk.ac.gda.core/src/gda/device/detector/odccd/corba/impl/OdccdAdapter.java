@@ -19,26 +19,23 @@
 
 package gda.device.detector.odccd.corba.impl;
 
-import gda.device.Detector;
-import gda.device.ODCCD;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.odccd.ODCCDImage;
-import gda.device.detector.odccd.corba.CorbaODCCD;
-import gda.device.detector.odccd.corba.CorbaODCCDHelper;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import java.io.IOException;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.device.ODCCD;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.device.detector.odccd.ODCCDImage;
+import gda.device.detector.odccd.corba.CorbaODCCD;
+import gda.device.detector.odccd.corba.CorbaODCCDHelper;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the ODCCD class
  */
-public class OdccdAdapter extends DetectorAdapter implements ODCCD, Detector, Findable, Scannable {
+public class OdccdAdapter extends DetectorAdapter implements ODCCD {
 
 	private CorbaODCCD corbaODCCD;
 

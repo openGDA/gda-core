@@ -19,16 +19,6 @@
 
 package gda.device.detector.cobolddetector;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.device.AsynchronousDetector;
-import gda.device.CoboldDetector;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.DetectorBase;
-import gda.util.Alarm;
-import gda.util.AlarmListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -38,11 +28,20 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.device.CoboldDetector;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
+import gda.util.Alarm;
+import gda.util.AlarmListener;
+
 /**
  * Class to implement a Cobold Time to Digital Converter for data acquisition using a Micro Channel Plate (MCP) detector
  * for Ion Imaging Spectrometry (IIS)
  */
-public class CoboldTDC extends DetectorBase implements AsynchronousDetector, CoboldDetector, AlarmListener {
+public class CoboldTDC extends DetectorBase implements CoboldDetector, AlarmListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoboldTDC.class);
 

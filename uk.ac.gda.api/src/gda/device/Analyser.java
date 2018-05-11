@@ -22,24 +22,24 @@ package gda.device;
 /**
  * An interface for a distributed Analyser class
  */
-public interface Analyser extends Device, Detector {
+public interface Analyser extends Detector {
 	/**
 	 * Method to turn on acquisition of the analyser
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void startAcquisition() throws DeviceException;
 
 	/**
 	 * Method to turn off acquisition of the analyser
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stopAcquisition() throws DeviceException;
 
 	/**
 	 * Method to add a new region of interest to the analyser
-	 * 
+	 *
 	 * @param regionIndex
 	 *            the region number
 	 * @param regionLow
@@ -59,7 +59,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to remove a region of interest from the analyser
-	 * 
+	 *
 	 * @param regionIndex
 	 *            the region number
 	 * @throws DeviceException
@@ -68,7 +68,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to erase the analyzer data, sets all channels to zero
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clear() throws DeviceException;
@@ -76,7 +76,7 @@ public interface Analyser extends Device, Detector {
 	/**
 	 * Returns calibration parameters for the analyser. Return calibration offset, calibration slope, calibration
 	 * quadratic , two theta angle of the detector.
-	 * 
+	 *
 	 * @return calibration parameters
 	 * @throws DeviceException
 	 */
@@ -84,7 +84,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to get data from the analyser
-	 * 
+	 *
 	 * @return the analyser data
 	 * @throws DeviceException
 	 */
@@ -92,7 +92,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to get the elapsed parameters for the analyser Not sure if it is specific to MCA
-	 * 
+	 *
 	 * @return the elapsed paramters
 	 * @throws DeviceException
 	 */
@@ -100,7 +100,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to read the preset parameters for the analyser
-	 * 
+	 *
 	 * @return the preset parameters
 	 * @throws DeviceException
 	 */
@@ -108,7 +108,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to read the number of regions for the analyser
-	 * 
+	 *
 	 * @return the number of regions
 	 * @throws DeviceException
 	 */
@@ -116,7 +116,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to read the number of channels for the analyser
-	 * 
+	 *
 	 * @return the number of channels
 	 * @throws DeviceException
 	 */
@@ -124,7 +124,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to get regions of interest for the analyser
-	 * 
+	 *
 	 * @return the regions of interest
 	 * @throws DeviceException
 	 */
@@ -132,7 +132,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to return net and total counts of each region of interest in the analyser
-	 * 
+	 *
 	 * @return two dimensional array of net and total counts
 	 * @throws DeviceException
 	 */
@@ -140,7 +140,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Method to return the current sequence number of the analyser. Might be specific to MCAs
-	 * 
+	 *
 	 * @return the current sequence number
 	 * @throws DeviceException
 	 */
@@ -148,7 +148,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Sets the calibration parameters for the analyser.
-	 * 
+	 *
 	 * @param calibrate
 	 *            the calibration parameters to set
 	 * @throws DeviceException
@@ -157,7 +157,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Writes data to the Analyser
-	 * 
+	 *
 	 * @param data
 	 *            the data to write back to the analyser
 	 * @throws DeviceException
@@ -166,7 +166,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Sets the preset parameters for the Analyser
-	 * 
+	 *
 	 * @param data
 	 *            the preset parameters
 	 * @throws DeviceException
@@ -175,14 +175,14 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Sets the ADC parameters for the Analyser
-	 * 
+	 *
 	 * @param data
 	 * @throws DeviceException
 	 */
 	// public void setAdcParameters(Object adc) throws DeviceException;
 	/**
 	 * Sets the regions of interest for the Analyser
-	 * 
+	 *
 	 * @param lowHigh
 	 *            the upper and lower bounds of the region
 	 * @throws DeviceException
@@ -191,7 +191,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Sets sequence for the Analyser
-	 * 
+	 *
 	 * @param sequence
 	 *            the sequence
 	 * @throws DeviceException
@@ -200,7 +200,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Set number of regions
-	 * 
+	 *
 	 * @param regions
 	 *            the number of regions to set
 	 * @throws DeviceException
@@ -209,7 +209,7 @@ public interface Analyser extends Device, Detector {
 
 	/**
 	 * Set number of Channels
-	 * 
+	 *
 	 * @param channels
 	 *            the number of channels to set
 	 * @throws DeviceException

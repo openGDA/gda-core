@@ -33,7 +33,6 @@ import gda.device.corba.CorbaDevice;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDeviceHelper;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.corba.CorbaFactoryException;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
@@ -47,7 +46,7 @@ import gda.util.LoggingConstants;
 /**
  * A client side implementation of the adapter pattern for the Device class
  */
-public class DeviceAdapter extends PyObject implements Device, EventSubscriber, Findable, RbacEnabledAdapter {
+public class DeviceAdapter extends PyObject implements Device, EventSubscriber, RbacEnabledAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(DeviceAdapter.class);
 
 	protected CorbaDevice corbaDevice;

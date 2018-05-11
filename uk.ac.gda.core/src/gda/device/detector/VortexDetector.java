@@ -19,14 +19,13 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.observable.IObserver;
 
 /**
  * The Class VortexDetector.
  */
-public class VortexDetector extends DetectorBase implements Detector, IObserver {
+public class VortexDetector extends DetectorBase implements IObserver {
 	private static final long serialVersionUID = -4974673105670476398L;
 
 	/**

@@ -19,6 +19,14 @@
 
 package gda.device.temperature.corba.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+import org.python.core.PyObject;
+
 import gda.device.DeviceException;
 import gda.device.Temperature;
 import gda.device.TemperatureRamp;
@@ -28,21 +36,12 @@ import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.temperature.corba.CorbaTemperature;
 import gda.device.temperature.corba.CorbaTemperatureHelper;
 import gda.device.temperature.corba.CorbaTemperatureRamp;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-import org.python.core.PyObject;
 
 /**
  * A client side implementation of the adapter pattern for the Temperature class
  */
-public class TemperatureAdapter extends ScannableAdapter implements Temperature, Findable {
+public class TemperatureAdapter extends ScannableAdapter implements Temperature {
 	private CorbaTemperature corbaTemperature;
 
 	/**

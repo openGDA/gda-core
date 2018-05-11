@@ -20,16 +20,12 @@
 package gda.device.detector.datalogger;
 
 import gda.device.DataLogger;
-import gda.device.Detector;
 import gda.device.detector.DetectorBase;
-import gda.factory.Findable;
 
 /**
  * An abstract Configurable Base class for the Data Logger devices
  */
-public abstract class DataLoggerBase extends DetectorBase
-/* DeviceBase */
-implements DataLogger, Detector, Findable {
+public abstract class DataLoggerBase extends DetectorBase implements DataLogger {
 	/**
 	 * Constructor
 	 */

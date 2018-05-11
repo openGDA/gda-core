@@ -19,25 +19,24 @@
 
 package gda.device.modulator.corba.impl;
 
+import org.jscience.physics.quantities.Frequency;
+import org.jscience.physics.quantities.Quantity;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.Modulator;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.modulator.corba.CorbaModulator;
 import gda.device.modulator.corba.CorbaModulatorHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 import gda.jscience.physics.quantities.Wavelength;
-
-import org.jscience.physics.quantities.Frequency;
-import org.jscience.physics.quantities.Quantity;
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Modulator class
  */
-public class ModulatorAdapter extends DeviceAdapter implements Modulator, Findable {
+public class ModulatorAdapter extends DeviceAdapter implements Modulator {
 	private CorbaModulator corbaModulator;
 
 	/**

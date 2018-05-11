@@ -19,24 +19,21 @@
 
 package gda.device.detector.mar345.corba.impl;
 
-import gda.device.Detector;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.Mar345;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.mar345.corba.CorbaMar345;
 import gda.device.detector.mar345.corba.CorbaMar345Helper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Mar345 class
  */
-public class Mar345Adapter extends DetectorAdapter implements Mar345, Detector, Findable, Scannable {
+public class Mar345Adapter extends DetectorAdapter implements Mar345 {
 
 	private CorbaMar345 corbaMar345;
 

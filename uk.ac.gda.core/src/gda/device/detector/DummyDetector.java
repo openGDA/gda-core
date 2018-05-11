@@ -26,7 +26,7 @@ import gda.factory.FactoryException;
 /**
  * A Dummy class that will create data with the specified dimensions.
  */
-public class DummyDetector extends DetectorBase implements Detector {
+public class DummyDetector extends DetectorBase {
 
 	protected int[] dims/* = {100, 100}*/;
 	protected double[] data;

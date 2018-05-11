@@ -25,10 +25,9 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
-import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.scan.ScanInformation;
 
-public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector , HardwareTriggerableDetector {
+public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggerableDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNXDetector.class);
 	private HardwareTriggerProvider triggerProvider;

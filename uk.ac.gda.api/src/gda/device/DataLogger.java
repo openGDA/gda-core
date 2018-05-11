@@ -23,24 +23,24 @@ package gda.device;
  * Interface to control HP34970 DataLogger.
  */
 
-public interface DataLogger extends Device, Detector {
+public interface DataLogger extends Detector {
 	/**
 	 * Connect the port connection to the logger device
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void connect() throws DeviceException;
 
 	/**
 	 * Disconnect the port connection to the logger device
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void disconnect() throws DeviceException;
 
 	/**
 	 * Gets No of channels included in the scan
-	 * 
+	 *
 	 * @return the no of channels
 	 * @throws DeviceException
 	 */

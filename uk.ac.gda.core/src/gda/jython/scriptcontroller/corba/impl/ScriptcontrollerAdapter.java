@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.corba.CorbaFactoryException;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
@@ -36,7 +35,6 @@ import gda.factory.corba.util.NetService;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.jython.scriptcontroller.corba.CorbaScriptController;
 import gda.jython.scriptcontroller.corba.CorbaScriptControllerHelper;
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.ScanDataPointClient;
@@ -45,7 +43,7 @@ import gda.scan.ScanDataPointVar;
 /**
  * A client side implementation of the adapter pattern for the ScriptController class
  */
-public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, EventSubscriber, IObservable {
+public class ScriptcontrollerAdapter implements Scriptcontroller, EventSubscriber {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScriptcontrollerAdapter.class);
 

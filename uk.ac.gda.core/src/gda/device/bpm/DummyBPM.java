@@ -19,12 +19,10 @@
 
 package gda.device.bpm;
 
-import gda.device.BPM;
-
 /**
  * A dummy beam position monitor.
  */
-public class DummyBPM extends BPMBase implements BPM {
+public class DummyBPM extends BPMBase {
 	@Override
 	public void configure() {
 	}

@@ -19,15 +19,6 @@
 
 package gda.device.detector;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -39,10 +30,19 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+
 /**
  * A Dummy class that will create an image file of a specified format.
  */
-public class DummyImageCreator extends DetectorBase implements Detector {
+public class DummyImageCreator extends DetectorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyImageCreator.class);
 

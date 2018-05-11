@@ -26,18 +26,15 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TRANSIENT;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.XmapDetector;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.xmap.corba.CorbaXmapDetector;
 import gda.device.detector.xmap.corba.CorbaXmapDetectorHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
-public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetector, Findable, Scannable {
+public class XmapAdapter extends DetectorAdapter implements XmapDetector {
 
 	private static final long serialVersionUID = -3788520814633324994L;
 	private CorbaXmapDetector corbaXmapDetector;

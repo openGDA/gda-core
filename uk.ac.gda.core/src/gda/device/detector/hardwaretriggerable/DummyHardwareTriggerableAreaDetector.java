@@ -24,8 +24,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.concurrent.Async;
 
-public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerableDetectorBase implements
-		HardwareTriggerableDetector {
+public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerableDetectorBase {
 
 	private int fileNumber = 0;
 

@@ -19,26 +19,22 @@
 
 package gda.device.detector.etldetector.corba.impl;
 
-import gda.device.Detector;
-import gda.device.Device;
-import gda.device.DeviceException;
-import gda.device.EtlDetector;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.etldetector.corba.CorbaEtlDetector;
-import gda.device.detector.etldetector.corba.CorbaEtlDetectorHelper;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.device.DeviceException;
+import gda.device.EtlDetector;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.device.detector.etldetector.corba.CorbaEtlDetector;
+import gda.device.detector.etldetector.corba.CorbaEtlDetectorHelper;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the Detector class
  */
-public class EtldetectorAdapter extends DetectorAdapter implements EtlDetector, Detector, Findable, Device , Scannable{
+public class EtldetectorAdapter extends DetectorAdapter implements EtlDetector {
 	private CorbaEtlDetector corbaEtlDetector;
 
 	/**

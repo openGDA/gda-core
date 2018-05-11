@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
 import gda.factory.Finder;
 import gda.jscience.physics.quantities.BraggAngle;
 import gda.jscience.physics.quantities.PhotonEnergy;
@@ -45,7 +44,7 @@ import gda.util.QuantityFactory;
  * <p>
  * This can accept and return the mono position as angle, wavelength or energy.
  */
-public class MonoScannable extends ScannableMotionUnitsBase implements ScannableMotionUnits {
+public class MonoScannable extends ScannableMotionUnitsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonoScannable.class);
 

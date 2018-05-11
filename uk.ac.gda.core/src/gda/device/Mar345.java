@@ -22,7 +22,7 @@ package gda.device;
 /**
  * Interface to control MAR 345.
  */
-public interface Mar345 extends Device, Detector {
+public interface Mar345 extends Detector {
 	/**
 	 * Append keyowrds to the current keyword buffer
 	 *

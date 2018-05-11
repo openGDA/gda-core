@@ -19,14 +19,14 @@
 
 package gda.device;
 
-import gda.device.detector.odccd.ODCCDImage;
-
 import java.io.IOException;
+
+import gda.device.detector.odccd.ODCCDImage;
 
 /**
  * Methods (additional to those of Device and Detector) required to control Oxford Detector CCD.
  */
-public interface ODCCD extends Device, Detector {
+public interface ODCCD extends Detector {
 
 	/**
 	 * Connect to the IS software on remote host.

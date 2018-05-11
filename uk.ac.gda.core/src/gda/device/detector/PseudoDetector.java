@@ -19,12 +19,10 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-
 /**
  * PseudoDetector Abstract Class
  */
 @Deprecated
-public abstract class PseudoDetector extends DetectorBase implements Detector {
+public abstract class PseudoDetector extends DetectorBase {
 
 }

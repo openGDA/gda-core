@@ -19,27 +19,24 @@
 
 package gda.device.detector.cobolddetector.corba.impl;
 
-import gda.device.CoboldDetector;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.detector.cobolddetector.corba.CorbaCoboldDetector;
-import gda.device.detector.cobolddetector.corba.CorbaCoboldDetectorHelper;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import java.util.ArrayList;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.device.CoboldDetector;
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.detector.cobolddetector.corba.CorbaCoboldDetector;
+import gda.device.detector.cobolddetector.corba.CorbaCoboldDetectorHelper;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the Cobolddetector class
  */
-public class CobolddetectorAdapter extends DetectorAdapter implements CoboldDetector, Detector, Findable, Scannable {
+public class CobolddetectorAdapter extends DetectorAdapter implements CoboldDetector {
 	private CorbaCoboldDetector corbaCoboldDetector;
 
 	/**

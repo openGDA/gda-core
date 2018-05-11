@@ -29,14 +29,13 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableUtils;
 
 /**
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
  */
-public class IPPserver extends DetectorBase implements Detector {
+public class IPPserver extends DetectorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(IPPserver.class);
 

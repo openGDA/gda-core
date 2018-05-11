@@ -19,23 +19,21 @@
 
 package gda.device.filterarray.corba.impl;
 
-import gda.device.Device;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.FilterArray;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.filterarray.corba.CorbaFilterArray;
 import gda.device.filterarray.corba.CorbaFilterArrayHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the FilterArray class
  */
-public class FilterarrayAdapter extends DeviceAdapter implements FilterArray, Findable, Device {
+public class FilterarrayAdapter extends DeviceAdapter implements FilterArray {
 	private CorbaFilterArray corbaFilterArray;
 	/**
 	 * Create client side interface to the CORBA package.

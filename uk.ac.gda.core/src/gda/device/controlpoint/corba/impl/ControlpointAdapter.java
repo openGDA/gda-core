@@ -19,23 +19,21 @@
 
 package gda.device.controlpoint.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.ControlPoint;
-import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.controlpoint.corba.CorbaControlPoint;
 import gda.device.controlpoint.corba.CorbaControlPointHelper;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the ControlPoint class
  */
-public class ControlpointAdapter extends ScannableAdapter implements ControlPoint, Findable, Device {
+public class ControlpointAdapter extends ScannableAdapter implements ControlPoint {
 	private CorbaControlPoint corbaControlPoint;
 
 	/**

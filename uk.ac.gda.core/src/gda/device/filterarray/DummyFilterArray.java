@@ -20,12 +20,11 @@
 package gda.device.filterarray;
 
 import gda.device.DeviceException;
-import gda.device.FilterArray;
 
 /**
  * Simulated implementation of the FilterArray interface.
  */
-public class DummyFilterArray extends FilterArrayBase implements FilterArray {
+public class DummyFilterArray extends FilterArrayBase {
 	private double currentAbsorption = 0.5;
 
 	private double currentEnergy = 1.0;

@@ -26,12 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.continuouscontroller.SimulatedTriggerObserver;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 
-public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTriggerableDetectorBase implements SimulatedTriggerObserver {
+public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTriggerableDetectorBase {
 	private static final Logger logger = LoggerFactory.getLogger(DummyHardwareTriggerableDetectorBase.class);
 	final ITerminalPrinter terminal = InterfaceProvider.getTerminalPrinter();
 

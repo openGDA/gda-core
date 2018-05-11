@@ -19,29 +19,26 @@
 
 package gda.device.robot.corba.impl;
 
-import gda.device.Device;
-import gda.device.DeviceException;
-import gda.device.Robot;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.robot.SampleState;
-import gda.device.robot.corba.CorbaRobot;
-import gda.device.robot.corba.CorbaRobotHelper;
-import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import java.io.Serializable;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 import org.python.core.PyObject;
 
+import gda.device.DeviceException;
+import gda.device.Robot;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.robot.SampleState;
+import gda.device.robot.corba.CorbaRobot;
+import gda.device.robot.corba.CorbaRobotHelper;
+import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the motor class
  */
-public class RobotAdapter extends ScannableAdapter implements Robot, Scannable, Device, Findable {
+public class RobotAdapter extends ScannableAdapter implements Robot {
 	private CorbaRobot corbaRobot;
 
 	/**

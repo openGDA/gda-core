@@ -24,13 +24,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
 
 /**
  * A dummy implementation of the Monitor interface for testing / development.
  */
-public class DummyMonitor extends MonitorBase implements Monitor, Scannable {
+public class DummyMonitor extends MonitorBase {
 
 	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 

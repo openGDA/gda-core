@@ -29,9 +29,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DataLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
-import gda.factory.Findable;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -40,7 +38,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  * pollDone() method changes the dataValues in rotation and notifies the DataLogger's observers.
  *
  */
-public class DummyDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Scannable {
+public class DummyDataLogger extends DetectorBase implements DataLogger {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyDataLogger.class);
 

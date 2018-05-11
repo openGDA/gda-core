@@ -19,9 +19,6 @@
 
 package gda.device.detector;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,10 +26,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import gda.device.DeviceException;
+
 /**
  * Class to communicate with the SESO XBPM software to get the beam position.
  */
-public class SesoXbpmDetector extends DetectorBase implements Detector {
+public class SesoXbpmDetector extends DetectorBase {
 	double[] xy = new double[2];
 
 	// Default values. These should be defined in the configuration.

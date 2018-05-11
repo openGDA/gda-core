@@ -24,16 +24,14 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorStatus;
-import gda.observable.IObservable;
 
 /**
  * A Dummy motor class
  */
-public class DummyMotor extends MotorBase implements IObservable, Motor {
+public class DummyMotor extends MotorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyMotor.class);
 

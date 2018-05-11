@@ -27,22 +27,19 @@ import org.omg.CORBA.TRANSIENT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.enumpositioner.corba.CorbaEnumPositioner;
 import gda.device.enumpositioner.corba.CorbaEnumPositionerHelper;
 import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
 /**
  * A client side implementation of the adapter pattern for the Enumpositioner class
  */
-public class EnumpositionerAdapter extends ScannableAdapter implements EnumPositioner, Scannable, Device, Findable {
+public class EnumpositionerAdapter extends ScannableAdapter implements EnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EnumpositionerAdapter.class);
 

@@ -19,16 +19,15 @@
 
 package gda.device.memory;
 
-import gda.device.DeviceException;
-import gda.device.Memory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 /**
  * A memory class for the HY8513 Hytec Incremental Counter Encoder implemented using DA.Server
  */
-public class EncoderCounter extends Gdhist implements Memory {
+public class EncoderCounter extends Gdhist {
 
 	private static final Logger logger = LoggerFactory.getLogger(EncoderCounter.class);
 

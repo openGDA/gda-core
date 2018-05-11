@@ -19,26 +19,23 @@
 
 package gda.device.detector.analyser.corba.impl;
 
-import gda.device.Analyser;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.detector.analyser.corba.CorbaAnalyser;
-import gda.device.detector.analyser.corba.CorbaAnalyserHelper;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import java.io.Serializable;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.device.Analyser;
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.detector.analyser.corba.CorbaAnalyser;
+import gda.device.detector.analyser.corba.CorbaAnalyserHelper;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.factory.corba.util.NetService;
+
 /**
  * A client side implementation of the adapter pattern for the Analyser class
  */
-public class AnalyserAdapter extends DetectorAdapter implements Analyser, Detector, Findable, Scannable {
+public class AnalyserAdapter extends DetectorAdapter implements Analyser {
 	private CorbaAnalyser corbaAnalyser;
 
 	/**

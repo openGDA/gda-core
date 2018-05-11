@@ -19,24 +19,21 @@
 
 package gda.device.detector.countertimer.corba.impl;
 
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.CounterTimer;
-import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.countertimer.corba.CorbaCounterTimer;
 import gda.device.detector.countertimer.corba.CorbaCounterTimerHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the CounterTimer class
  */
-public class CountertimerAdapter extends DetectorAdapter implements CounterTimer, Detector, Findable, Scannable {
+public class CountertimerAdapter extends DetectorAdapter implements CounterTimer {
 	private CorbaCounterTimer corbaCounterTimer;
 
 	/**

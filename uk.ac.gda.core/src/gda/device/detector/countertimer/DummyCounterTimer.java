@@ -19,9 +19,13 @@
 
 package gda.device.detector.countertimer;
 
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.Timer;
 import gda.device.TimerStatus;
 import gda.device.timer.DummyTfg;
@@ -33,18 +37,13 @@ import gda.observable.IObserver;
 import gda.scan.Scan;
 import gda.util.Gaussian;
 
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Can be used as a substitute for a CounterTimer for testing purposes. Not all the methods work though it can be used
  * in scans and will produce either totally random data or a set of Gaussians depending on the setting of the
  * useGaussian flag. The widths and heights of the Gaussians and a level of random noise applied to them are all
  * controlled by xml parameters.
  */
-public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObserver, Scannable {
+public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyCounterTimer.class);
 

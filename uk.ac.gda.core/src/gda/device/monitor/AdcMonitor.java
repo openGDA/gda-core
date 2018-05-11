@@ -25,15 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Adc;
 import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
 import gda.factory.Finder;
 
 /**
  * Class to monitor an ADC
  */
 
-public class AdcMonitor extends MonitorBase implements Monitor, Scannable {
+public class AdcMonitor extends MonitorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(AdcMonitor.class);
 

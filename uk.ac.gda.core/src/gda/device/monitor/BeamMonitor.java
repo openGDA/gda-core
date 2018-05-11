@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
@@ -47,7 +45,7 @@ import gda.observable.IObserver;
  * <p>
  * This class relies on the Detector class being observed sending its IObervers a copy of its data.
  */
-public class BeamMonitor extends MonitorBase implements Runnable, Monitor, IObserver, Scannable {
+public class BeamMonitor extends MonitorBase implements Runnable, IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamMonitor.class);
 	private double threshold = 1.0;
