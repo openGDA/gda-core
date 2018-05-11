@@ -32,9 +32,11 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
+@ServiceInterface(Scannable.class)
 public class CameraXYScannable extends ScannableBase implements InitializingBean {
 	// private static final Logger logger = LoggerFactory.getLogger(CameraXYScannable.class);
 
