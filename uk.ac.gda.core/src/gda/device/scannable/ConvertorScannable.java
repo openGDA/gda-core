@@ -33,6 +33,7 @@ import gda.factory.Finder;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
 import gda.util.converters.IQuantityConverter;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Replacement for CombinedDOF. This Scannable operates a ScannableMotionUnits scannable via a
@@ -41,6 +42,7 @@ import gda.util.converters.IQuantityConverter;
  * <p>
  * The underlying Scannable should only have a single value input (getInputNames().length ==1);
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class ConvertorScannable extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConvertorScannable.class);

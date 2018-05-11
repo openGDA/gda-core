@@ -18,13 +18,15 @@
 
 package gda.device.scannable;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-import org.springframework.beans.factory.InitializingBean;
-
+@ServiceInterface(ScannableMotionUnits.class)
 public class ScannableRotatingGonio extends ScannableMotionUnitsBase implements InitializingBean {
 	private ScannableMotionUnits rotScannableMotor;
 	private ScannableMotionUnits xScannableMotor;
