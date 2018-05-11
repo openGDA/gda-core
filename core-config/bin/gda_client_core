@@ -16,8 +16,7 @@ jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/
 if [ -d "${jacorb_config_dir}" ]; then
     VMARGS="-Djacorb.config.dir=${jacorb_config_dir} $VMARGS"
 else
-    bashlog error "gda_client_core" "Can't find jacorb directory $jacorb_config_dir}"
-    exit 1
+    bashlog warn "gda_client_core" "Can't find jacorb directory ${jacorb_config_dir}. This is OK if you're running without Corba."
 fi
 
 jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/JCALibrary.properties
