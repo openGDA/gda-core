@@ -22,14 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.DummyPersistentScannable;
 import gda.device.scannable.ScannableMotionUnitsBase;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.observable.IObserver;
 import uk.ac.gda.util.ThreadManager;
 
@@ -41,7 +39,7 @@ import uk.ac.gda.util.ThreadManager;
  * <p>
  * Assumes the detector motor has been calibrated in such a way that its position is the same as the Bragg angle.
  */
-public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements Scannable, Findable, IObserver {
+public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
 
