@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.IScanDataPointObserver;
@@ -35,7 +34,7 @@ import gda.scan.ScanDataPoint;
  * A zero input, zero extra names Scannable which should be included in XAS scans to send progress messages to the
  * LoggingScriptController.
  */
-public class XasProgressUpdater extends ScannableBase implements Scannable, IScanDataPointObserver {
+public class XasProgressUpdater extends ScannableBase implements IScanDataPointObserver {
 
 	private transient final LoggingScriptController controller;
 	private volatile boolean atEndCalled = false;

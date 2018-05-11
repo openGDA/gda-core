@@ -19,14 +19,13 @@
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-public class PowerSupplyScannable extends ScannableBase implements Scannable{
+public class PowerSupplyScannable extends ScannableBase {
 
 	private CAClient ca_client = new CAClient();
 

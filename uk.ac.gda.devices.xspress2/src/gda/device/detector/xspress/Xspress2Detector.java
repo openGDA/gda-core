@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.NexusDetector;
 import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
@@ -61,7 +60,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressFluorescenceDetector {
+public class Xspress2Detector extends XspressSystem implements XspressFluorescenceDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 

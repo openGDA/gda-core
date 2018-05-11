@@ -31,7 +31,7 @@ import gda.factory.Finder;
  * As the step size and collection time varies during XAS scans this Scannable is used so it can operate over a 2D
  * PyTuple of the data points (an explicit scan object in ConcurrentScan).
  */
-public class XasScannable extends ScannableBase implements Scannable {
+public class XasScannable extends ScannableBase {
 
 	protected Scannable energyScannable;
 	protected Scannable[] theDetectors;
