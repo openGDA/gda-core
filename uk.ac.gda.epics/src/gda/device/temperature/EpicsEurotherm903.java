@@ -19,7 +19,6 @@
 package gda.device.temperature;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.epics.CAClient;
 import gda.jython.InterfaceProvider;
@@ -37,7 +36,7 @@ import gov.aps.jca.TimeoutException;
  *
  * @author Iain Hall
  */
-public class EpicsEurotherm903 extends ScannableBase implements Scannable {
+public class EpicsEurotherm903 extends ScannableBase {
 
 	private CAClient caClient = new CAClient();
 

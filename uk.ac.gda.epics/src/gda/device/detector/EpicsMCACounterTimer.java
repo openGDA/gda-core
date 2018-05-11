@@ -34,7 +34,7 @@ import gda.factory.Finder;
  * CounterTimer that uses a number of EpicsMCAs as channels. The data from each MCA is summed to give a single value per
  * channel.
  */
-public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase implements Detector {
+public class EpicsMCACounterTimer extends DetectorBase {
 
 	protected List<String> epicsMcaNameList = new ArrayList<>();
 

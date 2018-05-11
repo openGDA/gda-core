@@ -23,20 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
 /**
  * Version of EpicsValve which uses callback for the status rather than looking at the status PV.
  */
-public class EpicsValveCallback extends EpicsValve implements EnumPositioner, MonitorListener, Scannable {
+public class EpicsValveCallback extends EpicsValve {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsValveCallback.class);
 
 	private PutCallbackListener putCallbackListener;

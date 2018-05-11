@@ -22,13 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.enumpositioner.EpicsEnumConstants;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.epics.CAClient;
-import gda.factory.Findable;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
@@ -37,7 +35,7 @@ import gov.aps.jca.TimeoutException;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findable, IObserver {
+public class EpicsCurrAmpGain extends ScannableBase implements IObserver {
 
 	private String pvName;
 	private CAClient ca_client = new CAClient();

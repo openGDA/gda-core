@@ -18,6 +18,12 @@
 
 package gda.device.scannable;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
@@ -29,12 +35,6 @@ import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 import gda.scan.ConstantVelocityRasterScan;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A Scannable suitable for use in {@link ConstantVelocityRasterScan}s inorder to control a PIE725 2d piezo controller.
  * <p>
@@ -43,8 +43,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * ConstantVelocityRasterScan([name.nameY, s, s, s, name.nameX, s, s, s, deta, time ...])
  */
-public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithScannableFieldsBase implements
-		ContinuouslyScannableViaController {
+public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithScannableFieldsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(PIE725ConstantVelocityRasterScannable.class);
 

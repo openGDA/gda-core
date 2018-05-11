@@ -28,7 +28,6 @@ import gda.epics.connection.STSHandler;
 import gda.epics.util.JCAUtils;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -44,8 +43,7 @@ import gov.aps.jca.event.PutListener;
 /**
  *
  */
-public class AsynEpicsTca extends DeviceBase implements Device, Findable, MonitorListener, ConnectionListener,
-		PutListener {
+public class AsynEpicsTca extends DeviceBase implements MonitorListener, ConnectionListener, PutListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsynEpicsTca.class);
 

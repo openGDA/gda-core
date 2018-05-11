@@ -45,8 +45,7 @@ import gov.aps.jca.event.PutListener;
 /**
  * Epics scaler class.
  */
-public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements Detector, MonitorListener, ConnectionListener,
-		PutListener {
+public class AsynEpicsScaler extends DetectorBase implements MonitorListener, ConnectionListener, PutListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsynEpicsScaler.class);
 

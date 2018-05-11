@@ -18,25 +18,21 @@
 
 package gda.device.detector.multichannelscaler.corba.impl;
 
-import gda.device.Detector;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
 import gda.device.detector.multichannelscaler.EpicsMcsSis3820;
 import gda.device.detector.multichannelscaler.corba.CorbaMultiChannelScaler;
 import gda.device.detector.multichannelscaler.corba.CorbaMultiChannelScalerHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the DataLogger class
  */
-public class MultichannelscalerAdapter extends DetectorAdapter implements EpicsMcsSis3820, Detector, Findable,
-		Scannable {
+public class MultichannelscalerAdapter extends DetectorAdapter implements EpicsMcsSis3820 {
 	private CorbaMultiChannelScaler corbaMultiChannelScaler;
 
 	/**

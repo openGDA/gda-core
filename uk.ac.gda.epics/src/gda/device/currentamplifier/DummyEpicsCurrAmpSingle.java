@@ -24,16 +24,14 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
 
 /**
  * simulation for a single Channel Current Amplifier device, provide controls for gain and mode, and reading for current value.
  */
-public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase implements Scannable, CurrentAmplifier {
+public class DummyEpicsCurrAmpSingle extends CurrentAmplifierBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyEpicsCurrAmpSingle.class);
 

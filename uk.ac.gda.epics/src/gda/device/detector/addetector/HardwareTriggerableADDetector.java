@@ -19,14 +19,6 @@
 package gda.device.detector.addetector;
 
 import static org.apache.commons.io.FileUtils.waitFor;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.HardwareTriggerProvider;
-import gda.device.detector.NexusDetector;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.scannable.PositionCallableProvider;
-import gda.jython.InterfaceProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +28,16 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HardwareTriggerableADDetector extends ADDetector implements HardwareTriggerableDetector,
-		PositionCallableProvider<NexusTreeProvider> {
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.HardwareTriggerProvider;
+import gda.device.detector.NexusDetector;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.scannable.PositionCallableProvider;
+import gda.jython.InterfaceProvider;
+
+public class HardwareTriggerableADDetector extends ADDetector implements HardwareTriggerableDetector {
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
 

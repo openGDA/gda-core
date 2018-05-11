@@ -21,10 +21,9 @@ package gda.device.detector.addetector.triggering;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
-import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.factory.FactoryException;
 
-public class TFG2CVmoveController extends DeviceBase implements HardwareTriggerProvider, ConstantVelocityMoveController{
+public class TFG2CVmoveController extends DeviceBase implements ConstantVelocityMoveController {
 
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {

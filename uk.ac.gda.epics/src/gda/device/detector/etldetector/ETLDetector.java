@@ -21,10 +21,8 @@ package gda.device.detector.etldetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EtlDetector;
-import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.EpicsScaler;
 import gda.device.enumpositioner.EpicsSimpleMbbinary;
@@ -41,7 +39,7 @@ import gov.aps.jca.event.MonitorListener;
  * counter. The sensor is based on scintillation technology, and the counter is using one channel out of 32 on a Struck
  * Scaler card.
  */
-public class ETLDetector extends DetectorBase implements EtlDetector, Detector, Scannable {
+public class ETLDetector extends DetectorBase implements EtlDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(ETLDetector.class);
 

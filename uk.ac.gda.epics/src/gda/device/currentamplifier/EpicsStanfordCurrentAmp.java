@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
-import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -39,8 +37,7 @@ import gov.aps.jca.Channel;
 /**
  * EPICS class for Stanford SR570 Current Amplifier device.
  */
-public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements InitializationListener, Scannable,
-		CurrentAmplifier {
+public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsStanfordCurrentAmp.class);
 

@@ -39,7 +39,7 @@ import gda.util.converters.IQuantityConverter;
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multi-channel
  * analyser (MCA).
  */
-public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
+public class EpicsMCA2 extends DetectorBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCA2.class);
 

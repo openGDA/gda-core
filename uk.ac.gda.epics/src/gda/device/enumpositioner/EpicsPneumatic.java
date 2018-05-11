@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -50,7 +49,7 @@ import gov.aps.jca.event.MonitorListener;
  * @deprecated Replace with {@link EpicsPneumaticCallback}
  */
 @Deprecated
-public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner, InitializationListener {
+public class EpicsPneumatic extends EnumPositionerBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPneumatic.class);
 

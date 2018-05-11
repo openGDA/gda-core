@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -63,7 +62,7 @@ import gov.aps.jca.event.MonitorListener;
  * A class which monitors the value of single Epics PV. The value is then broadcast to IObservers of this object or can be
  * retrieved via the getValue method. This will not monitor changes to limits, alarms or status.
  */
-public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, InitializationListener, Scannable {
+public class EpicsMonitor extends MonitorBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMonitor.class);
 

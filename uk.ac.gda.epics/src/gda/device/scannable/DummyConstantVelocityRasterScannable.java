@@ -18,6 +18,11 @@
 
 package gda.device.scannable;
 
+import java.text.MessageFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
@@ -25,11 +30,6 @@ import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBas
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConstantVelocityRasterScan;
-
-import java.text.MessageFormat;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Scannable suitable for use in {@link ConstantVelocityRasterScan}s for a dummy controller.
@@ -39,8 +39,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * ConstantVelocityRasterScan([name.nameY, s, s, s, name.nameX, s, s, s, deta, time ...])
  */
-public class DummyConstantVelocityRasterScannable extends ScannableMotionWithScannableFieldsBase implements
-		ContinuouslyScannableViaController {
+public class DummyConstantVelocityRasterScannable extends ScannableMotionWithScannableFieldsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyConstantVelocityRasterScannable.class);
 

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Monitor;
 import gda.device.Scannable;
@@ -48,8 +47,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * EpicsCurrAmpQuadController Class
  */
-public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Monitor, InitializationListener,
-		Scannable, EnumPositioner {
+public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Monitor, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpQuadController.class);
 	 // following fields allow PV name to be set individually e.g. I10

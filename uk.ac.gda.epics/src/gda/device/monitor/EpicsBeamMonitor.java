@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.device.Scannable;
 import gda.device.detector.EpicsScaler;
 import gda.device.detector.etldetector.ETLDetector;
 import gda.device.scannable.ScannableUtils;
@@ -53,7 +51,7 @@ import gov.aps.jca.event.MonitorListener;
  * is spawned to monitor the detector until the data is above the threshold value for a given number of consecutive
  * reads before the scan is resumed.
  */
-public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, MonitorListener, Scannable {
+public class EpicsBeamMonitor extends MonitorBase implements Runnable, MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBeamMonitor.class);
 

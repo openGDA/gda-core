@@ -48,7 +48,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * Epics scaler class.
  */
-public class EpicsScaler extends DetectorBase implements Detector, InitializationListener {
+public class EpicsScaler extends DetectorBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsScaler.class);
 

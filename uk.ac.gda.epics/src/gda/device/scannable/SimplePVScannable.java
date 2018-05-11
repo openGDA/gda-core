@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
 
@@ -31,7 +30,7 @@ import gda.factory.FactoryException;
  * It supports a configurable data type of either number or String from the specified PV.
  * It also monitors the value change of the specified PV, and notify any observer.
  */
-public class SimplePVScannable extends ScannableBase implements Scannable {
+public class SimplePVScannable extends ScannableBase {
 
 	private static final Logger logger=LoggerFactory.getLogger(SimplePVScannable.class);
 	private String pvName;

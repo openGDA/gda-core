@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.Channel;
@@ -44,7 +42,7 @@ import gov.aps.jca.event.MonitorListener;
  * <P>
  * The stop method in this class does nothing as the valves operate too fast for such a method to be meaningful.
  */
-public class EpicsValve extends EnumPositionerBase implements EnumPositioner, MonitorListener, Scannable {
+public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsValve.class);
 

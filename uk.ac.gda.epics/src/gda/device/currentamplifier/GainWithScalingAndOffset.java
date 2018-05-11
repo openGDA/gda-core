@@ -18,14 +18,18 @@
 
 package gda.device.currentamplifier;
 
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.Channel;
@@ -34,16 +38,10 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class GainWithScalingAndOffset extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
+public class GainWithScalingAndOffset extends ScannableBase implements ScalingAndOffset, MonitorListener {
 	private static final Logger logger = LoggerFactory.getLogger(GainWithScalingAndOffset.class);
 
 	public class OptionsExhausedException extends DeviceException {

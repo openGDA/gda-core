@@ -105,8 +105,7 @@ import gda.scan.ScanInformation;
  * <li>Another NexusTreeProvider that provides meta data if present.</li>
  * </ol>
  */
-public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector,
-		PositionCallableProvider<NexusTreeProvider> {
+public class ADDetector extends DetectorBase implements InitializingBean, NexusDetector, PositionCallableProvider<NexusTreeProvider> {
 
 	public class NullFileWriter implements NXFileWriterPlugin {
 

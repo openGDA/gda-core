@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.SimpleArray;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
@@ -43,7 +42,7 @@ import gov.aps.jca.event.MonitorListener;
  * It supports variable length String IO to EPICS waveform record. It has build-in string to/from int array conversion.
  * The object of this class will monitor changes in waveform as well.
  */
-public class EpicsSimpleArray extends ScannableBase implements SimpleArray, InitializationListener, Scannable {
+public class EpicsSimpleArray extends ScannableBase implements SimpleArray, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleArray.class);
 

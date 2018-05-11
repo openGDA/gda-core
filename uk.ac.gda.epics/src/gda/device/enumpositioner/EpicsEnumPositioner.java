@@ -24,9 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
-import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.STSHandler;
@@ -44,8 +42,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * Driver class for Epics Positioners
  */
-public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPositioner, MonitorListener,
-		ConnectionListener, Scannable {
+public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorListener, ConnectionListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEnumPositioner.class);
 

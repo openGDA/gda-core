@@ -36,7 +36,6 @@ import gda.epics.interfaceSpec.InterfaceException;
 import gda.epics.interfaces.SimpleScalerType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -45,7 +44,7 @@ import gov.aps.jca.TimeoutException;
 /**
  * EpicsADC Class.
  */
-public class EpicsADC extends DeviceBase implements Adc, Findable, InitializationListener {
+public class EpicsADC extends DeviceBase implements Adc, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsADC.class);
 

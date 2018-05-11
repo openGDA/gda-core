@@ -37,7 +37,7 @@ import gov.aps.jca.event.MonitorListener;
  * Abstract decorator class for {@link EpicsMotor} that initialises and monitors IOC status PV.
  * It also supports connections of motor object to EPICS PVs after GDA had started if IOC status changed to RUNNING.
  */
-public abstract class MotorIocDecorator extends MotorBase implements Motor, InitializingBean {
+public abstract class MotorIocDecorator extends MotorBase implements InitializingBean {
 	private Logger logger = LoggerFactory.getLogger(MotorIocDecorator.class);
 	protected Motor decoratedMotor;
 	protected boolean iocRunning=false;

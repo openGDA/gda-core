@@ -18,14 +18,13 @@
 
 package gda.device.diagnosis;
 
+import java.util.concurrent.Callable;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.addetector.ADDetector;
-import gda.device.scannable.PositionCallableProvider;
 
-import java.util.concurrent.Callable;
-
-public class AravisCamera extends ADDetector implements IAravisCamera, PositionCallableProvider<NexusTreeProvider> {
+public class AravisCamera extends ADDetector implements IAravisCamera {
 
 	private String deviceName;
 	@Override

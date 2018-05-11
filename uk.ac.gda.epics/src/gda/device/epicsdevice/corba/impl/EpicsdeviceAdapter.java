@@ -18,20 +18,18 @@
 
 package gda.device.epicsdevice.corba.impl;
 
-import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.epicsdevice.EpicsDeviceCorbaAdapter;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.IEpicsDevice;
 import gda.device.epicsdevice.ReturnType;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
 /**
  * A client side implementation of the adapter pattern for the ControlPoint class
  */
-public class EpicsdeviceAdapter extends DeviceAdapter implements Findable, Device, IEpicsDevice {
+public class EpicsdeviceAdapter extends DeviceAdapter implements IEpicsDevice {
 	private EpicsDeviceCorbaAdapter epicsDeviceCorbaAdapter;
 
 	// private NetService netService;

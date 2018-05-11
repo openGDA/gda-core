@@ -29,7 +29,6 @@ import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
 import gda.epics.interfaceSpec.InterfaceException;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
@@ -41,7 +40,7 @@ import gov.aps.jca.TimeoutException;
 /**
  *
  */
-public class EpicsTca extends DeviceBase implements Device, Findable, InitializationListener {
+public class EpicsTca extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTca.class);
 

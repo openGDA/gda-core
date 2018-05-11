@@ -28,8 +28,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
 import gda.device.IBeamMonitor;
-import gda.device.Monitor;
-import gda.device.Scannable;
 import gda.device.currentamplifier.EpicsCurrAmpSingle;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -46,7 +44,7 @@ import gda.observable.ObservableComponent;
  * java parameter {@code gda.device.monitor.resumeScan} setting. This monitor behaviour can be switched on and off as
  * required.
  */
-public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scannable, Runnable, IObserver, IBeamMonitor {
+public class IonChamberBeamMonitor extends MonitorBase implements Runnable, IObserver, IBeamMonitor {
 	/**
 	 * the logger instance
 	 */

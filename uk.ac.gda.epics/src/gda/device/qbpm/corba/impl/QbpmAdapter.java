@@ -18,25 +18,22 @@
 
 package gda.device.qbpm.corba.impl;
 
-import gda.device.Device;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Qbpm;
-import gda.device.Scannable;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.enumpositioner.corba.impl.EnumpositionerAdapter;
 import gda.device.qbpm.corba.CorbaQbpm;
 import gda.device.qbpm.corba.CorbaQbpmHelper;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * A client side implementation of the adapter pattern for the Qbpm class
  */
-public class QbpmAdapter extends EnumpositionerAdapter implements Monitor, Findable, Device, Scannable, Qbpm {
+public class QbpmAdapter extends EnumpositionerAdapter implements Monitor, Qbpm {
 	private CorbaQbpm corbaQbpm;
 
 	/**

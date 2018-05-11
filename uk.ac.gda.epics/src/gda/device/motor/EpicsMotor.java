@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
-import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorProperties.MotorProperty;
@@ -72,7 +71,7 @@ import gov.aps.jca.event.PutListener;
  * EpicsMotor implements GDA Motor interface and provide mapping from GDA interface to EPICS motor record. Note only
  * selected PVs or channels are instantiated in this class as required by the GDA motor interface.
  */
-public class EpicsMotor extends MotorBase implements Motor, InitializationListener, IObserver {
+public class EpicsMotor extends MotorBase implements InitializationListener, IObserver {
 
 	@Override
 	public void savePosition(String name, double currentPosition) {
