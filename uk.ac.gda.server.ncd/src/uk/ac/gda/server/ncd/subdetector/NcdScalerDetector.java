@@ -36,7 +36,7 @@ import gda.factory.FactoryException;
 /**
  * A class to represent a detector for NCD.
  */
-public class NcdScalerDetector extends NcdSubDetector implements INcdSubDetector {
+public class NcdScalerDetector extends NcdSubDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdScalerDetector.class);
 	protected Gdhist memory = null;

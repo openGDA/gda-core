@@ -27,14 +27,12 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
-import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
-import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetector;
@@ -43,7 +41,7 @@ import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorHelper;
 /**
  * A client side implementation of the adapter pattern for the Detector class
  */
-public class SubdetectorAdapter extends DeviceAdapter implements INcdSubDetector, Findable, Device {
+public class SubdetectorAdapter extends DeviceAdapter implements INcdSubDetector {
 	private CorbaNcdsubDetector corbaNcdDetector;
 
 	/**

@@ -18,19 +18,14 @@
 
 package uk.ac.gda.server.ncd.detectorsystem.corba.impl;
 
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.Device;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.detector.corba.impl.DetectorAdapter;
+import gda.factory.corba.util.NetService;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetector;
 import uk.ac.gda.server.ncd.detectorsystem.corba.CorbaNcdDetectorsystem;
 import uk.ac.gda.server.ncd.detectorsystem.corba.CorbaNcdDetectorsystemHelper;
@@ -39,7 +34,7 @@ import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 /**
  * A client side implementation of the adapter pattern for the Detector class
  */
-public class DetectorsystemAdapter extends DetectorAdapter implements NcdDetector, Detector, Findable, Device, Scannable {
+public class DetectorsystemAdapter extends DetectorAdapter implements NcdDetector {
 	private CorbaNcdDetectorsystem corbaNcdDetector;
 
 	/**
@@ -150,7 +145,7 @@ public class DetectorsystemAdapter extends DetectorAdapter implements NcdDetecto
 		}
 		throw new DeviceException("Communication failure: retry failed");
 	}
-	
+
 	@Override
 	public void addDetector(INcdSubDetector det) throws DeviceException {
 		// TODO Auto-generated method stub
