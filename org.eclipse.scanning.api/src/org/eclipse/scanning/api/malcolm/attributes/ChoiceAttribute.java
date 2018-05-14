@@ -73,4 +73,9 @@ public class ChoiceAttribute extends MalcolmAttribute<String> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ChoiceAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }

@@ -56,4 +56,9 @@ public class BooleanAttribute extends MalcolmAttribute<Boolean> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "BooleanAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }

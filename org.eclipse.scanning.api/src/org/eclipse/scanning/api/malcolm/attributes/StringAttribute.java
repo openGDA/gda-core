@@ -60,4 +60,9 @@ public class StringAttribute extends MalcolmAttribute<String> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "StringAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }
