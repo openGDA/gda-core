@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.SimpleUDPServerScannable;
@@ -36,7 +35,7 @@ import gda.util.OSCommandRunner;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class DataReductionScannable extends DummyScannable implements Scannable, IObserver {
+public class DataReductionScannable extends DummyScannable implements IObserver {
 	private static final Logger logger=LoggerFactory.getLogger(DataReductionScannable.class);
 	private Scriptcontroller eventAdmin;
 	private boolean calibrant=false;
