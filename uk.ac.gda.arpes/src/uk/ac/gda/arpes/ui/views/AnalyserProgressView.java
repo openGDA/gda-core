@@ -84,7 +84,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		completedIterTxt.setEditable(false);
 		completedIterTxt.setEnabled(false);
 		completedIterTxt.setToolTipText("The number of iterations completed");
-		completedIterTxt.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+		completedIterTxt.setLayoutData(new GridData(40, SWT.DEFAULT));
 
 		Label lblNewMaximum = new Label(parent, SWT.NONE);
 		GridData gd_lblNewMaximum = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
@@ -96,6 +96,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		scheduledIterTxt.setEditable(false);
 		scheduledIterTxt.setEnabled(false);
 		scheduledIterTxt.setToolTipText("The number of iterations requested");
+		scheduledIterTxt.setLayoutData(new GridData(40, SWT.DEFAULT));
 
 		List<IVGScientaAnalyserRMI> analysers = Finder.getInstance().listFindablesOfType(IVGScientaAnalyserRMI.class);
 		if (analysers.size() != 1) {
