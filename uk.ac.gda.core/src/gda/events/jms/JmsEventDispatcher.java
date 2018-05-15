@@ -39,6 +39,7 @@ import javax.jms.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.corba.util.EventDispatcher;
 import gda.util.Serializer;
 
@@ -48,6 +49,9 @@ import gda.util.Serializer;
 public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 
 	private static final Logger logger = LoggerFactory.getLogger(JmsEventDispatcher.class);
+
+	/** If the serialized object being sent is larger than this size a warning will be logged. Default is 10 MB */
+	private static final int SERIALIZED_OBJECT_SIZE_WARNING_BYTES = LocalProperties.getAsInt("gda.events.jms.eventSizeWarning", 10_000_000);
 
 	/** If an event being dispatched is older than this value a warning will be logged */
 	private static final long QUEUE_TIME_WARNING_MS = 1000L; // 1 sec
@@ -169,6 +173,10 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 			// ActiveMQ could serialize for us but then ActiveMQ needs to be able to see all the classes
 			// we might want to deserialize into.
 			final byte[] serializedObject = Serializer.toByte(message);
+			// Check the size of the object to be sent is reasonable
+			if (serializedObject.length > SERIALIZED_OBJECT_SIZE_WARNING_BYTES) {
+				logger.warn("Sending object '{}' is {} bytes.", message, serializedObject.length);
+			}
 			// Make a object message containing the serialized message object
 			final ObjectMessage objectMessage = session.createObjectMessage(serializedObject);
 			// Add a sending timestamp to message - approximately when the event happened
