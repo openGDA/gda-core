@@ -109,6 +109,8 @@ public abstract class XasScanBase implements XasScan {
 	private String scanFileName;
 	private String detectorFileName;
 	private String outputFileName;
+	private String detectorConfigurationFilename;
+
 	protected ISampleParameters sampleBean;
 	protected IScanParameters scanBean;
 	protected IDetectorParameters detectorBean;
@@ -139,12 +141,14 @@ public abstract class XasScanBase implements XasScan {
 
 		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
 
-		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);
+		configureCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);
+
+		doCollection();
 
 		return new PyInteger(0);
 	}
 
-	public void doCollection(String sampleFileName, String scanFileName, String detectorFileName,
+	public void configureCollection(String sampleFileName, String scanFileName, String detectorFileName,
 			String outputFileName, String experimentFullPath, int numRepetitions) throws Exception {
 
 		this.numRepetitions = numRepetitions;
@@ -152,12 +156,10 @@ public abstract class XasScanBase implements XasScan {
 		determineExperimentPath(experimentFullPath);
 
 		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
-
-		doCollection();
 	}
 
 	@Override
-	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
+	public void configureCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
 			IOutputParameters outputBean, IDetectorConfigurationParameters detectorConfigurationBean,
 			String experimentFullPath, int numRepetitions) throws Exception {
 
@@ -168,14 +170,13 @@ public abstract class XasScanBase implements XasScan {
 		this.detectorConfigurationBean = detectorConfigurationBean;
 		this.numRepetitions = numRepetitions;
 
-		setXmlFileNames("", "", "", "");
+		setXmlFileNames("", "", "", "", "");
 
 		determineExperimentPath(experimentFullPath);
-
-		doCollection();
 	}
 
-	protected void doCollection() throws Exception {
+	@Override
+	public void doCollection() throws Exception {
 
 		configurePreparers();
 
@@ -333,11 +334,18 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	public void setXmlFileNames(String sampleFileName, String scanFileName, String detectorFileName,
-			String outputFileName) {
+			String outputFileName, String detectorConfigFileName) {
 		this.sampleFileName = sampleFileName;
 		this.scanFileName = scanFileName;
 		this.detectorFileName = detectorFileName;
 		this.outputFileName = outputFileName;
+		this.detectorConfigurationFilename = detectorConfigFileName;
+	}
+
+	/** @return array of xml bean filenames containing scan settings : sample, scan, detector, output, detector config.
+	 */
+	public String[] getXmlFileNames() {
+		return new String[] {sampleFileName, scanFileName, detectorFileName, outputFileName, detectorConfigurationFilename};
 	}
 
 	protected void log(String msg) {
@@ -383,7 +391,7 @@ public abstract class XasScanBase implements XasScan {
 			detectorConfigurationBean = (IDetectorConfigurationParameters) XMLHelpers.getBeanObject(experimentFullPath, detectorConfigurationFilename);
 		}
 
-		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
+		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName, detectorConfigurationFilename);
 	}
 
 	private void configurePreparers() throws Exception {

@@ -133,6 +133,12 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String DETECTOR_ELEMENT_ORDER = "exafs.editor.detectorElementOrder.preference";
 
+	/**
+	 * When set to 'true', show GUI controls in FluorescenceDetectorComposite for setting the
+	 * deadtime correction (DTC) energy (for xspress2, xspress4 detectors only)
+	 */
+	public static final String DETECTOR_SHOW_DTC_ENERGY = "exafs.editor.showDtcEnergy.preference";
+
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
 
 	/**

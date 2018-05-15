@@ -66,8 +66,9 @@ public class MapSelector {
 		// it has to be a MicroFocusScanParameters object or its not a map
 		MicroFocusScanParameters scanBean = (MicroFocusScanParameters) XMLHelpers.getBeanObject(folderName,
 				scanFileName);
-		non_raster.doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName,
+		non_raster.configureCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, folderName,
 				numRepetitions);
+		non_raster.doCollection();
 		return new PyInteger(0);
 	}
 

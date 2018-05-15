@@ -443,7 +443,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		String minElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "P");
-		String maxElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MIN_ELEMENT_PROP, "U");
+		String maxElement = LocalProperties.get(ElementEdgeEditor.EXAFS_MAX_ELEMENT_PROP, "U");
 		if (!Arrays.asList(Element.getSortedEdgeSymbols(minElement, maxElement)).contains(x.getElement())) {
 			errors.add(new InvalidBeanMessage("The element '" + x.getElement()
 					+ "' is not currently allowed to be scanned."));

@@ -27,6 +27,8 @@
 				</xsd:element>
 				<xsd:element name="editIndividualElements" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
+				<xsd:element name="deadtimeCorrectionEnergy" type="xsd:double" 
+					maxOccurs="1" minOccurs="0"/>
 				<xsd:element name="DetectorElement" maxOccurs="unbounded"
 					minOccurs="1" />
 				<xsd:element name="onlyShowFF" type="xsd:boolean"

@@ -102,8 +102,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 
-        // Magic strings
-        private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
+	// Magic strings
+	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
 
 	/**
 	 * Create a new FluorescenceDetectorCompositeController for the given FluorescenceDetectorComposite. Call at least one of setDetector() and
@@ -309,11 +309,21 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addDtcEnergyUpdateListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
 		// Hide/show output options
 		setShowOutputOptionsFromPreference();
+
+		// Show/hide deadtime correction energy control
+		setShowDTCEnergyFromPreference();
 
 		// setup data store and fetch stored data, if any
 		createDataStore();
@@ -325,6 +335,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.autoscaleAxes();
 
 		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null ? true : false);
+	}
+
+	private void setShowDTCEnergyFromPreference() {
+		boolean showDtcEnergyControls = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_SHOW_DTC_ENERGY);
+		fluorescenceDetectorComposite.setShowDtcEnergyControls(showDtcEnergyControls);
 	}
 
 	/**

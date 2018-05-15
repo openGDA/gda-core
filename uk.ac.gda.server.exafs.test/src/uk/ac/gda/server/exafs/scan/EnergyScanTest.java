@@ -19,23 +19,6 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.countertimer.TfgScalerWithFrames;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.XasScannable;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServer;
-import gda.jython.JythonServerFacade;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.jython.commands.ScannableCommands;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import gda.scan.ConcurrentScan;
-import gda.scan.ScanPlotSettings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -57,6 +40,23 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.NXMetaDataProvider;
+import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.countertimer.TfgScalerWithFrames;
+import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.XasScannable;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServer;
+import gda.jython.JythonServerFacade;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.logging.LoggingScriptController;
+import gda.scan.ConcurrentScan;
+import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -239,7 +239,8 @@ public class EnergyScanTest {
 
 			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
 
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 1);
+			xasscan.configureCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 1);
+			xasscan.doCollection();
 
 			// check that the the correct order of preparers and scan were called
 			InOrder inorder = Mockito.inOrder(beamlinePreparer,detectorPreparer,samplePreparer,outputPreparer,it,outputParams,mockScan,outputParams);
@@ -323,7 +324,8 @@ public class EnergyScanTest {
 
 			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
 
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
+			xasscan.configureCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
+			xasscan.doCollection();
 
 			// check that the the correct order of preparers and scan were called
 
@@ -380,7 +382,8 @@ public class EnergyScanTest {
 
 			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
 
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
+			xasscan.configureCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
+			xasscan.doCollection();
 
 			// check that the the correct order of preparers and scan were called
 

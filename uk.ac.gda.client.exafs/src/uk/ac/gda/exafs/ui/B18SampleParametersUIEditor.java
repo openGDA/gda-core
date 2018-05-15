@@ -391,7 +391,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 	private void createStageShowAll() {
 		if (stageComp == null) {
 
-			selectedSampleStages =  this.bean.getSelectedSampleStages();
+			selectedSampleStages = this.bean.getSelectedSampleStages();
 
 			stageComp = new Composite(sampleStageExpandableComposite, SWT.NONE);
 			GridLayout gridLayout_2 = new GridLayout();
@@ -404,70 +404,69 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 			gridLayout.numColumns = 1;
 			grpStage.setLayout(gridLayout);
 
+			if (bean.getSampleParameterMotorPositions() != null && !bean.getSampleParameterMotorPositions().isEmpty()) {
 
-			ExpandableComposite expComp = addExpandableComposite( grpStage, "xy theta stage" );
-			Group grp = addGroup( expComp );
-			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.XY_THETA);
-			xythetaStageParameters = new XYThetaStageComposite(grp, SWT.NONE, "sam2x", "sam2y", "sam2rot");
-			xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
-			setupExpandableComposite( expComp, grp , SAMPLESTAGE_TYPE.XY_THETA );
+				motorPositionComposite = new SampleParameterMotorPositionsComposite(grpStage, bean.getSampleParameterMotorPositions());
+				motorPositionComposite.setParentEditor(this);
+				motorPositionComposite.makeComposite();
 
-
-			expComp = addExpandableComposite( grpStage, "ln2 cryostage");
-			grp = addGroup( expComp );
-			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.LN2_CRYO);
-			ln2CryoStageComposite = new LN2CryoStageComposite(grp, SWT.NONE, bean );
-			ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
-			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.LN2_CRYO);
-
-
-			expComp = addExpandableComposite( grpStage, "sx cryostage");
-			grp = addGroup( expComp );
-			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.SX_CRYO);
-			sxCryoStageComposite = new SXCryoStageComposite(grp, SWT.NONE, bean);
-			sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
-			sxCryoStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
-			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.SX_CRYO);
-
-
-			expComp = addExpandableComposite( grpStage, "user stage");
-			grp = addGroup( expComp );
-			addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.USER);
-			userStageComposite = new UserStageComposite(grp, SWT.NONE, "user2", "user4", "user5", "user6", "user7", "user8");
-			userStageComposite.setEditorClass(UserStageParameters.class);
-			userStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
-			setupExpandableComposite( expComp, grp, SAMPLESTAGE_TYPE.USER);
-
-			final ExpandableComposite motorPositionComp = addExpandableComposite( grpStage, "general motors");
-			grp = addGroup( motorPositionComp );
-			motorPositionComposite = new SampleParameterMotorPositionsComposite(grp, bean.getSampleParameterMotorPositions());
-			motorPositionComposite.setParentEditor(this);
-			motorPositionComposite.makeComposite();
-			motorPositionComp.setClient( grp );
-			// Expand the generic motor section and sample stage section if any motors are set to be moved
-			if (bean.getSampleParameterMotorPositions()!=null) {
-				for(SampleParameterMotorPosition pos : bean.getSampleParameterMotorPositions()) {
-					if (pos.getDoMove()) {
-						motorPositionComp.setExpanded(true);
-						sampleStageExpandableComposite.setExpanded(true);
-						break;
+				// Expand the parent 'sample stage' section  if any motors are set to be moved
+				if (bean.getSampleParameterMotorPositions() != null) {
+					for (SampleParameterMotorPosition pos : bean.getSampleParameterMotorPositions()) {
+						if (pos.getDoMove()) {
+							sampleStageExpandableComposite.setExpanded(true);
+							sampleStageExpandableComposite.setExpanded(true);
+							break;
+						}
 					}
 				}
+				sampleStageExpandableComposite.addExpansionListener(new ExpansionAdapter() {
+					@Override
+					public void expansionStateChanged(ExpansionEvent e) {
+						GridUtils.layoutFull(sampleStageExpandableComposite);
+						scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+					}
+				});
+				GridUtils.layoutFull(sampleStageExpandableComposite);
+			} else {
+
+				ExpandableComposite expComp = addExpandableComposite(grpStage, "xy theta stage");
+				Group grp = addGroup(expComp);
+				addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.XY_THETA);
+				xythetaStageParameters = new XYThetaStageComposite(grp, SWT.NONE, "sam2x", "sam2y", "sam2rot");
+				xythetaStageParameters.setEditorClass(XYThetaStageParameters.class);
+				setupExpandableComposite(expComp, grp, SAMPLESTAGE_TYPE.XY_THETA);
+
+				expComp = addExpandableComposite(grpStage, "ln2 cryostage");
+				grp = addGroup(expComp);
+				addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.LN2_CRYO);
+				ln2CryoStageComposite = new LN2CryoStageComposite(grp, SWT.NONE, bean);
+				ln2CryoStageComposite.setEditorClass(LN2CryoStageParameters.class);
+				setupExpandableComposite(expComp, grp, SAMPLESTAGE_TYPE.LN2_CRYO);
+
+				expComp = addExpandableComposite(grpStage, "sx cryostage");
+				grp = addGroup(expComp);
+				addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.SX_CRYO);
+				sxCryoStageComposite = new SXCryoStageComposite(grp, SWT.NONE, bean);
+				sxCryoStageComposite.setEditorClass(SXCryoStageParameters.class);
+				sxCryoStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
+				setupExpandableComposite(expComp, grp, SAMPLESTAGE_TYPE.SX_CRYO);
+
+				expComp = addExpandableComposite(grpStage, "user stage");
+				grp = addGroup(expComp);
+				addSampleStageIsActiveButton(grp, SAMPLESTAGE_TYPE.USER);
+				userStageComposite = new UserStageComposite(grp, SWT.NONE, "user2", "user4", "user5", "user6", "user7",
+						"user8");
+				userStageComposite.setEditorClass(UserStageParameters.class);
+				userStageComposite.setActiveMode(ActiveMode.ACTIVE_ONLY);
+				setupExpandableComposite(expComp, grp, SAMPLESTAGE_TYPE.USER);
 			}
-			motorPositionComp.addExpansionListener(new ExpansionAdapter() {
-				@Override
-				public void expansionStateChanged(ExpansionEvent e) {
-					GridUtils.layoutFull(motorPositionComp);
-					scrolledComposite.setMinSize(scrolledContents.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-				}
-			});
-			GridUtils.layoutFull(motorPositionComp);
 
 			sampleStageExpandableComposite.setClient(stageComp);
 
-			if ( selectedSampleStages != null && selectedSampleStages.size() > 0 )
+			if ( selectedSampleStages != null && selectedSampleStages.size() > 0 ) {
 				sampleStageExpandableComposite.setExpanded(true);
-
+			}
 		}
 	}
 

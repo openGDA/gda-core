@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -49,12 +50,11 @@ public class RegionComposite extends Composite {
 	private TableViewer viewer;
 	private ArrayList<XanesRegionParameters> regions;
 	private List<Region> beanRegions;
-	XanesScanParameters bean;
-	IWorkbenchPartSite site;
-	Composite parent;
-	XanesScanParametersUIEditor editor;
-	Button addRegionBtn;
-	Button removeRegionBtn;
+	private XanesScanParameters bean;
+	private IWorkbenchPartSite site;
+	private XanesScanParametersUIEditor editor;
+	private Button addRegionBtn;
+	private Button removeRegionBtn;
 
 	/**
 	 * Create the composite
@@ -65,7 +65,6 @@ public class RegionComposite extends Composite {
 	 */
 	public RegionComposite(final Composite parent, final int style, IWorkbenchPartSite site, XanesScanParameters newBean, XanesScanParametersUIEditor newEditor) {
 		super(parent, style);
-		this.parent=parent;
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		setLayout(gridLayout);
@@ -109,14 +108,41 @@ public class RegionComposite extends Composite {
 		addRegionBtn.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Region lastRegion = bean.getRegions().get(bean.getRegions().size()-1);
+				int selectedIndex = viewer.getTable().getSelectionIndex();
+
+				// If nothing selected in table, set index to last region
+				if (selectedIndex < 0) {
+					selectedIndex = bean.getRegions().size()-1;
+				}
+
+				//Set the energy for the new region based on selected item in table :
+				Region selectedRegion = bean.getRegions().get(selectedIndex);
+				double energyForRegion = 0;
+				if (selectedIndex == bean.getRegions().size() - 1) {
+					// Last region is selected : energy = last region energy + a bit
+					energyForRegion = selectedRegion.getEnergy() + 100.0;
+				} else {
+					// energy = central energy between selected and next region.
+					Region nextRegion = bean.getRegions().get(selectedIndex + 1);
+					energyForRegion = (selectedRegion.getEnergy() + nextRegion.getEnergy()) * 0.5;
+				}
+
+				// Create the new region, add to bean
 				Region newRegion = new Region();
-				newRegion.setEnergy(lastRegion.getEnergy()+100.0);
-				newRegion.setStep(lastRegion.getStep());
-				newRegion.setTime(lastRegion.getTime());
-				bean.getRegions().add(newRegion);
+				newRegion.setEnergy(energyForRegion);
+				newRegion.setStep(selectedRegion.getStep());
+				newRegion.setTime(selectedRegion.getTime());
+				// insert region to list *after* the currently selected on
+				bean.getRegions().add(selectedIndex + 1, newRegion);
+				selectedIndex++; // index of the region just created
+
 				updateTable();
-				editor.doSave(null);
+				// Select the new row in the table
+				if (selectedIndex >= 0 && selectedIndex < bean.getRegions().size()) {
+					viewer.getTable().setSelection(selectedIndex);
+					// Notify richbeans of the change
+					editor.valueChangePerformed(new ValueEvent(this, "xanes region added"));
+				}
 			}
 
 			@Override
@@ -127,8 +153,13 @@ public class RegionComposite extends Composite {
 		removeRegionBtn.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				bean.getRegions().remove(viewer.getTable().getSelectionIndex());
+				int selectedIndex = viewer.getTable().getSelectionIndex();
+				bean.getRegions().remove(selectedIndex);
 				updateTable();
+				// Select originally selected row or last row in table.
+				viewer.getTable().setSelection(Math.min(selectedIndex,  bean.getRegions().size()-1));
+				// Notify richbeans of the change
+				editor.valueChangePerformed(new ValueEvent(this, "xanes region removed"));
 			}
 
 			@Override

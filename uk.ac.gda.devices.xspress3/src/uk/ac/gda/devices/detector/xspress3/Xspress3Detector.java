@@ -18,10 +18,13 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +78,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	private boolean writeHDF5Files = false;
 	private String filePath = "";
 	private String filePrefix = "";
+	private String defaultSubdirectory = "";
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
 	private int currentScanNumber = -1;
@@ -176,13 +180,23 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	private void prepareFileWriting() throws DeviceException {
 		if (writeHDF5Files) {
 			// set file path name, number here if known or set
-			if (filePath != null && !filePath.isEmpty()) {
+			if (StringUtils.isNotEmpty(filePath)) {
 				controller.setFilePath(filePath);
 			} else {
-				controller.setFilePath(PathConstructor.createFromDefaultProperty());
+				String hdfDir = PathConstructor.createFromDefaultProperty();
+				if (StringUtils.isNotEmpty(defaultSubdirectory)) {
+					hdfDir = Paths.get(hdfDir, defaultSubdirectory).toString();
+				}
+				controller.setFilePath(hdfDir);
 			}
 
-			if (filePrefix != null && !filePrefix.isEmpty()) {
+			// Make new directory for the hdf files if necessary
+			File file = new File(controller.getFilePath());
+			if (!file.exists()) {
+				file.mkdirs();
+			}
+
+			if (StringUtils.isNotEmpty(filePrefix)) {
 				String scanNumber = getScanNumber();
 				if (!scanNumber.isEmpty()) {
 					scanNumber = "_" + scanNumber;
@@ -723,7 +737,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			return parameters;
 		}
 
-		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+		List<DetectorElement> detectorList = new ArrayList<>();
 
 		for (int i = 0; i < getNumberOfElements(); i++){
 			DetectorElement thisElement = new DetectorElement();
@@ -762,4 +776,16 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return readoutFFTotal();
 	}
 
+	public String getDefaultSubdirectory() {
+		return defaultSubdirectory;
+	}
+
+	/**
+	 * Set a subdirectory to use when writing the hdf files. This is a subdirectory at the default datadirectory location
+	 * (gda.data.scan.datawriter.datadir) and is used if no explicit filePath has been set (using {@link #setFilePath(String)}).
+	 * @param defaultSubdirectory
+	 */
+	public void setDefaultSubdirectory(String defaultSubdirectory) {
+		this.defaultSubdirectory = defaultSubdirectory;
+	}
 }
