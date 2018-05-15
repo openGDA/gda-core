@@ -59,8 +59,8 @@ import org.eclipse.scanning.api.points.models.StepModel;
 
 public class PointGeneratorService implements IPointGeneratorService {
 
-	private static final Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> generators;
-	private static final Map<String,   GeneratorInfo>                                           info;
+	private static final Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> modelToGenerator;
+	private static final Map<String, GeneratorInfo> idToInfo;
 
 	// Use a factory pattern to register the types.
 	// This pattern can always be replaced by extension points
@@ -71,23 +71,23 @@ public class PointGeneratorService implements IPointGeneratorService {
 		// NOTE Repeated generators are currently not allowed. Will not break the service
 		// (models class keys are different) but causes ambiguity in the GUI when it creates a
 		// generator for a model.
-		gens.put(StepModel.class,             StepGenerator.class);
-		gens.put(CollatedStepModel.class,     CollatedStepGenerator.class);
-		gens.put(MultiStepModel.class,        MultiStepGenerator.class);
-		gens.put(RepeatedPointModel.class,    RepeatedPointGenerator.class);
-		gens.put(ArrayModel.class,            ArrayGenerator.class);
-		gens.put(GridModel.class,             GridGenerator.class);
+		gens.put(StepModel.class, StepGenerator.class);
+		gens.put(CollatedStepModel.class, CollatedStepGenerator.class);
+		gens.put(MultiStepModel.class, MultiStepGenerator.class);
+		gens.put(RepeatedPointModel.class, RepeatedPointGenerator.class);
+		gens.put(ArrayModel.class, ArrayGenerator.class);
+		gens.put(GridModel.class, GridGenerator.class);
 		gens.put(OneDEqualSpacingModel.class, OneDEqualSpacingGenerator.class);
-		gens.put(OneDStepModel.class,         OneDStepGenerator.class);
-		gens.put(RasterModel.class,           RasterGenerator.class);
-		gens.put(StaticModel.class,           StaticGenerator.class);
+		gens.put(OneDStepModel.class, OneDStepGenerator.class);
+		gens.put(RasterModel.class, RasterGenerator.class);
+		gens.put(StaticModel.class, StaticGenerator.class);
 		gens.put(RandomOffsetGridModel.class, RandomOffsetGridGenerator.class);
-		gens.put(SpiralModel.class,           SpiralGenerator.class);
-		gens.put(LissajousModel.class,        LissajousGenerator.class);
-		gens.put(JythonGeneratorModel.class,  JythonGenerator.class);
-		gens.put(OverlapGridModel.class,	  OverlapGridGenerator.class);
+		gens.put(SpiralModel.class, SpiralGenerator.class);
+		gens.put(LissajousModel.class, LissajousGenerator.class);
+		gens.put(JythonGeneratorModel.class, JythonGenerator.class);
+		gens.put(OverlapGridModel.class, OverlapGridGenerator.class);
 
-		Map<String,   GeneratorInfo> tinfo = new TreeMap<>();
+		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
 
 		try { // Extensions must provide an id, it is a compulsory field.
@@ -96,20 +96,20 @@ public class PointGeneratorService implements IPointGeneratorService {
 			e.printStackTrace(); // Static block, intentionally do not use logging.
 		}
 
-		generators = Collections.unmodifiableMap(gens);
-		info       = Collections.unmodifiableMap(tinfo);
+		modelToGenerator = Collections.unmodifiableMap(gens);
+		idToInfo = Collections.unmodifiableMap(tinfo);
 	}
 
 	public Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> getGenerators() {
-		return generators;
+		return modelToGenerator;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T, R> IPointGenerator<T> createGenerator(T model, Collection<R> regions) throws GeneratorException {
 		try {
-			IPointGenerator<T> gen = (IPointGenerator<T>) generators.get(model.getClass()).newInstance();
-			if (regions != null && !regions.isEmpty())  {
+			IPointGenerator<T> gen = (IPointGenerator<T>) modelToGenerator.get(model.getClass()).newInstance();
+			if (regions != null && !regions.isEmpty()) {
 				setBounds(model, new ArrayList<>(regions));
 				gen.setContainers(wrap(regions));
 				gen.setRegions((Collection<Object>) regions);
@@ -120,26 +120,23 @@ public class PointGeneratorService implements IPointGeneratorService {
 		} catch (GeneratorException g) {
 			throw g;
 		} catch (Exception ne) {
-			throw new GeneratorException("Cannot make a new generator for "+model.getClass().getName(), ne);
+			throw new GeneratorException("Cannot make a new generator for " + model.getClass().getName(), ne);
 		}
 	}
 
 	private <T, R> void setBounds(T model, List<R> regions) {
 
-		IRectangularROI rect = ((IROI)regions.get(0)).getBounds();
+		IRectangularROI rect = ((IROI) regions.get(0)).getBounds();
 		for (R roi : regions) {
-			rect = rect.bounds((IROI)roi);
+			rect = rect.bounds((IROI) roi);
 		}
 
 		if (model instanceof IBoundingBoxModel) {
 			IBoundingBoxModel bbm = (IBoundingBoxModel) model;
 			if (bbm.getBoundingBox() != null) {
-				IRectangularROI modelsROI = new RectangularROI(
-						bbm.getBoundingBox().getFastAxisStart(),
-						bbm.getBoundingBox().getSlowAxisStart(),
-		                bbm.getBoundingBox().getFastAxisLength(),
-		                bbm.getBoundingBox().getSlowAxisLength(),
-		                0);
+				IRectangularROI modelsROI = new RectangularROI(bbm.getBoundingBox().getFastAxisStart(),
+						bbm.getBoundingBox().getSlowAxisStart(), bbm.getBoundingBox().getFastAxisLength(),
+						bbm.getBoundingBox().getSlowAxisLength(), 0);
 
 				rect = rect.bounds(modelsROI);
 			}
@@ -160,9 +157,12 @@ public class PointGeneratorService implements IPointGeneratorService {
 		}
 	}
 
-	private static void fillStaticGeneratorInfo(Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> gens, Map<String,   GeneratorInfo> ids) {
+	private static void fillStaticGeneratorInfo(
+			Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> gens,
+			Map<String, GeneratorInfo> ids) {
 
-		for (Map.Entry<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> genEntry : gens.entrySet()) {
+		for (Map.Entry<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> genEntry : gens
+				.entrySet()) {
 			try {
 				final GeneratorInfo info = new GeneratorInfo();
 				info.setModelClass(genEntry.getKey());
@@ -176,17 +176,19 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	private static void readExtensions(Map<Class<? extends IScanPathModel>, Class<? extends IPointGenerator<?>>> gens,
-			                           Map<String,   GeneratorInfo> tids) throws CoreException {
+			Map<String, GeneratorInfo> tids) throws CoreException {
 
-		if (Platform.getExtensionRegistry()!=null) {
-			final IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.scanning.api.generator");
+		if (Platform.getExtensionRegistry() != null) {
+			final IConfigurationElement[] eles = Platform.getExtensionRegistry()
+					.getConfigurationElementsFor("org.eclipse.scanning.api.generator");
 			for (IConfigurationElement e : eles) {
-				final IPointGenerator<?>    generator = (IPointGenerator<?>)e.createExecutableExtension("class");
-				final IScanPathModel     model = (IScanPathModel)e.createExecutableExtension("model");
+				final IPointGenerator<?> generator = (IPointGenerator<?>) e.createExecutableExtension("class");
+				final IScanPathModel model = (IScanPathModel) e.createExecutableExtension("model");
 
 				final Class<? extends IScanPathModel> modelClass = model.getClass();
 				@SuppressWarnings("unchecked")
-				final Class<? extends IPointGenerator<?>> generatorClass = (Class<? extends IPointGenerator<?>>) generator.getClass();
+				final Class<? extends IPointGenerator<?>> generatorClass = (Class<? extends IPointGenerator<?>>) generator
+						.getClass();
 				gens.put(modelClass, generatorClass);
 
 				final GeneratorInfo info = new GeneratorInfo();
@@ -202,13 +204,14 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	private List<IPointContainer> wrap(Collection<?> regions) {
-		if (regions==null || regions.isEmpty()) return null;
+		if (regions == null || regions.isEmpty())
+			return null;
 
 		List<IPointContainer> ret = new ArrayList<>();
 		for (Object region : regions) {
 			IPointContainer container = null;
 			if (region instanceof IROI) {
-				final IROI roi = (IROI)region;
+				final IROI roi = (IROI) region;
 				container = pos -> {
 					// Important, this assumes that the IROI is in axis coordinates
 					String xDimName = pos.getNames().get(0);
@@ -218,9 +221,10 @@ public class PointGeneratorService implements IPointGeneratorService {
 					return roi.containsPoint(x, y);
 				};
 			} else if (region instanceof IPointContainer) {
-				container = (IPointContainer)region;
+				container = (IPointContainer) region;
 			}
-			if (container!=null) ret.add(container);
+			if (container != null)
+				ret.add(container);
 		}
 		return ret;
 	}
@@ -232,21 +236,23 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@Override
 	public Collection<String> getRegisteredGenerators() {
-		return info.keySet();
+		return idToInfo.keySet();
 	}
 
 	@Override
 	public <T extends IScanPathModel> IPointGenerator<T> createGenerator(String id) throws GeneratorException {
 		try {
-			GeneratorInfo ginfo = info.get(id);
+			GeneratorInfo ginfo = idToInfo.get(id);
 
 			@SuppressWarnings("unchecked")
 			IPointGenerator<T> gen = ginfo.getGeneratorClass().newInstance();
 			@SuppressWarnings("unchecked")
-			T mod = (T)ginfo.getModelClass().newInstance();
+			T mod = (T) ginfo.getModelClass().newInstance();
 			gen.setModel(mod);
-			if (ginfo.getLabel()!=null) gen.setLabel(ginfo.getLabel());
-			if (ginfo.getDescription()!=null) gen.setDescription(ginfo.getDescription());
+			if (ginfo.getLabel() != null)
+				gen.setLabel(ginfo.getLabel());
+			if (ginfo.getDescription() != null)
+				gen.setDescription(ginfo.getDescription());
 			return gen;
 
 		} catch (IllegalAccessException | InstantiationException ne) {
@@ -269,7 +275,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 
 	@Override
 	public <R> List<R> findRegions(Object model, Collection<ScanRegion<R>> sregions) throws GeneratorException {
-		if (sregions==null || sregions.isEmpty())
+		if (sregions == null || sregions.isEmpty())
 			return Collections.emptyList();
 
 		final Collection<String> names = AbstractPointsModel.getScannableNames(model);
@@ -278,12 +284,15 @@ public class PointGeneratorService implements IPointGeneratorService {
 			return scannables == null || scannables.containsAll(names) || findNamesAsEntry(scannables, names);
 		};
 
-		return sregions.stream().filter(shouldAddRoi).map(ScanRegion::getRoi).collect(Collectors.toList());
+		return sregions.stream()
+				.filter(shouldAddRoi)
+				.map(ScanRegion::getRoi)
+				.collect(Collectors.toList());
 	}
 
 	private boolean findNamesAsEntry(List<String> scannables, Collection<String> names) {
-		return names.stream().allMatch(
-				name -> scannables.stream().anyMatch(
-				sName -> sName.matches("/entry/.+/"+name+"_value_set")));
+		return names.stream()
+				.allMatch(name -> scannables.stream()
+						.anyMatch(sName -> sName.matches("/entry/.+/" + name + "_value_set")));
 	}
 }
