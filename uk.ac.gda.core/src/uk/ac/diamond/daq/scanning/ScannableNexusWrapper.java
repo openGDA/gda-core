@@ -734,4 +734,9 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		return VALUE_TYPES.contains(klass) || (klass.isEnum() && !klass.equals(ScannableStatus.class)) ;
 	}
 
+	@Override
+	public String toString() {
+		return "ScannableNexusWrapper [scannable=" + scannable + "]";
+	}
+
 }
