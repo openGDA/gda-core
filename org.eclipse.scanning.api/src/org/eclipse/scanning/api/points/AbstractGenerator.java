@@ -239,10 +239,8 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T>, Iterab
 
 	@Override
 	public List<IPosition> createPoints() throws GeneratorException {
-		final List<IPosition> points = new ArrayList<>(89);
-		Iterator<IPosition> it = iterator();
-		while (it.hasNext())
-			points.add(it.next());
+		final List<IPosition> points = new ArrayList<>();
+		iterator().forEachRemaining(points::add);
 		return points;
 	}
 
