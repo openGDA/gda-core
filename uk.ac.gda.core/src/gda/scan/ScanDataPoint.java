@@ -700,14 +700,10 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scanInfo.setDimensions(scanDimensions);
 	}
 
-	/**
-	 * Unique information about this point.
-	 */
 	@Override
 	public String toString() {
-
-		String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
-		return "point " + (currentPointNumber) + " of " + scanInfo.getNumberOfPoints() + " for scan " + identifier;
+		final String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
+		return "ScanDataPoint [point=" + (currentPointNumber+1) + "/" + scanInfo.getNumberOfPoints() + ", scan=" + identifier;
 	}
 
 	/**
