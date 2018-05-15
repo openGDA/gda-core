@@ -34,7 +34,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.PositionDelegate;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
@@ -56,14 +55,13 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableStatus;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.observable.IObserver;
 
 /**
  * Class provides a default implementation which will write any GDA8 scannable to NeXus
  *
  * @author Matthew Gerring, Matthew Dickie
  */
-public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements IScannable<Object>, INexusDevice<N>, IPositionListenable, IObserver{
+public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N> {
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
@@ -173,7 +171,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			} catch (DeviceException e) {
 				logger.error("Could not get position of scananble ''{}''", scannable.getName(), e);
 			}
-			this.scannable.addIObserver(this);
+			this.scannable.addIObserver(this::update);
 		}
 	}
 
@@ -679,7 +677,6 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		positionDelegate.removePositionListener(listener);
 	}
 
-	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScannableStatus && arg != ScannableStatus.IDLE) {
 			// wait until the scannable is IDLE
