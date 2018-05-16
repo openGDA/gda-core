@@ -60,8 +60,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	private VGScientaController controller;
 	private VGScientaAnalyserEnergyRange energyRange;
-	private int[] fixedModeRegion;
-	private int[] sweptModeRegion;
+	private DetectorConfiguration fixedModeConfiguration;
+	private DetectorConfiguration sweptModeConfiguration;
 
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
 
@@ -140,11 +140,24 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	private long timeSpentWithEpicsAcquiring;
 	private long timeSpentGettingDataBackOverEpics;
 
+	private boolean fixedMode;
+	private int sensorXSize;
+	private int sensorYSize;
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
 		setExtraNames(new String[] {"cps"});
 
+		// Validate the fixed mode and swept mode regions
+		try {
+			fixedMode = isFixedMode();
+			sensorXSize = controller.getSensorXSize();
+			sensorYSize = controller.getSensorYSize();
+		} catch (Exception e1) {
+			logger.error("Could not retrieve data from controller", e1);
+		}
+		validateRegions();
 		try {
 		// For updates to GUI
 		// FIXME This is messy there must be a better way to observe this, but for now this works and is how it's done in the old implementation
@@ -153,6 +166,35 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		}
 		catch (Exception e) {
 			logger.error("Error setting up EPICS monitors", e);
+		}
+	}
+
+	private void validateRegions() {
+		try {
+			// See if the swept mode configuration can be set
+			controller.setDetectorConfiguration(sweptModeConfiguration);
+		} catch (Exception e3) {
+			logger.info("Swept mode detector configuration is invalid:", e3);
+			// If not, set the region size to the same as the sensor size
+			sweptModeConfiguration.setStartX(1);
+			sweptModeConfiguration.setStartY(1);
+			sweptModeConfiguration.setSizeX(sensorXSize);
+			sweptModeConfiguration.setSizeY(sensorYSize);
+			sweptModeConfiguration.setSlices(sensorYSize);
+			logger.warn("Swept mode region size changed to {} x {}, starting at 1, 1. Slices {}", sensorXSize, sensorYSize, sensorYSize);
+		}
+		try {
+			// See if the fixed mode configuration can be set leave it in that state
+			controller.setDetectorConfiguration(fixedModeConfiguration);
+		} catch (Exception e2) {
+			logger.info("Fixed mode detector configuration is invalid:", e2);
+			// If not, set the region size to the same as the sensor size
+			fixedModeConfiguration.setStartX(1);
+			fixedModeConfiguration.setStartY(1);
+			fixedModeConfiguration.setSizeX(sensorXSize);
+			fixedModeConfiguration.setSizeY(sensorYSize);
+			fixedModeConfiguration.setSlices(sensorYSize);
+			logger.warn("Fixed mode region size changed to {} x {}, starting at 1, 1. Slices {}", sensorXSize, sensorYSize, sensorYSize);
 		}
 	}
 
@@ -362,39 +404,92 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return "Fixed".equalsIgnoreCase(controller.getAcquisitionMode());
 	}
 
+	/**
+	 * Set up acquisition mode.
+	 * @param fixed True if fixed mode , False if swept mode.
+	 * @throws Exception If there is a problem setting acquisition mode
+	 */
 	public void setFixedMode(boolean fixed) throws Exception {
-		int[] region = fixedModeRegion;
+		DetectorConfiguration regionConfiguration = fixedModeConfiguration;
 		if (fixed) {
 			controller.setAcquisitionMode("Fixed");
 		} else {
 			controller.setAcquisitionMode("Swept");
-			if (sweptModeRegion != null) {
-				region = sweptModeRegion;
+			if (sweptModeConfiguration != null) {
+				regionConfiguration = sweptModeConfiguration;
 			}
 		}
-		getAdBase().setMinX(region[0]);
-		getAdBase().setMinY(region[1]);
-		getAdBase().setSizeX(region[2]);
-		getAdBase().setSizeY(region[3]);
-		controller.setSlices(region[3]);
+		// Set the number of slices to the currently set slices
+		regionConfiguration.setSlices(getSlices());
+
+		controller.setDetectorConfiguration(regionConfiguration);
+
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
 	}
 
+	public DetectorConfiguration getSweptModeConfiguration() {
+		return sweptModeConfiguration;
+	}
+
+	public void setSweptModeConfiguration(DetectorConfiguration sweptModeConfiguration) {
+		this.sweptModeConfiguration = sweptModeConfiguration;
+	}
+
+	public DetectorConfiguration getFixedModeConfiguration() {
+		return fixedModeConfiguration;
+	}
+
+	public void setFixedModeConfiguration(DetectorConfiguration fixedModeConfiguration) {
+		this.fixedModeConfiguration = fixedModeConfiguration;
+	}
+
+	/**
+	 * Returns an int array describing the swept mode region.
+	 * @return sweptModeRegion An int array [StartX, StartY, SizeX, SizeY]
+	 */
 	public int[] getSweptModeRegion() {
-		return sweptModeRegion;
+		int[] region = new int[4];
+		region[0] = sweptModeConfiguration.getStartX();
+		region[1] = sweptModeConfiguration.getStartY();
+		region[2] = sweptModeConfiguration.getSizeX();
+		region[3] = sweptModeConfiguration.getSizeY();
+		return region;
 	}
 
+	/**
+	 * Sets a swept mode region from an int array.
+	 * @param sweptModeRegion An int array [StartX, StartY, SizeX, SizeY]
+	 */
 	public void setSweptModeRegion(int[] sweptModeRegion) {
-		this.sweptModeRegion = sweptModeRegion;
+		sweptModeConfiguration.setStartX(sweptModeRegion[0]);
+		sweptModeConfiguration.setStartY(sweptModeRegion[1]);
+		sweptModeConfiguration.setSizeX(sweptModeRegion[2]);
+		sweptModeConfiguration.setSizeY(sweptModeRegion[3]);
 	}
 
+	/**
+	 * Returns an int array describing the fixed mode region.
+	 * @return fixedModeRegion An int array [StartX, StartY, SizeX, SizeY]
+	 */
 	public int[] getFixedModeRegion() {
-		return fixedModeRegion;
+		int[] region = new int[4];
+		region[0] = fixedModeConfiguration.getStartX();
+		region[1] = fixedModeConfiguration.getStartY();
+		region[2] = fixedModeConfiguration.getSizeX();
+		region[3] = fixedModeConfiguration.getSizeY();
+		return region;
 	}
 
+	/**
+	 * Sets a fixed mode region from an int array.
+	 * @param fixedModeRegion An int array [StartX, StartY, SizeX, SizeY]
+	 */
 	public void setFixedModeRegion(int[] fixedModeRegion) {
-		this.fixedModeRegion = fixedModeRegion;
+		fixedModeConfiguration.setStartX(fixedModeRegion[0]);
+		fixedModeConfiguration.setStartY(fixedModeRegion[1]);
+		fixedModeConfiguration.setSizeX(fixedModeRegion[2]);
+		fixedModeConfiguration.setSizeY(fixedModeRegion[3]);
 	}
 
 	@Override
@@ -636,12 +731,12 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	@Override
 	public int getFixedModeEnergyChannels() {
-		return fixedModeRegion[2];
+		return fixedModeConfiguration.getSizeX();
 	}
 
 	@Override
 	public int getSweptModeEnergyChannels() {
-		return sweptModeRegion[2];
+		return sweptModeConfiguration.getSizeY();
 	}
 
 	@Override
