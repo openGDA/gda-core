@@ -682,6 +682,17 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	public void applyConfigurationToDetector() {
 		try {
+			// Check that the number of elements on detector matches number of elements in settings
+			if (detectorParameters.getDetectorList() != null
+					&& theDetector.getNumberOfElements() != detectorParameters.getDetectorList().size()) {
+				String message = String.format(
+						"Problem applying detector settings - number of detector elements"
+						+ " in the XML settings (%d) does not match the number of elements on the detector (%d).",
+						detectorParameters.getDetectorList().size(), theDetector.getNumberOfElements());
+				displayErrorMessage("Problem applying detector settings", message);
+				return;
+			}
+
 			theDetector.applyConfigurationParameters(detectorParameters);
 			logAndAppendStatus("Successfully applied settings to detector");
 
