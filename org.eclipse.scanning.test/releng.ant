@@ -1,0 +1,60 @@
+<project name="plugin-org.eclipse.scanning.test" basedir=".">
+
+	<dirname property="plugin.basedir" file="${ant.file}" />
+	<pathconvert property="workspace.loc" setonempty="false">
+		<regexpmapper from="(.*)_git/.+" to="\1"/>
+		<path><pathelement location="${plugin.basedir}" /></path>
+	</pathconvert>
+	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
+	<property name="workspace.git.loc" value="${workspace.loc}_git" />
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
+
+	<!-- ====================================================================
+		   JUnit tests
+		 ==================================================================== -->
+
+	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
+	<target name="junit-tests" depends="set-test-base-GDA">
+		<junit-call description="${ant.project.name} Java JUnit tests">
+			<jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
+			<jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
+			<sysproperty key="basedir" value="${plugin.basedir}" />
+			<formatter type="xml" />
+			<classpath>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${plugin.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${plugin.host.basedir}/bin" />
+				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.tree/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.json/bin" />
+				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.remotedataset.test/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.command/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.activemq/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.epics/target/classes"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.connector.epics/jars/*"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.device/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.event/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.example.xcen/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.malcolm.core/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.points/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.sequencer/bin"/>
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.server/bin"/>
+				<pathelement location="${workspace.git.loc}/diamond-jython.git/uk.ac.diamond.jython/jython2.7/jython.jar"/>
+				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.path" />  <!-- target platform -->
+			</classpath>
+			<!-- Run the "All" test suite -->
+			<test name="org.eclipse.scanning.test.All" todir="@{report.dir}"/>
+		</junit-call>
+	</target>
+
+</project>

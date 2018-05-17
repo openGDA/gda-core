@@ -55,7 +55,7 @@ public class JavaMessagingTests extends BrokerTest {
 	@Before
 	public void setup() throws Exception {
 
-		uri = new URI("tcp://localhost:61616");
+		uri = new URI("vm://localhost?broker.persistent=false");
 
 		createNonOSGIActivemqMarshaller();
 		eservice  = new EventServiceImpl(new ActivemqConnectorService());

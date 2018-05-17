@@ -34,7 +34,6 @@ public class PseudoSpringParserTest {
 	@BeforeClass
 	public static void systemProperties() {
 		System.setProperty("org.eclipse.scanning.test", "true");
-		System.setProperty("org.eclipse.scanning.broker.uri", "http://localhost:61616");
 	}
 
 	@Test
