@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +52,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
@@ -202,9 +206,30 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void setScannables(ScanModel model) throws ScanningException {
 		List<IScannable<?>> scannables = model.getScannables();
 		if (scannables == null) {
-			scannables = connectorService.getScannables(model.getPositionIterable());
+			final Set<String> malcolmControlledAxisNames = getMalcolmControlledAxes(model);
+			final List<String> allScannableNames = getScannableNames(model.getPositionIterable());
+			final List<String> scannableNames = allScannableNames.stream()
+					.filter(axisName -> !malcolmControlledAxisNames.contains(axisName))
+					.collect(toList());
+			model.setScannables(connectorService.getScannables(scannableNames));
 		}
-		model.setScannables(scannables);
+	}
+
+	private Set<String> getMalcolmControlledAxes(ScanModel scanModel) {
+		return scanModel.getDetectors().stream()
+			.filter(IMalcolmDevice.class::isInstance)
+			.map(IMalcolmDevice.class::cast)
+			.map(AcquisitionDevice::getAxesToMove)
+			.flatMap(Collection::stream)
+			.collect(toSet());
+	}
+
+	private static Set<String> getAxesToMove(IMalcolmDevice<?> malcolmDevice) {
+		try {
+			return malcolmDevice.getAxesToMove();
+		} catch (ScanningException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private IPositioner createPositioner(ScanModel model) throws ScanningException {
@@ -786,17 +811,12 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private Collection<String> getScannableNames(Iterable<IPosition> gen) {
-
-		Collection<String> names = null;
+	private List<String> getScannableNames(Iterable<IPosition> gen) {
 		if (gen instanceof IDeviceDependentIterable) {
-			names = ((IDeviceDependentIterable)gen).getScannableNames();
+			return ((IDeviceDependentIterable)gen).getScannableNames();
+		}
 
-		}
-		if (names==null) {
-			names = model.getPositionIterable().iterator().next().getNames();
-		}
-		return names;
+		return model.getPositionIterable().iterator().next().getNames();
 	}
 
 	private int getScanRank(Iterable<IPosition> gen) {
