@@ -77,6 +77,7 @@ public class Application implements IApplication {
 			// encapsulated in their own method.
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
+			logger.info("Starting GDA client...");
 
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
@@ -118,7 +119,11 @@ public class Application implements IApplication {
 
 			fixVisitID();
 
+			// This is where we block while the client is running
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
+			// Here once the client is being closed
+			logger.info("Closing GDA client (User exited)...");
+			logger.debug("Workbench return code: {}", returnCode);
 
 			if (LocalProperties.check("gda.gui.useCloseMenu")) {
 				//overrides any other normal exit conditions
