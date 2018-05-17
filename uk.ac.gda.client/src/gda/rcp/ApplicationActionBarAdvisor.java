@@ -552,12 +552,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			});
 		}
 
-		ApplicationWorkbenchAdvisor.addCleanupWork(new ApplicationWorkbenchAdvisor.CleanupWork() {
-			@Override
-			public void cleanup() {
-				InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver);
-			}
-		});
+		ApplicationWorkbenchAdvisor.addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver));
 	}
 
 	private void updateScanDetails(StatusLineContributionItem status, ScanEvent changeCode) {

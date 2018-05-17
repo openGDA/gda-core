@@ -93,6 +93,16 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor.class);
 
+	@FunctionalInterface
+	public interface CleanupWork {
+		/**
+		 * Called during shutdown. Throwing exceptions from this method, even runtime ones, not recommended.
+		 */
+		public void cleanup();
+	}
+
+	private static final List<CleanupWork> cleanupTasks = new ArrayList<>();
+
 	@Override
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
 		return new ApplicationWorkbenchWindowAdvisor(configurer);
@@ -155,12 +165,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			// behaviour has been switched off in the client preferences)
 			final IScanDataPointObserver openXYPlotOnScanStart = new LivePlotViewManager();
 			InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(openXYPlotOnScanStart);
-			addCleanupWork(new CleanupWork() {
-				@Override
-				public void cleanup() {
-					InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(openXYPlotOnScanStart);
-				}
-			});
+			addCleanupWork(() -> InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(openXYPlotOnScanStart));
 
 			Findable obj = Finder.getInstance().findNoWarn(RCPControllerImpl.name);
 			if (obj != null) {
@@ -228,13 +233,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					}
 				};
 				obs.addIObserver(rcpControllerObs);
-				addCleanupWork(new CleanupWork() {
-
-					@Override
-					public void cleanup() {
-						obs.deleteIObserver(rcpControllerObs);
-					}
-				});
+				addCleanupWork(() -> obs.deleteIObserver(rcpControllerObs));
 			}
 
 			listenForUserMessages();
@@ -411,21 +410,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
-	public interface CleanupWork {
-		/**
-		 * Called during shutdown. Throwing exceptions from this method, even runtime ones, not recommended.
-		 */
-		public void cleanup();
-	}
-
-	private static List<ApplicationWorkbenchAdvisor.CleanupWork> cleanupTasks;
-
 	/**
 	 * @param work
 	 */
 	public static void addCleanupWork(final ApplicationWorkbenchAdvisor.CleanupWork work) {
-		if (cleanupTasks == null)
-			cleanupTasks = new ArrayList<CleanupWork>(7);
 		cleanupTasks.add(work);
 	}
 
