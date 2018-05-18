@@ -20,9 +20,6 @@ package gda.device.enumpositioner;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 
 /**
@@ -34,8 +31,6 @@ import gda.device.DeviceException;
  * @see EpicsSimplePositioner
  */
 public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
-
-	private static final Logger logger = LoggerFactory.getLogger(NameMappedEpicsPneumaticCallback.class);
 
 	private Map<String, String> controlValues; // <GDA,EPICS>
 	private Map<String, String> statusValues; // <EPICS,GDA>
@@ -64,21 +59,6 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 
 	public void setStatusValues(Map<String, String> statusValues) {
 		this.statusValues = statusValues;
-	}
-
-	@Override
-	public void initializationCompleted() throws DeviceException {
-		for (String position : super.getPositions()) {
-			if (position != null && !position.isEmpty()) {
-				addPosition(position);
-			}
-		}
-		for (String statusPosition : super.getStatusPositions()) {
-			if (statusPosition != null && !statusPosition.isEmpty()) {
-				this.statuspositions.add(statusPosition);
-			}
-		}
-		logger.info("{} is initialised.", getName());
 	}
 
 	@Override
