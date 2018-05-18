@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A UView Image Client class
  */
-public class UViewImageController extends Observable implements Runnable {
+public class UViewImageController extends Observable {
 	private static final Logger logger = LoggerFactory.getLogger(UViewImageController.class);
 
 	private Thread statusMonitor;
@@ -68,7 +68,8 @@ public class UViewImageController extends Observable implements Runnable {
 	 */
 	public UViewImageController(String corbaBridgeName) {
 		this.corbaBridgeName = corbaBridgeName;
-		statusMonitor = uk.ac.gda.util.ThreadManager.getThread(this);
+		statusMonitor = new Thread(this::runStatusMonitor);
+		statusMonitor.setDaemon(true);
 		statusMonitor.start();
 
 		this.connect();
@@ -314,8 +315,7 @@ public class UViewImageController extends Observable implements Runnable {
 	/**
 	 * Thread which checks on the status of the detector
 	 */
-	@Override
-	public void run() {
+	private void runStatusMonitor() {
 		/*
 		 * Find out if status changes have occured.if so keep a record and pass on the information.
 		 */
