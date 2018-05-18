@@ -43,7 +43,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  */
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoMythenDetector extends TangoLimaDetector implements Runnable { //implements NexusDetector {
+public class TangoMythenDetector extends TangoLimaDetector { //implements NexusDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoMythenDetector.class);
 	private Thread runner;
@@ -72,7 +72,8 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 			this.setInputNames(new String[0]);
 //			setInputNames(null);
 //			setExtraNames(null);
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+			runner = new Thread(this::runMythenDetector, getClass().getName());
+			runner.setDaemon(true);
 			runner.start();
 		} catch (Exception e) {
 			setConfigured(false);
@@ -212,8 +213,7 @@ public class TangoMythenDetector extends TangoLimaDetector implements Runnable {
 		}
 	}
 
-	@Override
-	public synchronized void run() {
+	private synchronized void runMythenDetector() {
 		while (true) {
 			try {
 				logger.debug("TangoMythenDetector: runner() sleeping");

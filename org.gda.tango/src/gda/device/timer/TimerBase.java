@@ -34,7 +34,7 @@ import gda.factory.FactoryException;
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
-public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
+public abstract class TimerBase extends DeviceBase implements Timer {
 
 	public static final String AUTO_CONTINUE_ATTR_NAME = "Auto-Continue";
 	public static final String EXT_START_ATTR_NAME = "Ext-Start";
@@ -73,7 +73,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 	@Override
 	public void configure() throws FactoryException{
 		if (!once) {
-			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+			runner = new Thread(this::runTfgMonitor, getClass().getName());
 			runner.start();
 			once = true;
 		}
@@ -195,8 +195,7 @@ public abstract class TimerBase extends DeviceBase implements Timer, Runnable {
 	/**
 	 * Do not use this method - it is used by the TFG object to create a monitor thread. Instead add an observer to the object
 	 */
-	@Override
-	public synchronized void run() {
+	private synchronized void runTfgMonitor() {
 		while (true) {
 			try {
 				wait();
