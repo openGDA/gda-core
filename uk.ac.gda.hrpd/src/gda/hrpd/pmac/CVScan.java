@@ -21,6 +21,8 @@ package gda.hrpd.pmac;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -44,6 +46,7 @@ import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 public class CVScan extends ScannableMotionBase implements IObserver {
@@ -75,7 +78,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private File rebinnedfile;
 	private int retrycount = 0;
 
-	private Thread dataSaverThread;
+	private Future<?> dataSaveJob;
 	private Scannable psdScannableMotor;
 	private SafePosition psdSafePosition;
 
@@ -289,11 +292,14 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		// need to ensure paused flag cleared on emergency stop.
 		paused = false;
 		try {
-			if (dataSaverThread != null) {
-				dataSaverThread.join(); // wait until both raw data and rebinned data files are written.
+			if (dataSaveJob != null) {
+				dataSaveJob.get(); // wait until both raw data and rebinned data files are written.
 			}
 		} catch (InterruptedException e) {
-			logger.warn("Save data thread is interrupted.", e);
+			logger.warn("Thread interrupted waiting for data to be written.", e);
+			Thread.currentThread().interrupt();
+		} catch (ExecutionException e) {
+			logger.error("Error saving CVScan data", e);
 		}
 		retrycount = 0;
 		collectionNumber++;
@@ -479,7 +485,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		if (beamMonitor.isMonitorOn()) {
 			// if beam monitor is not on, cvscan control thread will not be started.
 			isBeamMonitorRunning = true;
-			Thread bmt = uk.ac.gda.util.ThreadManager.getThread(new ScanControl(), "cvscanBeamMonitor");
+			Thread bmt = new Thread(new ScanControl(), "cvscanBeamMonitor");
+			bmt.setDaemon(true);
 			bmt.start();
 		} else {
 			isBeamMonitorRunning = false;
@@ -520,22 +527,6 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 					}
 				}
 			}
-		}
-	}
-
-	private class SaveData implements Runnable {
-
-		@Override
-		public void run() {
-			if (pausedCounter == 0) {
-				saveRawData();
-			} else {
-				InterfaceProvider.getTerminalPrinter().print(
-						"CVScan had been paused " + pausedCounter + " times. No raw data file created");
-				logger.info("CVScan had been paused {} times. No raw data file created.", pausedCounter);
-			}
-
-			saveRebinnedData();
 		}
 	}
 
@@ -643,8 +634,16 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				if (!firstTime) {
 					// exclude object creation update as jython server not avaibale
 					logger.info("{}: flyback", getName());
-					dataSaverThread = uk.ac.gda.util.ThreadManager.getThread(new SaveData(), "DataSaver");
-					dataSaverThread.start();
+					dataSaveJob = Async.submit(() -> {
+						if (pausedCounter == 0) {
+							saveRawData();
+						} else {
+							String msg = "CVScan had been paused " + pausedCounter + " times. No raw data file created";
+							InterfaceProvider.getTerminalPrinter().print(msg);
+							logger.info(msg);
+						}
+						saveRebinnedData();
+					}, "DataSaver");
 				} else {
 					firstTime = false;
 				}

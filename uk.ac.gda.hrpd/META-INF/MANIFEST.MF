@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  org.apache.commons.collections;bundle-version="3.2.1"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  jars/gda_hrpd-corba.jar
 Import-Package: com.google.common.base;version="15.0.0",

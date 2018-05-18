@@ -561,7 +561,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		if (beamMonitor.isMonitorOn()) {
 			// if beam monitor is not on, cvscan control thread will not be started.
 			isBeamMonitorRunning = true;
-			Thread bmt = uk.ac.gda.util.ThreadManager.getThread(new ScanControl(), "cvscanBeamMonitor");
+			Thread bmt = new Thread(new ScanControl(), "cvscanBeamMonitor");
+			bmt.setDaemon(true);
 			bmt.start();
 		} else {
 			isBeamMonitorRunning = false;
