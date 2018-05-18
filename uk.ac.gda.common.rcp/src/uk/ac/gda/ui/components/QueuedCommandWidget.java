@@ -106,7 +106,7 @@ public abstract class QueuedCommandWidget extends Composite {
 			queue = new ArrayBlockingQueue<QueuedCommandWidget>(3);
 		}
 		if (mainQueueThread==null) {
-			mainQueueThread = uk.ac.gda.util.ThreadManager.getThread(getRunnable(), "QueuedCommandWidget thread. Used to updated all "+QueuedCommandWidget.class.getName()+"'s");
+			mainQueueThread = new Thread(getRunnable(), "QueuedCommandWidget thread. Used to updated all "+QueuedCommandWidget.class.getName()+"'s");
 			mainQueueThread.start();
 		}	
 	}
