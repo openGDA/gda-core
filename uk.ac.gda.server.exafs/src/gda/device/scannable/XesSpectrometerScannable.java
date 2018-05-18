@@ -29,7 +29,7 @@ import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-import uk.ac.gda.util.ThreadManager;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Controls the I20 XES Secondary Spectrometer.
@@ -232,9 +232,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		// loop over points for the detector only
 		if (isRunningTrajectoryMovement && numTrajPoints != null && targetDetXArray != null && targetDetYArray != null
 				&& targetXtalThetaArray != null) {
-			ThreadManager.getThread(new Runnable() {
-				@Override
-				public void run() {
+			Async.execute(() -> {
 					int node = 0;
 					try {
 						for (; node < targetDetXArray.length; node++) {
@@ -257,8 +255,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 //						logger.info("Spectrometer move complete. XES Spectrometer final move positions: X:"+targetDetXArray[numTrajPoints-1]+" Y:"+targetDetYArray[numTrajPoints-1]+" Theta:"+targetXtalThetaArray[numTrajPoints-1]);
 						isRunningTrajectoryMovement = false;
 					}
-				}
-			}).start();
+			});
 		} else {
 			// detector
 			det_x.asynchronousMoveTo(finalDetectorPositions[0]);
