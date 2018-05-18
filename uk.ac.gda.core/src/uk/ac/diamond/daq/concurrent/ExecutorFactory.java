@@ -24,8 +24,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import uk.ac.diamond.daq.concurrent.GdaThreadFactoryBuilder.Threads;
-
 /**
  * An {@link ExecutorService} factory to complement the Java {@link Executors} factory methods
  * and remove the need for creating a {@link ThreadFactory} manually.

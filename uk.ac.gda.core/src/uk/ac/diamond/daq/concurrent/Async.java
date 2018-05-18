@@ -39,8 +39,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.concurrent.GdaThreadFactoryBuilder.Threads;
-
 /**
  * Utility methods used to run short-lived tasks asynchronously.<p>
  *
