@@ -20,11 +20,15 @@ package uk.ac.gda.bimorph.ui;
 
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 public final class BimorphParametersEditor extends RichBeanMultiPageEditorPart {
-
+	private static final Logger logger = LoggerFactory.getLogger(BimorphParametersEditor.class);
+	
 	@Override
 	public Class<?> getBeanClass() {
 		return BimorphParameters.class;
@@ -43,5 +47,20 @@ public final class BimorphParametersEditor extends RichBeanMultiPageEditorPart {
 	@Override
 	public URL getSchemaUrl() {
 		return BimorphParameters.schemaURL; // Please make sure this field is present and the schema
+	}
+
+	@Override
+	protected void createBean() {
+		try {
+			super.createBean();
+		} catch (RuntimeException re) {
+			try {
+				editingBean = getBeanClass().newInstance();
+				logger.debug("Created new BimorphParameters with default values");
+			} catch (InstantiationException | IllegalAccessException e) {
+				// we tried
+				throw re;
+			}
+		}
 	}
 }

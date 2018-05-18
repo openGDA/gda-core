@@ -2,7 +2,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	 <xsd:element name="BimorphParameters">
 	 	<xsd:complexType>
-			<xsd:sequence>
+			<xsd:all>
 				<xsd:element name="mirrorScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="mirrorType" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="numberOfElectrodes" type="xsd:integer" maxOccurs="1" minOccurs="1"/>
@@ -68,7 +68,7 @@
 				
 				<xsd:element name="minSlitPos" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 				<xsd:element name="maxSlitPos" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-			</xsd:sequence>	
+			</xsd:all>
 		</xsd:complexType>
 	</xsd:element>
 </xsd:schema>
