@@ -18,12 +18,13 @@
 
 package gda.device.scannable;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.SimulatedBufferedDetector;
 import gda.factory.FactoryException;
-
-import org.apache.commons.lang.ArrayUtils;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Dummy implementation for testing / simulations. Works with the SimulatedBufferedDetector class.
@@ -69,7 +70,7 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 		// start a thread which will run for time s and inform its observers every pulseFreq s.
 		busy = true;
-		(uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName())).start();
+		Async.execute(this, getClass().getName());
 
 	}
 
