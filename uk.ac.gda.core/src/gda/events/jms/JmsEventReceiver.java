@@ -32,6 +32,7 @@ import javax.jms.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.corba.util.EventReceiver;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.Filter;
@@ -46,9 +47,18 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(JmsEventReceiver.class);
 
 	/**
-	 * Messages received older than this will generate a warning.
+	 * Messages received older than this will generate a warning. In milliseconds. The default is 1 second and can be
+	 * set with property "gda.events.jms.messageAgeWarning".
 	 */
-	private static final long MESSAGE_AGE_WARNING_MILLS = 1000;
+	private static final long MESSAGE_AGE_WARNING_MILLS = LocalProperties.getAsInt("gda.events.jms.messageAgeWarning",
+			1000);
+
+	/**
+	 * If it takes longer than this to inform subscribers of a message then a warning will be logged. In milliseconds.
+	 * The default is 500 milliseconds and can be set with property "gda.events.jms.informTimeWarning".
+	 */
+	private static final long INFORMING_TIME_WARNING_MILLS = LocalProperties
+			.getAsInt("gda.events.jms.informTimeWarning", 500);
 
 	/**
 	 * Store a list of consumers so they can be disconnected
@@ -142,8 +152,17 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 				logger.warn("Message received on topic '{}' is older than {} ms. Age is: {} ms", topic, MESSAGE_AGE_WARNING_MILLS, messageAgeMillis);
 			}
 
-			// Inform subscribers
+			// Inform subscribers with timing to identify slow events handling
+			final long startInfomingTimestamp = System.currentTimeMillis();
 			eventSubscriber.inform(messageObject);
+			final long timeToInformMills = System.currentTimeMillis() - startInfomingTimestamp;
+			if (timeToInformMills > INFORMING_TIME_WARNING_MILLS) {
+				// This is the total time for all subscribers to handle this message. Can detect slow events when
+				// ObservableComponent is not used.
+				logger.warn("Informing subscribers of message '{}' took {} ms", messageObject, timeToInformMills);
+			} else {
+				logger.trace("Informing subscribers of message '{}' took {} ms", messageObject, timeToInformMills);
+			}
 		}
 	}
 
