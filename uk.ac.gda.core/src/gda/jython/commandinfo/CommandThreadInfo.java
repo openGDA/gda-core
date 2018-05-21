@@ -156,4 +156,12 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	public void setTime(String time) {
 		this.time = time;
 	}
+
+	@Override
+	public String toString() {
+		return "CommandThreadInfo [threadType=" + threadType + ", id=" + id + ", jythonServerThreadId="
+				+ jythonServerThreadId + ", priority=" + priority + ", name=" + name + ", state=" + state + ", date="
+				+ date + ", time=" + time + ", isInterrupted=" + isInterrupted + ", command=" + command + "]";
+	}
+
 }

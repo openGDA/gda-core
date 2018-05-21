@@ -21,10 +21,10 @@ package gda.jython.commandinfo;
 import java.io.Serializable;
 
 public class CommandThreadEvent implements Serializable {
-	
+
 	private CommandThreadEventType event;
 	private ICommandThreadInfo info;
-	
+
 	public CommandThreadEvent(CommandThreadEventType event, ICommandThreadInfo info) {
 		this.event = event;
 		this.info = info;
@@ -33,16 +33,22 @@ public class CommandThreadEvent implements Serializable {
 	public CommandThreadEventType getEventType() {
 		return event;
 	}
-	
+
 	public ICommandThreadInfo getInfo() {
 		return info;
 	}
-	
+
 	public void setEventType(CommandThreadEventType event) {
 		this.event = event;
 	}
-	
+
 	public void setInfo(ICommandThreadInfo info) {
 		this.info = info;
 	}
+
+	@Override
+	public String toString() {
+		return "CommandThreadEvent [event=" + event + ", info=" + info + "]";
+	}
+
 }
