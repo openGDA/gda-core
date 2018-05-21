@@ -30,7 +30,7 @@ import gda.device.detector.DetectorBase;
 import gda.device.epicsdevice.EpicsMonitorEvent;
 import gda.device.epicsdevice.IEpicsChannel;
 import gda.device.epicsdevice.ReturnType;
-import gda.device.epicsdevice.XmapEpicsDevice;
+import gda.device.epicsdevice.IFindableEpicsDevice;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -50,7 +50,7 @@ public class EDXDController extends DetectorBase {
 	private IEpicsChannel statusChannel;
 
 	protected int numberOfElements = 24;
-	protected XmapEpicsDevice xmap = null;
+	protected IFindableEpicsDevice xmap = null;
 	protected final List<IEDXDElement> subDetectors = new ArrayList<>();
 	protected DeviceException collectDataException;
 
@@ -582,11 +582,11 @@ public class EDXDController extends DetectorBase {
 		return subDetectors.get(mcaNumber).getOutputCountRate();
 	}
 
-	public XmapEpicsDevice getXmap() {
+	public IFindableEpicsDevice getXmap() {
 		return xmap;
 	}
 
-	public void setXmap(XmapEpicsDevice xmap) {
+	public void setXmap(IFindableEpicsDevice xmap) {
 		this.xmap = xmap;
 	}
 }

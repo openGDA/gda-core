@@ -30,7 +30,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.epicsdevice.ReturnType;
-import gda.device.epicsdevice.XmapEpicsDevice;
+import gda.device.epicsdevice.IFindableEpicsDevice;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
@@ -68,7 +68,7 @@ public class EDXDElement extends DetectorBase implements IEDXDElement {
 	private double[] energy = null;
 	private double[] q = null;
 
-	protected XmapEpicsDevice xmap;
+	protected IFindableEpicsDevice xmap;
 	private Integer number;
 	private static final String SCADATA = "SCADATA";
 	private static final String SCALOWLIMITS = "SCALOWLIMITS";
@@ -78,7 +78,7 @@ public class EDXDElement extends DetectorBase implements IEDXDElement {
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
-	public EDXDElement(XmapEpicsDevice xmapDevice, int elementNumber ) {
+	public EDXDElement(IFindableEpicsDevice xmapDevice, int elementNumber ) {
 		number = elementNumber;
 		xmap = xmapDevice;
 	}

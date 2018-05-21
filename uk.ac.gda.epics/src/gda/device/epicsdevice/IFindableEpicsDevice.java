@@ -22,9 +22,9 @@ import gda.device.DeviceException;
 import gda.factory.Configurable;
 
 /**
- * Extend IEpicsDevice to add the functions required to control an XMAP device
+ * Extend IEpicsDevice to add the additional functions in FindableEpicsDevice
  */
-public interface XmapEpicsDevice extends IEpicsDevice, Configurable {
+public interface IFindableEpicsDevice extends IEpicsDevice, Configurable {
 	/**
 	 * Set the value of an Epics record, specifying the type
 	 *

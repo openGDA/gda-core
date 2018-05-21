@@ -36,12 +36,12 @@ import org.mockito.ArgumentCaptor;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.EpicsMCASimple;
-import gda.device.epicsdevice.XmapEpicsDevice;
+import gda.device.epicsdevice.IFindableEpicsDevice;
 import gda.factory.FactoryException;
 
 public class EDXDMappingElementTest {
 
-	private XmapEpicsDevice xmapDevice;
+	private IFindableEpicsDevice xmapDevice;
 	private EpicsMCASimple simpleMca;
 
 	// In this test, we work with 4 "real" ROIS and let the rest default to zero
@@ -67,7 +67,7 @@ public class EDXDMappingElementTest {
 			newRois[i][1] = NEW_HIGH_ROIS[i];
 		}
 
-		xmapDevice = mock(XmapEpicsDevice.class);
+		xmapDevice = mock(IFindableEpicsDevice.class);
 		when(xmapDevice.getRecordPV("MCA1")).thenReturn("BLXXI-EA-DET-01:MCA1");
 		when(xmapDevice.getRecordPV("MCA2")).thenReturn("BLXXI-EA-DET-01:MCA2");
 

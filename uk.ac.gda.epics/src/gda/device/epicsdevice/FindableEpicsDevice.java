@@ -41,7 +41,7 @@ import gda.observable.IObserver;
 import gov.aps.jca.event.PutListener;
 
 /**
- * A FindableEpicsDevice object, though it implements XmapEpicsDevice, can in principle used for low-level access to many different devices.
+ * A generic Epics device object which can be used for low-level access to arbitrary devices, most commonly XMAP devices.
  * <p>
  * It manages a map of "field names" to PVs, for example:
  *
@@ -59,7 +59,7 @@ import gov.aps.jca.event.PutListener;
  * to the appropriate channel access call, using the PV mapping.
  */
 @ExposedType(name="findableepicsdevice")
-public class FindableEpicsDevice extends DeviceBase implements XmapEpicsDevice {
+public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(FindableEpicsDevice.class);
 

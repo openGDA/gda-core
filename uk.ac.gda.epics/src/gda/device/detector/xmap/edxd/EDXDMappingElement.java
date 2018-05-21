@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.IEpicsMCASimple;
-import gda.device.epicsdevice.XmapEpicsDevice;
+import gda.device.epicsdevice.IFindableEpicsDevice;
 import gda.factory.FactoryException;
 
 /**
@@ -42,7 +42,7 @@ public class EDXDMappingElement extends EDXDElement {
 	 * @param xmapDevice the device where the element is connected to
 	 * @param elementNumber the number of the element in the xmap
 	 */
-	public EDXDMappingElement(XmapEpicsDevice xmapDevice, int elementNumber, IEpicsMCASimple simpleMca) {
+	public EDXDMappingElement(IFindableEpicsDevice xmapDevice, int elementNumber, IEpicsMCASimple simpleMca) {
 		super(xmapDevice, elementNumber);
 
 		final String mcaName = MCA + elementNumber;

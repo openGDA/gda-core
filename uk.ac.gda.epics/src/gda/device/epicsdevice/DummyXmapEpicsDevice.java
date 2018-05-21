@@ -38,7 +38,7 @@ import gov.aps.jca.dbr.DBR_Enum;
  * - the real XMAP controller (EpicsXmapController), and<br>
  * - DummyXmapEDXDMappingController, which is only a very minimal variant of the real EDXDMappingController
  */
-public class DummyXmapEpicsDevice extends ConfigurableBase implements XmapEpicsDevice {
+public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableEpicsDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXmapEpicsDevice.class);
 
