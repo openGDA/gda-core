@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
-import gda.factory.Findable;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
@@ -41,7 +40,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
  * Detectors using this interface can be RMI exported from server to client and used in {@link FluorescenceDetectorComposite}.
  *
  */
-public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetector, InitializingBean, Findable, IObservable {
+public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetector, InitializingBean, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmapFluorescenceDetectorAdapter.class);
 
@@ -121,7 +120,7 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
-		List<DetectorElement> elementList = new ArrayList<DetectorElement>();
+		List<DetectorElement> elementList = new ArrayList<>();
 		for (int i = 0; i < numberOfElements; i++) {
 			DetectorElement paramElement = new DetectorElement();
 			paramElement.setName("Element" + i);
