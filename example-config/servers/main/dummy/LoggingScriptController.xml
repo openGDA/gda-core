@@ -1,9 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.diamond.ac.uk/schema/gda/gda
-		http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- ScriptControllers are distributed objects which act as middle-men between
 		Jython scripts and the GUI. GUI parts can register themselves as observers
@@ -25,12 +22,6 @@
 <!-- 		<property name="local" value="true"/> -->
 <!-- 	</bean> -->
 
-<!-- 	<gda:rmi-export -->
-<!-- 		service="MyLoggingScriptController" -->
-<!-- 		serviceName="gda/MyLoggingScriptController" -->
-<!-- 		serviceInterface="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
-<!-- 	</bean> -->
-
 	<bean id="MyOtherLoggingScriptController"
 		class="gda.jython.scriptcontroller.logging.LoggingScriptController">
 		<property name="messageClassToLog"
@@ -38,10 +29,5 @@
 		<property name="directory" value="${gda.var}/" />
 		<property name="local" value="true"/>
 	</bean>
-
-	<gda:rmi-export
-		service="MyOtherLoggingScriptController"
-		serviceName="gda/MyOtherLoggingScriptController"
-		serviceInterface="gda.jython.scriptcontroller.logging.ILoggingScriptController" />
 
 </beans>

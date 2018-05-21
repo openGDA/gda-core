@@ -8,35 +8,16 @@
 
 	<bean class="gda.spring.FindableNameSetterPostProcessor" />
 
-	<bean class="gda.factory.corba.util.AdapterFactory">
-		<constructor-arg index="0" value="${gda.factory.factoryName}" />
-		<constructor-arg index="1">
-			<bean class="gda.spring.NetServiceFactoryBean" />
-		</constructor-arg>
-	</bean>
-	
+	<!-- Provides ability to import/find remote objects over RMI -->
+	<bean class="uk.ac.gda.remoting.client.RmiProxyFactory" />
+
 	<import resource="commandQueueProcessor.xml"/>
     <import resource="file://${gda.core.dir}/clients/_common/plot_server.xml" />
 <!--	<import resource="mvc_example_model.xml"/> -->
 
-		
-<!-- 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean"> -->
-<!-- 		<property name="serviceUrl" value="${gda.rmi.prefix}MyLoggingScriptController" /> -->
-<!-- 		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
-<!-- 		<property name="refreshStubOnConnectFailure" value="true" /> -->
-<!-- 	</bean> -->
-	
-<!-- 	<bean id="MyOtherLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean"> -->
-<!-- 		<property name="serviceUrl" value="${gda.rmi.prefix}MyOtherLoggingScriptController" /> -->
-<!-- 		<property name="serviceInterface" value="gda.jython.scriptcontroller.logging.ILoggingScriptController" /> -->
-<!-- 		<property name="refreshStubOnConnectFailure" value="true" /> -->
-<!-- 	</bean> -->
+<!-- 	<bean id="MyLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxy" /> -->
 
-	<bean id="ScanDataPointServer" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}ScanDataPointServer" />
-		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+<!-- 	<bean id="MyOtherLoggingScriptController" class="uk.ac.gda.remoting.client.GdaRmiProxy" /> -->
 
 <!--for an 'empty' configuration, remove the objects below-->
 
@@ -70,6 +51,5 @@
 		<property name="motorName" value="testLinearMotorX" />
 		<property name="hardwareUnitString" value="mm" />
 	</bean>
-
 
 </beans>

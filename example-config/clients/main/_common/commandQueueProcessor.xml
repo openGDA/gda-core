@@ -2,11 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="commandQueueProcessor" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}commandQueueProcessor" />
-		<property name="serviceInterface" value="gda.commandqueue.IFindableQueueProcessor" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+	<bean id="commandQueueProcessor" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
 
 	<bean class="gda.rcp.util.OSGIServiceRegister">
 		<property name="class" value="gda.commandqueue.Processor" />
