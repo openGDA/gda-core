@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.scannable.ScannableUtils;
-import gda.factory.Findable;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
@@ -45,7 +44,7 @@ import gda.observable.ObservableComponent;
 /**
  * A client side implementation of the Lookup interface
  */
-public class LookupAdapter implements Lookup, EventSubscriber, Findable {
+public class LookupAdapter implements Lookup, EventSubscriber {
 	private static final Logger logger = LoggerFactory.getLogger(LookupAdapter.class);
 	CorbaLookup paramsObj;
 

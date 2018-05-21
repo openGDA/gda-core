@@ -19,8 +19,6 @@
 
 package gda.util.converters;
 
-import gda.factory.Findable;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -75,7 +73,7 @@ import org.jscience.physics.units.Unit;
  *
  * @see gda.util.converters.LookupTableQuantityConverter#getMode( String modeString )
  */
-public final class LookupTableConverterHolder implements IReloadableQuantitiesConverter, Findable, IQuantityConverter {
+public final class LookupTableConverterHolder implements IReloadableQuantitiesConverter, IQuantityConverter {
 	private GenQuantitiesConverter converter = null;
 
 	private final String columnDataFileName, name, modeString;

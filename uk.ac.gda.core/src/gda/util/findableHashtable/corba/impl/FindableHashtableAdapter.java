@@ -19,23 +19,22 @@
 
 package gda.util.findableHashtable.corba.impl;
 
-import gda.device.DeviceException;
-import gda.device.corba.CorbaDeviceException;
-import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-import gda.util.findableHashtable.corba.CorbaFindableHashtable;
-import gda.util.findableHashtable.corba.CorbaFindableHashtableHelper;
-
 import java.io.Serializable;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.factory.corba.util.NetService;
+import gda.util.findableHashtable.corba.CorbaFindableHashtable;
+import gda.util.findableHashtable.corba.CorbaFindableHashtableHelper;
+
 /**
  * A client side implementation of the adapter pattern for the FindableHashtable class
  */
 
-public class FindableHashtableAdapter implements Findable, gda.util.findableHashtable.Hashtable {
+public class FindableHashtableAdapter implements gda.util.findableHashtable.Hashtable {
 	private CorbaFindableHashtable corbaFindableHashtable;
 
 	private NetService netService;

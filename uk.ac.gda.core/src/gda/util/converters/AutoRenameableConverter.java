@@ -19,10 +19,6 @@
 
 package gda.util.converters;
 
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.util.converters.util.ConverterNameProvider;
-
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
@@ -30,10 +26,13 @@ import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
+import gda.util.converters.util.ConverterNameProvider;
+
 /**
  * AutoRenameableConverter Class
  */
-public class AutoRenameableConverter implements IReloadableQuantitiesConverter, Findable, IQuantitiesConverter , IQuantityConverter{
+public class AutoRenameableConverter implements IReloadableQuantitiesConverter, IQuantityConverter {
 
 	private String name = null;
 

@@ -31,7 +31,6 @@ import gda.data.metadata.corba.CorbaMetadataEntry;
 import gda.data.metadata.corba.CorbaMetadataHelper;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
-import gda.factory.Findable;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
@@ -42,7 +41,7 @@ import gda.observable.ObservableComponent;
 /**
  * A client side implementation of the adapter pattern for the Metadata class
  */
-public class MetadataAdapter implements Metadata, Findable, EventSubscriber {
+public class MetadataAdapter implements Metadata, EventSubscriber {
 	private CorbaMetadata corbaMetadata;
 
 	private NetService netService;

@@ -19,8 +19,6 @@
 
 package gda.util.converters;
 
-import gda.factory.Findable;
-
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
@@ -56,7 +54,7 @@ import org.jscience.physics.units.Unit;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class SplitConverterHolder implements IReloadableQuantitiesConverter, Findable, IQuantityConverter
+public final class SplitConverterHolder implements IReloadableQuantitiesConverter, IQuantityConverter
 
 {
 

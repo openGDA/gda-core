@@ -19,13 +19,13 @@
 
 package gda.util.converters;
 
-import gda.factory.Findable;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+
+import gda.factory.Findable;
+import gda.factory.Finder;
 
 /**
  * Class that can be used to create a converter made up of two other converters in series. An occasion where this is
@@ -57,7 +57,7 @@ import org.jscience.physics.units.Unit;
  * <p>
  * The object implements IQuantitiesConverter so that the object can be referenced by CombinedDOF.
  */
-public final class CoupledConverterHolder implements IReloadableQuantitiesConverter, Findable, IQuantityConverter
+public final class CoupledConverterHolder implements IReloadableQuantitiesConverter, IQuantityConverter
 
 {
 	private String sourceConverterName, targetConverterName;

@@ -18,8 +18,6 @@
 
 package gda.util.converters;
 
-import gda.factory.Findable;
-
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
@@ -28,7 +26,7 @@ import org.jscience.physics.units.Unit;
 /**
  * RenameableConverter Class
  */
-public class RenameableConverter implements IReloadableQuantitiesConverter, Findable, IQuantityConverter {
+public class RenameableConverter implements IReloadableQuantitiesConverter, IQuantityConverter {
 	private String name = null;
 
 	private String converterName = "";

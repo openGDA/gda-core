@@ -18,14 +18,6 @@
 
 package gda.data;
 
-import gda.data.metadata.GdaMetadata;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.MetadataEntry;
-import gda.device.DeviceBase;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -34,12 +26,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.data.metadata.GdaMetadata;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.MetadataEntry;
+import gda.device.DeviceBase;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
+
 /**
  * An {@link ObservablePathProvider} that when configured with a template of the form expected by {@link PathConstructor}
  * creates a path using {@link PathConstructor}. A {@link PathChanged} event is sent to registered Observers when
  * any {@link MetadataEntry} referenced by the template changes.
  */
-public class ObservablePathConstructor extends DeviceBase implements ObservablePathProvider, Findable, IObserver, InitializingBean  {
+public class ObservablePathConstructor extends DeviceBase implements ObservablePathProvider, IObserver, InitializingBean  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ObservablePathConstructor.class);
 

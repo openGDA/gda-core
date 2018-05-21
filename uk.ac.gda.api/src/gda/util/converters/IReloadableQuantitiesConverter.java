@@ -19,11 +19,13 @@
 
 package gda.util.converters;
 
+import gda.factory.Findable;
+
 /**
  * Allows a object that supports IQuantitiesConverter to reload its state from any resource on which it may depend e.g.
  * re-read a lookup table.
  */
-public interface IReloadableQuantitiesConverter extends IQuantitiesConverter, gda.factory.Findable {
+public interface IReloadableQuantitiesConverter extends IQuantitiesConverter, Findable {
 	/**
 	 * Reload its state from any resource on which it may depend e.g. re-read a lookup table.
 	 */
