@@ -20,8 +20,7 @@ See &lt;http://www.opengda.org/&gt;
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
--Dorg.eclipse.swt.internal.gtk.useCairo=false
+      <vmArgs>-Dosgi.framework.extensions=org.eclipse.fx.osgi
 -Dgda.root=${project_loc:uk.ac.gda.core}/../
 -Dgda.config=${project_loc:example-config}
 -Dgda.core.dir=${project_loc:core-config}
@@ -32,7 +31,6 @@ See &lt;http://www.opengda.org/&gt;
 -Dgda.mode=dummy
 -Xms512m
 -Xmx1024m
--XX:MaxPermSize=256m
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -44,7 +42,6 @@ See &lt;http://www.opengda.org/&gt;
       location="uk.ac.gda.client" />
    <launcher name="gda-example">
       <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>

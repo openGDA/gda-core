@@ -9,14 +9,13 @@
 
 <!-- 	<import resource="classpath:gda/spring/propertyeditors/registration.xml" /> -->
 
+	<bean id="commandQueue" class="gda.commandqueue.CommandQueue" />
 
-	<bean id="commandQueue" class="gda.commandqueue.CommandQueue">
-	</bean>
 	<bean id="commandQueueProcessor" class="gda.commandqueue.FindableProcessorQueue">
 		<property name="queue" ref="commandQueue" />
 		<property name="startImmediately" value="true"/>
 	</bean>
-	
+
 	<gda:rmi-export
 		service="commandQueueProcessor"
 		serviceName="gda/commandQueueProcessor"

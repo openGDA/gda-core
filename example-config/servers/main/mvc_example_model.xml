@@ -1,28 +1,25 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
-                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.diamond.ac.uk/schema/gda/gda
-                           http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd" >
+                           http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
 
 	<!-- objects that are used in the model accessed by the Model View Controller Example view -->
-	
+
 	<bean id="mvcExampleMotor" class="gda.device.motor.DummyMotor">
 		<property name="speed" value="90" />
 		<property name="local" value="true"/>
 		<property name="minPosition" value="-100"/>
 		<property name="maxPosition" value="300"/>
 	</bean>
-	
+
 	<bean id="mvcExampleScannableMotor" class="gda.device.scannable.ScannableMotor">
 		<property name="motor" ref="mvcExampleMotor" />
 		<!-- <property name="lowerGdaLimits" value="0."/>
 		<property name="upperGdaLimits" value="200."/> -->
 	</bean>
-	
+
 	<gda:rmi-export
 		service="mvcExampleScannableMotor"
 		serviceName="gda/mvcExampleScannableMotor"
