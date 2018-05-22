@@ -19,17 +19,13 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.util.Objects;
-import java.util.OptionalDouble;
 
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -39,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
 class StatusPanel extends Composite {
 
@@ -46,15 +43,13 @@ class StatusPanel extends Composite {
 	private String message;
 	private PathInfo pathInfo;
 	private final IMappingExperimentBean mappingBean;
-	private final ScanRequestConverter scanRequestConverter;
 	private final IPointGeneratorService pointGeneratorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
 
-	StatusPanel(Composite parent, int style, IMappingExperimentBean mappingBean, ScanRequestConverter scanRequestConverter) {
+	StatusPanel(Composite parent, int style, IMappingExperimentBean mappingBean) {
 		super(parent, style);
 		this.mappingBean = mappingBean;
-		this.scanRequestConverter = scanRequestConverter;
 		pointGeneratorService = ServiceHolder.getGeneratorService();
 
 		GridLayoutFactory.fillDefaults().applyTo(this);
@@ -109,23 +104,32 @@ class StatusPanel extends Composite {
 	}
 
 	private int getScanPoints() {
-		if (Objects.isNull(mappingBean.getScanDefinition().getMappingScanRegion().getScanPath())) {
+		if (mappingBean.getScanDefinition().getMappingScanRegion().getScanPath() == null) {
 			// When starting the client from a fresh workspace,
 			// the mapping view won't have been fully initialised at this point.
 			// We'll return zero now; this method will be called again when the scan path is set.
 			return 0;
 		}
-		ScanRequest<IROI> req = getScanRequest();
-		if (Objects.isNull(req)) {
-			return get2DPoints();
-		}
-		CompoundModel<IROI> cm = req.getCompoundModel();
+
+		int points2d = get2DPoints();
+		int otherAxesPoints = mappingBean.getScanDefinition()
+								.getOuterScannables()
+								.stream()
+								.filter(IScanPathModelWrapper::isIncludeInScan)
+								.map(IScanPathModelWrapper::getModel)
+								.mapToInt(this::calculatePathPoints)
+								.reduce(1, (a, b) -> a * b);
+
+		return points2d * otherAxesPoints;
+	}
+
+	private int calculatePathPoints(IScanPathModel outerPath) {
 		try {
-			final IPointGenerator<?> gen = pointGeneratorService.createCompoundGenerator(cm);
-			return gen.size();
-		} catch(GeneratorException ge) {
-			logger.warn("Can only provide 2D map information", ge);
-			return get2DPoints();
+			IPointGenerator<?> generator = pointGeneratorService.createGenerator(outerPath);
+			return generator.size();
+		} catch (GeneratorException e) {
+			logger.error("Could not get size of outer path '{}'", outerPath.getName(), e);
+			return 1;
 		}
 	}
 
@@ -150,19 +154,9 @@ class StatusPanel extends Composite {
 	}
 
 	private double getPointExposureTime() {
-		OptionalDouble exposure = mappingBean.getDetectorParameters().stream()
+		return mappingBean.getDetectorParameters().stream()
 				.filter(IDetectorModelWrapper::isIncludeInScan)
 				.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
-				.max();
-		return exposure.orElse(0) * getScanPoints();
-	}
-
-	private ScanRequest<IROI> getScanRequest() {
-		try {
-			return scanRequestConverter.convertToScanRequest(mappingBean);
-		} catch (ScanningException e) {
-			logger.error("Cannot get the ScanRequest!", e);
-			return null;
-		}
+				.max().orElse(0) * getScanPoints();
 	}
 }
