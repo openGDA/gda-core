@@ -32,15 +32,19 @@ public class TableAttribute extends MalcolmAttribute<MalcolmTable> {
 	public MalcolmTable getValue() {
 		return tableValue;
 	}
+
 	public void setValue(MalcolmTable tableValue) {
 		this.tableValue = tableValue;
 	}
+
 	public String[] getHeadings() {
 		return headings;
 	}
+
 	public void setHeadings(String[] headings) {
 		this.headings = headings;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -49,6 +53,7 @@ public class TableAttribute extends MalcolmAttribute<MalcolmTable> {
 		result = prime * result + ((tableValue == null) ? 0 : tableValue.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -68,6 +73,12 @@ public class TableAttribute extends MalcolmAttribute<MalcolmTable> {
 		} else if (!tableValue.equals(other.tableValue))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "TableAttribute [name=" + getName() + ", tableValue=" + tableValue + ", headings="
+				+ Arrays.toString(headings) + "]";
 	}
 
 }

@@ -60,4 +60,9 @@ public class HealthAttribute extends MalcolmAttribute<String> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "HealthAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }

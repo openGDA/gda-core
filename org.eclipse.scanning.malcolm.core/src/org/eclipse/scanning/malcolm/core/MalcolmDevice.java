@@ -186,6 +186,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	protected void sendScanEvent(MalcolmEvent<MalcolmMessage> event) {
 		final MalcolmMessage msg = event.getBean();
+		logger.debug("Received scan event with message: {}", msg);
 		DeviceState newState;
 		try {
 			newState = MalcolmUtil.getState(msg, false);
@@ -233,6 +234,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			if (scanPosition != null && currentTime - lastBroadcastTime >= POSITION_COMPLETE_FREQ) {
 				scanPosition.setStepIndex(point);
 				try {
+					logger.debug("Firing position complete: {}", scanPosition);
 					firePositionComplete(scanPosition);
 				} catch (ScanningException e) {
 					logger.error("Exception firing position complete", e);
@@ -245,6 +247,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		// publish the scan bean
 		if (publisher != null) {
 			try {
+				logger.debug("Publishing updated scan bean: {}", bean);
 				publisher.broadcast(bean);
 			} catch (Exception e) {
 				logger.error("Could not publish bean");
@@ -253,9 +256,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	protected void sendScanStateChange(MalcolmEvent<MalcolmMessage> event) {
-
 		try {
 			MalcolmMessage msg = event.getBean();
+			logger.debug("Received malcolm state change with message: {}", msg);
 			DeviceState newState = MalcolmUtil.getState(msg, false);
 
 			// Send scan state changed
@@ -278,6 +281,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				Thread.dumpStack();
 			}
 
+			logger.debug("Sending malcolm event: {}", meb);
 			eventDelegate.sendEvent(meb);
 		} catch (Exception e) {
 			logger.error("Could not send scan state change message");

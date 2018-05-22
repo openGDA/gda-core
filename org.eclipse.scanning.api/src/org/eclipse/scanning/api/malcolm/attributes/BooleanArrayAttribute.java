@@ -58,4 +58,9 @@ public class BooleanArrayAttribute extends MalcolmAttribute<boolean[]> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "BooleanArrayAttribute [value=" + Arrays.toString(value) + ", getName()=" + getName() + "]";
+	}
+
 }

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.malcolm.attributes;
 
+import java.util.Arrays;
+
 /**
  *
  * Encapsulates a number array attribute as read from a malcolm device
@@ -39,6 +41,11 @@ public class NumberArrayAttribute extends MalcolmAttribute<Number[]> {
 
 	public void setValue(Number[] value) {
 		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return "NumberArrayAttribute [value=" + Arrays.toString(value) + ", getName()=" + getName() + "]";
 	}
 
 }

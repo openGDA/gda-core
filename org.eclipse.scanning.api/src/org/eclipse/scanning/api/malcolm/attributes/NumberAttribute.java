@@ -42,4 +42,9 @@ public class NumberAttribute extends MalcolmAttribute<Number> {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "NumberAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }

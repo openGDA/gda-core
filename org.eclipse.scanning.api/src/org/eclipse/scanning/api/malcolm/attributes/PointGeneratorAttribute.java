@@ -35,4 +35,9 @@ public class PointGeneratorAttribute extends MalcolmAttribute<Map<?,?>> {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "PointGeneratorAttribute [value=" + value + ", getName()=" + getName() + "]";
+	}
+
 }

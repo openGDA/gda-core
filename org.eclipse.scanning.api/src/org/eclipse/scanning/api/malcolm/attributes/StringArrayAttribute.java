@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.malcolm.attributes;
 
+import java.util.Arrays;
+
 /**
  *
  * Encapsulates a string array attribute as read from a malcolm device
@@ -39,4 +41,10 @@ public class StringArrayAttribute extends MalcolmAttribute<String[]> {
 	public void setValue(String[] value) {
 		this.value = value;
 	}
+
+	@Override
+	public String toString() {
+		return "StringArrayAttribute [value=" + Arrays.toString(value) + ", getName()=" + getName() + "]";
+	}
+
 }
