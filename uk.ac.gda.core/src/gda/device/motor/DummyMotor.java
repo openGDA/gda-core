@@ -537,9 +537,14 @@ public class DummyMotor extends MotorBase {
 	 */
 	@Override
 	public void home() throws MotorException {
-		// homing = true;
-		// moveTo(0.0);
-		homed = true;
+		if (!isHomeable) {
+			throw new MotorException(getStatus(), String.format("Motor %s is not homeable", getName()));
+		}
+
+		// Set flags before moving: these will be reset by runMotor() when homing is complete
+		homed = false;
+		homing = true;
+		moveTo(0.0);
 	}
 
 	/**
