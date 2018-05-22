@@ -121,7 +121,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @throws InstantiationException
 	 */
 	private JythonServerFacade() throws InstantiationException {
-		this((Jython) Finder.getInstance().find("command_server"));
+		this(Finder.getInstance().findSingleton(Jython.class));
 	}
 
 	/**

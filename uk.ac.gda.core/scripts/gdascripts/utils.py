@@ -5,6 +5,7 @@
 from gda.epics import CAClient
 from gda.factory import Finder
 from contextlib import contextmanager
+from gda.jython import JythonServerFacade
 from gda.jython.commands import ScannableCommands
 
 import logging
@@ -92,7 +93,7 @@ def default_scannables(*scn):
 		ScannableCommands.remove_default(*new_scannables)
 
 
-command_server = Finder.getInstance().find('command_server')
+command_server = JythonServerFacade.getInstance()
 
 def jobs():
 	"""

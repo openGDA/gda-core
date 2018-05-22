@@ -21,7 +21,6 @@ package gda.jython;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.completion.TextCompleter;
@@ -157,11 +156,7 @@ public final class InterfaceProvider {
 	 * @return JythonServer
 	 */
 	private static LocalJython getLocalJythonServerFromFinder() {
-		Findable obj = Finder.getInstance().find(Jython.SERVER_NAME);
-		if (obj != null && obj instanceof LocalJython) {
-			return (LocalJython) obj;
-		}
-		throw new IllegalStateException("Unable to find local object of type LocalJython called " + Jython.SERVER_NAME);
+		return Finder.getInstance().findSingleton(LocalJython.class);
 	}
 
 	/**

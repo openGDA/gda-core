@@ -929,7 +929,7 @@ public class ScannableCommands {
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
-				((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME)).addDefault(scannable);
+				Finder.getInstance().findSingleton(JythonServer.class).addDefault(scannable);
 				JythonServerFacade
 						.getInstance()
 						.print(scannable.getName()
@@ -947,7 +947,7 @@ public class ScannableCommands {
 		for (Object arg : args) {
 			if (arg instanceof Scannable) {
 				Scannable scannable = (Scannable) arg;
-				((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME)).removeDefault(scannable);
+				Finder.getInstance().findSingleton(JythonServer.class).removeDefault(scannable);
 				JythonServerFacade
 						.getInstance()
 						.print(scannable.getName()
