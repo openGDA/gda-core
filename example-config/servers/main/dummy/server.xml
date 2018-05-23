@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:property-placeholder/>
@@ -16,14 +14,6 @@
 	<!--  object to provide recording of metadata in Nexus files -->
 	<bean id="metashop" class="gda.data.metadata.NXMetaDataProvider">
 		<property name="name" value="metashop"/>
-	</bean>
-
-	<!-- Replaces ScanDataStore -->
-	<!-- This can't be replaced with gda:rmi-export as it doesn't yet handle plain objects retrieved via SpEL -->
-	<bean class="uk.ac.gda.remoting.server.GdaRmiServiceExporter">
-		<property name="serviceName" value="gda/ScanDataPointServer" />
-		<property name="service" value="#{ T(gda.scan.ScanDataPointServer).getInstance() }" />
-		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
 	</bean>
 
 	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
@@ -42,8 +32,10 @@
 	<!-- To enable use of a simulated AD uncomment this import and set the WORKSTATION environment variable to your workstation name -->
 	<!-- <import resource="devices/simulatedAreaDetector.xml"/> -->
 
-<!-- do not remove anything below here -->
+	<!-- Exports objects over RMI -->
+	<bean class="uk.ac.gda.remoting.server.RmiAutomatedExporter" />
+
+	<!-- do not remove anything below here -->
 	<import resource="jythonServerFacade.xml" />
-	<corba:export namespace="gda" />
 
 </beans>

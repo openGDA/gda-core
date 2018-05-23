@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.diamond.ac.uk/schema/gda/gda
-	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 <!-- 	<import resource="classpath:gda/spring/propertyeditors/registration.xml" /> -->
 
@@ -15,10 +12,5 @@
 		<property name="queue" ref="commandQueue" />
 		<property name="startImmediately" value="true"/>
 	</bean>
-
-	<gda:rmi-export
-		service="commandQueueProcessor"
-		serviceName="gda/commandQueueProcessor"
-		serviceInterface="gda.commandqueue.IFindableQueueProcessor" />
 
 </beans>

@@ -44,7 +44,4 @@
 	<!-- Jetty is very noisy at DEBUG level, filter those messages out -->
 	<logger name="org.eclipse.jetty" level="INFO" />
 
-	<!-- Also filter noisy GDA packages -->
-	<logger name="gda.device.corba.impl" level="INFO" />
-
 </configuration>

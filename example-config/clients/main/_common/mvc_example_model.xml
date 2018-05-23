@@ -3,11 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--  create service used by Model View Controller Example view -->
-	<bean id="mvcExampleScannableMotor" class="uk.ac.gda.remoting.client.GdaRmiProxyFactoryBean">
-		<property name="serviceUrl" value="${gda.rmi.prefix}mvcExampleScannableMotor" />
-		<property name="serviceInterface" value="gda.device.ScannableMotionUnits" />
-		<property name="refreshStubOnConnectFailure" value="true" />
-	</bean>
+	<bean id="mvcExampleScannableMotor" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
 
 	<bean id="mvcExampleModel" class="uk.ac.gda.example.mvcexample.impl.MvcExampleModelImpl">
 		<property name="scannable" ref="mvcExampleScannableMotor"/>
