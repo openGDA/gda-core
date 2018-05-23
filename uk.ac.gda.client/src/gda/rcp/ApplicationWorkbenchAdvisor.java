@@ -72,7 +72,6 @@ import gda.gui.RCPControllerImpl;
 import gda.gui.RCPOpenPerspectiveCommand;
 import gda.gui.RCPOpenViewCommand;
 import gda.gui.RCPSetPreferenceCommand;
-import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.UserMessage;
@@ -163,9 +162,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 			// Add a listener to make sure a live scan plot is visible at the start of each scan (unless this
 			// behaviour has been switched off in the client preferences)
-			final IScanDataPointObserver openXYPlotOnScanStart = new LivePlotViewManager();
-			InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(openXYPlotOnScanStart);
-			addCleanupWork(() -> InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(openXYPlotOnScanStart));
+			final IObserver openXYPlotOnScanStart = new LivePlotViewManager();
+			InterfaceProvider.getJSFObserver().addIObserver(openXYPlotOnScanStart);
+			addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(openXYPlotOnScanStart));
 
 			Findable obj = Finder.getInstance().findNoWarn(RCPControllerImpl.name);
 			if (obj != null) {

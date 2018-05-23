@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.jython.IScanDataPointObserver;
-import gda.rcp.GDAClientActivator;
-import gda.scan.Scan;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +30,12 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
+import gda.scan.Scan;
 import uk.ac.gda.preferences.PreferenceConstants;
 
-public class LivePlotViewManager implements IScanDataPointObserver {
+public class LivePlotViewManager implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(LivePlotViewManager.class);
 
