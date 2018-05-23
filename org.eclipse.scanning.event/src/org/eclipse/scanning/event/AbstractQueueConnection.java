@@ -213,14 +213,15 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 
 	@Override
-	public void clearQueue(String qName) throws EventException {
+	public void clearQueue(String queueName) throws EventException {
+		logger.info("Clearing queue {}", queueName);
 
 		QueueConnection qCon = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
 			qCon  = connectionFactory.createQueueConnection(); // This times out when the server is not there.
 			QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue   = qSes.createQueue(qName);
+			Queue queue   = qSes.createQueue(queueName);
 			qCon.start();
 
 			QueueBrowser qb = qSes.createBrowser(queue);
@@ -229,9 +230,13 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			Enumeration  e  = qb.getEnumeration();
 			while(e.hasMoreElements()) {
 				Message msg = (Message)e.nextElement();
-				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+msg.getJMSMessageID()+"'");
+				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '" + msg.getJMSMessageID() + "'");
 				Message rem = consumer.receive(Constants.getReceiveFrequency());
-				if (rem!=null) System.out.println("Removed "+rem);
+				if (rem != null) {
+					logger.trace("Removed bean {}", rem);
+				} else {
+					logger.warn("Failed to remove next bean");
+				}
 				consumer.close();
 			}
 
@@ -243,23 +248,41 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				try {
 					qCon.close();
 				} catch (JMSException e) {
-					logger.error("Cannot close queue!", e);
+					logger.error("Cannot close connection to queue {}", queueName, e);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Performs a task while the queue is paused.
+	 * TODO: <em>This method is massively flawed. It sends a {@link PauseBean} to pause the queue
+	 * and then immediately perform the task without waiting for confirmation of any kind.
+	 * This will most likely be performed before the queue is actually paused on the consuemer as the
+	 * bean has to be sent over ActiveMQ (involving serializing and deserializing it) before the queue is actually paused.
+	 * @param queueName
+	 * @param pauseMessage
+	 * @param task
+	 * @return
+	 * @throws EventException
+	 */
 	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
 		final IPublisher<PauseBean> publisher = createPausePublisher();
-		final boolean isAlreadyPaused = isQueuePaused(queueName);
+
+		PauseBean pauseBean = null;
+		if (!isQueuePaused(queueName)) {
+			pauseBean = new PauseBean(queueName);
+			pauseBean.setMessage(pauseMessage);
+		}
 
 		// create a pause bean
-		final PauseBean pauseBean = new PauseBean(queueName);
-		pauseBean.setMessage(pauseMessage);
 		try {
 			// send the pause bean if we're not already paused, to signal the queue consumer to pause
-			if (!isAlreadyPaused) publisher.broadcast(pauseBean);
-			// perform the task while the queue is paused
+			if (pauseBean != null) {
+				logger.info("Sending pause request for queue {}", queueName);
+				publisher.broadcast(pauseBean);
+			}
+
 			return task.call();
 		} catch (EventException e) {
 			throw e;
@@ -267,7 +290,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			throw new EventException(e);
 		} finally {
 			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
-			if (!isAlreadyPaused) {
+			if (pauseBean != null) {
+				logger.info("Sending resume request for queue {}", queueName);
 				pauseBean.setPause(false);
 				publisher.broadcast(pauseBean);
 			}
@@ -278,7 +302,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public boolean reorder(U bean, String queueName, int amount) throws EventException {
-
 		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
 
 		final String pauseMessage = "Pause to reorder '" + bean.getName() + "' " + amount;
@@ -342,50 +365,58 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return doWhilePaused(queueName, pauseMessage, () -> doRemove(bean, queueName));
 	}
 
-	private boolean doRemove(U bean, String queueName) throws EventException {
-		QueueConnection send = null;
+	private boolean doRemove(U beanToRemove, String queueName) throws EventException {
+		QueueConnection connection = null;
 		QueueSession session = null;
 		final QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
 		try {
-			send = connectionFactory.createQueueConnection(); // This times out when the server is not there.
-			session = send.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue = session.createQueue(queueName);
-			send.start();
+			connection = connectionFactory.createQueueConnection(); // This times out when the server is not there.
+			session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+			final Queue queue = session.createQueue(queueName);
+			connection.start();
 
-			QueueBrowser qb = session.createBrowser(queue);
+			final QueueBrowser queueBrowser = session.createBrowser(queue);
 			String jmsMessageId = null;
 			@SuppressWarnings("rawtypes")
-			Enumeration e = qb.getEnumeration();
+			final Enumeration e = queueBrowser.getEnumeration();
 
 			while (jmsMessageId == null && e.hasMoreElements()) {
-				Message m = (Message) e.nextElement();
-				if (m instanceof TextMessage) {
-					TextMessage t = (TextMessage) m;
+				Message message = (Message) e.nextElement();
+				if (message instanceof TextMessage) {
+					TextMessage textMsg = (TextMessage) message;
 
-					final U qbean = service.unmarshal(t.getText(), null);
-					if (qbean != null && isSame(qbean, bean)) {
-						jmsMessageId = t.getJMSMessageID();
+					final U beanFromQueue = service.unmarshal(textMsg.getText(), null);
+					if (beanFromQueue != null && isSame(beanFromQueue, beanToRemove)) {
+						jmsMessageId = textMsg.getJMSMessageID();
 					}
 				}
 			}
 
-			qb.close();
+			queueBrowser.close();
 
 			if (jmsMessageId != null) {
 				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '" + jmsMessageId + "'");
-				Message m = consumer.receive(1000);
+				Message message = consumer.receive(1000);
 				consumer.close();
-				return m != null; // It might have been removed ok
+				if (message == null) {
+					// It might have been removed ok
+					logger.warn("Could not remove bean (JMSMessageID={}) from queue {}. Bean: {}", jmsMessageId, queueName, beanToRemove);
+					return false;
+				} else {
+					logger.info("Removed bean (JMSMessageId={} from queue", beanToRemove);
+					return true;
+				}
+			} else {
+				logger.warn("Could not find bean to remove in queue {}. Bean: {}", queueName, beanToRemove);
+				return false;
 			}
-
-			return false; // It was not removed
 		} catch (Exception ne) {
-			throw new EventException("Cannot remove item " + bean, ne);
+			throw new EventException("Cannot remove item " + beanToRemove, ne);
 
 		} finally {
 			try {
-				if (send != null)
-					send.close();
+				if (connection != null)
+					connection.close();
 				if (session != null)
 					session.close();
 			} catch (Exception e) {
