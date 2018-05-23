@@ -51,7 +51,7 @@ import gov.aps.jca.event.MonitorListener;
  * is spawned to monitor the detector until the data is above the threshold value for a given number of consecutive
  * reads before the scan is resumed.
  */
-public class EpicsBeamMonitor extends MonitorBase implements Runnable, MonitorListener {
+public class EpicsBeamMonitor extends MonitorBase implements MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBeamMonitor.class);
 
@@ -253,8 +253,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, MonitorLi
 		return Unit.ONE.toString();
 	}
 
-	@Override
-	public synchronized void run() {
+	private synchronized void runBeamMonitor() {
 		logger.warn("scan stopped waiting for beam on ");
 		while (monitorOn && nOkReads < consecutiveCountsAboveThreshold) {
 			logger.info("waiting between samples for " + waitTime + " secs");
@@ -341,7 +340,8 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, MonitorLi
 				if (currentData <= threshold) {
 					JythonServerFacade.getInstance().pauseCurrentScan();
 					pausedByBeamMonitor = true;
-					Thread thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+					Thread thread = new Thread(this::runBeamMonitor, getClass().getName());
+					thread.setDaemon(true);
 					thread.start();
 				}
 			}
@@ -364,7 +364,8 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, MonitorLi
 				if (currentData != null && currentData.length > channel && currentData[channel] <= threshold) {
 					JythonServerFacade.getInstance().pauseCurrentScan();
 					pausedByBeamMonitor = true;
-					Thread thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+					Thread thread = new Thread(this::runBeamMonitor, getClass().getName());
+					thread.setDaemon(true);
 					thread.start();
 				}
 			}
