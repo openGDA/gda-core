@@ -303,6 +303,7 @@ public class ConsumerView extends EventConnectionView {
 		final KillBean killBean = new KillBean();
 		killBean.setMessage("Requesting a termination of " + bean.getConsumerName());
 		killBean.setConsumerId(bean.getConsumerId());
+
 		sendKillBean(killBean, bean.getConsumerName());
 	}
 

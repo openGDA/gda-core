@@ -259,7 +259,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 				final StatusBean b = service.unmarshal(json, getBeanClass());
 
 				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+msg.getJMSMessageID()+"'");
-				Message rem = consumer.receive(Constants.getReceiveFrequency());
+				Message rem = consumer.receive(EventTimingsHelper.getReceiveTimeout());
 
 				consumer.close();
 				if (b.getUniqueId().equals(bean.getUniqueId())) {
@@ -566,12 +566,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		try {
 			if (Thread.interrupted()) return false;
 			// Wait for 2 seconds (default time)
-			Thread.sleep(Constants.getNotificationFrequency());
+			Thread.sleep(EventTimingsHelper.getNotificationInterval());
 		} catch (InterruptedException ie) {
 			throw new EventException("The consumer was unable to wait!", ie);
 		}
 
-		waitTime += Constants.getNotificationFrequency();
+		waitTime += EventTimingsHelper.getNotificationInterval();
 		checkTime(waitTime); // Exits if wait time more than one day
 
 		return true;
@@ -737,7 +737,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			if (this.messageConsumer == null) {
 				this.messageConsumer = createMessageConsumer(uri, submitQName);
 			}
-			return messageConsumer.receive(Constants.getReceiveFrequency());
+			return messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
 
 		} catch (Exception ne) {
 			if (Thread.interrupted()) return null;
@@ -859,7 +859,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 					LOGGER.error("Error encountered while broadcasting heartbeat", e);
 				}
 				lastBeat = beat;
-			}, Constants.getNotificationFrequency(), Constants.getNotificationFrequency(), TimeUnit.MILLISECONDS);
+			}, EventTimingsHelper.getNotificationInterval(), EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);
 			broadcasting = true;
 		}
 

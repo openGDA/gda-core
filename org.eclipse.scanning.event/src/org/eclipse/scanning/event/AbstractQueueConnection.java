@@ -190,7 +190,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 				for (String jMSMessageID : ids) {
 					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-					Message m = consumer.receive(Constants.getReceiveFrequency());
+					Message m = consumer.receive(EventTimingsHelper.getReceiveTimeout());
 					consumer.close();
 					if (removeIds.contains(jMSMessageID)) continue; // We are done
 
@@ -231,7 +231,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			while(e.hasMoreElements()) {
 				Message msg = (Message)e.nextElement();
 				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '" + msg.getJMSMessageID() + "'");
-				Message rem = consumer.receive(Constants.getReceiveFrequency());
+				Message rem = consumer.receive(EventTimingsHelper.getReceiveTimeout());
 				if (rem != null) {
 					logger.trace("Removed bean {}", rem);
 				} else {

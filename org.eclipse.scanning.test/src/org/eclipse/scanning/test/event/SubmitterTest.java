@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.Constants;
+import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
@@ -63,13 +63,13 @@ public class SubmitterTest extends BrokerTest {
 
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
-		Constants.setReceiveFrequency(100);
-		Constants.setNotificationFrequency(200); // Normally 2000
+		EventTimingsHelper.setReceiveTimeout(100);
+		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
 	}
 
 	@After
 	public void stop() throws Exception {
-		Constants.setNotificationFrequency(2000); // Normally 2000
+		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
 		submitter.clearQueue(EventConstants.SUBMISSION_QUEUE);
 		submitter.disconnect();
