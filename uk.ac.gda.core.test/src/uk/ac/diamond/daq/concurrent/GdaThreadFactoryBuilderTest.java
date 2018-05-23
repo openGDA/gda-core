@@ -29,8 +29,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import uk.ac.diamond.daq.concurrent.GdaThreadFactoryBuilder.Threads;
-
 public class GdaThreadFactoryBuilderTest {
 
 	@Mock
@@ -103,7 +101,7 @@ public class GdaThreadFactoryBuilderTest {
 		ThreadFactory factory = Threads.factory();
 		Thread t = factory.newThread(task);
 		assertEquals("Default UncaughtExceptionHandler not used when creating threads",
-				GdaThreadFactoryBuilder.DEFAULT_EXCEPTION_HANDLER,
+				Threads.DEFAULT_EXCEPTION_HANDLER,
 				t.getUncaughtExceptionHandler());
 	}
 
