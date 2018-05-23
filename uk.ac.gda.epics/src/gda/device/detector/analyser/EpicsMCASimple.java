@@ -998,4 +998,14 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	public void setReadingDoneIfNotAquiring(boolean readingDoneIfNotAquiring) {
 		this.readingDoneIfNotAquiring = readingDoneIfNotAquiring;
 	}
+
+	public int getChannelForEnergy(double energy) throws DeviceException {
+		final String attrString = ENERGY_TO_CHANNEL_PREFIX + energy + " eV";
+		return (int) getAttribute(attrString);
+	}
+
+	public double getEnergyForChannel(int channel) throws DeviceException {
+		final String attrString = CHANNEL_TO_ENERGY_PREFIX + channel;
+		return (double) getAttribute(attrString);
+	}
 }
