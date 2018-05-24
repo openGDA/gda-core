@@ -234,7 +234,11 @@ public abstract class ScanBase implements NestableScan {
 
 	protected void waitIfPaused() throws InterruptedException{
 		if (isScripted) {
-			ScriptBase.checkForPauses();
+			if (ScriptBase.isPaused()) {
+				logger.debug("Script was paused while scan was running. Pausing scan and clearing script pause flag");
+				pause();
+				ScriptBase.setPaused(false);
+			}
 		}
 		while (getStatus() == ScanStatus.PAUSED) {
 			if (isFinishEarlyRequested()) {
