@@ -24,7 +24,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	MappingScanTest.class,
 	AnyBeanEventTest.class,
 	DeviceRequestTest.class,
-	AcquireRequestTest.class
+	AcquireRequestTest.class,
+	RemoveReplaceReorderTest.class
 	// MConsumerTest.class  Takes too long! TODO Make shorter
 })
 public class Suite {

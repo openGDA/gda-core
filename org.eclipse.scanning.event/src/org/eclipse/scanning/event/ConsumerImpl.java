@@ -635,7 +635,19 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void pause() throws EventException {
 		awaitPaused = true;
+		closeMessageConsumer(); // required so that remove(), reorder, etc. work as expected. See DAQ-1453.
 		LOGGER.info("Consumer signalled to pause {}", getName());
+	}
+
+	private void closeMessageConsumer() throws EventException {
+		try {
+			if (messageConsumer != null) {
+				messageConsumer.close();
+				messageConsumer = null;
+			}
+		} catch (JMSException e) {
+			throw new EventException("Could not close JMS consumer " + getName(), e);
+		}
 	}
 
 	@Override
@@ -760,7 +772,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		final MessageConsumer consumer = session.createConsumer(queue);
 		connection.start();
 
-		LOGGER.info("{} Submission ActiveMQ connection to {} made.", getName(), uri);
+		LOGGER.info("Consumer for queue {} successfully created connection to ActiveMQ using uri {}.", getName(), uri);
 
 		return consumer;
 	}
