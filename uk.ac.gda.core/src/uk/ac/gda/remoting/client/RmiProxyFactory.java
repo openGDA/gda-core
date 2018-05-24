@@ -208,4 +208,9 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return "RmiProxyFactory [" + serviceUrlPrefix + "]";
+	}
+
 }
