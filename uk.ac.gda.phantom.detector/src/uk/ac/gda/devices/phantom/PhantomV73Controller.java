@@ -188,7 +188,8 @@ public class PhantomV73Controller implements IPhantomV73Controller {
 		streamReader = new StreamReader(circularBuffer, recServ, sixteenBit);
 
 		// run the thread up , so it waits for the input
-		Thread runner = uk.ac.gda.util.ThreadManager.getThread(streamReader, this.getClass().getName());
+		Thread runner = new Thread(streamReader, this.getClass().getName());
+		runner.setDaemon(true);
 		runner.start();
 
 		// send the command to open the interface

@@ -45,7 +45,7 @@ import gda.observable.IObserver;
  * <p>
  * This class relies on the Detector class being observed sending its IObervers a copy of its data.
  */
-public class BeamMonitor extends MonitorBase implements Runnable, IObserver {
+public class BeamMonitor extends MonitorBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamMonitor.class);
 	private double threshold = 1.0;
@@ -226,14 +226,14 @@ public class BeamMonitor extends MonitorBase implements Runnable, IObserver {
 			// then check the level against the threshold
 			if (currentData.length > channel && currentData[channel] <= threshold) {
 				JythonServerFacade.getInstance().pauseCurrentScan();
-				Thread thread = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
+				Thread thread = new Thread(this::runBeamMonitor, getClass().getName());
+				thread.setDaemon(true);
 				thread.start();
 			}
 		}
 	}
 
-	@Override
-	public synchronized void run() {
+	private synchronized void runBeamMonitor() {
 		while (nOkReads < consecutiveCountsAboveThreshold) {
 			logger.info("waiting between samples for " + waitTime + " secs");
 			try {
