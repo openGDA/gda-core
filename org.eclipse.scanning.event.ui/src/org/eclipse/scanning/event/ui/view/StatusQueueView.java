@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,6 +40,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -165,6 +167,7 @@ public class StatusQueueView extends EventConnectionView {
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		ColumnViewerToolTipSupport.enableFor(viewer);
 
 		createColumns();
 		viewer.setContentProvider(createContentProvider());
@@ -1089,7 +1092,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
 		name.getColumn().setText("Name");
 		name.getColumn().setWidth(260);
-		name.setLabelProvider(new ColumnLabelProvider() {
+		name.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				return ((StatusBean)element).getName();
@@ -1099,7 +1102,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn status = new TableViewerColumn(viewer, SWT.LEFT);
 		status.getColumn().setText("Status");
 		status.getColumn().setWidth(80);
-		status.setLabelProvider(new ColumnLabelProvider() {
+		status.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				return ((StatusBean)element).getStatus().toString();
@@ -1111,7 +1114,7 @@ public class StatusQueueView extends EventConnectionView {
 		pc.getColumn().setWidth(70);
 		final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 		percentFormat.setRoundingMode(RoundingMode.DOWN);
-		pc.setLabelProvider(new ColumnLabelProvider() {
+		pc.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1125,7 +1128,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn submittedDate = new TableViewerColumn(viewer, SWT.CENTER);
 		submittedDate.getColumn().setText("Date Submitted");
 		submittedDate.getColumn().setWidth(120);
-		submittedDate.setLabelProvider(new ColumnLabelProvider() {
+		submittedDate.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1139,7 +1142,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn message = new TableViewerColumn(viewer, SWT.LEFT);
 		message.getColumn().setText("Message");
 		message.getColumn().setWidth(150);
-		message.setLabelProvider(new ColumnLabelProvider() {
+		message.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1153,7 +1156,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn location = new TableViewerColumn(viewer, SWT.LEFT);
 		location.getColumn().setText("Location");
 		location.getColumn().setWidth(300);
-		location.setLabelProvider(new ColumnLabelProvider() {
+		location.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1174,7 +1177,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn host = new TableViewerColumn(viewer, SWT.CENTER);
 		host.getColumn().setText("Host");
 		host.getColumn().setWidth(90);
-		host.setLabelProvider(new ColumnLabelProvider() {
+		host.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1188,7 +1191,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn user = new TableViewerColumn(viewer, SWT.CENTER);
 		user.getColumn().setText("User Name");
 		user.getColumn().setWidth(80);
-		user.setLabelProvider(new ColumnLabelProvider() {
+		user.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1202,7 +1205,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn startTime = new TableViewerColumn(viewer, SWT.CENTER);
 		startTime.getColumn().setText("Start Time");
 		startTime.getColumn().setWidth(120);
-		startTime.setLabelProvider(new ColumnLabelProvider() {
+		startTime.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1218,7 +1221,7 @@ public class StatusQueueView extends EventConnectionView {
 		final TableViewerColumn estimatedEndTime = new TableViewerColumn(viewer, SWT.CENTER);
 		estimatedEndTime.getColumn().setText("E. End Time");
 		estimatedEndTime.getColumn().setWidth(120);
-		estimatedEndTime.setLabelProvider(new ColumnLabelProvider() {
+		estimatedEndTime.setLabelProvider(new StatusQueueColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				try {
@@ -1298,6 +1301,22 @@ public class StatusQueueView extends EventConnectionView {
 		Instant timeNow = Instant.now();
 		if (Duration.between(jobStartTime, timeNow).toMillis() > 100) {
 			logger.warn("{} took {}ms to {}", beforeInterval, Duration.between(jobStartTime, timeNow).toMillis(), afterInterval);
+		}
+	}
+
+	/**
+	 * Extend ColumnLabelProvider to provide a tool tip for each column
+	 * <p>
+	 * There is a bug in Eclipse Mars which means that the tool tip flickers and disappears if it extends beyond the
+	 * edge of the screen. We believe that this is fixed in later versions of the Eclipse platform. For the time being,
+	 * wrap the tool tip to make this less likely to happen.
+	 */
+	private static class StatusQueueColumnLabelProvider extends ColumnLabelProvider {
+		private static final int WRAP_LENGTH = 40;
+
+		@Override
+		public String getToolTipText(Object element) {
+			return WordUtils.wrap(getText(element), WRAP_LENGTH, null, true);
 		}
 	}
 }
