@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
 
 /**
@@ -45,33 +44,42 @@ public class PauseCommandHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			JythonServerStatus status = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
-			logger.debug("Pause/Resume button pressed, scan status={}, scriptStatus={}", status.scanStatus, status.scriptStatus);
+			JythonStatus scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
+			JythonStatus scriptStatus = InterfaceProvider.getScriptController().getScriptStatus();
 
-			switch (status.scanStatus) {
+			logger.debug("Pause/Resume button pressed, scanStatus={}, scriptStatus={}", scanStatus, scriptStatus);
+
+			switch (scanStatus) {
 				case IDLE:
 					// Only a script could be running - set it to whatever it currently isn't
-					if (status.scriptStatus == JythonStatus.PAUSED) {
+					if (scriptStatus == JythonStatus.PAUSED) {
+						logger.trace("Resuming script");
 						InterfaceProvider.getScriptController().resumeCurrentScript();
-					} else if (status.scriptStatus == JythonStatus.RUNNING) {
+					} else if (scriptStatus == JythonStatus.RUNNING) {
+						logger.trace("Pausing script");
 						InterfaceProvider.getScriptController().pauseCurrentScript();
 					}
 					break;
 				case PAUSED:
 					// Resume scan. If script is paused, leave it paused as the current scan could be being run independently
 					// while the script is paused in the background.
+					logger.trace("Resuming scan");
 					InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 					break;
 				case RUNNING:
 					// Only pause scan - if it's part of a script, the script will wait anyway
+					logger.trace("Pausing scan");
 					InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 					break;
 				default:
-					logger.warn("PauseScanHandler:execute, unexpected scanStatus {}", status.scanStatus);
+					logger.warn("PauseScanHandler:execute, unexpected scanStatus {}", scanStatus);
 			}
 			return null; // as per AbstractHandler#execute javadoc
-		} catch (Exception ne) {
-			throw new ExecutionException("Error pausing scan", ne);
+		} catch (Exception e) {
+			// log and throw because the exception is caught somewhere in the RCP framework
+			// and the error is lost.
+			logger.error("Error pausing current scan/script", e);
+			throw new ExecutionException("Error pausing scan", e);
 		}
 	}
 }
