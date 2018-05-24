@@ -18,14 +18,15 @@
 
 package uk.ac.gda.beamline.synoptics.composites;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -57,16 +58,16 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.detectorfilemonitor.FileProcessor;
 import gda.observable.IObserver;
 import uk.ac.gda.beamline.synoptics.api.PlotConfigurable;
+import uk.ac.gda.beamline.synoptics.events.DirectoryChangeEvent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
-import uk.ac.gda.beamline.synoptics.utils.DataFileListener;
-import uk.ac.gda.common.rcp.util.EclipseWidgetUtils;
+import uk.ac.gda.beamline.synoptics.utils.DataDirectoryMonitor;
 /**
  * A {@link Composite} provides a control view of monitoring latest detector data file
  * or a control to play back detector data files already collected in a specified data directory.
  * <ul>
  * <li>When 'play' is selected, it tracks the latest detector data file collected;</li>
  * <li>When 'pause' is enabled, one can display data file already collected previously;</li>
- * <li>Selected data file will be displayed in a plot view specified as a file processor see {@link DetectorFileDisplayer};</li>
+ * <li>Selected data file will be displayed in a plot view specified as a file processor</li>
  * <li>support switching of plot type (see {@link PlotType}) for different views of the same data files;</li>
  * <li>allow plot each data file as new plot or plot over multiple data files on the same graph.</li>
  * </ul>
@@ -80,7 +81,7 @@ class LatestFilenameComposite extends Composite {
 	public static final String EMPTY = "";
 	private static final Logger logger = LoggerFactory.getLogger(LatestFilenameComposite.class);
 
-	private DataFileListener dirWatcher;
+	private DataDirectoryMonitor dirWatcher;
 
 	private Text fileNameText;
 	private Text textIndex;
@@ -188,7 +189,7 @@ class LatestFilenameComposite extends Composite {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == SWT.CR) {
+				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					processFilenameEntered();
 				}
 			}
@@ -221,7 +222,7 @@ class LatestFilenameComposite extends Composite {
 		});
 
 		textIndex = new Text(group, SWT.SINGLE | SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(textIndex);
+		GridDataFactory.fillDefaults().grab(true, false).minSize(50, 1).applyTo(textIndex);
 		textIndex.addFocusListener(new FocusListener() {
 
 			@Override
@@ -248,10 +249,9 @@ class LatestFilenameComposite extends Composite {
 		});
 
 		textIndex.addKeyListener(new KeyAdapter() {
-
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (e.keyCode == SWT.CR) {
+				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					processTextIndex();
 				}
 			}
@@ -354,21 +354,20 @@ class LatestFilenameComposite extends Composite {
 
 		detectorCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
 		detectorCombo.setToolTipText("Select a detector to filter");
-		detectorCombo.add("All Data");
+		detectors.put("All Data", a -> true);
 		for (String detector : getDetectors().keySet()) {
 			detectorCombo.add(detector);
 		}
-		detectors.put("All Data", a -> true);
 		detectorCombo.select(0); // default to no filtering of data
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(plotTypes);
 		detectorCombo.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (detectorCombo.getSelectionIndex() == 0 && !dirWatcher.getDataFileCollected().isEmpty()) {
-					latestFoundIndex = dirWatcher.getDataFileCollected().size() - 1;
+				if (detectorCombo.getSelectionIndex() == 0 && !dirWatcher.getDataFilesCollected().isEmpty()) {
+					latestFoundIndex = dirWatcher.getDataFilesCollected().size() - 1;
 				} else {
-					List<FileObject> detectorFilteredFileList = detectorFilteredFileList(detectorCombo.getText());
+					List<Path> detectorFilteredFileList = detectorFilteredFileList(detectorCombo.getText());
 					if (!detectorFilteredFileList.isEmpty()) {
 						latestFoundIndex = detectorFilteredFileList.size() - 1;
 					} else {
@@ -399,29 +398,39 @@ class LatestFilenameComposite extends Composite {
 		observer = new IObserver() {
 			@Override
 			public void update(Object source, final Object arg) {
-				if (source instanceof DataFileListener) {
-					if (arg instanceof LatestFilenameEvent) {
-						latestFoundIndex = ((LatestFilenameEvent) arg).getIndex();
-						final String filename = ((LatestFilenameEvent) arg).getFilename();
-						logger.debug("New detector file: {}", filename);
-						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								if (pauseButton.getSelection()) {
-									// paused, no update the latest Detector file.
-									return;
-								}
-								if (detectors.get(detectorCombo.getText()).test(filename)) {
-									latestFoundIndex = detectorFilteredFileList(detectorCombo.getText()).size() -1;
-								}
-								group.setText(label);
-								// textIndex.setText(String.valueOf(latestFoundIndex));
-								fileNameText.setText(filename);
-								setSelectedIndex(latestFoundIndex);
+				if (arg instanceof LatestFilenameEvent) {
+					latestFoundIndex = ((LatestFilenameEvent) arg).getIndex();
+					final String filename = ((LatestFilenameEvent) arg).getFilename();
+					logger.debug("New detector file: {}", filename);
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+							if (pauseButton.getSelection()) {
+								// paused, no update the latest Detector file.
+								enableBtns();
+								return;
 							}
-						});
-					}
+							List<Path> detectorFiles = detectorFilteredFileList(detectorCombo.getText());
+							if (detectors.get(detectorCombo.getText()).test(filename)) {
+								latestFoundIndex = detectorFiles.size() -1;
+							}
+							group.setText(label);
+							fileNameText.setText(filename);
+							setSelectedIndex(latestFoundIndex);
+					});
+				} else if (arg instanceof DirectoryChangeEvent) {
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						List<Path> files = detectorFilteredFileList(detectorCombo.getText());
+						if (files.isEmpty()) {
+							latestFoundIndex = null;
+							textIndex.setText("");
+							fileNameText.setText(WAITING);
+						} else {
+							latestFoundIndex = files.size() - 1;
+							String lastFile = files.get(latestFoundIndex).toString();
+							fileNameText.setText(lastFile);
+							setSelectedIndex(latestFoundIndex);
+						}
+						enableBtns();
+					});
 				}
 			}
 		};
@@ -437,15 +446,23 @@ class LatestFilenameComposite extends Composite {
 	}
 
 	protected void processFilenameEntered() {
+		String newFilename = fileNameText.getText().trim();
+		if (!Files.exists(Paths.get(newFilename))) {
+			MessageBox msgbox = new MessageBox(getShell(), SWT.ICON_ERROR);
+			msgbox.setMessage("File: " + newFilename + " is not found.");
+			msgbox.open();
+			return;
+		}
+
 		if (fileProcessor instanceof PlotConfigurable) {
 			((PlotConfigurable) fileProcessor).setNewPlot(newPlotButton.getSelection());
 			((PlotConfigurable) fileProcessor).setPlotType(PlotType.values()[plotTypes.getSelectionIndex()]);
 		}
-		fileProcessor.processFile(fileNameText.getText().trim());
+		fileProcessor.processFile(newFilename);
 
 		int findTextIndex = -1;
 		if (detectorCombo.getSelectionIndex() == 0) {
-			findTextIndex = findTextIndex(dirWatcher.getDataFileCollected());
+			findTextIndex = findTextIndex(dirWatcher.getDataFilesCollected());
 		} else {
 			findTextIndex = findTextIndex(detectorFilteredFileList(detectorCombo.getText()));
 		}
@@ -454,15 +471,8 @@ class LatestFilenameComposite extends Composite {
 		updateIndexText(findTextIndex);
 	}
 
-	private int findTextIndex(List<FileObject> dataFileCollected) {
-		for (FileObject file : dataFileCollected) {
-			if (fileNameText.getText().compareTo(file.getName().getPath()) == 0) {
-				return dataFileCollected.indexOf(file);
-			}
-		}
-		MessageBox msgbox = new MessageBox(getShell(), SWT.ICON_ERROR);
-		msgbox.setMessage("File: " + fileNameText.getText() + " is not found.");
-		return -1;
+	private int findTextIndex(List<Path> dataFileCollected) {
+		return dataFileCollected.indexOf(Paths.get(fileNameText.getText()));
 	}
 
 	private void processSelectedIndex() {
@@ -470,26 +480,20 @@ class LatestFilenameComposite extends Composite {
 			return;
 		int index = getSelectedIndex();
 		String filename = null;
-		if (detectorCombo.getSelectionIndex() == 0 && !dirWatcher.getDataFileCollected().isEmpty()) {
-			if (index<dirWatcher.getDataFileCollected().size()) {
-				filename = dirWatcher.getDataFileCollected().get(index).getName().getPath();
+		if (detectorCombo.getSelectionIndex() == 0 && !dirWatcher.getDataFilesCollected().isEmpty()) {
+			if (index < dirWatcher.getDataFilesCollected().size()) {
+				filename = dirWatcher.getDataFilesCollected().get(index).toString();
 			}
 		} else {
-			List<FileObject> detectorFilteredFileList = detectorFilteredFileList(detectorCombo.getText());
+			List<Path> detectorFilteredFileList = detectorFilteredFileList(detectorCombo.getText());
 			if (!detectorFilteredFileList.isEmpty()) {
 				if (index<detectorFilteredFileList.size()) {
-					filename = detectorFilteredFileList.get(index).getName().getPath();
+					filename = detectorFilteredFileList.get(index).toString();
 				}
 			}
 		}
 		if (filename != null) {
-			int currentLength = fileNameText.getText().length();
-			int diff = filename.length() - currentLength;
-			boolean forceLayout = (diff > 0 || diff < -3);
-
 			fileNameText.setText(filename);
-			if (forceLayout)
-				EclipseWidgetUtils.forceLayoutOfTopParent(LatestFilenameComposite.this);
 
 			if (fileProcessor instanceof PlotConfigurable) {
 				((PlotConfigurable) fileProcessor).setNewPlot(newPlotButton.getSelection());
@@ -550,14 +554,7 @@ class LatestFilenameComposite extends Composite {
 
 	private void updateIndexText(int selected) {
 		lastSelectedIndex = selected;
-		int newLength = Integer.toString(selected).length();
-		int currentLength = textIndex.getText().length();
 		textIndex.setText(Integer.toString(selected));
-		int diff = newLength - currentLength;
-		boolean forceLayout = (diff > 0 || diff < -3);
-
-		if (forceLayout)
-			EclipseWidgetUtils.forceLayoutOfTopParent(LatestFilenameComposite.this);
 	}
 
 	int getSelectedIndex() {
@@ -578,20 +575,18 @@ class LatestFilenameComposite extends Composite {
 			btnBackOne.setEnabled(false);
 			btnForwardOne.setEnabled(false);
 			btnSkipToLatest.setEnabled(false);
-
 		}
 		textIndex.setEnabled(doNotShowLatestAndFileFound);
 	}
 
 	public void initialize() {
-		List<FileObject> dataFileCollected = dirWatcher.getDataFileCollected();
+		List<Path> dataFileCollected = dirWatcher.getDataFilesCollected();
 		if (!dataFileCollected.isEmpty()) {
 			latestFoundIndex = dataFileCollected.size() - 1;
 		} else {
 			latestFoundIndex = null;
 		}
 		btnSkipToStart.setToolTipText("Skip to first - " + getStartNumber());
-		EclipseWidgetUtils.forceLayoutOfTopParent(LatestFilenameComposite.this);
 
 		if (latestFoundIndex != null)
 			btnSkipToLatest.setToolTipText("Skip to latest - " + latestFoundIndex);
@@ -599,7 +594,7 @@ class LatestFilenameComposite extends Composite {
 		if (selectLatestFoundIndex) {
 			if (latestFoundIndex != null) {
 				textIndex.setText(Integer.toString(latestFoundIndex));
-				fileNameText.setText(dirWatcher.getDataFileCollected().get(latestFoundIndex).getName().getPath());
+				fileNameText.setText(dirWatcher.getDataFilesCollected().get(latestFoundIndex).toString());
 			} else {
 				fileNameText.setText(WAITING);
 				textIndex.setText("");
@@ -629,11 +624,11 @@ class LatestFilenameComposite extends Composite {
 		this.startNumber = startNumber;
 	}
 
-	public DataFileListener getDirWatcher() {
+	public DataDirectoryMonitor getDirWatcher() {
 		return dirWatcher;
 	}
 
-	public void setDirWatcher(DataFileListener dirWatcher) {
+	public void setDirWatcher(DataDirectoryMonitor dirWatcher) {
 		this.dirWatcher = dirWatcher;
 	}
 
@@ -650,14 +645,11 @@ class LatestFilenameComposite extends Composite {
 		this.detectors = detectors;
 	}
 
-	/**
-	 *
-	 */
-	private List<FileObject> detectorFilteredFileList(String detector) {
+	private List<Path> detectorFilteredFileList(String detector) {
 		Predicate<String> filter = detectors.get(detector);
-		List<FileObject> dataFileCollectedForDetector = Collections.synchronizedList(new ArrayList<FileObject>());
-		for (FileObject file : dirWatcher.getDataFileCollected()) {
-			if (filter.test(FilenameUtils.getName(file.getName().getBaseName()))) {
+		List<Path> dataFileCollectedForDetector = Collections.synchronizedList(new ArrayList<Path>());
+		for (Path file : dirWatcher.getDataFilesCollected()) {
+			if (filter.test(file.getFileName().toString())) {
 				dataFileCollectedForDetector.add(file);
 			}
 		}

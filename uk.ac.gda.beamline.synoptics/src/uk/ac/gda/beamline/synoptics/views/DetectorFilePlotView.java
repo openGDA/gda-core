@@ -18,9 +18,6 @@
 
 package uk.ac.gda.beamline.synoptics.views;
 
-import java.util.ArrayList;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -38,51 +35,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
  * A generic view to display detector data file(s) content as plot in selected plot type for new plot or plot over existing data
- * 
- * For usage example please see {@link DetectorFileDisplayer}
  */
 public class DetectorFilePlotView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(DetectorFilePlotView.class);
 	public static final String ID = "uk.ac.gda.beamline.i11.views.DetectorFilePlotView";
-	private IPlottingSystem plottingSystem = null;
+	private IPlottingSystem<Composite> plottingSystem = null;
+
+	private PlotType currentPlotType = PlotType.XY;
+	private boolean first;
+	private Composite plotComposite;
+	private boolean disposed;
 
 	@Override
 	public void createPartControl(Composite parent) {
-		Composite plotComposite = new Composite(parent, SWT.None);
+		plotComposite = new Composite(parent, SWT.None);
 		plotComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		plotComposite.setLayout(new FillLayout());
-		try {
-			plottingSystem = PlottingFactory.createPlottingSystem();
-			plottingSystem.createPlotPart(plotComposite, "DataDisplayer", getViewSite().getActionBars(),
-					PlotType.XY, this);
-			plottingSystem.setTitle("View collected data from detector data files");
-			plottingSystem.getSelectedYAxis().setFormatPattern("######.#");
-			plottingSystem.getSelectedXAxis().setFormatPattern("######.#");
+		plottingSystem = createPlotSystem(plotComposite);
+		plotComposite.addDisposeListener(e -> disposed = true);
+	}
 
+	private IPlottingSystem<Composite> createPlotSystem(Composite plotComposite) {
+		try {
+			IPlottingSystem<Composite> system = PlottingFactory.createPlottingSystem();
+			system.createPlotPart(plotComposite, "DataDisplayer", getViewSite().getActionBars(),
+					PlotType.XY, this);
+			system.setTitle("View collected data from detector data files");
+			system.getSelectedYAxis().setFormatPattern("######.#");
+			system.getSelectedXAxis().setFormatPattern("######.#");
+			return system;
 		} catch (Exception e) {
 			logger.error("Failed to create a plotting system object", e);
+			return null;
 		}
 	}
 
-	ArrayList<IDataset> plotDataSets = new ArrayList<IDataset>();
-	IDataset xAxisDataset;
-	PlotType currentPlotType=PlotType.XY;
-	private boolean first;
-
-	public void updatePlot(final IProgressMonitor monitor, final IDataset xData, final IDataset yData, final String title,
+	public void updatePlot(final IDataset xData, final IDataset yData, final String title,
 			final String xAxisName, final String yAxisName, boolean newPlot, PlotType plotType) {
+		if (plottingSystem == null || plottingSystem.isDisposed()) {
+			plottingSystem = createPlotSystem(plotComposite);
+		}
 		if (newPlot) {
 			plottingSystem.reset();//clear();
 			first=true;
-		} 
-		if (currentPlotType!=plotType) {
+		}
+		if (currentPlotType != plotType) {
 //			plottingSystem.clear();
 			currentPlotType=plotType;
 			plottingSystem.setPlotType(plotType);
 		}
 
+		if (yData == null || xData == null) {
+			return;
+		}
+
 		if (plotType == PlotType.XY || plotType == PlotType.XY_STACKED || plotType == PlotType.XY_STACKED_3D) {
-			
 			if (!Display.getDefault().isDisposed()) {
 				Display.getDefault().asyncExec(new Runnable() {
 
@@ -116,7 +123,6 @@ public class DetectorFilePlotView extends ViewPart {
 						imageTrace.setMask(null);
 						imageTrace.setData(xData, null, false);
 						plottingSystem.addTrace(imageTrace);
-						
 						if (first) {
 							// plottingSystem.setShowLegend(true);
 							plottingSystem.setTitle(title);
@@ -153,5 +159,9 @@ public class DetectorFilePlotView extends ViewPart {
 	@Override
 	public void setFocus() {
 		//plottingSystem.setFocus();
+	}
+
+	public boolean isDisposed() {
+		return disposed;
 	}
 }
