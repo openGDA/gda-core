@@ -171,7 +171,7 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 				if (replace.contains(with)) {
 					String value = getLabel(fieldValue, fieldValue.get());
 				    replace = replace.replace(with, value);
-				};
+				}
 			}
 			buf.append(replace);
 
