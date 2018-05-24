@@ -31,7 +31,7 @@ public class AnalyserProgressDispatcher implements MonitorListener,
 	private int currentPoint;
 	private String totalPointsPv;
 	private int totalPoints;
-	private ObservableComponent observerComp = new ObservableComponent();;
+	private ObservableComponent observerComp = new ObservableComponent();
 
 	public AnalyserProgressDispatcher() {
 		controller = EpicsController.getInstance();
