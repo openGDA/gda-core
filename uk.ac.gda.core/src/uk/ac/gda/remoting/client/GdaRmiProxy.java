@@ -103,7 +103,7 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 		final RmiProxyFactory rmiProxyFactory = rmiProxyFactories.values().iterator().next();
 		// Ensure it's configured
 		rmiProxyFactory.configure();
-		logger.debug("Got rmiProxyFactory '{}'", rmiProxyFactory);
+		logger.trace("Got rmiProxyFactory '{}'", rmiProxyFactory);
 		return rmiProxyFactory;
 	}
 
@@ -128,6 +128,11 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 	@Override
 	public boolean isSingleton() {
 		return false; // May have lots of instances of this class for importing multiple objects
+	}
+
+	@Override
+	public String toString() {
+		return "GdaRmiProxy [name=" + name + ", object=" + object + "]";
 	}
 
 }
