@@ -33,18 +33,18 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.device.detectorfilemonitor.FileProcessor;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.gda.beamline.synoptics.utils.DataFileListener;
+import uk.ac.gda.beamline.synoptics.utils.DataDirectoryMonitor;
 
 /**
  * CompositeFactory to create a Composite for displaying latest collected detector data file and
  * used for processing these detector data files in a file set reported by an instance of
- * {@link DataFileListener}. The processing is done by a FileProcessor object, see {@link DetectorFileDisplayer}.
+ * {@link DataDirectoryMonitor}. The processing is done by a FileProcessor object.
  */
 public class LatestFilenameCompositeFactory implements CompositeFactory, InitializingBean {
 	FileProcessor fileProcessor;
 	String label;
 	private int startNumber=0;
-	private DataFileListener dirWatcher;
+	private DataDirectoryMonitor dirWatcher;
 	private Map<String, Predicate<String>> detectors;
 
 	public FileProcessor getFileProcessor() {
@@ -122,11 +122,11 @@ public class LatestFilenameCompositeFactory implements CompositeFactory, Initial
 		this.startNumber = startNumber;
 	}
 
-	public DataFileListener getDirWatcher() {
+	public DataDirectoryMonitor getDirWatcher() {
 		return dirWatcher;
 	}
 
-	public void setDirWatcher(DataFileListener dirWatcher) {
+	public void setDirWatcher(DataDirectoryMonitor dirWatcher) {
 		this.dirWatcher = dirWatcher;
 	}
 
