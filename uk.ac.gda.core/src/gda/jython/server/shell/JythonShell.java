@@ -63,10 +63,15 @@ import gda.util.Version;
 public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPointObserver {
 	private static final Logger logger = LoggerFactory.getLogger(JythonShell.class);
 
+	/** Primary prompt for input */
 	private static final String PS1 = ">>> ";
+	/** Secondary prompt for additional lines of input */
 	private static final String PS2 = "... ";
+	/** File to store command history */
 	private static final String JYTHON_SERVER_HISTORY_FILE = "jython_server.history";
+	/** The banner text to be printed when a user first opens the shell */
 	private static final String WELCOME_BANNER;
+	/** The file containing the banner text template */
 	private static final String BANNER_FILE_NAME = "welcome_banner.txt";
 
 	/** The environment variable holding the user's preferred theme */
@@ -84,6 +89,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private static final String ACCEPT_BUFFER = "accept-full-buffer";
 	/** Template to use for title. The shell number should be added for each instance*/
 	private static final String TITLE_TEMPLATE;
+	/** Counter to give shells a unique id (per server session) */
 	private static final AtomicInteger counter = new AtomicInteger(0);
 	static {
 		String banner;
@@ -102,10 +108,15 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		DEFAULT_THEME = LocalProperties.get(JYTHON_SHELL_THEME_PROPERTY, null);
 	}
 
+	/** The GDA Server to run commands */
 	private final JythonServerFacade server;
+	/** The terminal to provide direct access to the user terminal */
 	private final Terminal terminal;
+	/** The terminal reader used to interact with the user */
 	private final LineReader read;
+	/** InputStream that reads input through a JlineLineReader */
 	private final InputStream rawInput;
+	/** The unique ID of this shell */
 	private final int shellNumber;
 	private volatile boolean running;
 
@@ -186,9 +197,11 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	/**
 	 * Run the setup code that makes this shell usable<br>
 	 * <ul>
-	 * <li>Add this as listener to {@link IScanDataPoint}s</li>
+	 * <li>Add this as listener to {@link IScanDataPoint IScanDataPoints}</li>
 	 * <li>Add this as an output {@link Terminal}</li>
 	 * <li>Set up keybindings {@link #setupKeybindings}</li>
+	 * <li>Prints the terminal banner</li>
+	 * <li>Sets the title</li>
 	 * <p>
 	 * Separate from constructor to prevent passing incomplete instance as listener
 	 */
@@ -196,7 +209,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		server.addOutputTerminal(this);
 		server.addIScanDataPointObserver(this);
 		setupKeybindings();
-		terminal.writer().print(WELCOME_BANNER);
+		rawWrite(WELCOME_BANNER);
 		setTitle(String.format(TITLE_TEMPLATE, shellNumber));
 	}
 
@@ -237,6 +250,9 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		}
 	}
 
+	/**
+	 * Unsubscribe this shell from receiving {@link IScanDataPoint} and terminal output.
+	 */
 	@Override
 	public void close() {
 		logger.debug("Closing {}", this);
