@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
@@ -71,11 +72,40 @@ import uk.ac.gda.util.io.IPathConstructor;
 public class PathConstructor implements IPathConstructor {
 	private static final Logger logger = LoggerFactory.getLogger(PathConstructor.class);
 
-	private static String[] tokens = { "proposal", "visit", "instrument", "facility", "year", "subdirectory", "hostid" };
+	private enum PathToken {
 
-	private static String[] defaultProperties = { "", LocalProperties.GDA_DEF_VISIT, LocalProperties.GDA_INSTRUMENT, LocalProperties.GDA_FACILITY, "", "", "" };
+		PROPOSAL("", "0"),
 
-	private static String[] defaultValues = { "0", "0-0", "", "", (new SimpleDateFormat("yyyy")).format(new Date()), "", HostId.getId() };
+		VISIT(LocalProperties.GDA_DEF_VISIT, "0-0"),
+
+		INSTRUMENT(LocalProperties.GDA_INSTRUMENT, ""),
+
+		FACILITY(LocalProperties.GDA_FACILITY, ""),
+
+		YEAR("", new SimpleDateFormat("yyyy").format(new Date())),
+
+		SUBDIRECTORY("", ""),
+
+		HOSTID("", HostId.getId()),
+
+		;
+
+		private PathToken(String defaultProperty, String defaultValue) {
+			this.defaultProperty = defaultProperty;
+			this.defaultValue = defaultValue;
+		}
+
+		private final String defaultProperty;
+		private final String defaultValue;
+
+		public String getDefaultProperty() {
+			return defaultProperty;
+		}
+
+		public String getDefaultValue() {
+			return defaultValue;
+		}
+	}
 
 	/**
 	 * @return the default java property name that contains the data directory template.
@@ -279,42 +309,21 @@ public class PathConstructor implements IPathConstructor {
 	}
 
 	private static String getDefaultValue(String s) {
-		int tokenPosition = findToken(s);
-		String defaultValue = "";
-
-		if (tokenPosition >= 0) {
-			defaultValue = defaultValues[tokenPosition];
-		}
-
-		return defaultValue;
+		final Optional<PathToken> token = findToken(s);
+		return token.map(PathToken::getDefaultValue).orElse("");
 	}
 
 	private static String getFallbackProperty(String s) {
-		int tokenPosition = findToken(s);
-		String fallbackProperty = "";
-
-		if (tokenPosition >= 0) {
-			fallbackProperty = defaultProperties[tokenPosition];
-		}
-
-		return fallbackProperty;
+		final Optional<PathToken> token = findToken(s);
+		return token.map(PathToken::getDefaultProperty).orElse("");
 	}
 
-	private static int findToken(String tokenToFind) {
-		int i = 0;
-
-		for (String token : tokens) {
-			if (token.equals(tokenToFind)) {
-				break;
-			}
-			i++;
+	private static Optional<PathToken> findToken(String tokenToFind) {
+		try {
+			return Optional.of(PathToken.valueOf(tokenToFind.toUpperCase()));
+		} catch (IllegalArgumentException e) {
+			return Optional.empty();
 		}
-
-		if (i >= tokens.length) {
-			i = -1;
-		}
-
-		return i;
 	}
 
 	@Override
