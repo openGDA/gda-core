@@ -61,6 +61,21 @@ public class SimpleHighestExistingFileMonitorTest {
 		testRunningMonitor(simpleDetectorFileMonitor, startNumber, fileTemplate, delay);
 	}
 
+	@Test
+	public void testConfigureAndRun() throws Exception{
+		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testConfigureAndRun", true);
+		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
+		int startNumber = 5;
+		String fileTemplate = "/file_%04d.tif";
+		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
+		int delay = 1000;
+		simpleDetectorFileMonitor.setDelayInMS(delay);
+		simpleDetectorFileMonitor.afterPropertiesSet();
+		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
+		simpleDetectorFileMonitor.configureAndRun(scratchFolder, fileTemplate, startNumber);
+		testRunningMonitor(simpleDetectorFileMonitor, startNumber, fileTemplate, delay);
+	}
+
 	private void testRunningMonitor(SimpleHighestExistingFileMonitor simpleDetectorFileMonitor, int startNumber, String fileTemplate, int delay) throws Exception {
 
 		simpleDetectorFileMonitor.addIObserver(new IObserver(){

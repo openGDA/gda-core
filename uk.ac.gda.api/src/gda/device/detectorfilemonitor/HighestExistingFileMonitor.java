@@ -48,4 +48,10 @@ public interface HighestExistingFileMonitor extends HighestExistingFileMonitorDa
 	void setRunning(boolean running);
 	boolean isRunning();
 
+	/**
+	 * Configures this monitor with the supplied settings (template prefix,
+	 * template, and start number), and starts the monitor running.
+	 */
+	void configureAndRun(String fileTemplatePrefix, String fileTemplate, int startNumber);
+
 }
