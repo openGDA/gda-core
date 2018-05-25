@@ -147,6 +147,7 @@ public class StatusQueueView extends EventConnectionView {
 	private Action pauseAction;
 	private Action stopAction;
 	private Action openAction;
+	private Action detailsAction;
 	private Action clearQueueAction;
 
 	private IEventService service;
@@ -227,6 +228,7 @@ public class StatusQueueView extends EventConnectionView {
 
 		openResultsActionUpdate(true);
 		openActionUpdate(true);
+		detailsActionUpdate(true);
 		clearQueueActionUpdate(true);
 	}
 
@@ -371,7 +373,10 @@ public class StatusQueueView extends EventConnectionView {
 		editAction = editActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, editAction);
 
-		addSeparators(toolMan, menuMan, null);
+		detailsAction = detailsActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, detailsAction);
+
+		addSeparators(toolMan, menuMan, dropDown);
 
 		final Action hideOtherUsersResultsAction = hideOtherUsersResultsActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, hideOtherUsersResultsAction);
@@ -770,6 +775,21 @@ public class StatusQueueView extends EventConnectionView {
 		};
 		action.setEnabled(false);
 		return action;
+	}
+
+	private void detailsActionUpdate(boolean enabled) {
+		detailsAction.setEnabled(enabled);
+	}
+
+	private Action detailsActionCreate() {
+		return new Action("Show details...", Activator.getImageDescriptor("icons/clipboard-list.png")) {
+			@Override
+			public void run() {
+				final ScanDetailsDialog detailsDialog = new ScanDetailsDialog(getSite().getShell(), getSelection().get(0));
+				detailsDialog.setBlockOnOpen(true);
+				detailsDialog.open();
+			}
+		};
 	}
 
 	/**
