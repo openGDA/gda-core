@@ -211,11 +211,14 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-
 	@Override
 	public void clearQueue(String queueName) throws EventException {
 		logger.info("Clearing queue {}", queueName);
+		final String pauseMessage = "Pause to clear queue '" + queueName + "' ";
+		doWhilePaused(queueName, pauseMessage, () -> doClearQueue(queueName));
+	}
 
+	private boolean doClearQueue(String queueName) throws EventException {
 		QueueConnection qCon = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
@@ -239,7 +242,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				}
 				consumer.close();
 			}
-
+			return true;
 		} catch (Exception ne) {
 			throw new EventException(ne);
 

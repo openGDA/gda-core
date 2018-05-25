@@ -20,6 +20,7 @@ package org.eclipse.scanning.test.event;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -45,7 +46,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
-public class RemoveReplaceReorderTest extends BrokerTest {
+public class QueueManagementTest extends BrokerTest {
 
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
@@ -58,7 +59,7 @@ public class RemoveReplaceReorderTest extends BrokerTest {
 		return Arrays.asList(new Object[][] { { false }, { true } });
 	}
 
-	public RemoveReplaceReorderTest(boolean startConsumer) {
+	public QueueManagementTest(boolean startConsumer) {
 		this.startConsumer = startConsumer;
 	}
 
@@ -236,7 +237,15 @@ public class RemoveReplaceReorderTest extends BrokerTest {
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
 		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+	}
 
+	@Test
+	public void testClearQueue() throws Exception {
+		createAndSubmitBeans();
+
+		submitter.clearQueue(submitter.getSubmitQueueName());
+
+		assertThat(submitter.getQueue(), is(empty()));
 	}
 
 }
