@@ -36,8 +36,10 @@ import org.junit.runners.Suite;
 	ScanDataPointTest.class,
 	MultithreadedScanDataPointPipelineTest.class,
 	TrajectoryScanLineTest.class,
-	ConstantVelocityScanLineTest.class
-
+	ConstantVelocityScanLineTest.class,
+	ScanDataPointCacheTest.class,
+	SortedScanDataPointCacheTest.class,
+	DataPointCacheTest.class
 })
 
 public class AllJUnitTests {

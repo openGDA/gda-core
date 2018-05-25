@@ -18,6 +18,9 @@
 
 package gda.scan;
 
+import java.util.Collection;
+import java.util.Vector;
+
 import org.eclipse.january.dataset.Dataset;
 
 import gda.TestHelpers;
@@ -81,6 +84,31 @@ public class ScanDataPointProvider {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static IScanDataPoint getPoint(int number, int totalPoints, Collection<Double> scannableData, Collection<Object> detectorData) {
+		ScanDataPoint point = new ScanDataPoint();
+		point.setCurrentPointNumber(number);
+		Counter det = new Counter();
+		point.setDetectorHeader(detectorData.stream().map(d -> "det" + det.get()).toArray(String[]::new));
+		point.setDetectorData(
+				new Vector<>(detectorData),
+				detectorData.stream()
+						.map(d -> new String[] {"%f"})
+						.toArray(String[][]::new)
+		);
+		Counter scan = new Counter();
+		point.setScannableHeader(scannableData.stream().map(s -> "scan" + scan.get()).toArray(String[]::new));
+		point.setScannablePositions(new Vector<>(scannableData));
+		point.setNumberOfPoints(totalPoints);
+		return point;
+	}
+
+	private static class Counter {
+		private int i = 0;
+		public int get() {
+			return i++;
 		}
 	}
 }
