@@ -42,32 +42,9 @@ public class SimpleHighestExistingFileMonitorTest {
 		int delay = 1000;
 		simpleDetectorFileMonitor.setDelayInMS(delay);
 		simpleDetectorFileMonitor.afterPropertiesSet();
-		simpleDetectorFileMonitor.addIObserver(new IObserver(){
-
-			@Override
-			public void update(Object source, Object arg) {
-				foundIndex = ((HighestExistingFileMonitorData)arg).foundIndex;
-			}
-			
-		});
 		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
 		simpleDetectorFileMonitor.setRunning(true);
-		Assert.assertNull(foundIndex);
-		Assert.assertNull(simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
-
-		File f=null;
-		int filenumber=startNumber;
-		for( ; filenumber < startNumber+10; filenumber++){
-			f = new File(String.format(scratchFolder+fileTemplate, filenumber));
-			if(!f.exists()){
-				f.createNewFile();
-			}
-		}
-		Thread.sleep(2*delay);
-		Assert.assertEquals(new Integer(filenumber-1), foundIndex);
-		Assert.assertEquals(foundIndex, simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
-		simpleDetectorFileMonitor.setRunning(false);
-		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
+		testRunningMonitor(simpleDetectorFileMonitor, startNumber, fileTemplate, delay);
 	}
 
 	@Test
@@ -81,17 +58,38 @@ public class SimpleHighestExistingFileMonitorTest {
 		simpleDetectorFileMonitor.setDelayInMS(delay);
 		simpleDetectorFileMonitor.setRunning(true);
 		simpleDetectorFileMonitor.afterPropertiesSet();
-		simpleDetectorFileMonitor.addIObserver(new IObserver(){
+		testRunningMonitor(simpleDetectorFileMonitor, startNumber, fileTemplate, delay);
+	}
 
+	@Test
+	public void testConfigureAndRun() throws Exception{
+		scratchFolder = TestUtils.setUpTest(SimpleHighestExistingFileMonitorTest.class, "testConfigureAndRun", true);
+		SimpleHighestExistingFileMonitor simpleDetectorFileMonitor = new SimpleHighestExistingFileMonitor();
+		int startNumber = 5;
+		String fileTemplate = "/file_%04d.tif";
+		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
+		int delay = 1000;
+		simpleDetectorFileMonitor.setDelayInMS(delay);
+		simpleDetectorFileMonitor.afterPropertiesSet();
+		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
+		simpleDetectorFileMonitor.configureAndRun(scratchFolder, fileTemplate, startNumber);
+		testRunningMonitor(simpleDetectorFileMonitor, startNumber, fileTemplate, delay);
+	}
+
+	private void testRunningMonitor(SimpleHighestExistingFileMonitor simpleDetectorFileMonitor, int startNumber, String fileTemplate, int delay) throws Exception {
+
+		simpleDetectorFileMonitor.addIObserver(new IObserver(){
 			@Override
 			public void update(Object source, Object arg) {
 				foundIndex = ((HighestExistingFileMonitorData)arg).foundIndex;
 			}
-			
 		});
+
 		Assert.assertTrue(simpleDetectorFileMonitor.isRunning());
+
 		Assert.assertNull(foundIndex);
 		Assert.assertNull(simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
+
 		File f=null;
 		int filenumber=startNumber;
 		for( ; filenumber < startNumber+10; filenumber++){
@@ -100,9 +98,12 @@ public class SimpleHighestExistingFileMonitorTest {
 				f.createNewFile();
 			}
 		}
+
 		Thread.sleep(2*delay);
+
 		Assert.assertEquals(new Integer(filenumber-1), foundIndex);
 		Assert.assertEquals(foundIndex, simpleDetectorFileMonitor.getHighestExistingFileMonitorData().foundIndex);
+
 		simpleDetectorFileMonitor.setRunning(false);
 		Assert.assertFalse(simpleDetectorFileMonitor.isRunning());
 	}
