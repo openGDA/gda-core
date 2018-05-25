@@ -296,8 +296,10 @@ public class PathConstructor implements IPathConstructor {
 
 		if (GDAMetadataProvider.getInstance() != null) {
 			try {
-				value = GDAMetadataProvider.getInstance().getMetadataValue(s, getFallbackProperty(s),
-						getDefaultValue(s));
+				final Optional<PathToken> token = findToken(s);
+				final String fallbackProperty = token.map(PathToken::getDefaultProperty).orElse("");
+				final String defaultValue = token.map(PathToken::getDefaultValue).orElse("");
+				value = GDAMetadataProvider.getInstance().getMetadataValue(s, fallbackProperty, defaultValue);
 			} catch (DeviceException e) {
 				logger.error("exception received querying for metadata", e);
 			}
@@ -308,20 +310,11 @@ public class PathConstructor implements IPathConstructor {
 		return value;
 	}
 
-	private static String getDefaultValue(String s) {
-		final Optional<PathToken> token = findToken(s);
-		return token.map(PathToken::getDefaultValue).orElse("");
-	}
-
-	private static String getFallbackProperty(String s) {
-		final Optional<PathToken> token = findToken(s);
-		return token.map(PathToken::getDefaultProperty).orElse("");
-	}
-
 	private static Optional<PathToken> findToken(String tokenToFind) {
 		try {
 			return Optional.of(PathToken.valueOf(tokenToFind.toUpperCase()));
 		} catch (IllegalArgumentException e) {
+			logger.warn("Unknown token '{}'", tokenToFind);
 			return Optional.empty();
 		}
 	}

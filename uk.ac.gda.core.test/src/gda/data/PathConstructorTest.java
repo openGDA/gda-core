@@ -175,6 +175,12 @@ public class PathConstructorTest {
 		assertEquals("/" + hostId, PathConstructor.createFromTemplate("/$hostid$"));
 	}
 
+	@Test
+	public void testInvalidToken() {
+		// Should not result in an exception, but use of invalid token should be logged
+		assertEquals("/test/token", PathConstructor.createFromTemplate("/test/$invalid$/token"));
+	}
+
 	@After
 	public void cleanUpAfterEachTest() {
 
