@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -943,5 +944,28 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	public void setUseNewEpicsInterface(boolean useNewEpicsInterface) {
 		this.useNewEpicsInterface = useNewEpicsInterface;
+	}
+
+	@Override
+	public void setHDFExtraDims(int[] scanDimensions) throws IOException {
+		if (scanDimensions!=null) {
+			pvProvider.pvExtraDimensions.putWait(scanDimensions.length-1);
+
+			//For 2d, 3d scans, set the extra dimensions to match the scan shape
+			if (scanDimensions.length>1 && scanDimensions.length<4) {
+				pvProvider.pvExtraDimN.putWait(scanDimensions[0]);
+				pvProvider.pvExtraDimX.putWait(scanDimensions[1]);
+				if (scanDimensions.length==3) {
+					pvProvider.pvExtraDimY.putWait(scanDimensions[2]);
+				}
+			} else {
+				logger.warn("Attempting to set HDF extra dimensions using scan dimensions with shape {}. Only up to 3 dimensional shapes allowed", Arrays.toString(scanDimensions));
+			}
+		}
+	}
+
+	@Override
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
+		pvProvider.pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
 	}
 }
