@@ -184,4 +184,59 @@ public class RemoveReplaceReorderTest extends BrokerTest {
 		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
 	}
 
+	@Test
+	public void testReorderTwiceWithSubmitter() throws Exception {
+		// A regression test for DAQ-1406 the submitter's MessageProducer was closed without being nullified
+
+		// Arrange: submit some beans and get the beans to reorder
+		List<StatusBean> beans = createAndSubmitBeans();
+
+		// get the bean to reorder
+		StatusBean beanThree = beans.get(2);
+		assertThat(beanThree.getName(), is(equalTo("three")));
+
+		// Act: reorder the bean the first time
+		submitter.reorder(beanThree, 1);
+
+		// Assert: first update the beans list so we can use it as the expected answer
+		beans.remove(beanThree);
+		beans.add(1, beanThree);
+		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+
+		// Act: reorder the bean a second time
+		submitter.reorder(beanThree, 1);
+
+		// Assert:
+		beans.remove(beanThree);
+		beans.add(0, beanThree);
+		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+	}
+
+	@Test
+	public void testReplaceTwiceWithSubmitter() throws Exception {
+		// A regression test for DAQ-1406, the submitter's MessageProducer was closed without being nullified
+		// Arrange: submit some beans
+		List<StatusBean> beans = createAndSubmitBeans();
+		// get the bean to replace and change its name
+		StatusBean beanThree = beans.get(2);
+		assertThat(beanThree.getName(), is(equalTo("three")));
+		beanThree.setName("foo");
+
+		// Act: replace the bean on the queue with the updated bean
+		submitter.replace(beanThree);
+
+		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
+		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+
+		// Arrange: change the name again
+		beanThree.setName("bar");
+
+		// Act: replace the bean on the queue with the updated bean
+		submitter.replace(beanThree);
+
+		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
+		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+
+	}
+
 }

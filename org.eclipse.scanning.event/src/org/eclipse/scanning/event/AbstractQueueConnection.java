@@ -342,9 +342,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
-		try (@SuppressWarnings("unchecked")
-					ISubmitter<U> submitter = this instanceof ISubmitter ?
-						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted)
 				submitter.submit(u);
 		}
@@ -451,9 +449,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		clearQueue(queueName);
 
-		try (@SuppressWarnings("unchecked")
-				ISubmitter<U> submitter = this instanceof ISubmitter ?
-						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted) {
 				submitter.submit(u);
 			}
