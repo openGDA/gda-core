@@ -37,7 +37,7 @@ from scanpointgenerator import ROIExcluder
 
 ## Logging
 import logging
-# logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class JavaIteratorWrapper(ScanPointIterator, PySerializable):
@@ -48,6 +48,7 @@ class JavaIteratorWrapper(ScanPointIterator, PySerializable):
 
     def __init__(self):
         self._iterator = self._iterator()  # Store single instance of _iterator()
+        self.logger = logger.getChild(self.__class__.__name__)
         self._has_next = None
         self._next = None
 
@@ -101,7 +102,7 @@ class JLineGenerator1D(JavaIteratorWrapper):
         line_gen = LineGenerator(name, units, start, stop, num_points, alternate_direction)
         self.generator = CompoundGenerator([line_gen], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JLineGenerator1D: %s', self.generator.to_dict())
 
     def _iterator(self):
 
@@ -128,7 +129,7 @@ class JLineGenerator2D(JavaIteratorWrapper):
         line_gen = LineGenerator(names, units, start, stop, num_points, alternate_direction)
         self.generator = CompoundGenerator([line_gen], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JLineGenerator2D: %s', self.generator.to_dict())
 
     def _iterator(self):
 
@@ -159,7 +160,7 @@ class JArrayGenerator(JavaIteratorWrapper):
         array_gen = ArrayGenerator(name, units, points)
         self.generator = CompoundGenerator([array_gen], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JArrayGenerator: %s', self.generator.to_dict())
 
     def _iterator(self):
 
@@ -183,7 +184,7 @@ class JSpiralGenerator(JavaIteratorWrapper):
         spiral_gen = SpiralGenerator(names, units, centre, radius, scale, alternate_direction)
         self.generator = CompoundGenerator([spiral_gen], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JSpiralGenerator: %s', self.generator.to_dict())
 
     def _iterator(self):
 
@@ -214,7 +215,7 @@ class JLissajousGenerator(JavaIteratorWrapper):
                 [box["width"], box["height"]], num_lobes, num_points)
         self.generator = CompoundGenerator([liss_gen], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JLissajousGenerator: %s', self.generator.to_dict())
 
     def _iterator(self):
 
@@ -242,7 +243,7 @@ class JStaticPointGenerator(JavaIteratorWrapper):
         g = StaticPointGenerator(size)
         self.generator = CompoundGenerator([g], [], [])
         self.generator.prepare()
-        logging.debug(self.generator.to_dict())
+        self.logger.debug('Created JStaticPointGenerator: %s', self.generator.to_dict())
 
     def _iterator(self):
         for p in self.generator.iterator():
@@ -260,8 +261,7 @@ class JCompoundGenerator(JavaIteratorWrapper):
             generators = [g for t in iterators for g in t.generator.generators]
         except AttributeError:  # Else call get*() of Java iterator
             generators = [iterator.getPyIterator().generator for iterator in iterators]
-        logging.debug("Generators passed to JCompoundGenerator:")
-        logging.debug([generator.to_dict() for generator in generators])
+        logger.debug("Generators passed to JCompoundGenerator: %s", [g.to_dict() for g in generators])
 
         excluders = [excluder.py_excluder for excluder in excluders]
         mutators = [mutator.py_mutator for mutator in mutators]
@@ -295,15 +295,11 @@ class JCompoundGenerator(JavaIteratorWrapper):
         self.index_locations = {axis:[axis in names for names in self.dimension_names].index(True)
                 for axis in self.axes_ordering}
 
-        logging.debug("Dimension names:")
-        logging.debug(self.dimension_names)
-        logging.debug("Index Locations:")
-        logging.debug(self.index_locations)
-        logging.debug("Axes Ordering:")
-        logging.debug(self.axes_ordering)
+        self.logger.debug("Dimension names: %s", self.dimension_names)
+        self.logger.debug("Index Locations: %s", self.index_locations)
+        self.logger.debug("Axes Ordering: %s", self.axes_ordering)
 
-        logging.debug("CompoundGenerator:")
-        logging.debug(self.generator.to_dict())
+        self.logger.debug("CompoundGenerator: %s", self.generator.to_dict())
 
     def _iterator(self):
 
@@ -316,7 +312,7 @@ class JCompoundGenerator(JavaIteratorWrapper):
                 java_point = Scalar(name, index, position)
 
             elif len(point.positions.keys()) == 2:
-                logging.debug([point.indexes, point.positions])
+                self.logger.debug('Index: %s Positions: %s', point.indexes, point.positions)
 
                 names = []
                 indexes = []
@@ -324,7 +320,6 @@ class JCompoundGenerator(JavaIteratorWrapper):
                 for axis in self.axes_ordering:
                     index = self.index_locations[axis]
                     indexes.append(point.indexes[index])
-                    logging.debug([axis, index])
                     values.append(point.positions[axis])
                     names.append(axis)
 
@@ -336,7 +331,6 @@ class JCompoundGenerator(JavaIteratorWrapper):
 
                 for axis in self.axes_ordering:
                     index = self.index_locations[axis]
-                    logging.debug([axis, index])
                     value = point.positions[axis]
                     java_point.put(axis, value)
                     java_point.putIndex(axis, point.indexes[index])
@@ -350,47 +344,55 @@ class JRandomOffsetMutator(object):
 
     def __init__(self, seed, axes, max_offset):
         self.py_mutator = RandomOffsetMutator(seed, axes, max_offset)
-        logging.debug(self.py_mutator.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JRandomOffsetMutator: %s', self.py_mutator.to_dict())
 
 class JExcluder(object):
 
     def __init__(self, rois, scannables):
         py_rois = [roi.py_roi for roi in rois]
         self.py_excluder = ROIExcluder(py_rois, scannables)
-        logging.debug(self.py_excluder.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JExcluder: %s', self.py_excluder.to_dict())
 
 class JCircularROI(object):
 
     def __init__(self, centre, radius):
         self.py_roi = CircularROI(centre, radius)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JCircularROI: %s', self.py_roi.to_dict())
 
 class JEllipticalROI(object):
 
     def __init__(self, centre, semiaxes, angle=0):
         self.py_roi = EllipticalROI(centre, semiaxes, angle)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JEllipticalROI: %s', self.py_roi.to_dict())
 
 class JPointROI(object):
 
     def __init__(self, point):
         self.py_roi = PointROI(point)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JPointROI: %s', self.py_roi.to_dict())
 
 class JPolygonalROI(object):
 
     def __init__(self, points_x, points_y):
         self.py_roi = PolygonalROI(points_x, points_y)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JPolygonalROI: %s', self.py_roi.to_dict())
 
 class JRectangularROI(object):
 
     def __init__(self, start, width, height, angle=0):
         self.py_roi = RectangularROI(start, width, height, angle)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JRectangularROI: %s', self.py_roi.to_dict())
 
 class JSectorROI(object):
 
     def __init__(self, centre, radii, angles):
         self.py_roi = SectorROI(centre, radii, angles)
-        logging.debug(self.py_roi.to_dict())
+        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger.debug('Created JSectorROI: %s', self.py_roi.to_dict())
