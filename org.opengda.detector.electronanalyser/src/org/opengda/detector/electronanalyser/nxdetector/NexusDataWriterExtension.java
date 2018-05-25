@@ -72,7 +72,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	public void completeCollection() throws Exception {
 		releaseFile();
 //		super.completeCollection();
-	};
+	}
 
 	Map<String, RegionFileMapper> files = new ConcurrentHashMap<String, RegionFileMapper>();
 
