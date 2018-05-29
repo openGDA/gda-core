@@ -216,4 +216,11 @@ public class SimpleHighestExistingFileMonitor implements HighestExistingFileMoni
 		return new HighestExistingFileMonitorData(highestExistingFileMonitorSettings, latestNumberFound);
 	}
 
+	@Override
+	public void configureAndRun(String fileTemplatePrefix, String fileTemplate, int startNumber) {
+		final HighestExistingFileMonitorSettings settings = new HighestExistingFileMonitorSettings(fileTemplatePrefix, fileTemplate, startNumber);
+		setHighestExistingFileMonitorSettings(settings);
+		setRunning(true);
+	}
+
 }

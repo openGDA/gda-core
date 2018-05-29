@@ -343,10 +343,10 @@ public class NudgePositionerComposite extends Composite {
 			if (evaluateCommand.equals("True")) {
 				command = scannableName + ".getLowerInnerLimit()";
 				evaluateCommand = jythonServer.evaluateCommand(command);
-				lowerLimit = Double.parseDouble(evaluateCommand);
+				lowerLimit = parseLimit(command, evaluateCommand);
 				command = scannableName + ".getUpperInnerLimit()";
 				evaluateCommand = jythonServer.evaluateCommand(command);
-				upperLimit = Double.parseDouble(evaluateCommand);
+				upperLimit = parseLimit(command, evaluateCommand);
 				positionText.setToolTipText(lowerLimit + " : " + upperLimit);
 			} else {
 				command = "\'getLowerGdaLimits\' in dir(" + scannableName + ")";
@@ -357,14 +357,23 @@ public class NudgePositionerComposite extends Composite {
 					if (!evaluateCommand.equals("None")) {
 						command = scannableName + ".getLowerGdaLimits()[0]";
 						evaluateCommand = jythonServer.evaluateCommand(command);
-						lowerLimit = Double.parseDouble(evaluateCommand);
+						lowerLimit = parseLimit(command, evaluateCommand);
 						command = scannableName + ".getUpperGdaLimits()[0]";
 						evaluateCommand = jythonServer.evaluateCommand(command);
-						upperLimit = Double.parseDouble(evaluateCommand);
+						upperLimit = parseLimit(command, evaluateCommand);
 						positionText.setToolTipText(lowerLimit + " : " + upperLimit);
 					}
 				}
 			}
+		}
+	}
+
+	private double parseLimit(String command, String limitString) {
+		try {
+			return Double.parseDouble(limitString);
+		} catch (NumberFormatException e) {
+			logger.error("Error parsing limit: command = {}, limitString = {}", command, limitString, e);
+			return 0.0;
 		}
 	}
 
