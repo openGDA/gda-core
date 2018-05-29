@@ -87,10 +87,7 @@ public class ScanDetailsDialog extends Dialog {
 		createTextBox(detailsComposite, statusBean.getMessage());
 
 		createLabel(detailsComposite, "Location");
-
-		final Text txtLocation = new Text(detailsComposite,	SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
-		GridDataFactory.fillDefaults().grab(true, false).hint(HORIZONTAL_WIDTH, SWT.DEFAULT).applyTo(txtLocation);
-		txtLocation.setText(getLocation(statusBean));
+		createTextBox(detailsComposite, getLocation(statusBean));
 
 		createLabel(detailsComposite, "Host");
 		createTextBox(detailsComposite, statusBean.getHostName());
@@ -111,13 +108,13 @@ public class ScanDetailsDialog extends Dialog {
 
 	private static void createLabel(Composite dialogComposite, String text) {
 		final Label label = new Label(dialogComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(label);
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).applyTo(label);
 		label.setText(text);
 	}
 
 	private static void createTextBox(Composite dialogComposite, String text) {
-		final Text textBox = new Text(dialogComposite, SWT.READ_ONLY | SWT.BORDER);
-		GridDataFactory.fillDefaults().applyTo(textBox);
+		final Text textBox = new Text(dialogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
+		GridDataFactory.fillDefaults().grab(true, false).hint(HORIZONTAL_WIDTH, SWT.DEFAULT).applyTo(textBox);
 		textBox.setText(text);
 	}
 
