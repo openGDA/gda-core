@@ -277,7 +277,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		}
 	}
 
-	protected List<ScanBean> runAndCheck(String name, String mainDetectorName, String processingDetectorName, boolean blocking, long maxScanTimeS) throws Exception {
+	protected List<ScanBean> runAndCheck(String name, String mainDetectorName, String processingDetectorName, boolean blocking, long maxScanTimeSeconds) throws Exception {
 
 		final IEventService eservice = Services.getEventService();
 
@@ -317,7 +317,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			pi.exec("submit("+name+", block="+(blocking?"True":"False")+", broker_uri='"+uri+"')");
 
 			Thread.sleep(200);
-			boolean ok = latch.await(maxScanTimeS, TimeUnit.SECONDS);
+			boolean ok = latch.await(maxScanTimeSeconds, TimeUnit.SECONDS);
 			if (!ok) throw new Exception("The latch broke before the scan finished!");
 
 			if (failed.size()>0) throw new Exception(failed.get(0).getMessage());
