@@ -39,14 +39,55 @@ import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.XMLContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import uk.ac.gda.util.beans.BeansFactory;
 
-public class XMLHelpers {
+public final class XMLHelpers {
 
+	private static final Map<UrlClassLoaderPair, XMLContext> xmlContextCache = new HashMap<>();
+
+	private static URLResolver urlResolver;
+
+	private static class UrlClassLoaderPair {
+		private URL mappingURL;
+		private ClassLoader cl;
+		public UrlClassLoaderPair(final URL mappingURL, final ClassLoader cl) {
+			this.mappingURL = mappingURL;
+			this.cl = cl;
+		}
+
+		private boolean equalsHelper(Object o1, Object o2) {
+			if (o1 == o2)
+				return true;
+			if (o1 == null || o2 == null)
+				return false;
+			return o1.equals(o2);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof UrlClassLoaderPair))
+				return false;
+			UrlClassLoaderPair other = (UrlClassLoaderPair)obj;
+			if (!equalsHelper(mappingURL, other.mappingURL))
+				return false;
+			return equalsHelper(cl, other.cl);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((mappingURL == null) ? 0 : mappingURL.hashCode());
+			result = prime * result + ((cl == null) ? 0 : cl.hashCode());
+			return result;
+		}
+	}
+
+	private XMLHelpers() {
+		// Static access only
+	}
 
 	/**
 	 * Will get a bean of the appropriate type from any an exafs bean file. One of ScanParameters, XanesScanParameters,
@@ -113,52 +154,6 @@ public class XMLHelpers {
 
 	}
 
-
-	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
-
-	private static URLResolver urlResolver;
-
-	private static class UrlClassLoaderPair {
-		private URL mappingURL;
-		private ClassLoader cl;
-		public UrlClassLoaderPair(final URL mappingURL, final ClassLoader cl) {
-			this.mappingURL = mappingURL;
-			this.cl = cl;
-		}
-
-		private boolean equalsHelper(Object o1, Object o2) {
-			if (o1 == o2)
-				return true;
-			if (o1 == null || o2 == null)
-				return false;
-			return o1.equals(o2);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof UrlClassLoaderPair))
-				return false;
-			UrlClassLoaderPair other = (UrlClassLoaderPair)obj;
-			if (!equalsHelper(mappingURL, other.mappingURL))
-				return false;
-			if (!equalsHelper(cl, other.cl))
-				return false;
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((mappingURL == null) ? 0 : mappingURL.hashCode());
-			result = prime * result + ((cl == null) ? 0 : cl.hashCode());
-			return result;
-		}
-	}
-
-	private static Map<UrlClassLoaderPair, XMLContext> xmlContextCache = new HashMap<UrlClassLoaderPair, XMLContext>();
-
 	private static XMLContext createXMLContext(final URL mappingURL, final ClassLoader cl) throws MappingException, IOException {
 		XMLContext context;
 		if (mappingURL == null || cl == null)
@@ -183,19 +178,31 @@ public class XMLHelpers {
 	}
 
 	/**
+	 * Unmarshals an object from an XML document.
 	 *
-	 * @param mappingURL
-	 * @param cl
-	 * @param schemaUrl
-	 * @param filename
-	 * @return Object
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param filename name of XML file to deserialize
+	 * @return the unmarshalled object
 	 * @throws Exception
 	 */
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename) throws Exception {
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, String filename) throws Exception {
         return XMLHelpers.createFromXML(mappingURL,cl,schemaUrl,filename,true);
 	}
 
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, String encoding) throws Exception {
+	/**
+	 * Unmarshals an object from an XML document.
+	 *
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param filename name of XML file to deserialize
+	 * @param encoding charset
+	 * @return the unmarshalled object
+	 * @throws Exception
+	 */
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, String filename, String encoding) throws Exception {
         return XMLHelpers.createFromXML(mappingURL,cl,schemaUrl,filename,true, encoding);
 	}
 
@@ -205,14 +212,14 @@ public class XMLHelpers {
 	 *  new InputSource( new StringReader(xml)).
 	 *  If you use the form new InputSource(xml) you will get the error . org.exolab.castor.xml.MarshalException: no protocol:
 	 *
-	 * @param mappingURL
-	 * @param cl
-	 * @param schemaUrl
-	 * @param source
-	 * @return Object
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param source InputSource to deserialize
+	 * @return the unmarshalled object
 	 * @throws Exception
 	 */
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, InputSource source) throws Exception {
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, InputSource source) throws Exception {
         return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,source,true);
 	}
 
@@ -229,31 +236,38 @@ public class XMLHelpers {
 	 *
 	 * @throws Exception
 	 */
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, InputSource source, boolean validate) throws Exception {
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, InputSource source, boolean validate) throws Exception {
         return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,source,validate);
 	}
 
 	/**
+	 * Unmarshals an object from an XML document.
 	 *
-	 * @param mappingURL
-	 * @param cl
-	 * @param schemaUrl
-	 * @param file
-	 * @return Object
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param file XML file to deserialize
+	 * @return the unmarshalled object
 	 * @throws Exception
 	 */
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, File file) throws Exception {
-	    FileReader reader = null;
-		try {
-			reader = new FileReader(file);
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, File file) throws Exception {
+	    try (FileReader reader = new FileReader(file)) {
 	        return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,new InputSource(reader),true);
-		}
-		finally {
-			if (reader!=null) reader.close();
 		}
 	}
 
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, File file, String encoding) throws Exception {
+	/**
+	 * Unmarshals an object from an XML document.
+	 *
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param file XML file to deserialize
+	 * @param encoding charset
+	 * @return the unmarshalled object
+	 * @throws Exception
+	 */
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, File file, String encoding) throws Exception {
 		InputStreamReader reader = new InputStreamReader(new FileInputStream(file), encoding);
 		try {
 			return XMLHelpers.createFromXMLInternal(mappingURL,cl,schemaUrl,new InputSource(reader),true);
@@ -263,20 +277,34 @@ public class XMLHelpers {
 	}
 
 	/**
-	 * @param mappingURL
-	 * @param cl
-	 * @param schemaUrl
-	 * @param filename
-	 * @param validate
-	 * @return Object
+	 * Unmarshals an object from an XML document.
+	 *
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param filename XML file to deserialize
+	 * @param validate whether the XML document should be validated against the schema
+	 * @return the unmarshalled object
 	 * @throws Exception
 	 * @throws XMLHelpersException
 	 */
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, final boolean validate) throws Exception {
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, String filename, final boolean validate) throws Exception {
 		return createFromXML(mappingURL, cl, schemaUrl, filename, validate, null);
 	}
 
-	public static Object createFromXML(URL mappingURL, Class<? extends Object> cl, URL schemaUrl, String filename, final boolean validate, String encoding) throws Exception {
+	/**
+	 * Unmarshals an object from an XML document.
+	 *
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param cl class of the object being deserialized
+	 * @param schemaUrl URL of the XML schema
+	 * @param filename XML file to deserialize
+	 * @param validate whether the XML document should be validated against the schema
+	 * @param encoding charset
+	 * @return the unmarshalled object
+	 * @throws Exception
+	 */
+	public static <T> T createFromXML(URL mappingURL, Class<T> cl, URL schemaUrl, String filename, final boolean validate, String encoding) throws Exception {
 		InputSource source;
 		// GDA-3377 This fails on windows if filename is similar to
 		// c:/data/file because c: is considered the scheme
@@ -329,7 +357,7 @@ public class XMLHelpers {
 		try {
 			final Method clear = existingBean.getClass().getMethod("clear");
 			clear.invoke(existingBean);
-		} catch (Throwable ignored) {
+		} catch (Exception ignored) {
 			// then don't clear
 		}
 
@@ -339,26 +367,25 @@ public class XMLHelpers {
 		unmarshaller.unmarshal(source);
 	}
 
-	private static Object createFromXMLInternal(URL mappingUrl, Class<? extends Object> cl, URL schemaUrl, InputSource source, final boolean validate) throws Exception {
+	@SuppressWarnings("unchecked")
+	private static <T> T createFromXMLInternal(URL mappingUrl, Class<T> cl, URL schemaUrl, InputSource source, final boolean validate) throws Exception {
 		if (urlResolver!=null) {
 			mappingUrl = urlResolver.resolve(mappingUrl);
 			schemaUrl  = urlResolver.resolve(schemaUrl);
 		}
-		if (validate) {
-			if (schemaUrl != null) {
+		if (validate && schemaUrl != null) {
 				XMLObjectConfigFileValidator validator = new XMLObjectConfigFileValidator();
 				source = validator.validateSource(schemaUrl.toString(), source, true);
 				if (source == null)
 					throw new XMLHelpersXMLValidationError();
-			}
 		}
-		Object obj = null;
+		T obj = null;
 		if (mappingUrl != null) {
 			Unmarshaller unmarshaller = createXMLContext(mappingUrl, cl.getClassLoader()).createUnmarshaller();
 			unmarshaller.setClass(cl);
-			obj = unmarshaller.unmarshal(source);
+			obj = (T) unmarshaller.unmarshal(source);
 		} else
-			obj = Unmarshaller.unmarshal(cl, source);
+			obj = (T) Unmarshaller.unmarshal(cl, source);
 		if (!obj.getClass().equals(cl))
 			throw new XMLHelpersException("Class created is incorrect = " + obj.getClass().getName());
 		return obj;
@@ -443,7 +470,7 @@ public class XMLHelpers {
 	 * @return the bean
 	 * @throws Exception
 	 */
-	public static Object readBean(File beanFile, Class<?> beanClass) throws Exception {
+	public static <T> T readBean(File beanFile, Class<T> beanClass) throws Exception {
 		URL mapping = null;
 		URL schema  = null;
 		final Field [] fa = beanClass.getFields();
