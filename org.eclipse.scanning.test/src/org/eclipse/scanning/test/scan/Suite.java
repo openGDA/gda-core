@@ -31,7 +31,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	RunnableDeviceServiceConfigureTest.class,
 	WatchdogTopupTest.class,
 	WatchdogShutterTest.class,
-	WatchdogCombinedTest.class
+	WatchdogCombinedTest.class,
+	WatchdogInOuterScanMoveTest.class
 	// ThreadScanTest.class  Not reliable on traivs.
 })
 public class Suite {

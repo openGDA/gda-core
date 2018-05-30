@@ -324,7 +324,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					firedFirst = true;
 				}
 
-				// Check if we are paused, blocks until we are not
+				// Check if we are paused, if blocks until pause is clear, returns if we should continue
 				if (!checkShouldContinue())
 					return; // finally block performed
 
@@ -332,6 +332,10 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				annotationManager.invoke(PointStart.class, pos);
 				positioner.setPosition(pos); // moveTo in GDA8
 				firePositionMoveComplete(pos); // notify listers that the move is complete
+
+				// Check again if we are paused, as this may have been received during an positioner move
+				if (!checkShouldContinue())
+					return;
 
 				exposureManager.setExposureTime(pos); // most of the time this does nothing.
 

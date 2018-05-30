@@ -76,6 +76,27 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 
 	}
 
+	private static class TestListener implements IPositionListener {
+	
+		private IPosition lastPositionPerformed = null;
+		private int numPositionsPerformed = 0;
+	
+		@Override
+		public void positionPerformed(PositionEvent event) throws ScanningException {
+			lastPositionPerformed = event.getPosition();
+			numPositionsPerformed++;
+		}
+	
+		public IPosition getLastPositionPerformed() {
+			return lastPositionPerformed;
+		}
+	
+		public int getNumPositionsPerformed() {
+			return numPositionsPerformed;
+		}
+	
+	}
+
 	private static final int INNER_SCAN_SIZE = 25;
 
 	private File dir;
@@ -118,27 +139,6 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	@After
 	public void tearDown() throws Exception {
 		if (dir!=null) FileUtils.recursiveDelete(dir);
-	}
-
-	private static class TestListener implements IPositionListener {
-
-		private IPosition lastPositionPerformed = null;
-		private int numPositionsPerformed = 0;
-
-		@Override
-		public void positionPerformed(PositionEvent event) throws ScanningException {
-			lastPositionPerformed = event.getPosition();
-			numPositionsPerformed++;
-		}
-
-		public IPosition getLastPositionPerformed() {
-			return lastPositionPerformed;
-		}
-
-		public int getNumPositionsPerformed() {
-			return numPositionsPerformed;
-		}
-
 	}
 
 	/**
