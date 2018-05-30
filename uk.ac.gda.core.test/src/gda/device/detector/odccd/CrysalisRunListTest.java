@@ -18,12 +18,11 @@
 
 package gda.device.detector.odccd;
 
-import gda.util.TestUtils;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -91,10 +90,10 @@ public class CrysalisRunListTest {
 
 		XMLHelpers.writeToXML(CrysalisRunList.mappingURL, outList, testScratchDirectoryName + "CrysalisSimple1.xml");
 
-		CrysalisRunList inList = (CrysalisRunList)XMLHelpers.createFromXML(CrysalisRunList.mappingURL,
-														CrysalisRunList.class,
-														CrysalisRunList.schemaURL,
-														testScratchDirectoryName + "CrysalisSimple1.xml");
+		CrysalisRunList inList = XMLHelpers.createFromXML(CrysalisRunList.mappingURL,
+												CrysalisRunList.class,
+												CrysalisRunList.schemaURL,
+												testScratchDirectoryName + "CrysalisSimple1.xml");
 		Assert.assertEquals(outList, inList);
 
 		String configPath = testScratchDirectoryName + "CrysalisRunListValidator.xml";

@@ -52,7 +52,7 @@ public class ExampleExpt implements XMLRichBean, Serializable {
 
 
 	public static ExampleExpt createFromXML(String filename) throws Exception {
-		return (ExampleExpt) XMLHelpers.createFromXML(mappingURL, ExampleExpt.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, ExampleExpt.class, schemaURL, filename);
 	}
 
 	public static void writeToXML(ExampleExpt scanParameters, String filename) throws Exception {

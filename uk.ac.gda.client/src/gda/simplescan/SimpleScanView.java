@@ -18,9 +18,6 @@
 
 package gda.simplescan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.rcp.GDAClientActivator;
-
 import java.io.File;
 
 import org.eclipse.richbeans.api.binding.IBeanController;
@@ -37,6 +34,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {
@@ -86,7 +85,7 @@ public class SimpleScanView extends ViewPart {
 	public void createPartControl(Composite parent) {
         path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "simpleScan.xml";
         try {
-			bean = (SimpleScan) XMLHelpers.createFromXML(SimpleScan.mappingURL, SimpleScan.class,
+			bean = XMLHelpers.createFromXML(SimpleScan.mappingURL, SimpleScan.class,
 					SimpleScan.schemaURL, path);
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
