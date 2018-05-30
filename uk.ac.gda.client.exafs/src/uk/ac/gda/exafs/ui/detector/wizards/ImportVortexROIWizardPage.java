@@ -239,7 +239,7 @@ public class ImportVortexROIWizardPage extends ImportROIWizardPage {
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
-			vortexParameters = (VortexParameters)XMLHelpers.readBean(path.toFile(), VortexParameters.class);
+			vortexParameters = XMLHelpers.readBean(path.toFile(), VortexParameters.class);
 			if (vortexParameters.getDetectorList().size() == elementListSize) {
 				beanToUI(detectorListComposite, vortexParameters);
 				validSource = true;

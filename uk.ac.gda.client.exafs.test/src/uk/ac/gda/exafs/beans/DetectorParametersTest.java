@@ -50,7 +50,7 @@ public class DetectorParametersTest {
 			.generateDirectorynameFromClassname(DetectorParametersTest.class.getCanonicalName());
 
 	public static DetectorParameters createFromXML(String filename) throws Exception {
-		return (DetectorParameters) XMLHelpers.createFromXML(DetectorParameters.mappingURL, DetectorParameters.class,
+		return XMLHelpers.createFromXML(DetectorParameters.mappingURL, DetectorParameters.class,
 				DetectorParameters.schemaUrl, filename);
 	}
 

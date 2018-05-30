@@ -36,7 +36,7 @@ public class VortexDeadTimeParameters implements Serializable, XMLRichBean {
 	static public final URL schemaURL = VortexDeadTimeParameters.class.getResource("VortexMapping.xsd");
 
 	public static VortexDeadTimeParameters createFromXML(String filename) throws Exception {
-		return (VortexDeadTimeParameters) XMLHelpers.createFromXML(mappingURL, VortexDeadTimeParameters.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, VortexDeadTimeParameters.class, schemaURL, filename);
 	}
 
 	public static void writeToXML(VortexDeadTimeParameters xspressParameters, String filename) throws Exception {
@@ -44,7 +44,7 @@ public class VortexDeadTimeParameters implements Serializable, XMLRichBean {
 	}
 
 	public VortexDeadTimeParameters() {
-		detectorDTList = new ArrayList<DetectorDeadTimeElement>();
+		detectorDTList = new ArrayList<>();
 	}
 
 	public void addDetectorDeadTimeElement(DetectorDeadTimeElement detectorElement) {

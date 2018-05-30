@@ -45,7 +45,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	private int selectedRegionNumber =0;
 
 	public static VortexParameters createFromXML(String filename) throws Exception {
-		return (VortexParameters) XMLHelpers.createFromXML(mappingURL, VortexParameters.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, VortexParameters.class, schemaURL, filename);
 	}
 
 	public static void writeToXML(VortexParameters xspressParameters, String filename) throws Exception {
@@ -53,7 +53,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	}
 
 	public VortexParameters() {
-		detectorList = new ArrayList<DetectorElement>();
+		detectorList = new ArrayList<>();
 	}
 
 	public void addDetectorElement(DetectorElement detectorElement) {
@@ -198,7 +198,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		setSaveRawSpectrum(vp.saveRawSpectrum);
 		setCollectionTime(vp.collectionTime);
 
-		Vector<DetectorElement> des = new Vector<DetectorElement>();
+		Vector<DetectorElement> des = new Vector<>();
 		for (DetectorElement d : vp.getDetectorList()) {
 			des.add(new DetectorElement(d));
 		}
@@ -207,7 +207,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	}
 
 	public List<DetectorROI> getRois() {
-		List<DetectorROI> list = new Vector<DetectorROI>();
+		List<DetectorROI> list = new Vector<>();
 		for (DetectorElement d : getDetectorList()) {
 			list.addAll(d.getRegionList());
 		}

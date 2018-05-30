@@ -54,7 +54,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	 * @throws Exception
 	 */
 	public static QEXAFSParameters createFromXML(String filename) throws Exception {
-		return (QEXAFSParameters) XMLHelpers.createFromXML(mappingURL, QEXAFSParameters.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, QEXAFSParameters.class, schemaURL, filename);
 	}
 
 	/**

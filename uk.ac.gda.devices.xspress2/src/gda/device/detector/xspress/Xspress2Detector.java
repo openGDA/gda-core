@@ -447,7 +447,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 	 */
 	@Override
 	public void loadAndInitializeDetectors(String filename) throws Exception {
-		settings.setXspressParameters((XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
+		settings.setXspressParameters(XMLHelpers.createFromXML(XspressParameters.mappingURL,
 				XspressParameters.class, XspressParameters.schemaURL, filename));
 		// if mode override is set as a property ignore all the parameter file settings
 		if (modeOverride) {
@@ -457,7 +457,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	public void loadAndInitializeDetectors(String filename, String dtcConfigFileName) throws Exception {
 		loadAndInitializeDetectors(filename);
-		XspressDeadTimeParameters xspressDeadTimeParameters = (XspressDeadTimeParameters) XMLHelpers.createFromXML(
+		XspressDeadTimeParameters xspressDeadTimeParameters = XMLHelpers.createFromXML(
 				XspressDeadTimeParameters.mappingURL, XspressDeadTimeParameters.class,
 				XspressDeadTimeParameters.schemaURL, dtcConfigFileName);
 		xspress2SystemData.setDeadTimeParameters(xspressDeadTimeParameters);

@@ -34,7 +34,7 @@ public class I20OutputParameters extends OutputParameters {
 //	public static final URL schemaUrl = OutputParameters.class.getResource("I20SampleParametersMapping.xsd");
 
 	public static I20OutputParameters createFromXML(String filename) throws Exception {
-		return (I20OutputParameters) XMLHelpers.createFromXML(mappingURL, I20OutputParameters.class, schemaUrl, filename);
+		return XMLHelpers.createFromXML(mappingURL, I20OutputParameters.class, schemaUrl, filename);
 	}
 
 	public static void writeToXML(I20OutputParameters outputParams, String filename) throws Exception {

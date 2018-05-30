@@ -100,7 +100,7 @@ public class Xspress3DataOperations {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(
+		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(
 				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
 				getConfigFileName());
 
@@ -402,7 +402,7 @@ public class Xspress3DataOperations {
 			regions = new DetectorROI[0];
 		}
 
-		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+		List<DetectorElement> detectorList = new ArrayList<>();
 
 		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
 			DetectorElement thisElement = new DetectorElement();

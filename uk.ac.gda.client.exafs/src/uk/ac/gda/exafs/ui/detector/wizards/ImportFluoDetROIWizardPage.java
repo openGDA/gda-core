@@ -240,7 +240,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
-			detParameters = (FluorescenceDetectorParameters) XMLHelpers.readBean(path.toFile(), detectorParametersClass);
+			detParameters = XMLHelpers.readBean(path.toFile(), detectorParametersClass);
 			if (detParameters.getDetectorList().size() == elementListSize) {
 				beanToUI(detectorListComposite, detParameters);
 				validSource = true;

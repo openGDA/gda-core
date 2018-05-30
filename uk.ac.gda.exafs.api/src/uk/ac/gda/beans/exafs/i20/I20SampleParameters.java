@@ -48,8 +48,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	private boolean shouldValidate = true;
 
 	public static I20SampleParameters createFromXML(String filename) throws Exception {
-		return (I20SampleParameters) XMLHelpers.createFromXML(mappingURL, I20SampleParameters.class, schemaURL,
-				filename);
+		return XMLHelpers.createFromXML(mappingURL, I20SampleParameters.class, schemaURL, filename);
 	}
 
 	public static void writeToXML(I20SampleParameters sampleParameters, String filename) throws Exception {
@@ -71,10 +70,10 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	}
 
 	public I20SampleParameters() {
-		descriptions = new ArrayList<String>(7);
-		customParameters = new ArrayList<CustomParameter>(7);
-		customXYZParameters = new ArrayList<CustomXYZParameter>(7);
-		roomTemperatureParameters = new ArrayList<SampleStageParameters>(7);
+		descriptions = new ArrayList<>(7);
+		customParameters = new ArrayList<>(7);
+		customXYZParameters = new ArrayList<>(7);
+		roomTemperatureParameters = new ArrayList<>(7);
 	}
 
 	@Override
