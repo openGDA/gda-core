@@ -190,7 +190,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 				for (String jMSMessageID : ids) {
 					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-					Message m = consumer.receive(Constants.getReceiveFrequency());
+					Message m = consumer.receive(EventTimingsHelper.getReceiveTimeout());
 					consumer.close();
 					if (removeIds.contains(jMSMessageID)) continue; // We are done
 
@@ -211,11 +211,14 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-
 	@Override
 	public void clearQueue(String queueName) throws EventException {
 		logger.info("Clearing queue {}", queueName);
+		final String pauseMessage = "Pause to clear queue '" + queueName + "' ";
+		doWhilePaused(queueName, pauseMessage, () -> doClearQueue(queueName));
+	}
 
+	private boolean doClearQueue(String queueName) throws EventException {
 		QueueConnection qCon = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
@@ -231,7 +234,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			while(e.hasMoreElements()) {
 				Message msg = (Message)e.nextElement();
 				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '" + msg.getJMSMessageID() + "'");
-				Message rem = consumer.receive(Constants.getReceiveFrequency());
+				Message rem = consumer.receive(EventTimingsHelper.getReceiveTimeout());
 				if (rem != null) {
 					logger.trace("Removed bean {}", rem);
 				} else {
@@ -239,7 +242,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				}
 				consumer.close();
 			}
-
+			return true;
 		} catch (Exception ne) {
 			throw new EventException(ne);
 
@@ -342,9 +345,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
-		try (@SuppressWarnings("unchecked")
-					ISubmitter<U> submitter = this instanceof ISubmitter ?
-						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted)
 				submitter.submit(u);
 		}
@@ -451,9 +452,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		clearQueue(queueName);
 
-		try (@SuppressWarnings("unchecked")
-				ISubmitter<U> submitter = this instanceof ISubmitter ?
-						(ISubmitter<U>) this : eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted) {
 				submitter.submit(u);
 			}

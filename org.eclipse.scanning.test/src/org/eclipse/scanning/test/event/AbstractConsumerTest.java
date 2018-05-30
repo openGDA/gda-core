@@ -53,7 +53,7 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.Constants;
+import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
@@ -70,13 +70,13 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Before
 	public void start() {
-		Constants.setReceiveFrequency(100);
-		Constants.setNotificationFrequency(200); // Normally 2000
+		EventTimingsHelper.setReceiveTimeout(100);
+		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
 	}
 
 	@After
 	public void stop() throws Exception {
-		Constants.setNotificationFrequency(2000); // Normally 2000
+		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
 		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
 		consumer.clearQueue(EventConstants.STATUS_SET);

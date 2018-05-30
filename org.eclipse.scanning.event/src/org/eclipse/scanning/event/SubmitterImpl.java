@@ -111,11 +111,14 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 	@Override
 	public void disconnect() throws EventException{
+		// Close and nullify the producer
 		if (queueMessageProducer != null) {
 			try {
 				queueMessageProducer.close();
 			} catch (JMSException e) {
 				logger.error("Could not close messsage producer for queue " + getSubmitQueueName(), e);
+			} finally {
+				queueMessageProducer = null;
 			}
 		}
 

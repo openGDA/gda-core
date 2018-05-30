@@ -52,7 +52,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.Constants;
+import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -122,14 +122,14 @@ public class DeviceRequestTest extends BrokerTest {
 	@Before
 	public void start() {
 
-		Constants.setNotificationFrequency(200); // Normally 2000
-		Constants.setReceiveFrequency(100);
+		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
+		EventTimingsHelper.setReceiveTimeout(100);
 	}
 
 	@After
 	public void stop() throws Exception {
 
-	Constants.setNotificationFrequency(2000); // Normally 2000
+	EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 	if (requester!=null) requester.disconnect();
 	if (responder!=null) responder.disconnect();
 	}

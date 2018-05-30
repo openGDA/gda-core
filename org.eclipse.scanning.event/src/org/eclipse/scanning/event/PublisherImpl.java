@@ -203,7 +203,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 	private boolean replaceBeanWithId(Queue queue, String jmsMessageId, T bean) throws Exception {
 		// consume the bean (removing it from the status set)
 		MessageConsumer messageConsumer = queueSession.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
-		Message m = messageConsumer.receive(Constants.getReceiveFrequency());
+		Message m = messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
 		messageConsumer.close();
 		if (m instanceof TextMessage) {
 			MessageProducer producer = queueSession.createProducer(queue);
