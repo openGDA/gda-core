@@ -28,7 +28,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.python.core.PyException;
 import org.python.core.PyTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,7 @@ import gda.jython.commands.ScannableCommands;
  * <b>must</b> not be effected by any concurrent motor or shutter movements.</li>
  * </ul>
  */
-public class ConcurrentScan extends ConcurrentScanChild implements Scan {
+public class ConcurrentScan extends ConcurrentScanChild {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScan.class);
 
