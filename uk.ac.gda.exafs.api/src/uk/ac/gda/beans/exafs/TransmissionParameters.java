@@ -25,7 +25,7 @@ import java.util.List;
 public class TransmissionParameters implements IExperimentDetectorParameters, Serializable {
 
 	private List<IonChamberParameters> ionChamberParameters;
-	private double workingEnergy = 10000;;
+	private double workingEnergy = 10000;
 	private String detectorType;
 	private double mythenEnergy = 1000;
 	private double mythenTime = 1.0;
