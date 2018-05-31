@@ -381,8 +381,8 @@ public final class BimorphParametersComposite extends Composite {
 			error_file = errorFile.getValue().toString();
 		}
 
-		if(selectedDir==null)
-			selectedDir="None";
+		if (selectedDir == null)
+			selectedDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		
 		String slitToScanPos = slitPosScannable.getValue().toString();
 		String command = String.format(
@@ -783,7 +783,7 @@ public final class BimorphParametersComposite extends Composite {
 		maxSlitPos.setMinimum(-99999);
 
 		scanDirectory = new Label(scanDataGroup, SWT.NONE);
-		scanDirectory.setText("Scan file directory = current visit");
+		scanDirectory.setText("Scan file directory = current data directory");
 		scanDirectory.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Button changeDir = new Button(scanDataGroup, SWT.NONE);
 		changeDir.setAlignment(SWT.LEFT);
@@ -793,8 +793,8 @@ public final class BimorphParametersComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dlg = new DirectoryDialog(scanDataGroup.getShell());
-		        selectedDir = dlg.open();
-		        scanDirectory.setText("Scan file directory = " + selectedDir);
+				selectedDir = dlg.open();
+				scanDirectory.setText("Scan file directory = " + selectedDir == null ? "current data directory" : selectedDir);
 			}
 		});
 		
