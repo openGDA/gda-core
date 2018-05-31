@@ -12,6 +12,7 @@
 package org.eclipse.scanning.test.remote;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -43,7 +44,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class RemoteScannableServiceTest extends BrokerTest {
@@ -89,13 +89,14 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	}
 
 	@Before
-	public void createService() throws EventException {
+	public void createRemoteScannableDeviceService() throws EventException {
 		rservice = eservice.createRemoteService(uri, IScannableDeviceService.class);
 	}
 
 	@After
-	public void disposeService() throws EventException {
+	public void disposeRemoteScannableDeviceService() throws EventException {
 		((IConnection)rservice).disconnect();
+		rservice = null;
 	}
 
 
@@ -146,6 +147,14 @@ public class RemoteScannableServiceTest extends BrokerTest {
 		scannableValues(xNex2, xNex1);
 	}
 
+	@Test
+	public void testDisconnect() throws Exception {
+		// regression test for DAQ-1479
+		IConnection connection = (IConnection) rservice;
+		assertTrue(connection.isConnected());
+		connection.disconnect();
+		assertFalse(connection.isConnected());
+	}
 
 	private void scannableValues(IScannable<Double> setter, IScannable<Double> getter) throws Exception {
 		assertTrue(setter!=null);
@@ -165,13 +174,12 @@ public class RemoteScannableServiceTest extends BrokerTest {
 	}
 
 	@Test
-	@Ignore // DAQ-1444 Test is currently failing
 	public void subtractFive() throws Exception {
 		checkTemperature(-5);
 	}
 
 	private void checkTemperature(double delta) throws Exception {
-
+		System.out.println("rservice = " + rservice);
 		IScannable<Double> temp = rservice.getScannable("T");
 
 		List<Double> positions = new ArrayList<>();
@@ -179,14 +187,19 @@ public class RemoteScannableServiceTest extends BrokerTest {
 			@Override
 			public void positionChanged(PositionEvent evt) throws ScanningException {
 				double val = (Double)evt.getPosition().get("T");
-//				System.out.println("The value of T was at "+val);
+				System.out.println("The value of T was at "+val);
 				positions.add(val);
 			}
 		});
-		System.out.println("Moving to "+(temp.getPosition().doubleValue()+delta)+" from "+temp.getPosition());
-		temp.setPosition(temp.getPosition().doubleValue()+delta);
 
-        assertEquals(10, positions.size());
+		double currPosition = temp.getPosition();
+		double newPosition = currPosition + delta;
+
+		System.out.println("Moving to "+ newPosition+" from "+currPosition);
+		temp.setPosition(newPosition);
+
+		assertEquals(newPosition, temp.getPosition(), 1e-15);
+		assertEquals(10, positions.size()); // MockScannable.doRealisticMove() always fires 10 events during the move
 	}
 
 }

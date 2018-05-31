@@ -61,7 +61,7 @@ abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
 	@Override
 	public void disconnect() throws EventException {
 		requester.disconnect(); // Requester can still be used again after a disconnect
-		setDisconnected(true);
+		setConnected(false);
 	}
 
 	public String getName() {

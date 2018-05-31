@@ -57,7 +57,7 @@ class _ScannableDeviceService extends AbstractRemoteService implements IScannabl
 		}
 		subscriber.disconnect();
 		scannables.clear();
-		setDisconnected(true);
+		setConnected(false);
 	}
 
 	@Override

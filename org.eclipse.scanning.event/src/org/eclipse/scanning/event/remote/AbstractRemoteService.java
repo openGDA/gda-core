@@ -30,10 +30,12 @@ abstract class AbstractRemoteService implements IConnection {
 
 	protected IEventService eservice;
 	protected URI uri;
-	private boolean isDisconnected;
+	private boolean isConnected;
 
 	protected AbstractRemoteService() {
-		this.isDisconnected = false;
+		// this is true initially as there is no connect method, we assume that the connection
+		// is made as required
+		this.isConnected = true;
 	}
 
 	protected IEventService getEventService() {
@@ -61,10 +63,10 @@ abstract class AbstractRemoteService implements IConnection {
 
 	@Override
 	public boolean isConnected() {
-		return isDisconnected;
+		return isConnected;
 	}
 
-	public void setDisconnected(boolean isDisconnected) {
-		this.isDisconnected = isDisconnected;
+	public void setConnected(boolean isConnected) {
+		this.isConnected = isConnected;
 	}
 }
