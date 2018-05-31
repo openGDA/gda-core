@@ -42,10 +42,10 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class Xspress3DataOperations {
 
-	private static final String mcaLabel = "MCAs";
-	private final String sumLabel = "FF";
-	private final String unitsLabel = "counts";
-	private final String allElementSumLabel = "AllElementSum";
+	private static final String MCA_LABEL = "MCAs";
+	private static final String SUM_LABEL = "FF";
+	private static final String UNITS_LABEL = "counts";
+	private static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum";
 
 	private Xspress3Controller controller;
 	private int firstChannelToRead;
@@ -55,19 +55,17 @@ public class Xspress3DataOperations {
 	private boolean[] isChannelEnabled;
 	private Xspress3FileReader reader;
 	private boolean readDataFromFile;
-	private int lineNumber;
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3DataOperations.class);
 
-	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
+	protected Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
 		this.controller = controller;
 		this.firstChannelToRead = firstChannelToRead;
-		this.lineNumber = 0;
 		this.readDataFromFile = false;
 	}
 
-	public String[] getOutputFormat() {
-		int numNames = getExtraNames().length + 1; // the + 1 for the inputName
-		// which every detector has
+	protected String[] getOutputFormat() {
+		int numNames = getExtraNames().length + 1;  // the + 1 for the inputName
+													// which every detector has
 		String[] outputFormat = new String[numNames];
 		for (int i = 0; i < numNames; i++) {
 			outputFormat[i] = "%.3f";
@@ -77,9 +75,7 @@ public class Xspress3DataOperations {
 
 	// maybe change the method name to prepareForCollection()
 	// atScanStart()
-	public void atScanStart(boolean readDataFromFile) throws DeviceException {
-		// remove for testing Xspress3 v.2 as this plugin is not yet available
-		// controller.setPerformROICalculations(false);
+	protected void atScanStart(boolean readDataFromFile) throws DeviceException {
 		this.readDataFromFile = readDataFromFile;
 		if (!readDataFromFile) {
 			enableEpicsMcaStorage();
@@ -87,40 +83,38 @@ public class Xspress3DataOperations {
 			// we are in a Continuous / Fly scan, so data will be readback from
 			// the HDF file at the end of each scan line
 		}
-		lineNumber = 0;
 		framesRead = 0;
 	}
 
-	public void atScanLineStart() {
-		lineNumber++;
+	protected void atScanLineStart() {
 		if (readDataFromFile)
 			framesRead = 0;
 		reader = null;
 	}
 
-	public void atPointEnd() {
+	protected void atPointEnd() {
 		framesRead++;
 	}
 
-	public String getConfigFileName() {
+	protected String getConfigFileName() {
 		return configFileName;
 	}
 
-	public void setConfigFileName(String configFileName) {
+	protected void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
 	}
 
-	public void loadConfigurationFromFile() throws Exception {
+	protected void loadConfigurationFromFile() throws Exception {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
+		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
 				Xspress3Parameters.schemaURL, getConfigFileName());
 
 		applyConfigurationParameters(vortexParameters);
 	}
 
-	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) {
+	protected void applyConfigurationParameters(FluorescenceDetectorParameters parameters) {
 		List<DetectorROI> vortexRois = parameters.getDetector(0).getRegionList();
 		rois = new DetectorROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
@@ -141,19 +135,14 @@ public class Xspress3DataOperations {
 		int numChannels = controller.getNumberOfChannels();
 		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, true);
-			// controller.setWindows(channel, 1, new int[] { 0, 0 });
-			// controller.setWindows(channel, 2, new int[] { 0, 0 });
-			// for (int roi = 0; roi < EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
-			// controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
-			// }
 		}
 	}
 
-	public NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
+	protected NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
 		int numPointAvailableInArrays = 0;
 		// the numPointAvailableInArrays is the array index so framesRead - 1
 		numPointAvailableInArrays = controller.monitorUpdateArraysAvailableFrame(framesRead);
-		logger.info("framesRead=" + framesRead + " and UpdateArraysAvailableFrame: " + numPointAvailableInArrays);
+		logger.debug("framesRead={}, numPointAvailableInArrays={}", framesRead, numPointAvailableInArrays);
 		if (framesRead != numPointAvailableInArrays) {
 			throw new DeviceException("Xspress3 arrays are not updated correctly!");
 		}
@@ -172,21 +161,18 @@ public class Xspress3DataOperations {
 		for (int i = 0; i < original.length; i++) {
 			for (int j = 0; j < original[0].length; j++) {
 				double value = original[i][j];
-				if (Double.toString(value).compareTo("NaN") == 0) {
-					value = 0.0;
-				}
+				if (Double.isNaN(value)) value = 0.0;
 				filtered[i][j] = value;
 			}
 		}
-		original = filtered;
-		return original;
+		return filtered;
 	}
 
 	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile, String detectorName) {
 
-		mcasFromFile = removeNaNs(mcasFromFile);
+		double[][] filteredMCAs = removeNaNs(mcasFromFile);
 
-		int numChannels = mcasFromFile.length;
+		int numChannels = filteredMCAs.length;
 		int numRois = rois.length;
 
 		double[][] roiValues = new double[numRois][numChannels];
@@ -194,19 +180,19 @@ public class Xspress3DataOperations {
 		for (int chan = 0; chan < numChannels; chan++) {
 			if (isChannelEnabled[chan]) { // excluded channels do not have a value for ROIs or do they contribute to the FF
 				for (int roi = 0; roi < numRois; roi++) {
-					double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
+					double thisRoiSum = extractRoi(filteredMCAs[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
 					roiValues[roi][chan] = thisRoiSum;
 					theFF += thisRoiSum;
 				}
 			}
 		}
 
-		int numMcaElements = mcasFromFile[0].length;
+		int numMcaElements = filteredMCAs[0].length;
 		double[] allElementSum = new double[numMcaElements];
 		for (int chan = 0; chan < numChannels; chan++) {
 			if (isChannelEnabled[chan]) { // excluded channels do not contribute to the allElementSum
 				for (int element = 0; element < numMcaElements; element++) {
-					allElementSum[element] += mcasFromFile[chan][element];
+					allElementSum[element] += filteredMCAs[chan][element];
 				}
 			}
 		}
@@ -215,18 +201,18 @@ public class Xspress3DataOperations {
 		INexusTree detTree = thisFrame.getDetTree(detectorName);
 
 		// add the FF (sum over all rois, over all channels)
-		NXDetectorData.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel, 1);
+		NXDetectorData.addData(detTree, SUM_LABEL, new NexusGroupData(theFF), UNITS_LABEL, 1);
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			NXDetectorData.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
+			NXDetectorData.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), UNITS_LABEL, 2);
 		}
 
 		// add MCAs
-		NXDetectorData.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
+		NXDetectorData.addData(detTree, MCA_LABEL, new NexusGroupData(filteredMCAs), UNITS_LABEL, 2);
 
 		// add all element sum
-		NXDetectorData.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
+		NXDetectorData.addData(detTree, ALL_ELEMENT_SUM_LABEL, new NexusGroupData(allElementSum), UNITS_LABEL, 2);
 
 		// add plottable values
 		int index = 0;
@@ -250,20 +236,10 @@ public class Xspress3DataOperations {
 		return sum;
 	}
 
-	public NXDetectorData[] readoutFrames(int firstFrame, int lastFrame, String detectorName) throws DeviceException {
-		// SR get the number of frames from HDFfile writer with reading from HDF5 file
+	protected NXDetectorData[] readoutFrames(int firstFrame, int lastFrame, String detectorName) throws DeviceException {
 		int numFramesAvailable;
-		int driverNumFramesAvailable = 0;
 		if (readDataFromFile) {
 			numFramesAvailable = controller.getTotalHDFFramesAvailable();
-			driverNumFramesAvailable = controller.getTotalFramesAvailable();
-			logger.info("controller.getTotalHDFFramesAvailable():" + controller.getTotalHDFFramesAvailable());
-			logger.info("controller.getTotalFramesAvailable():" + controller.getTotalFramesAvailable());
-			// to speed up scan need to configure the driver at the start of the scan, here a check if no frame is dropped
-			// here the driver is waiting for more pulses and the file writer should be stopped, ContinuousScan is sequential
-			if (numFramesAvailable != (driverNumFramesAvailable / lineNumber)) {
-				throw new DeviceException("Pulses between EPICs HDF file writer and main driver do not match.");
-			}
 		} else
 			numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
@@ -271,7 +247,7 @@ public class Xspress3DataOperations {
 		}
 
 		try {
-			extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
+			extractMCAsFromFile(controller.getFullFileName());
 			int numFrames = lastFrame - firstFrame + 1;
 			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
@@ -285,14 +261,14 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	private void extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws ScanFileHolderException {
+	private void extractMCAsFromFile(String filename) throws ScanFileHolderException {
 		if (reader == null) {
 			reader = new Xspress3FileReader(filename, controller.getNumberOfChannels(), controller.getMcaSize());
 			reader.readFile();
 		}
 	}
 
-	public double readoutFF() throws DeviceException {
+	protected double readoutFF() throws DeviceException {
 		int numRois = rois.length;
 		int numChannels = controller.getNumberOfChannels();
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
@@ -310,7 +286,7 @@ public class Xspress3DataOperations {
 		return theFF;
 	}
 
-	public String[] getExtraNames() {
+	protected String[] getExtraNames() {
 		if (rois == null || controller == null) {
 			return new String[] { "FF" };
 		}
@@ -337,19 +313,21 @@ public class Xspress3DataOperations {
 	 * @throws DeviceException
 	 */
 	@Deprecated
-	public int[][] getMCData(double time) throws DeviceException {
+	protected int[][] getMCData(double time) throws DeviceException {
 		getMCAData(time);
 
 		double[][] mcaData = getMCAData(time);
 		return getIntDataFromDoubles(mcaData);
 	}
 
-	public double[][] getMCAData(double time) throws DeviceException {
+	protected double[][] getMCAData(double time) throws DeviceException {
 		controller.doErase();
 		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
+
+		Timer tfg = Finder.getInstance().find("tfg");
+		tfg.clearFrameSets(); // we only want to collect a frame at a time
+		tfg.countAsync(time); // run tfg for time
 		do {
 			synchronized (this) {
 				try {
@@ -357,7 +335,7 @@ public class Xspress3DataOperations {
 				} catch (InterruptedException e) {
 				}
 			}
-		} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
+		} while (tfg.getStatus() == Timer.ACTIVE);
 
 		controller.doStop();
 
@@ -374,15 +352,15 @@ public class Xspress3DataOperations {
 		return mcaIntData;
 	}
 
-	public DetectorROI[] getRegionsOfInterest() {
+	protected DetectorROI[] getRegionsOfInterest() {
 		return rois;
 	}
 
-	public void setRegionsOfInterest(DetectorROI[] regionList) {
+	protected void setRegionsOfInterest(DetectorROI[] regionList) {
 		rois = regionList;
 	}
 
-	public Xspress3Parameters getConfigurationParameters() {
+	protected Xspress3Parameters getConfigurationParameters() {
 		DetectorROI[] regions = getRegionsOfInterest();
 		if (regions == null) {
 			regions = new DetectorROI[0];
@@ -407,7 +385,7 @@ public class Xspress3DataOperations {
 		return parameters;
 	}
 
-	public void atScanEnd() throws DeviceException {
+	protected void atScanEnd() throws DeviceException {
 		enableEpicsMcaStorage();
 	}
 
