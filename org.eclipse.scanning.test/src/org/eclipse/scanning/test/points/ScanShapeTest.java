@@ -14,6 +14,7 @@ package org.eclipse.scanning.test.points;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
@@ -32,9 +33,20 @@ import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+
+/**
+ * Test that the datasets in the nexus file produced by the scan have the expected shape
+ * for various types of scans.
+ * TODO this could be more easily parameterized with JUnit 5 when we can use it, see DAQ-1478.
+ * In particular the snake parameter is only required by grid scans, and {@link #testShapeStatic()}
+ * doesn't use the nest count either
+ */
+@RunWith(value=Parameterized.class)
 public class ScanShapeTest {
 
 	private static IPointGeneratorService service;
@@ -44,234 +56,33 @@ public class ScanShapeTest {
 		service = new PointGeneratorService();
 	}
 
-	@Test
-	public void testShapeGrid2D() throws Exception {
-		// note first arg is number of extra dimensions on top of inner grid
-		gridTest(0, false);
+	@Parameters(name="nestCount= {0}, snake= {1}")
+	public static Collection<Object[]> data() {
+		return Arrays.asList(new Object[][] {
+			{ 0, false },
+			{ 0, true },
+			{ 1, false },
+			{ 1, true },
+			{ 2, false },
+			{ 2, true },
+			{ 3, false },
+			{ 3, true },
+			{ 6, false },
+			{ 6, true }
+		});
+	}
+
+	private int nestCount;
+
+	private boolean snake;
+
+	public ScanShapeTest(int nestCount, boolean snake) {
+		this.nestCount = nestCount; // the number of outer dimensions
+		this.snake = snake; // only relevent for grid scans
 	}
 
 	@Test
-	public void testShapeGrid3D() throws Exception {
-		gridTest(1, false);
-	}
-
-	@Test
-	public void testShapeGrid4D() throws Exception {
-		gridTest(2, false);
-	}
-
-	@Test
-	public void testShapeGrid5D() throws Exception {
-		gridTest(3, false);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeGrid8D() throws Exception {
-		gridTest(6, false);
-	}
-
-	@Test
-	public void testShapeSnakeGrid2D() throws Exception {
-		gridTest(0, true);
-	}
-
-	@Test
-	public void testShapeSnakeGrid3D() throws Exception {
-		gridTest(1, true);
-	}
-
-	@Test
-	public void testShapeSnakeGrid4D() throws Exception {
-		gridTest(2, true);
-	}
-
-	@Test
-	public void testShapeSnakeGrid5D() throws Exception {
-		gridTest(3, true);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeSnakeGrid8D() throws Exception {
-		gridTest(6, true);
-	}
-
-	@Test
-	public void testShapeGridCircularRegion2D() throws Exception {
-		gridWithCircularRegionTest(0, false);
-	}
-
-	@Test
-	public void testShapeGridCircularRegion3D() throws Exception {
-		gridWithCircularRegionTest(1, false);
-	}
-
-	@Test
-	public void testShapeGridCircularRegion4D() throws Exception {
-		gridWithCircularRegionTest(2, false);
-	}
-
-	@Test
-	public void testShapeGridCircularRegion5D() throws Exception {
-		gridWithCircularRegionTest(3, false);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeGridCircularRegion8D() throws Exception {
-		gridWithCircularRegionTest(6, false);
-	}
-
-	@Test
-	public void testShapeSnakeGridCircularRegion2D() throws Exception {
-		gridWithCircularRegionTest(0, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridCircularRegion3D() throws Exception {
-		gridWithCircularRegionTest(1, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridCircularRegion4D() throws Exception {
-		gridWithCircularRegionTest(2, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridCircularRegion5D() throws Exception {
-		gridWithCircularRegionTest(3, true);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeSnakeGridCircularRegion8D() throws Exception {
-		gridWithCircularRegionTest(6, true);
-	}
-
-	@Test
-	public void testShapeGridPolygonRegion2D() throws Exception {
-		gridWithPolygonRegionTest(0, false);
-	}
-
-	@Test
-	public void testShapeGridPolygonRegion3D() throws Exception {
-		gridWithPolygonRegionTest(1, false);
-	}
-
-	@Test
-	public void testShapeGridPolygonRegion4D() throws Exception {
-		gridWithPolygonRegionTest(2, false);
-	}
-
-	@Test
-	public void testShapeGridPolygonRegion5D() throws Exception {
-		gridWithPolygonRegionTest(3, false);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeGridPolygonRegion8D() throws Exception {
-		gridWithPolygonRegionTest(6, false);
-	}
-
-	@Test
-	public void testShapeSnakeGridPolygonRegion2D() throws Exception {
-		gridWithPolygonRegionTest(0, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridPolygonRegion3D() throws Exception {
-		gridWithPolygonRegionTest(1, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridPolygonRegion4D() throws Exception {
-		gridWithPolygonRegionTest(2, true);
-	}
-
-	@Test
-	public void testShapeSnakeGridPolygonRegion5D() throws Exception {
-		gridWithPolygonRegionTest(3, true);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeSnakeGridPolygonRegion8D() throws Exception {
-		gridWithPolygonRegionTest(6, true);
-	}
-
-	@Test
-	public void testShapeSpiral2D() throws Exception {
-		spiralTest(0);
-	}
-
-	@Test
-	public void testShapeSpiral3D() throws Exception {
-		spiralTest(1);
-	}
-
-	@Test
-	public void testShapeSpiral4D() throws Exception {
-		spiralTest(2);
-	}
-
-	@Test
-	public void testShapeSpiral5D() throws Exception {
-		spiralTest(3);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeSpiral8D() throws Exception {
-		spiralTest(6);
-	}
-
-	@Test
-	public void testShapeLine1D() throws Exception {
-		lineTest(0);
-	}
-
-	@Test
-	public void testShapeLine2D() throws Exception {
-		lineTest(1);
-	}
-
-	@Test
-	public void testShapeLine3D() throws Exception {
-		lineTest(2);
-	}
-
-	@Test
-	public void testShapeLine4D() throws Exception {
-		lineTest(3);
-	}
-
-	@Test
-	@Ignore
-	public void testShapeLine7D() throws Exception {
-		lineTest(6);
-	}
-
-	@Test
-	@Ignore // DAQ-1444 Test is currently failing
-	public void testShapeStatic() throws Exception {
-		 StaticModel staticModel = new StaticModel();
-		 CompoundModel<Object> compoundModel = new CompoundModel<>(staticModel);
-
-		 ScanRequest<Object> req = new ScanRequest<>();
-		 req.setCompoundModel(compoundModel);
-
-		 ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		 ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
-		 final int expectedRank = 0;
-		 assertEquals(expectedRank, scanInfo.getRank());
-		 int[] shape = scanInfo.getShape();
-		 assertEquals(expectedRank, shape.length);
-	}
-
-	private void gridTest(int nestCount, boolean snake) throws Exception {
+	public void testShapeGrid() throws Exception {
 		ScanRequest<Object> req = createGridScanRequest(nestCount, snake);
 
 		ScanEstimator scanEstimator = new ScanEstimator(service, req);
@@ -288,7 +99,8 @@ public class ScanShapeTest {
 		assertEquals(25, shape[shape.length - 1]);
 	}
 
-	private void gridWithCircularRegionTest(int nestCount, boolean snake) throws Exception {
+	@Test
+	public void testShapeGridCircularRegion() throws Exception {
 		ScanRequest<Object> req = createGridWithCircleRegionScanRequest(nestCount, snake);
 
 		ScanEstimator scanEstimator = new ScanEstimator(service, req);
@@ -302,7 +114,8 @@ public class ScanShapeTest {
 		assertEquals(84, shape[shape.length - 1]);
 	}
 
-	private void gridWithPolygonRegionTest(int nestCount, boolean snake) throws Exception {
+	@Test
+	public void testShapeGridPolygonRegion() throws Exception {
 		ScanRequest<Object> req = createGridWithPolygonRegionScanRequest(nestCount, snake);
 
 		ScanEstimator scanEstimator = new ScanEstimator(service, req);
@@ -314,6 +127,92 @@ public class ScanShapeTest {
 			assertEquals(i + 1, shape[i]);
 		}
 		assertEquals(52, shape[shape.length - 1]);
+	}
+
+	@Test
+	public void testShapeSpiral() throws Exception {
+		BoundingBox box = new BoundingBox();
+		box.setFastAxisStart(0);
+		box.setSlowAxisStart(0);
+		box.setFastAxisLength(3);
+		box.setSlowAxisLength(3);
+
+		SpiralModel spiralModel = new SpiralModel("x", "y");
+		spiralModel.setBoundingBox(box);
+
+		Object[] models = new Object[nestCount + 1];
+		for (int i = 0; i < nestCount; i++) {
+			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
+		}
+		models[nestCount] = spiralModel;
+		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
+
+		ScanRequest<Object> req = new ScanRequest<>();
+		req.setCompoundModel(compoundModel);
+		ScanEstimator scanEstimator = new ScanEstimator(service, req);
+		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+
+		final int expectedRank = nestCount + 1;
+		assertEquals(expectedRank, scanInfo.getRank());
+		int[] shape = scanInfo.getShape();
+		assertEquals(expectedRank, shape.length);
+		for (int i = 0; i < nestCount; i++) {
+			assertEquals(i + 1, shape[i]);
+		}
+		assertEquals(15, shape[shape.length - 1]);
+	}
+
+	@Test
+	public void testShapeLine() throws Exception {
+		LinearROI roi = new LinearROI(new double[] { 0, 0 }, new double [] { 3, 3 });
+		ScanRegion<Object> region = new ScanRegion<>(roi, "x", "y");
+		// TODO: we need to give the region to the point generator somehow, but the
+		// scan estimator doesn't have it at present
+		OneDEqualSpacingModel lineModel = new OneDEqualSpacingModel();
+		lineModel.setPoints(10);
+		lineModel.setFastAxisName("x");
+		lineModel.setSlowAxisName("y");
+
+		Object[] models = new Object[nestCount + 1];
+		for (int i = 0; i < nestCount; i++) {
+			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
+		}
+		models[nestCount] = lineModel;
+		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
+		compoundModel.setRegions(Arrays.asList(region));
+
+		ScanRequest<Object> req = new ScanRequest<>();
+		req.setCompoundModel(compoundModel);
+		ScanEstimator scanEstimator = new ScanEstimator(service, req);
+		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+
+		final int expectedRank = nestCount + 1;
+		assertEquals(expectedRank, scanInfo.getRank());
+		int[] shape = scanInfo.getShape();
+		assertEquals(expectedRank, shape.length);
+		for (int i = 0; i < nestCount; i++) {
+			assertEquals(i + 1, shape[i]);
+		}
+		assertEquals(10, shape[shape.length - 1]);
+	}
+
+	@Test
+	public void testShapeStatic() throws Exception {
+		// Note this test shouldn't be repeated
+		StaticModel staticModel = new StaticModel();
+		CompoundModel<Object> compoundModel = new CompoundModel<>(staticModel);
+
+		ScanRequest<Object> req = new ScanRequest<>();
+		req.setCompoundModel(compoundModel);
+
+		ScanEstimator scanEstimator = new ScanEstimator(service, req);
+		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+
+		// Note: a StaticModel of size 1 produces a scan of rank 1, size 1
+		final int expectedRank = 1;
+		assertEquals(expectedRank, scanInfo.getRank());
+		int[] shape = scanInfo.getShape();
+		assertEquals(expectedRank, shape.length);
 	}
 
 	private ScanRequest<Object> createGridScanRequest(int nestCount, boolean snake) {
@@ -365,71 +264,6 @@ public class ScanShapeTest {
 		req.getCompoundModel().setRegions(Arrays.asList(circleRegion));
 
 		return req;
-	}
-
-	private void spiralTest(int nestCount) throws Exception {
-		BoundingBox box = new BoundingBox();
-		box.setFastAxisStart(0);
-		box.setSlowAxisStart(0);
-		box.setFastAxisLength(3);
-		box.setSlowAxisLength(3);
-
-		SpiralModel spiralModel = new SpiralModel("x", "y");
-		spiralModel.setBoundingBox(box);
-
-		Object[] models = new Object[nestCount + 1];
-		for (int i = 0; i < nestCount; i++) {
-			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
-		}
-		models[nestCount] = spiralModel;
-		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
-
-		ScanRequest<Object> req = new ScanRequest<>();
-		req.setCompoundModel(compoundModel);
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
-		final int expectedRank = nestCount + 1;
-		assertEquals(expectedRank, scanInfo.getRank());
-		int[] shape = scanInfo.getShape();
-		assertEquals(expectedRank, shape.length);
-		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
-		}
-		assertEquals(15, shape[shape.length - 1]);
-	}
-
-	private void lineTest(int nestCount) throws Exception {
-		LinearROI roi = new LinearROI(new double[] { 0, 0 }, new double [] { 3, 3 });
-		ScanRegion<Object> region = new ScanRegion<>(roi, "x", "y");
-		// TODO: we need to give the region to the point generator somehow, but the
-		// scan estimator doesn't have it at present
-		OneDEqualSpacingModel lineModel = new OneDEqualSpacingModel();
-		lineModel.setPoints(10);
-		lineModel.setFastAxisName("x");
-		lineModel.setSlowAxisName("y");
-
-		Object[] models = new Object[nestCount + 1];
-		for (int i = 0; i < nestCount; i++) {
-			models[i] = new StepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10);
-		}
-		models[nestCount] = lineModel;
-		CompoundModel<Object> compoundModel = new CompoundModel<>(models);
-		compoundModel.setRegions(Arrays.asList(region));
-
-		ScanRequest<Object> req = new ScanRequest<>();
-		req.setCompoundModel(compoundModel);
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
-		final int expectedRank = nestCount + 1;
-		assertEquals(expectedRank, scanInfo.getRank());
-		int[] shape = scanInfo.getShape();
-		assertEquals(expectedRank, shape.length);
-		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
-		}
-		assertEquals(10, shape[shape.length - 1]);
 	}
 
 }
