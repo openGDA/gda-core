@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points.validation;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -67,35 +66,22 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 	}
 
 	private void validateAnnotations(Map<String, Object> dmodels) throws ValidationException, IllegalArgumentException, IllegalAccessException, ScanningException {
-
-		for (String name : dmodels.keySet()) {
-
-			// The model we will validate
-			Object model = dmodels.get(name);
-
+		for (Object model : dmodels.values()) {
 			// If the model has an annotated field which points at
 			// a detector, that detector must be in the scan.
-			Field[] fields = model.getClass().getDeclaredFields();
+			final Field[] fields = model.getClass().getDeclaredFields();
 
 			BeanMap beanMap = null; // May need to use newer version of BeanMap in Java9 if it uses setAccessable(true)
 			for (Field field : fields) {
-				Annotation[] anots = field.getAnnotations();
-				for (Annotation annotation : anots) {
-					if (annotation instanceof FieldDescriptor) {
-
-						FieldDescriptor des = (FieldDescriptor)annotation;
-						if (des.device()==DeviceType.RUNNABLE) { // Then its value must be in the devices.
-
-							if (beanMap == null) beanMap = new BeanMap(model);
-							String reference = beanMap.get(field.getName()).toString();
-							if (!dmodels.containsKey(reference)) {
-								IRunnableDeviceService dservice = ValidatorService.getRunnableDeviceService();
-								if (dservice!=null && dservice.getRunnableDevice(reference)!=null) {
-									continue;
-								}
-								String label = des.label()!=null && des.label().length()>0 ? des.label() : field.getName();
-								throw new ModelValidationException("The value of '"+label+"' references a device ("+reference+") not a valid device!", model, field.getName());
-							}
+				final FieldDescriptor des = field.getAnnotation(FieldDescriptor.class);
+				if (des != null && des.device()==DeviceType.RUNNABLE) { // Then its value must be in the devices.
+					if (beanMap == null) beanMap = new BeanMap(model);
+					final String reference = beanMap.get(field.getName()).toString();
+					if (!dmodels.containsKey(reference)) {
+						IRunnableDeviceService dservice = ValidatorService.getRunnableDeviceService();
+						if (dservice == null || dservice.getRunnableDevice(reference) == null) {
+							String label = des.label()!=null && des.label().length()>0 ? des.label() : field.getName();
+							throw new ModelValidationException("The value of '"+label+"' references a device ("+reference+") not a valid device!", model, field.getName());
 						}
 					}
 				}
