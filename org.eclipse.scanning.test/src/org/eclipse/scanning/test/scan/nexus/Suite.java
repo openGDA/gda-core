@@ -30,12 +30,12 @@ import org.junit.runners.Suite.SuiteClasses;
 	MonitorTest.class,
 	ScanMetadataTest.class,
 	ScanOperationPipelineTest.class,
-	// ScanAverageTest.class, // DAQ-1444 Test is currently failing
-	// ScanJythonTest.class, // DAQ-1444 Test is currently failing
+	ScanAverageTest.class,
+	ScanJythonTest.class,
 	ScanClusterProcessingTest.class,
 	SolsticeScanMonitorTest.class,
 	LinearScanTest.class,
-	//ScanTimeoutTest.class, // DAQ-1444 Test is currently failing
+	ScanTimeoutTest.class,
 	NexusStepScanSpeedTest.class
 
 })
