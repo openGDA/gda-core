@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.scanning.api.IServiceResolver;
 import org.eclipse.scanning.api.event.EventException;
@@ -104,8 +104,8 @@ public class AnnotationManager {
 	 */
 	private AnnotationManager(IServiceResolver resolver, Collection<Class<? extends Annotation>> a) {
 		this.resolver = resolver;
-		this.annotationMap = new Hashtable<>(31); // Intentionally synch
-		this.cachedClasses = new Hashtable<>(31); // Intentionally synch
+		this.annotationMap = new ConcurrentHashMap<>();
+		this.cachedClasses = new ConcurrentHashMap<>();
 		this.annotations = a;
 
 		if (resolver!=null) {
