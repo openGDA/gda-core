@@ -968,4 +968,50 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
 		pvProvider.pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
 	}
+
+	@Override
+	public void setHDFNDArrayPort(String port) throws DeviceException {
+		try {
+			pvProvider.pvHDFNDArrayPort.putWait(port);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting HDF NDArray port", e);
+		}
+
+	}
+
+	@Override
+	public void setFileTemplate(String fileTemplate) throws DeviceException {
+		try {
+			pvProvider.pvSetFileTemplate.putWait(fileTemplate);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting file template", e);
+		}
+	}
+
+	@Override
+	public void setHDFXML(String xml) throws DeviceException {
+		try {
+			pvProvider.pvHDFXML.putWait(xml);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting HDF XML", e);
+		}
+	}
+
+	@Override
+	public void setHDFNDAttributeChunk(int chunk) throws DeviceException {
+		try {
+			pvProvider.pvHDFNDAttributeChunk.putWait(chunk);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting HDF NDAttribute chunk", e);
+		}
+	}
+
+	@Override
+	public void setHDFPositionMode(boolean positionMode) throws DeviceException {
+		try {
+			pvProvider.pvHDFPositionMode.putWait(positionMode);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while toggling HDF position mode", e);
+		}
+	}
 }

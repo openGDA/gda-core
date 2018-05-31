@@ -292,4 +292,14 @@ public interface Xspress3Controller extends Findable {
 
 	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException;
 
+	public void setHDFNDArrayPort(String port) throws DeviceException;
+
+	public void setFileTemplate(String fileTemplate) throws DeviceException;
+
+	public void setHDFXML(String xml) throws DeviceException;
+
+	public void setHDFNDAttributeChunk(int chunk) throws DeviceException;
+
+	public void setHDFPositionMode(boolean positionMode) throws DeviceException;
+
 }
