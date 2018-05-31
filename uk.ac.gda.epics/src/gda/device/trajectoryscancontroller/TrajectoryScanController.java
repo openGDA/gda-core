@@ -64,6 +64,10 @@ public interface TrajectoryScanController {
 	 */
 	void sendProfileValues() throws Exception;
 
+	void sendProfileValues(int startIndex, int endIndex) throws Exception;
+
+	void sendAppendProfileValues() throws Exception;
+
 	void setBuildProfile() throws Exception;
 
 	void setAppendProfile() throws Exception;
@@ -105,13 +109,24 @@ public interface TrajectoryScanController {
 	public int getDriveBufferAIndex() throws IOException, Exception;
 
 	public void setProfileNumPoints(int numPoints) throws Exception;
+
 	public void setProfileNumPointsToBuild(int numPoints) throws Exception;
+	public int getProfileNumPointsToBuild() throws Exception;
+
 	public void setProfileVelocityModeArray(Integer[] vals) throws IOException;
+	public Integer[] getProfileVelocityModeArray() throws IOException;
+
 	public void setProfileTimeArray(Double[] vals) throws IOException;
+	public Double[] getProfileTimeArray() throws IOException;
 
 	public void setAxisPoints(int axis, Double [] points)throws IOException, Exception;
+	public Double[] getAxisPoints(int axis) throws IOException, Exception;
 
 	public void setCSPort(int motor,String port) throws IOException, Exception;
 	public void setCSAssignment(int motor, String port) throws IOException, Exception;
+
+	void setProfileUserArray(Integer[] vals) throws IOException;
+	public Integer[] getProfileUserArray() throws IOException;
+
 
 }

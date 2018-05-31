@@ -19,7 +19,6 @@
 package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,13 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 	private volatile boolean trajectoryScanInProgress;
 	private int percentComplete;
 	private volatile ExecuteStatus executeStatus;
+
+	// These arrays store the values passed by calls to set*TimeArray functions
+	// which would be passed to PVs in live mode.
+	private Double[] trajectoryPositionsPv;
+	private Double[] trajectoryTimesPv;
+	private Integer[] userModePv;
+	private Integer[] trajectoryVelocityModesPv;
 
 	public DummyTrajectoryScanController() {
 		setName("DummyTrajectoryScanController");
@@ -113,10 +119,6 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 			}
 		});
 		trajectoryExecutionThread.start();
-	}
-
-	@Override
-	public void sendProfileValues() throws Exception {
 	}
 
 	@Override
@@ -222,24 +224,53 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 		// TODO Auto-generated method stub
 	}
 
+	private int profileNumPointsToBuild;
 	@Override
 	public void setProfileNumPointsToBuild(int numPoints) throws Exception {
-		// TODO Auto-generated method stub
+		profileNumPointsToBuild = numPoints;
+	}
+
+	@Override
+	public int getProfileNumPointsToBuild() throws Exception {
+		return profileNumPointsToBuild;
 	}
 
 	@Override
 	public void setProfileVelocityModeArray(Integer[] vals) throws IOException {
-		trajectoryVelocityModes = Arrays.asList(vals);
+		trajectoryVelocityModesPv = vals;
+	}
+	@Override
+	public Integer[] getProfileVelocityModeArray() throws IOException {
+		return trajectoryVelocityModesPv;
 	}
 
 	@Override
 	public void setProfileTimeArray(Double[] vals) throws IOException {
-		trajectoryTimes = Arrays.asList(vals);
+		trajectoryTimesPv = vals;
+	}
+
+	@Override
+	public Double[] getProfileTimeArray() throws IOException {
+		return trajectoryTimesPv;
 	}
 
 	@Override
 	public void setAxisPoints(int axis, Double[] points) throws IOException, Exception {
-		trajectoryPositions = Arrays.asList(points);
+		trajectoryPositionsPv = points;
+	}
+
+	@Override
+	public Double[] getAxisPoints(int axis) {
+		return trajectoryPositionsPv;
+	}
+
+	@Override
+	public void setProfileUserArray(Integer[] vals) throws IOException {
+		userModePv = vals;
+	}
+	@Override
+	public Integer[] getProfileUserArray() throws IOException {
+		return userModePv;
 	}
 
 	@Override
@@ -251,5 +282,4 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 	public void setCSAssignment(int motor, String port) throws IOException, Exception {
 		// TODO Auto-generated method stub
 	}
-
 }
