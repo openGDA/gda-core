@@ -27,7 +27,7 @@ import org.jline.reader.Highlighter;
 import org.jline.reader.LineReader;
 import org.jline.utils.AttributedString;
 import org.python.core.PyObject;
-import org.python.core.PyString;
+import org.python.core.PyUnicode;
 import org.python.util.InteractiveInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +122,7 @@ final class Highlighters {
 		@Override
 		public AttributedString highlight(LineReader reader, String buffer) {
 			logger.trace("Highlighting: '{}'", buffer);
-			PyObject py_ansi = highlight.__call__(new PyString(buffer));
+			PyObject py_ansi = highlight.__call__(new PyUnicode(buffer));
 			logger.trace("highlighted to '{}'", py_ansi);
 			return AttributedString.fromAnsi(py_ansi.toString());
 		}
