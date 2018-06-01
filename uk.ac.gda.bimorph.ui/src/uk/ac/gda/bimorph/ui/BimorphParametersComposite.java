@@ -536,6 +536,7 @@ public final class BimorphParametersComposite extends Composite {
 		mirrorType.setItems(new String[] { "hfm", "vfm" });
 		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		mirrorType.setLayoutData(gd_combo);
+		mirrorType.select(0);
 		voltageIncrement = new ScaleBox(mirrorGroup, SWT.NONE);
 		voltageIncrement.setMaximum(1000.0);
 		voltageIncrement.setMinimum(-1000.0);
@@ -596,6 +597,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblISign.setText("Slit Scan Starts");
 		iSign = new ComboWrapper(comp1, SWT.NONE);
 		iSign.setItems(new String[] { "upstream", "downstream" });
+		iSign.select(0);
 
 		btnCalculateErrorFile.addValueListener(new ValueListener() {
 
