@@ -132,7 +132,6 @@ public final class BimorphParametersComposite extends Composite {
 		createEllipseGroup();
 		createPresentMirrorSettingsGroup();
 		createNewMirrorSettingsGroup();
-		createReturnVoltagesCheckbox();
 		createScanDataGroup();
 		createBeamGroup();
 		createButtons();
@@ -845,9 +844,6 @@ public final class BimorphParametersComposite extends Composite {
 				}
 			}
 		});
-	}
-
-	public void createReturnVoltagesCheckbox() {
 	}
 
 	public FieldComposite getMirrorScannableName() {
