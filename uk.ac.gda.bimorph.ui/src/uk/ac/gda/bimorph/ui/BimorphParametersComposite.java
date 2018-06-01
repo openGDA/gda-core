@@ -438,7 +438,6 @@ public final class BimorphParametersComposite extends Composite {
 	public void createSlitsGroup() {
 		Group slitsGroup = new Group(this, SWT.NONE);
 		GridData gd_slitsGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_slitsGroup.widthHint = 391;
 		slitsGroup.setLayoutData(gd_slitsGroup);
 		slitsGroup.setLayout(new GridLayout(6, false));
 		slitsGroup.setText("Slits");
@@ -477,7 +476,6 @@ public final class BimorphParametersComposite extends Composite {
 	public void createOtherSlitsGroup() {
 		Group otherSlitsGroup = new Group(this, SWT.NONE);
 		GridData gd_otherSlitsGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_otherSlitsGroup.widthHint = 306;
 		otherSlitsGroup.setLayoutData(gd_otherSlitsGroup);
 		otherSlitsGroup.setLayout(new GridLayout(4, false));
 		otherSlitsGroup.setText("Other Slits");
@@ -504,7 +502,6 @@ public final class BimorphParametersComposite extends Composite {
 	public void createDetectorGroup() {
 		Group detectorGroup = new Group(this, SWT.NONE);
 		GridData gd_detectorGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_detectorGroup.widthHint = 497;
 		detectorGroup.setLayoutData(gd_detectorGroup);
 		detectorGroup.setLayout(new GridLayout(4, false));
 		detectorGroup.setText("Detector");
@@ -521,7 +518,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		detectorName = new TextWrapper(detectorGroup, SWT.BORDER);
 		GridData gd_detectorName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_detectorName.widthHint = 76;
 		detectorName.setLayoutData(gd_detectorName);
 		exposureTime = new ScaleBox(detectorGroup, SWT.NONE);
 		exposureTime.setMaximum(99999);
@@ -540,7 +536,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		Group mirrorGroup = new Group(this, SWT.NONE);
 		GridData gd_mirrorGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_mirrorGroup.widthHint = 610;
 		mirrorGroup.setLayoutData(gd_mirrorGroup);
 		mirrorGroup.setLayout(new GridLayout(4, false));
 		mirrorGroup.setText("Mirror");
@@ -560,15 +555,12 @@ public final class BimorphParametersComposite extends Composite {
 		mirrorType = new ComboWrapper(mirrorGroup, SWT.NONE);
 		mirrorType.setItems(new String[] { "hfm", "vfm" });
 		GridData gd_combo = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_combo.widthHint = 70;
 		mirrorType.setLayoutData(gd_combo);
 		voltageIncrement = new ScaleBox(mirrorGroup, SWT.NONE);
-		((GridData) voltageIncrement.getControl().getLayoutData()).widthHint = 149;
 		voltageIncrement.setMaximum(1000.0);
 		voltageIncrement.setMinimum(-1000.0);
 		voltageIncrement.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		settleTime = new ScaleBox(mirrorGroup, SWT.NONE);
-		((GridData) settleTime.getControl().getLayoutData()).widthHint = 127;
 		settleTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		lblBimorphVoltages = new Label(mirrorGroup, SWT.NONE);
@@ -576,7 +568,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		bimorphVoltages = new TextWrapper(mirrorGroup, SWT.BORDER);
 		GridData gd_bimorphVoltages = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
-		gd_bimorphVoltages.widthHint = 440;
 		bimorphVoltages.setLayoutData(gd_bimorphVoltages);
 		
 		btnGroupElectrodesTogether = new BooleanWrapper(mirrorGroup, SWT.CHECK);
@@ -587,7 +578,6 @@ public final class BimorphParametersComposite extends Composite {
 		
 		bimorphGroups = new TextWrapper(mirrorGroup, SWT.BORDER);
 		GridData gd_bimorphGroups = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
-		gd_bimorphGroups.widthHint = 299;
 		bimorphGroups.setLayoutData(gd_bimorphGroups);
 	}
 
@@ -608,7 +598,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		label_1 = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_label_1.widthHint = 601;
 		label_1.setLayoutData(gd_label_1);
 		Group grpEllipseCalculation = new Group(this, SWT.NONE);
 		grpEllipseCalculation.setText("Ellipse Calculation");
@@ -749,7 +738,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		Composite comp = new Composite(scanDataGroup, SWT.NONE);
 		GridData gd_comp = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_comp.heightHint = 34;
 		comp.setLayoutData(gd_comp);
 		comp.setLayout(new GridLayout(4, false));
 		
@@ -758,14 +746,12 @@ public final class BimorphParametersComposite extends Composite {
 		scanNumberInputs = new TextWrapper(comp, SWT.BORDER);
 		
 		GridData gd_scanNumberInputs = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_scanNumberInputs.widthHint=353;
 		scanNumberInputs.setLayoutData(gd_scanNumberInputs);
 		
 		lblErrorFile = new Label(comp, SWT.NONE);
 		lblErrorFile.setText("Error File");
 		errorFile = new TextWrapper(comp, SWT.BORDER);
 		GridData gd_errorFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_errorFile.widthHint = 59;
 		errorFile.setLayoutData(gd_errorFile);
 
 		Composite comp2 = new Composite(scanDataGroup, SWT.NONE);
@@ -803,7 +789,6 @@ public final class BimorphParametersComposite extends Composite {
 	public void createBeamGroup() {
 		beamOffsetGroup = new Group(this, SWT.NONE);
 		GridData gd_beamOffsetGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_beamOffsetGroup.widthHint = 287;
 		beamOffsetGroup.setLayoutData(gd_beamOffsetGroup);
 		beamOffsetGroup.setLayout(new GridLayout(3, false));
 		beamOffsetGroup.setText("Beam");
@@ -845,11 +830,9 @@ public final class BimorphParametersComposite extends Composite {
 	public void createButtons() {
 		composite = new Composite(this, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_composite.heightHint = 30;
-		gd_composite.widthHint = 627;
 		composite.setLayoutData(gd_composite);
+		composite.setLayout(new GridLayout(1, false));
 		btnRunOptimisation = new Button(composite, SWT.NONE);
-		btnRunOptimisation.setBounds(482, 0, 131, 29);
 		btnRunOptimisation.setAlignment(SWT.LEFT);
 		btnRunOptimisation.setText("Run Optimisation");
 		btnRunOptimisation.addSelectionListener(new SelectionAdapter() {
