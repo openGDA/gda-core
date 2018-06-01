@@ -422,7 +422,6 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createSlitsGroup() {
 		Group slitsGroup = new Group(this, SWT.NONE);
-		groupGridData.applyTo(slitsGroup);
 		slitsGroup.setLayout(new GridLayout(6, false));
 		slitsGroup.setText("Slits");
 		label = new Label(slitsGroup, SWT.NONE);
@@ -438,21 +437,21 @@ public final class BimorphParametersComposite extends Composite {
 		label = new Label(slitsGroup, SWT.NONE);
 		label.setText("Step");
 		slitSizeScannable = new TextWrapper(slitsGroup, SWT.BORDER);
-		slitSizeScannable.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitSizeScannable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitSize = new ScaleBox(slitsGroup, SWT.NONE);
-		slitSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitSize.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitPosScannable = new TextWrapper(slitsGroup, SWT.BORDER);
-		slitPosScannable.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitPosScannable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitStart = new ScaleBox(slitsGroup, SWT.NONE);
-		slitStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitStart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitStart.setMaximum(1000.0);
 		slitStart.setMinimum(-1000.0);
 		slitEnd = new ScaleBox(slitsGroup, SWT.NONE);
-		slitEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitEnd.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitEnd.setMaximum(1000.0);
 		slitEnd.setMinimum(-1000.0);
 		slitStep = new ScaleBox(slitsGroup, SWT.NONE);
-		slitStep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		slitStep.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		slitStep.setMaximum(1000.0);
 		slitStep.setMinimum(-1000.0);
 	}
@@ -471,13 +470,13 @@ public final class BimorphParametersComposite extends Composite {
 		label = new Label(otherSlitsGroup, SWT.NONE);
 		label.setText("Pos");
 		otherSlitSizeScannable = new TextWrapper(otherSlitsGroup, SWT.BORDER);
-		otherSlitSizeScannable.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		otherSlitSizeScannable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		otherSlitSize = new ScaleBox(otherSlitsGroup, SWT.NONE);
-		otherSlitSize.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		otherSlitSize.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		otherSlitPosScannable = new TextWrapper(otherSlitsGroup, SWT.BORDER);
-		otherSlitPosScannable.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		otherSlitPosScannable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		otherSlitPos = new ScaleBox(otherSlitsGroup, SWT.NONE);
-		otherSlitPos.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		otherSlitPos.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		otherSlitPos.setMaximum(1000.0);
 		otherSlitPos.setMinimum(-1000.0);
 	}
@@ -499,7 +498,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblDetectorDistance.setText("detector distance (m)");
 
 		detectorName = new TextWrapper(detectorGroup, SWT.BORDER);
-		GridData gd_detectorName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_detectorName = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		detectorName.setLayoutData(gd_detectorName);
 		exposureTime = new ScaleBox(detectorGroup, SWT.NONE);
 		exposureTime.setMaximum(99999);
@@ -564,7 +563,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createEllipseGroup() {
 		btnRunSlitScan = new Button(this, SWT.NONE);
-		btnRunSlitScan.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		btnRunSlitScan.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false, 1, 1));
 		btnRunSlitScan.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -578,15 +577,17 @@ public final class BimorphParametersComposite extends Composite {
 		btnRunSlitScan.setText("   Run Slit Scan   ");
 
 		label_1 = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_label_1 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		label_1.setLayoutData(gd_label_1);
 		Group grpEllipseCalculation = new Group(this, SWT.NONE);
 		groupGridData.applyTo(grpEllipseCalculation);
 		grpEllipseCalculation.setText("Ellipse Calculation");
 		grpEllipseCalculation.setLayout(new GridLayout(1, false));
+		grpEllipseCalculation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		Composite comp1 = new Composite(grpEllipseCalculation, SWT.NONE);
 		comp1.setLayout(new GridLayout(3, false));
+		comp1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		btnCalculateErrorFile = new BooleanWrapper(comp1, SWT.CHECK);
 		btnCalculateErrorFile.setText("Calculate Error File    ");
@@ -617,10 +618,12 @@ public final class BimorphParametersComposite extends Composite {
 		lblInv.setText("Inv");
 		inv = new ComboWrapper(comp2, SWT.NONE);
 		inv.setItems(new String[] { "1", "-1" });
+		inv.select(0);
 		lblMethod = new Label(comp2, SWT.NONE);
 		lblMethod.setText("Method");
 		method = new ComboWrapper(comp2, SWT.NONE);
 		method.setItems(new String[] { "0", "1", "2" });
+		method.select(0);
 	}
 
 	public void createPresentMirrorSettingsGroup() {
@@ -628,8 +631,10 @@ public final class BimorphParametersComposite extends Composite {
 		groupGridData.applyTo(grpPresentMirrorSettings);
 		grpPresentMirrorSettings.setText("Present Mirror Settings");
 		grpPresentMirrorSettings.setLayout(new GridLayout(1, false));
+		grpPresentMirrorSettings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Composite comp = new Composite(grpPresentMirrorSettings, SWT.NONE);
+		comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		comp.setLayout(new GridLayout(3, false));
 		
 		lblPresentSourcemirrorDistance = new Label(comp, SWT.NONE);
@@ -653,9 +658,11 @@ public final class BimorphParametersComposite extends Composite {
 		
 		btnAutoDist = new BooleanWrapper(grpPresentMirrorSettings, SWT.CHECK);
 		btnAutoDist.setText("Present detector distance <> slit scan detector distance?");
+		btnAutoDist.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		Composite comp2 = new Composite(grpPresentMirrorSettings, SWT.NONE);
 		comp2.setLayout(new GridLayout(2, false));
+		comp2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		lblPresentDetDist = new Label(comp2, SWT.NONE);
 		lblPresentDetDist.setText("Present Detector Distance");
@@ -693,6 +700,7 @@ public final class BimorphParametersComposite extends Composite {
 		groupGridData.applyTo(grpNewMirrorSettings);
 		grpNewMirrorSettings.setText("New Mirror Settings");
 		grpNewMirrorSettings.setLayout(new GridLayout(3, false));
+		grpNewMirrorSettings.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		lblNewSourcemirrorDistance = new Label(grpNewMirrorSettings, SWT.NONE);
 		lblNewSourcemirrorDistance.setText("Source-Mirror Distance");
@@ -720,6 +728,7 @@ public final class BimorphParametersComposite extends Composite {
 		groupGridData.applyTo(scanDataGroup);
 		scanDataGroup.setText("Scan Data");
 		scanDataGroup.setLayout(new GridLayout(1, false));
+		scanDataGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		Composite comp = new Composite(scanDataGroup, SWT.NONE);
 		groupGridData.applyTo(comp);
@@ -776,9 +785,6 @@ public final class BimorphParametersComposite extends Composite {
 		beamOffsetGroup.setText("Beam");
 		btnAutoOffset = new BooleanWrapper(beamOffsetGroup, SWT.CHECK);
 		btnAutoOffset.setText("Auto Offset");
-		lblOffset = new Label(beamOffsetGroup, SWT.NONE);
-		lblOffset.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		lblOffset.setText("Offset");
 		btnAutoOffset.addValueListener(new ValueListener() {
 
 			@Override
@@ -798,6 +804,10 @@ public final class BimorphParametersComposite extends Composite {
 				}
 			}
 		});
+		new Label(beamOffsetGroup, SWT.NONE); // force new line
+		lblOffset = new Label(beamOffsetGroup, SWT.NONE);
+		lblOffset.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		lblOffset.setText("Offset");
 		lblFocusSize = new Label(beamOffsetGroup, SWT.NONE);
 		lblFocusSize.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		lblFocusSize.setText("Focus Size (pixels)");
@@ -811,7 +821,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createButtons() {
 		composite = new Composite(this, SWT.NONE);
-		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		GridData gd_composite = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
 		composite.setLayoutData(gd_composite);
 		composite.setLayout(new GridLayout(1, false));
 		btnRunOptimisation = new Button(composite, SWT.NONE);
