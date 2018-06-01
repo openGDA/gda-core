@@ -130,9 +130,7 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 *
 	 * @return the current status of the consumer.
 	 */
-	default ConsumerStatus getConsumerStatus() {
-		return ConsumerStatus.ALIVE;
-	}
+	public ConsumerStatus getConsumerStatus();
 
 	public String getName();
 	public void setName(String name);

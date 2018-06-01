@@ -104,6 +104,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			IEventService eservice)
 			throws EventException {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
+
+		this.awaitPaused = false;
 		this.consumerStateChangeLock = new ReentrantLock();
 		this.shouldResumeCondition = consumerStateChangeLock.newCondition();
 

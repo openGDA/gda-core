@@ -32,6 +32,7 @@ import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -162,6 +163,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		if (servlet!=null) {
 			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
 			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+			servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
 		}
 	}
 
@@ -170,6 +172,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		if (servlet!=null) {
 			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
 			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+			servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
 			servlet.disconnect();
 		}
 	}

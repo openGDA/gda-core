@@ -4,69 +4,57 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URISyntaxException;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  *
- * When the scan servlet is started:
- * 1. If there are things in the queue it should pause.
- * 2. If the queue is empty it should not pause.
+ * When the scan servlet is started:<ol>
+ * <li>If there are things in the queue it should pause;</li>
+ * <li>If the queue is empty it should not pause.</li>
  *
  * @author Matthew Gerring
- *
  */
 public class StartServerTest extends AbstractServletTest {
 
 	@Override
 	protected AbstractConsumerServlet<ScanBean> createServlet() throws EventException, URISyntaxException {
+		// We don't create the sevlet here as one tests requires a bean to be submitted before connect is called
 		return null;
 	}
 
-
 	@Test
-	@Ignore // DAQ-1444 Test is currently failing
 	public void runServletEmptyQueue() throws Exception {
+		servlet = new ScanServlet();
+		servlet.setBroker(uri.toString());
+		servlet.connect(); // Gets called by Spring automatically
+		servlet.getConsumer().awaitStart();
 
-		ScanServlet servlet = new ScanServlet();
-		try {
-			servlet.setBroker(uri.toString());
-			servlet.connect(); // Gets called by Spring automatically
-			servlet.getConsumer().awaitStart();
-
-			assertEquals(ConsumerStatus.RUNNING, servlet.getConsumer().getConsumerStatus());
-
-		} finally {
-			servlet.disconnect();
-		}
+		assertEquals(ConsumerStatus.RUNNING, servlet.getConsumer().getConsumerStatus());
 	}
 
 	@Test
 	public void runServletSomethingInQueue() throws Exception {
-
 		// We do not start it!
-		ScanServlet servlet = new ScanServlet();
+		servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
 
 		// Now there is something in the queue
 		submit(servlet, createGridScan());
 
-		try {
-			servlet.connect(); // Gets called by Spring automatically
-			servlet.getConsumer().awaitStart();
+		servlet.connect(); // Gets called by Spring automatically
+		servlet.getConsumer().awaitStart();
 
-			assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
-		} finally {
-			servlet.getConsumer().clearQueue(servlet.getSubmitQueue());
-			servlet.getConsumer().clearQueue(servlet.getStatusSet());
-			servlet.disconnect();
-		}
-
+		assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
+		servlet.getConsumer().clearQueue(servlet.getSubmitQueue());
+		servlet.getConsumer().clearQueue(servlet.getStatusSet());
+		servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
+		servlet.disconnect();
 	}
 
 }
