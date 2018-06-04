@@ -66,9 +66,7 @@ public class ExampleMalcolmDeviceTest {
 	 */
 	@Test
 	public void configureAndRunDummyMalcolm() throws Exception {
-
 		try {
-
 			// The real service, get it from OSGi outside this test!
 			// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 			this.service = new RunnableDeviceServiceImpl();
@@ -79,8 +77,7 @@ public class ExampleMalcolmDeviceTest {
 			epicsv4Device = runner.start();
 
 			// Create the device
-			IMalcolmDevice<MalcolmModel> malcolmDevice = (IMalcolmDevice<MalcolmModel>)
-					new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service, null);
+			IMalcolmDevice<MalcolmModel> malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service, null);
 
 			// Setup the model and other configuration items
 			List<IROI> regions = new LinkedList<>();
