@@ -571,4 +571,16 @@ public class ScansSetupUsingXmlTest {
 		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
 	}
+
+	@Test
+	public void testQExafsScanFromBeansXspress2TreeWriter() throws Exception {
+		setupForTest(ScansSetupUsingXmlTest.class, "testQExafsScanFromBeansXspress2TreeWriter");
+		qexafs_xspress.setUseNexusTreeWriter(true);
+		qexafs_xspress.setDetectorNexusFilename("/scratch/xspress2.nxs");
+		loadBeans("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml");
+		EnergyScan energyScan = xasScanFactory.createQexafsScan();
+		energyScan.configureCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
+		energyScan.doCollection();
+		testNexusFileDetectorDataShape();
+	}
 }

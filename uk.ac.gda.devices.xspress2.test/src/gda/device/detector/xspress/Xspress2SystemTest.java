@@ -35,12 +35,7 @@ import org.junit.Test;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.DUMMY_XSPRESS2_MODE;
-import gda.device.detector.DummyDAServer;
-import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
-import gda.device.timer.Etfg;
-import gda.factory.FactoryException;
 import gda.util.TestUtils;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
@@ -51,12 +46,8 @@ import uk.ac.gda.beans.xspress.XspressDetector;
 /**
  * Test the Xspress2System class against DummyDAServer. So this is more of a test of DummyDAServer really.
  */
-public class Xspress2SystemTest {
-	private Xspress2Detector xspress;
+public class Xspress2SystemTest extends Xspress2TestBase {
 	private static String testScratchDirectoryName;
-	final String TestFileFolder = "testfiles/gda/device/detector/xspress/";
-	private DummyDAServer daserver;
-	private Xspress2DAServerController controller;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -67,37 +58,7 @@ public class Xspress2SystemTest {
 
 	@Before
 	public void setUpEachTest() {
-		xspress = new Xspress2Detector();
-		controller = new Xspress2DAServerController();
-		xspress.setController(controller);
-
-		daserver = new DummyDAServer();
-		daserver.setName("DummyDAServer");
-		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
-		daserver.connect();
-		daserver.setNonRandomTestData(true);
-		Etfg tfg = new Etfg();
-		tfg.setName("tfg");
-
-		try {
-			controller.setDaServer(daserver);
-			controller.setTfg(tfg);
-			xspress.setConfigFileName(TestFileFolder + "xspressConfig.xml");
-			xspress.setDtcConfigFileName(TestFileFolder + "Xspress_DeadTime_Parameters.xml");
-			xspress.setName("xspressTest");
-			controller.setDaServer(daserver);
-			controller.setTfg(tfg);
-			controller.setMcaOpenCommand("xspress open-mca");
-			controller.setScalerOpenCommand("xspress open-scalers");
-			controller.setStartupScript("xspress2 format-run 'xsp1' res-none");
-			controller.setXspressSystemName("xsp1");
-			xspress.setFullMCABits(8);
-			xspress.configure();
-		} catch (DeviceException e) {
-			fail(e.getMessage());
-		} catch (FactoryException e) {
-			fail(e.getMessage());
-		}
+		setupDetector();
 	}
 
 	/**
@@ -382,3 +343,4 @@ public class Xspress2SystemTest {
 		}
 	}
 }
+
