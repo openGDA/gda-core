@@ -34,12 +34,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
@@ -94,6 +96,16 @@ public class EpicsSimpleBinaryTest {
 		positioner = new EpicsSimpleBinary();
 		positioner.setName(POSITIONER_NAME);
 		positioner.addIObserver(observer);
+
+		// When channelManager.creationPhaseCompleted is called, pretend the channel used by EpicsSimpleBinary becomes
+		// connected immediately, and call EpicsSimpleBinary.initializationCompleted
+		Mockito.doAnswer(invocation -> {
+			final Method initializationCompletedMethod = EpicsSimpleBinary.class.getDeclaredMethod("initializationCompleted");
+			initializationCompletedMethod.setAccessible(true);
+			initializationCompletedMethod.invoke(positioner);
+			return null;
+		}).when(channelManager).creationPhaseCompleted();
+
 		controllerField.set(positioner, controller);
 		channelManagerField.set(positioner, channelManager);
 	}
