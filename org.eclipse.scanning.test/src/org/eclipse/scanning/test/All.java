@@ -22,16 +22,17 @@ import org.junit.runners.Suite.SuiteClasses;
 	org.eclipse.scanning.test.annot.Suite.class,
 	org.eclipse.scanning.test.command.Suite.class,
 	org.eclipse.scanning.test.epics.Suite.class,
+	org.eclipse.scanning.test.event.Suite.class,
 	org.eclipse.scanning.test.fakespring.Suite.class,
 	org.eclipse.scanning.test.filter.Suite.class,
 	org.eclipse.scanning.test.malcolm.real.Suite.class,
 	org.eclipse.scanning.test.messaging.Suite.class,
 	org.eclipse.scanning.test.points.Suite.class,
 	org.eclipse.scanning.test.remote.Suite.class,
+	org.eclipse.scanning.test.scan.Suite.class,
 	org.eclipse.scanning.test.scan.nexus.Suite.class,
 	org.eclipse.scanning.test.scan.preprocess.Suite.class,
 	org.eclipse.scanning.test.scan.servlet.Suite.class,
-	org.eclipse.scanning.test.scan.Suite.class,
 	org.eclipse.scanning.test.validation.Suite.class,
 
 })
