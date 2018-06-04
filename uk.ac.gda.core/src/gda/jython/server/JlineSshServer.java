@@ -18,6 +18,7 @@
 
 package gda.jython.server;
 
+import java.io.IOError;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Paths;
@@ -113,6 +114,9 @@ public class JlineSshServer {
 		Terminal term = params.getTerminal();
 		try (JythonShell shell = new JythonShell(term, params.getEnv())) {
 			shell.run();
+		} catch (IOError ioe) {
+			// Thrown by jline if the SSH connection is closed unexpectedly
+			logger.error("SSH connection lost", ioe);
 		} catch (Exception e) {
 			term.writer().format("Error connecting to GDA: '%s'", e.getMessage());
 			logger.error("Jython shell failed", e);
