@@ -374,8 +374,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	private Map<String, IDummyMalcolmControlledDevice> devices = null;
 
 	public DummyMalcolmDevice() throws IOException, ScanningException {
-		super(new DummyMalcolmConnectorService(),
-				Services.getRunnableDeviceService()); // Necessary if you are going to spring it
+		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
 		this.model = new DummyMalcolmModel();
 		setupAttributes();
 		setDeviceState(DeviceState.READY);
@@ -854,50 +853,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 
 		layout = createLayoutAttribute();
 		allAttributes.put("layout", layout);
-	}
-
-	/**
-	 * A dummy connector service, as AbstractMalcolmDevice requires one to be created.
-	 * TODO refactor AbstractMalcolmDevice to remove the requirement, then remove this class
-	 */
-	private static class DummyMalcolmConnectorService implements IMalcolmConnection {
-
-		@Override
-		public void disconnect() throws MalcolmDeviceException {
-			// do nothing
-		}
-
-		@Override
-		public MalcolmMessage send(IMalcolmDevice<?> device, MalcolmMessage message)
-				throws MalcolmDeviceException {
-			// do nothing
-			return null;
-		}
-
-		@Override
-		public void subscribe(IMalcolmDevice<?> device, MalcolmMessage msg,
-				IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
-			// do nothing
-		}
-
-		@Override
-		public MalcolmMessage unsubscribe(IMalcolmDevice<?> device, MalcolmMessage msg,
-				IMalcolmListener<MalcolmMessage>... listeners) throws MalcolmDeviceException {
-			// do nothing
-			return null;
-		}
-
-		@Override
-		public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmListener<Boolean> listener)
-				throws MalcolmDeviceException {
-			// do nothing
-		}
-
-		@Override
-		public IMalcolmMessageGenerator getMessageGenerator() {
-			return null;
-		}
-
 	}
 
 }

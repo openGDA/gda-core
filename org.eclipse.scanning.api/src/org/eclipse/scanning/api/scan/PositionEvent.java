@@ -30,7 +30,7 @@ public class PositionEvent extends EventObject {
 	 */
 	private static final long serialVersionUID = 6101070929612847926L;
 
-	private int          level;
+	private int level;
 	private List<? extends ILevel> levelObjects;
 
 	private final IPosition position;
@@ -71,6 +71,40 @@ public class PositionEvent extends EventObject {
 
 	public INameable getDevice() {
 		return (INameable) getSource();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + level;
+		result = prime * result + ((levelObjects == null) ? 0 : levelObjects.hashCode());
+		result = prime * result + ((position == null) ? 0 : position.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PositionEvent other = (PositionEvent) obj;
+		if (level != other.level)
+			return false;
+		if (levelObjects == null) {
+			if (other.levelObjects != null)
+				return false;
+		} else if (!levelObjects.equals(other.levelObjects))
+			return false;
+		if (position == null) {
+			if (other.position != null)
+				return false;
+		} else if (!position.equals(other.position))
+			return false;
+		return true;
 	}
 
 }

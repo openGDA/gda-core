@@ -21,9 +21,9 @@ package org.eclipse.scanning.test.malcolm.real;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -34,9 +34,7 @@ import java.util.Iterator;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPosition;
@@ -86,9 +84,8 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 	@Test
 	public void testReceiveStateChange() throws Exception {
 		// Arrange
-		IMalcolmListener<MalcolmEventBean> malcolmListener = mock(IMalcolmListener.class);
-		malcolmDevice.addMalcolmListener(malcolmListener);
-		DeviceState newState = DeviceState.READY;
+		DeviceState oldState = DeviceState.READY;
+		DeviceState newState = DeviceState.CONFIGURING;
 		MalcolmMessage message = createStateChangeMessage(newState);
 
 		// Act
@@ -97,17 +94,13 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Assert
 		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
 		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
-		@SuppressWarnings("rawtypes")
-		ArgumentCaptor<MalcolmEvent> captor = ArgumentCaptor.forClass(MalcolmEvent.class);
-		verify(malcolmListener).eventPerformed(captor.capture());
-		MalcolmEventBean bean = (MalcolmEventBean) captor.getValue().getBean();
-		assertThat(bean.getPreviousState(), is(nullValue()));
-		assertThat(bean.getDeviceState(), is(newState));
-		assertThat(bean.getMessage(), is(equalTo(message.getMessage())));
+		verify(malcolmEventListener, times(2)).eventPerformed(any(MalcolmEvent.class));
+		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(
+				createExpectedMalcolmEventBean(newState, oldState, "State changed to " + newState))));
 
-		// Now call again. This time, previousState should be READY
+		// Now call again. This time, previousState should be CONFIGURING
 		// Arrange
-		final DeviceState oldState = newState;
+		oldState = newState;
 		newState = DeviceState.ARMED;
 		message = createStateChangeMessage(newState);
 
@@ -115,11 +108,9 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		stateChangeListener.eventPerformed(new MalcolmEvent<>(message));
 
 		// Assert
-		verify(malcolmListener, times(2)).eventPerformed(captor.capture());
-		bean = (MalcolmEventBean) captor.getValue().getBean();
-		assertThat(bean.getPreviousState(), is(oldState));
-		assertThat(bean.getDeviceState(), is(newState));
-		assertThat(bean.getMessage(), is(equalTo(message.getMessage())));
+		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
+		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(
+				createExpectedMalcolmEventBean(newState, oldState, "State changed to " + newState))));
 	}
 
 	@Test
@@ -156,51 +147,62 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		((MalcolmDevice<?>) malcolmDevice).addPositionListener(positionListener);
 
 		// Act: create and send the first message to the malcolm device
+		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL); // sleep for the position complete frequency, so the next event should fire
 		int stepNum = 0;
 		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
 
 		// Assert: check that the listener received the correct message
-		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
-		verify(positionListener).positionPerformed(captor.capture());
-		PositionEvent event = captor.getValue();
-		assertThat(event.getDevice().getName(), is(equalTo(malcolmDevice.getName())));
-		assertThat(event.getSource(), is(sameInstance(malcolmDevice)));
-		IPosition position = event.getPosition();
-		assertThat(position, is(equalTo(new Scalar<>("x", stepNum, stepNum))));
+		ArgumentCaptor<PositionEvent> positionCaptor = ArgumentCaptor.forClass(PositionEvent.class);
+		verify(positionListener).positionPerformed(new PositionEvent(new Scalar<>("x", stepNum, stepNum), malcolmDevice));
+
 		verifyNoMoreInteractions(positionListener);
 
-		// Act again: send another message to the malcolm device. Note malcolm doesn't notify every position
+		// Act again: send another message to the malcolm device. This should not cause a position event
+		// to be fired, due to throttling by the MalcolmDevice
 		stepNum = 5;
 		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
-		verifyNoMoreInteractions(positionListener); // We throttle the updates to every 250ms by default, so no update
+		verifyNoMoreInteractions(positionListener); //
 
 		// sleep for the position complete frequency, so the next event should fire
-		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL + 10);
+		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL);
 		stepNum = 10;
 		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
-		verify(positionListener, times(2)).positionPerformed(captor.capture());
-		event = captor.getValue();
-		assertThat(event.getDevice().getName(), is(equalTo(malcolmDevice.getName())));
-		assertThat(event.getSource(), is(sameInstance(malcolmDevice)));
-		position = event.getPosition();
-		assertThat(position, is(equalTo(new Scalar<>("x", stepNum, stepNum))));
+		verify(positionListener).positionPerformed(new PositionEvent(new Scalar<>("x", stepNum, stepNum), malcolmDevice));
 		verifyNoMoreInteractions(positionListener);
 		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
 		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testConnectionStateChange() throws Exception {
+		// Arrange
 		assertThat(malcolmDevice.isAlive(), is(true));
-		connectionChangeListener.eventPerformed(new MalcolmEvent<>(false));
-		assertThat(malcolmDevice.isAlive(), is(false));
 
+		// Act
+		connectionChangeListener.eventPerformed(new MalcolmEvent<>(false));
+
+		// Assert
+		assertThat(malcolmDevice.isAlive(), is(false));
+		// verify that a state change event is received, from ARMED to OFFLINE
+		verify(malcolmEventListener, timeout(100).times(2)).eventPerformed(any(MalcolmEvent.class));
+		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(createExpectedMalcolmEventBean(
+				DeviceState.OFFLINE, DeviceState.READY, "disconnected from " + malcolmDevice.getName()))));
+
+		// Arrange
 		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, "state");
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
+
+		// Act
 		connectionChangeListener.eventPerformed(new MalcolmEvent<>(true));
 		assertThat(malcolmDevice.isAlive(), is(true));
-		Thread.sleep(100); // short sleep as the call to get device state happens in a different thread
-		verify(malcolmConnection).send(malcolmDevice, expectedGetDeviceStateMessage);
+
+		// Assert
+		verify(malcolmConnection, timeout(100)) // wait with timeout as invocation happens in a another thread
+				.send(malcolmDevice, expectedGetDeviceStateMessage);
+		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
+		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(createExpectedMalcolmEventBean(
+				DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
 	}
 
 }

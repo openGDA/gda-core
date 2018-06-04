@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -102,32 +102,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		}
 	}
 
-	public static class BeanCollectingAnswer implements Answer<Void> {
-
-		private List<ScanBean> beansReceived = new ArrayList<>();
-
-		@Override
-		public Void answer(InvocationOnMock invocation) throws Throwable {
-			// clone the scan bean, as AcqusitionDevice modifies the bean each time.
-			// otherwise we'll get the bean as it is now, not as it was sent
-			final ScanBean bean = invocation.getArgumentAt(0, ScanBean.class);
-			beansReceived.add(new ScanBean(bean));
-			return null;
-		}
-
-		public List<ScanBean> getBeansReceived() {
-			final List<ScanBean> beans = beansReceived;
-			beansReceived = new ArrayList<>(); // clear the beans received for next time
-			return beans;
-		}
-
-		public ScanBean getBeanReceived() {
-			assertThat(beansReceived, hasSize(1));
-			return getBeansReceived().get(0);
-		}
-
-	}
-
 	@Mock
 	private IScannableDeviceService scannableDeviceService;
 
@@ -180,7 +154,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	public void testMalcolmScan() throws Exception {
 		// Arrange. Use a special answer that collects
 		// creates a answer that collects and clones the beans its called with - TODO move to setUp?
-		BeanCollectingAnswer beanCaptor = new BeanCollectingAnswer();
+		BeanCollectingAnswer<ScanBean> beanCaptor = BeanCollectingAnswer.forClass(ScanBean.class, ScanBean::new);
 		doAnswer(beanCaptor).when(publisher).broadcast(any(ScanBean.class));
 
 		// Act: create and configure the scan
@@ -189,7 +163,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Assert: verify the correct events have been fired while configuring the scan
 		expectedNumPublishedBeans = 2;
 		verify(publisher, times(expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		List<ScanBean> beans = beanCaptor.getBeansReceived();
+		List<ScanBean> beans = beanCaptor.getAllValues();
 		// TODO for the moment the assertion below verifies what AcqusitionDevice currently does, so that the test passes
 		// Before refactoring, these should be updated to reflect what we think the correct seqeuence is of
 		// Status and DeviceState changes should be. Then the code should be refactored and fixed to pass the updated test
@@ -200,7 +174,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// TODO replace with assertThat collection contains?
 
 		// Arrange: set up the malcolm connection to respond to the run message with a WaitingAnswer
-		MalcolmMessage expectedRunMessage1 = createExpectedCallMessage(6, MalcolmMethod.RUN, null);
+		MalcolmMessage expectedRunMessage1 = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
 		WaitingAnswer<MalcolmMessage> runAnswer = new WaitingAnswer<MalcolmMessage>(
 				createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedRunMessage1)).thenAnswer(runAnswer);
@@ -213,7 +187,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		runAnswer.waitUntilCalled();
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
 		assertThat(beans, hasSize(2));
-		ScanBean bean = beanCaptor.getBeanReceived();
+		ScanBean bean = beanCaptor.getValue();
 		scanBean.setSize(200); // AcquisitionDevice has now set scan size and start time in the ScanBean
 		scanBean.setStartTime(bean.getStartTime());
 		assertThat(bean, is(equalTo(createExpectedStateChangeBean(DeviceState.RUNNING, DeviceState.ARMED, Status.RUNNING, Status.QUEUED))));
@@ -244,32 +218,33 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 	}
 
-	private void checkCompletedSteps(BeanCollectingAnswer beanCaptor)
+	private void checkCompletedSteps(BeanCollectingAnswer<ScanBean> beanCaptor)
 			throws EventException, InterruptedException {
 		// fire an scan event updating last position and check the expected ScanBean is published
+		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL); // sleep for the position complete frequency, so the next event should fire
+
 		int completedSteps = 25;
 		scanEventListener.eventPerformed(createPositionEvent(completedSteps));
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		assertThat(beanCaptor.getBeanReceived(), is(equalTo(createExpectedCompleteStepsBean(completedSteps))));
+		assertThat(beanCaptor.getValue(), is(equalTo(createExpectedCompleteStepsBean(completedSteps))));
 
 		// fire another update, this one won't cause a ScanBean to be published as it occurs too soon after the previous one
 		completedSteps = 30;
 		scanEventListener.eventPerformed(createPositionEvent(completedSteps));
 		verify(publisher, times(expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		assertThat(beanCaptor.getBeansReceived(), is(empty()));
+		assertThat((Collection<?>) beanCaptor.getAllValues(), is(empty()));
 
 		// sleep for over the position complete interval before firing the next event, an ScanBean is published again this time
 		Thread.sleep(POSITION_COMPLETE_INTERVAL + 10);
 		completedSteps = 50;
 		scanEventListener.eventPerformed(createPositionEvent(completedSteps));
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		assertThat(beanCaptor.getBeanReceived(), is(equalTo(createExpectedCompleteStepsBean(completedSteps))));
+		assertThat(beanCaptor.getValue(), is(equalTo(createExpectedCompleteStepsBean(completedSteps))));
 	}
 
-	private void checkPauseAndResumeScan(BeanCollectingAnswer beanCaptor, final IRunnableDevice<ScanModel> scanner)
+	private void checkPauseAndResumeScan(BeanCollectingAnswer<ScanBean> beanCaptor, final IRunnableDevice<ScanModel> scanner)
 			throws MalcolmDeviceException, ScanningException, InterruptedException, EventException {
 		// Arrange
-		id = 7; // TODO what are the previous messages?
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, "state")))
 				.thenReturn(createExpectedMalcolmOkReply("running"));
 		when(malcolmConnection.send(malcolmDevice, createExpectedCallMessage(id++, MalcolmMethod.PAUSE, null)))
@@ -280,7 +255,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Assert
 		verify(publisher, times(expectedNumPublishedBeans += 2)).broadcast(any(ScanBean.class));
-		List<ScanBean> beans = beanCaptor.getBeansReceived();
+		List<ScanBean> beans = beanCaptor.getAllValues();
 		assertThat(beans, hasSize(2));
 		// TODO DAQ-1410, ScanBean should only have DeviceState set to PAUSED when the MalcolmDevice sends us
 		// a state change with a DeviceState of PAUSED.
@@ -305,7 +280,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Assert
 		verify(publisher, times(++expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
-		assertThat(beanCaptor.getBeanReceived(), is(equalTo(createExpectedStateChangeBean(
+		assertThat(beanCaptor.getValue(), is(equalTo(createExpectedStateChangeBean(
 				DeviceState.RUNNING, DeviceState.PAUSED, Status.RESUMED, Status.RUNNING))));
 
 		// send a state change event to say the malcolm device is running, currently this is ignored
@@ -354,11 +329,11 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn
 		// call methods in the mocked communication layer, so we need to set up replies for those
-		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(3, Type.GET, "state");
+		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, "state");
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute(new String[] { "stage_x", "stage_y" }));
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(4, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply);
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(5, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply); // This is called at 2 different points
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply);
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply); // This is called at 2 different points
 
 		return runnableDeviceService.createRunnableDevice(scanModel, publisher);
 	}

@@ -16,12 +16,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -36,12 +30,8 @@ import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
-import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
-import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -62,18 +52,11 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	// Events
 	protected MalcolmEventDelegate eventDelegate;
 
-	// Connection to serialization to talk to the remote object
-	private IMalcolmMessageGenerator messageGenerator;
-	private IMalcolmConnection malcolmConnection;
-
 	protected IPointGenerator<?> pointGenerator;
 	protected String fileDir;
 
-	public AbstractMalcolmDevice(IMalcolmConnection malcolmConnection,
-			IRunnableDeviceService runnableDeviceService) {
+	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
-		this.malcolmConnection = malcolmConnection;
-		this.messageGenerator = malcolmConnection.getMessageGenerator();
 		this.eventDelegate = new MalcolmEventDelegate();
 		setRole(DeviceRole.MALCOLM);
 		setSupportedScanMode(ScanMode.HARDWARE);
@@ -209,73 +192,4 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		return new HashSet<>(Arrays.asList(axesToMove));
 	}
 
-	protected MalcolmMessage createGetMessage(String endpoint) throws MalcolmDeviceException {
-		return messageGenerator.createGetMessage(endpoint);
-	}
-
-	protected MalcolmMessage createCallMessage(MalcolmMethod method, Object params) throws MalcolmDeviceException {
-		return messageGenerator.createCallMessage(method, params);
-	}
-
-	protected MalcolmMessage createSubscribeMessage(String endpoint) {
-		return messageGenerator.createSubscribeMessage(endpoint);
-	}
-
-	protected MalcolmMessage createUnsubscribeMessage() {
-		return messageGenerator.createUnsubscribeMessage();
-	}
-
-	protected void subscribe(MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
-		malcolmConnection.subscribe(this, subscribeMessage, listener);
-	}
-
-	@SuppressWarnings("unchecked")
-	protected MalcolmMessage unsubscribe(MalcolmMessage unsubscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
-		return malcolmConnection.unsubscribe(this, unsubscribeMessage, listener);
-	}
-
-	protected void subscribeToConnectionStateChange(IMalcolmListener<Boolean> listener) throws MalcolmDeviceException {
-		malcolmConnection.subscribeToConnectionStateChange(this, listener);
-	}
-
-	protected MalcolmMessage send(MalcolmMessage message, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("Sending message to malcolm device: {}", message);
-		return asynch(()->malcolmConnection.send(this, message), timeout);
-	}
-
-	protected MalcolmMessage call(MalcolmMethod method, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("Calling method on malcolm device: {}", method);
-		return asynch(()->call(method), timeout);
-	}
-
-	private MalcolmMessage call(MalcolmMethod method) throws MalcolmDeviceException {
-		final MalcolmMessage msg = messageGenerator.createCallMessage(method);
-		MalcolmMessage reply = malcolmConnection.send(this, msg);
-		return reply;
-	}
-
-	/**
-	 * Calls the function but wraps the exception if it is not MalcolmDeviceException
-	 * @param callable
-	 * @return
-	 * @throws MalcolmDeviceException
-	 */
-	protected MalcolmMessage wrap(Callable<MalcolmMessage> callable) throws MalcolmDeviceException {
-		try {
-			return callable.call();
-		} catch (MalcolmDeviceException m) {
-			throw m;
-		} catch (Exception other) {
-			throw new MalcolmDeviceException(this, other);
-		}
-	}
-
-	private MalcolmMessage asynch(final Callable<MalcolmMessage> callable, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		final ExecutorService service = Executors.newSingleThreadExecutor();
-		try {
-			return service.submit(callable).get(timeout, TimeUnit.MILLISECONDS);
-		} finally {
-			service.shutdownNow();
-		}
-	}
 }

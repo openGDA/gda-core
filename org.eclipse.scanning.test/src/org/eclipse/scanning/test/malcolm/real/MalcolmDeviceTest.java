@@ -151,7 +151,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
 
 		// create the expected validate message and configure the mock connection to reply as expected
-		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(0, MalcolmMethod.VALIDATE, expectedMalcolmModel);
+		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
 		// Act
@@ -166,7 +166,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// Arrange, now with an error response
 		final String errorMessage = "Invalid model";
-		expectedValidateMessage = createExpectedCallMessage(1, MalcolmMethod.VALIDATE, expectedMalcolmModel);
+		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
 
 		// Act / Assert , this time an error should occur
@@ -237,8 +237,8 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
 
 		// create the expected reset and configure message and configure the mock connection to reply as expected
-		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(3, MalcolmMethod.RESET, null);
-		final MalcolmMessage expectedConfigureMessage = createExpectedCallMessage(4, MalcolmMethod.CONFIGURE, expectedMalcolmModel);
+		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+		final MalcolmMessage expectedConfigureMessage = createExpectedCallMessage(id++, MalcolmMethod.CONFIGURE, expectedMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedConfigureMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
@@ -258,7 +258,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	private void testCall(MalcolmCall malcolmCall, MalcolmMethod method, Object params) throws Exception {
 		// Arrange
-		MalcolmMessage expectedRunMessage = createExpectedCallMessage(0, method, params);
+		MalcolmMessage expectedRunMessage = createExpectedCallMessage(id++, method, params);
 		when(malcolmConnection.send(malcolmDevice, expectedRunMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
 		// Act
@@ -269,7 +269,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// Arrange, this time with an error message
 		final String errorMessage = "Could not " + method; // e.g. 'Could not run'
-		expectedRunMessage = createExpectedCallMessage(1, method, params);
+		expectedRunMessage = createExpectedCallMessage(id++, method, params);
 		when(malcolmConnection.send(malcolmDevice, expectedRunMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
 
 		// Act / Assert

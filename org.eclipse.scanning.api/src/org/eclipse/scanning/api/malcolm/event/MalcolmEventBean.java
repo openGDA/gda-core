@@ -65,6 +65,19 @@ public final class MalcolmEventBean {
 		this.message = message;
 	}
 
+	public MalcolmEventBean(MalcolmEventBean bean) {
+		this.deviceName = bean.deviceName;
+		this.beamline = bean.beamline;
+		this.percentComplete = bean.percentComplete;
+		this.message = bean.message;
+		this.deviceState = bean.deviceState;
+		this.previousState = bean.previousState;
+		this.filePath = bean.filePath;
+		this.datasetPath = bean.datasetPath;
+		this.oldShape = bean.oldShape;
+		this.newShape = bean.newShape;
+	}
+
 	public String getFilePath() {
 		return filePath;
 	}
