@@ -90,6 +90,7 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanInformation;
 import gda.scan.ScanInterruptedException;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.concurrent.Threads;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -1003,6 +1004,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 				// Any command run from a script should also be thought of as a script
 				scripted = ((JythonServerThread)current).scripted;
 			}
+
+			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
 
 		public String getJythonServerThreadId() {
