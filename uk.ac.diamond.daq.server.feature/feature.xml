@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.diamond.daq.server.feature"
       label="Main Data Acquisition Server Feature"
-      version="9.8.0.qualifier"
+      version="9.9.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
