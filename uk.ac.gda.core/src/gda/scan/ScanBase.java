@@ -58,6 +58,7 @@ import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
 import gda.scan.Scan.ScanStatus;
+import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -658,20 +659,18 @@ public abstract class ScanBase implements NestableScan {
 
 	@Override
 	public ScanInformation getScanInformation() {
-		ScanInformation currentInfo = new ScanInformation();
-		currentInfo.setDimensions(getDimensions());
+		ScanInformationBuilder currentInfo = new ScanInformationBuilder().dimensions(getDimensions());
 		// might not be defined at start of scan
 		if (scanDataPointPipeline != null || manuallySetDataWriter != null) {
-			currentInfo.setScanNumber(scanNumber);
-			currentInfo.setFilename(getDataWriter().getCurrentFileName());
+			currentInfo
+				.scanNumber(scanNumber)
+				.filename(getDataWriter().getCurrentFileName());
 		}
-		currentInfo.setInstrument(instrument);
-		currentInfo.setNumberOfPoints(getTotalNumberOfPoints()); // TODO is this correct??
-		String[] scannables = ScannableUtils.getScannableNames(getScannables()).toArray(new String[] {});
-		String[] detectors = ScannableUtils.getScannableNames(getDetectors()).toArray(new String[] {});
-		currentInfo.setScannableNames(scannables);
-		currentInfo.setDetectorNames(detectors);
-		return currentInfo;
+		return currentInfo.instrument(instrument)
+				.numberOfPoints(getTotalNumberOfPoints()) // TODO is this correct??
+				.scannableNames(ScannableUtils.getScannableNames(getScannables()))
+				.detectorNames(ScannableUtils.getScannableNames(getDetectors()))
+				.build();
 	}
 
 	protected void shutdownScandataPipeline(boolean waitForProcessingCompletion) throws DeviceException {

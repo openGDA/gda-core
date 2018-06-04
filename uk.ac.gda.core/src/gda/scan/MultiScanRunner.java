@@ -19,11 +19,6 @@
 package gda.scan;
 
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
-import gda.configuration.properties.LocalProperties;
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -32,6 +27,13 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.scan.ScanInformation.ScanInformationBuilder;
 
 public class MultiScanRunner implements NestableScan, ContiguousScan {
 	private static final Logger logger = LoggerFactory.getLogger(MultiScanRunner.class);
@@ -137,18 +139,19 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 	@Override
 	public ScanInformation getScanInformation() {
 		ScanInformation info = first.getScanInformation();
+		ScanInformationBuilder newInfo = ScanInformationBuilder.from(info);
 
 		int[] dimensions = info.getDimensions();
 		dimensions = ArrayUtils.add(dimensions, 0, scans.size());
-		info.setDimensions(dimensions);
+		newInfo.dimensions(dimensions);
 
 		int points = 0;
 		for (MultiScanItem scan : scans) {
 			points += scan.scan.getScanInformation().getNumberOfPoints();
 		}
-		info.setNumberOfPoints(points);
+		newInfo.numberOfPoints(points);
 
-		return info;
+		return newInfo.build();
 	}
 
 	@Override

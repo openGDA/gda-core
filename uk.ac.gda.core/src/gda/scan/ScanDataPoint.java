@@ -38,6 +38,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
+import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.Serializer;
 import uk.ac.gda.util.map.MapUtils;
 
@@ -49,7 +50,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPoint.class);
 
-	private ScanInformation scanInfo = new ScanInformation();
+	private ScanInformation scanInfo = ScanInformation.EMPTY;
 
 	/**
 	 * The delimiter used by toString() method.
@@ -320,7 +321,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addDetector(Detector det) {
-		scanInfo.setDetectorNames((String[]) ArrayUtils.add(scanInfo.getDetectorNames(), det.getName()));
+		ScanInformationBuilder newInfo = ScanInformationBuilder.from(scanInfo);
+		newInfo.detectorNames((String[]) ArrayUtils.add(scanInfo.getDetectorNames(), det.getName()));
+		scanInfo = newInfo.build();
 		String[] extraNames = det.getExtraNames();
 		if (extraNames != null && extraNames.length > 0) {
 			detectorHeader = (String[]) ArrayUtils.addAll(detectorHeader, extraNames);
@@ -339,7 +342,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public void addScannable(Scannable scannable) {
-		scanInfo.setScannableNames((String[]) ArrayUtils.add(scanInfo.getScannableNames(), scannable.getName()));
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.scannableNames((String[]) ArrayUtils.add(scanInfo.getScannableNames(), scannable.getName()))
+				.build();
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getInputNames());
 		scannableHeader = (String[]) ArrayUtils.addAll(scannableHeader, scannable.getExtraNames());
 		scannables.add(scannable);
@@ -697,7 +702,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setScanDimensions(int[] scanDimensions) {
-		scanInfo.setDimensions(scanDimensions);
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.dimensions(scanDimensions)
+				.build();
 	}
 
 	@Override
@@ -828,7 +835,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setCurrentFilename(String currentFilename) {
-		scanInfo.setFilename(currentFilename);
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.filename(currentFilename)
+				.build();
 	}
 
 	@Override
@@ -843,7 +852,9 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setInstrument(String instrument) {
-		scanInfo.setInstrument(instrument);
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.instrument(instrument)
+				.build();
 	}
 
 	/**
@@ -857,12 +868,16 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	@Override
 	public void setNumberOfPoints(int numberOfPoints) {
-		scanInfo.setNumberOfPoints(numberOfPoints);
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.numberOfPoints(numberOfPoints)
+				.build();
 	}
 
 	@Override
 	public void setScanIdentifier(int scanIdentifier) {
-		scanInfo.setScanNumber(scanIdentifier);
+		scanInfo = ScanInformationBuilder.from(scanInfo)
+				.scanNumber(scanIdentifier)
+				.build();
 	}
 
 	@Override
