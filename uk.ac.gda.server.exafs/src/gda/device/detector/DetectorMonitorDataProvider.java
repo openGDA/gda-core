@@ -362,12 +362,11 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	 * @throws Exception
 	 */
 	private Double[] getIonChambersForMedipix() throws Exception {
-		ScanInformation scanInfo = new ScanInformation();
 		// Should be MultipleExposureHardwareTriggeredStrategy for medipix
 		SimpleAcquire acquire = ( (SimpleAcquire) medipixDetector.getCollectionStrategy());
 
 		acquire.getAdBase().setArrayCallbacks(1); // set callback on array plugin
-		acquire.prepareForCollection(1, 1, scanInfo);
+		acquire.prepareForCollection(1, 1, ScanInformation.EMPTY);
 
 		ionchambers.setCollectionTime(collectionTime);
 		ionchambers.collectData();
