@@ -471,6 +471,7 @@ public class BatonManager implements IBatonManager {
 
 		public LeaseRefresher(){
 			super("BatonManagerLeaseRefresher");
+			setDaemon(true);
 		}
 
 		@Override
