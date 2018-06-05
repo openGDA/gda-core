@@ -37,8 +37,10 @@ import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1147")
 public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog edog, tdog;

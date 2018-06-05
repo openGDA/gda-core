@@ -56,7 +56,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING) // TODO This should also probably be removed it suggests a bad test.
+@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1147")
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 
