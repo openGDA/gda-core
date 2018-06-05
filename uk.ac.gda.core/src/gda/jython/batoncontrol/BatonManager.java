@@ -445,13 +445,6 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	private void notifyServerOfBatonLeaseRenewRequest() {
-		// during object server startup, this may come back null
-		if (InterfaceProvider.getJythonServerNotifer() != null) {
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonLeaseRenewRequest());
-		}
-	}
-
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
 		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().equals("")) {
@@ -524,6 +517,13 @@ public class BatonManager implements IBatonManager {
 						}
 					}
 				}
+			}
+		}
+
+		private void notifyServerOfBatonLeaseRenewRequest() {
+			// during object server startup, this may come back null
+			if (InterfaceProvider.getJythonServerNotifer() != null) {
+				InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonLeaseRenewRequest());
 			}
 		}
 	}
