@@ -52,7 +52,7 @@ public class BatonManager implements IBatonManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(BatonManager.class);
 
-	private final long LEASETIMEOUT = 60000; // 1 minute in milliseconds
+	private static final long LEASE_TIMEOUT = 60000; // 1 minute in milliseconds
 
 	private AtomicInteger facadeIndex = new AtomicInteger();
 
@@ -80,7 +80,7 @@ public class BatonManager implements IBatonManager {
 
 		useRBAC = LocalProperties.isAccessControlEnabled();
 
-		new leaseRefresher().start();
+		new LeaseRefresher().start();
 
 		logger.info("Started baton manager. firstClientTakesBaton={}, useBaton={}, useRBAC={}", firstClientTakesBaton,
 				useBaton, useRBAC);
@@ -474,9 +474,9 @@ public class BatonManager implements IBatonManager {
 	 * Loops continually, informing GUIs to get in touch else lose their lease. Baton holders whose lose their lease
 	 * lose the baton.
 	 */
-	private class leaseRefresher extends Thread {
+	private class LeaseRefresher extends Thread {
 
-		public leaseRefresher(){
+		public LeaseRefresher(){
 			super("BatonManagerLeaseRefresher");
 		}
 
@@ -487,7 +487,7 @@ public class BatonManager implements IBatonManager {
 				try {
 					// clean up the list
 					removeTimeoutLeases();
-					Thread.sleep(LEASETIMEOUT/2-2000);
+					Thread.sleep(LEASE_TIMEOUT/2-2000);
 					// send out a notification to all clients, forcing them to update their UI and so updating their
 					// leases
 					notifyServerOfBatonLeaseRenewRequest();
@@ -515,7 +515,7 @@ public class BatonManager implements IBatonManager {
 
 				for (int i = 0; i < clientIDs.length; i++) {
 					Long leaseStart = leaseHolders.get(clientIDs[i]);
-					if (now - leaseStart > LEASETIMEOUT) {
+					if (now - leaseStart > LEASE_TIMEOUT) {
 						leaseHolders.remove(clientIDs[i]);
 						if (amIBatonHolder(clientIDs[i], false)) {
 							logger.warn("Baton holder timeout, so baton released after " + ((now - leaseStart) / 1000)
