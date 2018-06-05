@@ -19,14 +19,6 @@
 
 package gda.jython.batoncontrol;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
-import gda.data.metadata.Metadata;
-import gda.data.metadata.StoredMetadataEntry;
-import gda.device.DeviceException;
-import gda.jython.InterfaceProvider;
-
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -37,6 +29,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
+import gda.data.metadata.StoredMetadataEntry;
+import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
 
 /**
  * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton which can be 'requested' by one of the
@@ -81,6 +81,9 @@ public class BatonManager implements IBatonManager {
 		useRBAC = LocalProperties.isAccessControlEnabled();
 
 		new leaseRefresher().start();
+
+		logger.info("Started baton manager. firstClientTakesBaton={}, useBaton={}, useRBAC={}", firstClientTakesBaton,
+				useBaton, useRBAC);
 	}
 
 	@Override
@@ -146,6 +149,10 @@ public class BatonManager implements IBatonManager {
 				renewLease(uniqueID);
 				notifyServerOfBatonChange();
 			}
+			logger.info("Added new facade id='{}' client details='{}'", uniqueID, info);
+			logger.info("Now have {} facades", facadeNames.size());
+		} else {
+			logger.warn("Tried to add an facade with an invalid identifier: {}", uniqueID);
 		}
 	}
 
@@ -175,6 +182,8 @@ public class BatonManager implements IBatonManager {
 			//do a refresh anyway if any changes had been made
 			notifyServerOfBatonChange();
 		}
+		logger.info("Switched user. uniqueFacadeName='{}' username='{}' accessLevel='{}' visitID='{}'",
+				uniqueFacadeName, username, accessLevel, visitID);
 	}
 
 	@Override
@@ -183,6 +192,7 @@ public class BatonManager implements IBatonManager {
 		facadeNames.remove(uniqueID);
 		leaseHolders.remove(uniqueID);
 		notifyServerOfBatonChange();
+		logger.info("Removed facade '{}' now have {} facades", uniqueID, facadeNames.size());
 	}
 
 	@Override
@@ -269,6 +279,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public synchronized boolean requestBaton(String uniqueIdentifier) {
+		logger.info("Baton requested by: {}", uniqueIdentifier);
 
 		// if am already baton holder
 		if (this.batonHolder.equals(uniqueIdentifier)) {
@@ -297,6 +308,7 @@ public class BatonManager implements IBatonManager {
 					new BatonRequested(new ClientDetails(other, false)));
 		}
 
+		logger.warn("Baton request from '{}' was denied", uniqueIdentifier);
 		// if get here then cannot take baton
 		return false;
 	}
@@ -397,6 +409,9 @@ public class BatonManager implements IBatonManager {
 //			}
 			changeBatonHolder("");
 			renewLease(uniqueIdentifier);
+			logger.info("Baton returned by: {}", uniqueIdentifier);
+		} else {
+			logger.warn("Baton was not returned by: {}", uniqueIdentifier);
 		}
 	}
 
@@ -456,6 +471,7 @@ public class BatonManager implements IBatonManager {
 		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().equals("")) {
 			leaseHolders.put(myJSFIdentifier, new GregorianCalendar().getTimeInMillis());
 		}
+		logger.trace("Lease renewed by: {}", myJSFIdentifier);
 	}
 
 	@Override
