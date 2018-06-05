@@ -19,6 +19,17 @@
 
 package gda.jython.batoncontrol;
 
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
@@ -26,17 +37,6 @@ import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
-
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton which can be 'requested' by one of the
@@ -52,23 +52,23 @@ public class BatonManager implements IBatonManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(BatonManager.class);
 
-	private final long LEASETIMEOUT = 60000; // 1 minute in milliseconds
+	private static final long LEASE_TIMEOUT = 60000; // 1 minute in milliseconds
 
 	private AtomicInteger facadeIndex = new AtomicInteger();
 
 	private String batonHolder = "";
 
 	// holds <servername, access level>
-	private volatile Hashtable<String, ClientInfo> facadeNames = new Hashtable<String, ClientInfo>(20, 0.25F);
+	private final Map<String, ClientInfo> facadeNames = new ConcurrentHashMap<>();
 
 	// holds <unique id, time lease renewed>. Those Clients who have recently interacted with the Jython Server.
-	private volatile Hashtable<String, Long> leaseHolders = new Hashtable<String, Long>();
+	private final Map<String, Long> leaseHolders = new ConcurrentHashMap<>();
 
-	private boolean firstClientTakesBaton = false;
+	private final boolean firstClientTakesBaton;
 
-	private boolean useBaton = false;
+	private final boolean useBaton;
 
-	private boolean useRBAC = false;
+	private final boolean useRBAC;
 
 	private boolean disableControlOverVisitMetadataEntry = false;
 
@@ -80,7 +80,10 @@ public class BatonManager implements IBatonManager {
 
 		useRBAC = LocalProperties.isAccessControlEnabled();
 
-		new leaseRefresher().start();
+		new LeaseRefresher().start();
+
+		logger.info("Started baton manager. firstClientTakesBaton={}, useBaton={}, useRBAC={}", firstClientTakesBaton,
+				useBaton, useRBAC);
 	}
 
 	@Override
@@ -146,6 +149,10 @@ public class BatonManager implements IBatonManager {
 				renewLease(uniqueID);
 				notifyServerOfBatonChange();
 			}
+			logger.info("Added new facade id='{}' client details='{}'", uniqueID, info);
+			logger.info("Now have {} facades", facadeNames.size());
+		} else {
+			logger.warn("Tried to add an facade with an invalid identifier: {}", uniqueID);
 		}
 	}
 
@@ -175,6 +182,8 @@ public class BatonManager implements IBatonManager {
 			//do a refresh anyway if any changes had been made
 			notifyServerOfBatonChange();
 		}
+		logger.info("Switched user. uniqueFacadeName='{}' username='{}' accessLevel='{}' visitID='{}'",
+				uniqueFacadeName, username, accessLevel, visitID);
 	}
 
 	@Override
@@ -183,6 +192,7 @@ public class BatonManager implements IBatonManager {
 		facadeNames.remove(uniqueID);
 		leaseHolders.remove(uniqueID);
 		notifyServerOfBatonChange();
+		logger.info("Removed facade '{}' now have {} facades", uniqueID, facadeNames.size());
 	}
 
 	@Override
@@ -269,6 +279,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public synchronized boolean requestBaton(String uniqueIdentifier) {
+		logger.info("Baton requested by: {}", uniqueIdentifier);
 
 		// if am already baton holder
 		if (this.batonHolder.equals(uniqueIdentifier)) {
@@ -297,6 +308,7 @@ public class BatonManager implements IBatonManager {
 					new BatonRequested(new ClientDetails(other, false)));
 		}
 
+		logger.warn("Baton request from '{}' was denied", uniqueIdentifier);
 		// if get here then cannot take baton
 		return false;
 	}
@@ -345,7 +357,7 @@ public class BatonManager implements IBatonManager {
 				}
 				// then ensure that the information fetched from the icat database is refreshed for the new user
 				if (isDisableControlOverVisitMetadataEntry()) {
-					logger.info("Ingoring client request to change visit to: '" + visitID + "'");
+					logger.info("Ingoring client request to change visit to: '{}'", visitID);
 				} else {
 					if (metadataContainsKey(metadata, "visit")) {
 						metadata.setMetadataValue("visit", visitID);
@@ -381,22 +393,11 @@ public class BatonManager implements IBatonManager {
 	@Override
 	public void returnBaton(String uniqueIdentifier) {
 		if (this.batonHolder.equals(uniqueIdentifier) && isJSFRegistered(uniqueIdentifier)) {
-
-//			// test that no other JSF is registered which has  matching visit and FedID
-//			if (LocalProperties.canShareBaton()) {
-//				String newBatonHolder = "";
-//				for (ClientDetails details : getAllClients()){
-//					String uid = idFromIndex(details.index);
-//					if (uid != uniqueIdentifier && canTheseShareTheBaton(uniqueIdentifier, uid)) {
-//						newBatonHolder = uid;
-//					}
-//				}
-//				changeBatonHolder(newBatonHolder);
-//			} else {
-//				changeBatonHolder("");
-//			}
 			changeBatonHolder("");
 			renewLease(uniqueIdentifier);
+			logger.info("Baton returned by: {}", uniqueIdentifier);
+		} else {
+			logger.warn("Baton was not returned by: {}", uniqueIdentifier);
 		}
 	}
 
@@ -444,18 +445,12 @@ public class BatonManager implements IBatonManager {
 		}
 	}
 
-	private void notifyServerOfBatonLeaseRenewRequest() {
-		// during object server startup, this may come back null
-		if (InterfaceProvider.getJythonServerNotifer() != null) {
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonLeaseRenewRequest());
-		}
-	}
-
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
 		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().equals("")) {
 			leaseHolders.put(myJSFIdentifier, new GregorianCalendar().getTimeInMillis());
 		}
+		logger.trace("Lease renewed by: {}", myJSFIdentifier);
 	}
 
 	@Override
@@ -472,10 +467,11 @@ public class BatonManager implements IBatonManager {
 	 * Loops continually, informing GUIs to get in touch else lose their lease. Baton holders whose lose their lease
 	 * lose the baton.
 	 */
-	private class leaseRefresher extends Thread {
+	private class LeaseRefresher extends Thread {
 
-		public leaseRefresher(){
+		public LeaseRefresher(){
 			super("BatonManagerLeaseRefresher");
+			setDaemon(true);
 		}
 
 		@Override
@@ -485,7 +481,7 @@ public class BatonManager implements IBatonManager {
 				try {
 					// clean up the list
 					removeTimeoutLeases();
-					Thread.sleep(LEASETIMEOUT/2-2000);
+					Thread.sleep(LEASE_TIMEOUT/2-2000);
 					// send out a notification to all clients, forcing them to update their UI and so updating their
 					// leases
 					notifyServerOfBatonLeaseRenewRequest();
@@ -513,15 +509,22 @@ public class BatonManager implements IBatonManager {
 
 				for (int i = 0; i < clientIDs.length; i++) {
 					Long leaseStart = leaseHolders.get(clientIDs[i]);
-					if (now - leaseStart > LEASETIMEOUT) {
+					if (now - leaseStart > LEASE_TIMEOUT) {
 						leaseHolders.remove(clientIDs[i]);
 						if (amIBatonHolder(clientIDs[i], false)) {
-							logger.warn("Baton holder timeout, so baton released after " + ((now - leaseStart) / 1000)
-									+ "s");
+							logger.warn("Baton holder timeout, so baton released after {} secs",
+									(now - leaseStart) / 1000);
 							changeBatonHolder("");
 						}
 					}
 				}
+			}
+		}
+
+		private void notifyServerOfBatonLeaseRenewRequest() {
+			// during object server startup, this may come back null
+			if (InterfaceProvider.getJythonServerNotifer() != null) {
+				InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonLeaseRenewRequest());
 			}
 		}
 	}
