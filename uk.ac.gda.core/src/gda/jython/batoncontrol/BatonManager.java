@@ -21,9 +21,9 @@ package gda.jython.batoncontrol;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -59,10 +59,10 @@ public class BatonManager implements IBatonManager {
 	private String batonHolder = "";
 
 	// holds <servername, access level>
-	private volatile Hashtable<String, ClientInfo> facadeNames = new Hashtable<String, ClientInfo>(20, 0.25F);
+	private final Map<String, ClientInfo> facadeNames = new ConcurrentHashMap<>();
 
 	// holds <unique id, time lease renewed>. Those Clients who have recently interacted with the Jython Server.
-	private volatile Hashtable<String, Long> leaseHolders = new Hashtable<String, Long>();
+	private final Map<String, Long> leaseHolders = new ConcurrentHashMap<>();
 
 	private boolean firstClientTakesBaton = false;
 
