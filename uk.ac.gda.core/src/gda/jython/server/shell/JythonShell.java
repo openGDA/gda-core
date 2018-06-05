@@ -18,6 +18,8 @@
 
 package gda.jython.server.shell;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -159,16 +161,9 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		logger.info("Starting jython shell {}", shellNumber);
 		running = true;
 		init();
-		String command;
 		while (running) {
 			try {
-				command = read.readLine(PS1);
-				if (command == null) {
-					// This is a problem with Jline. If the connection is lost, the EOF gets converted to null somewhere
-					logger.info("Connection lost - closing shell");
-					return;
-				}
-				runCommand(command);
+				runCommand(read.readLine(PS1));
 			} catch (UserInterruptException uie) {
 				terminal.writer().println("KeyboardInterrupt");
 				continue;
@@ -186,6 +181,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 * @param command Jython command to run
 	 */
 	private void runCommand(String command) {
+		requireNonNull(command, "Null command received from jline");
 		logger.debug("Running command: {}", command);
 		boolean incomplete = server.runsource(command, rawInput);
 		if (incomplete) {
