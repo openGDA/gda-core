@@ -357,7 +357,7 @@ public class BatonManager implements IBatonManager {
 				}
 				// then ensure that the information fetched from the icat database is refreshed for the new user
 				if (isDisableControlOverVisitMetadataEntry()) {
-					logger.info("Ingoring client request to change visit to: '" + visitID + "'");
+					logger.info("Ingoring client request to change visit to: '{}'", visitID);
 				} else {
 					if (metadataContainsKey(metadata, "visit")) {
 						metadata.setMetadataValue("visit", visitID);
@@ -518,8 +518,8 @@ public class BatonManager implements IBatonManager {
 					if (now - leaseStart > LEASE_TIMEOUT) {
 						leaseHolders.remove(clientIDs[i]);
 						if (amIBatonHolder(clientIDs[i], false)) {
-							logger.warn("Baton holder timeout, so baton released after " + ((now - leaseStart) / 1000)
-									+ "s");
+							logger.warn("Baton holder timeout, so baton released after {} secs",
+									(now - leaseStart) / 1000);
 							changeBatonHolder("");
 						}
 					}
