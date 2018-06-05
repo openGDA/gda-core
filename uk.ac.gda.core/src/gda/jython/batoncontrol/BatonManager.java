@@ -393,20 +393,6 @@ public class BatonManager implements IBatonManager {
 	@Override
 	public void returnBaton(String uniqueIdentifier) {
 		if (this.batonHolder.equals(uniqueIdentifier) && isJSFRegistered(uniqueIdentifier)) {
-
-//			// test that no other JSF is registered which has  matching visit and FedID
-//			if (LocalProperties.canShareBaton()) {
-//				String newBatonHolder = "";
-//				for (ClientDetails details : getAllClients()){
-//					String uid = idFromIndex(details.index);
-//					if (uid != uniqueIdentifier && canTheseShareTheBaton(uniqueIdentifier, uid)) {
-//						newBatonHolder = uid;
-//					}
-//				}
-//				changeBatonHolder(newBatonHolder);
-//			} else {
-//				changeBatonHolder("");
-//			}
 			changeBatonHolder("");
 			renewLease(uniqueIdentifier);
 			logger.info("Baton returned by: {}", uniqueIdentifier);
