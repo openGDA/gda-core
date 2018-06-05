@@ -18,6 +18,10 @@
 
 package gda.device.qbpm;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,19 +57,23 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
+
+			List<String> inputNamesList = new ArrayList<>();
+			List<String> extraNamesList = new ArrayList<>();
+
 			if (currAmpController == null) {
 				if (getCurrAmpQuadName() != null) {
 					currAmpController = (EpicsCurrAmpQuadController) finder.find(getCurrAmpQuadName());
 					// set Input Names
-					inputNames = currAmpController.getInputNames();
 				} else {
 					logger.error("Missing EPICS interface configuration for the current amplifier " + getName());
 					throw new FactoryException("Missing EPICS interface configuration for the current amplifier "
 							+ getName());
 				}
-			} else {
-				inputNames = currAmpController.getInputNames();
 			}
+			inputNamesList.addAll(Arrays.asList(currAmpController.getInputNames()));
+			extraNamesList.addAll(Arrays.asList(currAmpController.getExtraNames()));
+
 			if (bpmController == null) {
 				if (getBpmName() != null) {
 					bpmController = (EpicsBpmController) finder.find(getBpmName());
@@ -74,9 +82,12 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 					logger.error("Missing EPICS interface configuration for the BPM device " + getBpmName());
 					throw new FactoryException("Missing EPICS interface configuration for the BPM device " + getBpmName());
 				}
-			} else {
-				extraNames = bpmController.getInputNames();
 			}
+			inputNamesList.addAll(Arrays.asList(bpmController.getInputNames()));
+			extraNamesList.addAll(Arrays.asList(bpmController.getExtraNames()));
+
+			inputNames = inputNamesList.toArray(new String[] {});
+			extraNames = extraNamesList.toArray(new String[] {});
 
 			setConfigured(true);
 		}// end of if (!configured)
@@ -170,11 +181,11 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		String[] value = new String[8];
-		value[0] = String.format(getOutputFormat()[0], getCurrent1());
-		value[1] = String.format(getOutputFormat()[0], getCurrent2());
-		value[2] = String.format(getOutputFormat()[0], getCurrent3());
-		value[3] = String.format(getOutputFormat()[0], getCurrent4());
-		value[4] = getRangeValue();
+		value[0] = getRangeValue();
+		value[1] = String.format(getOutputFormat()[0], getCurrent1());
+		value[2] = String.format(getOutputFormat()[0], getCurrent2());
+		value[3] = String.format(getOutputFormat()[0], getCurrent3());
+		value[4] = String.format(getOutputFormat()[0], getCurrent4());
 		value[5] = String.format(getOutputFormat()[0], getIntensityTotal());
 		value[6] = String.format(getOutputFormat()[0], getXPosition());
 		value[7] = String.format(getOutputFormat()[0], getYPosition());
