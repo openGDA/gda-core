@@ -64,11 +64,11 @@ public class BatonManager implements IBatonManager {
 	// holds <unique id, time lease renewed>. Those Clients who have recently interacted with the Jython Server.
 	private final Map<String, Long> leaseHolders = new ConcurrentHashMap<>();
 
-	private boolean firstClientTakesBaton = false;
+	private final boolean firstClientTakesBaton;
 
-	private boolean useBaton = false;
+	private final boolean useBaton;
 
-	private boolean useRBAC = false;
+	private final boolean useRBAC;
 
 	private boolean disableControlOverVisitMetadataEntry = false;
 
