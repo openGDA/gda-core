@@ -169,7 +169,7 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T>, Iterab
 		final int scanRank = first.getScanRank();
 
 		if (scanRank == 0) {
-			// scan of rank 0, e.g. static generator for a single empty point
+			// scan of rank 0, e.g. static generator for a single empty point - i.e. acquire scans
 			return new int[0];
 		}
 
@@ -197,9 +197,6 @@ public abstract class AbstractGenerator<T> implements IPointGenerator<T>, Iterab
 				logger.debug("Point number {}, took {} ms", pointNum++, (newTime - lastTime));
 			}
 		}
-
-		// special case for scans of rank 0 - i.e. acquire scans
-		if (scanRank == 0) return new int[0];
 
 		// the shape is created from the indices for each dimension for the final scan point
 		int[] shape = new int[scanRank];
