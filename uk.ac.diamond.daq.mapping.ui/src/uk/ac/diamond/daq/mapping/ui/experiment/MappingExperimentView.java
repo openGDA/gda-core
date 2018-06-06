@@ -252,7 +252,7 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	private void createStatusPanel(final Composite mainComposite) {
-		statusPanel = new StatusPanel(mainComposite, SWT.NONE, mappingBean, scanRequestConverter);
+		statusPanel = new StatusPanel(mainComposite, SWT.NONE, mappingBean);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
 		if (mappingBean == null) {
