@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -987,6 +989,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		JythonServer server = null;
 		boolean scripted;
 		CommandThreadType commandThreadType;
+		/** Timestamp of the thread creation time */
+		private final LocalDateTime creationTimestamp = LocalDateTime.now();
 
 		@Override
 		public abstract void run();
@@ -1033,6 +1037,10 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 		public CommandThreadType getCommandThreadType() {
 			return commandThreadType;
+		}
+
+		public LocalDateTime getCreationTimestamp() {
+			return creationTimestamp;
 		}
 
 		/**
@@ -1295,14 +1303,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		CommandThreadInfo info = new CommandThreadInfo();
 		info.setCommand(jthread.getCommand());
 		info.setCommandThreadType(jthread.getCommandThreadType().toString());
-		info.setDate(""); //TODO
+		info.setDate(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE));
 		info.setId(jthread.getId());
 		info.setJythonServerThreadId(jthread.getJythonServerThreadId());
 		info.setInterrupted(jthread.isInterrupted());
 		info.setName(jthread.getName());
 		info.setPriority(jthread.getPriority());
 		info.setState(jthread.getState().toString());
-		info.setTime(""); //TODO
+		info.setTime(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_TIME));
 		return info;
 	}
 
