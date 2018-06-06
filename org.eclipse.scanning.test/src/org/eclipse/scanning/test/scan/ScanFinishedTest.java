@@ -66,8 +66,10 @@ import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
 public class ScanFinishedTest {
 
 	protected IRunnableDeviceService      dservice;
