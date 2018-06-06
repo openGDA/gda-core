@@ -25,7 +25,7 @@ import gda.scan.Scan.ScanStatus;
  * <p>
  * Note: most scans will end up implementing this, even though a particular instance may be a child.
  */
-interface ScanParent { // TODO: Ideally this should not extend Scan
+interface ScanParent {
 
 	/**
 	 * To allow nests of scans to share a common status with each other.
