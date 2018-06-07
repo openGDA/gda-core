@@ -139,11 +139,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	private volatile Scan currentScan = null;
 
 	// threads to run interaction with the GDAJythonInterpreter object
-	private final  Vector<Thread> runsourceThreads = new Vector<Thread>();
-
-	private final Vector<Thread> runCommandThreads = new Vector<Thread>();
-
-	private final Vector<Thread> evalThreads = new Vector<Thread>();
+	private final  List<JythonServerThread> threads = new Vector<>();
 
 	private final Set<Scannable> defaultScannables = new CopyOnWriteArraySet<>();
 
@@ -359,7 +355,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		try {
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
-			runCommandThreads.add(runner);
+			threads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
 			clearThreads();
@@ -381,7 +377,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
 			runner.setName(nameThread(command));
-			runCommandThreads.add(runner);
+			threads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
 			started = true;
@@ -427,7 +423,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel, stdin);
 			runner.setName(nameThread(command));
-			runsourceThreads.add(runner);
+			threads.add(runner);
 			runner.start();
 			CommandThreadInfo info = notifyStartCommandThread(runner);
 			runner.join();
@@ -948,20 +944,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		// in every thread started by this command server,
 		// raise an interrupt
 		Thread current = Thread.currentThread();
-		for (Thread thread : this.runCommandThreads) {
-			if (thread.getState() != Thread.State.TERMINATED && thread != current) {
-				thread.interrupt();
-			}
-		}
-
-		for (Thread thread : this.runsourceThreads) {
-			if (thread.getState() != Thread.State.TERMINATED && thread != current) {
-				thread.interrupt();
-			}
-		}
-
-		for (Thread thread : this.evalThreads) {
-			if (thread.getState() != Thread.State.TERMINATED && thread != current) {
+		for (Thread thread : threads) {
+			if (thread.getState() != TERMINATED && thread != current) {
 				thread.interrupt();
 			}
 		}
@@ -974,9 +958,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	 * Remove references to terminated threads from the lists of threads.
 	 */
 	private synchronized void clearThreads() {
-		runCommandThreads.removeIf(thread -> thread.getState() == TERMINATED);
-		runsourceThreads.removeIf(thread -> thread.getState() == TERMINATED);
-		evalThreads.removeIf(thread -> thread.getState() == TERMINATED);
+		threads.removeIf(thread -> thread.getState() == TERMINATED);
 	}
 
 	/**
@@ -1333,19 +1315,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	@Override
 	public ICommandThreadInfo[] getCommandThreadInfo() {
 		Collection<ICommandThreadInfo> infos = new ArrayList<>();
-		for (Thread t : runsourceThreads) {
-			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo((JythonServerThread) t));
-			}
-		}
-		for (Thread t : runCommandThreads) {
-			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo((JythonServerThread) t));
-			}
-		}
-		for (Thread t : evalThreads) {
-			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo((JythonServerThread) t));
+		for (JythonServerThread thread : threads) {
+			if (thread.isAlive()) {
+				infos.add(extractCommandThreadInfo(thread));
 			}
 		}
 		return infos.toArray(new ICommandThreadInfo[infos.size()]);
