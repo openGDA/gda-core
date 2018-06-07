@@ -1283,18 +1283,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		return jythonScriptPaths.getProject(index).isCoreProject();
 	}
 
-	public Vector<Thread> getRunsourceThreads() {
-		return runsourceThreads;
-	}
-
-	public Vector<Thread> getRunCommandThreads() {
-		return runCommandThreads;
-	}
-
-	public Vector<Thread> getEvalThreads() {
-		return evalThreads;
-	}
-
 	public InteractiveConsole getInterp() {
 		return interp.getInterp();
 	}
