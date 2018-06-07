@@ -102,8 +102,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 
-        // Magic strings
-        private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
+	// Magic strings
+	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
 
 	/**
 	 * Create a new FluorescenceDetectorCompositeController for the given FluorescenceDetectorComposite. Call at least one of setDetector() and
@@ -309,11 +309,21 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addDtcEnergyUpdateListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge();
+			}
+		});
+
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
 
 		// Hide/show output options
 		setShowOutputOptionsFromPreference();
+
+		// Show/hide deadtime correction energy control
+		setShowDTCEnergyFromPreference();
 
 		// setup data store and fetch stored data, if any
 		createDataStore();
@@ -325,6 +335,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.autoscaleAxes();
 
 		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null ? true : false);
+	}
+
+	private void setShowDTCEnergyFromPreference() {
+		boolean showDtcEnergyControls = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_SHOW_DTC_ENERGY);
+		fluorescenceDetectorComposite.setShowDtcEnergyControls(showDtcEnergyControls);
 	}
 
 	/**
@@ -673,6 +688,17 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	public void applyConfigurationToDetector() {
 		try {
+			// Check that the number of elements on detector matches number of elements in settings
+			if (detectorParameters.getDetectorList() != null
+					&& theDetector.getNumberOfElements() != detectorParameters.getDetectorList().size()) {
+				String message = String.format(
+						"Problem applying detector settings - number of detector elements"
+						+ " in the XML settings (%d) does not match the number of elements on the detector (%d).",
+						detectorParameters.getDetectorList().size(), theDetector.getNumberOfElements());
+				displayErrorMessage("Problem applying detector settings", message);
+				return;
+			}
+
 			theDetector.applyConfigurationParameters(detectorParameters);
 			logAndAppendStatus("Successfully applied settings to detector");
 

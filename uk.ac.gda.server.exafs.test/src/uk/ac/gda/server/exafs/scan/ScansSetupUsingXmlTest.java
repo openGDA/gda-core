@@ -538,7 +538,8 @@ public class ScansSetupUsingXmlTest {
 	public void testXasScan() throws Exception {
 		setupForTest(ScansSetupUsingXmlTest.class, "testXasScan");
 		EnergyScan energyScan = xasScanFactory.createEnergyScan();
-		energyScan.doCollection("Sample_Parameters.xml", "XAS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, 1);
+		energyScan.configureCollection("Sample_Parameters.xml", "XAS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, 1);
+		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
 	}
 
@@ -547,7 +548,8 @@ public class ScansSetupUsingXmlTest {
 		setupForTest(ScansSetupUsingXmlTest.class, "testXasScanFromBeans");
 		loadBeans("Sample_Parameters.xml", "XAS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml");
 		EnergyScan energyScan = xasScanFactory.createEnergyScan();
-		energyScan.doCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
+		energyScan.configureCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
+		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
 	}
 
@@ -555,7 +557,8 @@ public class ScansSetupUsingXmlTest {
 	public void testQExafsScan() throws Exception {
 		setupForTest(ScansSetupUsingXmlTest.class, "testQExafsScan");
 		EnergyScan energyScan = xasScanFactory.createQexafsScan();
-		energyScan.doCollection("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, 1);
+		energyScan.configureCollection("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, 1);
+		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
 	}
 
@@ -564,7 +567,8 @@ public class ScansSetupUsingXmlTest {
 		setupForTest(ScansSetupUsingXmlTest.class, "testQExafsScanFromBeans");
 		loadBeans("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml");
 		EnergyScan energyScan = xasScanFactory.createQexafsScan();
-		energyScan.doCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
+		energyScan.configureCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
+		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
 	}
 }

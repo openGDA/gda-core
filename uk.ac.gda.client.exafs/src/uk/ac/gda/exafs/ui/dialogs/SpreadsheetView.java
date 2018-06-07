@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import java.nio.file.Paths;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -61,7 +63,7 @@ public class SpreadsheetView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		scanOverrideComposite = new SpreadsheetViewComposite(parent);
-		scanOverrideComposite.setXmlDirectoryName(VisitPath.getVisitPath()+"xml/Experiment_1");
+		scanOverrideComposite.setXmlDirectoryName(Paths.get(VisitPath.getVisitPath(),"xml/Experiment_1").toString());
 		scanOverrideComposite.createTableAndControls();
 
 		getSite().getPage().addPartListener(partListener);

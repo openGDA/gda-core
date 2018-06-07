@@ -17,6 +17,9 @@
 		<field name="editIndividualElements" type="boolean">
 			<bind-xml name="editIndividualElements" node="element" />
 		</field>
+		<field name="deadtimeCorrectionEnergy" type="double">
+			<bind-xml name="deadtimeCorrectionEnergy" node="element"/>
+		</field>		
 		<field name="DetectorElement" type="uk.ac.gda.beans.vortex.DetectorElement"
 			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
 			<bind-xml name="DetectorElement" node="element"/>

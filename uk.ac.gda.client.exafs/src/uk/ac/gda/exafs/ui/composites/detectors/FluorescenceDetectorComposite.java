@@ -56,6 +56,7 @@ import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorDtcEnergyComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementConfig;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorOutputPreferenceComposite;
@@ -78,6 +79,7 @@ public class FluorescenceDetectorComposite extends Composite {
 	private FluoDetectorRegionsComposite regionsComposite;
 	private FluoDetectorOutputPreferenceComposite outputPrefComposite;
 	private FluoDetectorTransitionLineComposite elementEdgeComposite;
+	private FluoDetectorDtcEnergyComposite dtcEnergyComposite;
 	private int mcaSize;
 
 
@@ -125,6 +127,9 @@ public class FluorescenceDetectorComposite extends Composite {
 
 			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), SWT.NONE, elementsComposite);
 			horizontalGrabGridData.applyTo(regionsComposite);
+
+			dtcEnergyComposite = new FluoDetectorDtcEnergyComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(dtcEnergyComposite);
 
 			elementEdgeComposite = new FluoDetectorTransitionLineComposite(sashFormPlot.getLeft(), SWT.NONE);
 			horizontalGrabGridData.applyTo(elementEdgeComposite);
@@ -202,6 +207,19 @@ public class FluorescenceDetectorComposite extends Composite {
 
 	public void addElementEdgeListener(SelectionListener listener) {
 		elementEdgeComposite.addSelectionListener(listener);
+	}
+
+	public void addDtcEnergyUpdateListener(SelectionListener listener) {
+		dtcEnergyComposite.getUpdateDtcEnergyButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * Update the deadtime correction energy value using the currently set value of line energy
+	 * (in 'element name and line selection' composite)
+	 */
+	public void updateDtcEnergyFromElementEdge() {
+		double dtcEnergy = elementEdgeComposite.getLineEnergy();
+		dtcEnergyComposite.getDeadtimeCorrectionEnergy().setValue(dtcEnergy);
 	}
 
 	/**
@@ -715,6 +733,14 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
+	 * Hide/show the 'deadtime correction energy' part of the gui.
+	 * @param show
+	 */
+	public void setShowDtcEnergyControls(boolean show) {
+		GridUtils.setVisibleAndLayout(dtcEnergyComposite, show);
+	}
+
+	/**
 	 * Setup GUI for specified readout mode of detector.
 	 * i.e. shows/hides different parts of GUI as appropriate for XSpress2/3
 	 * This function is called during initial setup of GUI, using settings from Xml file.
@@ -766,4 +792,10 @@ public class FluorescenceDetectorComposite extends Composite {
 		acquireComposite.getShowDataLoadedFromFileCheckBox().setEnabled(enabled);
 	}
 
+	/**
+	 * For access by BeanUI only. This name must match the 'deadtime correction energy' field name in XspressParameters.
+	 */
+	public IFieldWidget getDeadtimeCorrectionEnergy() {
+		return dtcEnergyComposite.getDeadtimeCorrectionEnergy();
+	}
 }

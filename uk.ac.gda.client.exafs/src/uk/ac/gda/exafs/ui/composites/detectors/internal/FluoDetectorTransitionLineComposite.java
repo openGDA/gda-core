@@ -189,8 +189,8 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 			logger.info("Element and edge information not available from scan settings - using default values.");
 		}
 
-		final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 		try {
+			final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 			final IScanParameters params = ob.getScanParameters();
 
 			// XasScanParameters, XanesScanParameters, QExafsScanParameters etc. all contain this info and have

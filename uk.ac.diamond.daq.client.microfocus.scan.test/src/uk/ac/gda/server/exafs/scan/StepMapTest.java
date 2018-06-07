@@ -116,9 +116,10 @@ public class StepMapTest {
 
 		mapscan = theFactory.createStepMap();
 
-		mapscan.doCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
+		mapscan.configureCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
 				testHelper.getOutputParams(), testHelper.getXspressConfigurationParameters(),
 				testHelper.getExperimentalFullPath(), 1);
+		mapscan.doCollection();
 
 		// check that the the correct order of preparers and scan were called
 		InOrder inorder = Mockito.inOrder(testHelper.getBeamlinepreparer(), testHelper.getDetectorPreparer(),
