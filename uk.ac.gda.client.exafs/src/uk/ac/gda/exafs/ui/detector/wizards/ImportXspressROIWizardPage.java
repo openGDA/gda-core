@@ -241,7 +241,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
-			xspressParameters = (XspressParameters)XMLHelpers.readBean(path.toFile(), XspressParameters.class);
+			xspressParameters = XMLHelpers.readBean(path.toFile(), XspressParameters.class);
 			if (xspressParameters.getDetectorList().size() == elementListSize) {
 				beanToUI(detectorListComposite, xspressParameters);
 				validSource = true;

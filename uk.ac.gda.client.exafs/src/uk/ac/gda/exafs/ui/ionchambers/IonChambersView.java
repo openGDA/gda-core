@@ -65,7 +65,7 @@ public class IonChambersView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "ionChambers.xml";
         try {
-			bean = (IonChambersBean) XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, path);
+			bean = XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, path);
         } catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}

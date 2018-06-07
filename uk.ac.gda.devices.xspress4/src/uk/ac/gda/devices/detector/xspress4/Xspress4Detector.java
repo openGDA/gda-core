@@ -460,7 +460,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			return;
 		}
 		try {
-			parameters = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, configFilename);
+			parameters = XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, configFilename);
 			this.configFileName = configFilename;
 			setupCurrentSettings();
 

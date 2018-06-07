@@ -76,7 +76,7 @@ public class XanesScanParameters implements Serializable, IScanParameters {
 	 * @throws Exception
 	 */
 	public static XanesScanParameters createFromXML(String filename) throws Exception {
-		return (XanesScanParameters) XMLHelpers.createFromXML(mappingURL, XanesScanParameters.class, schemaUrl,
+		return XMLHelpers.createFromXML(mappingURL, XanesScanParameters.class, schemaUrl,
 				filename);
 	}
 

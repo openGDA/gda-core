@@ -102,12 +102,12 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 	public void loadConfigurationFromFile() throws Exception {
 		if (getConfigFileName() == null)
 			return;
-		setParameters((VortexParameters) XMLHelpers.createFromXML(
-					VortexParameters.mappingURL,
-					VortexParameters.class,
-					VortexParameters.schemaURL,
-					getConfigFileName()),
-				true);
+		setParameters(XMLHelpers.createFromXML(
+						VortexParameters.mappingURL,
+						VortexParameters.class,
+						VortexParameters.schemaURL,
+						getConfigFileName()),
+						true);
 	}
 
 	public void setParameters(VortexParameters parameters, boolean push) throws Exception {

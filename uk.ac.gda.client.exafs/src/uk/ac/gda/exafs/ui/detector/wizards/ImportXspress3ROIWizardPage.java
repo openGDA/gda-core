@@ -233,7 +233,7 @@ public class ImportXspress3ROIWizardPage extends ImportROIWizardPage {
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
-			vortexParameters = (Xspress3Parameters) XMLHelpers.readBean(path.toFile(), Xspress3Parameters.class);
+			vortexParameters = XMLHelpers.readBean(path.toFile(), Xspress3Parameters.class);
 			if (vortexParameters.getDetectorList().size() == elementListSize) {
 				beanToUI(detectorListComposite, vortexParameters);
 				validSource = true;

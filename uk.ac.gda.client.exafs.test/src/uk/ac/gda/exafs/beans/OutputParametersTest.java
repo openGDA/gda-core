@@ -45,7 +45,7 @@ public class OutputParametersTest {
 			.generateDirectorynameFromClassname(OutputParametersTest.class.getCanonicalName());
 
 	private static OutputParameters createFromXML(String filename) throws Exception {
-		return (OutputParameters) XMLHelpers.createFromXML(OutputParameters.mappingURL, OutputParameters.class, OutputParameters.schemaUrl, filename);
+		return XMLHelpers.createFromXML(OutputParameters.mappingURL, OutputParameters.class, OutputParameters.schemaUrl, filename);
 	}
 
 	private static void writeToXML(OutputParameters outputParams, String filename) throws Exception {

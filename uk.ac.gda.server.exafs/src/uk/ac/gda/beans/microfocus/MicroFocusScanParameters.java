@@ -37,7 +37,7 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 	static public final URL schemaUrl = MicroFocusScanParameters.class.getResource("MicroFocusParameterMapping.xsd");
 
 	public static MicroFocusScanParameters createFromXML(String filename) throws Exception {
-		return (MicroFocusScanParameters) XMLHelpers.createFromXML(mappingURL, MicroFocusScanParameters.class,
+		return XMLHelpers.createFromXML(mappingURL, MicroFocusScanParameters.class,
 				schemaUrl, filename);
 	}
 

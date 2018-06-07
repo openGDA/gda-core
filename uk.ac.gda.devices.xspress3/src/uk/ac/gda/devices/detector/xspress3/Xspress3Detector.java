@@ -674,7 +674,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
+		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
 				Xspress3Parameters.schemaURL, getConfigFileName());
 
 		List<DetectorROI> vortexRois = vortexParameters.getDetector(0).getRegionList();

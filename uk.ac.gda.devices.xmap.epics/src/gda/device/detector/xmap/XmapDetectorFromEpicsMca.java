@@ -298,7 +298,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	}
 
 	public VortexParameters readConfigFile(String fileName) throws Exception {
-		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
+		return XMLHelpers.createFromXML(VortexParameters.mappingURL,
 				VortexParameters.class, VortexParameters.schemaURL, fileName);
 	}
 
@@ -735,7 +735,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	}
 
 	public VortexParameters createVortexParameters() throws Exception{
-		VortexParameters vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
+		VortexParameters vortexParameters = XMLHelpers.createFromXML(VortexParameters.mappingURL,
 				VortexParameters.class, VortexParameters.schemaURL, getConfigFileName());
 
 		//make a deep copy we can then change a little

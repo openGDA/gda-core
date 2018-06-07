@@ -62,7 +62,7 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	private boolean shouldValidate = true;
 
 	public static XasScanParameters createFromXML(String filename) throws Exception {
-		return (XasScanParameters) XMLHelpers.createFromXML(mappingURL, XasScanParameters.class, schemaUrl, filename);
+		return XMLHelpers.createFromXML(mappingURL, XasScanParameters.class, schemaUrl, filename);
 	}
 
 	public static void writeToXML(XasScanParameters scanParameters, String filename) throws Exception {

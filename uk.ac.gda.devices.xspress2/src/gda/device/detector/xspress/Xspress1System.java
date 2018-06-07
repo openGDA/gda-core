@@ -166,7 +166,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 	 */
 	@Override
 	public void loadAndInitializeDetectors(String filename) throws Exception {
-		xspressParameters = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
+		xspressParameters = XMLHelpers.createFromXML(XspressParameters.mappingURL,
 				XspressParameters.class, XspressParameters.schemaURL, filename);
 		if (xspressParameters != null) {
 			logger.debug("loaded parameters for " + xspressParameters.getDetectorName());
@@ -176,7 +176,7 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 
 	public void loadAndInitializeDetectors(String filename, String dtcConfigFileName) throws Exception {
 		loadAndInitializeDetectors(filename);
-		xspressDeadTimeParameters = (XspressDeadTimeParameters)XMLHelpers.createFromXML(XspressDeadTimeParameters.mappingURL,
+		xspressDeadTimeParameters = XMLHelpers.createFromXML(XspressDeadTimeParameters.mappingURL,
 				XspressDeadTimeParameters.class, XspressDeadTimeParameters.schemaURL, dtcConfigFileName);
 	}
 

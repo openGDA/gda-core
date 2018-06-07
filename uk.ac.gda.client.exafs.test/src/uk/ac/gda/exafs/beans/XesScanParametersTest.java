@@ -46,7 +46,7 @@ public class XesScanParametersTest {
 		TestUtils.generateDirectorynameFromClassname(XesScanParametersTest.class.getCanonicalName());
 
 	private static XesScanParameters createFromXML(String filename) throws Exception {
-		return (XesScanParameters) XMLHelpers.createFromXML(XesScanParameters.mappingURL, XesScanParameters.class,
+		return XMLHelpers.createFromXML(XesScanParameters.mappingURL, XesScanParameters.class,
 				XesScanParameters.schemaURL, filename);
 	}
 
@@ -55,7 +55,7 @@ public class XesScanParametersTest {
 	}
 
 	private static DetectorParameters createDetectorsFromXML(String filename) throws Exception {
-		return (DetectorParameters) XMLHelpers.createFromXML(DetectorParameters.mappingURL, DetectorParameters.class,
+		return XMLHelpers.createFromXML(DetectorParameters.mappingURL, DetectorParameters.class,
 				DetectorParameters.schemaUrl, filename);
 	}
 

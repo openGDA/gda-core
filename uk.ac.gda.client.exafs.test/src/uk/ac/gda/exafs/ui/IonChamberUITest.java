@@ -79,7 +79,7 @@ public class IonChamberUITest extends ShellTest {
 
 	private IonChambersBean beanFromXML() {
 		try {
-			return (IonChambersBean) XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, CONFIG_PATH+"/templates/ionChambers.xml");
+			return XMLHelpers.createFromXML(IonChambersBean.mappingURL, IonChambersBean.class, IonChambersBean.schemaURL, CONFIG_PATH+"/templates/ionChambers.xml");
 		} catch (Exception e) {
 			fail(e+"Could not load bean from XML");
 		}
