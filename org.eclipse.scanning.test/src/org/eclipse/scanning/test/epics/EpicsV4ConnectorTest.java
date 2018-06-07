@@ -38,6 +38,7 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -45,6 +46,7 @@ import org.junit.Test;
  * @author Matt Taylor
  *
  */
+@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. To be resolved by DAQ-1490")
 public class EpicsV4ConnectorTest {
 
 	private IScanService service;
