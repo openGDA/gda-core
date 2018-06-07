@@ -19,6 +19,7 @@
 package gda.device.zebra.controller.impl;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +65,6 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	private int pcDir;
 	private double pcPulseStart;
 	private boolean useAvalField;
-	private CachedLazyPVFactory pvFactory;
 	private String zebraPrefix;
 
 	private Map<Integer, Integer> pulseInputs = new HashMap<>();
@@ -267,13 +267,13 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void pcArm() throws Exception {
-		logger.info("Arm Zebra Box");
+		logger.trace("Arm Zebra Box");
 		pcArmed = true;
 	}
 
 	@Override
 	public void pcDisarm() throws Exception {
-		logger.info("Dis-Arm Zebra Box");
+		logger.trace("Dis-Arm Zebra Box");
 		pcArmed = false;
 	}
 
@@ -304,8 +304,21 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public ReadOnlyPV<Double[]> getPcCapturePV(int capture) {
-		// TODO Auto-generated method stub
-		return null;
+		int captured = 0;
+		// make the array stupidly large since this represents what you'll get from epics
+		Double[] capturedValues = Collections.nCopies(100000, 0.).toArray(new Double[0]);
+		try {
+			captured = getPCNumberOfPointsDownloaded();
+		} catch (Exception e) {
+			// Don't care
+		}
+		double v = 0;
+		for (int i = 0; i < captured; i++) {
+			// just a random walk along the axis
+			v += 2 * Math.random() - 1.;
+			capturedValues[i] = v;
+		}
+		return new DummyReadOnlyPV<>(String.format("ENC_%d", captured), capturedValues);
 	}
 
 	@Deprecated
@@ -336,7 +349,7 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public int getPCNumberOfPointsDownloaded() throws Exception {
-		return pcNumberOfPointsCaptured;
+		return pcPulseMax * pcGateNumberOfGates;
 	}
 
 	@Override
@@ -483,7 +496,6 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void setPvFactory(CachedLazyPVFactory pvFactory) {
-		this.pvFactory = pvFactory;
 	}
 
 	@Override
