@@ -171,6 +171,8 @@ public interface Zebra {
 
 	int getPCNumberOfPointsDownloaded() throws Exception;
 
+	boolean getPCPointDownloadInProgress() throws Exception;
+
 	String getZebraPrefix();
 
 	void setZebraPrefix(String zebraPrefix);

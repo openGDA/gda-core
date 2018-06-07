@@ -340,6 +340,11 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	}
 
 	@Override
+	public boolean getPCPointDownloadInProgress() throws Exception {
+		return false;
+	}
+
+	@Override
 	public void setPCTimeUnit(int i) throws Exception {
 		pcTimeUnit = i;
 	}
