@@ -19,7 +19,7 @@ import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 
 /**
  * TODO: try to simplify the method in this class, or even remove them.
@@ -194,11 +194,11 @@ public class MalcolmUtil {
      * @param bean
      * @return
      */
-	public static boolean isScanning(MalcolmEventBean bean) {
+	public static boolean isScanning(MalcolmEvent bean) {
 		return !bean.isScanEnd() && !bean.isScanStart() && bean.getDeviceState().isRunning();
 	}
 
-	public static boolean isStateChange(MalcolmEventBean bean) {
+	public static boolean isStateChange(MalcolmEvent bean) {
 		return bean.getPreviousState()!=null && bean.getDeviceState()!=bean.getPreviousState();
 	}
 

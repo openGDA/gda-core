@@ -13,19 +13,17 @@ package org.eclipse.scanning.api.malcolm.event;
 
 import java.util.EventListener;
 
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+
 /**
- *
- * This is a plain old event which can be used to get the
- * events during a scan.
- *
- * @author Matthew Gerring
- *
+ * Listeners of this type can be added to an {@link IMalcolmDevice} to listen
+ * to events such as state changes and scan progress.
  */
-public interface IMalcolmListener<T> extends EventListener {
+public interface IMalcolmEventListener extends EventListener {
 
 	/**
 	 * Called when Malcolm notifies the service that something happened.
 	 * @param e
 	 */
-	public void eventPerformed(MalcolmEvent<T> e);
+	public void eventPerformed(MalcolmEvent e);
 }

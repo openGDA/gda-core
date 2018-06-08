@@ -39,9 +39,8 @@ import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmCon
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -76,8 +75,8 @@ public abstract class AbstractMalcolmDeviceTest {
 	protected IMalcolmConnectionStateListener connectionChangeListener;
 
 	@Mock
-	protected IMalcolmListener<MalcolmEventBean> malcolmEventListener;
-	protected BeanCollectingAnswer<MalcolmEvent<MalcolmEventBean>> malcolmBeanCaptor;
+	protected IMalcolmEventListener malcolmEventListener;
+	protected BeanCollectingAnswer<MalcolmEvent> malcolmBeanCaptor;
 
 	protected int id = 0;
 
@@ -90,9 +89,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService, null);
 		pointGenService = new PointGeneratorService();
 
-		malcolmBeanCaptor = BeanCollectingAnswer.forClass(
-				(Class<MalcolmEvent<MalcolmEventBean>>) (Class<?>) MalcolmEvent.class, // TODO why do we need the double cast?
-				e -> new MalcolmEvent<>(new MalcolmEventBean(e.getBean())));
+		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::new);
 		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));
 	}
 
@@ -152,8 +149,8 @@ public abstract class AbstractMalcolmDeviceTest {
 		assertThat(malcolmDevice.isAlive(), is(true));
 		verify(malcolmConnection, timeout(250)).send(malcolmDevice, expectedGetDeviceStateMessage2);
 		verify(malcolmEventListener, timeout(250)).eventPerformed(any(MalcolmEvent.class)); // argument checked using custom captor below
-		final MalcolmEvent<MalcolmEventBean> event = malcolmBeanCaptor.getValue();
-		assertThat(event.getBean(), is(equalTo(createExpectedMalcolmEventBean(DeviceState.READY, null, "connected to " + malcolmDevice.getName()))));
+		final MalcolmEvent event = malcolmBeanCaptor.getValue();
+		assertThat(event, is(equalTo(createExpectedMalcolmEventBean(DeviceState.READY, null, "connected to " + malcolmDevice.getName()))));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
@@ -209,8 +206,8 @@ public abstract class AbstractMalcolmDeviceTest {
 		return msg;
 	}
 
-	protected MalcolmEventBean createExpectedMalcolmEventBean(DeviceState state, DeviceState previousState, String message) {
-		MalcolmEventBean bean = new MalcolmEventBean();
+	protected MalcolmEvent createExpectedMalcolmEventBean(DeviceState state, DeviceState previousState, String message) {
+		MalcolmEvent bean = new MalcolmEvent(malcolmDevice);
 		bean.setDeviceName(malcolmDevice.getName());
 		bean.setMessage(message);
 		bean.setDeviceState(state);

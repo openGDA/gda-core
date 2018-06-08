@@ -46,7 +46,7 @@ import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmCon
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.MalcolmUtil;
 import org.eclipse.scanning.api.malcolm.message.Type;
@@ -192,7 +192,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	private IPublisher<ScanBean> publisher;
 
 	// Data should be in model?
-	private MalcolmEventBean meb;
+	private MalcolmEvent meb;
 	private Iterator<IPosition> scanPositionIterator;
 
 	// Local data.
@@ -372,7 +372,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 
 		// We also send a malcolm event
-		if (meb==null) meb = new MalcolmEventBean();
+		if (meb==null) meb = new MalcolmEvent(this);
 		meb.setDeviceName(getName());
 		meb.setMessage(message);
 

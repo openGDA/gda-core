@@ -18,9 +18,8 @@ import java.util.List;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.eclipse.scanning.api.malcolm.message.MalcolmUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,15 +61,14 @@ public abstract class AbstractCommunicationMalcolmTest extends AbstractMalcolmTe
 
 	private void startAndStopEvents(IMalcolmDevice zebra) throws MalcolmDeviceException, InterruptedException, Exception {
 
-		final List<MalcolmEventBean> beans = new ArrayList<MalcolmEventBean>(IMAGE_COUNT);
-		zebra.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+		final List<MalcolmEvent> beans = new ArrayList<MalcolmEvent>(IMAGE_COUNT);
+		zebra.addMalcolmListener(new IMalcolmEventListener() {
 			@Override
-			public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-				MalcolmEventBean bean = e.getBean();
-				System.out.println(bean.isScanStart());
-				System.out.println(bean.isScanEnd());
-				if (bean.isScanEnd() || bean.isScanStart()) {
-				    beans.add(bean);
+			public void eventPerformed(MalcolmEvent event) {
+				System.out.println(event.isScanStart());
+				System.out.println(event.isScanEnd());
+				if (event.isScanEnd() || event.isScanStart()) {
+				    beans.add(event);
 			}
 			}
 		});
@@ -96,16 +94,15 @@ public abstract class AbstractCommunicationMalcolmTest extends AbstractMalcolmTe
 
 		final boolean[] scanHasStarted = {false};
 
-		final List<MalcolmEventBean> beans = new ArrayList<MalcolmEventBean>(IMAGE_COUNT);
-		zebra.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+		final List<MalcolmEvent> beans = new ArrayList<MalcolmEvent>(IMAGE_COUNT);
+		zebra.addMalcolmListener(new IMalcolmEventListener() {
 			@Override
-			public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-				MalcolmEventBean bean = e.getBean();
-				if (bean.isScanStart()) {
+			public void eventPerformed(MalcolmEvent event) {
+				if (event.isScanStart()) {
 					scanHasStarted[0] = true;
 				}
-				if (MalcolmUtil.isScanning(bean) && scanHasStarted[0]) {
-				    beans.add(bean);
+				if (MalcolmUtil.isScanning(event) && scanHasStarted[0]) {
+				    beans.add(event);
 			}
 			}
 		});

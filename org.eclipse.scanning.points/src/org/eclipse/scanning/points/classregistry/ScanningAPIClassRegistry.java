@@ -44,7 +44,7 @@ import org.eclipse.scanning.api.malcolm.attributes.PointGeneratorAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.Scalar;
@@ -157,7 +157,7 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		// malcolm.event
 		registerClass(tmp, MalcolmModel.class);
 		registerClass(tmp, Float.class);
-		registerClass(tmp, MalcolmEventBean.class);
+		registerClass(tmp, MalcolmEvent.class);
 		registerClass(tmp, MalcolmTable.class);
 		registerClass(tmp, ChoiceAttribute.class);
 		registerClass(tmp, BooleanArrayAttribute.class);

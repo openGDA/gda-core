@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -62,7 +62,7 @@ public abstract class AbstractPausingMalcolmTest extends AbstractMalcolmTest {
 
 		// We add a listener to the live run, it's ok because we have not paused yet
 		// and we are testing pause events.
-		final List<MalcolmEventBean> beans = new ArrayList<MalcolmEventBean>(IMAGE_COUNT);
+		final List<MalcolmEvent> beans = new ArrayList<MalcolmEvent>(IMAGE_COUNT);
 		createPauseEventListener(device, beans);
 
 		checkPauseResume(device, -1, false);
@@ -80,7 +80,7 @@ public abstract class AbstractPausingMalcolmTest extends AbstractMalcolmTest {
 		configure(device, 10);
 		runDeviceInThread(device,exceptions);
 
-        final List<MalcolmEventBean> beans = new ArrayList<MalcolmEventBean>(IMAGE_COUNT);
+        final List<MalcolmEvent> beans = new ArrayList<MalcolmEvent>(IMAGE_COUNT);
         createPauseEventListener(device, beans);
         checkPauseResume(device, -1, false);
         device.latch(-1, TimeUnit.SECONDS, DeviceState.RUNNING);  // Wait while running

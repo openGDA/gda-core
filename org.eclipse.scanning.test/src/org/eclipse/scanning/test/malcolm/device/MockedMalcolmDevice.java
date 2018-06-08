@@ -31,7 +31,7 @@ import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -165,7 +165,7 @@ class MockedMalcolmDevice extends AbstractMalcolmDevice<MapMalcolmModel> {
 		setDeviceState(DeviceState.ARMED);
 
 		// We configure a bean with all the scan specific things
-		final MalcolmEventBean bean = new MalcolmEventBean();
+		final MalcolmEvent bean = new MalcolmEvent(this);
 		bean.setFilePath(model.getParameterMap().get("file").toString());
 		bean.setDatasetPath("/entry/data");
 		bean.setDeviceName(getName());
@@ -214,7 +214,7 @@ class MockedMalcolmDevice extends AbstractMalcolmDevice<MapMalcolmModel> {
         int amount = (int)params.get("nframes");
 
         // Send scan start
-		sendEvent(new MalcolmEventBean(getState()));
+		sendEvent(new MalcolmEvent(this, getState()));
 
         try {
 		NexusFile file=null;
@@ -271,7 +271,7 @@ class MockedMalcolmDevice extends AbstractMalcolmDevice<MapMalcolmModel> {
 		setDeviceState(DeviceState.POSTRUN); // Devices go into postrun after running
 
 			setDeviceState(DeviceState.ARMED); // State change
-	        sendEvent(new MalcolmEventBean(getState())); // Scan end event
+	        sendEvent(new MalcolmEvent(this, getState())); // Scan end event
 
 
         } catch (Exception ne) {

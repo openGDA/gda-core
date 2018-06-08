@@ -24,9 +24,8 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceOperationCancelledException;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
@@ -169,14 +168,13 @@ public abstract class AbstractMalcolmTest {
 
 
 
-	protected void createPauseEventListener(IMalcolmDevice device, final List<MalcolmEventBean> beans) {
+	protected void createPauseEventListener(IMalcolmDevice device, final List<MalcolmEvent> beans) {
 
-		device.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+		device.addMalcolmListener(new IMalcolmEventListener() {
 			@Override
-			public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-				MalcolmEventBean bean = e.getBean();
-				if (bean.getDeviceState()==DeviceState.PAUSED) {
-				    beans.add(bean);
+			public void eventPerformed(MalcolmEvent event) {
+				if (event.getDeviceState()==DeviceState.PAUSED) {
+				    beans.add(event);
 				}
 			}
 		});
@@ -215,14 +213,14 @@ public abstract class AbstractMalcolmTest {
 		final List<Throwable> exceptions = new ArrayList<>(1);
 		configure(device, imageCount);
 		runDeviceInThread(device, exceptions);
-		device.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+		device.addMalcolmListener(new IMalcolmEventListener() {
 			@Override
-			public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-				if (e.getBean().getMessage()!=null) System.out.println(e.getBean().getMessage());
+			public void eventPerformed(MalcolmEvent e) {
+				if (e.getMessage()!=null) System.out.println(e.getMessage());
 			}
 		});
 
-        final List<MalcolmEventBean> beans = new ArrayList<MalcolmEventBean>(IMAGE_COUNT);
+        final List<MalcolmEvent> beans = new ArrayList<MalcolmEvent>(IMAGE_COUNT);
         createPauseEventListener(device, beans);
 
         final List<Integer> usedThreads = new ArrayList<>();

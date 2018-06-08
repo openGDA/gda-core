@@ -22,9 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.junit.Test;
 
 /**
@@ -47,10 +46,10 @@ public abstract class AbstractMultipleClientMalcolmTest extends AbstractMalcolmT
 		final Collection<DeviceState> states = new HashSet<DeviceState>();
 		try {
 			IMalcolmDevice zebra = (IMalcolmDevice) service.getRunnableDevice("zebra");
-			zebra.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+			zebra.addMalcolmListener(new IMalcolmEventListener() {
 				@Override
-				public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-					states.add(e.getBean().getDeviceState());
+				public void eventPerformed(MalcolmEvent e) {
+					states.add(e.getDeviceState());
 				}
 			});
 
@@ -95,10 +94,10 @@ public abstract class AbstractMultipleClientMalcolmTest extends AbstractMalcolmT
 
 					try {
 						IMalcolmDevice zebra = (IMalcolmDevice) service.getRunnableDevice("zebra");
-						zebra.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+						zebra.addMalcolmListener(new IMalcolmEventListener() {
 							@Override
-							public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-								states.add(e.getBean().getDeviceState());
+							public void eventPerformed(MalcolmEvent e) {
+								states.add(e.getDeviceState());
 							}
 						});
 
@@ -139,10 +138,10 @@ public abstract class AbstractMultipleClientMalcolmTest extends AbstractMalcolmT
 		try {
 			// Add listener
 			IMalcolmDevice zebra = (IMalcolmDevice) service.getRunnableDevice("zebra");
-			zebra.addMalcolmListener(new IMalcolmListener<MalcolmEventBean>() {
+			zebra.addMalcolmListener(new IMalcolmEventListener() {
 				@Override
-				public void eventPerformed(MalcolmEvent<MalcolmEventBean> e) {
-					states.add(e.getBean().getDeviceState());
+				public void eventPerformed(MalcolmEvent e) {
+					states.add(e.getDeviceState());
 				}
 			});
 

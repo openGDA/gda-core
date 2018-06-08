@@ -30,8 +30,8 @@ import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -57,7 +57,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
-		this.eventDelegate = new MalcolmEventDelegate();
+		this.eventDelegate = new MalcolmEventDelegate(this);
 		setRole(DeviceRole.MALCOLM);
 		setSupportedScanMode(ScanMode.HARDWARE);
 	}
@@ -115,7 +115,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		logger.debug("Entering afterExecute, state is " + getDeviceState());
 	}
 
-	protected void setTemplateBean(MalcolmEventBean bean) {
+	protected void setTemplateBean(MalcolmEvent bean) {
 		eventDelegate.setTemplateBean(bean);
 	}
 
@@ -170,19 +170,17 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void addMalcolmListener(IMalcolmListener<?> l) {
-		eventDelegate.addMalcolmListener((IMalcolmListener<MalcolmEventBean>) l);
+	public void addMalcolmListener(IMalcolmEventListener listener) {
+		eventDelegate.addMalcolmListener(listener);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void removeMalcolmListener(IMalcolmListener<?> l) {
-		eventDelegate.removeMalcolmListener((IMalcolmListener<MalcolmEventBean>) l);
+	public void removeMalcolmListener(IMalcolmEventListener listener) {
+		eventDelegate.removeMalcolmListener(listener);
 	}
 
-	protected void sendEvent(MalcolmEventBean event) throws Exception {
+	protected void sendEvent(MalcolmEvent event) throws Exception {
 		eventDelegate.sendEvent(event);
 	}
 

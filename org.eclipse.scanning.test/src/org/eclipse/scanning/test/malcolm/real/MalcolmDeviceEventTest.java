@@ -95,7 +95,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
 		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
 		verify(malcolmEventListener, times(2)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(
+		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(
 				createExpectedMalcolmEventBean(newState, oldState, "State changed to " + newState))));
 
 		// Now call again. This time, previousState should be CONFIGURING
@@ -109,7 +109,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 
 		// Assert
 		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(
+		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(
 				createExpectedMalcolmEventBean(newState, oldState, "State changed to " + newState))));
 	}
 
@@ -186,7 +186,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		assertThat(malcolmDevice.isAlive(), is(false));
 		// verify that a state change event is received, from ARMED to OFFLINE
 		verify(malcolmEventListener, timeout(100).times(2)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(createExpectedMalcolmEventBean(
+		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEventBean(
 				DeviceState.OFFLINE, DeviceState.READY, "disconnected from " + malcolmDevice.getName()))));
 
 		// Arrange
@@ -201,7 +201,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection, timeout(100)) // wait with timeout as invocation happens in a another thread
 				.send(malcolmDevice, expectedGetDeviceStateMessage);
 		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue().getBean(), is(equalTo(createExpectedMalcolmEventBean(
+		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEventBean(
 				DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
 	}
 

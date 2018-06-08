@@ -14,7 +14,7 @@ package org.eclipse.scanning.test.malcolm.device;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -60,7 +60,7 @@ public class LoopingMockedMalcolmDevice extends PausableMockedMalcolmDevice {
 	        amount = (int)model.getParameterMap().get("nframes");
 
 	        // Send scan start
-	        MalcolmEventBean bean = new MalcolmEventBean();
+	        MalcolmEvent bean = new MalcolmEvent(this);
 	        bean.setPreviousState(DeviceState.ARMED);
 	        bean.setDeviceState(DeviceState.RUNNING);
 			sendEvent(bean);
@@ -80,7 +80,7 @@ public class LoopingMockedMalcolmDevice extends PausableMockedMalcolmDevice {
 			} // End fake scanning loop.
 
 			setState(DeviceState.READY); // State change
-	        bean = new MalcolmEventBean();
+	        bean = new MalcolmEvent(this);
 	        bean.setPreviousState(DeviceState.RUNNING);
 	        bean.setDeviceState(DeviceState.READY);
 			sendEvent(bean);

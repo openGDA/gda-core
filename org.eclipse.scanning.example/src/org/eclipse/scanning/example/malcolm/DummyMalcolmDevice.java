@@ -77,7 +77,7 @@ import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -756,12 +756,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	@Override
-	public void addMalcolmListener(IMalcolmListener l) {
+	public void addMalcolmListener(IMalcolmEventListener l) {
 		// nothing to do  (TODO: do we need malcolm listeners?)
 	}
 
 	@Override
-	public void removeMalcolmListener(IMalcolmListener l) {
+	public void removeMalcolmListener(IMalcolmEventListener l) {
 		// nothing to do  (TODO: do we need malcolm listeners?)
 	}
 

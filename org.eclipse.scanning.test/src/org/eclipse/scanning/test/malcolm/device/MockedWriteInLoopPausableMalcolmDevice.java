@@ -28,7 +28,7 @@ import org.eclipse.january.dataset.Random;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -86,7 +86,7 @@ public class MockedWriteInLoopPausableMalcolmDevice extends LoopingMockedMalcolm
 				writer.setSlice(new IMonitor.Stub(), rimage, start, stop, null);
 				file.flush(); // remove explicit flush
 
-				final MalcolmEventBean bean = new MalcolmEventBean(getState());
+				final MalcolmEvent bean = new MalcolmEvent(MockedWriteInLoopPausableMalcolmDevice.this, getState());
 				bean.setPercentComplete((count/amount)*100d);
 				bean.setFilePath((String)model.getParameterMap().get("file"));
 				bean.setDatasetPath("/entry/data");
@@ -133,7 +133,7 @@ public class MockedWriteInLoopPausableMalcolmDevice extends LoopingMockedMalcolm
 		setState(DeviceState.ARMED);
 
 		// We configure a bean with all the scan specific things
-		final MalcolmEventBean bean = new MalcolmEventBean();
+		final MalcolmEvent bean = new MalcolmEvent(this);
 		bean.setFilePath(params.getParameterMap().get("file").toString());
 		bean.setDatasetPath("/entry/data");
 		bean.setDeviceName(getName());

@@ -11,74 +11,71 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 
 public class MalcolmEventDelegate {
 
 	// listeners
-	private Collection<IMalcolmListener<MalcolmEventBean>> listeners;
+	private final Set<IMalcolmEventListener> listeners = new CopyOnWriteArraySet<>();
 
 	// Bean to contain all the settings for a given
 	// scan and to hold data for scan events
-	private MalcolmEventBean templateBean;
+	private MalcolmEvent templateBean;
 
-    /**
-     * Call to publish an event. If the topic is not opened, this
-     * call prompts the delegate to open a connection. After this
-     * the close method *must* be called.
-     *
-     * @param event
-     * @throws Exception
-     */
-	public void sendEvent(MalcolmEventBean event)  throws Exception {
+	private final IMalcolmDevice<?> malcolmDevice;
+
+	public MalcolmEventDelegate(IMalcolmDevice<?> malcolmDevice) {
+		this.malcolmDevice = malcolmDevice;
+	}
+
+	/**
+	 * Call to publish an event. If the topic is not opened, this call prompts the delegate to open a connection. After
+	 * this the close method *must* be called.
+	 *
+	 * @param event
+	 * @throws Exception
+	 */
+	public void sendEvent(MalcolmEvent event)  throws Exception {
 
 		if (templateBean!=null) BeanMerge.merge(templateBean, event);
 		fireMalcolmListeners(event);
 	}
 
 
-	public void addMalcolmListener(IMalcolmListener<MalcolmEventBean> l) {
-		if (listeners==null) listeners = Collections.synchronizedCollection(new LinkedHashSet<IMalcolmListener<MalcolmEventBean>>());
-		listeners.add(l);
+	public void addMalcolmListener(IMalcolmEventListener listener) {
+		listeners.add(listener);
 	}
 
-	public void removeMalcolmListener(IMalcolmListener<MalcolmEventBean> l) {
-		if (listeners==null) return;
-		listeners.remove(l);
+	public void removeMalcolmListener(IMalcolmEventListener listener) {
+		listeners.remove(listener);
 	}
 
-	private void fireMalcolmListeners(MalcolmEventBean message) {
-
-		if (listeners==null) return;
-
-		// Make array, avoid multi-threading issues.
-		@SuppressWarnings("unchecked")
-		final IMalcolmListener<MalcolmEventBean>[] la = listeners.toArray(new IMalcolmListener[listeners.size()]);
-		final MalcolmEvent<MalcolmEventBean> evt = new MalcolmEvent<MalcolmEventBean>(message);
-		for (IMalcolmListener<MalcolmEventBean> l : la) l.eventPerformed(evt);
+	private void fireMalcolmListeners(MalcolmEvent event) {
+		for (IMalcolmEventListener listener : listeners) {
+			listener.eventPerformed(event);
+		}
 	}
 
 	public void sendStateChanged(DeviceState state, DeviceState old, String message) throws Exception {
-		final MalcolmEventBean evt = new MalcolmEventBean();
+		final MalcolmEvent evt = new MalcolmEvent(malcolmDevice);
 		evt.setPreviousState(old);
 		evt.setDeviceState(state);
 		evt.setMessage(message);
 		sendEvent(evt);
 	}
 
-	public void setTemplateBean(MalcolmEventBean bean) {
+	public void setTemplateBean(MalcolmEvent bean) {
 		templateBean = bean;
 	}
 
 	public void close() {
-		if (listeners!=null) listeners.clear();
+		listeners.clear();
 	}
 
 }
