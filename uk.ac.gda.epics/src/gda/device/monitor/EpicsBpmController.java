@@ -67,6 +67,10 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	private String pvName;
 
+	private String intensityPvName;
+	private String xposPvName;
+	private String yposPvName;
+
 	/**
 	 * GDA device Name
 	 */
@@ -118,6 +122,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for BPM " + getDeviceName(), e);
 				}
+			} else if (getIntensityPvName() != null && getXposPvName() != null && getYposPvName() != null) {
+				createChannelAccess(getIntensityPvName(), getXposPvName(), getYposPvName());
+				channelManager.tryInitialize(100);
 			} else if (getPvName()!=null) {
 				createChannelAccess(getPvName());
 				channelManager.tryInitialize(100);
@@ -360,6 +367,10 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		this.poll = poll;
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+
+	// Methods enabling just the base PV name to be specified
+
 	public String getPvName() {
 		return pvName;
 	}
@@ -367,5 +378,35 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	// Methods enabling the intensity/position PVs to be specified separately
+
+	public String getIntensityPvName() {
+		return intensityPvName;
+	}
+
+	public void setIntensityPvName(String intensityPvName) {
+		this.intensityPvName = intensityPvName;
+	}
+
+	public String getXposPvName() {
+		return xposPvName;
+	}
+
+	public void setXposPvName(String xposPvName) {
+		this.xposPvName = xposPvName;
+	}
+
+	public String getYposPvName() {
+		return yposPvName;
+	}
+
+	public void setYposPvName(String yposPvName) {
+		this.yposPvName = yposPvName;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
 
 }
