@@ -79,7 +79,7 @@ public abstract class ScanBase implements NestableScan {
 	 * e.g. logging. Works for exceptions thrown from Jython code, which would otherwise always contain
 	 * a null message.
 	 */
-	static public String representThrowable(Throwable e) {
+	public static String representThrowable(Throwable e) {
 		String message = (e instanceof PyException) ? e.toString() : e.getMessage();
 		return e.getClass().getSimpleName() + ":" + message;
 	}
@@ -88,13 +88,13 @@ public abstract class ScanBase implements NestableScan {
 	 * all the detectors being operated in this scan. This vector is generated from detectors in this.allScannables and
 	 * DetetcorBase.activeDetectors This list is to be used by DataHandlers when writing out the data.
 	 */
-	protected Vector<Detector> allDetectors = new Vector<Detector>();
+	protected Vector<Detector> allDetectors = new Vector<>();
 
 	/**
 	 * all the scannables being operated in this scan, but *not* Detectors. for some scan types this may be a single
 	 * scannable object.
 	 */
-	protected Vector<Scannable> allScannables = new Vector<Scannable>();
+	protected Vector<Scannable> allScannables = new Vector<>();
 
 	protected Scan child = null;
 
@@ -274,8 +274,7 @@ public abstract class ScanBase implements NestableScan {
 
 	private static Object listWrapArray(Object foo) {
 		if (foo.getClass().isArray()) {
-			List<Object> list = Arrays.asList((Object[]) foo);
-			return list;
+			return Arrays.asList((Object[]) foo);
 		}
 		return foo;
 	}
@@ -315,9 +314,9 @@ public abstract class ScanBase implements NestableScan {
 					Object stopElement = ((List) _stop).get(i);
 					Object stepElement = ((List) _step).get(i);
 
-					Double start = Double.valueOf(startElement.toString()).doubleValue();
-					Double stop = Double.valueOf(stopElement.toString()).doubleValue();
-					Double step = Double.valueOf(stepElement.toString()).doubleValue();
+					Double start = Double.valueOf(startElement.toString());
+					Double stop = Double.valueOf(stopElement.toString());
+					Double step = Double.valueOf(stepElement.toString());
 
 					step = sortArgs(start, stop, step);
 					((List) _step).set(i, step);
@@ -327,14 +326,10 @@ public abstract class ScanBase implements NestableScan {
 			}
 
 			// otherwise assume these are single numbers
-			double start = 0.0;
-			double stop = 0.0;
-			double step = 0.0;
 			// only can do this if we can create doubles
-
-			start = Double.valueOf(_start.toString()).doubleValue();
-			stop = Double.valueOf(_stop.toString()).doubleValue();
-			step = Double.valueOf(_step.toString()).doubleValue();
+			final double start = Double.parseDouble(_start.toString());
+			final double stop = Double.parseDouble(_stop.toString());
+			final double step = Double.parseDouble(_step.toString());
 
 			return sortArgs(start, stop, step);
 		} catch (NumberFormatException nfe) {
@@ -529,7 +524,7 @@ public abstract class ScanBase implements NestableScan {
 	protected void createScanDataPointPipeline(DataWriter dataWriter) {
 
 		float estimatedPointsToComputeSimultaneousely;
-		if ((getPositionCallableThreadPoolSize() == 0) | (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
+		if ((getPositionCallableThreadPoolSize() == 0) || (numberOfScannablesThatCanProvidePositionCallables() == 0)) {
 			estimatedPointsToComputeSimultaneousely = 0;
 		} else {
 			estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
@@ -785,7 +780,7 @@ public abstract class ScanBase implements NestableScan {
 		Scan outerMostScan = getOuterMostScan();
 		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
 			return new int[]{ ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints()};
-		Vector<Integer> dim = new Vector<Integer>();
+		Vector<Integer> dim = new Vector<>();
 		Scan scan = outerMostScan;
 		while (scan != null) {
 			int numberPoints = scan.getDimension();
@@ -867,7 +862,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected List<IScanStepId> getStepIds() {
-		Vector<IScanStepId> stepsIds = new Vector<IScanStepId>();
+		Vector<IScanStepId> stepsIds = new Vector<>();
 		NestableScan scan = this;
 		while (scan != null) {
 			IScanStepId stepId = scan.getStepId();
@@ -1027,7 +1022,7 @@ public abstract class ScanBase implements NestableScan {
 				// Allow tests to set the scanNumber
 				int int1 = LocalProperties.getInt(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, -1);
 				if (int1 != -1) {
-					runNumber.setFileNumber(int1 - 1);
+					runNumber.setFileNumber(int1 - 1L);
 				}
 				scanNumber = runNumber.incrementNumber();
 			}
@@ -1043,7 +1038,7 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	private void removeDuplicateScannables() {
-		Vector<Scannable> newAllScannables = new Vector<Scannable>();
+		Vector<Scannable> newAllScannables = new Vector<>();
 
 		for (Scannable thisScannable : allScannables) {
 			if (!newAllScannables.contains(thisScannable)) {
@@ -1071,7 +1066,6 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public final void run() throws Exception {
 		Exception exceptionFromMainTryClause = null;
-		// lineScanNeedsDoing = false;
 		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
 		do {
 			lineScanNeedsDoing = false;
@@ -1104,7 +1098,7 @@ public abstract class ScanBase implements NestableScan {
 					throw new Exception("Exception while preparing for scan collection: " + createMessage(e), e);
 				}
 
-				if (getScannables().size() == 0 && getDetectors().size() == 0) {
+				if (getScannables().isEmpty() && getDetectors().isEmpty()) {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
 				}
@@ -1355,7 +1349,7 @@ public abstract class ScanBase implements NestableScan {
 		 * ]).runScan(); Such a detector would be an instance of Scannable and also DetectorAdapter. Such objects
 		 * need to be added to the list of detectors to be removed.
 		 */
-		ArrayList<Scannable> detectorsToRemove = new ArrayList<Scannable>();
+		ArrayList<Scannable> detectorsToRemove = new ArrayList<>();
 		for (Scannable scannable : allScannables) {
 			if (scannable instanceof Detector) {
 				// recast
