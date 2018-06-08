@@ -40,7 +40,7 @@ import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class Xspress3DataOperationsv2 {
+public class Xspress3DataOperations {
 
 	private static final String mcaLabel = "MCAs";
 	private final String sumLabel = "FF";
@@ -53,12 +53,12 @@ public class Xspress3DataOperationsv2 {
 	private String configFileName;
 	private DetectorROI[] rois;
 	private boolean[] isChannelEnabled;
-	private Xspress3FileReaderv2 reader;
+	private Xspress3FileReader reader;
 	private boolean readDataFromFile;
 	private int lineNumber;
-	private static final Logger logger = LoggerFactory.getLogger(Xspress3DataOperationsv2.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3DataOperations.class);
 
-	public Xspress3DataOperationsv2(Xspress3Controller controller, int firstChannelToRead) {
+	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
 		this.controller = controller;
 		this.firstChannelToRead = firstChannelToRead;
 		this.lineNumber = 0;
@@ -287,7 +287,7 @@ public class Xspress3DataOperationsv2 {
 
 	private void extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws ScanFileHolderException {
 		if (reader == null) {
-			reader = new Xspress3FileReaderv2(filename, controller.getNumberOfChannels(), controller.getMcaSize());
+			reader = new Xspress3FileReader(filename, controller.getNumberOfChannels(), controller.getMcaSize());
 			reader.readFile();
 		}
 	}

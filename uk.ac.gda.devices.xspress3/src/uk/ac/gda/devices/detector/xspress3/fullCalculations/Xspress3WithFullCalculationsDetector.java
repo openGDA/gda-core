@@ -39,24 +39,24 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  *
  * @author rjw82
  */
-public class Xspress3WithFullCalculationsDetectorv2 extends DetectorBase implements Xspress3 {
+public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;
 	private static final int MAX_NUMBER_OF_ROIS = Integer.MAX_VALUE; // calculations are done in software so no limit to number of ROIs
 
 	Xspress3Controller controller;
-	private Xspress3ScanOperationsv2 scanOperations;
-	private Xspress3DataOperationsv2 dataOperations;
+	private Xspress3ScanOperations scanOperations;
+	private Xspress3DataOperations dataOperations;
 	private int firstChannelToRead = 0;
 	private boolean readDataFromFile = false;
 
-	public Xspress3WithFullCalculationsDetectorv2() {
+	public Xspress3WithFullCalculationsDetector() {
 	}
 
 	@Override
 	public void configure() throws gda.factory.FactoryException {
-		scanOperations = new Xspress3ScanOperationsv2(controller, getName());
-		dataOperations = new Xspress3DataOperationsv2(controller, firstChannelToRead);
+		scanOperations = new Xspress3ScanOperations(controller, getName());
+		dataOperations = new Xspress3DataOperations(controller, firstChannelToRead);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import org.eclipse.january.dataset.Dataset;
  * other beamlines that are using Xspress3. With SWMR, we probably do not need this class anymore.
  */
 
-public class Xspress3FileReaderv2 {
+public class Xspress3FileReader {
 
 	private static final String DATA_PATH = "entry/instrument/detector/data";
 	private String url;
@@ -36,7 +36,7 @@ public class Xspress3FileReaderv2 {
 	private int mcaSize;
 	private double[][][] theData = null; // [frame][element][mcaChannel]
 
-	public Xspress3FileReaderv2(String filename, int numberOfDetectorElements, int mcaSize) {
+	public Xspress3FileReader(String filename, int numberOfDetectorElements, int mcaSize) {
 		this.url = filename;
 		this.numberOfDetectorElements = numberOfDetectorElements;
 		this.mcaSize = mcaSize;

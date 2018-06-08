@@ -40,12 +40,12 @@ public class Xspress3DataOperationsTest {
 		controller.setNumFramesToAcquire(1);
 		controller.setNumberOfChannels(10);
 
-		Xspress3DataOperationsv2 dataOps = new Xspress3DataOperationsv2(controller,0);
+		Xspress3DataOperations dataOps = new Xspress3DataOperations(controller,0);
 		String configFile = Xspress3DataOperationsTest.class.getResource("Xspress3_ParametersCu_K.xml").getPath();
 		dataOps.setConfigFileName(configFile);
 		dataOps.loadConfigurationFromFile();
 
-		URL nexusFile = Xspress3FileReaderv2.class.getResource("46594_0003.hdf5");
+		URL nexusFile = Xspress3FileReader.class.getResource("46594_0003.hdf5");
 		controller.setSimulationFileName(nexusFile.getPath());
 
 		NXDetectorData treeProvider = dataOps.readoutFrames(1, 1,"xspress3")[0];

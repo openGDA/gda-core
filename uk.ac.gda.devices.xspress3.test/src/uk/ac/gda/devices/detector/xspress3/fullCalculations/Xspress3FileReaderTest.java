@@ -28,7 +28,7 @@ public class Xspress3FileReaderTest {
 	@Test
 	public void testFileUnpackedCorrectly() throws ScanFileHolderException {
 		String nexusFile = Xspress3FileReaderTest.class.getResource("46594_0003.hdf5").getPath();
-		Xspress3FileReaderv2 reader = new Xspress3FileReaderv2(nexusFile, 10, 4096);
+		Xspress3FileReader reader = new Xspress3FileReader(nexusFile, 10, 4096);
 		reader.readFile();
 		double[][] data = reader.getFrame(0);
 		assertEquals(10, data.length);
@@ -38,7 +38,7 @@ public class Xspress3FileReaderTest {
 	@Test
 	public void testSingleFrameRead() throws ScanFileHolderException {
 		String nexusFile = Xspress3FileReaderTest.class.getResource("46594_0003.hdf5").getPath();
-		Xspress3FileReaderv2 reader = new Xspress3FileReaderv2(nexusFile, 10, 4096);
+		Xspress3FileReader reader = new Xspress3FileReader(nexusFile, 10, 4096);
 		reader.readFile();
 		double[][] data = reader.getFrame(9);
 		assertEquals(10, data.length);

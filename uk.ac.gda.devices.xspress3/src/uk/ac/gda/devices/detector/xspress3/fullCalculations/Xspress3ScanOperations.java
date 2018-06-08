@@ -35,7 +35,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * other beamlines that are using Xspress3.
  */
 
-public class Xspress3ScanOperationsv2 {
+public class Xspress3ScanOperations {
 
 	private Xspress3Controller controller;
 	private int currentScanNumber;
@@ -49,7 +49,7 @@ public class Xspress3ScanOperationsv2 {
 	// Data Type is Float64 so take 8 bytes
 	private static final int DATA_TYPE_SIZE = 8;
 
-	public Xspress3ScanOperationsv2(Xspress3Controller controller, String detectorName) {
+	public Xspress3ScanOperations(Xspress3Controller controller, String detectorName) {
 		this.controller = controller;
 		this.detectorName = detectorName;
 		this.lineNumber = 0;
