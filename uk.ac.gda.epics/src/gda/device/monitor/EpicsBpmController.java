@@ -146,14 +146,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	}
 
 	private void createChannelAccess(String pvName) throws FactoryException {
-		try {
-			intensityCh = channelManager.createChannel(pvName+"INTENSITY", false);
-			xPosCh = channelManager.createChannel(pvName+"BEAMX", false);
-			yPosCh = channelManager.createChannel(pvName+"BEAMY", false);
-			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to connect to all channels", th);
-		}
+		createChannelAccess(pvName + "INTENSITY", pvName + "BEAMX", pvName + "BEAMY");
 	}
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
