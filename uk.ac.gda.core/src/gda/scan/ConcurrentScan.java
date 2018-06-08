@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
 import org.python.core.PyTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,14 +366,14 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	public String reportDevicesByLevel() {
-		TreeMap<Integer, Scannable[]> devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
+		final TreeMap<Integer, Scannable[]> devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
 		// e.g. "| lev4 | lev4a lev4b | *det9 || mon1, mon2
-		String sMoved = "";
-		List<String> toMonitor= new ArrayList<String>();
-		for (Integer level : devicesToMoveByLevel.keySet()) {
-			sMoved += " | ";
-			List<String> toMove= new ArrayList<String>();
-			for (Scannable scn : devicesToMoveByLevel.get(level)) {
+		final StringBuilder sMoved = new StringBuilder();
+		final List<String> toMonitor= new ArrayList<>();
+		for (Scannable[] scannablesAtLevel : devicesToMoveByLevel.values()) {
+			sMoved.append(" | ");
+			final List<String> toMove= new ArrayList<>();
+			for (Scannable scn : scannablesAtLevel) {
 				if (scn instanceof Detector) {
 					toMove.add("*" + scn.getName());
 				} else if (isScannableActuallyToBeMoved(scn)) {
@@ -384,10 +383,10 @@ public class ConcurrentScan extends ConcurrentScanChild {
 					toMonitor.add(scn.getName());
 				}
 			}
-			sMoved += StringUtils.join(toMove, ", ");
+			sMoved.append(String.join(", ", toMove));
 		}
-		String sMonitor =  StringUtils.join(toMonitor, ", ");
-		return (sMoved + ((sMonitor.equals("")) ? " |" : (" || " + sMonitor + " |"))).trim();
+		final String sMonitor =  String.join(", ", toMonitor);
+		return (sMoved.toString() + ((sMonitor.equals("")) ? " |" : (" || " + sMonitor + " |"))).trim();
 	}
 
 	@Override
@@ -399,7 +398,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				logger.debug("Scan contains {} scannables and {} detectors", getScannables().size(), getDetectors().size());
 			}
 			reportDetectorsThatWillBeMovedConcurrentlyWithSomeOtherScannables();
-			logger.info("Concurrency: " + reportDevicesByLevel());
+			logger.info("Concurrency: {}", reportDevicesByLevel());
 
 			// if true, then make a note of current position of all scannables to use at the end
 			if (!isChild && isReturnScannablesToOrginalPositions()) {
