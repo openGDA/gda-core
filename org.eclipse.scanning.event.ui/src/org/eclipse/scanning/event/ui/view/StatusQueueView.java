@@ -245,7 +245,7 @@ public class StatusQueueView extends EventConnectionView {
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
 		openActionUpdate(anySelectedInSubmittedList);
-		detailsActionUpdate(true);
+		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
@@ -811,8 +811,15 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private void detailsActionUpdate(boolean enabled) {
-		detailsAction.setEnabled(enabled);
+	private void detailsActionUpdate(List<StatusBean> selectedInSubmittedList, List<StatusBean> selectedInRunList) {
+		/* If more than one job is selected, only the first is considered, and even then it is only shown if it is in
+		 * the run list (i.e. the job is either running or has completed running) so only enable when only a single
+		 * item is selected in the run list.
+		 *
+		 * This prevents Unhandled event loop exceptions when the button is pressed with no selection or when the first
+		 * selection is in the submitted list.
+		 */
+		detailsAction.setEnabled(selectedInSubmittedList.size() == 0 && selectedInRunList.size() == 1);
 	}
 
 	private Action detailsActionCreate() {
