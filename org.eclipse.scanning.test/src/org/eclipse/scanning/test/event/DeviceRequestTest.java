@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -52,8 +54,8 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.event.EventServiceImpl;
+import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -316,9 +318,8 @@ public class DeviceRequestTest extends BrokerTest {
 		req.setDeviceName("malcolm");
 		req.setGetAllAttributes(true);
 		DeviceRequest res = requester.post(req);
-		assertNotNull(res);
-		assertNotNull(res.getAttributes());
-		assertEquals(9, res.getAttributes().size());
+		assertThat(res.getAttributes().keySet(), containsInAnyOrder("layout", "completedSteps", "axesToMove", "busy",
+				"totalSteps", "configuredSteps", "health", "datasets", "state"));
 
 		// no need to test all 9 attributes, we'll just test a couple
 		IDeviceAttribute<?> stateAttr = res.getAttributes().get("state");
