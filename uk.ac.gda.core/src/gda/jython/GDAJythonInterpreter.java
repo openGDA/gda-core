@@ -93,7 +93,7 @@ public class GDAJythonInterpreter {
 	private static Translator translator = null;
 
 	// folders where beamline and user scripts are held
-	private ScriptPaths _jythonScriptPaths;
+	private final ScriptPaths jythonScriptPaths;
 
 	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader();
 
@@ -147,14 +147,14 @@ public class GDAJythonInterpreter {
 	}
 
 	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
-		_jythonScriptPaths = scriptPaths;
+		jythonScriptPaths = scriptPaths;
 	}
 
 	/**
 	 * @return string - the full path of the beamline's initialisation script.
 	 */
 	public String getGdaStationScript() {
-		return _jythonScriptPaths != null ? _jythonScriptPaths.getStartupScript() : "";
+		return jythonScriptPaths != null ? jythonScriptPaths.getStartupScript() : "";
 	}
 
 	/**
@@ -200,7 +200,7 @@ public class GDAJythonInterpreter {
 			iteratePluginsDirectory(bundlesRoot);
 		}
 
-		if (_jythonScriptPaths == null) {
+		if (jythonScriptPaths == null) {
 			logger.warn("no jython script paths defined");
 		} else {
 			// Add the paths for the standard script folders to the existing _jythonScriptPaths
@@ -227,7 +227,7 @@ public class GDAJythonInterpreter {
 					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
 						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++
 								: scriptEntry.getValue();
-						_jythonScriptPaths.addProject(
+						jythonScriptPaths.addProject(
 								new ScriptProject(scriptFolder.getCanonicalPath(), title, ScriptProjectType.CORE));
 					} else {
 						throw new IOException(String.format("Script folder %s does not exist", scriptFolder));
@@ -244,7 +244,7 @@ public class GDAJythonInterpreter {
 
 			logger.info("clearing old Jython class files...");
 			// Remove any previously compiled Jython class files from the script folders
-			for (ScriptProject scriptProject : _jythonScriptPaths.getProjects()) {
+			for (ScriptProject scriptProject : jythonScriptPaths.getProjects()) {
 				try {
 					final PyString scriptFolderName = new PyString(scriptProject.getPath());
 					final File scriptDir = new File(scriptFolderName.toString());
