@@ -35,7 +35,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 @ServiceInterface(RemoteRectangularROIsProvider.class)
 public class LiveStreamROIProvider extends FindableBase implements RemoteRectangularROIsProvider {
 
-	private static Logger logger = LoggerFactory.getLogger(LiveStreamROIProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(LiveStreamROIProvider.class);
 
 	/** The list of ROIs which will be updated via RMI by calling the {@link #updateRois(List)} method */
 	private final List<RectangularROI<Integer>> roisList = new ArrayList<>();
