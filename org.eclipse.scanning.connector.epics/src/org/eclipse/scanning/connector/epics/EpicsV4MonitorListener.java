@@ -11,25 +11,24 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics;
 
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
-import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
 import org.epics.pvaClient.PvaClientMonitor;
 
 public class EpicsV4MonitorListener {
 
-	private IMalcolmListener<MalcolmMessage> malcolmListener;
+	private IMalcolmConnectionEventListener malcolmListener;
 	private PvaClientMonitor monitor;
 
-	public EpicsV4MonitorListener(IMalcolmListener<MalcolmMessage> malcolmListener, PvaClientMonitor monitor) {
+	public EpicsV4MonitorListener(IMalcolmConnectionEventListener malcolmListener, PvaClientMonitor monitor) {
 		this.malcolmListener = malcolmListener;
 		this.monitor = monitor;
 	}
 
-	public IMalcolmListener<MalcolmMessage> getMalcolmListener() {
+	public IMalcolmConnectionEventListener getMalcolmListener() {
 		return malcolmListener;
 	}
 
-	public void setMalcolmListener(IMalcolmListener<MalcolmMessage> malcolmListener) {
+	public void setMalcolmListener(IMalcolmConnectionEventListener malcolmListener) {
 		this.malcolmListener = malcolmListener;
 	}
 

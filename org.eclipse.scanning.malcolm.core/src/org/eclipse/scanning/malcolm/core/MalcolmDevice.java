@@ -42,10 +42,10 @@ import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.MalcolmUtil;
@@ -88,7 +88,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	/**
 	 * A listener to the whether we are connected to malcolm.
 	 */
-	private class ConnectionStateListener implements IMalcolmListener<Boolean> {
+	private class ConnectionStateListener implements IMalcolmConnectionStateListener {
 
 		private final ExecutorService executor;
 
@@ -120,13 +120,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		/**
 		 * Handle a change in the connection state of this device. Event is sent by the communications layer.
 		 *
-		 * @param event
-		 *            containing <code>true</code> if the device has changed to being connected, <code>false</code> if
+		 * @param <code>true</code> if the device has changed to being connected, <code>false</code> if
 		 *            it has been disconnected
 		 */
 		@Override
-		public void eventPerformed(MalcolmEvent<Boolean> event) {
-			final boolean connected = event.getBean();
+		public void connectionStateChanged(boolean connected) {
 			try {
 				setAlive(connected);
 				if (connected) {
@@ -183,8 +181,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 
 	// Listeners to malcolm endpoints
-	private final IMalcolmListener<MalcolmMessage> stateChangeListener = this::sendScanStateChange;
-	private final IMalcolmListener<MalcolmMessage> scanEventListener = this::sendScanEvent;
+	private final IMalcolmConnectionEventListener stateChangeListener = this::sendScanStateChange;
+	private final IMalcolmConnectionEventListener scanEventListener = this::sendScanEvent;
 
 	// Subscriber messages
 	private MalcolmMessage stateSubscribeMessage;
@@ -267,12 +265,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		scanPositionIterator = scanPositions.iterator();
 	}
 
-	protected void sendScanEvent(MalcolmEvent<MalcolmMessage> event) {
-		final MalcolmMessage msg = event.getBean();
-		logger.debug("Received scan event with message: {}", msg);
+	protected void sendScanEvent(MalcolmMessage message) {
+		logger.debug("Received scan event with message: {}", message);
 		DeviceState newState;
 		try {
-			newState = MalcolmUtil.getState(msg, false);
+			newState = MalcolmUtil.getState(message, false);
 		} catch (Exception e1) {
 			logger.error("Could not get state", e1);
 			return;
@@ -288,7 +285,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		Integer point = bean.getPoint();
 		boolean newPoint = false;
-		Object value = msg.getValue();
+		Object value = message.getValue();
 		if (value instanceof Map) {
 			// TODO: it's likely that its always the same one of these cases.
 			point = (Integer)((Map<?,?>)value).get("value");
@@ -344,17 +341,16 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-	protected void sendScanStateChange(MalcolmEvent<MalcolmMessage> event) {
+	protected void sendScanStateChange(MalcolmMessage message) {
 		try {
-			MalcolmMessage msg = event.getBean();
-			logger.debug("Received malcolm state change with message: {}", msg);
-			DeviceState newState = MalcolmUtil.getState(msg, false);
+			logger.debug("Received malcolm state change with message: {}", message);
+			DeviceState newState = MalcolmUtil.getState(message, false);
 
 			logger.debug("Sending malcolm event: {}", meb);
-			fireStateChange(newState, msg.getMessage());
+			fireStateChange(newState, message.getMessage());
 
-			if (msg.getType().isError()) { // Currently used for debugging the device.
-				logger.error("Error message encountered: {}", msg);
+			if (message.getType().isError()) { // Currently used for debugging the device.
+				logger.error("Error message encountered: {}", message);
 			}
 		} catch (Exception e) {
 			logger.error("Could not send scan state change message");
@@ -516,11 +512,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		return new EpicsMalcolmModel(fileDir, fileTemplate, model.getAxesToMove(), pointGenerator);
 	}
 
-	private void subscribe(MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
+	private void subscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {
 		malcolmConnection.subscribe(this, subscribeMessage, listener);
 	}
 
-	private MalcolmMessage unsubscribe(MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
+	private MalcolmMessage unsubscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {
 		final MalcolmMessage unsubscribeMessage = messageGenerator.createUnsubscribeMessage();
 		unsubscribeMessage.setId(subscribeMessage.getId()); // the id is used to identify the listener to remove
 		@SuppressWarnings("unchecked")
@@ -663,12 +659,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	public DeviceState latch(long time, TimeUnit unit, final DeviceState... ignoredStates) throws MalcolmDeviceException {
 		try {
 			final CountDownLatch latch = new CountDownLatch(1);
-			final List<DeviceState>     stateContainer     = new ArrayList<>(1);
+			final List<DeviceState> stateContainer = new ArrayList<>(1);
 			final List<Exception> exceptionContainer = new ArrayList<>(1);
 
 			// Make a listener to check for state and then add it and latch
-			IMalcolmListener<MalcolmMessage> stateChanger = e -> {
-				MalcolmMessage msg = e.getBean();
+			IMalcolmConnectionEventListener stateChanger = msg -> {
 				try {
 					DeviceState state = MalcolmUtil.getState(msg);
 					if (state != null && ignoredStates != null && Arrays.asList(ignoredStates).contains(state)) {

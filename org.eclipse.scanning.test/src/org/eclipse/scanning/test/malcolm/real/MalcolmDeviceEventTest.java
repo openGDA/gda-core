@@ -89,7 +89,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		MalcolmMessage message = createStateChangeMessage(newState);
 
 		// Act
-		stateChangeListener.eventPerformed(new MalcolmEvent<>(message));
+		stateChangeListener.eventPerformed(message);
 
 		// Assert
 		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
@@ -105,7 +105,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		message = createStateChangeMessage(newState);
 
 		// Act
-		stateChangeListener.eventPerformed(new MalcolmEvent<>(message));
+		stateChangeListener.eventPerformed(message);
 
 		// Assert
 		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
@@ -149,7 +149,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Act: create and send the first message to the malcolm device
 		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL); // sleep for the position complete frequency, so the next event should fire
 		int stepNum = 0;
-		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
+		scanEventListener.eventPerformed(createScanEventMessage(stepNum));
 
 		// Assert: check that the listener received the correct message
 		ArgumentCaptor<PositionEvent> positionCaptor = ArgumentCaptor.forClass(PositionEvent.class);
@@ -160,13 +160,13 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Act again: send another message to the malcolm device. This should not cause a position event
 		// to be fired, due to throttling by the MalcolmDevice
 		stepNum = 5;
-		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
+		scanEventListener.eventPerformed(createScanEventMessage(stepNum));
 		verifyNoMoreInteractions(positionListener); //
 
 		// sleep for the position complete frequency, so the next event should fire
 		Thread.sleep(MalcolmDevice.POSITION_COMPLETE_INTERVAL);
 		stepNum = 10;
-		scanEventListener.eventPerformed(new MalcolmEvent<>(createScanEventMessage(stepNum)));
+		scanEventListener.eventPerformed(createScanEventMessage(stepNum));
 		verify(positionListener).positionPerformed(new PositionEvent(new Scalar<>("x", stepNum, stepNum), malcolmDevice));
 		verifyNoMoreInteractions(positionListener);
 		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
@@ -180,7 +180,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		assertThat(malcolmDevice.isAlive(), is(true));
 
 		// Act
-		connectionChangeListener.eventPerformed(new MalcolmEvent<>(false));
+		connectionChangeListener.connectionStateChanged(false);
 
 		// Assert
 		assertThat(malcolmDevice.isAlive(), is(false));
@@ -194,7 +194,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
 
 		// Act
-		connectionChangeListener.eventPerformed(new MalcolmEvent<>(true));
+		connectionChangeListener.connectionStateChanged(true);
 		assertThat(malcolmDevice.isAlive(), is(true));
 
 		// Assert

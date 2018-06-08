@@ -23,8 +23,6 @@ import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMessageGenerator;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.epics.pvaClient.PvaClient;
@@ -114,7 +112,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener)
+	public void subscribe(IMalcolmDevice<?> device, MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener)
 			throws MalcolmDeviceException {
 
 		try {
@@ -146,7 +144,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmListener<Boolean> listener)
+	public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmConnectionStateListener listener)
 			throws MalcolmDeviceException {
 
 		try {
@@ -168,7 +166,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	@Override
-	public MalcolmMessage unsubscribe(IMalcolmDevice<?> device, MalcolmMessage msg, IMalcolmListener<MalcolmMessage>... removeListeners)
+	public MalcolmMessage unsubscribe(IMalcolmDevice<?> device, MalcolmMessage msg, IMalcolmConnectionEventListener... removeListeners)
 			throws MalcolmDeviceException {
 
 		MalcolmMessage result = new MalcolmMessage();
@@ -347,10 +345,11 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	class EpicsV4ClientMonitorRequester implements PvaClientMonitorRequester, PvaClientUnlistenRequester {
-		private IMalcolmListener<MalcolmMessage> listener;
-		private MalcolmMessage subscribeMessage;
 
-		public EpicsV4ClientMonitorRequester(IMalcolmListener<MalcolmMessage> listener, MalcolmMessage subscribeMessage) {
+		private final IMalcolmConnectionEventListener listener;
+		private final MalcolmMessage subscribeMessage;
+
+		public EpicsV4ClientMonitorRequester(IMalcolmConnectionEventListener listener, MalcolmMessage subscribeMessage) {
 			this.listener = listener;
 			this.subscribeMessage = subscribeMessage;
 		}
@@ -368,7 +367,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 					message.setType(Type.ERROR);
 					message.setMessage("Error converting subscription update: " + ex.getMessage());
 				}
-				listener.eventPerformed(new MalcolmEvent<MalcolmMessage>(message));
+				listener.eventPerformed(message);
 				monitor.releaseEvent();
 			}
 		}
@@ -380,15 +379,15 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	}
 
 	private static class StateChangeRequester implements PvaClientChannelStateChangeRequester {
-		private IMalcolmListener<Boolean> listener;
+		private final IMalcolmConnectionStateListener listener;
 
-		public StateChangeRequester(IMalcolmListener<Boolean> listener) {
+		public StateChangeRequester(IMalcolmConnectionStateListener listener) {
 			this.listener = listener;
 		}
 
 		@Override
 		public void channelStateChange(PvaClientChannel channel, boolean isConnected) {
-			listener.eventPerformed(new MalcolmEvent<Boolean>(isConnected));
+			listener.connectionStateChanged(isConnected);
 		}
 	}
 

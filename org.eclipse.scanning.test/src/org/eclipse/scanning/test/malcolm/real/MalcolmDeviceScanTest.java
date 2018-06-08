@@ -52,7 +52,6 @@ import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -288,7 +287,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		verify(publisher, times(expectedNumPublishedBeans)).broadcast(any(ScanBean.class));
 	}
 
-	private MalcolmEvent<MalcolmMessage> createPositionEvent(int numSteps) {
+	private MalcolmMessage createPositionEvent(int numSteps) {
 		final MalcolmMessage message = new MalcolmMessage();
 
 		final NumberAttribute stepsAttr = new NumberAttribute();
@@ -296,10 +295,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		stepsAttr.setValue(numSteps);
 		message.setValue(stepsAttr);
 
-		return new MalcolmEvent<>(message);
+		return message;
 	}
 
-	private MalcolmEvent<MalcolmMessage> createStateChangeEvent(DeviceState state) {
+	private MalcolmMessage createStateChangeEvent(DeviceState state) {
 		final MalcolmMessage message = new MalcolmMessage();
 		message.setEndpoint(STATE_ENDPOINT);
 
@@ -308,7 +307,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		stateAttr.setValue(state.toString());
 		message.setValue(stateAttr);
 
-		return new MalcolmEvent<>(message);
+		return message;
 	}
 
 	private IRunnableDevice<ScanModel> createScan() throws Exception {

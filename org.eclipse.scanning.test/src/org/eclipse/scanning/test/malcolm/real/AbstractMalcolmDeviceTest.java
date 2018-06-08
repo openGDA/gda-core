@@ -35,6 +35,8 @@ import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
@@ -69,9 +71,9 @@ public abstract class AbstractMalcolmDeviceTest {
 	@Rule
 	public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-	protected IMalcolmListener<MalcolmMessage> stateChangeListener;
-	protected IMalcolmListener<MalcolmMessage> scanEventListener;
-	protected IMalcolmListener<Boolean> connectionChangeListener;
+	protected IMalcolmConnectionEventListener stateChangeListener;
+	protected IMalcolmConnectionEventListener scanEventListener;
+	protected IMalcolmConnectionStateListener connectionChangeListener;
 
 	@Mock
 	protected IMalcolmListener<MalcolmEventBean> malcolmEventListener;
@@ -128,7 +130,7 @@ public abstract class AbstractMalcolmDeviceTest {
 
 		// The listeners that malcolm registers with the connection layer
 		@SuppressWarnings("rawtypes")
-		ArgumentCaptor<IMalcolmListener> malcolmListeners = ArgumentCaptor.forClass(IMalcolmListener.class);
+		ArgumentCaptor<IMalcolmConnectionEventListener> malcolmListeners = ArgumentCaptor.forClass(IMalcolmConnectionEventListener.class);
 
 		// verify that the malcolm device subscribed to the 'state' endpoint
 		verify(malcolmConnection).subscribe(eq(malcolmDevice), eq(expectedSubscribeToStateMessage), malcolmListeners.capture());
@@ -141,9 +143,10 @@ public abstract class AbstractMalcolmDeviceTest {
 		assertThat(scanEventListener, is(notNullValue()));
 
 		// verify that the malcolm device subscribed to connection state changes
+		ArgumentCaptor<IMalcolmConnectionStateListener> connectionStateListenerCaptor = ArgumentCaptor.forClass(IMalcolmConnectionStateListener.class);
 		verify(malcolmConnection, timeout(250)) // add timeout as call made in different thread
-				.subscribeToConnectionStateChange(eq(malcolmDevice), malcolmListeners.capture());
-		connectionChangeListener = malcolmListeners.getValue();
+				.subscribeToConnectionStateChange(eq(malcolmDevice), connectionStateListenerCaptor.capture());
+		connectionChangeListener = connectionStateListenerCaptor.getValue();
 		assertThat(connectionChangeListener, is(notNullValue()));
 
 		assertThat(malcolmDevice.isAlive(), is(true));
