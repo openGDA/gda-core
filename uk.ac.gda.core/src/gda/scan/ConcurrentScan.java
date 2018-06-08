@@ -19,7 +19,6 @@
 
 package gda.scan;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -491,18 +490,14 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	private void reportDetectorsThatWillBeMovedConcurrentlyWithSomeOtherScannables() {
-		Integer highestScannableLevel = scannableLevels.lastKey(); // i.e. lowest priority
-		if (allDetectors.size() > 0) {
-			for (Detector det : allDetectors) {
-				if (det.getLevel() <= highestScannableLevel) {
-					String info = MessageFormat
-							.format("The level {0} detector {1} will be acquiring concurrently with the movement of some Scannables",
-									det.getLevel(), det.getName());
-					logger.info(info);
-				}
+		final Integer highestScannableLevel = scannableLevels.lastKey(); // i.e. lowest priority
+		for (Detector det : allDetectors) {
+			if (det.getLevel() <= highestScannableLevel) {
+				logger.info(
+						"The level {} detector {} will be acquiring concurrently with the movement of some Scannables",
+						det.getLevel(), det.getName());
 			}
 		}
-
 	}
 
 	private void callAtPointEndHooks() throws DeviceException {
