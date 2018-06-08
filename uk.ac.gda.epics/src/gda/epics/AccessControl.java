@@ -122,20 +122,7 @@ import gov.aps.jca.event.MonitorListener;
  * element. And also add {@code <field name="accessControlName" type="string">} to the mapping.xml.
  * </p>
  */
-public class AccessControl extends ConfigurableBase implements Findable, IObservable, InitializationListener {
-	/**
-	 * status enum
-	 */
-	public enum Status {
-		/**
-		 * disabled Enum
-		 */
-		DISABLED,
-		/**
-		 * enabled enum
-		 */
-		ENABLED
-	}
+public class AccessControl extends ConfigurableBase implements IAccessControl, Findable, IObservable, InitializationListener {
 
 	private String name;
 
@@ -233,6 +220,7 @@ public class AccessControl extends ConfigurableBase implements Findable, IObserv
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
+	@Override
 	public Status getAccessControlState() throws TimeoutException, CAException, InterruptedException {
 		int value = controller.cagetInt(blctrl);
 		if (value == 0) {
@@ -438,6 +426,7 @@ public class AccessControl extends ConfigurableBase implements Findable, IObserv
 		return this.disableValue;
 	}
 
+	@Override
 	public Status getStatus(){
 		return this.acStatus;
 	}
