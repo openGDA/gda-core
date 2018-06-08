@@ -180,6 +180,13 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 
 	}
 
+	@Override
+	public void reconfigure() throws FactoryException {
+		setConfigured(false);
+		configure();
+		super.reconfigure();
+	}
+
 	private void createChannelAccess(String pvName) throws FactoryException {
 		try {
 		targettemp = channelManager.createChannel(pvName+"SETP_S", false);
@@ -513,10 +520,14 @@ public class EpicsLakeshore340Controller extends DeviceBase implements ILakeshor
 
 	@Override
 	public void setReadbackChannel(int readbackChannel) {
-		if (isConfigured()) {
-			throw new IllegalStateException("Cannot change readback channel once configured");
-		}
 		this.readbackChannel = readbackChannel;
+		try {
+			if (isConfigured()) {
+				reconfigure();
+			}
+		} catch (FactoryException e) {
+			logger.error("Re-configure {} failed after changing readback channel", getName(), e);
+		}
 	}
 
 	public String getPvName() {
