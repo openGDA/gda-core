@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.malcolm.mock;
 
-import org.eclipse.scanning.connector.epics.EpicsV4ConnectorService;
+import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.malcolm.AbstractCommunicationMalcolmTest;
 import org.junit.After;
@@ -28,7 +28,7 @@ public class MockCommunicationMalcolmTest extends AbstractCommunicationMalcolmTe
 	@Override
 	@Before
 	public void create() throws Exception {
-		this.connectorService = new EpicsV4ConnectorService(); // Just for ActiveMQ connection!
+		this.connectorService = new MalcolmEpicsV4Connection(); // Just for ActiveMQ connection!
 		this.service      = new RunnableDeviceServiceImpl();
 		this.device       =  createMalcolmDevice("zebra");
 	}

@@ -23,11 +23,10 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceOperationCancelledException;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEventBean;
-import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
@@ -48,8 +47,8 @@ public abstract class AbstractMalcolmTest {
 	// In Mock mode, these come from Java
 	// In Real mode they come from the connection to the python server.
 	protected IScanService service;
-	protected IMalcolmDevice     device;
-	protected IMalcolmConnectorService<MalcolmMessage> connectorService;
+	protected IMalcolmDevice<?> device;
+	protected IMalcolmConnection connectorService;
 
 	/**
 	 * Create the devices and add an @before annotiation
@@ -102,7 +101,7 @@ public abstract class AbstractMalcolmTest {
 	}
 
 	protected IMalcolmDevice createMalcolmDevice(String name) throws MalcolmDeviceException {
-		IMalcolmDevice<?> device = new MalcolmDevice(name, connectorService, service, null); // Might throw exception
+		IMalcolmDevice<?> device = new MalcolmDevice<>(name, connectorService, service, null); // Might throw exception
 		service.register(device);
 		return device;
 	}

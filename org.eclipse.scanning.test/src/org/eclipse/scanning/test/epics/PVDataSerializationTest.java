@@ -38,7 +38,7 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.connector.epics.EpicsV4ConnectorService;
+import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.epics.pvdata.factory.FieldFactory;
@@ -68,11 +68,11 @@ import org.junit.Test;
  */
 public class PVDataSerializationTest {
 
-	EpicsV4ConnectorService connectorService;
+	MalcolmEpicsV4Connection connectorService;
 
 	@Before
 	public void create() throws Exception {
-		this.connectorService = new EpicsV4ConnectorService();
+		this.connectorService = new MalcolmEpicsV4Connection();
 	}
 	@Test
 	public void TestArrayGenerator() throws Exception {

@@ -29,7 +29,6 @@ import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.SEC
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,8 +75,8 @@ import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService;
-import org.eclipse.scanning.api.malcolm.connector.MessageGenerator;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -857,12 +856,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		allAttributes.put("layout", layout);
 	}
 
-	private static class DummyMalcolmConnectorService implements IMalcolmConnectorService<MalcolmMessage> {
-
-		@Override
-		public void connect(URI malcolmUri) throws MalcolmDeviceException {
-			// do nothing
-		}
+	/**
+	 * A dummy connector service, as AbstractMalcolmDevice requires one to be created.
+	 * TODO refactor AbstractMalcolmDevice to remove the requirement, then remove this class
+	 */
+	private static class DummyMalcolmConnectorService implements IMalcolmConnection {
 
 		@Override
 		public void disconnect() throws MalcolmDeviceException {
@@ -890,22 +888,14 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		}
 
 		@Override
-		public MessageGenerator<MalcolmMessage> createConnection() {
-			// do nothing
-			return null;
-		}
-
-		@Override
-		public MessageGenerator<MalcolmMessage> createDeviceConnection(IMalcolmDevice<?> device)
-				throws MalcolmDeviceException {
-			// do nothing
-			return null;
-		}
-
-		@Override
 		public void subscribeToConnectionStateChange(IMalcolmDevice<?> device, IMalcolmListener<Boolean> listener)
 				throws MalcolmDeviceException {
 			// do nothing
+		}
+
+		@Override
+		public IMalcolmMessageGenerator getMessageGenerator() {
+			return null;
 		}
 
 	}

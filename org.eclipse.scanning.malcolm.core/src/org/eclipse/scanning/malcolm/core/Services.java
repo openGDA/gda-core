@@ -12,14 +12,13 @@
 package org.eclipse.scanning.malcolm.core;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService;
-import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 
 public class Services {
 
 	private static IRunnableDeviceService runnableDeviceService;
 
-	private static IMalcolmConnectorService<MalcolmMessage> connectorService;
+	private static IMalcolmConnection connectorService;
 
 	public static IRunnableDeviceService getRunnableDeviceService() {
 		return runnableDeviceService;
@@ -29,11 +28,11 @@ public class Services {
 		Services.runnableDeviceService = runnableDeviceService;
 	}
 
-	public static IMalcolmConnectorService<MalcolmMessage> getConnectorService() {
+	public static IMalcolmConnection getConnectorService() {
 		return Services.connectorService;
 	}
 
-	public static void setConnectorService(IMalcolmConnectorService<MalcolmMessage> connectorService) {
+	public static void setConnectorService(IMalcolmConnection connectorService) {
 		Services.connectorService = connectorService;
 	}
 

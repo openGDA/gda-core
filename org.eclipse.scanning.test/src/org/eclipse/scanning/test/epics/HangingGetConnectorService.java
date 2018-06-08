@@ -3,11 +3,10 @@ package org.eclipse.scanning.test.epics;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
-import org.eclipse.scanning.connector.epics.EpicsV4ConnectorService;
+import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 
-public class HangingGetConnectorService extends EpicsV4ConnectorService {
+public class HangingGetConnectorService extends MalcolmEpicsV4Connection {
 
 	private CountDownLatch latch;
 
@@ -27,7 +26,7 @@ public class HangingGetConnectorService extends EpicsV4ConnectorService {
 	}
 
 	@Override
-	public void disconnect() throws MalcolmDeviceException {
+	public void disconnect() {
 		latch.countDown();
 		super.disconnect();
 	}

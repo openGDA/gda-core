@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="EpicsV4 Connector Service">
-   <implementation class="org.eclipse.scanning.connector.epics.EpicsV4ConnectorService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="Malcolm EpicsV4 Connection">
+   <implementation class="org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection"/>
    <service>
-      <provide interface="org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService"/>
+      <provide interface="org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection"/>
    </service>
 </scr:component>

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,8 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService;
-import org.eclipse.scanning.api.malcolm.connector.MessageGenerator;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
+import org.eclipse.scanning.api.malcolm.connector.MalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
@@ -39,10 +39,6 @@ import org.epics.pvaClient.PvaClientPut;
 import org.epics.pvaClient.PvaClientPutData;
 import org.epics.pvaClient.PvaClientRPC;
 import org.epics.pvaClient.PvaClientUnlistenRequester;
-import org.epics.pvdata.factory.FieldFactory;
-import org.epics.pvdata.factory.PVDataFactory;
-import org.epics.pvdata.pv.FieldCreate;
-import org.epics.pvdata.pv.PVDataCreate;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.Status;
 import org.slf4j.Logger;
@@ -55,13 +51,13 @@ import org.slf4j.LoggerFactory;
  * @author Matt Taylor
  *
  */
-public class EpicsV4ConnectorService implements IMalcolmConnectorService<MalcolmMessage> {
+public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
-	static final FieldCreate fieldCreate = FieldFactory.getFieldCreate();
-    static final PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
-    static final double REQUEST_TIMEOUT = 1.0;
+	private static final double REQUEST_TIMEOUT = 1.0;
 
-	private static final Logger logger = LoggerFactory.getLogger(EpicsV4ConnectorService.class);
+	private static final Logger logger = LoggerFactory.getLogger(MalcolmEpicsV4Connection.class);
+
+	private final MalcolmMessageGenerator messageGenerator = new MalcolmMessageGenerator();
 
 	private EpicsV4MessageMapper mapper;
 
@@ -69,20 +65,20 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 
     private Map<Long, Collection<EpicsV4MonitorListener>> listeners;
 
-    public EpicsV4ConnectorService() {
+    public MalcolmEpicsV4Connection() {
 		mapper = new EpicsV4MessageMapper();
 		this.listeners = new ConcurrentHashMap<>();
-		pvaClient = PvaClient.get("pva"); // Should this be "pva" or the no-argument one?
+		pvaClient = PvaClient.get("pva");
 	}
 
 	@Override
-	public void connect(URI malcolmUri) throws MalcolmDeviceException {
-		// don't need uri as no centralised connection is needed for Malcolm Devices
+	public IMalcolmMessageGenerator getMessageGenerator() {
+		return messageGenerator;
 	}
 
 	@Override
-	public void disconnect() throws MalcolmDeviceException {
-        //pvaClient.destroy(); // Commented out as we never need to disconnect
+	public void disconnect() {
+		//pvaClient.destroy(); // Commented out as we never need to disconnect
 	}
 
 	public PVStructure pvMarshal(Object anyObject) throws Exception {
@@ -348,16 +344,6 @@ public class EpicsV4ConnectorService implements IMalcolmConnectorService<Malcolm
 		}
 
 		return returnMessage;
-	}
-
-	@Override
-	public MessageGenerator<MalcolmMessage> createDeviceConnection(IMalcolmDevice<?> device) throws MalcolmDeviceException {
-		return new EpicsV4MalcolmMessageGenerator(device, this);
-	}
-
-	@Override
-	public MessageGenerator<MalcolmMessage> createConnection() {
-		return new EpicsV4MalcolmMessageGenerator(this);
 	}
 
 	class EpicsV4ClientMonitorRequester implements PvaClientMonitorRequester, PvaClientUnlistenRequester {

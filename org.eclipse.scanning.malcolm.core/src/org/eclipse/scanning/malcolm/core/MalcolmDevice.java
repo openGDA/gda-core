@@ -36,7 +36,7 @@ import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnectorService;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
@@ -89,12 +89,13 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-
-	// Standard timeout for Malcolm Calls
+	// Listeners to malcolm endpoints
+	private final IMalcolmListener<MalcolmMessage> stateChangeListener = this::sendScanStateChange;
+	private final IMalcolmListener<MalcolmMessage> scanEventListener = this::sendScanEvent;
 
 	// Subscriber messages
-	private MalcolmMessage stateSubscriber;
-	private MalcolmMessage scanSubscriber;
+	private MalcolmMessage stateSubscribeMessage;
+	private MalcolmMessage scanSubscribeMessage;
 
 	// Our connection to the outside.
 	private IPublisher<ScanBean> publisher;
@@ -109,16 +110,13 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	private boolean succesfullyInitialised = false;
 	private boolean subscribedToStateChange = false;
 
-
-	public MalcolmDevice() throws MalcolmDeviceException {
+	public MalcolmDevice() {
 		super(Services.getConnectorService(), Services.getRunnableDeviceService());
 	}
 
-	public MalcolmDevice(String name,
-			IMalcolmConnectorService<MalcolmMessage> service,
-			IRunnableDeviceService runnableDeviceService,
-			IPublisher<ScanBean> publisher) throws MalcolmDeviceException {
-		super(service, runnableDeviceService);
+	public MalcolmDevice(String name, IMalcolmConnection malcolmConnection,
+			IRunnableDeviceService runnableDeviceService, IPublisher<ScanBean> publisher) {
+		super(malcolmConnection, runnableDeviceService);
 		setName(name);
 		this.publisher = publisher;
 		setAlive(false);
@@ -138,14 +136,14 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		logger.debug("initialize() called");
 		try {
 			setAlive(false);
-		final DeviceState currentState = getDeviceState();
+			final DeviceState currentState = getDeviceState();
 			logger.debug("Connecting to ''{}''. Current state: {}", getName(), currentState);
 
-			stateSubscriber = createSubscribeMessage(STATE_ENDPOINT);
-			subscribe(stateSubscriber, this::sendScanStateChange);
+			stateSubscribeMessage = createSubscribeMessage(STATE_ENDPOINT);
+			subscribe(stateSubscribeMessage, stateChangeListener);
 
-			scanSubscriber  = createSubscribeMessage(CURRENT_STEP_ENDPOINT);
-			subscribe(scanSubscriber, this::sendScanEvent);
+			scanSubscribeMessage  = createSubscribeMessage(CURRENT_STEP_ENDPOINT);
+			subscribe(scanSubscribeMessage, scanEventListener);
 
 			succesfullyInitialised = true;
 			setAlive(true);
@@ -433,7 +431,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public void run(IPosition pos) throws MalcolmDeviceException, InterruptedException, ExecutionException, TimeoutException {
 		logger.debug("run() called with position {}", pos);
-		MalcolmMessage reply = call(MalcolmMethod.RUN, Timeout.RUN.toMillis(), DeviceState.RUNNING);
+		MalcolmMessage reply = call(MalcolmMethod.RUN, Timeout.RUN.toMillis());
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
@@ -499,19 +497,23 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public void dispose() throws MalcolmDeviceException {
 		logger.debug("dispose() called");
-		unsubscribe(stateSubscriber);
-		unsubscribe(scanSubscriber);
+		if (stateSubscribeMessage != null) {
+			unsubscribe(stateSubscribeMessage, stateChangeListener);
+		}
+		if (scanSubscribeMessage != null) {
+			unsubscribe(scanSubscribeMessage, scanEventListener);
+		}
 
 		setAlive(false);
 	}
 
-	private final void unsubscribe(MalcolmMessage subscriber) throws MalcolmDeviceException {
-		if (subscriber!=null) {
-			final MalcolmMessage unsubscribeStatus = createUnsubscribeMessage();
-			unsubscribeStatus.setId(subscriber.getId());
-			unsubscribe(subscriber);
-			logger.debug("Unsubscription {} made {}", getName(), unsubscribeStatus);
-		}
+	@Override
+	protected MalcolmMessage unsubscribe(MalcolmMessage subscribeMessage, IMalcolmListener<MalcolmMessage> listener) throws MalcolmDeviceException {
+		final MalcolmMessage unsubscribeMessage = createUnsubscribeMessage();
+		unsubscribeMessage.setId(subscribeMessage.getId()); // the id is used to identify the listener to remove
+		MalcolmMessage reply = super.unsubscribe(unsubscribeMessage, listener);
+		logger.debug("Unsubscription {} made {}", getName(), unsubscribeMessage);
+		return reply;
 	}
 
 	@Override
@@ -544,7 +546,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				}
 			};
 
-			subscribe(stateSubscriber, stateChanger);
+			subscribe(stateSubscribeMessage, stateChanger);
 
 			boolean countedDown = false;
 			if (time>0) {
@@ -553,7 +555,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				latch.await();
 			}
 
-			unsubscribe(stateSubscriber, stateChanger);
+			unsubscribe(stateSubscribeMessage, stateChanger);
 
 			if (!exceptionContainer.isEmpty()) throw exceptionContainer.get(0);
 

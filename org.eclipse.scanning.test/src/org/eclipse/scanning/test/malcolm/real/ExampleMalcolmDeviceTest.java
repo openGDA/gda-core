@@ -36,7 +36,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.connector.epics.EpicsV4ConnectorService;
+import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.points.PointGeneratorService;
@@ -62,7 +62,7 @@ public class ExampleMalcolmDeviceTest {
 
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
-	private EpicsV4ConnectorService connectorService;
+	private MalcolmEpicsV4Connection connectorService;
 	private IMalcolmDevice<MalcolmModel> malcolmDevice;
 	private IPointGeneratorService pointGenService;
 
@@ -71,7 +71,7 @@ public class ExampleMalcolmDeviceTest {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.service = new RunnableDeviceServiceImpl();
-		this.connectorService = new EpicsV4ConnectorService();
+		this.connectorService = new MalcolmEpicsV4Connection();
 
 		// Start the dummy test device
 		DeviceRunner runner = new DeviceRunner();
@@ -87,7 +87,6 @@ public class ExampleMalcolmDeviceTest {
 		malcolmDevice.dispose();
 		// Stop the device
 		epicsv4Device.stop();
-		connectorService.disconnect();
 	}
 
 	/**

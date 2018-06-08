@@ -29,7 +29,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.scan.IScanService;
-import org.eclipse.scanning.connector.epics.EpicsV4ConnectorService;
+import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.example.malcolm.EPICSv4EvilDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
@@ -38,26 +38,24 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Class for testing the Epics V4 Connection
+ * Class for testing the Epics V4 Connection to Malcolm.
  * @author Matt Taylor
  *
  */
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. To be resolved by DAQ-1490")
-public class EpicsV4ConnectorTest {
+public class MalcolmEpicsV4ConnectorTest {
 
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
-	private EpicsV4ConnectorService connectorService;
+	private MalcolmEpicsV4Connection connectorService;
 
 	@Before
 	public void before() throws Exception {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
-		this.connectorService = new EpicsV4ConnectorService();
+		this.connectorService = new MalcolmEpicsV4Connection();
 		this.service = new RunnableDeviceServiceImpl();
 	}
 
@@ -65,7 +63,6 @@ public class EpicsV4ConnectorTest {
 	public void after() throws Exception {
 		// Stop the device
 		if (epicsv4Device!=null) epicsv4Device.stop();
-		connectorService.disconnect();
 	}
 
 	private IMalcolmDevice<MalcolmModel> createMalcolmDevice(String name) throws MalcolmDeviceException {
@@ -134,7 +131,7 @@ public class EpicsV4ConnectorTest {
 		try {
 			System.setProperty("org.eclipse.scanning.malcolm.core.timeout", String.valueOf(100));
 
-			EpicsV4ConnectorService hangingConnectorService = new HangingGetConnectorService();
+			MalcolmEpicsV4Connection hangingConnectorService = new HangingGetConnectorService();
 			// Create the device
 			IMalcolmDevice<?> malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(), hangingConnectorService,
 					service, null);
