@@ -27,12 +27,13 @@ import gda.factory.Findable;
  *
  * @author James Mudd
  */
-public interface RemoteRectangularROIsProvider extends Findable{
+public interface RemoteRectangularROIsProvider extends Findable {
 
 	/**
 	 * Update the ROIs list on the server, which can the be picked up when a scan is started
 	 *
-	 * @param rois The new list of ROIs
+	 * @param rois
+	 *            The new list of ROIs
 	 */
 	public void updateRois(List<RectangularROI<Integer>> rois);
 
