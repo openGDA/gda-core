@@ -86,11 +86,11 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 
 	private MessageProducer createProducer(String topicName) throws JMSException {
 		final Topic topic = createTopic(topicName);
-		return session.createProducer(topic);
+		return getSession().createProducer(topic);
 	}
 
 	@Override
-	public void disconnect() throws EventException {
+	public synchronized void disconnect() throws EventException {
 		try {
 			if (messageProducer!=null)      messageProducer.close();
 
@@ -137,7 +137,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 
 		if (statusSetAddRequired) {
 			// The bean was not found, so add it
-			MessageProducer producer = session.createProducer(queue);
+			MessageProducer producer = getSession().createProducer(queue);
 			try {
 				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 				String json = null;
@@ -147,7 +147,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 					throw new EventException("Unable to marshall bean "+bean, neother);
 				}
 
-				TextMessage message = session.createTextMessage(json);
+				TextMessage message = getSession().createTextMessage(json);
 				producer.send(message);
 			} finally {
 				producer.close();
@@ -168,7 +168,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 	 * @throws JMSException
 	 */
 	private String findMessageIdForBean(T bean, final Queue queue) throws JMSException {
-		final QueueBrowser qb = queueSession.createBrowser(queue);
+		final QueueBrowser qb = getQueueSession().createBrowser(queue);
 
 		@SuppressWarnings("rawtypes")
 		final Enumeration e = qb.getEnumeration();
@@ -202,13 +202,13 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 
 	private boolean replaceBeanWithId(Queue queue, String jmsMessageId, T bean) throws Exception {
 		// consume the bean (removing it from the status set)
-		MessageConsumer messageConsumer = queueSession.createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
+		MessageConsumer messageConsumer = getQueueSession().createConsumer(queue, "JMSMessageID = '"+jmsMessageId+"'");
 		Message m = messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
 		messageConsumer.close();
 		if (m instanceof TextMessage) {
-			MessageProducer producer = queueSession.createProducer(queue);
+			MessageProducer producer = getQueueSession().createProducer(queue);
 			try {
-				TextMessage t = queueSession.createTextMessage(service.marshal(bean));
+				TextMessage t = getQueueSession().createTextMessage(service.marshal(bean));
 				t.setJMSMessageID(m.getJMSMessageID());
 				t.setJMSExpiration(m.getJMSExpiration());
 				t.setJMSTimestamp(m.getJMSTimestamp());

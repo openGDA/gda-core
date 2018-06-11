@@ -38,7 +38,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
-import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -133,7 +132,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	@Override
-	public void disconnect() throws EventException {
+	public synchronized void disconnect() throws EventException {
 		if (isActive()) stop();
 
 		if (statusSetSubmitter != null) {
@@ -246,7 +245,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		try {
 			pause();
 
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			session = getSession();
 			Queue queue = session.createQueue(getSubmitQueueName());
 			queueBrowser = session.createBrowser(queue);
 
@@ -757,7 +756,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			if (Thread.interrupted()) return null;
 			messageConsumer = null;
 			try {
-				connection.close();
+				disconnect();
 			} catch (Exception expected) {
 				LOGGER.info("Cannot close old connection", ne);
 			}
@@ -766,13 +765,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private MessageConsumer createMessageConsumer(URI uri, String submitQName) throws JMSException {
-		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-		this.connection = connectionFactory.createQueueConnection();
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		Queue queue = session.createQueue(submitQName);
+
+		Session session = getSession();
+		Queue queue = createQueue(submitQName);
 
 		final MessageConsumer consumer = session.createConsumer(queue);
-		connection.start();
 
 		LOGGER.info("Consumer for queue {} successfully created connection to ActiveMQ using uri {}.", getName(), uri);
 

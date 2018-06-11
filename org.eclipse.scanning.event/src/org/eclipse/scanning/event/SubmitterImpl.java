@@ -110,7 +110,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 	}
 
 	@Override
-	public void disconnect() throws EventException{
+	public synchronized void disconnect() throws EventException{
 		// Close and nullify the producer
 		if (queueMessageProducer != null) {
 			try {
