@@ -25,12 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.jline.reader.ParsedLine;
+import org.jline.reader.CompletingParsedLine;
 
 /**
  * The result of splitting a line of input into words/parts ready for providing completions
  */
-class GdaJythonLine implements ParsedLine {
+class GdaJythonLine implements CompletingParsedLine {
 	private static final Pattern PARSE = Pattern.compile("[^a-zA-Z0-9_]+");
 
 	private final String word;
@@ -97,5 +97,20 @@ class GdaJythonLine implements ParsedLine {
 	@Override
 	public int cursor() {
 		return cursor;
+	}
+
+	@Override
+	public CharSequence escape(CharSequence candidate, boolean complete) {
+		return candidate;
+	}
+
+	@Override
+	public int rawWordCursor() {
+		return wordCursor;
+	}
+
+	@Override
+	public int rawWordLength() {
+		return word.length();
 	}
 }
