@@ -59,27 +59,24 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<T>,
-                                                           IModelProvider<T>,
-                                                           IScanAttributeContainer,
-                                                           IPositionListenable,
-                                                           IActivatable{
+		IModelProvider<T>, IScanAttributeContainer, IPositionListenable, IActivatable{
 	private static Logger logger = LoggerFactory.getLogger(AbstractRunnableDevice.class);
 
 	// Data
-	protected T                          model;
-	private   String                     name;
-	private   int                        level = 1;
-	private   String                     scanId;
-	private   ScanBean                   bean;
-	private   DeviceInformation<T>       deviceInformation;
-	private   DeviceRole                 role = DeviceRole.HARDWARE;
-	private   Set<ScanMode>              supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
+	protected T model;
+	private String name;
+	private int level = 1;
+	private String scanId;
+	private ScanBean bean;
+	private DeviceInformation<T> deviceInformation;
+	private DeviceRole role = DeviceRole.HARDWARE;
+	private Set<ScanMode> supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
 
 	// Devices can either be the top of the scan or somewhere in the
 	// scan tree. By default they are the scan but if used in a nested
 	// scan, their primaryScanDevice will be set to false. This then
 	// stops state being written to the main scan bean
-	private   boolean                    primaryScanDevice = true;
+	private boolean primaryScanDevice = true;
 
 	// OSGi services and intraprocess events
 	protected IRunnableDeviceService runnableDeviceService;
@@ -87,11 +84,11 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private IPublisher<ScanBean> publisher;
 
 	// Listeners
-	private   Collection<IRunListener>   rlisteners;
-	private   Collection<IPositionListener> posListeners;
+	private Collection<IRunListener> runListeners;
+	private Collection<IPositionListener> positionListeners;
 
 	// Attributes
-	private Map<String, Object>          scanAttributes;
+	private Map<String, Object> scanAttributes;
 
 	private volatile boolean busy = false;
 	/**
@@ -254,59 +251,59 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	@Override
 	public void addRunListener(IRunListener l) {
-		if (rlisteners==null) rlisteners = Collections.synchronizedCollection(new LinkedHashSet<>());
-		rlisteners.add(l);
+		if (runListeners==null) runListeners = Collections.synchronizedCollection(new LinkedHashSet<>());
+		runListeners.add(l);
 	}
 
 	@Override
 	public void removeRunListener(IRunListener l) {
-		if (rlisteners==null) return;
-		rlisteners.remove(l);
+		if (runListeners==null) return;
+		runListeners.remove(l);
 	}
 
 	@Override
 	public void addPositionListener(IPositionListener l) {
-		if (posListeners == null) {
-			posListeners = Collections.synchronizedCollection(new LinkedHashSet<>());
+		if (positionListeners == null) {
+			positionListeners = Collections.synchronizedCollection(new LinkedHashSet<>());
 		}
-		posListeners.add(l);
+		positionListeners.add(l);
 	}
 
 	@Override
 	public void removePositionListener(IPositionListener l) {
-		if (posListeners == null) return;
-		posListeners.remove(l);
+		if (positionListeners == null) return;
+		positionListeners.remove(l);
 	}
 
 	protected void firePositionComplete(IPosition position) throws ScanningException {
-		if (posListeners == null) return;
+		if (positionListeners == null) return;
 
 		final PositionEvent evt = new PositionEvent(position, this);
 
 		// Make array, avoid multi-threading issues
-		final IPositionListener[] la = posListeners.toArray(new IPositionListener[posListeners.size()]);
+		final IPositionListener[] la = positionListeners.toArray(new IPositionListener[positionListeners.size()]);
 		for (IPositionListener l : la) l.positionPerformed(evt);
 	}
 
 	protected void firePositionMoveComplete(IPosition position) throws ScanningException {
-		if (posListeners == null) return;
+		if (positionListeners == null) return;
 
 		final PositionEvent evt = new PositionEvent(position, this);
 
 		// Make array, avoid multi-threading issues
-		final IPositionListener[] la = posListeners.toArray(new IPositionListener[posListeners.size()]);
+		final IPositionListener[] la = positionListeners.toArray(new IPositionListener[positionListeners.size()]);
 		for (IPositionListener l : la) l.positionMovePerformed(evt);
 	}
 
 	protected void fireStateChanged(DeviceState oldState, DeviceState newState) throws ScanningException {
 
-		if (rlisteners==null || rlisteners.isEmpty()) return;
+		if (runListeners==null || runListeners.isEmpty()) return;
 
 		final RunEvent evt = new RunEvent(this, null, newState);
 		evt.setOldState(oldState);
 
 		// Make array, avoid multi-threading issues.
-		final IRunListener[] la = rlisteners.toArray(new IRunListener[rlisteners.size()]);
+		final IRunListener[] la = runListeners.toArray(new IRunListener[runListeners.size()]);
 		for (IRunListener l : la) l.stateChanged(evt);
 	}
 
@@ -315,47 +312,47 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	@Override
 	public void fireRunWillPerform(IPosition position) throws ScanningException {
-		if (rlisteners==null) return;
+		if (runListeners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
 
 		// Make array, avoid multi-threading issues.
-		final IRunListener[] la = rlisteners.toArray(new IRunListener[rlisteners.size()]);
+		final IRunListener[] la = runListeners.toArray(new IRunListener[runListeners.size()]);
 		for (IRunListener l : la) l.runWillPerform(evt);
 	}
 
 	@Override
 	public void fireRunPerformed(IPosition position) throws ScanningException {
-		if (rlisteners==null) return;
+		if (runListeners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
 
 		// Make array, avoid multi-threading issues.
-		final IRunListener[] la = rlisteners.toArray(new IRunListener[rlisteners.size()]);
+		final IRunListener[] la = runListeners.toArray(new IRunListener[runListeners.size()]);
 		for (IRunListener l : la) l.runPerformed(evt);
 	}
 
 	@Override
 	public void fireWriteWillPerform(IPosition position) throws ScanningException {
 
-		if (rlisteners==null) return;
+		if (runListeners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
 
 		// Make array, avoid multi-threading issues.
-		final IRunListener[] la = rlisteners.toArray(new IRunListener[rlisteners.size()]);
+		final IRunListener[] la = runListeners.toArray(new IRunListener[runListeners.size()]);
 		for (IRunListener l : la) l.writeWillPerform(evt);
 	}
 
 	@Override
 	public void fireWritePerformed(IPosition position) throws ScanningException {
 
-		if (rlisteners==null) return;
+		if (runListeners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
 
 		// Make array, avoid multi-threading issues.
-		final IRunListener[] la = rlisteners.toArray(new IRunListener[rlisteners.size()]);
+		final IRunListener[] la = runListeners.toArray(new IRunListener[runListeners.size()]);
 		for (IRunListener l : la) l.writePerformed(evt);
 	}
 
