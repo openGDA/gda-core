@@ -18,16 +18,6 @@
 
 package gda.device.detector;
 
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DetectorSnapper;
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.FrameCountingNXPlugin;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.detector.nxdetector.NXPluginBase;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +29,17 @@ import org.apache.commons.lang.StringUtils;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DetectorSnapper;
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.FrameCountingNXPlugin;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
+import gda.scan.ScanInformation;
+import gda.scan.ScanInformation.ScanInformationBuilder;
 
 /**
  * Decorator to extend an NXDetector to allow use in the "pos" command.
@@ -151,7 +152,13 @@ public class NXDetectorSnappingDecorator extends PassthroughDetectorWrapper impl
 		int images = snapperCollectionStrategy.getNumberImagesPerCollection(collectionTime);
 		snapperCollectionStrategy.prepareForCollection(collectionTime, images, null);
 		// some plugins want to know about scan dimensions - could break if any care about the scan number/file
-		ScanInformation dummyScanInfo = new ScanInformation(new int[] { 1 }, -1, new String[] {}, new String[] { getName() }, null, null, 1);
+		ScanInformation dummyScanInfo = new ScanInformationBuilder()
+				.dimensions(1)
+				.scannableNames()
+				.detectorNames(getName())
+				.numberOfPoints(1)
+				.scanNumber(-1)
+				.build();
 		for (NXPluginBase plugin : snapperPluginList) {
 			plugin.prepareForCollection(images, dummyScanInfo);
 		}

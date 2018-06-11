@@ -18,124 +18,141 @@
 
 package gda.scan;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Object that provides information about a scan, but not its data.
  */
-public class ScanInformation implements Serializable{
+public class ScanInformation implements Serializable {
 
-	private int[] dimensions = new int[]{};
-	private int scanNumber = -1;
-	private String[] scannableNames = new String[]{};
-	private String[] detectorNames = new String[]{};
-	private String filename = "";
-	private String instrument = "";
-	private int numberOfPoints = -1;
-	
-	
-	public ScanInformation(){
-	}
-	
-	public ScanInformation(int[] dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames, String filename, String instrument, int NumberOfPoints) {
-		this.dimensions = dimensions;
-		this.scanNumber = scanNumber;
-		scannableNames = ScannableNames;
-		detectorNames = DetectorNames;
-		this.filename = filename;
-		this.instrument = instrument;
-		numberOfPoints = NumberOfPoints;
-	}
-	
-	public ScanInformation(List<Integer> dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames, String filename, String instrument, int NumberOfPoints) {
-		this.scanNumber = scanNumber;
-		int len = dimensions.size();
-		this.dimensions = new int[len];
-		for (int i = 0; i < this.dimensions.length; i++) {
-			this.dimensions[i] = dimensions.get(i);
-		}
-		scannableNames = ScannableNames;
-		detectorNames = DetectorNames;
-		this.filename = filename;
-		this.instrument = instrument;
-		numberOfPoints = NumberOfPoints;
+	public static final ScanInformation EMPTY = new ScanInformationBuilder().build();
+
+	private final int[] dimensions;
+	private final int scanNumber;
+	private final String[] scannableNames;
+	private final String[] detectorNames;
+	private final String filename;
+	private final String instrument;
+	private final int numberOfPoints;
+
+	/** Cache of toString representation */
+	private String toStringCache;
+
+	private ScanInformation(ScanInformationBuilder info) {
+		dimensions = info.dimensions;
+		scanNumber = info.scanNumber;
+		scannableNames = info.scannableNames;
+		detectorNames = info.detectorNames;
+		filename = info.filename;
+		instrument = info.instrument;
+		numberOfPoints = info.numberOfPoints;
 	}
 
 	public int[] getDimensions() {
 		return dimensions;
 	}
 
-	public void setDimensions(int[] dimensions) {
-		this.dimensions = dimensions;
-	}
-
 	public String[] getScannableNames() {
 		return scannableNames;
-	}
-
-	public void setScannableNames(String[] scannableNames) {
-		this.scannableNames = scannableNames;
 	}
 
 	public String[] getDetectorNames() {
 		return detectorNames;
 	}
 
-	public void setDetectorNames(String[] detectorNames) {
-		this.detectorNames = detectorNames;
-	}
-
 	public String getFilename() {
 		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
 	}
 
 	public String getInstrument() {
 		return instrument;
 	}
 
-	public void setInstrument(String instrument) {
-		this.instrument = instrument;
-	}
-
 	public int getNumberOfPoints() {
 		return numberOfPoints;
-	}
-
-	public void setNumberOfPoints(int numberOfPoints) {
-		this.numberOfPoints = numberOfPoints;
 	}
 
 	public int getScanNumber() {
 		return scanNumber;
 	}
 
-	public void setScanNumber(int scanNumber) {
-		this.scanNumber = scanNumber;
-	}
-
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(String.format("Scan %d : A Scan of rank %d with the dimensions: ", scanNumber, dimensions.length));
-		for (int i = 0; i < dimensions.length; i++) {
-			sb.append(dimensions[i]);
-			if ((i + 1) < dimensions.length) sb.append(" x ");
+		if (toStringCache == null) {
+			StringBuilder sb = new StringBuilder(String.format("Scan %d : A Scan of rank %d with the dimensions: ", scanNumber, dimensions.length));
+			sb.append(stream(dimensions).mapToObj(String::valueOf).collect(joining("x")));
+			sb.append(" over scannables: ");
+			sb.append(stream(scannableNames).collect(joining(", ")));
+			sb.append(" using detectors: ");
+			sb.append(stream(detectorNames).collect(joining(", ")));
+			toStringCache = sb.toString();
 		}
-		sb.append(" over scannables: ");
-		for (int i = 0; i < scannableNames.length; i++) {
-			sb.append(scannableNames[i]);
-			if ((i + 1) < scannableNames.length) sb.append(", ");
-		}
-		sb.append(" using detectors: ");
-		for (int i = 0; i < detectorNames.length; i++) {
-			sb.append(detectorNames[i]);
-			if ((i + 1) < detectorNames.length) sb.append(", ");
-		}
-		return sb.toString();
+		return toStringCache;
 	}
 
+	public static class ScanInformationBuilder {
+		private int[] dimensions = new int[] {};
+		private int scanNumber = -1;
+		private String[] scannableNames = new String[] {};
+		private String[] detectorNames = new String[] {};
+		private String filename = "";
+		private String instrument = "";
+		private int numberOfPoints = -1;
+
+		public static ScanInformationBuilder from(ScanInformation info) {
+			return new ScanInformationBuilder()
+					.dimensions(info.dimensions)
+					.scanNumber(info.scanNumber)
+					.scannableNames(info.scannableNames)
+					.detectorNames(info.detectorNames)
+					.filename(info.filename)
+					.instrument(info.instrument)
+					.numberOfPoints(info.numberOfPoints);
+		}
+
+		public ScanInformationBuilder dimensions(int... dimensions) {
+			this.dimensions = dimensions;
+			return this;
+		}
+		public ScanInformationBuilder scanNumber(int scanNumber) {
+			this.scanNumber = scanNumber;
+			return this;
+		}
+		public ScanInformationBuilder scannableNames(String... scannableNames) {
+			this.scannableNames = scannableNames;
+			return this;
+		}
+		public ScanInformationBuilder scannableNames(Collection<String> scannableNames) {
+			this.scannableNames = scannableNames.toArray(new String[] {});
+			return this;
+		}
+		public ScanInformationBuilder detectorNames(String... detectorNames) {
+			this.detectorNames = detectorNames;
+			return this;
+		}
+		public ScanInformationBuilder detectorNames(Collection<String> detectorNames) {
+			this.detectorNames = detectorNames.toArray(new String[] {});
+			return this;
+		}
+		public ScanInformationBuilder filename(String filename) {
+			this.filename = filename;
+			return this;
+		}
+		public ScanInformationBuilder instrument(String instrument) {
+			this.instrument = instrument;
+			return this;
+		}
+		public ScanInformationBuilder numberOfPoints(int numberOfPoints) {
+			this.numberOfPoints = numberOfPoints;
+			return this;
+		}
+
+		public ScanInformation build() {
+			return new ScanInformation(this);
+		}
+	}
 }

@@ -57,6 +57,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.PositionCallableProvider;
+import gda.scan.ScanInformation.ScanInformationBuilder;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -1294,14 +1295,15 @@ public class ConcurrentScanTest {
 		Scannable scn2 = MockFactory.createMockScannable("scn2");
 		Scan scan = new ConcurrentScan(
 				new Object[] { scn1, 0, 4, 1, scn2, 0, 2, 1, detlev5, 1 });
-		ScanInformation expected = new ScanInformation(
-				new int[] {5, 3},
-				0,
-				new String[] { "scn1", "scn2" },
-				new String[] { "detlev5" },
-				"fileName",
-				"unknown",
-				15);
+		ScanInformation expected = new ScanInformationBuilder()
+				.dimensions(5, 3)
+				.scanNumber(0)
+				.scannableNames("scn1", "scn2")
+				.detectorNames("detlev5")
+				.filename("fileName")
+				.instrument("unknown")
+				.numberOfPoints(15)
+				.build();
 		ScanInformation actual = scan.getScanInformation();
 
 		assertArrayEquals("Scannable names incorrect", expected.getScannableNames(), actual.getScannableNames());
