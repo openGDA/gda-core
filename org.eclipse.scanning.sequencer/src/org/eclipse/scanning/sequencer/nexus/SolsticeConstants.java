@@ -26,6 +26,10 @@ public final class SolsticeConstants {
 	public static final String FIELD_NAME_SCAN_DEAD_TIME = "scan_dead_time";
 	public static final String FIELD_NAME_SCAN_DEAD_TIME_PERCENT = "scan_dead_time_percent";
 	public static final String FIELD_NAME_SCAN_SHAPE    = "scan_shape";
+	public static final String FIELD_NAME_POINT_START_TIME = "point_start_times";
+	public static final String FIELD_NAME_POINT_END_TIME = "point_end_times";
+	public static final String FIELD_NAME_START_TIME = "start_time";
+	public static final String FIELD_NAME_END_TIME = "end_time";
 
 	/**
 	 * Property name for the path within an external (linked) nexus file to the unique keys dataset.

@@ -220,6 +220,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	@Override
 	public void positionPerformed(PositionEvent event) throws ScanningException {
 		solsticeScanMonitor.setPosition(null, event.getPosition());
+		solsticeScanMonitor.pointFinished(event.getPosition());
 	}
 
 	@Override
@@ -227,6 +228,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		if (solsticeScanMonitor.writeAfterMovePerformed()) {
 			solsticeScanMonitor.setPosition(null, event.getPosition());
 		}
+		solsticeScanMonitor.pointStarted(event.getPosition());
 	}
 
 	protected SolsticeScanMonitor createSolsticeScanMonitor(ScanModel model) {
