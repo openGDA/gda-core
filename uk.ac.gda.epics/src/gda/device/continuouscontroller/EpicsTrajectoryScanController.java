@@ -18,6 +18,11 @@
 
 package gda.device.continuouscontroller;
 
+import java.text.MessageFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -38,11 +43,6 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.text.MessageFormat;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides support for EPICS EpicsTrajectoryScanController. A trajectory scan allows fine control of
@@ -205,7 +205,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 */
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {
+		if (!isConfigured()) {
 			// EPICS interface version 2 for phase II beamlines.
 			if (getDeviceName() != null) {
 				TrajectoryScanType tsConfig;
@@ -223,7 +223,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 				logger.error("Missing EPICS configuration for trajectory scan {}", getName());
 				throw new FactoryException("Missing EPICS interface configuration for the scan: " + getName());
 			}
-			configured = true;
+			setConfigured(true);
 		}// end of if (!configured)
 	}
 
@@ -297,7 +297,6 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			mname[7] = channelManager.createChannel(tsConfig.getM8NAME().getPv(), false);
 
 			channelManager.creationPhaseCompleted();
-			configured = true;
 		} catch (Throwable th) {
 			throw new FactoryException(getName() + " failed to create required Epics channels", th);
 		}
