@@ -43,7 +43,6 @@ public class SubscanTest extends TmpTest{
 	@BeforeClass
 	public static void setServices() throws Exception {
 
-		//System.setProperty("org.eclipse.scanning.sequencer.AcquisitionDevice.Metrics", "true");
 		connector   = new MockScannableConnector(null);
 		dservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
 		gservice    = new PointGeneratorService();

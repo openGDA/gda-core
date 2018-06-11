@@ -30,7 +30,6 @@ import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -83,9 +82,9 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private   boolean                    primaryScanDevice = true;
 
 	// OSGi services and intraprocess events
-	protected IRunnableDeviceService     runnableDeviceService;
-	protected IScannableDeviceService    connectorService;
-	private   IPublisher<ScanBean>       publisher;
+	protected IRunnableDeviceService runnableDeviceService;
+	protected IScannableDeviceService connectorService;
+	private IPublisher<ScanBean> publisher;
 
 	// Listeners
 	private   Collection<IRunListener>   rlisteners;
@@ -95,8 +94,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private Map<String, Object>          scanAttributes;
 
 	private volatile boolean busy = false;
-	private boolean requireMetrics;
-
 	/**
 	 * Alive here is taken to represent the device being on and responding.
 	 */
@@ -121,7 +118,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private AbstractRunnableDevice() {
 		this.scanId     = UUID.randomUUID().toString();
 		this.scanAttributes = new HashMap<>();
-		setRequireMetrics(Boolean.getBoolean(getClass().getName()+".Metrics"));
 	}
 
 	/**
@@ -204,7 +200,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 		setDeviceState(DeviceState.READY);
 	}
 
-
 	/**
 	 *
 	 * @param nstate
@@ -241,43 +236,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	public DeviceState getDeviceState() throws ScanningException {
 		if (bean==null) return null;
 		return bean.getDeviceState();
-	}
-
-
-	private long lastPositionTime = -1;
-	private long total=0;
-	/**
-	 *
-	 * @param pos
-	 * @param count 0-based position count (1 is added to calculate % complete)
-	 * @param size
-	 * @throws EventException
-	 * @throws ScanningException
-	 */
-	protected void positionComplete(IPosition pos, int count, int size) throws EventException, ScanningException {
-
-		if (requireMetrics) {
-			long currentTime = System.currentTimeMillis();
-			if (lastPositionTime>-1) {
-				long time = currentTime-lastPositionTime;
-				System.out.println("Point "+count+" timed at "+time+" ms");
-				total+=time;
-			}
-			lastPositionTime = currentTime;
-		}
-		firePositionComplete(pos);
-
-		final ScanBean bean = getBean();
-		bean.setPoint(count);
-		bean.setPosition(pos);
-		bean.setPreviousDeviceState(bean.getDeviceState());
-		if (size>-1) bean.setPercentComplete(((double)(count)/size)*100);
-		if (bean.getDeviceState()==DeviceState.RUNNING) { // Only set this message if we are still running.
-			bean.setMessage("Point " + (pos.getStepIndex() + 1) +" of " + size);
-		}
-		if (publisher != null) {
-			publisher.broadcast(bean);
-		}
 	}
 
 	public String getScanId() {
@@ -357,12 +315,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	@Override
 	public void fireRunWillPerform(IPosition position) throws ScanningException {
-
-		if (isRequireMetrics()) {
-			startTime = System.currentTimeMillis();
-			total     = 0;
-		}
-
 		if (rlisteners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
@@ -374,15 +326,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	@Override
 	public void fireRunPerformed(IPosition position) throws ScanningException {
-
-		if (isRequireMetrics()) {
-			long time = System.currentTimeMillis()-startTime;
-			System.out.println("Ran "+(position.getStepIndex()+1)+" points in *total* time of "+time+" ms.");
-			if (position.getStepIndex()>0) {
-				System.out.println("Average point time of "+(total/position.getStepIndex())+" ms/pnt");
-			}
-		}
-
 		if (rlisteners==null) return;
 
 		final RunEvent evt = new RunEvent(this, position, getDeviceState());
@@ -667,13 +610,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 		this.supportedScanModes = EnumSet.of(supportedScanMode);
 	}
 
-	public boolean isRequireMetrics() {
-		return requireMetrics;
-	}
-
-	public void setRequireMetrics(boolean requireMetrics) {
-		this.requireMetrics = requireMetrics;
-	}
 	public long getConfigureTime() {
 		return configureTime;
 	}

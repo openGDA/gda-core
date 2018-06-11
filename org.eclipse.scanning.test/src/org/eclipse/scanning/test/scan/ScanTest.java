@@ -29,8 +29,6 @@ public class ScanTest extends AbstractScanTest {
 	@Before
 	public void setup() {
 
-		//System.setProperty("org.eclipse.scanning.sequencer.AcquisitionDevice.Metrics", "true");
-
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();

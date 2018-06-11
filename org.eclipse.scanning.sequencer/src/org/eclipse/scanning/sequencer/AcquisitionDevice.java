@@ -49,6 +49,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
@@ -378,7 +379,23 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void positionComplete(IPosition pos) throws EventException, ScanningException {
-		positionComplete(pos, location.getOuterCount(), location.getOuterSize());
+		int count = location.getOuterCount();
+		int size = location.getOuterSize();
+		firePositionComplete(pos);
+
+		final ScanBean bean = getBean();
+		bean.setPoint(count);
+		bean.setPosition(pos);
+		bean.setPreviousDeviceState(bean.getDeviceState());
+		if (size>-1) bean.setPercentComplete(((double)(count)/size)*100);
+		if (bean.getDeviceState()==DeviceState.RUNNING) { // Only set this message if we are still running.
+			bean.setMessage("Point " + (pos.getStepIndex() + 1) +" of " + size);
+		}
+
+		IPublisher<ScanBean> publisher = getPublisher();
+		if (publisher != null) {
+			publisher.broadcast(bean);
+		}
 	}
 
 	private void fireFirst(IPosition firstPosition) throws IllegalAccessException, InvocationTargetException, InstantiationException, ScanningException, EventException {
