@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.malcolm.models.MapMalcolmModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
@@ -72,16 +71,6 @@ public class PreprocessTest {
 	public void testGridStepPreprocess() throws Exception {
 
 		ScanRequest<?> req = createStepGridRequest(5);
-		req = preprocessor.preprocess(req);
-		assertNotNull(req);
-
-		// TODO
-	}
-
-	@Test
-	public void testMalcolmPreprocess() throws Exception {
-
-		ScanRequest<?> req = createMalcolmRequest();
 		req = preprocessor.preprocess(req);
 		assertNotNull(req);
 
@@ -178,25 +167,6 @@ public class PreprocessTest {
 		mandyModel.setRealAxisName("xNex");
 		mandyModel.setImaginaryAxisName("yNex");
 		req.putDetector("mandelbrot", mandyModel);
-
-		return req;
-	}
-
-	private ScanRequest<?> createMalcolmRequest() throws Exception {
-
-		final ScanRequest<?> req = new ScanRequest<IROI>();
-		req.setCompoundModel(new CompoundModel(new StepModel("temperature", 0, 9, 1)));
-		req.setMonitorNamesPerPoint(Arrays.asList("monitor"));
-
-		final File tmp = File.createTempFile("scan_servlet_test_malc", ".nxs");
-		tmp.deleteOnExit();
-		req.setFilePath(tmp.getAbsolutePath()); // TODO This will really come from the scan file service which is not written.
-
-		final MapMalcolmModel malcModel = new MapMalcolmModel();
-		// Test params for starting the device
-		fillParameters(malcModel.getParameterMap(), -1, 10);
-
-		req.putDetector("zebra", malcModel);
 
 		return req;
 	}
