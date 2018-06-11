@@ -23,6 +23,7 @@ Starts the server as an Eclipse OSGI application
       </programArgs>
       <vmArgs>-Dosgi.gda.application=true
 -Dequinox.ds.print=true
+-Dvisualvm.display.name=gda-server
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -33,7 +34,6 @@ Starts the server as an Eclipse OSGI application
    <launcher name="gda-server">
       <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
       <macosx icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
