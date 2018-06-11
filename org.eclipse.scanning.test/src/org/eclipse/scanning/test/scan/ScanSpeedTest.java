@@ -254,9 +254,9 @@ public class ScanSpeedTest extends BrokerTest {
 
 		IPausableDevice<?> device = (IPausableDevice<?>)createDevice(10, scannables, detectors);
 		device.start(null);
-		device.latch(500, TimeUnit.MILLISECONDS); // Latches until scan done.
+		Thread.sleep(500);
 		device.pause();
-		device.latch(100, TimeUnit.MILLISECONDS); // Latches until scan done.
+		Thread.sleep(1000); // sure enough time to reach checkShouldContinue for @ScanPause annotation to be sent
 		device.resume();
 		device.latch(10, TimeUnit.SECONDS); // Latches until scan done.
 
