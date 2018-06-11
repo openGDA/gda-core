@@ -114,33 +114,6 @@ public class MalcolmUtil {
 		}
 	}
 
-	public static boolean getBusy(MalcolmMessage msg) throws Exception {
-		return getBusy(msg, true);
-	}
-
-	public static boolean getBusy(MalcolmMessage msg, boolean requireException) throws Exception {
-
-		try {
-			if (msg.getValue() instanceof Boolean) {
-				return (boolean)msg.getValue();
-			} else if (msg.getValue() instanceof String) {
-				return Boolean.parseBoolean(msg.getValue().toString());
-			} else if (msg.getValue() instanceof BooleanAttribute) {
-				BooleanAttribute attribute = (BooleanAttribute)msg.getValue();
-				return attribute.getValue();
-			} else {
-				try {
-					return getBooleanValueFromMap((Map)msg.getValue(), "busy");
-				} catch (Exception ne) {
-					throw new Exception("Value is not a map containing busy!", ne);
-				}
-			}
-		} catch (Exception ne) {
-			if (requireException) throw ne;
-			return false;
-		}
-	}
-
 	private static String getStringValueFromMap(Map<String, ?> map, String key) throws Exception {
 		if (map.containsKey(key)) {
 			final String stringValue = (String)map.get(key);
@@ -186,20 +159,6 @@ public class MalcolmUtil {
 		}
 
 		throw new Exception("Unable to get state from value Map");
-	}
-
-
-    /**
-     * Method to check if event is likely to be scanning, not the start or the end.
-     * @param bean
-     * @return
-     */
-	public static boolean isScanning(MalcolmEvent bean) {
-		return !bean.isScanEnd() && !bean.isScanStart() && bean.getDeviceState().isRunning();
-	}
-
-	public static boolean isStateChange(MalcolmEvent bean) {
-		return bean.getPreviousState()!=null && bean.getDeviceState()!=bean.getPreviousState();
 	}
 
 }

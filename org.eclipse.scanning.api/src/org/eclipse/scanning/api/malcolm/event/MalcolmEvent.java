@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.malcolm.event;
 
-import java.util.Arrays;
 import java.util.EventObject;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -37,22 +36,14 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
  */
 public final class MalcolmEvent extends EventObject {
 
-
 	// General Information
-	private String  deviceName;
-	private String  beamline;
-	private double  percentComplete;
-	private String  message;
+	private String deviceName;
+	private double percentComplete;
+	private String message;
 
 	// State information
-	private DeviceState   deviceState;
-	private DeviceState   previousState;
-
-	// Dataset information
-	private String  filePath;
-	private String  datasetPath;
-    private int[]   oldShape;
-    private int[]   newShape;
+	private DeviceState deviceState;
+	private DeviceState previousState;
 
 	public MalcolmEvent(IMalcolmDevice<?> malcolmDevice) {
 		super(malcolmDevice);
@@ -71,45 +62,22 @@ public final class MalcolmEvent extends EventObject {
 	public MalcolmEvent(MalcolmEvent bean) {
 		super(bean.getMalcolmDevice());
 		this.deviceName = bean.deviceName;
-		this.beamline = bean.beamline;
 		this.percentComplete = bean.percentComplete;
 		this.message = bean.message;
 		this.deviceState = bean.deviceState;
 		this.previousState = bean.previousState;
-		this.filePath = bean.filePath;
-		this.datasetPath = bean.datasetPath;
-		this.oldShape = bean.oldShape;
-		this.newShape = bean.newShape;
 	}
 
 	public IMalcolmDevice<?> getMalcolmDevice() {
 		return (IMalcolmDevice<?>) getSource();
 	}
 
-	public String getFilePath() {
-		return filePath;
-	}
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-	public String getDatasetPath() {
-		return datasetPath;
-	}
-	public void setDatasetPath(String datasetPath) {
-		this.datasetPath = datasetPath;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
-		result = prime * result + ((datasetPath == null) ? 0 : datasetPath.hashCode());
 		result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
-		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
-		result = prime * result + Arrays.hashCode(newShape);
-		result = prime * result + Arrays.hashCode(oldShape);
 		long temp;
 		temp = Double.doubleToLongBits(percentComplete);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -117,6 +85,7 @@ public final class MalcolmEvent extends EventObject {
 		result = prime * result + ((deviceState == null) ? 0 : deviceState.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -126,34 +95,15 @@ public final class MalcolmEvent extends EventObject {
 		if (getClass() != obj.getClass())
 			return false;
 		MalcolmEvent other = (MalcolmEvent) obj;
-		if (beamline == null) {
-			if (other.beamline != null)
-				return false;
-		} else if (!beamline.equals(other.beamline))
-			return false;
-		if (datasetPath == null) {
-			if (other.datasetPath != null)
-				return false;
-		} else if (!datasetPath.equals(other.datasetPath))
-			return false;
 		if (deviceName == null) {
 			if (other.deviceName != null)
 				return false;
 		} else if (!deviceName.equals(other.deviceName))
 			return false;
-		if (filePath == null) {
-			if (other.filePath != null)
-				return false;
-		} else if (!filePath.equals(other.filePath))
-			return false;
 		if (message == null) {
 			if (other.message != null)
 				return false;
 		} else if (!message.equals(other.message))
-			return false;
-		if (!Arrays.equals(newShape, other.newShape))
-			return false;
-		if (!Arrays.equals(oldShape, other.oldShape))
 			return false;
 		if (Double.doubleToLongBits(percentComplete) != Double.doubleToLongBits(other.percentComplete))
 			return false;
@@ -172,14 +122,6 @@ public final class MalcolmEvent extends EventObject {
 		this.deviceName = deviceName;
 	}
 
-	public String getBeamline() {
-		return beamline;
-	}
-
-	public void setBeamline(String beanline) {
-		this.beamline = beanline;
-	}
-
 	public double getPercentComplete() {
 		return percentComplete;
 	}
@@ -196,22 +138,6 @@ public final class MalcolmEvent extends EventObject {
 		this.deviceState = state;
 	}
 
-	public int[] getOldShape() {
-		return oldShape;
-	}
-
-	public void setOldShape(int[] oldShape) {
-		this.oldShape = oldShape;
-	}
-
-	public int[] getNewShape() {
-		return newShape;
-	}
-
-	public void setNewShape(int[] newShape) {
-		this.newShape = newShape;
-	}
-
 	public String getMessage() {
 		return message;
 	}
@@ -222,13 +148,10 @@ public final class MalcolmEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		return "MalcolmEventBean [filePath=" + filePath + ", deviceName="
-				+ deviceName + ", beamline=" + beamline + ", percentComplete="
+		return "MalcolmEventBean [deviceName="
+				+ deviceName + ", percentComplete="
 				+ percentComplete + ", message=" + message + ", state=" + deviceState
-				+ ", previousState=" + previousState
-				+ ", datasetPath=" + datasetPath + ", oldShape="
-				+ Arrays.toString(oldShape) + ", newShape="
-				+ Arrays.toString(newShape) + "]";
+				+ ", previousState=" + previousState;
 	}
 
 	public DeviceState getPreviousState() {
