@@ -45,6 +45,11 @@ final class Highlighters {
 	/** Cache for Pygments based highlighters if they're available */
 	private static final Map<String, Highlighter> HIGHLIGHTERS = new HashMap<>();
 	static {
+		resetCache();
+	}
+
+	protected static void resetCache() {
+		HIGHLIGHTERS.clear();
 		HIGHLIGHTERS.put(null, NON_HIGHLIGHTER);
 		HIGHLIGHTERS.put("", NON_HIGHLIGHTER);
 		HIGHLIGHTERS.put("none", NON_HIGHLIGHTER);
@@ -79,7 +84,7 @@ final class Highlighters {
 		return HIGHLIGHTERS.getOrDefault(theme, NON_HIGHLIGHTER);
 	}
 
-	public static class InvalidThemeException extends Exception {}
+	public static class InvalidThemeException extends RuntimeException {}
 
 	/**
 	 * A highlighter implementation providing Python syntax highlighting via the Pygments python library.

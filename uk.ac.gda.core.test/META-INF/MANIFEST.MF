@@ -23,5 +23,6 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  uk.ac.diamond.org.powermock;bundle-version="1.6.4",
  javassist;bundle-version="3.20.0",
  uk.ac.diamond.org.springframework
-Import-Package: org.eclipse.osgi.util,
- org.eclipse.january.dataset
+Import-Package: org.eclipse.january.dataset,
+ org.eclipse.osgi.util,
+ org.python.core;version="2.7.1"
