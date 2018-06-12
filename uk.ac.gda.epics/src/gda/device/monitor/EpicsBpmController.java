@@ -67,6 +67,10 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	private String pvName;
 
+	private String intensityPvName;
+	private String xposPvName;
+	private String yposPvName;
+
 	/**
 	 * GDA device Name
 	 */
@@ -118,6 +122,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for BPM " + getDeviceName(), e);
 				}
+			} else if (getIntensityPvName() != null && getXposPvName() != null && getYposPvName() != null) {
+				createChannelAccess(getIntensityPvName(), getXposPvName(), getYposPvName());
+				channelManager.tryInitialize(100);
 			} else if (getPvName()!=null) {
 				createChannelAccess(getPvName());
 				channelManager.tryInitialize(100);
@@ -146,14 +153,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	}
 
 	private void createChannelAccess(String pvName) throws FactoryException {
-		try {
-			intensityCh = channelManager.createChannel(pvName+"INTENSITY", false);
-			xPosCh = channelManager.createChannel(pvName+"BEAMX", false);
-			yPosCh = channelManager.createChannel(pvName+"BEAMY", false);
-			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to connect to all channels", th);
-		}
+		createChannelAccess(pvName + "INTENSITY", pvName + "BEAMX", pvName + "BEAMY");
 	}
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
@@ -367,6 +367,10 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		this.poll = poll;
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+
+	// Methods enabling just the base PV name to be specified
+
 	public String getPvName() {
 		return pvName;
 	}
@@ -374,5 +378,35 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
+
+	////////////////////////////////////////////////////////////////////////////
+
+	// Methods enabling the intensity/position PVs to be specified separately
+
+	public String getIntensityPvName() {
+		return intensityPvName;
+	}
+
+	public void setIntensityPvName(String intensityPvName) {
+		this.intensityPvName = intensityPvName;
+	}
+
+	public String getXposPvName() {
+		return xposPvName;
+	}
+
+	public void setXposPvName(String xposPvName) {
+		this.xposPvName = xposPvName;
+	}
+
+	public String getYposPvName() {
+		return yposPvName;
+	}
+
+	public void setYposPvName(String yposPvName) {
+		this.yposPvName = yposPvName;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
 
 }

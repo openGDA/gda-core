@@ -147,7 +147,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for current amplifier quad " + getDeviceName(), e);
 				}
-			} else if (getRangePv()!=null && getRangeRbvPv()!=null && getCurrent1Pv()!=null && getCurrent2Pv()!=null && getCurrent3Pv()!=null && getCurrent4Pv()!=null){
+			} else if (getRangePv()!=null && getCurrent1Pv()!=null && getCurrent2Pv()!=null && getCurrent3Pv()!=null && getCurrent4Pv()!=null){
 				//configure the object using individual PV names directly.
 				logger.debug("Configure using individual PVs explicitly");
 				createChannelAccess();
@@ -165,7 +165,11 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	private void createChannelAccess() throws FactoryException {
 		try {
 			range = channelManager.createChannel(getRangePv(), rangeMonitor, MonitorType.CTRL, false);
-			range_rbv = channelManager.createChannel(getRangeRbvPv(), rangeMonitor, MonitorType.CTRL, true);
+
+			if (getRangeRbvPv() != null) {
+				range_rbv = channelManager.createChannel(getRangeRbvPv(), rangeMonitor, MonitorType.CTRL, true);
+			}
+
 			current1Ch = channelManager.createChannel(getCurrent1Pv(), false);
 			current2Ch = channelManager.createChannel(getCurrent2Pv(), false);
 			current3Ch = channelManager.createChannel(getCurrent3Pv(), false);

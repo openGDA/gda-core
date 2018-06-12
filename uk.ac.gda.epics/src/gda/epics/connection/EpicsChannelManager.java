@@ -74,7 +74,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 	/**
 	 * Map of all critical (non-optional) channels to be connected.
 	 */
-	protected Set<Channel> unconnectedCriticalChannels;
+	protected Set<String> unconnectedCriticalChannels;
 	protected Set<Channel> connectedCriticalChannels;
 
 	/**
@@ -110,7 +110,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 		controller = EpicsController.getInstance();
 		channels = new ConcurrentHashMap<String, Channel>();
-		unconnectedCriticalChannels = new HashSet<Channel>();
+		unconnectedCriticalChannels = new HashSet<>();
 		connectedCriticalChannels = new HashSet<Channel>();
 		monitoredChannels = new ConcurrentHashMap<Channel, MonitorListener>();
 		monitorTypes = new ConcurrentHashMap<MonitorListener, MonitorType>();
@@ -153,15 +153,21 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 			if (destroyed)
 				throw new IllegalStateException("Channel manager destroyed.");
 
+			/*
+			 * We MUST add critical (non-optional) channels to unconnectedCriticalChannels BEFORE calling createChannel below; otherwise there's risk we will
+			 * get the connectionChanged callback (and attempt to remove the now-connected channel from unconnectedCriticalChannels) before it's been added to
+			 * unconnectedCriticalChannels. If that happens, this EpicsChannelManager will never become 'initialized', and the InitializationListener (if there
+			 * is one) will never be called.
+			 */
+			if (!optional) {
+				synchronized (unconnectedCriticalChannels) {
+					unconnectedCriticalChannels.add(pvName);
+				}
+			}
+
 			Channel channel = controller.createChannel(pvName, this);
 
 			channels.put(pvName, channel);
-
-			if (!optional) {
-				synchronized (unconnectedCriticalChannels) {
-					unconnectedCriticalChannels.add(channel);
-				}
-			}
 
 			if (monitorListener != null) {
 				synchronized (monitoredChannels) {
@@ -399,7 +405,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 		// remove it from critical non-conected channels
 		synchronized (unconnectedCriticalChannels) {
-			unconnectedCriticalChannels.remove(channel);
+			unconnectedCriticalChannels.remove(channel.getName());
 			checkInitializationCompletion();
 		}
 	}
