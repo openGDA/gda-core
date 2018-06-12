@@ -18,14 +18,13 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import gda.device.detector.DummyDAServer;
-import gda.device.detector.NXDetectorData;
-import gda.device.timer.Tfg;
-
 import java.net.URL;
 
 import org.junit.Test;
 
+import gda.device.detector.DummyDAServer;
+import gda.device.detector.NXDetectorData;
+import gda.device.timer.Tfg;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.DummyXspress3Controller;
 
 public class Xspress3DataOperationsTest {
@@ -49,7 +48,7 @@ public class Xspress3DataOperationsTest {
 		URL nexusFile = Xspress3FileReader.class.getResource("46594_0003.hdf5");
 		controller.setSimulationFileName(nexusFile.getPath());
 
-		NXDetectorData treeProvider = (NXDetectorData) dataOps.readoutFrames(1, 1,"xspress3")[0];
+		NXDetectorData treeProvider = dataOps.readoutFrames(1, 1,"xspress3")[0];
 
 		org.junit.Assert.assertEquals(11,treeProvider.getExtraNames().length);
 		org.junit.Assert.assertEquals(12,treeProvider.getOutputFormat().length);  // + 1 for the input name

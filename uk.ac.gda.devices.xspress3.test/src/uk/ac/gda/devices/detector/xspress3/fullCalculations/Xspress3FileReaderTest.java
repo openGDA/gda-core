@@ -18,30 +18,30 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import gda.data.nexus.extractor.NexusExtractorException;
+import static org.junit.Assert.assertEquals;
 
-import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.junit.Test;
 
 public class Xspress3FileReaderTest {
 
 	@Test
-	public void testFileUnpackedCorrectly() throws NexusException, NexusExtractorException {
+	public void testFileUnpackedCorrectly() throws ScanFileHolderException {
 		String nexusFile = Xspress3FileReaderTest.class.getResource("46594_0003.hdf5").getPath();
 		Xspress3FileReader reader = new Xspress3FileReader(nexusFile, 10, 4096);
 		reader.readFile();
 		double[][] data = reader.getFrame(0);
-		org.junit.Assert.assertTrue(data.length == 10);
-		org.junit.Assert.assertTrue(data[0].length == 4096);
+		assertEquals(10, data.length);
+		assertEquals(4096, data[0].length);
 	}
 
 	@Test
-	public void testSingleFrameRead() throws NexusException, NexusExtractorException {
+	public void testSingleFrameRead() throws ScanFileHolderException {
 		String nexusFile = Xspress3FileReaderTest.class.getResource("46594_0003.hdf5").getPath();
 		Xspress3FileReader reader = new Xspress3FileReader(nexusFile, 10, 4096);
 		reader.readFile();
 		double[][] data = reader.getFrame(9);
-		org.junit.Assert.assertTrue(data.length == 10);
-		org.junit.Assert.assertTrue(data[0].length == 4096);
+		assertEquals(10, data.length);
+		assertEquals(4096, data[0].length);
 	}
 }

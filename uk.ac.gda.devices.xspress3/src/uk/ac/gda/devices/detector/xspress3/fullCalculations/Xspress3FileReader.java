@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,15 +18,15 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import org.eclipse.dawnsci.nexus.NexusException;
+import java.util.Arrays;
 
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusExtractorException;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusSourceProvider;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
+import org.eclipse.january.dataset.Dataset;
+
+/* This class is used for testing Xspress3 v2 and will replace in the long run Xspress3FileReader. A new class was needed in order not to interfere with
+ * other beamlines that are using Xspress3. With SWMR, we probably do not need this class anymore.
+ */
 
 public class Xspress3FileReader {
 
@@ -42,30 +42,31 @@ public class Xspress3FileReader {
 		this.mcaSize = mcaSize;
 	}
 
-	public void readFile() throws NexusException, NexusExtractorException {
+	public void readFile() throws ScanFileHolderException {
 		if (theData == null) {
 			fillDataBuffer();
 		}
 	}
 
 	/*
-	 * Reads the whole row (whole file) into memory
-	 * <p>
-	 *
-	 * @throws NexusException
-	 * @throws NexusExtractorException
+	 * Reads the whole row (whole file) into memory <p>
 	 */
-	private void fillDataBuffer() throws NexusException, NexusExtractorException {
+	private void fillDataBuffer() throws ScanFileHolderException {
 		// data is frame x numberOfDetectorElements x mcaSize
 
-		INexusTree tree = NexusTreeBuilder.getNexusTree(url, NexusTreeNodeSelection.createTreeForAllNXData());
-		INexusTree node = tree.getNode(DATA_PATH);
-		NexusGroupData nexusGroupData = NexusExtractor.getNexusGroupData(((INexusSourceProvider) tree).getSource(),
-				node.getNodePathWithClasses(), null, null, true);
+		// P. Chang write a new method in HDF5Utils to load the entire dataset, probably just need one line now with URL and DATA_PATH
+		int[][] shape;
+		shape = HDF5Utils.getDatasetShape(url, DATA_PATH);
+		Dataset dataset;
+		// here probably just use numFrames instead, check dimension of shape[0] with and without chunking
+		int[] start = new int[shape[0].length];
+		int[] step = new int[shape[0].length];
+		Arrays.fill(step, 1);
+		Arrays.fill(start, 0);
 
-		double[] buffer = (double[]) nexusGroupData.getBuffer();
-
-		int numFrames = nexusGroupData.dimensions[0];
+		dataset = HDF5Utils.loadDataset(url, DATA_PATH, start, shape[0], step, Dataset.FLOAT64, 1, false);
+		double[] buffer = (double[]) dataset.getBuffer();
+		int numFrames = shape[0][0];
 		theData = new double[numFrames][numberOfDetectorElements][mcaSize];
 
 		int index = 0;
@@ -81,9 +82,13 @@ public class Xspress3FileReader {
 
 	/**
 	 * Assumes {@link #readFile()} has been called and returned normally.
+	 *
+	 * @param frameNumber
+	 * @return
 	 */
 	public double[][] getFrame(int frameNumber) {
 		return theData[frameNumber];
 	}
 
 }
+

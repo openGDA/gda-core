@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -33,13 +32,12 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 /**
  * Performs all data reductions at the GDA level (e.g. ROIs, all element sum)
  * <p>
- * A version of Xspress3Detector in which EPICS is used to simply record all the
- * deadtime corrected MCAs to file. Only at the end of a scan (or a line in a
- * multidimensional scan) is the temporary HDF5 file written by EPICS readout
- * and all the data reduced and correctly stored in a NexusTreeProvider object.
+ * A version of Xspress3Detector in which EPICS is used to simply record all the deadtime corrected MCAs to file. Only at the end of a scan (or a line in a
+ * multidimensional scan) is the temporary HDF5 file written by EPICS readout and all the data reduced and correctly stored in a NexusTreeProvider object. This
+ * class is used for testing Xspress3 v2 and will replace in the long run Xspress3WithFullCalculationsDetector. A new class was needed in order not to interfere
+ * with other beamlines that are using Xspress3.
  *
  * @author rjw82
- *
  */
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
@@ -78,7 +76,12 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		scanOperations.atScanEnd();
+		stop();
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		atScanEnd();
 	}
 
 	@Override
@@ -88,7 +91,8 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public void stop() throws DeviceException {
-		controller.doStop();
+		scanOperations.atScanEnd();
+		dataOperations.atScanEnd();
 	}
 
 	@Override
@@ -117,12 +121,12 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	/*
-	 * The detectorName is the string used in the Nexus tree returned. Allows for composition where the xspress3 is a component of another detector e.g. Xspress3BufferedDetector
+	 * The detectorName is the string used in the Nexus tree returned. Allows for composition where the xspress3 is a component of another detector e.g.
+	 * Xspress3BufferedDetector
 	 */
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame, String detectorName) throws DeviceException {
 		return dataOperations.readoutFrames(startFrame, finalFrame, detectorName);
 	}
-
 
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
@@ -211,8 +215,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	 */
 	@Override
 	@Deprecated
-	public void setRegionsOfInterest(DetectorROI[] regionList)
-			throws DeviceException {
+	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		dataOperations.setRegionsOfInterest(regionList);
 	}
 
@@ -244,3 +247,4 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 }
+

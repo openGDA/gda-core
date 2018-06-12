@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2016 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,9 +21,10 @@ package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -35,6 +36,7 @@ import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -52,10 +54,15 @@ public class Xspress3DataOperations {
 	private DetectorROI[] rois;
 	private boolean[] isChannelEnabled;
 	private Xspress3FileReader reader;
+	private boolean readDataFromFile;
+	private int lineNumber;
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3DataOperations.class);
 
 	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
 		this.controller = controller;
 		this.firstChannelToRead = firstChannelToRead;
+		this.lineNumber = 0;
+		this.readDataFromFile = false;
 	}
 
 	public String[] getOutputFormat() {
@@ -68,19 +75,26 @@ public class Xspress3DataOperations {
 		return outputFormat;
 	}
 
+	// maybe change the method name to prepareForCollection()
+	// atScanStart()
 	public void atScanStart(boolean readDataFromFile) throws DeviceException {
-		controller.setPerformROICalculations(false);
-		if (readDataFromFile) {
+		// remove for testing Xspress3 v.2 as this plugin is not yet available
+		// controller.setPerformROICalculations(false);
+		this.readDataFromFile = readDataFromFile;
+		if (!readDataFromFile) {
+			enableEpicsMcaStorage();
+		} else {
 			// we are in a Continuous / Fly scan, so data will be readback from
 			// the HDF file at the end of each scan line
-			disableAllEPICSCalculations();
-		} else {
-			enableEpicsMcaStorage();
 		}
+		lineNumber = 0;
+		framesRead = 0;
 	}
 
 	public void atScanLineStart() {
-		framesRead = 0;
+		lineNumber++;
+		if (readDataFromFile)
+			framesRead = 0;
 		reader = null;
 	}
 
@@ -100,9 +114,8 @@ public class Xspress3DataOperations {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(
-				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
-				getConfigFileName());
+		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
+				Xspress3Parameters.schemaURL, getConfigFileName());
 
 		applyConfigurationParameters(vortexParameters);
 	}
@@ -111,8 +124,7 @@ public class Xspress3DataOperations {
 		List<DetectorROI> vortexRois = parameters.getDetector(0).getRegionList();
 		rois = new DetectorROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
-			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
-					.get(index).getRoiEnd());
+			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois.get(index).getRoiEnd());
 		}
 
 		isChannelEnabled = new boolean[controller.getNumberOfChannels()];
@@ -121,74 +133,30 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	private void disableAllEPICSCalculations() throws DeviceException {
-		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel < numChannels; channel++) {
-			controller.enableChannel(channel, false);
-		}
-	}
-
 	/*
-	 * Enable the visualisation of all the EPICS channels, but ensure that all
-	 * the ROIs are empty, so only the latest MCAs are kept and visualisation is
-	 * at a minimum.
+	 * Enable the visualisation of all the EPICS channels, but ensure that all the ROIs are empty, so only the latest MCAs are kept and visualisation is at a
+	 * minimum.
 	 */
 	private void enableEpicsMcaStorage() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
 		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, true);
-//			controller.setWindows(channel, 1, new int[] { 0, 0 });
-//			controller.setWindows(channel, 2, new int[] { 0, 0 });
-//			for (int roi = 0; roi < EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
-//				controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
-//			}
+			// controller.setWindows(channel, 1, new int[] { 0, 0 });
+			// controller.setWindows(channel, 2, new int[] { 0, 0 });
+			// for (int roi = 0; roi < EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
+			// controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
+			// }
 		}
 	}
 
 	public NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
-
-		// this method is for step scan readout and so it assumed that the data
-		// has been collected by the time this method is called
-
-		if (framesRead == 0) {
-			try {
-				// yuck, but unavoidable to prevent a race condition. The
-				// Xspress3
-				// is driven by the TFG, but we
-				// are
-				// looking at the EPICS layer which will be a bit behind the
-				// gate
-				// signals sent to the xspress3 electronics, so need a delay
-				// until
-				// the available frames PV (and therefore all the data PVs) has
-				// been
-				// updated
-				Thread.sleep(250);
-			} catch (InterruptedException e) {
-				throw new DeviceException("InterruptedException during readout.");
-			}
+		int numPointAvailableInArrays = 0;
+		// the numPointAvailableInArrays is the array index so framesRead - 1
+		numPointAvailableInArrays = controller.monitorUpdateArraysAvailableFrame(framesRead);
+		logger.info("framesRead=" + framesRead + " and UpdateArraysAvailableFrame: " + numPointAvailableInArrays);
+		if (framesRead != numPointAvailableInArrays) {
+			throw new DeviceException("Xspress3 arrays are not updated correctly!");
 		}
-
-		// sanity check
-		if (framesRead == controller.getTotalFramesAvailable()) {
-			// we have run out of data! This method should not have been called.
-			// Problem in the logic somewhere.
-			throw new DeviceException("Cannot readout - no more data in buffer");
-		}
-
-		// RW: 13/2/15 problem seeing "repeated numbers" in FFs. This si due to
-		// the Epics nt updating fast enough in step scans.
-		// As its Friday afternoon I am putting in a sleep here, but a correct
-		// fix would be to wait until the 'Total Frames Readout' value as
-		// increased since the last time this method was called, as this method
-		// is only called from within step scans
-		try {
-			Thread.sleep(150);
-		} catch (InterruptedException e) {
-			throw new DeviceException("InterruptedException during readout.");
-		}
-
-		// ...but what about the sanity check above?? This should prevent the race condition
 
 		return readoutLatestFrame(detectorName);
 	}
@@ -198,13 +166,13 @@ public class Xspress3DataOperations {
 		return createNexusTreeForFrame(data, detectorName);
 	}
 
-	private double[][] removeNaNs(double[][] original){
+	private double[][] removeNaNs(double[][] original) {
 		// because we might get NaNs from EPICS, which will mess up our totals
 		double[][] filtered = new double[original.length][original[0].length];
-		for(int i = 0; i < original.length; i++){
-			for (int j = 0; j < original[0].length; j++){
+		for (int i = 0; i < original.length; i++) {
+			for (int j = 0; j < original[0].length; j++) {
 				double value = original[i][j];
-				if (Double.toString(value).compareTo("NaN") == 0){
+				if (Double.toString(value).compareTo("NaN") == 0) {
 					value = 0.0;
 				}
 				filtered[i][j] = value;
@@ -224,7 +192,7 @@ public class Xspress3DataOperations {
 		double[][] roiValues = new double[numRois][numChannels];
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			if (isChannelEnabled[chan]){ // excluded channels do not have a value for ROIs or do they contribute to the FF
+			if (isChannelEnabled[chan]) { // excluded channels do not have a value for ROIs or do they contribute to the FF
 				for (int roi = 0; roi < numRois; roi++) {
 					double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
 					roiValues[roi][chan] = thisRoiSum;
@@ -236,7 +204,7 @@ public class Xspress3DataOperations {
 		int numMcaElements = mcasFromFile[0].length;
 		double[] allElementSum = new double[numMcaElements];
 		for (int chan = 0; chan < numChannels; chan++) {
-			if (isChannelEnabled[chan]){ // excluded channels do not contribute to the allElementSum
+			if (isChannelEnabled[chan]) { // excluded channels do not contribute to the allElementSum
 				for (int element = 0; element < numMcaElements; element++) {
 					allElementSum[element] += mcasFromFile[chan][element];
 				}
@@ -283,15 +251,27 @@ public class Xspress3DataOperations {
 	}
 
 	public NXDetectorData[] readoutFrames(int firstFrame, int lastFrame, String detectorName) throws DeviceException {
-
-		int numFramesAvailable = controller.getTotalFramesAvailable();
+		// SR get the number of frames from HDFfile writer with reading from HDF5 file
+		int numFramesAvailable;
+		int driverNumFramesAvailable = 0;
+		if (readDataFromFile) {
+			numFramesAvailable = controller.getTotalHDFFramesAvailable();
+			driverNumFramesAvailable = controller.getTotalFramesAvailable();
+			logger.info("controller.getTotalHDFFramesAvailable():" + controller.getTotalHDFFramesAvailable());
+			logger.info("controller.getTotalFramesAvailable():" + controller.getTotalFramesAvailable());
+			// to speed up scan need to configure the driver at the start of the scan, here a check if no frame is dropped
+			// here the driver is waiting for more pulses and the file writer should be stopped, ContinuousScan is sequential
+			if (numFramesAvailable != (driverNumFramesAvailable / lineNumber)) {
+				throw new DeviceException("Pulses between EPICs HDF file writer and main driver do not match.");
+			}
+		} else
+			numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
-			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
-					+ firstFrame + " to " + lastFrame);
+			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames " + firstFrame + " to " + lastFrame);
 		}
 
 		try {
-			extractMCAsFromFile(controller.getFullFileName());
+			extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
 			int numFrames = lastFrame - firstFrame + 1;
 			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
@@ -305,7 +285,7 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	private void extractMCAsFromFile(String filename) throws NexusException, NexusExtractorException {
+	private void extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws ScanFileHolderException {
 		if (reader == null) {
 			reader = new Xspress3FileReader(filename, controller.getNumberOfChannels(), controller.getMcaSize());
 			reader.readFile();
@@ -314,13 +294,13 @@ public class Xspress3DataOperations {
 
 	public double readoutFF() throws DeviceException {
 		int numRois = rois.length;
-		int numChannels =controller.getNumberOfChannels();
+		int numChannels = controller.getNumberOfChannels();
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 		double[][] dataWithoutNaNs = removeNaNs(data);
 
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			if (isChannelEnabled[chan]){
+			if (isChannelEnabled[chan]) {
 				for (int roi = 0; roi < numRois; roi++) {
 					double thisRoiSum = extractRoi(dataWithoutNaNs[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
 					theFF += thisRoiSum;
@@ -331,6 +311,10 @@ public class Xspress3DataOperations {
 	}
 
 	public String[] getExtraNames() {
+		if (rois == null || controller == null) {
+			return new String[] { "FF" };
+		}
+
 		int numExtraNames = (rois.length * controller.getNumberOfChannels()) + 1;
 		String[] extraNames = new String[numExtraNames];
 		int index = 0;
@@ -349,6 +333,7 @@ public class Xspress3DataOperations {
 	/**
 	 * @param time
 	 *            - milliseconds
+	 * @return
 	 * @throws DeviceException
 	 */
 	@Deprecated
@@ -361,6 +346,7 @@ public class Xspress3DataOperations {
 
 	public double[][] getMCAData(double time) throws DeviceException {
 		controller.doErase();
+		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
 		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
@@ -398,7 +384,7 @@ public class Xspress3DataOperations {
 
 	public Xspress3Parameters getConfigurationParameters() {
 		DetectorROI[] regions = getRegionsOfInterest();
-		if (regions == null){
+		if (regions == null) {
 			regions = new DetectorROI[0];
 		}
 
@@ -406,7 +392,7 @@ public class Xspress3DataOperations {
 
 		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
 			DetectorElement thisElement = new DetectorElement();
-			if (isChannelEnabled != null){
+			if (isChannelEnabled != null) {
 				thisElement.setExcluded(!isChannelEnabled[i]);
 			}
 			for (DetectorROI region : regions) {
@@ -420,4 +406,10 @@ public class Xspress3DataOperations {
 
 		return parameters;
 	}
+
+	public void atScanEnd() throws DeviceException {
+		enableEpicsMcaStorage();
+	}
+
 }
+
