@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -385,7 +387,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			started = true;
 			clearThreads();
 			notifyRefreshCommandThreads();
-			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, extractCommandThreadInfo(CommandThreadType.COMMAND, runner));
+			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, extractCommandThreadInfo(runner));
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
@@ -427,7 +429,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			runner.setName(nameThread(command));
 			runsourceThreads.add(runner);
 			runner.start();
-			CommandThreadInfo info = notifyStartCommandThread(CommandThreadType.SOURCE,runner);
+			CommandThreadInfo info = notifyStartCommandThread(runner);
 			runner.join();
 			this.notifyTerminateCommandThread(info);
 			return runner.result;
@@ -986,6 +988,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		String cmd = "";
 		JythonServer server = null;
 		boolean scripted;
+		CommandThreadType commandThreadType;
+		/** Timestamp of the thread creation time */
+		private final LocalDateTime creationTimestamp = LocalDateTime.now();
 
 		@Override
 		public abstract void run();
@@ -1030,6 +1035,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			return scripted;
 		}
 
+		public CommandThreadType getCommandThreadType() {
+			return commandThreadType;
+		}
+
+		public LocalDateTime getCreationTimestamp() {
+			return creationTimestamp;
+		}
+
 		/**
 		 * Override flag
 		 */
@@ -1063,6 +1076,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			this.interpreter = interpreter;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
+			this.commandThreadType = CommandThreadType.EVAL;
 		}
 
 		@Override
@@ -1093,6 +1107,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			this.interpreter = server.interp;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
+			this.commandThreadType = CommandThreadType.COMMAND;
 		}
 
 		@Override
@@ -1127,6 +1142,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			this.interpreter = server.interp;
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
+			this.commandThreadType = CommandThreadType.COMMAND;
 			scripted = true;
 		}
 
@@ -1134,7 +1150,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		public void run() {
 			CommandThreadInfo commandThreadInfo = null;
 			try {
-				commandThreadInfo = server.notifyStartCommandThread(CommandThreadType.COMMAND, this);
+				commandThreadInfo = server.notifyStartCommandThread(this);
 				try {
 					this.interpreter.runscript(cmd);
 				} catch (Exception e) {
@@ -1189,6 +1205,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			this.cmd = command;
 			this.authorisationLevel = authorisationLevel;
 			this.stdin = stdin;
+			this.commandThreadType = CommandThreadType.SOURCE;
 		}
 
 		/**
@@ -1282,18 +1299,18 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		return interp.getInterp();
 	}
 
-	private CommandThreadInfo extractCommandThreadInfo(CommandThreadType comtype, JythonServerThread jthread) {
+	private CommandThreadInfo extractCommandThreadInfo(JythonServerThread jthread) {
 		CommandThreadInfo info = new CommandThreadInfo();
 		info.setCommand(jthread.getCommand());
-		info.setCommandThreadType(comtype.toString());
-		info.setDate(""); //TODO
+		info.setCommandThreadType(jthread.getCommandThreadType().toString());
+		info.setDate(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE));
 		info.setId(jthread.getId());
 		info.setJythonServerThreadId(jthread.getJythonServerThreadId());
 		info.setInterrupted(jthread.isInterrupted());
 		info.setName(jthread.getName());
 		info.setPriority(jthread.getPriority());
 		info.setState(jthread.getState().toString());
-		info.setTime(""); //TODO
+		info.setTime(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_TIME));
 		return info;
 	}
 
@@ -1306,8 +1323,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.REFRESH,null));
 	}
 
-	private CommandThreadInfo notifyStartCommandThread(CommandThreadType comType, JythonServerThread thread) {
-		return this.notifyCommandThreadEvent(CommandThreadEventType.START, comType, thread);
+	private CommandThreadInfo notifyStartCommandThread(JythonServerThread thread) {
+		return this.notifyCommandThreadEvent(CommandThreadEventType.START, thread);
 	}
 
 	private void notifyTerminateCommandThread(CommandThreadInfo info) {
@@ -1315,12 +1332,12 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@SuppressWarnings("unused") // future feature
-	private CommandThreadInfo notifyUpdateCommandThread(CommandThreadType comType, JythonServerThread thread) {
-		return this.notifyCommandThreadEvent(CommandThreadEventType.UPDATE, comType, thread);
+	private CommandThreadInfo notifyUpdateCommandThread(JythonServerThread thread) {
+		return this.notifyCommandThreadEvent(CommandThreadEventType.UPDATE, thread);
 	}
 
-	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, CommandThreadType comType, JythonServerThread thread) {
-		CommandThreadInfo info = null==thread ? null : extractCommandThreadInfo(comType, thread);
+	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, JythonServerThread thread) {
+		CommandThreadInfo info = null==thread ? null : extractCommandThreadInfo(thread);
 		this.updateIObservers(new CommandThreadEvent(eType,info));
 		return info;
 	}
@@ -1330,17 +1347,17 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		Collection<ICommandThreadInfo> infos = new ArrayList<>();
 		for (Thread t : runsourceThreads) {
 			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo(CommandThreadType.SOURCE,(JythonServerThread) t));
+				infos.add(extractCommandThreadInfo((JythonServerThread) t));
 			}
 		}
 		for (Thread t : runCommandThreads) {
 			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo(CommandThreadType.COMMAND,(JythonServerThread) t));
+				infos.add(extractCommandThreadInfo((JythonServerThread) t));
 			}
 		}
 		for (Thread t : evalThreads) {
 			if (t.isAlive() && t instanceof JythonServerThread) {
-				infos.add(extractCommandThreadInfo(CommandThreadType.EVAL,(JythonServerThread) t));
+				infos.add(extractCommandThreadInfo((JythonServerThread) t));
 			}
 		}
 		return infos.toArray(new ICommandThreadInfo[infos.size()]);
