@@ -131,7 +131,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 		try {
 			final Topic topic = createTopic(getTopicName());
 
-			final MessageConsumer consumer = session.createConsumer(topic);
+			final MessageConsumer consumer = getSession().createConsumer(topic);
 			consumer.setMessageListener(this::handleMessage);
 			return consumer;
 		} catch (JMSException e) {
@@ -306,7 +306,7 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 	}
 
 	@Override
-	public void disconnect() throws EventException {
+	public synchronized void disconnect() throws EventException {
 		try {
 			removeAllListeners();
 			if (messageConsumer!=null) messageConsumer.close();

@@ -44,9 +44,9 @@ abstract class AbstractConnection implements IURIConnection {
 
 	protected IEventConnectorService service;
 
-	protected QueueConnection connection;
-	protected Session session;
-	protected QueueSession queueSession;
+	private QueueConnection connection;
+	private Session session;
+	private QueueSession queueSession;
 	private boolean connected = true;
 
 	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
@@ -70,29 +70,29 @@ abstract class AbstractConnection implements IURIConnection {
 		return service;
 	}
 
-	protected void createConnection() throws JMSException {
+	protected synchronized void createConnection() throws JMSException {
 		Object factory = service.createConnectionFactory(uri);
 		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)factory;
 		this.connection = connectionFactory.createQueueConnection();
 		connection.start();
 	}
 
-	private void createSession() throws JMSException {
+	private synchronized void createSession() throws JMSException {
 		if (connection == null) createConnection();
 		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
-	protected Session getSession() throws JMSException {
+	protected synchronized Session getSession() throws JMSException {
 		if (session == null) createSession();
 		return session;
 	}
 
-	private void createQueueSession() throws JMSException {
+	private synchronized void createQueueSession() throws JMSException {
 		if (connection == null) createConnection();
 		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 
-	protected QueueSession getQueueSession() throws JMSException {
+	protected synchronized QueueSession getQueueSession() throws JMSException {
 		if (queueSession == null) createQueueSession();
 		return queueSession;
 	}
@@ -103,14 +103,14 @@ abstract class AbstractConnection implements IURIConnection {
 	 * @return
 	 * @throws JMSException
 	 */
-	protected Queue createQueue(String queueName) throws JMSException {
+	protected synchronized Queue createQueue(String queueName) throws JMSException {
 		if (connection==null) createConnection();
 		if (queueSession == null) createQueueSession();
 		return queueSession.createQueue(queueName);
 	}
 
 	@Override
-	public void disconnect() throws EventException {
+	public synchronized void disconnect() throws EventException {
 		try {
 			if (connection!=null) connection.close();
 			if (session != null) session.close();
