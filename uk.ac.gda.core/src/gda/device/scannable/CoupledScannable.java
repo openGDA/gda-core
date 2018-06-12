@@ -39,6 +39,7 @@ import gda.factory.Finder;
 import gda.function.Function;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Couples together the movement of several other Scannables.
@@ -49,6 +50,7 @@ import gda.util.QuantityFactory;
  * There must be a Function per Scannable, else an exception will be thrown during the configure() method. Note that
  * currently all Functions return a single value, so all Scannables used here must have one input value.
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class CoupledScannable extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoupledScannable.class);
