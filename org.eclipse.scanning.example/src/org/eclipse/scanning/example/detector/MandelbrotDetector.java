@@ -17,13 +17,14 @@ import java.util.Random;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
@@ -140,16 +141,16 @@ public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> 
 
 		// Write detector metadata
 		detector.setField("exposure_time", model.getExposureTime());
-		detector.setAttribute("exposure_time", "units", "seconds");
+		detector.setAttribute("exposure_time", NexusConstants.UNITS, "seconds");
 		detector.setField("escape_radius", model.getEscapeRadius());
 		detector.setField("max_iterations", model.getMaxIterations());
 
 		// The axis datasets
 		if (model.isSaveImage()) {
-			detector.setDataset(FIELD_NAME_REAL_AXIS, DatasetFactory.createLinearSpace(-model.getMaxRealCoordinate(), model.getMaxRealCoordinate(), model.getRows(), Dataset.FLOAT64));
-			detector.setDataset(FIELD_NAME_IMAGINARY_AXIS, DatasetFactory.createLinearSpace(-model.getMaxImaginaryCoordinate(), model.getMaxImaginaryCoordinate(), model.getColumns(), Dataset.FLOAT64));
+			detector.setDataset(FIELD_NAME_REAL_AXIS, DatasetFactory.createLinearSpace(DoubleDataset.class, -model.getMaxRealCoordinate(), model.getMaxRealCoordinate(), model.getRows()));
+			detector.setDataset(FIELD_NAME_IMAGINARY_AXIS, DatasetFactory.createLinearSpace(DoubleDataset.class, -model.getMaxImaginaryCoordinate(), model.getMaxImaginaryCoordinate(), model.getColumns()));
 		}
-		if (model.isSaveSpectrum()) detector.setDataset(FIELD_NAME_SPECTRUM_AXIS, DatasetFactory.createLinearSpace(0.0, model.getMaxRealCoordinate(), model.getPoints(), Dataset.FLOAT64));
+		if (model.isSaveSpectrum()) detector.setDataset(FIELD_NAME_SPECTRUM_AXIS, DatasetFactory.createLinearSpace(DoubleDataset.class, 0.0, model.getMaxRealCoordinate(), model.getPoints()));
 
 		Attributes.registerAttributes(detector, this);
 
