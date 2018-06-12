@@ -12,7 +12,6 @@
 package org.eclipse.scanning.sequencer;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
@@ -127,6 +127,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	private Iterator<IPosition> positionIterator;
 
+	private Optional<IMalcolmDevice<?>> malcolmDevice;
+
 	/**
 	 * Package private constructor, devices are created by the service.
 	 */
@@ -156,6 +158,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		setBean(model.getBean() != null ? model.getBean() : new ScanBean()); // TODO: this overwrite the bean just created with setDeviceState. Fix this
 		getBean().setPreviousStatus(getBean().getStatus());
 		getBean().setStatus(Status.QUEUED);
+		malcolmDevice = findMalcolmDevice(model);
 
 		// TODO this sets the DeviceState on the bean to Ready. Fix this. Should still be configuring
 		initializeDetectorsWithScanBean(model);
@@ -207,7 +210,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void setScannables(ScanModel model) throws ScanningException {
 		List<IScannable<?>> scannables = model.getScannables();
 		if (scannables == null) {
-			final Set<String> malcolmControlledAxisNames = getMalcolmControlledAxes(model);
+			final Set<String> malcolmControlledAxisNames =
+					malcolmDevice.isPresent() ? malcolmDevice.get().getAxesToMove() : Collections.emptySet();
 			final List<String> allScannableNames = getScannableNames(model.getPositionIterable());
 			final List<String> scannableNames = allScannableNames.stream()
 					.filter(axisName -> !malcolmControlledAxisNames.contains(axisName))
@@ -216,21 +220,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private Set<String> getMalcolmControlledAxes(ScanModel scanModel) {
-		return scanModel.getDetectors().stream()
-			.filter(IMalcolmDevice.class::isInstance)
-			.map(IMalcolmDevice.class::cast)
-			.map(AcquisitionDevice::getAxesToMove)
-			.flatMap(Collection::stream)
-			.collect(toSet());
-	}
-
-	private static Set<String> getAxesToMove(IMalcolmDevice<?> malcolmDevice) {
-		try {
-			return malcolmDevice.getAxesToMove();
-		} catch (ScanningException e) {
-			throw new RuntimeException(e);
-		}
+	@SuppressWarnings("unchecked")
+	private Optional<IMalcolmDevice<?>> findMalcolmDevice(ScanModel scanModel) {
+		return (Optional<IMalcolmDevice<?>>) (Optional<?>) scanModel.getDetectors().stream() // why is the double-cast necessary?
+				.filter(IMalcolmDevice.class::isInstance)
+				.findFirst();
 	}
 
 	private IPositioner createPositioner(ScanModel model) throws ScanningException {
@@ -415,27 +409,18 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	/**
-	 * Remove this from the list of position listeners for any Malcolm Device
-	 */
-	private void removeMalcolmListeners() {
-		if (model.getDetectors() != null) {
-			model.getDetectors().stream().
-				filter(device -> device.getRole() == DeviceRole.MALCOLM).
-				map(AbstractRunnableDevice.class::cast).
-				forEach(dev -> dev.removePositionListener(this));
-		}
-	}
-
-	/**
 	 * Add this to the list of position listeners for any Malcolm Device
 	 */
 	private void addMalcolmListeners() {
-		if (model.getDetectors() != null) {
-			model.getDetectors().stream().
-				filter(device -> device.getRole() == DeviceRole.MALCOLM).
-				map(AbstractRunnableDevice.class::cast).
-				forEach(dev -> dev.addPositionListener(this)); // TODO: use a method reference, instead of making MalcolmDevice implement IPositionListener
-		}
+		// TODO: use a method reference, instead of making MalcolmDevice implement IPositionListener
+		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.addPositionListener(this));
+	}
+
+	/**
+	 * Remove this from the list of position listeners for any Malcolm Device
+	 */
+	private void removeMalcolmListeners() {
+		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.removePositionListener(this));
 	}
 
 	@SuppressWarnings("squid:S1163")
