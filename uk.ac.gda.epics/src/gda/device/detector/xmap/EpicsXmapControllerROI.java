@@ -18,10 +18,15 @@
 
 package gda.device.detector.xmap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 
 public class EpicsXmapControllerROI extends EpicsXmapController {
+
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapControllerROI.class);
 
 	private double[][][] controlRois;
 
@@ -50,15 +55,38 @@ public class EpicsXmapControllerROI extends EpicsXmapController {
 	@Override
 	public double[] getROIs(int mcaNumber) throws DeviceException {
 		int[] mcaData = getData(mcaNumber);
-		double[] roiSums = new double[controlRois[mcaNumber].length];
-		for (int i = 0; i < controlRois[mcaNumber].length; i++)
-			roiSums[i] = calcROICounts((int) controlRois[mcaNumber][i][0], (int) controlRois[mcaNumber][i][1], mcaData);
-		return roiSums;
+		if (controlRois[mcaNumber] != null) {
+			double[] roiSums = new double[controlRois[mcaNumber].length];
+			for (int i = 0; i < controlRois[mcaNumber].length; i++)
+				roiSums[i] = calcROICounts((int) controlRois[mcaNumber][i][0], (int) controlRois[mcaNumber][i][1], mcaData);
+			return roiSums;
+		} else {
+			return null;
+		}
+	}
+
+	/** Set MCA window to use full range of channels of detector */
+	private void setFullWindow(int mcaNumber) throws DeviceException {
+		double[][] rois = new double[edxdController.getMaxAllowedROIs()][2];
+		rois[0][0] = 0;
+		rois[0][1] = edxdController.getBins() - 1;
+		logger.info("Setting default ROI ({} ... {}) set for detector element {}", rois[0][0], rois[0][1], mcaNumber);
+		setROI(rois, mcaNumber);
 	}
 
 	@Override
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		int[] mcaData = data[mcaNumber];
+
+		if (controlRois == null) {
+			controlRois = new double[numberOfElements][][];
+		}
+
+		if (controlRois[mcaNumber] == null) {
+			logger.warn("ROI for for detector element {} not set (settings have not been applied to detector). Using all MCA channels for window.", mcaNumber);
+			setFullWindow(mcaNumber);
+		}
+
 		double[] roiSums = new double[controlRois[mcaNumber].length];
 		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
 			int min = (int) controlRois[mcaNumber][i][0];

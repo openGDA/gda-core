@@ -119,7 +119,10 @@ public class EpicsXmapController extends DeviceBase implements XmapController {
 		final double[] roiCounts = new double[numberOfElements];
 		for (int j = 0; j < numberOfElements; j++) {
 			final double individualMCARois[] = this.getROIs(j);
-			roiCounts[j] = individualMCARois[roiIndex];
+			// set roiCounts only if ROI has been set for this element
+			if (individualMCARois != null) {
+				roiCounts[j] = individualMCARois[roiIndex];
+			}
 		}
 		return roiCounts;
 	}
