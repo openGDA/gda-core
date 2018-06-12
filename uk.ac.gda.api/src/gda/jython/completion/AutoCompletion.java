@@ -95,4 +95,9 @@ public class AutoCompletion implements Serializable {
 	public String getAfter() {
 		return after;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Autocompletion: %d options", options.size());
+	}
 }
