@@ -7,6 +7,8 @@ from gda.factory import Finder
 from contextlib import contextmanager
 from gda.jython.commands import ScannableCommands
 
+import logging
+logger = logging.getLogger("uk.ac.gda.core.scripts.gdascripts.utils.py")
 
 def frange(start,end,step):
 	'Floating-point version of range():   frange(start,end,step)'
@@ -94,24 +96,20 @@ command_server = Finder.getInstance().find('command_server')
 
 def jobs():
 	"""
-	Return a string showing the threads running in the command server.
-	
-	Only shows the live threads. The number of dead threads is also reported.
-	"""
+	Print a string showing the threads running in the command server.
 
-	s = "%-10s %-8s %-5s %-6s %s\n" % ('DATE', 'TIME', 'QUEUE', 'INTRPT', 'COMMAND')	
-	dead_count = 0
-	for queue_name, threads in (('cmd', command_server.getRunCommandThreads()),
-								  ('src', command_server.getRunsourceThreads()),
-								  ('eval', command_server.getEvalThreads())):
-		for t in threads:
-			if t.isAlive():
-				date = t.name[0:10]
-				time = t.name[11:19]
-				_, _, cmd = t.name[19:].partition(': ')
-				intrpt = 'XXXXXX' if t.isInterrupted() else ''
-				s += "%(date)10s %(time)8s %(queue_name)-5s %(intrpt)6s %(cmd)s\n" % locals()
-			else:
-				dead_count += 1
-	return s
+	Only shows the live threads.
+	"""
+	logger.debug("jobs() called")
+
+	s = "%-10s %-12s %-8s %-11s %s\n" % ('DATE', 'TIME', 'TYPE', 'INTERRUPTED', 'COMMAND')
+	thread_infos = command_server.getCommandThreadInfo()
+	for t in thread_infos:
+			date = t.getDate()
+			time = t.getTime()
+			thread_type = t.getCommandThreadType()
+			cmd = t.getCommand();
+			intrpt = '     X     ' if t.isInterrupted() else ''
+			s += "%(date)-10s %(time)-12s %(thread_type)-8s %(intrpt)-11s %(cmd)s\n" % locals()
+	print s
 
