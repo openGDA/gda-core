@@ -23,8 +23,8 @@ public interface IMalcolmEventListener extends EventListener {
 
 	/**
 	 * Called when Malcolm notifies the service that something happened.
-	 * @param e
+	 * @param event
 	 */
-	public void eventPerformed(MalcolmEvent e);
+	public void eventPerformed(MalcolmEvent event);
 
 }

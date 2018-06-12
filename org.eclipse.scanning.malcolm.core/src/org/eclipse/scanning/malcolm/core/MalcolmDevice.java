@@ -148,14 +148,14 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				final DeviceState deviceState = getDeviceState();
 				logger.info("Connected to ''{}''. Current state: {}", getName(), deviceState);
 
-				fireStateChange(deviceState, "connected to " + getName());
+				handleStateChange(deviceState, "connected to " + getName());
 			} catch (MalcolmDeviceException ex) {
 				logger.warn("Unable to initialise/getDeviceState for device '{}' on reconnection", getName(), ex);
 			}
 		}
 
 		private void disconnectedFromMalcolm() {
-			fireStateChange(DeviceState.OFFLINE, "disconnected from " + getName());
+			handleStateChange(DeviceState.OFFLINE, "disconnected from " + getName());
 		}
 
 		public void dispose() {
@@ -180,7 +180,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 
 	// Listeners to malcolm endpoints
-	private final IMalcolmConnectionEventListener stateChangeListener = this::sendScanStateChange;
+	private final IMalcolmConnectionEventListener stateChangeListener = this::handleStateChange;
 	private final IMalcolmConnectionEventListener scanEventListener = this::sendScanEvent;
 
 	// Subscriber messages
@@ -190,8 +190,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	// Our connection to the outside. // TODO DAQ-1410 remove this publisher, only AcqusitionDevice should change the ScanBean
 	private IPublisher<ScanBean> publisher;
 
-	// Data should be in model?
-	private MalcolmEvent meb;
 	private Iterator<IPosition> scanPositionIterator;
 
 	// Local data.
@@ -208,8 +206,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 
 	public MalcolmDevice() {
-		super(Services.getRunnableDeviceService());
-		malcolmConnection = Services.getConnectorService();
+		this(null, Services.getConnectorService(), Services.getRunnableDeviceService(), null);
 	}
 
 	public MalcolmDevice(String name, IMalcolmConnection malcolmConnection,
@@ -219,6 +216,12 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		this.messageGenerator = malcolmConnection.getMessageGenerator();
 		setName(name);
 		this.publisher = publisher;
+		try {
+			setDeviceState(DeviceState.OFFLINE);
+		} catch (ScanningException e) {
+			logger.error("Error setting device state", e); // Impossible as no listeners yet
+		}
+
 		setAlive(false);
 	}
 
@@ -340,13 +343,12 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-	protected void sendScanStateChange(MalcolmMessage message) {
+	protected void handleStateChange(MalcolmMessage message) {
 		try {
 			logger.debug("Received malcolm state change with message: {}", message);
 			DeviceState newState = MalcolmUtil.getState(message, false);
 
-			logger.debug("Sending malcolm event: {}", meb);
-			fireStateChange(newState, message.getMessage());
+			handleStateChange(newState, message.getMessage());
 
 			if (message.getType().isError()) { // Currently used for debugging the device.
 				logger.error("Error message encountered: {}", message);
@@ -356,17 +358,19 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-	private void fireStateChange(DeviceState newState, String message) {
-		if (meb==null) meb = new MalcolmEvent(this);
-		meb.setDeviceName(getName());
-		meb.setMessage(message);
-
-		meb.setPreviousState(meb.getDeviceState());
-		meb.setDeviceState(newState);
-
-		logger.debug("Sending malcolm event: {}", meb);
+	protected void handleStateChange(DeviceState newState, String message) {
+		DeviceState prevState = null;
 		try {
-			sendEvent(meb);
+			prevState = super.getDeviceState();
+			setDeviceState(newState);
+		} catch (ScanningException e) {
+			logger.error("Could not set device state to {}", newState, e);
+		}
+
+		final MalcolmEvent event = MalcolmEvent.forStateChange(this, newState, prevState, message);
+		logger.debug("Sending malcolm event: {}", event);
+		try {
+			sendEvent(event);
 		} catch (Exception e) {
 			logger.error("Could not update listeners", e);
 		}
@@ -380,8 +384,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			if (reply.getType()==Type.ERROR) {
 				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 			}
-			return MalcolmUtil.getState(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
 
+			return MalcolmUtil.getState(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
 		} catch (Exception ne) {
