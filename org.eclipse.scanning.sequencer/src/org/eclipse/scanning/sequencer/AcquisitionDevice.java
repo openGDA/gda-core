@@ -54,6 +54,8 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
@@ -80,7 +82,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Gerring
  */
-final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implements IPositionListener {
+final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implements IPositionListener, IMalcolmEventListener {
 
 	// Scanning stuff
 	private IPositioner                          positioner;
@@ -414,6 +416,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void addMalcolmListeners() {
 		// TODO: use a method reference, instead of making MalcolmDevice implement IPositionListener
 		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.addPositionListener(this));
+		malcolmDevice.ifPresent(dev -> dev.addMalcolmListener(this));
 	}
 
 	/**
@@ -421,6 +424,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	private void removeMalcolmListeners() {
 		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.removePositionListener(this));
+		malcolmDevice.ifPresent(dev -> dev.removeMalcolmListener(this));
+	}
+
+	@Override
+	public void eventPerformed(MalcolmEvent event) {
+		// We don't actually need to do anything when the malcolm state changes, except log it
+		// See DAQ-1498 and DAQ-1499
+		logger.info("Received malcolm state change event {}", event);
 	}
 
 	@SuppressWarnings("squid:S1163")

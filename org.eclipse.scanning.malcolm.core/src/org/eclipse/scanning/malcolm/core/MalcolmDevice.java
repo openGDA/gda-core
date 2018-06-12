@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.annotation.scan.PointStart;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -358,20 +357,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	private void fireStateChange(DeviceState newState, String message) {
-		// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
-		ScanBean bean = getBean();
-		bean.setDeviceName(getName());
-		bean.setPreviousDeviceState(bean.getDeviceState());
-		bean.setDeviceState(newState);
-		if (publisher!=null) {
-			try {
-				publisher.broadcast(bean);
-			} catch (EventException e) {
-				logger.error("Could not publish updated ScanBean", e);
-			}
-		}
-
-		// We also send a malcolm event
 		if (meb==null) meb = new MalcolmEvent(this);
 		meb.setDeviceName(getName());
 		meb.setMessage(message);
@@ -381,7 +366,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		logger.debug("Sending malcolm event: {}", meb);
 		try {
-			eventDelegate.sendEvent(meb);
+			sendEvent(meb);
 		} catch (Exception e) {
 			logger.error("Could not update listeners", e);
 		}

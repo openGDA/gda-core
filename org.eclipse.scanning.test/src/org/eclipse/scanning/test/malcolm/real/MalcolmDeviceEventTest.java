@@ -80,7 +80,6 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		return message;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testReceiveStateChange() throws Exception {
 		// Arrange
@@ -92,8 +91,6 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		stateChangeListener.eventPerformed(message);
 
 		// Assert
-		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
-		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
 		verify(malcolmEventListener, times(2)).eventPerformed(any(MalcolmEvent.class));
 		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(
 				createExpectedMalcolmEventBean(newState, oldState, "State changed to " + newState))));
