@@ -20,7 +20,6 @@ package gda.jython;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ import java.util.List;
 public class ScriptPaths {
 
 	private List<ScriptProject> projects;
-	private String _startupScript;
+	private String startupScript;
 
 	/* TODO
 	 * Move the gda var folder and cache folder to here from the JythonServer class.
@@ -42,7 +41,7 @@ public class ScriptPaths {
 	 * Default constructor provides an empty list of paths.
 	 */
 	public ScriptPaths() {
-		projects = Arrays.asList(new ScriptProject[] {});
+		projects = new ArrayList<>();
 	}
 
 	/**
@@ -57,7 +56,7 @@ public class ScriptPaths {
 	 * The list of paths to script folders.
 	 */
 	List<String> getPaths() {
-		ArrayList<String> paths = new ArrayList<String>();
+		ArrayList<String> paths = new ArrayList<>();
 		for(ScriptProject project : projects) {
 			paths.add(project.getPath());
 		}
@@ -80,7 +79,7 @@ public class ScriptPaths {
 	 * @return The full path to a Jython script.
 	 */
 	String getStartupScript() {
-		return _startupScript;
+		return startupScript;
 	}
 
 	/**
@@ -88,7 +87,7 @@ public class ScriptPaths {
 	 * @param startupScript The full path to a Jython script.
 	 */
 	public void setStartupScript(String startupScript) {
-		_startupScript = startupScript;
+		this.startupScript = startupScript;
 	}
 
 	/**
