@@ -18,7 +18,7 @@ import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
-public class AbstractMapModel extends AbstractPointsModel implements IMapPathModel {
+public abstract class AbstractMapModel extends AbstractPointsModel implements IMapPathModel {
 
 	@FieldDescriptor(label="Fast Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the fast direction, for instance 'stage_x'.")
 	private String      fastAxisName = "stage_x";
