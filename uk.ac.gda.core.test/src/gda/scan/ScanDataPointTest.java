@@ -18,20 +18,24 @@
 
 package gda.scan;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.scannable.ScannableMotor;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * tests the methods which fetch data out of the ScanDataPoint are self-consistent
@@ -119,4 +123,10 @@ public class ScanDataPointTest {
 		assertTrue(sdp.getDetectorNames().size() == sdp.getDetectorData().size());
 		assertTrue(sdp.getScannableNames().size() == sdp.getPositions().size());
 	}
+
+	@Test
+	public void testToString()  {
+		assertThat(sdp.toString(), is(equalTo("ScanDataPoint [point=0/-1, scan=]")));
+	}
+
 }

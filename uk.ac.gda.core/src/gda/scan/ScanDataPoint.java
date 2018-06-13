@@ -710,7 +710,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public String toString() {
 		final String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
-		return "ScanDataPoint [point=" + (currentPointNumber+1) + "/" + scanInfo.getNumberOfPoints() + ", scan=" + identifier;
+		return "ScanDataPoint [point=" + (currentPointNumber+1) + "/" + scanInfo.getNumberOfPoints() + ", scan=" + identifier + "]";
 	}
 
 	/**
