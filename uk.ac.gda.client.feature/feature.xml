@@ -57,6 +57,10 @@
          id="uk.ac.diamond.daq.thirdparty.activemq.feature"
          version="0.0.0"/>
 
+   <includes
+         id="org.python.pydev.feature"
+         version="0.0.0"/>
+
    <plugin
          id="uk.ac.gda.client"
          download-size="0"
@@ -444,5 +448,11 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.jython"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
