@@ -175,7 +175,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 			final byte[] serializedObject = Serializer.toByte(message);
 			// Check the size of the object to be sent is reasonable
 			if (serializedObject.length > SERIALIZED_OBJECT_SIZE_WARNING_BYTES) {
-				logger.warn("Sending object '{}' is {} bytes.", message, serializedObject.length);
+				logger.warn("Sending large object. '{}' is {} bytes.", message, serializedObject.length);
 			}
 			// Make a object message containing the serialized message object
 			final ObjectMessage objectMessage = session.createObjectMessage(serializedObject);
