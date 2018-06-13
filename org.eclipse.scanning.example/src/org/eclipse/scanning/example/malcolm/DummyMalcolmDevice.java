@@ -75,10 +75,7 @@ import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
-import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
-import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
-import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -362,7 +359,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 
 	private boolean firstRunCompleted = false;
 
-	private int stepIndex = 1;
+	private int stepIndex = 0;
 
 	private boolean paused = false;
 
@@ -489,7 +486,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		// which is required for the datasets for the scannables
 		totalSteps.setValue(64);
 		configuredSteps.setValue(64);
-		stepIndex = 1;
+		stepIndex = 0;
 		List<String> axesToMoveList = model.getAxesToMove();
 		if (axesToMoveList != null) {
 			this.axesToMove.setValue((axesToMoveList.toArray(new String[axesToMoveList.size()])));
@@ -681,7 +678,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		paused = false;
 		setDeviceState(DeviceState.RUNNING);
 		health.setValue("OK");
-		completedSteps.setValue(totalSteps.getValue());
 
 		if (!firstRunCompleted) {
 			createNexusFiles();
@@ -699,7 +695,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 			final long targetDuration = (long) (model.getExposureTime() * 1000000000.0); // nanoseconds
 
 			while (paused) {
-				Thread.sleep(100);
+				Thread.sleep(100); // TODO, use Condition/awaitPaused flag, see AcquisitionDevice
 			}
 			final IPosition overallScanPosition = innerScanPosition.compound(outerScanPosition);
 			for (IDummyMalcolmControlledDevice device : devices.values()) {
@@ -718,8 +714,14 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 				Thread.sleep(millisToWait);
 			}
 
-			innerScanPosition.setStepIndex(stepIndex++);
-			firePositionComplete(innerScanPosition);
+			completedSteps.setValue(stepIndex);
+			innerScanPosition.setStepIndex(stepIndex);
+			try {
+				sendEvent(MalcolmEvent.forStepsCompleted(this, stepIndex, "Completed step " + stepIndex));
+			} catch (Exception e) {
+				throw new ScanningException(e);
+			}
+			stepIndex++;
 		}
 
 		health.setValue("OK");
@@ -753,16 +755,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		file.flush();
 
 		return file;
-	}
-
-	@Override
-	public void addMalcolmListener(IMalcolmEventListener l) {
-		// nothing to do  (TODO: do we need malcolm listeners?)
-	}
-
-	@Override
-	public void removeMalcolmListener(IMalcolmEventListener l) {
-		// nothing to do  (TODO: do we need malcolm listeners?)
 	}
 
 	@Override

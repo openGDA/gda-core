@@ -23,7 +23,6 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 
 public final class MalcolmStateChangedEvent extends MalcolmEvent {
 
-	// State information, only set if eventType is STATE_CHANGED
 	private final DeviceState deviceState;
 	private final DeviceState previousState;
 

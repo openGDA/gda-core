@@ -80,6 +80,9 @@ public final class LocationManager {
 
 	/**
 	 * Called during the scan to increment counts.
+	 * (Note: this currently doesn't seem to be the case. stepNumber and outerCount are used only
+	 * in a malcolm scan and are accessed via getters/setters). If we call this we should only
+	 * do so in a software scan.
 	 */
 	@PointEnd
 	public void increment() {

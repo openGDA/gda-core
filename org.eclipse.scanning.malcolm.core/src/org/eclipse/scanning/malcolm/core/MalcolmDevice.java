@@ -15,7 +15,6 @@ import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +28,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.ValidationException;
-import org.eclipse.scanning.api.annotation.scan.PointStart;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
-import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
@@ -54,7 +50,6 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,20 +176,14 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	// Listeners to malcolm endpoints
 	private final IMalcolmConnectionEventListener stateChangeListener = this::handleStateChange;
-	private final IMalcolmConnectionEventListener scanEventListener = this::sendScanEvent;
+	private final IMalcolmConnectionEventListener scanEventListener = this::handleStepsCompleted;
 
 	// Subscriber messages
 	private MalcolmMessage stateSubscribeMessage;
 	private MalcolmMessage scanSubscribeMessage;
 
-	// Our connection to the outside. // TODO DAQ-1410 remove this publisher, only AcqusitionDevice should change the ScanBean
-	private IPublisher<ScanBean> publisher;
-
-	private Iterator<IPosition> scanPositionIterator;
-
 	// Local data.
 	private long lastBroadcastTime = System.currentTimeMillis();
-	private int lastUpdateCount = -1; // points are 0-indexed, so the first point has index 0
 	private boolean succesfullyInitialised = false;
 
 	// Factory class for creating message to send to the connection layer
@@ -206,16 +195,15 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 
 	public MalcolmDevice() {
-		this(null, Services.getConnectorService(), Services.getRunnableDeviceService(), null);
+		this(null, Services.getConnectorService(), Services.getRunnableDeviceService());
 	}
 
 	public MalcolmDevice(String name, IMalcolmConnection malcolmConnection,
-			IRunnableDeviceService runnableDeviceService, IPublisher<ScanBean> publisher) {
+			IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
 		this.malcolmConnection = malcolmConnection;
 		this.messageGenerator = malcolmConnection.getMessageGenerator();
 		setName(name);
-		this.publisher = publisher;
 		try {
 			setDeviceState(DeviceState.OFFLINE);
 		} catch (ScanningException e) {
@@ -256,89 +244,32 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
-	/**
-	 * Called at the start of each point of the outer scan due to the {@link PointStart} attribute.
-	 * Gets the iterator of the points of the inner scan from the {@link SubscanModerator}.
-	 * @param moderator the SubscanModerator
-	 */
-	@PointStart
-	public void scanPoint(SubscanModerator moderator) {
-		final Iterable<IPosition> scanPositions = moderator.getInnerIterable();
-		scanPositionIterator = scanPositions.iterator();
-	}
+	protected void handleStepsCompleted(MalcolmMessage message) {
+		logger.debug("Received state change event with message: {}", message);
 
-	protected void sendScanEvent(MalcolmMessage message) {
-		logger.debug("Received scan event with message: {}", message);
-		DeviceState newState;
-		try {
-			newState = MalcolmUtil.getState(message, false);
-		} catch (Exception e1) {
-			logger.error("Could not get state", e1);
-			return;
-		}
-
-		// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
-		ScanBean bean = getBean();
-		bean.setDeviceName(getName());
-		bean.setPreviousDeviceState(bean.getDeviceState());
-		if (newState!=null) {
-			bean.setDeviceState(newState);
-		}
-
-		Integer point = bean.getPoint();
-		boolean newPoint = false;
+		Integer stepIndex = null;
 		Object value = message.getValue();
 		if (value instanceof Map) {
 			// TODO: it's likely that its always the same one of these cases.
-			point = (Integer)((Map<?,?>)value).get("value");
-			bean.setPoint(point);
-			newPoint = true;
+			stepIndex = (Integer)((Map<?,?>)value).get("value");
 		} else if (value instanceof NumberAttribute) {
-			point = (Integer)((NumberAttribute)value).getValue();
-			bean.setPoint(point);
-			newPoint = true;
+			stepIndex = (Integer)((NumberAttribute)value).getValue();
 		}
 
 		// Fire a position complete only if it's past the timeout value
-		if (newPoint && scanPositionIterator != null) {
+		if (stepIndex != null) {
 			long currentTime = System.currentTimeMillis();
-
-			int positionDiff = point - lastUpdateCount;
-
-			IPosition scanPosition = null;
-			for (int i = 0; i < positionDiff; i++) {
-				// TODO DAQ-1410 this is quite a bit of work to iterate through to the correct
-				// position, when the only thing that AcqusitionDevice (the only IPositionListener to this class)
-				// uses is the stepIndex, where we actually replace the value in the position with the value of 'point'
-				if (scanPositionIterator.hasNext()) {
-					scanPosition = scanPositionIterator.next();
-				}
-			}
-
-			lastUpdateCount = point;
-
-			// fire position complete event to listeners
-			if (scanPosition != null && currentTime - lastBroadcastTime >= POSITION_COMPLETE_INTERVAL) {
-				scanPosition.setStepIndex(point);
+			// fire position complete event to listeners, if we are over the position complete interval since the last update
+			if (currentTime - lastBroadcastTime >= POSITION_COMPLETE_INTERVAL) {
+				final MalcolmEvent event = MalcolmEvent.forStepsCompleted(this, stepIndex, message.getMessage());
 				try {
-					logger.debug("Firing position complete: {}", scanPosition);
-					firePositionComplete(scanPosition);
-				} catch (ScanningException e) {
+					logger.debug("Sending malcolm steps completed event : {}", event);
+					sendEvent(event);
+				} catch (Exception e) {
 					logger.error("Exception firing position complete", e);
 				}
 
 				lastBroadcastTime = System.currentTimeMillis();
-			}
-		}
-
-		// publish the scan bean
-		// TODO DAQ-1410 do not update the scan bean here. Instead do this in AcquisitionDevice
-		if (publisher != null) {
-			try {
-				logger.debug("Publishing updated scan bean: {}", bean);
-				publisher.broadcast(bean);
-			} catch (Exception e) {
-				logger.error("Could not publish bean");
 			}
 		}
 	}
@@ -466,15 +397,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 		setModel(model);
-		resetProgressCounting();
-	}
-
-	/**
-	 * Reset any variables used in counting progress
-	 */
-	private void resetProgressCounting() {
-		scanPositionIterator = null;
-		lastUpdateCount = 0;
 	}
 
 	/**

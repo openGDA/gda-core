@@ -20,6 +20,10 @@ package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -27,10 +31,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.IDeviceController;
-import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.DeviceWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -46,6 +52,7 @@ import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 
@@ -71,30 +78,30 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		}
 
 		private void firePosition(double position) throws ScanningException {
-			delegate.firePositionChanged(getLevel(), new Scalar(getName(), -1, position));
+			delegate.firePositionChanged(getLevel(), new Scalar<>(getName(), -1, position));
 		}
 
 	}
 
-	private static class TestListener implements IPositionListener {
-	
+	private static class TestPositionListener implements IPositionListener {
+
 		private IPosition lastPositionPerformed = null;
 		private int numPositionsPerformed = 0;
-	
+
 		@Override
 		public void positionPerformed(PositionEvent event) throws ScanningException {
 			lastPositionPerformed = event.getPosition();
 			numPositionsPerformed++;
 		}
-	
+
 		public IPosition getLastPositionPerformed() {
 			return lastPositionPerformed;
 		}
-	
+
 		public int getNumPositionsPerformed() {
 			return numPositionsPerformed;
 		}
-	
+
 	}
 
 	private static final int INNER_SCAN_SIZE = 25;
@@ -150,16 +157,18 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	public void testTopupWithOuterScanTest() throws Exception {
 		DummyMalcolmModel model = createDummyMalcolmModel();
 
-		IRunnableDevice<DummyMalcolmModel> device = sservice.createRunnableDevice(model, false);
+		final IMalcolmDevice<DummyMalcolmModel> malcolmDevice =
+				(IMalcolmDevice<DummyMalcolmModel>) sservice.createRunnableDevice(model, false);
 		final List<String> axisNames = Arrays.asList("x", "y", "outer");
-		IDeviceController controller = createTestScanner(null, null, device, model, 3, axisNames, null);
+		IDeviceController controller = createTestScanner(null, null, malcolmDevice, model, 3, axisNames, null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		final TestListener scanPositionListener = new TestListener();
+		final TestPositionListener scanPositionListener = new TestPositionListener();
 		((IPositionListenable) scanner).addPositionListener(scanPositionListener);
 
-		final TestListener malcolmPositionListener = new TestListener();
-		((IPositionListenable) device).addPositionListener(malcolmPositionListener);
+		final IMalcolmEventListener malcolmEventListener = mock(IMalcolmEventListener.class);
+		final ArgumentCaptor<MalcolmEvent> malcolmEventCaptor = ArgumentCaptor.forClass(MalcolmEvent.class);
+		((IMalcolmDevice<?>) malcolmDevice).addMalcolmListener(malcolmEventListener);
 
 		scanner.start(null);
 		outerScannable.waitForSetPosition(); // initial move at start of scan
@@ -167,18 +176,21 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.RUNNING, scanner.getDeviceState());
 		assertEquals(0, scanPositionListener.getNumPositionsPerformed());
 		assertEquals(null, scanPositionListener.getLastPositionPerformed());
-		assertEquals(0, malcolmPositionListener.getNumPositionsPerformed());
-		assertEquals(null, malcolmPositionListener.getLastPositionPerformed());
+		verifyZeroInteractions(malcolmEventListener);
 
 		// allow the scan to resume and wait for outer scannable move to 2nd position
 		outerScannable.resume();
-		outerScannable.waitForSetPosition(); //
+		outerScannable.waitForSetPosition();
 		assertTrue(controller.isActive());
 		assertEquals(DeviceState.RUNNING, scanner.getDeviceState());
 		assertEquals(1, scanPositionListener.getNumPositionsPerformed());
 		assertEquals(new Scalar<>("outer", 0, 290.0), scanPositionListener.getLastPositionPerformed());
-		assertEquals(INNER_SCAN_SIZE, malcolmPositionListener.getNumPositionsPerformed());
-		checkMalcolmPosition(malcolmPositionListener.getLastPositionPerformed(), 1);
+		verify(malcolmEventListener, times(INNER_SCAN_SIZE)).eventPerformed(malcolmEventCaptor.capture());
+		List<MalcolmEvent> malcolmEvents = malcolmEventCaptor.getAllValues();
+		assertEquals(INNER_SCAN_SIZE, malcolmEvents.size());
+		for (int i = 0; i < INNER_SCAN_SIZE; i++) {
+			assertEquals(MalcolmEvent.forStepsCompleted(malcolmDevice, i, "Completed step " + i), malcolmEvents.get(i));
+		}
 
 		topupScannable.trigger(); // trigger the topup watchdog while the outer scannable is waiting to be resumed
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState()); // check the scan state is paused
@@ -190,8 +202,10 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		Thread.sleep(500);
 		assertEquals(1, scanPositionListener.getNumPositionsPerformed());
 		assertEquals(new Scalar<>("outer", 0, 290.0), scanPositionListener.getLastPositionPerformed());
-		assertEquals(INNER_SCAN_SIZE, malcolmPositionListener.getNumPositionsPerformed());
-		checkMalcolmPosition(malcolmPositionListener.getLastPositionPerformed(), 1);
+		assertEquals(INNER_SCAN_SIZE, malcolmEvents.size());
+		for (int i = 0; i < INNER_SCAN_SIZE; i++) {
+			assertEquals(MalcolmEvent.forStepsCompleted(malcolmDevice, i, "Completed step " + i), malcolmEvents.get(i));
+		}
 
 		topupScannable.resetTopup(); // reset the topup to resume the scan
 		assertEquals(DeviceState.RUNNING, scanner.getDeviceState()); // check the device state is running
@@ -200,22 +214,16 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		assertTrue(!controller.isActive());
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 		assertEquals(3, scanPositionListener.getNumPositionsPerformed());
-		final Scalar expectedOuterPos = new Scalar<>("outer", 2, 292.0);
-		expectedOuterPos.setStepIndex(INNER_SCAN_SIZE * 3);
+		final Scalar<Double> expectedOuterPos = new Scalar<>("outer", 2, 292.0);
+		expectedOuterPos.setStepIndex(INNER_SCAN_SIZE * 3 - 1);
 		assertEquals(expectedOuterPos, scanPositionListener.getLastPositionPerformed());
 
-		assertEquals(INNER_SCAN_SIZE * 3, malcolmPositionListener.getNumPositionsPerformed());
-		checkMalcolmPosition(malcolmPositionListener.getLastPositionPerformed(), 3);
-	}
-
-	private void checkMalcolmPosition(IPosition position, int outerScanNum) {
-		// the last position at the end of each inner scan should be x=2.7, y=2.7
-		assertEquals(2.7, position.getValue("x"), 1e-15);
-		assertEquals(2.7, position.getValue("y"), 1e-15);
-		// x and y should each be at index 4
-		assertEquals(position.getIndex("x"), 4);
-		assertEquals(position.getIndex("y"), 4);
-		assertEquals(outerScanNum * INNER_SCAN_SIZE, position.getStepIndex());
+		malcolmEvents.clear();
+		verify(malcolmEventListener, times(INNER_SCAN_SIZE * 3)).eventPerformed(malcolmEventCaptor.capture());
+		malcolmEvents = malcolmEventCaptor.getAllValues();
+		assertEquals(INNER_SCAN_SIZE * 3, malcolmEvents.size());
+		assertEquals(MalcolmEvent.forStepsCompleted(malcolmDevice, INNER_SCAN_SIZE * 3 - 1, "Completed step " + (INNER_SCAN_SIZE * 3 - 1)),
+				malcolmEvents.get(malcolmEvents.size() - 1));
 	}
 
 }

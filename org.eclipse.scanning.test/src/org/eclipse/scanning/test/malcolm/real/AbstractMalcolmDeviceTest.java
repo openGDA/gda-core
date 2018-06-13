@@ -85,7 +85,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		this.runnableDeviceService = new RunnableDeviceServiceImpl();
 
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
-		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService, null);
+		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService);
 		pointGenService = new PointGeneratorService();
 
 		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
@@ -148,7 +148,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		verify(malcolmConnection, timeout(250)).send(malcolmDevice, expectedGetDeviceStateMessage2);
 		verify(malcolmEventListener, timeout(250)).eventPerformed(any(MalcolmEvent.class)); // argument checked using custom captor below
 		final MalcolmEvent event = malcolmBeanCaptor.getValue();
-		assertThat(event, is(equalTo(createExpectedMalcolmEventBean(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
+		assertThat(event, is(equalTo(createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
@@ -204,8 +204,12 @@ public abstract class AbstractMalcolmDeviceTest {
 		return msg;
 	}
 
-	protected MalcolmEvent createExpectedMalcolmEventBean(DeviceState state, DeviceState previousState, String message) {
+	protected MalcolmEvent createExpectedMalcolmEvent(DeviceState state, DeviceState previousState, String message) {
 		return MalcolmEvent.forStateChange(malcolmDevice, state, previousState, message);
+	}
+
+	protected MalcolmEvent createExpectedMalcolmEvent(int stepsCompleted) {
+		return MalcolmEvent.forStepsCompleted(malcolmDevice, stepsCompleted, "Start of point " + stepsCompleted);
 	}
 
 }

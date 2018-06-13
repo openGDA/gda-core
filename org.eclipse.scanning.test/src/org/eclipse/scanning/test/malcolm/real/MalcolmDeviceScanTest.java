@@ -134,7 +134,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	}
 
 	private ScanBean createExpectedCompleteStepsBean(int completedSteps) {
-		scanBean.setDeviceName("malcolm");
+		scanBean.setDeviceName("solstice_scan");
 
 		scanBean.setDeviceState(DeviceState.RUNNING);
 		scanBean.setPreviousDeviceState(DeviceState.RUNNING);

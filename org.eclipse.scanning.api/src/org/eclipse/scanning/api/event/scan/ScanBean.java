@@ -196,16 +196,6 @@ public final class ScanBean extends StatusBean {
 	}
 
 	@Override
-	public String getMessage() {
-		return message;
-	}
-
-	@Override
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	@Override
 	public String toString() {
 		return "ScanBean [deviceName=" + deviceName
 				+ ", beamline=" + beamline

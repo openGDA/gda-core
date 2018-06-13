@@ -56,11 +56,12 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
+import org.eclipse.scanning.api.malcolm.event.MalcolmStepsCompletedEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanService;
-import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -414,8 +415,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * Add this to the list of position listeners for any Malcolm Device
 	 */
 	private void addMalcolmListeners() {
-		// TODO: use a method reference, instead of making MalcolmDevice implement IPositionListener
-		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.addPositionListener(this));
 		malcolmDevice.ifPresent(dev -> dev.addMalcolmListener(this));
 	}
 
@@ -423,7 +422,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * Remove this from the list of position listeners for any Malcolm Device
 	 */
 	private void removeMalcolmListeners() {
-		malcolmDevice.map(AbstractRunnableDevice.class::cast).ifPresent(dev -> dev.removePositionListener(this));
 		malcolmDevice.ifPresent(dev -> dev.removeMalcolmListener(this));
 	}
 
@@ -431,7 +429,16 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	public void eventPerformed(MalcolmEvent event) {
 		// We don't actually need to do anything when the malcolm state changes, except log it
 		// See DAQ-1498 and DAQ-1499
-		logger.info("Received malcolm state change event {}", event);
+		if (event.getEventType() == MalcolmEventType.STATE_CHANGED) {
+			// We don't actually need to do anything when the malcolm state changes, except log it
+			// See DAQ-1498 and DAQ-1499
+			logger.info("Received malcolm state change event {}", event);
+		} else if (event.getEventType() == MalcolmEventType.STEPS_COMPLETED) {
+			logger.trace("Received malcolm steps completed event {}", event);
+			getBean().setMessage(event.getMessage());
+			location.setStepNumber(((MalcolmStepsCompletedEvent) event).getStepsCompleted());
+			innerScanStepsCompleted();
+		}
 	}
 
 	@SuppressWarnings("squid:S1163")
@@ -656,6 +663,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					shouldResumeCondition.await();
 				}
 
+				getBean().setPreviousStatus(getBean().getStatus());
 				if (getDeviceState().isRestState()) {
 					getBean().setStatus(Status.TERMINATED);
 				} else {
@@ -824,26 +832,18 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	/**
-	 * Actions to perform on a position performed event
-	 */
-	@Override
-	public void positionPerformed(PositionEvent evt) throws ScanningException {
-		if (location.isInnerScan()) {
-			location.setStepNumber(evt.getPosition().getStepIndex());
-			innerPositionPercentComplete();
-		}
-	}
-
-	/**
 	 * Calculate and set the position complete value on the scan bean based on an inner position
 	 * @param innerCount The count representing the progress of of the inner scan
 	 * @throws Exception
 	 */
-	private void innerPositionPercentComplete() {
+	private void innerScanStepsCompleted() {
 
 		final ScanBean bean = getBean();
 		bean.setMessage("Point " + location.getOverallCount() + " of " + location.getTotalSize());
 		bean.setPercentComplete(location.getOuterPercent());
+		bean.setPoint(location.getStepNumber());
+		bean.setPreviousDeviceState(bean.getDeviceState()); // this bean doesn't represent a state
+		bean.setPreviousStatus(bean.getStatus()); // or status change
 
 		if (getPublisher() != null) {
 			try {

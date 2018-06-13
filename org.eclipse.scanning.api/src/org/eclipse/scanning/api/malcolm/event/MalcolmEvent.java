@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.malcolm.event;
 
 import static org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType.STATE_CHANGED;
+import static org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType.STEPS_COMPLETED;
 
 import java.util.EventObject;
 
@@ -26,7 +27,7 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 public abstract class MalcolmEvent extends EventObject {
 
 	public enum MalcolmEventType {
-		STATE_CHANGED; //, STEPS_PERFORMED - TODO add in future change
+		STATE_CHANGED, STEPS_COMPLETED
 	}
 
 	// General Information
@@ -40,8 +41,10 @@ public abstract class MalcolmEvent extends EventObject {
 	}
 
 	public MalcolmEvent copy() {
-		if (this.getEventType() == MalcolmEventType.STATE_CHANGED) {
+		if (this.getEventType() == STATE_CHANGED) {
 			return new MalcolmStateChangedEvent((MalcolmStateChangedEvent) this);
+		} else if (this.getEventType() == STEPS_COMPLETED) {
+			return new MalcolmStepsCompletedEvent((MalcolmStepsCompletedEvent) this);
 		}
 
 		throw new AssertionError("Unknown event type " + getEventType());
@@ -50,6 +53,11 @@ public abstract class MalcolmEvent extends EventObject {
 	public static MalcolmStateChangedEvent forStateChange(IMalcolmDevice<?> malcolmDevice,
 			DeviceState deviceState, DeviceState prevState, String message) {
 		return new MalcolmStateChangedEvent(malcolmDevice, deviceState, prevState, message);
+	}
+
+	public static MalcolmStepsCompletedEvent forStepsCompleted(IMalcolmDevice<?> malcolmDevice,
+			int stepsCompleted, String message) {
+		return new MalcolmStepsCompletedEvent(malcolmDevice, stepsCompleted, message);
 	}
 
 	public IMalcolmDevice<?> getMalcolmDevice() {

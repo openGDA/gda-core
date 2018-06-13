@@ -66,7 +66,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	}
 
 	private IMalcolmDevice<MalcolmModel> createMalcolmDevice(String name) throws MalcolmDeviceException {
-		return new MalcolmDevice<>(name, connectorService, service, null);
+		return new MalcolmDevice<>(name, connectorService, service);
 	}
 
 	@Test(expected=MalcolmDeviceException.class)
@@ -133,8 +133,8 @@ public class MalcolmEpicsV4ConnectorTest {
 
 			MalcolmEpicsV4Connection hangingConnectorService = new HangingGetConnectorService();
 			// Create the device
-			IMalcolmDevice<?> malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(), hangingConnectorService,
-					service, null);
+			IMalcolmDevice<?> malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(),
+					hangingConnectorService, service);
 
 			// Get the device state.
 			malcolmDevice.getDeviceState(); // Hangs unless timeout is working

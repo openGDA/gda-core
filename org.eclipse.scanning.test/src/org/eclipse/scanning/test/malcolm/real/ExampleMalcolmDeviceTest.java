@@ -78,7 +78,7 @@ public class ExampleMalcolmDeviceTest {
 		epicsv4Device = runner.start();
 
 		// Create the device
-		malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(), connectorService, service, null);
+		malcolmDevice = new MalcolmDevice<>(epicsv4Device.getRecordName(), connectorService, service);
 		pointGenService = new PointGeneratorService();
 	}
 
