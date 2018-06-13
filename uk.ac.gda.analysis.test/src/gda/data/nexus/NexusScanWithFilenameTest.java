@@ -65,7 +65,6 @@ public class NexusScanWithFilenameTest {
 		scan.setDataWriter(DefaultDataWriterFactory.createDataWriterFromFactory());
 		scan.getDataWriter().addDataWriterExtender(dataWriterExtender);
 		scan.runScan();
-		scan.getDataWriter().completeCollection();
 	}
 
 	@Before
