@@ -74,6 +74,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String STARTSTOP_FILE_WRITING = ":HDF5:Capture";
 	private static String FILE_WRITING_RBV = ":HDF5:Capture_RBV";
 
+	private static String FILE_TEMPLATE = ":HDF5:FileTemplate";
 	private static String FILE_PATH = ":HDF5:FilePath";
 	private static String FILE_PATH_RBV = ":HDF5:FilePath_RBV";
 
@@ -93,10 +94,15 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String DIM_ATT_DATASETS = "HDF5:DimAttDatasets";
 
 	// File performance PVs
+	private static String FILE_NDARRAYPORT = ":HDF5:NDArrayPort";
 	private static String FILE_ATTR = ":HDF5:StoreAttr";
 	private static String FILE_PERFORM = ":HDF5:StorePerform";
 	private static String FILE_NUMFRAMESCHUNKS = ":HDF5:NumFramesChunks";
+	private static String FILE_NDATTRIBUTECHUNK = ":HDF5:NDAttributeChunk";
 	private static String FILE_LAZYOPEN = ":HDF5:LazyOpen";
+	private static String FILE_HDFXML = ":HDF5:XMLFileName";
+	private static String FILE_POSITIONMODE = ":HDF5:PositionMode";
+
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
 	private static String ROI_HIGH_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_HLM";// channel (1-8),ROI (1-4)
@@ -195,6 +201,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
 	protected PV<String> pvSetFilePath;
 	protected ReadOnlyPV<String> pvGetFilePath;
+	protected PV<String> pvSetFileTemplate;
 	protected PV<String> pvSetFilePrefix;
 	protected ReadOnlyPV<String> pvGetFilePrefix;
 	protected PV<Integer> pvNextFileNumber;
@@ -208,10 +215,14 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvHDFNumCaptureRBV;
 	protected ReadOnlyPV<String> pvHDFFullFileName;
 
+	protected PV<String> pvHDFNDArrayPort;
 	protected PV<Boolean> pvHDFAttributes;
 	protected PV<Boolean> pvHDFPerformance;
 	protected PV<Integer> pvHDFNumFramesChunks;
+	protected PV<Integer> pvHDFNDAttributeChunk;
 	protected PV<Boolean> pvHDFLazyOpen;
+	protected PV<String> pvHDFXML;
+	protected PV<Boolean> pvHDFPositionMode;
 
 	// New PVs etc for using 'new' Epics interface.
 	private boolean useNewEpicsInterface = false;
@@ -296,6 +307,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvSetFileCaptureMode = LazyPVFactory.newEnumPV(generatePVName(FILE_CAPTURE_MODE), CAPTURE_MODE.class);
 		pvStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
 		pvIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
+		pvSetFileTemplate = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_TEMPLATE));
 		pvSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PATH));
 		pvGetFilePath = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FILE_PATH_RBV));
 		pvSetFilePrefix = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_PREFIX));
@@ -304,10 +316,14 @@ public class EpicsXspress3ControllerPvProvider {
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
 		pvHDFNumCaptureRBV = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURED_RBV));
+		pvHDFNDArrayPort = LazyPVFactory.newStringPV(generatePVName(FILE_NDARRAYPORT));
 		pvHDFAttributes = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_ATTR));
 		pvHDFPerformance = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_PERFORM));
 		pvHDFNumFramesChunks = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMFRAMESCHUNKS));
+		pvHDFNDAttributeChunk = LazyPVFactory.newIntegerPV(generatePVName(FILE_NDATTRIBUTECHUNK));
 		pvHDFLazyOpen = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_LAZYOPEN));
+		pvHDFXML = LazyPVFactory.newStringFromWaveformPV(generatePVName(FILE_HDFXML));
+		pvHDFPositionMode = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_POSITIONMODE));
 
 		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FULLFILENAME));
 		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));

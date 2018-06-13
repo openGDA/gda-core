@@ -55,8 +55,8 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
-	private int NUMBER_ROIs = 10;
-	private int MCA_SIZE = 4096;
+	private static final int NUMBER_ROIS = 10;
+	private static final int MCA_SIZE = 4096;
 
 	// Tfg is only for simulation purposes to get current state (in real system
 	// Xspress3 hardware would know what is going on)
@@ -79,7 +79,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	private int numRoiToRead;
 	private String template;
 	private int nextNumber;
-//	private int[] fileDimensions;
 	private int numberOfChannels;
 	private boolean[] enabledChannels;
 	private String simulationFileName;
@@ -125,24 +124,20 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	private void open() throws DeviceException {
 		Object obj;
 		if (daServer != null && daServer.isConnected()) {
-			if (mcaOpenCommand != null) {
-				if ((obj = daServer.sendCommand(mcaOpenCommand)) != null) {
-					mcaHandle = ((Integer) obj).intValue();
-					if (mcaHandle < 0) {
-						throw new DeviceException("Failed to create the mca handle");
-					}
-					logger.debug("Xspress2System: open() using mcaHandle " + mcaHandle);
+			if (mcaOpenCommand != null && (obj = daServer.sendCommand(mcaOpenCommand)) != null) {
+				mcaHandle = ((Integer) obj).intValue();
+				if (mcaHandle < 0) {
+					throw new DeviceException("Failed to create the mca handle");
 				}
+				logger.debug("Xspress2System: open() using mcaHandle {}", mcaHandle);
 			}
 
-			if (scalerOpenCommand != null) {
-				if ((obj = daServer.sendCommand(scalerOpenCommand)) != null) {
-					scalerHandle = ((Integer) obj).intValue();
-					if (scalerHandle < 0) {
-						throw new DeviceException("Failed to create the scaler handle");
-					}
-					logger.debug("Xspress2System: open() using scalerHandle " + scalerHandle);
+			if (scalerOpenCommand != null && (obj = daServer.sendCommand(scalerOpenCommand)) != null) {
+				scalerHandle = ((Integer) obj).intValue();
+				if (scalerHandle < 0) {
+					throw new DeviceException("Failed to create the scaler handle");
 				}
+				logger.debug("Xspress2System: open() using scalerHandle {}", scalerHandle);
 			}
 		}
 	}
@@ -163,7 +158,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 		if ((obj = daServer.sendCommand(command + handle)) == null) {
 			throw new DeviceException("Null reply received from daserver during " + command);
 		} else if (((Integer) obj).intValue() == -1) {
-			logger.error("DummyXspress3Controller: " + command + " failed");
+			logger.error("DummyXspress3Controller: {} failed", command);
 			close();
 			throw new DeviceException("DummyXspress3Controller " + command + " failed");
 		}
@@ -171,7 +166,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public void doStop() throws DeviceException {
-		// tfg.stop();
 		if (mcaHandle < 0 || scalerHandle < 0) {
 			open();
 		}
@@ -205,6 +199,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public void setArrayCounter(int n) {
+		logger.debug("Called DummyXspress3Controller.setArrayCounter({})", n);
 	}
 
 	@Override
@@ -244,17 +239,13 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public int getStatus() throws DeviceException {
-		if (isBusy()) {
-			return Detector.BUSY;
-		}
-		return Detector.IDLE;
+		return isBusy() ? Detector.BUSY : Detector.IDLE;
 	}
 
 	@Override
 	public int getTotalFramesAvailable() throws DeviceException {
 		// simulation is not good enough!
 		return numFramesToAcquire;
-		// return tfg.getCurrentFrame();
 	}
 
 	@Override
@@ -305,7 +296,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	}
 
 	@Override
-	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException {
+	public void setNumberROIToRead(int numRoiToRead) {
 		this.numRoiToRead = numRoiToRead;
 	}
 
@@ -336,7 +327,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public void doStart() throws DeviceException {
-		// tfg.start();
+		logger.debug("Called DummyXspress3Controller.doStart()");
 	}
 
 	@Override
@@ -346,6 +337,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setSavingFiles({})", saveFiles);
 	}
 
 	@Override
@@ -424,12 +416,12 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 		Double counts = 10.0;
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				for (int roi = 0; roi < getNumberROIToRead(); roi++) {
+				for (int region = 0; region < getNumberROIToRead(); region++) {
 					if (isChannelEnabled(chan)) {
-						results[frame][chan][roi] = counts;
+						results[frame][chan][region] = counts;
 						counts += 10;
 					} else {
-						results[frame][chan][roi] = 0.0;
+						results[frame][chan][region] = 0.0;
 					}
 				}
 			}
@@ -445,8 +437,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	@Override
 	public double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
 		int numChannels = finalChannel - startChannel + 1;
-		// int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
-		// + 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
 
 		double[][] results = new double[numChannels][4096];
 		Random generator = new Random();
@@ -454,7 +444,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
 				if (isChannelEnabled(chan)) {
-					results[chan][mcaChan] = generator.nextInt(new Double(1000.0).intValue() * 10000);
+					results[chan][mcaChan] = generator.nextInt(10000000);
 				} else {
 					results[chan][mcaChan] = 0.0;
 				}
@@ -492,12 +482,12 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) {
-		// do nothing in this sim
+		logger.debug("DummyXspress3Controller.setHDFFileAutoIncrement({})", b);
 	}
 
 	@Override
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
-		// do nothing in this sim
+		logger.debug("DummyXspress3Controller.setHDFNumFramesToAcquire({})", i);
 	}
 
 	@Override
@@ -541,7 +531,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public int getNumberOfRois() {
-		return NUMBER_ROIs;
+		return NUMBER_ROIS;
 	}
 
 	@Override
@@ -551,62 +541,100 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public int getTotalHDFFramesAvailable() throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.getTotalHDFFramesAvailabe()");
 		return numFramesToAcquire;
 	}
 
 	@Override
 	public void setHDFAttributes(boolean b) throws DeviceException {
-		// do nothing in this sim
+		logger.debug("Called DummyXspress3Controller.setHDFAttributes({})", b);
 	}
 
 	@Override
 	public void setHDFPerformance(boolean b) throws DeviceException {
-		// do nothing in this sim
+		logger.debug("Called DummyXspress3Controller.setHDFPerformance({})", b);
 	}
 
 	@Override
 	public void setHDFNumFramesChunks(int i) throws DeviceException {
-		// do nothing in this sim
+		logger.debug("Called DummyXspress3Controller.setHDFNumFramesChunls({})", i);
 	}
 
 	@Override
 	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.monitorUpdateArraysAvailableFrame({})", desiredPoint);
 		return desiredPoint;
 	}
 
 	@Override
 	public void setPointsPerRow(Integer pointsPerRow) throws DeviceException {
+		logger.debug("setPointsPerRow({})", pointsPerRow);
 	}
 
 	@Override
 	public ReadyForNextRow monitorReadyForNextRow(ReadyForNextRow readyForNextRow) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.monitorReadyForNextRow({})", readyForNextRow);
 		return readyForNextRow;
 	}
 
 	@Override
 	public void setFileEnableCallBacks(UPDATE_CTRL callback) throws DeviceException {
-
+		logger.debug("Called DummyXspress3Controller.setFileEnableCallBacks({})", callback);
 	}
 
 	@Override
 	public void setFileCaptureMode(CAPTURE_MODE captureMode) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setFileCaptureMode({})", captureMode);
 	}
 
 	@Override
 	public void setFileArrayCounter(int arrayCounter) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setFileArrayCounter({})", arrayCounter);
 	}
 
 	@Override
 	public void setHDFLazyOpen(boolean b) throws DeviceException {
-
+		logger.debug("Called DummyXspress3Controller.setHDFLazyOpen({})", b);
 	}
 
 	@Override
 	public void setHDFExtraDims(int[] scanDimensions) throws IOException {
+		logger.debug("Called DummyXspress3Controller.setHDFExtraDims({})", scanDimensions);
 	}
 
 	@Override
 	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
+		logger.debug("Called DummyXspress3Controller.setStoreAttributesUsingExtraDims({})", useExtraDims);
+	}
+
+	@Override
+	public void setHDFNDArrayPort(String port) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setHDFNDArrayPort({})", port);
+
+	}
+
+	@Override
+	public void setFileTemplate(String fileTemplate) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setFileTemplate({})", fileTemplate);
+
+	}
+
+	@Override
+	public void setHDFXML(String xml) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setHDFXML({})", xml);
+
+	}
+
+	@Override
+	public void setHDFNDAttributeChunk(int chunk) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setHDFNDAttributeChunk({})", chunk);
+
+	}
+
+	@Override
+	public void setHDFPositionMode(boolean positionMode) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setHDFPositionMode({})", positionMode);
+
 	}
 
 }
