@@ -11,13 +11,12 @@ It was written to resolve GDA-6130 where the PyDev approach resulted in 'get' me
 import __builtin__
 import keyword
 import re
+import logging
 
-from ch.qos.logback.classic import Level
-from org.slf4j import LoggerFactory
 from java.lang import Object
 from org.python.core import PyJavaPackage
 
-logger = LoggerFactory.getLogger(__name__ + '.py')
+logger = logging.getLogger("uk.ac.gda.core.scripts.gda_completer.py")
 
 # Type constants used to pick the icon to display for the option
 # The usage is chosen to match PyDev see jyimportsTipper.py
@@ -43,6 +42,7 @@ def camel_snake_match(partial):
     gA_m will match getAwkward_mixedCase
     but neither of gAC or g_m will
     """
+    logger.debug('Creating camel matcher for %s', partial)
     keys = CAMEL_REG.findall(partial)
     p = CAMEL_REG.search(partial)
     sub_text = partial if not p else partial[:p.start()]
@@ -50,20 +50,22 @@ def camel_snake_match(partial):
         # make sure that the match starts with the start of the partial text
         sub_text = keys.pop(0)
     match_regex = '^' + sub_text + '[a-z0-9]*' + '[a-z0-9_]*'.join(keys)
-    logger.debug('Matching against regex: {}', match_regex)
+    logger.debug('Matching against regex: %s', match_regex)
     return re.compile(match_regex).match
 
 def basic_match(partial):
     """Match words only if they match exactly (ignoring case)"""
     lower = partial.lower()
+    logger.debug('Creating basic matcher for %s', lower)
     def match(completion):
-        logger.debug('Matching if starts with "{}"', lower)
+        logger.log(5, 'Matching if "%s" starts with "%s"', completion, lower)
         return completion.lower().startswith(lower)
     return match
 
 def fuzzy_match(partial):
     """Match on any part of the word (case insensitive)"""
     lower = partial.lower()
+    logger.debug('Creating fuzzy matcher for %s', lower)
     def match(completion):
         return lower in completion.lower()
     return match
@@ -86,17 +88,17 @@ class Completer(object):
         self.globals = globals_
 
         if matching not in matchers:
-            logger.warn('Matching style "{}" not available', matching)
+            logger.warn('Matching style "%s" not available', matching)
             self.match_maker = matchers['basic']
         else:
             self.match_maker = matchers[matching]
 
-        logger.debug('Using {} completion', self.match_maker)
+        logger.debug('Using %s completion', self.match_maker)
 
         # Build and cache the keywords results
         logger.debug('Caching keywords for completion')
         self.keywords = [(x, '', '', TYPE_BUILTIN) for x in keyword.kwlist]  # Use the param icon for keywords
-        logger.debug('Key words: {}', str(self.keywords))
+        logger.debug('Key words: %s', str(self.keywords))
 
         # Build and cache the builtins
         logger.debug('Caching built-ins for completion')
@@ -115,14 +117,9 @@ class Completer(object):
                 self.builtins.append((x, '', '', TYPE_FUNCTION))
             else:
                 self.builtins.append((x, '', '', TYPE_ATTR))
-        logger.debug('Built-ins: {}', str(self.builtins))
+        logger.info('Built-ins: %s', str(self.builtins))
 
         logger.info("Completer created, command completion should be available")
-
-        # Suppress the debug output by default. Do this at the end of the initialisation so its possible to
-        # see the debug output for the keywords and builtin initialisation.
-        logger.setLevel(Level.INFO)
-
 
     def complete(self, command):
         """
@@ -137,7 +134,7 @@ class Completer(object):
 
         The order of the returned list is not important it is sorted by the Java code
         """
-        logger.debug('Command to complete: {}', command)
+        logger.debug('Command to complete: %s', command)
 
         # If the command includes '.' need to split on it and parse it
         if '.' in command:
@@ -147,7 +144,7 @@ class Completer(object):
 
             # Check if the first part is in the globals or builtins, if not then no options are available
             if parts[0] not in (self.globals.keys() + dir(__builtin__)):
-                logger.debug('{} is not in globals or builtins, no completion available', parts[0])
+                logger.debug('%s is not in globals or builtins, no completion available', parts[0])
                 return []
 
             logger.debug('Walking through command to resolve object to dir()')
@@ -156,7 +153,7 @@ class Completer(object):
 
             # Check if we are looking at a Java object
             if isinstance(obj, Object):  # It's a Java object
-                logger.debug('{} is a Java object', parts[0])
+                logger.debug('%s is a Java object', parts[0])
                 sub_command = parts[0]
 
                 # Move through the command getting the object after each '.', if it won't result in a method call.
@@ -170,14 +167,14 @@ class Completer(object):
                     if hasattr(obj.__class__, part):
                         obj = getattr(obj, part)  # replace obj with the next object in the command
                         sub_command += '.' + part
-                        logger.debug('{} Is next object', sub_command)
+                        logger.debug('%s Is next object', sub_command)
                     else:
                         logger.debug('Cannot complete further, would require a method call')
                         return []
 
                 # Get the options for the final object
                 options = dir(obj)
-                logger.debug('Completions options: {}', str(options))
+                logger.debug('Completions options: %s', str(options))
 
                 match = self.match_maker(parts[-1])
 
@@ -197,11 +194,11 @@ class Completer(object):
 
                 return results
             elif isinstance(obj, PyJavaPackage):
-                logger.debug('package {}', obj)
+                logger.debug('package %s', obj)
                 results = []
                 for i in parts[1:-1]:
                     a = getattr(obj, i, None)
-                    logger.debug('next part: {}, {}', i, a)
+                    logger.debug('next part: %s, %s', i, a)
                     if a is None:
                         logger.debug('no completions')
                         return []
@@ -221,22 +218,22 @@ class Completer(object):
                         results.append((i, '', '', t))
                 return results
             else:  # It's a Python object
-                logger.debug('{} is a Python object', parts[0])
+                logger.debug('%s is a Python object', parts[0])
 
                 sub_command = '.'.join(parts[0:-1])
-                logger.debug('Sub command: {}', sub_command)
+                logger.debug('Sub command: %s', sub_command)
 
                 # Get the Python object from the global namespace
                 # e.g. eval("package.module.object.attr") => <instanceof Attr>
                 try:
                     obj = eval(sub_command, self.globals)
                 except AttributeError:
-                    logger.debug('Could not get {} from globals. No completion available', sub_command)
+                    logger.debug('Could not get %s from globals. No completion available', sub_command)
                     return []
 
                 # Get the options for the final object
                 options = dir(obj)
-                logger.debug('Completions options: {}', str(options))
+                logger.debug('Completions options: %s', str(options))
 
                 match = self.match_maker(parts[-1])
 
@@ -273,13 +270,7 @@ class Completer(object):
                     globals_list.append((x, '', '', TYPE_IMPORT))
                 else: # It's an attribute
                     globals_list.append((x, '', '', TYPE_ATTR))
-            logger.debug('Matching globals: {}', str(globals_list))
+            logger.debug('Matching globals: %s', str(globals_list))
 
             # Return the globals, keywords and builtins
             return globals_list + [opt for opt in self.keywords + self.builtins if match(opt[0])]
-
-    def enable_debug(self, enable=True):
-        if enable:
-            logger.setLevel(Level.DEBUG)
-        else:
-            logger.setLevel(Level.INFO)
