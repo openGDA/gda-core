@@ -207,8 +207,10 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 				return EnumPositionerStatus.ERROR;
 			}
 			// else its an error
+			logger.error("EpicsEnumPositioner: {} failed to successfully move to required location.", getName());
+			logger.error("doneMoving: {}, inPosition: {}, status: {}", controller.cagetDouble(doneMovingChnl),
+					controller.cagetDouble(inPositionChnl), controller.cagetEnum(statusChnl));
 
-			logger.error("EpicsPositioner: " + getName() + " failed to successfully move to required location.");
 			return EnumPositionerStatus.ERROR;
 
 		} catch (Exception e) {
