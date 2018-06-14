@@ -86,7 +86,6 @@ public class XmapWritingFilesRunnableDevice extends XmapRunnableDeviceBase {
 		adModel.setTimeout(xmapModel.getTimeout());
 
 		areaDetectorRunnableDevice.setName(getName());
-		areaDetectorRunnableDevice.setBean(getBean());
 		areaDetectorRunnableDevice.configure(adModel);
 	}
 
