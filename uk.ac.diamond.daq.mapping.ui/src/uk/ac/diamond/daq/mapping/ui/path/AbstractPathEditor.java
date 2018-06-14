@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -38,6 +39,7 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
 	private Button continuous;
 	private Label continuousLabel;
+	private Binding continousBinding;
 
 	/**
 	 * If the path edited by this editor is snakeable, this method will draw the controls for consistency.
@@ -60,7 +62,7 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 		continuousLabel = new Label(parent, SWT.NONE);
 		continuousLabel.setText("Continuous");
 		continuous = new Button(parent, SWT.CHECK);
-		binder.bind(continuous, "continuous", path);
+		continousBinding = binder.bind(continuous, "continuous", path);
 	}
 
 	/**
@@ -68,9 +70,11 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	 * @param enabled true if device is a Malcolm device, otherwise false
 	 */
 	public void setContinuousEnabled(boolean enabled) {
+		continuousLabel.setEnabled(enabled);
+
 		continuous.setEnabled(enabled);
 		continuous.setSelection(enabled);
-		continuousLabel.setEnabled(enabled);
+		continousBinding.updateTargetToModel();
 	}
 
 	protected Object[] getBeamDimensions() throws ScanningException {
