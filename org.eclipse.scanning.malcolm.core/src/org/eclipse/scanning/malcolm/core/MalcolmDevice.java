@@ -519,7 +519,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	private MalcolmMessage unsubscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {
 		final MalcolmMessage unsubscribeMessage = messageGenerator.createUnsubscribeMessage();
 		unsubscribeMessage.setId(subscribeMessage.getId()); // the id is used to identify the listener to remove
-		@SuppressWarnings("unchecked")
 		final MalcolmMessage reply = malcolmConnection.unsubscribe(this, unsubscribeMessage, listener);
 		logger.debug("Unsubscription {} made {}", getName(), unsubscribeMessage);
 		return reply;
