@@ -96,7 +96,7 @@ public class AreaDetectorWritingFilesRunnableDevice extends AreaDetectorRunnable
 			final String filetemplate = "%s%s";
 			ndFileHDF5.setFileTemplate(filetemplate);
 			// Just use a File object for nice methods
-			final File scanFile = new File(getBean().getFilePath());
+			final File scanFile = new File(information.getFilePath());
 			// Set path
 			ndFileHDF5.setFilePath(scanFile.getParent());
 
