@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.timer.Tfg;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
@@ -35,12 +37,6 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
-/**
- * This adapter class allows NexusXmap to be used as a FluorescenceDetector
- * and use the same interface as {@link Xspress2Detector}, {@link Xspress3Detector} and {@link Xspress4Detector}.
- * Detectors using this interface can be RMI exported from server to client and used in {@link FluorescenceDetectorComposite}.
- *
- */
 public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetector, InitializingBean, Findable, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmapFluorescenceDetectorAdapter.class);
@@ -53,6 +49,8 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	private int maximumNumberOfRois = 32;
 
+	private boolean mcaCollectionUsesTfg = false;
+
 	public NexusXmapFluorescenceDetectorAdapter(NexusXmap xmap, int numberOfElements) {
 		this.xmap = xmap;
 		this.numberOfElements = numberOfElements;
@@ -64,6 +62,28 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 		int[][] xmapData;
 		xmap.setCollectionTime(time);
 		xmap.collectData();
+
+		if (mcaCollectionUsesTfg) {
+			Tfg tfg = (Tfg) xmap.getTfg();
+			try {
+				// Setup Tfg to generate a single timeframe to trigger Xmap
+				tfg.clearFrameSets();
+				tfg.countAsync(time);
+
+				// Wait until Tfg has finished before collecting the data
+				while(tfg.getStatus()!=Timer.IDLE){
+					logger.debug("Waiting for tfg to finish");
+					Thread.sleep(100);
+				}
+
+				xmap.stop();
+				xmap.waitWhileBusy();
+			} catch (InterruptedException e) {
+				logger.error("Problem collecting data from Xmap", e);
+				tfg.stop();
+			}
+		}
+
 		xmapData = xmap.getData();
 		for (int i = 0; i < numberOfElements; i++) {
 			for (int j = 0; j < xmap.getNumberOfBins(); j++) {
@@ -121,7 +141,7 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
-		List<DetectorElement> elementList = new ArrayList<DetectorElement>();
+		List<DetectorElement> elementList = new ArrayList<>();
 		for (int i = 0; i < numberOfElements; i++) {
 			DetectorElement paramElement = new DetectorElement();
 			paramElement.setName("Element" + i);
@@ -179,5 +199,13 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	public NexusXmap getXmap() {
 		return xmap;
+	}
+
+	public boolean isMcaCollectionUsesTfg() {
+		return mcaCollectionUsesTfg;
+	}
+
+	public void setMcaCollectionUsesTfg(boolean mcaDataUsesTfg) {
+		this.mcaCollectionUsesTfg = mcaDataUsesTfg;
 	}
 }
