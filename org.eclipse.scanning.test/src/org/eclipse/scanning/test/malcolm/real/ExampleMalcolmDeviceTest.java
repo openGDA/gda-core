@@ -177,6 +177,7 @@ public class ExampleMalcolmDeviceTest {
 
 		Structure expectedConfigureStructure = FieldFactory.getFieldCreate().createFieldBuilder()
 				.add("generator", expectedGeneratorStructure)
+				.addArray("axesToMove", ScalarType.pvString)
 				.add("fileDir", ScalarType.pvString)
 				.add("fileTemplate", ScalarType.pvString)
 				.createStructure();
@@ -234,6 +235,9 @@ public class ExampleMalcolmDeviceTest {
 
 		expectedConfigurePVStructure.getUnionArrayField("generator.excluders").put(0, crUnionArray.length, crUnionArray, 0);
 		expectedConfigurePVStructure.getSubField(PVDouble.class, "generator.duration").put(23.1);
+		PVStringArray axesToMoveArray = expectedConfigurePVStructure.getSubField(PVStringArray.class, "axesToMove");
+		String[] axesToMove = new String[] { "stage_x", "stage_y" };
+		axesToMoveArray.put(0, axesToMove.length, axesToMove, 0);
 
 		PVString fileDirVal = expectedConfigurePVStructure.getSubField(PVString.class, "fileDir");
 		fileDirVal.put("/path/to/ixx-1234");

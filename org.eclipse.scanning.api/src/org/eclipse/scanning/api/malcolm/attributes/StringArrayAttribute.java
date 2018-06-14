@@ -29,7 +29,7 @@ public class StringArrayAttribute extends MalcolmAttribute<String[]> {
 
 	}
 
-	public StringArrayAttribute(String[] value) {
+	public StringArrayAttribute(String... value) {
 		this.value = value;
 	}
 

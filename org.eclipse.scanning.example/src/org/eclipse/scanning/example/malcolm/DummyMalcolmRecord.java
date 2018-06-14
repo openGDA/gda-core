@@ -129,8 +129,8 @@ class DummyMalcolmRecord extends PVRecord {
 		final String eid = "epics:nt/NTScalar:1.0";
 		final String name = "name";
 		final String names = "names";
-		final String x = "x";
-		final String y = "y";
+		final String x = "stage_x";
+		final String y = "stage_y";
 		final String visible = "visible";
 		final String detector = "detector";
 		final String filename = "filename";

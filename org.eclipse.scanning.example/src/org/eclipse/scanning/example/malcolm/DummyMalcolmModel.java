@@ -91,7 +91,7 @@ public class DummyMalcolmModel extends MalcolmModel implements ITimeoutable {
 	}
 
 	/**
-	 * Sets the axes to move, as returned by {@link IMalcolmDevice#getAxesToMove()}. Also
+	 * Sets the axes to move, as returned by {@link IMalcolmDevice#getAvailableAxes()}. Also
 	 * sets the {@link #positionerNames} which determine what datasets are written by the
 	 * {@link DummyMalcolmDevice}.
 	 * @see org.eclipse.scanning.api.device.models.MalcolmModel#setAxesToMove(java.util.List)

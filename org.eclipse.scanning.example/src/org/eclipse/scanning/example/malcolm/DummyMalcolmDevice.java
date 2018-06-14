@@ -13,7 +13,7 @@
 
 package org.eclipse.scanning.example.malcolm;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
@@ -32,9 +32,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -60,9 +62,9 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
-import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
@@ -350,7 +352,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	private NumberAttribute completedSteps;
 	private NumberAttribute configuredSteps;
 	private NumberAttribute totalSteps;
-	private StringArrayAttribute axesToMove;
+	private StringArrayAttribute availableAxes;
 	private TableAttribute datasets;
 	private TableAttribute layout;
 
@@ -431,22 +433,22 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		totalSteps.setWriteable(false);
 		allAttributes.put(totalSteps.getName(), totalSteps);
 
-		axesToMove = new StringArrayAttribute();
-		axesToMove.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
-		axesToMove.setName(ATTRIBUTE_NAME_AXES_TO_MOVE);
-		axesToMove.setLabel(ATTRIBUTE_NAME_AXES_TO_MOVE);
-		axesToMove.setDescription("Default axis names to scan for configure()");
-		axesToMove.setWriteable(false);
-		allAttributes.put(axesToMove.getName(), axesToMove);
+		availableAxes = new StringArrayAttribute();
+		availableAxes.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
+		availableAxes.setName(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		availableAxes.setLabel(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		availableAxes.setDescription("Default axis names to scan for configure()");
+		availableAxes.setWriteable(false);
+		allAttributes.put(availableAxes.getName(), availableAxes);
 
 		// set scanRank to the size of axesToMove initially. this will be overwritten before a scan starts
-		scanRank = axesToMove.getValue().length;
+		scanRank = availableAxes.getValue().length;
 	}
 
 	@Override
 	public void setModel(DummyMalcolmModel model) {
 		super.setModel(model);
-		axesToMove.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
+		availableAxes.setValue(model.getAxesToMove().toArray(new String[model.getAxesToMove().size()]));
 	}
 
 	@Override
@@ -454,7 +456,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		super.validate(model);
 		// validate field: axesToMove
 		if (model.getAxesToMove() != null) {
-			final List<String> axesToMove = Arrays.asList(this.axesToMove.getValue());
+			final List<String> axesToMove = Arrays.asList(this.availableAxes.getValue());
 			for (String axisToMove : model.getAxesToMove()) {
 				if (!axesToMove.contains(axisToMove)) {
 					throw new ModelValidationException("Invalid axis name: " + axisToMove, model, "axesToMove");
@@ -488,7 +490,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		stepIndex = 0;
 		List<String> axesToMoveList = model.getAxesToMove();
 		if (axesToMoveList != null) {
-			this.axesToMove.setValue((axesToMoveList.toArray(new String[axesToMoveList.size()])));
+			this.availableAxes.setValue((axesToMoveList.toArray(new String[axesToMoveList.size()])));
 		}
 
 		// super.configure sets device state to ready
@@ -499,8 +501,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		devices.put("panda", new DummyPandaDevice());
 	}
 
-	@ScanFinally
+	@Override
 	public void scanFinally() throws ScanningException {
+		super.scanFinally();
 		// close all the nexus file
 		if (devices!=null) for (Map.Entry<String, IDummyMalcolmControlledDevice> entry : devices.entrySet()) {
 			try {
@@ -838,6 +841,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 
 		layout = createLayoutAttribute();
 		allAttributes.put("layout", layout);
+	}
+
+	@Override
+	public Set<String> getAvailableAxes() throws ScanningException {
+		final String[] axesArray = getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		return new HashSet<>(Arrays.asList(axesArray));
 	}
 
 }

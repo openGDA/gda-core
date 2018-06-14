@@ -12,7 +12,8 @@
 package org.eclipse.scanning.api.scan;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.points.GeneratorException;
@@ -31,7 +32,7 @@ public class ScanInformation {
 	private String filePath;
 	private int                size;
 	private int                rank;
-	private Collection<String> scannableNames;
+	private List<String> scannableNames;
 	private transient ScanEstimator  estimator;
 	private int[] shape;
 	private ScanMode scanMode;
@@ -66,9 +67,51 @@ public class ScanInformation {
 	public int getSize() {
 		return size;
 	}
+
 	public void setSize(int size) {
 		this.size = size;
 	}
+
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+	public List<String> getScannableNames() {
+		if (scannableNames == null) {
+			return Collections.emptyList();
+		}
+		return scannableNames;
+	}
+
+	public void setScannableNames(List<String> scannableNames) {
+		this.scannableNames = scannableNames;
+	}
+
+	public int[] getShape() throws ScanningException {
+		if (shape!=null) return shape;
+		// We calculate shape on the fly because it can be expensive to estimate.
+		try {
+			shape = estimator!=null ? estimator.getShape() : null;
+		} catch (GeneratorException e) {
+			throw new ScanningException(e);
+		}
+		return shape;
+	}
+
+	public long getEstimatedScanTime() {
+		if (estimatedScanTime > 0) return estimatedScanTime;
+		estimatedScanTime = estimator != null ? estimator.getEstimatedScanTime() : 0;
+		return estimatedScanTime;
+	}
+
+	public void setShape(int[] shape) {
+		this.shape = shape;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -80,6 +123,7 @@ public class ScanInformation {
 		result = prime * result + ((scanMode == null) ? 0 : scanMode.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -109,39 +153,6 @@ public class ScanInformation {
 		} else if (!scanMode.equals(other.scanMode))
 			return false;
 		return true;
-	}
-	public int getRank() {
-		return rank;
-	}
-	public void setRank(int rank) {
-		this.rank = rank;
-	}
-	public Collection<String> getScannableNames() {
-		return scannableNames;
-	}
-	public void setScannableNames(Collection<String> scannableNames) {
-		this.scannableNames = scannableNames;
-	}
-
-	public int[] getShape() throws ScanningException {
-		if (shape!=null) return shape;
-		// We calculate shape on the fly because it can be expensive to estimate.
-		try {
-			shape = estimator!=null ? estimator.getShape() : null;
-		} catch (GeneratorException e) {
-			throw new ScanningException(e);
-		}
-		return shape;
-	}
-
-	public long getEstimatedScanTime() {
-		if (estimatedScanTime > 0) return estimatedScanTime;
-		estimatedScanTime = estimator != null ? estimator.getEstimatedScanTime() : 0;
-		return estimatedScanTime;
-	}
-
-	public void setShape(int[] shape) {
-		this.shape = shape;
 	}
 
 	@Override

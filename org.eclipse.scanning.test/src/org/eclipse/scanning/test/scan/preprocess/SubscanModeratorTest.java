@@ -11,14 +11,19 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.preprocess;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -63,7 +68,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"x", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
@@ -89,7 +94,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"x", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
@@ -117,7 +122,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"x", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
@@ -197,7 +202,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"p", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -233,7 +238,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"p", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -269,7 +274,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[0]);
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -306,7 +311,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"x", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -343,7 +348,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"p", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -377,7 +382,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[]{"p", "y"});
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
@@ -400,7 +405,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[0]);
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -439,7 +444,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[] { "x", "y" });
+		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
@@ -475,7 +480,7 @@ public class SubscanModeratorTest {
 		final DummyMalcolmModel tmodel = new DummyMalcolmModel();
 		final DummyMalcolmDevice det = new DummyMalcolmDevice();
 		det.setModel(tmodel);
-		det.setAttributeValue("axesToMove", new String[] { "x", "y" });
+		det.setAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 

@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.COMPLETED_STEPS_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.HEALTH_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
@@ -73,7 +74,8 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	private static final String FILE_TEMPLATE = "ixx-1234-%s.h5";
 
 	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen) {
-		return new EpicsMalcolmModel(FILE_DIR, FILE_TEMPLATE, null, pointGen);
+		final List<String> axesToMove = Arrays.asList("stage_y", "stage_x");
+		return new EpicsMalcolmModel(FILE_DIR, FILE_TEMPLATE, axesToMove, pointGen);
 	}
 
 	@Test
@@ -150,6 +152,10 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
 		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
 
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 		// create the expected validate message and configure the mock connection to reply as expected
 		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmOkReply(null));
@@ -165,8 +171,13 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
 
 		// Arrange, now with an error response
-		final String errorMessage = "Invalid model";
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
+		// create the expected validate message and configure the mock connection to reply as expected
 		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedMalcolmModel);
+		final String errorMessage = "Invalid model";
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
 
 		// Act / Assert , this time an error should occur
@@ -191,9 +202,14 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
 		EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
 
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 		// create the expected validate message and configure the mock connection to reply as expected
 		MalcolmMessage expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
-		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(createExpectedMalcolmValdiateReturnReply(expectedEpicsMalcolmModel));
+		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(
+				createExpectedMalcolmValidateReturnReply(expectedEpicsMalcolmModel));
 
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
@@ -207,11 +223,15 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedValidateMessage);
 
 		// Arrange, now with a modified model
-		expectedValidateMessage = createExpectedCallMessage(1, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
+		// create the expected validate message and configure the mock connection to reply as expected
+		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
 		final IPointGenerator<?> modifiedPointGen = createPointGenerator();
-//		((CompoundModel<?>) modifiedPointGen.getModel()).setDuration(0.005);
 		final EpicsMalcolmModel modifiedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(modifiedPointGen);
-		final MalcolmMessage expectedValidateResponse = createExpectedMalcolmValdiateReturnReply(modifiedEpicsMalcolmModel);
+		final MalcolmMessage expectedValidateResponse = createExpectedMalcolmValidateReturnReply(modifiedEpicsMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(expectedValidateResponse);
 
 		// Act, this time an error should occur
@@ -238,6 +258,11 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 		// create the expected reset and configure message and configure the mock connection to reply as expected
 		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
+		// create the expected validate message and configure the mock connection to reply as expected
 		final MalcolmMessage expectedConfigureMessage = createExpectedCallMessage(id++, MalcolmMethod.CONFIGURE, expectedMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedConfigureMessage)).thenReturn(createExpectedMalcolmOkReply(null));
@@ -360,7 +385,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
 
 		final String noSuchAttrName = "noSuchAttribute";
-		final String errorMessage = "No such attribute 'noSuchAttribute'";
+		final String errorMessage = "No such attribute: " + noSuchAttrName;
 		expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, noSuchAttrName);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
 				.thenReturn(createExpectedMalcolmErrorReply(errorMessage));
@@ -390,7 +415,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
 
 		final String noSuchAttrName = "noSuchAttribute";
-		final String errorMessage = "No such attribute 'noSuchAttribute'";
+		final String errorMessage = "No such attribute: " + noSuchAttrName;
 		expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, noSuchAttrName);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
 				.thenReturn(createExpectedMalcolmErrorReply(errorMessage));

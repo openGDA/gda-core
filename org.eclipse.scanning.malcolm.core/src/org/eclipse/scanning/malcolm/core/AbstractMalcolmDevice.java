@@ -12,23 +12,20 @@
 package org.eclipse.scanning.malcolm.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
+import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
@@ -85,6 +82,12 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	public IPointGenerator<?> getPointGenerator() {
 		return pointGenerator;
+	}
+
+	@ScanFinally
+	public void scanFinally() throws ScanningException {
+		// clear the point generator when the scan has finished
+		this.pointGenerator = null;
 	}
 
 	@Override
@@ -182,12 +185,6 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	protected void sendEvent(MalcolmEvent event) throws Exception {
 		eventDelegate.sendEvent(event);
-	}
-
-	@Override
-	public Set<String> getAxesToMove() throws ScanningException {
-		String[] axesToMove = getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE);
-		return new HashSet<>(Arrays.asList(axesToMove));
 	}
 
 }

@@ -195,7 +195,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	 */
 	@Test
 	public void getNonExistantAttribute() throws Exception {
-
+		final String attrName = "nonExistant";
 		try {
 			// Start the dummy test device
 			DeviceRunner runner = new DeviceRunner();
@@ -205,14 +205,13 @@ public class MalcolmEpicsV4ConnectorTest {
 			IMalcolmDevice<?> malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
 
 			// Get the device state. This should fail as the device does no exist
-			malcolmDevice.getAttribute("NON_EXISTANT");
+			malcolmDevice.getAttribute(attrName);
 
 			fail("No exception thrown but one was expected");
 
 		} catch (Exception ex) {
 			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("CreateGet failed for 'NON_EXISTANT'"));
-			assertTrue(ex.getMessage().contains("illegal pvRequest"));
+			assertEquals(ex.getMessage(), MalcolmDevice.STANDARD_MALCOLM_ERROR_STR + "No such attribute: " + attrName);
 		}
 	}
 

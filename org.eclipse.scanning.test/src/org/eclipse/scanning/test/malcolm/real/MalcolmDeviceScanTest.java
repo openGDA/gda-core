@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.COMPLETED_STEPS_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.POSITION_COMPLETE_INTERVAL;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
@@ -329,9 +329,9 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn
 		// call methods in the mocked communication layer, so we need to set up replies for those
-		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute(new String[] { "stage_x", "stage_y" }));
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply);
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply); // This is called at 2 different points
+		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y"));
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply);
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // This is called at 2 different points
 
 		return runnableDeviceService.createRunnableDevice(scanModel, publisher);
 	}

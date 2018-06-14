@@ -419,9 +419,9 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Configured detectors {}", dmodels.keySet());
 	}
 
-	private Collection<String> getScannableNames(Iterable<IPosition> gen) {
+	private List<String> getScannableNames(Iterable<IPosition> gen) {
 
-		Collection<String> names = null;
+		List<String> names = null;
 		if (gen instanceof IDeviceDependentIterable) {
 			names = ((IDeviceDependentIterable)gen).getScannableNames();
 		}

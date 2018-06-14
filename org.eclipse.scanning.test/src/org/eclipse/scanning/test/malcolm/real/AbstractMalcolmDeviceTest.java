@@ -211,7 +211,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		return createExpectedMalcolmOkReply(healthAttr);
 	}
 
-	protected MalcolmMessage createExpectedMalcolmValdiateReturnReply(Object rawValue) {
+	protected MalcolmMessage createExpectedMalcolmValidateReturnReply(Object rawValue) {
 		final MalcolmMessage msg = new MalcolmMessage();
 		msg.setRawValue(rawValue);
 		return msg;

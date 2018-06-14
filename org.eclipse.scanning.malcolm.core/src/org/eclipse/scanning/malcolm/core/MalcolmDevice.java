@@ -11,12 +11,20 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+
 import java.io.File;
+import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +52,6 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
-import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -192,7 +199,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	private ConnectionStateListener connectionStateListener;
 
-
 	public MalcolmDevice() {
 		this(null, Services.getConnectorService(), Services.getRunnableDeviceService());
 	}
@@ -337,9 +343,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			return null;
 		}
 
-		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(params);
 		MalcolmMessage reply = null;
 		try {
+			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(params);
 			final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.VALIDATE, epicsModel);
 			reply = send(msg, Timeout.STANDARD.toMillis());
 			if (reply.getType()==Type.ERROR) {
@@ -378,13 +384,17 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	private Object getEndpointValue(String endpointName) throws MalcolmDeviceException {
-		final MalcolmMessage message = messageGenerator.createGetMessage(endpointName);
-		final MalcolmMessage reply   = wrap(()->send(message, Timeout.STANDARD.toMillis()));
+		final MalcolmMessage reply = getEndpointReply(endpointName);
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 
 		return reply.getValue();
+	}
+
+	private MalcolmMessage getEndpointReply(String endpointName) throws MalcolmDeviceException {
+		final MalcolmMessage message = messageGenerator.createGetMessage(endpointName);
+		return wrap(()->send(message, Timeout.STANDARD.toMillis()));
 	}
 
 	/**
@@ -394,21 +404,36 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	 * @param model
 	 * @return
 	 */
-	private EpicsMalcolmModel createEpicsMalcolmModel(M model) {
+	private EpicsMalcolmModel createEpicsMalcolmModel(M model) throws MalcolmDeviceException {
 		double exposureTime = model.getExposureTime();
 
+		// set the exposure time and mutators in the points generator
 		if (pointGenerator != null) {
-			List<IMutator> mutators = new ArrayList<>();
-			((CompoundModel<?>) pointGenerator.getModel()).setMutators(mutators);
+			((CompoundModel<?>) pointGenerator.getModel()).setMutators(Collections.emptyList());
 			((CompoundModel<?>) pointGenerator.getModel()).setDuration(exposureTime);
 		}
 
+
+		// set the file template
 		String fileTemplate = null;
 		if (fileDir != null) {
 			fileTemplate = new File(fileDir).getName() + "-%s." + FILE_EXTENSION_H5;
 		}
 
-		return new EpicsMalcolmModel(fileDir, fileTemplate, model.getAxesToMove(), pointGenerator);
+		// get the axes to move
+		List<String> axesToMove = model.getAxesToMove();
+		if (axesToMove == null && pointGenerator != null) {
+			final List<String> scannableNames = pointGenerator.iterator().next().getNames(); // TODO get names direct from point generator when we can
+			final Set<String> availableAxes = getAvailableAxes();
+			int i = scannableNames.size() - 1;
+			while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
+				i--;
+			}
+			// i is now the index of the first non-malcolm axis, or -1 if all axes malcolm controlled
+			axesToMove = scannableNames.subList(i + 1, scannableNames.size());
+		}
+
+		return new EpicsMalcolmModel(fileDir, fileTemplate, axesToMove, pointGenerator);
 	}
 
 	private void subscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {
@@ -557,16 +582,29 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		return state.isTransient(); // Device is not locked but it is doing something.
 	}
 
-	@Override
-	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
+	private <T> Optional<IDeviceAttribute<T>> getOptionalAttribute(String attributeName) throws MalcolmDeviceException {
 		logger.debug("getAttribute() called with attribute name {}", attributeName);
-		Object result = getEndpointValue(attributeName);
-		if (!(result instanceof MalcolmAttribute)) {
-			throw new MalcolmDeviceException("No such attribute: " + attributeName);
+		final MalcolmMessage reply = getEndpointReply(attributeName);
+		if (reply.getType() != Type.ERROR && reply.getValue() instanceof MalcolmAttribute) {
+			// found the attribute ok, return it
+			@SuppressWarnings("unchecked") // temp variable to avoid annotation on method
+			IDeviceAttribute<T> result = (IDeviceAttribute<T>) reply.getValue();
+			return Optional.of(result);
+		}
+		// check if the error message is a connection failure, in this case throw an exception
+		if (reply.getType() == Type.ERROR && reply.getMessage().startsWith("Failed to connect to device")) {
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 
-		@SuppressWarnings("unchecked")
-		IDeviceAttribute<T> attribute = (IDeviceAttribute<T>) result;
+		// otherwise (presumably when there is no such attribute) return an empty optional
+		return Optional.empty();
+	}
+
+	@Override
+	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
+		@SuppressWarnings("unchecked") // temp variable to avoid annotation on method
+		final IDeviceAttribute<T> attribute = (IDeviceAttribute<T>) getOptionalAttribute(attributeName).
+				orElseThrow(() -> new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + "No such attribute: " + attributeName));
 		return attribute;
 	}
 
@@ -588,6 +626,20 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		logger.debug("getAttributeValue() called with attribute name {}", attributeName);
 		IDeviceAttribute<T> attribute = getAttribute(attributeName);
 		return attribute.getValue();
+	}
+
+	@Override
+	public Set<String> getAvailableAxes() throws MalcolmDeviceException {
+		// as of malcolm version 3, the attribute 'axesToMove' will be replaced by 'simultaneousAxes' with
+		// a subtly different meaning
+		Optional<IDeviceAttribute<String[]>> optAttr = getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		if (!optAttr.isPresent()) {
+			optAttr = getOptionalAttribute(ATTRIBUTE_NAME_AXES_TO_MOVE);
+		}
+
+		return optAttr.map(IDeviceAttribute::getValue).map(Arrays::asList).map(HashSet::new).orElseThrow(
+				() -> new MalcolmDeviceException(MessageFormat.format("Malcolm device has no axes attribute, either {0} or {1}",
+						ATTRIBUTE_NAME_SIMULTANEOUS_AXES, ATTRIBUTE_NAME_AXES_TO_MOVE)));
 	}
 
 	/**

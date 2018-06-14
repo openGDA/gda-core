@@ -79,10 +79,10 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IAttributabl
 
 	/**
 	 * Returns the axes that this malcolm device can move.
-	 * @return
+	 * @return the axes this malcolm device can move, never <code>null</code>
 	 * @throws ScanningException
 	 */
-	public Set<String> getAxesToMove() throws ScanningException;
+	public Set<String> getAvailableAxes() throws ScanningException;
 
 	/**
 	 * Set the point generator for the malcolm device.

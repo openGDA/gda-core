@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -298,15 +299,15 @@ public class DeviceRequestTest extends BrokerTest {
 	public void testGetAttribute() throws Exception {
 		DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
-		req.setAttributeName("axesToMove");
+		req.setAttributeName(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		DeviceRequest res = requester.post(req);
 		assertNotNull(res);
 		assertNotNull(res.getAttributes());
 		assertEquals(1, res.size());
-		IDeviceAttribute<?> attr = res.getAttributes().get("axesToMove");
+		IDeviceAttribute<?> attr = res.getAttributes().get(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		assertNotNull(attr);
-		assertEquals("axesToMove", attr.getName());
-		assertEquals("axesToMove", attr.getLabel());
+		assertEquals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, attr.getName());
+		assertEquals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, attr.getLabel());
 		assertEquals("Default axis names to scan for configure()", attr.getDescription());
 		assertEquals(StringArrayAttribute.class, attr.getClass());
 		assertArrayEquals(new String[] { "stage_x", "stage_y" }, (String[]) attr.getValue());
@@ -318,8 +319,9 @@ public class DeviceRequestTest extends BrokerTest {
 		req.setDeviceName("malcolm");
 		req.setGetAllAttributes(true);
 		DeviceRequest res = requester.post(req);
-		assertThat(res.getAttributes().keySet(), containsInAnyOrder("layout", "completedSteps", "axesToMove", "busy",
-				"totalSteps", "configuredSteps", "health", "datasets", "state"));
+		assertThat(res.getAttributes().keySet(), containsInAnyOrder("layout", "completedSteps",
+				ATTRIBUTE_NAME_SIMULTANEOUS_AXES, "busy", "totalSteps", "configuredSteps",
+				"health", "datasets", "state"));
 
 		// no need to test all 9 attributes, we'll just test a couple
 		IDeviceAttribute<?> stateAttr = res.getAttributes().get("state");
