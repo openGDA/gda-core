@@ -115,6 +115,9 @@ public class ScanDetailsDialog extends Dialog {
 	private static void createTextBox(Composite dialogComposite, String text) {
 		final Text textBox = new Text(dialogComposite, SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
 		GridDataFactory.fillDefaults().grab(true, false).hint(HORIZONTAL_WIDTH, SWT.DEFAULT).applyTo(textBox);
+		if(text == null) {
+			text = "";
+		}
 		textBox.setText(text);
 	}
 
