@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.event;
 import java.net.URI;
 import java.util.EventListener;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueReader;
@@ -194,20 +193,6 @@ public interface IEventService {
 	 * @throws EventException
 	 */
 	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException;
-
-	/**
-	 * Checks the topic has things published on it intermittently
-	 * If it does not, in the given time, throws an exception.
-	 * @param uri - URI
-	 * @param patientName - Name of entity we are checking the hearbeat of
-	 * @param listenTime - Time to listener before giving up
-	 * @param topicName - The topic, or null to use default heartbeat topic
-	 * @param beanClass - The bean class that will be broadcast or null to not specify
-	 * @return
-	 * @throws EventException
-	 */
-	public <T extends INameable> void checkTopic(URI uri, String patientName, long listenTime, String topicName, Class<T> beanClass) throws EventException, InterruptedException;
-
 
 	/**
 	 * The current event connector service that this event service is using to

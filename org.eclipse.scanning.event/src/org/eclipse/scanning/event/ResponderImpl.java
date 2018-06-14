@@ -19,9 +19,9 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.core.IResponder;
 import org.eclipse.scanning.api.event.core.IResponseCreator;
-import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class ResponderImpl<T extends IdBean> extends AbstractRequestResponseConn
 	}
 
 	@Override
-	public void setResponseCreator(IResponseCreator<T> res) throws EventException {
+	public synchronized void setResponseCreator(IResponseCreator<T> res) throws EventException {
 
 		if (subscriber!=null) throw new EventException("This responder is already connected with an IResponseCreator! Please call disconnect to stop it.");
 
@@ -73,7 +73,7 @@ public class ResponderImpl<T extends IdBean> extends AbstractRequestResponseConn
 	}
 
 	@Override
-	public void disconnect() throws EventException {
+	public synchronized void disconnect() throws EventException {
 		if (subscriber!=null) subscriber.disconnect();
 		subscriber = null;
 		if (publisher!=null) publisher.disconnect();

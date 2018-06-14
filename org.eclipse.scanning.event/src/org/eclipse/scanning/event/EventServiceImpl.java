@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -109,13 +108,6 @@ public class EventServiceImpl implements IEventService {
 	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException {
 		logger.trace("checkHeartbeat({}, {}, {}) using {} and {}", uri, patientName, listenTime, eventConnectorService, this);
 		HeartbeatChecker checker = new HeartbeatChecker(this, uri, patientName, listenTime);
-		checker.checkPulse();
-	}
-
-	@Override
-	public <T extends INameable> void checkTopic(URI uri, String patientName, long listenTime, String topicName, Class<T> beanClass) throws EventException, InterruptedException {
-		logger.trace("checkTopic({}, {}, {}, {}, {}) using {} and {}", uri, patientName, listenTime, topicName, beanClass, eventConnectorService, this);
-		TopicChecker<T> checker = new TopicChecker<>(this, uri, patientName, listenTime, topicName, beanClass);
 		checker.checkPulse();
 	}
 
