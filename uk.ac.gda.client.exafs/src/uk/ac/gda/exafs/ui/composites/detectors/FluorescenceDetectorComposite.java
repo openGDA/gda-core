@@ -798,4 +798,8 @@ public class FluorescenceDetectorComposite extends Composite {
 	public IFieldWidget getDeadtimeCorrectionEnergy() {
 		return dtcEnergyComposite.getDeadtimeCorrectionEnergy();
 	}
+
+	public void setAcquireButtonEnabled(boolean enabled) {
+		acquireComposite.getAcquireButton().setEnabled(enabled);
+	}
 }
