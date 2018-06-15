@@ -68,15 +68,10 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private int level = 1;
 	private String scanId;
 	private ScanBean bean;
+	private DeviceState deviceState;
 	private DeviceInformation<T> deviceInformation;
 	private DeviceRole role = DeviceRole.HARDWARE;
 	private Set<ScanMode> supportedScanModes = EnumSet.of(ScanMode.SOFTWARE);
-
-	// Devices can either be the top of the scan or somewhere in the
-	// scan tree. By default they are the scan but if used in a nested
-	// scan, their primaryScanDevice will be set to false. This then
-	// stops state being written to the main scan bean
-	private boolean primaryScanDevice = true;
 
 	// OSGi services and intraprocess events
 	protected IRunnableDeviceService runnableDeviceService;
@@ -115,6 +110,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private AbstractRunnableDevice() {
 		this.scanId     = UUID.randomUUID().toString();
 		this.scanAttributes = new HashMap<>();
+		this.deviceState = DeviceState.READY;
 	}
 
 	/**
@@ -203,36 +199,15 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	 * @param position
 	 * @throws ScanningException
 	 */
-	protected void setDeviceState(DeviceState nstate) throws ScanningException {
-
-		if (!isPrimaryScanDevice()) return; // Overrall scan state is not managed by us.
-		try {
-			// The bean must be set in order to change state.
-			if (bean==null) {
-				bean = new ScanBean();
-			}
-			bean.setDeviceName(getName());
-			bean.setPreviousDeviceState(bean.getDeviceState());
-			bean.setDeviceState(nstate);
-
-			fireStateChanged(bean.getPreviousDeviceState(), nstate);
-
-			if (publisher!=null) {
-				publisher.broadcast(bean);
-			}
-
-		} catch (Exception ne) {
-			ne.printStackTrace();
-			if (ne instanceof ScanningException) throw (ScanningException)ne;
-			throw new ScanningException(this, ne);
-		}
-
+	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {
+		final DeviceState previousDeviceState = deviceState;
+		deviceState = newDeviceState;
+		fireStateChanged(previousDeviceState, deviceState);
 	}
 
 	@Override
 	public DeviceState getDeviceState() throws ScanningException {
-		if (bean==null) return null;
-		return bean.getDeviceState();
+		return deviceState;
 	}
 
 	public String getScanId() {
@@ -500,14 +475,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	public void setDeviceInformation(DeviceInformation<T> deviceInformation) {
 		this.deviceInformation = deviceInformation;
-	}
-
-	public boolean isPrimaryScanDevice() {
-		return primaryScanDevice;
-	}
-
-	public void setPrimaryScanDevice(boolean primaryScanDevice) {
-		this.primaryScanDevice = primaryScanDevice;
 	}
 
 	/**

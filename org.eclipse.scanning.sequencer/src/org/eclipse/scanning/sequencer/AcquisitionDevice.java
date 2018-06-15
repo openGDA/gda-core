@@ -135,7 +135,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		this.stateChangeLock = new ReentrantLock();
 		this.shouldResumeCondition = stateChangeLock.newCondition();
 		setName("solstice_scan");
-		setPrimaryScanDevice(true);
 		setRole(DeviceRole.VIRTUAL);
 		setSupportedScanModes(EnumSet.allOf(ScanMode.class));
 	}
@@ -257,7 +256,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					ScanBean bean = getBean();
 					bean.setDeviceState(deviceState);
 					adevice.setBean(bean);
-					adevice.setPrimaryScanDevice(false);
 				}
 			}
 		}
@@ -577,6 +575,32 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 		setDeviceState(DeviceState.ARMED); // Fires!
 
+	}
+
+	@Override
+	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {
+		try {
+			// The bean must be set in order to change state.
+			ScanBean bean = getBean();
+			if (bean==null) {
+				bean = new ScanBean();
+				setBean(bean);
+			}
+			bean.setDeviceName(getName());
+			bean.setPreviousDeviceState(bean.getDeviceState());
+			bean.setDeviceState(newDeviceState);
+
+			super.setDeviceState(newDeviceState);
+
+			IPublisher<ScanBean> publisher = getPublisher();
+			if (publisher!=null) {
+				publisher.broadcast(bean);
+			}
+		} catch (ScanningException e) {
+			throw e;
+		} catch (Exception ne) {
+			throw new ScanningException(this, ne);
+		}
 	}
 
 	@Override
