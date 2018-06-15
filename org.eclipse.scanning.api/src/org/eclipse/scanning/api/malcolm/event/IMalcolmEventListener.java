@@ -26,4 +26,5 @@ public interface IMalcolmEventListener extends EventListener {
 	 * @param e
 	 */
 	public void eventPerformed(MalcolmEvent e);
+
 }
