@@ -55,13 +55,8 @@ public class EpicsMCAPresets implements Serializable {
 
 	@Override
 	public String toString() {
-		String s = "presetRealTime: " + presetRealTime;
-		s += "presetLiveTime" + presetLiveTime;
-		s += "presetCounts" + presetCounts;
-		s += "presetCountlow" + presetCountlow;
-		s += "presetCountHigh" + presetCountHigh;
-		s += "presetSweeps" + presetSweeps;
-		return s;
+		return "EpicsMCAPresets [presetRealTime=" + presetRealTime + ", presetLiveTime=" + presetLiveTime + ", presetCounts=" + presetCounts
+				+ ", presetCountlow=" + presetCountlow + ", presetCountHigh=" + presetCountHigh + ", presetSweeps=" + presetSweeps + "]";
 	}
 
 	/**
