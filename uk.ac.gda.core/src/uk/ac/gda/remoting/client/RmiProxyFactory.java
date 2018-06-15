@@ -111,8 +111,8 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 			availableRmiObjectsUrls = Arrays.asList(rmiRegistry.list());
 			logger.debug("RMI registry contains {} objects", availableRmiObjectsUrls.size());
 		} catch (Exception e) {
-			logger.error("Error connecting to RMI registry at '{}:{}'", serverHost, rmiPort);
-			throw new FactoryException("Error connecting to RMI registry at:" + serverHost + ":" + rmiPort);
+			logger.error("Error connecting to RMI registry at '{}:{}'", serverHost, rmiPort, e);
+			throw new FactoryException("Error connecting to RMI registry at:" + serverHost + ":" + rmiPort, e);
 		}
 
 		// Filter out RMI exported objects which are not auto exported
