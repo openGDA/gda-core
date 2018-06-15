@@ -21,38 +21,111 @@ package gda.device.detector.analyser;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-import gda.device.epicsdevice.EpicsDevice;
 import gda.device.epicsdevice.FindableEpicsDevice;
+import gda.device.epicsdevice.ReturnType;
 
 public class EpicsMCASimpleTest {
 
-	private static final HashMap<String, String> recordPVs = new HashMap<String, String>();
+	private static final Pattern REGION_EXTRACTION_PATTERN = Pattern.compile(".R([0-9]+)[A-Z]*");
 
 	private EpicsMCASimple mcaSimpleDevice;
-
-	@BeforeClass
-	public static void setUpClass() {
-		recordPVs.put("RECORD", "BL0XI-DI-DET-01:aim_adc1");
-	}
+	private FindableEpicsDevice epicsDevice;
 
 	@Before
 	public void setUp() throws Exception {
-		final EpicsDevice mcaDevice = new EpicsDevice("mca_ed", recordPVs, true);
-		mcaDevice.configure();
-		final FindableEpicsDevice epicsDevice = new FindableEpicsDevice("test", mcaDevice);
+		epicsDevice = createEpicsDevice();
 
 		mcaSimpleDevice = new EpicsMCASimple();
 		mcaSimpleDevice.setName("mcaSimpleDevice");
 		mcaSimpleDevice.setEpicsDevice(epicsDevice);
 		mcaSimpleDevice.configure();
 	}
+
+	private FindableEpicsDevice createEpicsDevice() throws Exception {
+		final int DATA_LEN = 2048;
+		final int[] MCA_DATA = new int[DATA_LEN];
+		for (int i = 0; i < DATA_LEN; i++) {
+			MCA_DATA[i] = i;
+		}
+
+		final Map<String, Object> deviceData = new HashMap<>();
+		deviceData.put(".CALO", 1.0);
+		deviceData.put(".CALQ", 0.0);
+		deviceData.put(".CALS", 1.0);
+		deviceData.put(".DWEL", 1.0);
+		deviceData.put(".EGU", "EGU");
+		deviceData.put(".ELTM", 1.0);
+		deviceData.put(".ERTM", 1.1);
+		deviceData.put(".NMAX", 2048);
+		deviceData.put(".NUSE", 2048);
+		deviceData.put(".PCT", 1);
+		deviceData.put(".PCTH", 1);
+		deviceData.put(".PCTL", 1);
+		deviceData.put(".PLTM", 1.0);
+		deviceData.put(".PRTM", 1.0);
+		deviceData.put(".PSWP", 1);
+		deviceData.put(".TTH", 0.0);
+		deviceData.put(".VAL", MCA_DATA);
+
+		final FindableEpicsDevice device = mock(FindableEpicsDevice.class);
+		when(device.getDummy()).thenReturn(true);
+
+		when(device.getValue(any(ReturnType.class), anyString(), anyString())).thenAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(InvocationOnMock invocation) {
+				final String field = invocation.getArgumentAt(2, String.class);
+
+				// Handle specifiers that include region number
+				if (Pattern.matches(".R[0-9]+N?", field)) { // Rn or RnN
+					return Integer.parseInt(extractRegionNumber(field)) * 1000.0;
+				}
+				if (Pattern.matches(".R[0-9]+(LO|HI)", field)) { // RnLO or RnHI
+					return -1;
+				}
+				if (Pattern.matches(".R[0-9]+BG", field)) {
+					return (short) 0;
+				}
+				if (Pattern.matches(".R[0-9]+P", field)) {
+					return 1.0;
+				}
+				if (Pattern.matches(".R[0-9]+NM", field)) {
+					return extractRegionNumber(field);
+				}
+
+				// Look everything else up in the map
+				return deviceData.get(field);
+			}
+		});
+		return device;
+	}
+
+	private static String extractRegionNumber(String field) {
+		final Matcher matcher = REGION_EXTRACTION_PATTERN.matcher(field);
+		if (matcher.matches()) {
+			return matcher.group(1);
+		}
+		throw new IllegalArgumentException(field + " does not contain a region number");
+	}
+
+	//----------------------------------------------------------------------------------------------
 
 	@Test
 	public void testGetCalibrationParameters() throws Exception {
@@ -109,12 +182,28 @@ public class EpicsMCASimpleTest {
 
 	@Test
 	public void testSetRegionsOfInterest() throws Exception {
+		final int numRegions = mcaSimpleDevice.getNumberOfRegions();
 		final EpicsMCARegionOfInterest[] newRegionsOfInterest = new EpicsMCARegionOfInterest[mcaSimpleDevice.getNumberOfRegions()];
-		for (Integer i = 0; i < mcaSimpleDevice.getNumberOfRegions(); i++) {
-			newRegionsOfInterest[i] = new EpicsMCARegionOfInterest(i, i, i * 2, i / 2, i, i.toString());
+		for (int i = 0; i < numRegions; i++) {
+			final int index = i;
+			final double regionLow = i;
+			final double regionHigh = i * 2;
+			final int background = i / 2;
+			final int preset = i;
+			final String name = Integer.toString(i);
+			newRegionsOfInterest[i] = new EpicsMCARegionOfInterest(index, regionLow, regionHigh, background, preset, name);
 		}
+
 		mcaSimpleDevice.setRegionsOfInterest(newRegionsOfInterest);
-		assertArrayEquals(newRegionsOfInterest, (EpicsMCARegionOfInterest[]) mcaSimpleDevice.getRegionsOfInterest());
+		for (int i = 0; i < numRegions; i++) {
+			verify(epicsDevice).setValue("", ".R" + i + "LO", (int) newRegionsOfInterest[i].getRegionLow());
+			verify(epicsDevice).setValue("", ".R" + i + "HI", (int) newRegionsOfInterest[i].getRegionHigh());
+			verify(epicsDevice, atLeastOnce()).setValue("", ".R" + i + "BG", (short) newRegionsOfInterest[i].getRegionBackground());
+			final double regionPreset = newRegionsOfInterest[i].getRegionPreset();
+			verify(epicsDevice, atLeastOnce()).setValue("", ".R" + i + "IP", (regionPreset <= 0) ? 0 : 1);
+			verify(epicsDevice, atLeastOnce()).setValue("", ".R" + i + "P", (i == 0) ? 0d : 1d);
+			verify(epicsDevice, atLeastOnce()).setValue("", ".R" + i + "NM", Integer.toString(i));
+		}
 	}
 
 	@Test
@@ -132,7 +221,7 @@ public class EpicsMCASimpleTest {
 	@Test
 	public void testDispose() throws Exception {
 		mcaSimpleDevice.dispose();
-		// Dispose does nothing in dummy mode, so functions should still return values
+		verify(epicsDevice).dispose();
 		assertNotNull(mcaSimpleDevice.getRegionsOfInterest());
 	}
 
@@ -144,7 +233,7 @@ public class EpicsMCASimpleTest {
 	@Test
 	public void testSetDwellTime() throws Exception {
 		mcaSimpleDevice.setDwellTime(1.5);
-		assertEquals(1.5, mcaSimpleDevice.getDwellTime(), 0.001);
+		verify(epicsDevice).setValue("", ".DWEL", 1.5);
 	}
 
 	@Test
@@ -155,7 +244,7 @@ public class EpicsMCASimpleTest {
 	@Test
 	public void testSetNumberOfChannels() throws Exception {
 		mcaSimpleDevice.setNumberOfChannels(100);
-		assertEquals(100, mcaSimpleDevice.getNumberOfChannels());
+		verify(epicsDevice).setValue("", ".NUSE", 100);
 	}
 
 	@Test
@@ -173,6 +262,11 @@ public class EpicsMCASimpleTest {
 	public void testSetPresets() throws Exception {
 		final EpicsMCAPresets newPresets = new EpicsMCAPresets((float) 1.5, (float) 2.0, 1, 2, 3, 4);
 		mcaSimpleDevice.setPresets(newPresets);
-		assertEquals(newPresets, mcaSimpleDevice.getPresets());
+		verify(epicsDevice).setValue("", ".PRTM", (double) newPresets.getPresetRealTime());
+		verify(epicsDevice).setValue("", ".PLTM", (double) newPresets.getPresetLiveTime());
+		verify(epicsDevice, times(2)).setValue("", ".PCT", (int) newPresets.getPresetCounts());
+		verify(epicsDevice).setValue("", ".PCTL", (int) newPresets.getPresetCountlow());
+		verify(epicsDevice).setValue("", ".PCTH", (int) newPresets.getPresetCountHigh());
+		verify(epicsDevice).setValue("", ".PSWP", (int) newPresets.getPresetSweeps());
 	}
 }
