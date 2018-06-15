@@ -18,6 +18,17 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
@@ -30,15 +41,6 @@ import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import gov.aps.jca.TimeoutException;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase {
 
@@ -393,10 +395,28 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase {
 	}
 
 	private void endRecording() throws Exception {
-		while (getNdFilePHDF5().getCapture_RBV() != 0) {
+		Instant before = Instant.now();
+		short capture_RBV;
+		long numCaptured_RBV;
+
+		while (true) {
+			capture_RBV = getNdFilePHDF5().getCapture_RBV();
+			numCaptured_RBV = getNdFilePHDF5().getNumCaptured_RBV();
+
+			if (capture_RBV == 0) break;
+
+			if (Duration.between(before, Instant.now()).toMillis() > 10000) {
+				logger.warn("endRecording() blocked for 10 seconds, Capture_RBV={}, NumCaptured_RBV={}",
+						capture_RBV, numCaptured_RBV);
+				before = Instant.now();
+			}
 			Thread.sleep(1000);
 		}
+
 		getNdFilePHDF5().stopCapture();
+
+		logger.trace("...endRecording() stopped capture, Capture_RBV was {} now {}, NumCaptured_RBV={}",
+				capture_RBV, getNdFilePHDF5().getCapture_RBV(), numCaptured_RBV);
 
 		if (getNdFilePHDF5().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");

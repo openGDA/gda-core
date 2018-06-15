@@ -19,6 +19,8 @@
 package gda.device.detector.addetector.filewriter;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -390,13 +392,35 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	}
 
 	private void endRecording() throws Exception {
-		while (getNdFileHDF5().getFile().getCapture_RBV() != 0 &&
-				getNdFileHDF5().getFile().getNumCaptured_RBV() != expectedFrameCount) {
+		Instant before = Instant.now();
+		short capture_RBV;
+		long numCaptured_RBV;
+
+		while (true) {
+			capture_RBV = getNdFileHDF5().getFile().getCapture_RBV();
+			numCaptured_RBV = getNdFileHDF5().getFile().getNumCaptured_RBV();
+
+			if (capture_RBV == 0) {
+				logger.trace("endRecording() ended as the file writer stopped itself");
+				break;
+			} else if (numCaptured_RBV == expectedFrameCount ) {
+				logger.trace("endRecording() ended as the file writer captured as many frames as we expected");
+				break;
+			}
+
+			if (Duration.between(before, Instant.now()).toMillis() > 10000) {
+				logger.warn("endRecording() blocked for 10 seconds, Capture_RBV={}, NumCaptured_RBV={}, expectedFrameCount={}",
+						capture_RBV, numCaptured_RBV, expectedFrameCount);
+				before = Instant.now();
+			}
 			Thread.sleep(1000);
 		}
+
 		getNdFileHDF5().stopCapture();
 
-//		logger.warn("Waited very long for hdf writing to finish, still not done. Hope all we be ok in the end.");
+		logger.trace("...endRecording() stopped capture, Capture_RBV was {} now {}, NumCaptured_RBV={}, expectedFrameCount={}",
+				capture_RBV, getNdFileHDF5().getFile().getCapture_RBV(), numCaptured_RBV, expectedFrameCount);
+
 		if (getNdFileHDF5().getFile().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
