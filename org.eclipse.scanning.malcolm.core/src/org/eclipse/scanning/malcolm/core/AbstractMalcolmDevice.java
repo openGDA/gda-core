@@ -50,7 +50,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMalcolmDevice.class);
 
 	// Events
-	protected MalcolmEventDelegate eventDelegate;
+	private MalcolmEventDelegate eventDelegate;
 
 	protected IPointGenerator<?> pointGenerator;
 	protected String fileDir;

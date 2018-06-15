@@ -80,7 +80,6 @@ public abstract class AbstractMalcolmDeviceTest {
 
 	protected int id = 0;
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
 		this.runnableDeviceService = new RunnableDeviceServiceImpl();
@@ -104,7 +103,6 @@ public abstract class AbstractMalcolmDeviceTest {
 	 * called by {@link MalcolmDeviceTest#testInitialize()} as other test methods require an initialized malcolm device.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	protected void initializeMalcolmDevice() throws Exception {
 		// Arrange: create the expected get device state message and configure the mock to reply
 		malcolmDevice.addMalcolmListener(malcolmEventListener);
