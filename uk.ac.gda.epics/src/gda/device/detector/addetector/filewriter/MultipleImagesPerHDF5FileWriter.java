@@ -400,11 +400,20 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			capture_RBV = getNdFileHDF5().getFile().getCapture_RBV();
 			numCaptured_RBV = getNdFileHDF5().getFile().getNumCaptured_RBV();
 
+			// When streaming with setNumCapture set to -1 (forever) the HDF5 plugin will not stop itself, so we have to also
+			// check whether we have captured as many frames as we expected.
 			if (capture_RBV == 0) {
 				logger.trace("endRecording() ended as the file writer stopped itself");
 				break;
 			} else if (numCaptured_RBV == expectedFrameCount ) {
 				logger.trace("endRecording() ended as the file writer captured as many frames as we expected");
+				break;
+			} else if (numCaptured_RBV > expectedFrameCount ) {
+				if (expectedFrameCount == 0) {
+					logger.debug("endRecording() ended as file writer captured frames but we weren't told how many to expect!");
+				}else {
+					logger.warn("endRecording() ended as file writer captured more frames than we expected!");
+				}
 				break;
 			}
 
