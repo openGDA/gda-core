@@ -57,7 +57,7 @@ public class ParserTest {
 		assertStepModel(xModel, "x", 0, 10, 0.5);
 		assertTrue(parser.getDetectorNames().contains("detector"));
 		assertTrue(parser.getExposures().keySet().contains("detector"));
-		assertTrue(DoubleUtils.equalsWithinTolerance((Double) parser.getExposures().get("detector"), 0.1, PRECISION));
+		assertTrue(DoubleUtils.equalsWithinTolerance(parser.getExposures().get("detector"), 0.1, PRECISION));
 	}
 
 }

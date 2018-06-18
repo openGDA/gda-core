@@ -187,7 +187,7 @@ public class AttributeTest extends NexusTest{
 		} else if (attrValue instanceof Number) {
 			assertTrue(sData.getElementDoubleAbs(0)==((Number)attrValue).doubleValue());
 		} else {
-			assertEquals(sData.getStringAbs(0), (String)attrValue);
+			assertEquals(sData.getStringAbs(0), attrValue);
 		}
 
 	}

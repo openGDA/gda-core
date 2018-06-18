@@ -61,7 +61,7 @@ public class ScanRegions {
 	 */
 	public static final BoundingBox createBoxFromPlot(Object model) throws GeneratorException {
 
-		IPlottingSystem<?> system  = (IPlottingSystem<?>)PlotUtil.getRegionSystem();
+		IPlottingSystem<?> system  = PlotUtil.getRegionSystem();
 		if (system==null) return null;
 
 		List<IROI> rois;

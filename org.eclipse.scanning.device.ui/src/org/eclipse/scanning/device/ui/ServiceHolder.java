@@ -109,7 +109,7 @@ public class ServiceHolder {
 	}
 
 	public static <T> T getRemote(Class<T> clazz) throws Exception {
-		return (T)ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), clazz);
+		return ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), clazz);
 	}
 
 	public static IValidatorService getValidatorService() {

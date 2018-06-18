@@ -210,7 +210,7 @@ public class ScanProcessTest {
 		process.execute();
 
 		// Assert
-		List<ScriptRequest> scriptRequests = ((MockScriptService) sservice).getScriptRequests();
+		List<ScriptRequest> scriptRequests = (sservice).getScriptRequests();
 		assertThat(scriptRequests.size(), is(2));
 		assertThat(scriptRequests, hasItems(before, after));
 	}

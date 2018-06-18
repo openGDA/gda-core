@@ -31,7 +31,7 @@ public interface IRunListener extends EventListener {
 	 */
 	default void stateChanged(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
-	};
+	}
 
 	/**
 	 * Called before a run() is made on the device. Can
@@ -41,7 +41,7 @@ public interface IRunListener extends EventListener {
 	 */
 	default void runWillPerform(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
-	};
+	}
 
 	/**
 	 * Used to notify that a given device has been run.
@@ -50,7 +50,7 @@ public interface IRunListener extends EventListener {
 	 */
 	default void runPerformed(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
-	};
+	}
 
 	/**
 	 * Called before a run() is made on the device. Can
@@ -60,7 +60,7 @@ public interface IRunListener extends EventListener {
 	 */
 	default void writeWillPerform(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
-	};
+	}
 
 	/**
 	 * Used to notify that a given device as been run.
@@ -69,5 +69,5 @@ public interface IRunListener extends EventListener {
 	 */
 	default void writePerformed(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
-	};
+	}
 }

@@ -132,7 +132,7 @@ public class XcenProcess extends AbstractLockingPausableProcess<XcenBean>{
 
 	protected void finishRun() throws EventException {
 
-		XcenBean xbean = (XcenBean)bean;
+		XcenBean xbean = bean;
 		xbean.setPreviousStatus(xbean.getStatus());
 		xbean.setStatus(Status.COMPLETE);
 		xbean.setPercentComplete(100);

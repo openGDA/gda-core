@@ -288,7 +288,7 @@ public class StepTest {
 			double position = positions[i];
 			IPosition pos = it.next();
 			if (!equalsWithinTolerance(new Double(position), (Number)pos.get("Temperature"), 0.00001)) {
-				throw new Exception("Position not equal! "+(Number)pos.get("Temperature"));
+				throw new Exception("Position not equal! "+pos.get("Temperature"));
 			}
 		}
 	}

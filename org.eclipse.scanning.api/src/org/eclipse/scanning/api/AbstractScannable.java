@@ -150,7 +150,7 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 	 */
 	@Override
 	public <A> void setScanAttribute(String attributeName, A value) throws Exception {
-		attributes.put(attributeName, (A)value);
+		attributes.put(attributeName, value);
 	}
 
 	/**
