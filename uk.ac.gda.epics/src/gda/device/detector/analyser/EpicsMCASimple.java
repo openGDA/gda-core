@@ -1001,11 +1001,15 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	public int getChannelForEnergy(double energy) throws DeviceException {
 		final String attrString = ENERGY_TO_CHANNEL_PREFIX + energy + " eV";
-		return (int) getAttribute(attrString);
+		return Integer.parseInt(getAttribute(attrString).toString());
 	}
 
 	public double getEnergyForChannel(int channel) throws DeviceException {
 		final String attrString = CHANNEL_TO_ENERGY_PREFIX + channel;
-		return (double) getAttribute(attrString);
+
+		// Remove units (if any) from result
+		final String energy = getAttribute(attrString).toString().trim();
+		final int space = energy.indexOf(' ');
+		return Double.parseDouble(space == -1 ? energy : energy.substring(0, space));
 	}
 }
