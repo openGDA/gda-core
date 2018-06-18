@@ -19,6 +19,9 @@
 
 package gda.util;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -131,6 +134,14 @@ public class SpringObjectServer extends ObjectServer {
 				logger.debug("        {}", name);
 			}
 		}
+
+		// Log which classes Spring is instantiating
+		final Map<String, Object> beans = applicationContext.getBeansOfType(Object.class); // Get all beans
+		final Map<String, Long> classNameToInstanceCount = beans.values().stream()
+				.collect(groupingBy(bean -> bean.getClass().getName(), // key the class name
+						TreeMap::new, // TreeMap to put in alphabetical order
+						counting())); // value the number of each class
+		logger.debug("Classes in use: {}", classNameToInstanceCount);
 	}
 
 	/**
