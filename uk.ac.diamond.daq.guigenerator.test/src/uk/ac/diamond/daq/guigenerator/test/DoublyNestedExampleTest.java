@@ -49,7 +49,7 @@ public class DoublyNestedExampleTest extends GuiGeneratorTestBase {
 	@Before
 	public void setUp() throws Exception {
 		doubleWrapperBean = new DoublyNestedExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(doubleWrapperBean, shell);
+		metawidget = guiGenerator.generateGui(doubleWrapperBean, shell);
 	}
 
 	@After

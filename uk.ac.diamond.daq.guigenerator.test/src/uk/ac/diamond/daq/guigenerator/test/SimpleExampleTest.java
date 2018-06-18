@@ -24,7 +24,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -43,7 +42,7 @@ public class SimpleExampleTest extends GuiGeneratorTestBase {
 	@Before
 	public void setUp() throws Exception {
 		simpleBean = new SimpleExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(simpleBean, shell);
+		metawidget = guiGenerator.generateGui(simpleBean, shell);
 	}
 
 	@After

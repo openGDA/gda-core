@@ -39,7 +39,7 @@ public class GuiGeneratorPluginTest extends SWTTestBase {
 		testBean.setUiReadOnlyStringField("UiReadOnly string field value");
 		testBean.setIntField(5);
 
-		metawidget = (Composite) guiGenerator.generateGui(testBean, shell);
+		metawidget = guiGenerator.generateGui(testBean, shell);
 	}
 
 	@After

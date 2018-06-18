@@ -25,7 +25,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class TableExampleTest extends GuiGeneratorTestBase {
 	@Test
 	public void testUpdatesItems() throws Exception {
 		TableBean updatingBean = new TableExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(updatingBean, shell);
+		metawidget = guiGenerator.generateGui(updatingBean, shell);
 
 		Table table = (Table)getNamedControl("list");
 		assertThat(table.getItem(0).getText(0), is("kevin"));
@@ -51,7 +50,7 @@ public class TableExampleTest extends GuiGeneratorTestBase {
 	@Test
 	public void testRemovesItems() throws Exception {
 		TableBean updatingBean = new TableExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(updatingBean, shell);
+		metawidget = guiGenerator.generateGui(updatingBean, shell);
 
 		Table table = (Table)getNamedControl("list");
 		assertThat(table.getItemCount(), is(1));
@@ -63,7 +62,7 @@ public class TableExampleTest extends GuiGeneratorTestBase {
 	@Test
 	public void testAddsItems() throws Exception {
 		TableBean updatingBean = new TableExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(updatingBean, shell);
+		metawidget = guiGenerator.generateGui(updatingBean, shell);
 
 		Table table = (Table)getNamedControl("list");
 		assertThat(table.getItemCount(), is(1));
@@ -75,7 +74,7 @@ public class TableExampleTest extends GuiGeneratorTestBase {
 	@Test
 	public void testTracksAddedItems() throws Exception {
 		TableBean updatingBean = new TableExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(updatingBean, shell);
+		metawidget = guiGenerator.generateGui(updatingBean, shell);
 		Table table = (Table)getNamedControl("list");
 		TableItemBean newBean = new TableItemBean();
 		newBean.setName("Bob");
@@ -98,7 +97,7 @@ public class TableExampleTest extends GuiGeneratorTestBase {
 				return hiddenList;
 			}
 		};
-		metawidget = (Composite) guiGenerator.generateGui(tableBean, shell);
+		metawidget = guiGenerator.generateGui(tableBean, shell);
 		Control control = getNamedControl("hiddenList");
 		assertThat(control.getClass().getName(), is(equalTo("org.metawidget.swt.Stub")));
 	}
