@@ -29,7 +29,6 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -377,7 +376,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			configureDetectors(req.getDetectors(), scanModel, generator);
 
 			IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
-			IDeviceController theController = Services.getWatchdogService().create(device);
+			IDeviceController theController = Services.getWatchdogService().create(device, bean);
 			if (theController.getObjects()!=null) scanModel.setAnnotationParticipants(theController.getObjects());
 
 			logger.debug("Configuring {} with {}", device.getName(), scanModel);
@@ -414,9 +413,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			Object dmodel = dmodels.get(odevice.getName());
 
 			manager.invoke(PreConfigure.class, dmodel, generator, model, bean, publisher);
-			if (odevice instanceof AbstractRunnableDevice) {
-				((AbstractRunnableDevice<?>)odevice).setBean(bean);
-			}
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
 		}

@@ -133,9 +133,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		return model;
 	}
-	protected void checkSize(IRunnableDevice<?> scanner, int[] shape) {
-		@SuppressWarnings("unchecked")
-		ScanBean bean =  ((AbstractRunnableDevice<ScanBean>) scanner).getBean();
+	protected void checkSize(IRunnableDevice<ScanModel> scanner, int[] shape) {
+		ScanBean bean =  ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getBean();
 		int expectedSize = Arrays.stream(shape).reduce(1, (x, y) -> x * y);
 		System.err.println("Expected size = " + expectedSize + ", shape = " + Arrays.toString(shape));
 		assertEquals(expectedSize, bean.getSize());

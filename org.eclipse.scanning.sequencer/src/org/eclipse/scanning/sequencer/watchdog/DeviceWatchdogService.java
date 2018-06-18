@@ -25,6 +25,7 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdog;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,17 +56,13 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 	}
 
 	@Override
-	public IDeviceController create(IPausableDevice<?> device) {
+	public IDeviceController create(IPausableDevice<?> device, ScanBean scanBean) {
 		if (!Boolean.getBoolean(WATCHDOGS_ACTIVE_PROPERTY_NAME)) return null;
 		if (templates == null)
 			return null;
 
 		try {
 			DeviceController controller = new DeviceController(device);
-			if (device instanceof AbstractRunnableDevice<?>) {
-				controller.setBean(((AbstractRunnableDevice<?>)device).getBean());
-			}
-
 			final List<IDeviceWatchdog> watchdogs = templates.values().stream()
 				.filter(IDeviceWatchdog::isEnabled)
 				.map(this::cloneWatchdogTemplate)

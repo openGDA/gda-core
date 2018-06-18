@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -237,11 +238,12 @@ public abstract class AbstractAcquisitionTest {
 		smodel.setDetectors(device);
 		smodel.setMonitorsPerPoint(monitorPerPoint);
 		smodel.setMonitorsPerScan(monitorPerScan);
+		smodel.setBean(new ScanBean());
 
 		// Create a scan and run it without publishing events
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = sservice.createRunnableDevice(smodel, null, false);
-		IDeviceController controller = ServiceHolder.getWatchdogService().create((IPausableDevice<?>)scanner);
+		IDeviceController controller = ServiceHolder.getWatchdogService().create((IPausableDevice<?>)scanner, smodel.getBean());
 		smodel.setAnnotationParticipants(controller.getObjects());
 		scanner.configure(smodel);
 

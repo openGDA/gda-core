@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
@@ -23,47 +24,37 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 
-	@Test
-	public void test2DMalcolmScan() throws Exception {
-		testMalcolmScan(false, 8, 5);
+	public int numDims;
+
+	public boolean snake;
+
+	public int[] shape;
+
+	@Parameters(name="{0}D scan, snake={1}, shape={2}")
+	public static Collection<Object[]> data() {
+		return Arrays.asList(new Object[][] {
+			{ 2, false, Arrays.asList( 8, 5 )}, // 2D grid scan
+			{ 2, true, Arrays.asList( 8, 5 )},  // 2D snake scan
+			{ 2, true, Arrays.asList( 7, 5 )}, // 2D snake with odd number of lines
+			{ 3, false, Arrays.asList( 3, 2, 5 )}, // 3D grid scan
+			{ 3, true, Arrays.asList( 3, 2, 5 )}, // 3D snake scan
+			{ 4, false, Arrays.asList( 3, 3, 2, 2 )}, // 4D malcolm scan
+			{ 5, false, Arrays.asList( 1, 1, 1, 2, 2 )}, // 5D malcolm scan
+			{ 8, false, Arrays.asList( 1, 1, 1, 1, 1, 1, 2, 2 )} // 8D malcolm scan
+		});
 	}
 
-	@Test
-	public void test2DMalcolmSnakeScan() throws Exception {
-		testMalcolmScan(true, 8, 5);
-	}
-
-	@Test
-	public void test2DMalcolmSnakeWithOddNumberOfLinesScan() throws Exception {
-		testMalcolmScan(true, 7, 5);
-	}
-
-	@Test
-	public void test3DMalcolmScan() throws Exception {
-		testMalcolmScan(false, 3, 2, 5);
-	}
-
-	@Test
-	public void test3DMalcolmSnakeScan() throws Exception {
-		testMalcolmScan(true, 3, 2, 5);
-	}
-
-	@Test
-	public void test4DMalcolmScan() throws Exception {
-		testMalcolmScan(false,3,3,2, 2);
-	}
-
-	@Test
-	public void test5DMalcolmScan() throws Exception {
-		testMalcolmScan(false,1,1,1,2, 2);
-	}
-
-	@Test
-	public void test8DMalcolmScan() throws Exception {
-		testMalcolmScan(false,1,1,1,1,1,1,2, 2);
+	public MalcolmGridScanTest(int numDims, boolean snake, List<Integer> shape) {
+		this.numDims = numDims;
+		this.snake = snake;
+		this.shape = shape.stream().mapToInt(i -> i).toArray(); // param is list so that method name is correct
 	}
 
 	@Override
@@ -76,7 +67,9 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		return model;
 	}
 
-	private void testMalcolmScan(boolean snake, int... shape) throws Exception {
+
+	@Test
+	public void testMalcolmScan() throws Exception {
 		IRunnableDevice<ScanModel> scanner = createMalcolmGridScan(malcolmDevice, output, snake, shape); // Outer scan of another scannable, for instance temp.
 		scanner.run(null);
 

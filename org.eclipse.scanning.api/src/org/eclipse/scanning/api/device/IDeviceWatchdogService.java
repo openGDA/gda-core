@@ -13,6 +13,8 @@ package org.eclipse.scanning.api.device;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.event.scan.ScanBean;
+
 /**
  *
    <h3>Welcome to Watchdogs</h3>
@@ -79,10 +81,11 @@ public interface IDeviceWatchdogService {
 	 * the IRunnableDevice<?> passed in is unique to that list.
 	 *
 	 * @param device
+	 * @param scanBean TODO
 	 * @return list of objects which may be added to the scan and will be processed
 	 * by their annotations.
 	 */
-	IDeviceController create(IPausableDevice<?> device);
+	IDeviceController create(IPausableDevice<?> device, ScanBean scanBean);
 
 	/**
 	 * Get the watchdog by name.

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -67,7 +65,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	private String name;
 	private int level = 1;
 	private String scanId;
-	private ScanBean bean;
 	private DeviceState deviceState;
 	private DeviceInformation<T> deviceInformation;
 	private DeviceRole role = DeviceRole.HARDWARE;
@@ -136,20 +133,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	public void register() {
 		if (runnableDeviceService==null) throw new RuntimeException("Unable to register "+getClass().getSimpleName()+" because the runnable device service was not injected correctly.");
 		runnableDeviceService.register(this);
-	}
-
-	public ScanBean getBean() {
-		if (bean==null) bean = new ScanBean();
-		return bean;
-	}
-
-	public void setBean(ScanBean bean) throws ScanningException {
-		this.bean = bean;
-		try {
-			bean.setHostName(InetAddress.getLocalHost().getHostName());
-		} catch (UnknownHostException e) {
-			throw new ScanningException("Unable to read name of host!");
-		}
 	}
 
 	public IRunnableDeviceService getRunnableDeviceService() {

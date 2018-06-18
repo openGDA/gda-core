@@ -14,6 +14,8 @@ package org.eclipse.scanning.sequencer;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -118,6 +120,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	private List<Throwable> runExceptions = Collections.synchronizedList(new ArrayList<>(1));
 
+	private ScanBean scanBean;
+
 	/**
 	 * Manages the positions we reach in the scan, including
 	 * the outer scan location.
@@ -144,6 +148,23 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		setSupportedScanModes(EnumSet.allOf(ScanMode.class));
 	}
 
+	private ScanBean getScanBean() {
+		return scanBean;
+	}
+
+	private void setupScanBean(ScanModel model) throws ScanningException {
+		scanBean = model.getBean();
+		if (scanBean == null) {
+			scanBean = new ScanBean();
+			model.setBean(scanBean);
+		}
+		try {
+			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			throw new ScanningException("Unable to read name of host!");
+		}
+	}
+
 	/**
 	 * Method to configure the device. It also will check if the
 	 * declared devices in the scan are INexusDevice. If they are,
@@ -156,15 +177,12 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		logger.debug("Configuring with model: {}", model);
 		long before = System.currentTimeMillis();
 
+		setupScanBean(model);
 		setDeviceState(DeviceState.CONFIGURING);
 		setModel(model);
-		setBean(model.getBean() != null ? model.getBean() : new ScanBean()); // TODO: this overwrite the bean just created with setDeviceState. Fix this
-		getBean().setPreviousStatus(getBean().getStatus());
-		getBean().setStatus(Status.QUEUED);
+		getScanBean().setPreviousStatus(getScanBean().getStatus());
+		getScanBean().setStatus(Status.QUEUED);
 		malcolmDevice = findMalcolmDevice(model);
-
-		// TODO this sets the DeviceState on the bean to Ready. Fix this. Should still be configuring
-		initializeDetectorsWithScanBean(model);
 
 		// set the scannables on the scan model if not already set
 		setScannables(model);
@@ -176,7 +194,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		annotationManager = createAnnotationManager(model);
 
 		// create the location manager
-		location = new LocationManager(getBean(), model, annotationManager);
+		location = new LocationManager(getScanBean(), model, annotationManager);
 
 		// add the scan information to the context - it is created if not set on the scan model
 		annotationManager.addContext(getScanInformation(location.getTotalSize()));
@@ -241,23 +259,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		return poser;
 	}
 
-	private void initializeDetectorsWithScanBean(ScanModel model) throws ScanningException {
-		if (model.getDetectors()!=null) {
-			// Make sure all devices report the same scan id
-			for (IRunnableDevice<?> device : model.getDetectors()) {
-				if (device instanceof AbstractRunnableDevice<?>) {
-					// TODO the same bean should not be shared between detectors
-					// TODO rework this as part of DAQ-1410
-					AbstractRunnableDevice<?> adevice = (AbstractRunnableDevice<?>)device;
-					DeviceState deviceState = adevice.getDeviceState();
-					ScanBean bean = getBean();
-					bean.setDeviceState(deviceState);
-					adevice.setBean(bean);
-				}
-			}
-		}
-	}
-
 	private AnnotationManager createAnnotationManager(ScanModel model) {
 		Collection<Object> globalParticipants = ((IScanService)runnableDeviceService).getScanParticipants();
 		AnnotationManager manager = new AnnotationManager(SequencerActivator.getInstance());
@@ -289,7 +290,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		ScanModel model = getModel();
 		if (model.getPositionIterable()==null) throw new ScanningException("The model must contain some points to scan!");
 
-		annotationManager.addContext(getBean());
+		annotationManager.addContext(getScanBean());
 		annotationManager.addContext(model);
 
 		boolean errorFound = false;
@@ -368,7 +369,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			throw new ScanningException(ne);
 		} finally {
 			close(errorFound, pos);
-			logger.debug("Scan completed with status {}", getBean().getStatus());
+			logger.debug("Scan completed with status {}", getScanBean().getStatus());
 			RunnableDeviceServiceImpl.setCurrentScanningDevice(null); // TODO fix this to not use a static method
 		}
 	}
@@ -378,7 +379,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		int size = location.getOuterSize();
 		firePositionComplete(pos);
 
-		final ScanBean bean = getBean();
+		final ScanBean bean = getScanBean();
 		bean.setPoint(count);
 		bean.setPosition(pos);
 		bean.setPreviousDeviceState(bean.getDeviceState());
@@ -435,7 +436,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			logger.info("Received malcolm state change event {}", event);
 		} else if (event.getEventType() == MalcolmEventType.STEPS_COMPLETED) {
 			logger.trace("Received malcolm steps completed event {}", event);
-			getBean().setMessage(event.getMessage());
+			getScanBean().setMessage(event.getMessage());
 			location.setStepNumber(((MalcolmStepsCompletedEvent) event).getStepsCompleted());
 			innerScanStepsCompleted();
 		}
@@ -507,8 +508,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			logger.debug("An error happened in the scan", ne);
 		}
 		runExceptions.add(ne);
-		if (!getBean().getStatus().isFinal()) getBean().setStatus(Status.FAILED);
-		getBean().setMessage(ne.getMessage());
+		if (!getScanBean().getStatus().isFinal()) getScanBean().setStatus(Status.FAILED);
+		getScanBean().setMessage(ne.getMessage());
 		try {
 			annotationManager.invoke(ScanFault.class, ne);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
@@ -516,8 +517,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} finally {
 			setDeviceState(DeviceState.FAULT);
 
-			if (!getBean().getStatus().isFinal()) getBean().setStatus(Status.FAILED);
-			getBean().setMessage(ne.getMessage());
+			if (!getScanBean().getStatus().isFinal()) getScanBean().setStatus(Status.FAILED);
+			getScanBean().setMessage(ne.getMessage());
 		}
 	}
 
@@ -547,28 +548,28 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void fireStart(int size) throws ScanningException {
 		logger.debug("publishing scan bean for scan start");
 		// Setup the bean to sent
-		getBean().setSize(size);
+		getScanBean().setSize(size);
 		ScanInformation scanInfo = getModel().getScanInformation();
-		getBean().setStartTime(System.currentTimeMillis());
-		getBean().setEstimatedTime(scanInfo.getEstimatedScanTime());
-		getBean().setPreviousStatus(getBean().getStatus());
-		getBean().setStatus(Status.RUNNING);
+		getScanBean().setStartTime(System.currentTimeMillis());
+		getScanBean().setEstimatedTime(scanInfo.getEstimatedScanTime());
+		getScanBean().setPreviousStatus(getScanBean().getStatus());
+		getScanBean().setStatus(Status.RUNNING);
 
 		// Will send the state of the scan off.
 		setDeviceState(DeviceState.RUNNING); // Fires!
 
 		// Leave previous state as running now that we have notified of the start.
-		getBean().setPreviousStatus(Status.RUNNING);
+		getScanBean().setPreviousStatus(Status.RUNNING);
 	}
 
 	private void fireEnd(IPosition lastPosition) throws ScanningException {
 		logger.debug("updating and publishing scan bean for scan end");
 
 		// Setup the bean to sent
-		getBean().setPreviousStatus(getBean().getStatus());
-		getBean().setStatus(Status.COMPLETE);
-		getBean().setPercentComplete(100);
-		getBean().setMessage("Scan Complete");
+		getScanBean().setPreviousStatus(getScanBean().getStatus());
+		getScanBean().setStatus(Status.COMPLETE);
+		getScanBean().setPercentComplete(100);
+		getScanBean().setMessage("Scan Complete");
 
 		// Will send the state of the scan off.
 		try {
@@ -584,11 +585,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {
 		try {
 			// The bean must be set in order to change state.
-			ScanBean bean = getBean();
-			if (bean==null) {
-				bean = new ScanBean();
-				setBean(bean);
-			}
+			ScanBean bean = getScanBean();
 			bean.setDeviceName(getName());
 			bean.setPreviousDeviceState(bean.getDeviceState());
 			bean.setDeviceState(newDeviceState);
@@ -663,12 +660,12 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 					shouldResumeCondition.await();
 				}
 
-				getBean().setPreviousStatus(getBean().getStatus());
+				getScanBean().setPreviousStatus(getScanBean().getStatus());
 				if (getDeviceState().isRestState()) {
-					getBean().setStatus(Status.TERMINATED);
+					getScanBean().setStatus(Status.TERMINATED);
 				} else {
 					// Set the status to resumed and run any methods annotated with 'ScanResume'
-					getBean().setStatus(Status.RESUMED);
+					getScanBean().setStatus(Status.RESUMED);
 					setDeviceState(DeviceState.RUNNING);
 					annotationManager.invoke(ScanResume.class);
 					logger.info("Scan resumed");
@@ -717,8 +714,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void pauseInternal() throws ScanningException, InterruptedException {
-		getBean().setPreviousStatus(getBean().getStatus());
-		getBean().setStatus(Status.PAUSED);
+		getScanBean().setPreviousStatus(getScanBean().getStatus());
+		getScanBean().setStatus(Status.PAUSED);
 		setDeviceState(DeviceState.SEEKING);
 		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
 			DeviceState currentState = device.getDeviceState();
@@ -773,7 +770,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			}
 		}
 		if (location.isInnerScan()) {
-			getBean().setStatus(Status.RESUMED);
+			getScanBean().setStatus(Status.RESUMED);
 			setDeviceState(DeviceState.RUNNING);
 		}
 	}
@@ -838,7 +835,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 */
 	private void innerScanStepsCompleted() {
 
-		final ScanBean bean = getBean();
+		final ScanBean bean = getScanBean();
 		bean.setMessage("Point " + location.getOverallCount() + " of " + location.getTotalSize());
 		bean.setPercentComplete(location.getOuterPercent());
 		bean.setPoint(location.getStepNumber());

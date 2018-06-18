@@ -47,7 +47,6 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
@@ -58,7 +57,6 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -107,7 +105,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	@Mock
 	private IPublisher<ScanBean> publisher;
 
-	private ScanBean scanBean = new ScanBean();
+	private ScanBean scanBean = null;
 
 	private int expectedNumPublishedBeans;
 
@@ -121,7 +119,12 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	}
 
 	private ScanBean createExpectedStateChangeBean(DeviceState deviceState, DeviceState previousState,
-			Status status, Status previousStatus) {
+			Status status, Status previousStatus) throws Exception {
+		if (scanBean == null) {
+			scanBean = new ScanBean();
+			scanBean.setHostName(InetAddress.getLocalHost().getHostName());
+		}
+
 		scanBean.setDeviceName("solstice_scan");
 
 		scanBean.setDeviceState(deviceState);
@@ -168,8 +171,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Status and DeviceState changes should be. Then the code should be refactored and fixed to pass the updated test
 		assertThat(beans, hasSize(2));
 		assertThat(beans.get(0), is(equalTo(createExpectedStateChangeBean(DeviceState.CONFIGURING, null, Status.SUBMITTED, null))));
-		scanBean.setHostName(InetAddress.getLocalHost().getHostName());
-		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(DeviceState.ARMED, DeviceState.READY, Status.QUEUED, Status.SUBMITTED))));
+		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(DeviceState.ARMED, DeviceState.CONFIGURING, Status.QUEUED, Status.SUBMITTED))));
 		// TODO replace with assertThat collection contains?
 
 		// Arrange: set up the malcolm connection to respond to the run message with a WaitingAnswer
@@ -241,8 +243,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		assertThat(beanCaptor.getValue(), is(equalTo(createExpectedCompleteStepsBean(completedSteps))));
 	}
 
-	private void checkPauseAndResumeScan(BeanCollectingAnswer<ScanBean> beanCaptor, final IRunnableDevice<ScanModel> scanner)
-			throws MalcolmDeviceException, ScanningException, InterruptedException, EventException {
+	private void checkPauseAndResumeScan(BeanCollectingAnswer<ScanBean> beanCaptor, final IRunnableDevice<ScanModel> scanner) throws Exception {
 		// Arrange
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, "state")))
 				.thenReturn(createExpectedMalcolmOkReply("running"));
@@ -328,8 +329,6 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn
 		// call methods in the mocked communication layer, so we need to set up replies for those
-		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, "state");
-		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute(new String[] { "stage_x", "stage_y" }));
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply);
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_AXES_TO_MOVE))).thenReturn(axesToMoveReply); // This is called at 2 different points
