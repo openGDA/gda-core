@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -383,7 +382,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			started = true;
 			clearThreads();
 			notifyRefreshCommandThreads();
-			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, extractCommandThreadInfo(runner));
+			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, runner.getThreadInfo());
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
@@ -1030,6 +1029,19 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		 */
 		public boolean hasBeenAuthorised = false;
 
+		public CommandThreadInfo getThreadInfo() {
+			return CommandThreadInfo.builder()
+					.command(getCommand())
+					.threadType(getCommandThreadType())
+					.datetime(getCreationTimestamp())
+					.id(getId())
+					.jythonServerThreadId(getJythonServerThreadId())
+					.interrupted(isInterrupted())
+					.name(getName())
+					.priority(getPriority())
+					.state(getState())
+					.build();
+		}
 	}
 
 	/*
@@ -1269,21 +1281,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		return interp.getInterp();
 	}
 
-	private CommandThreadInfo extractCommandThreadInfo(JythonServerThread jthread) {
-		CommandThreadInfo info = new CommandThreadInfo();
-		info.setCommand(jthread.getCommand());
-		info.setCommandThreadType(jthread.getCommandThreadType().toString());
-		info.setDate(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE));
-		info.setId(jthread.getId());
-		info.setJythonServerThreadId(jthread.getJythonServerThreadId());
-		info.setInterrupted(jthread.isInterrupted());
-		info.setName(jthread.getName());
-		info.setPriority(jthread.getPriority());
-		info.setState(jthread.getState().toString());
-		info.setTime(jthread.getCreationTimestamp().format(DateTimeFormatter.ISO_LOCAL_TIME));
-		return info;
-	}
-
 	@SuppressWarnings("unused") // future feature
 	private void notifyClearCommandThreads() {
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.CLEAR,null));
@@ -1307,7 +1304,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	private CommandThreadInfo notifyCommandThreadEvent(CommandThreadEventType eType, JythonServerThread thread) {
-		CommandThreadInfo info = null==thread ? null : extractCommandThreadInfo(thread);
+		CommandThreadInfo info = null==thread ? null : thread.getThreadInfo();
 		this.updateIObservers(new CommandThreadEvent(eType,info));
 		return info;
 	}
@@ -1317,7 +1314,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		Collection<ICommandThreadInfo> infos = new ArrayList<>();
 		for (JythonServerThread thread : threads) {
 			if (thread.isAlive()) {
-				infos.add(extractCommandThreadInfo(thread));
+				infos.add(thread.getThreadInfo());
 			}
 		}
 		return infos.toArray(new ICommandThreadInfo[infos.size()]);
