@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.junit.After;
@@ -45,7 +44,7 @@ public class UpdatingExampleTest extends GuiGeneratorTestBase {
 	@Before
 	public void setUp() throws Exception {
 		updatingBean = new UpdatingExample().createTestObject();
-		metawidget = (Composite) guiGenerator.generateGui(updatingBean, shell);
+		metawidget = guiGenerator.generateGui(updatingBean, shell);
 	}
 
 	@After

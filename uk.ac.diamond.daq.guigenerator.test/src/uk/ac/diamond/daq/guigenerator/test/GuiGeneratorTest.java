@@ -9,7 +9,6 @@ import static org.junit.Assert.assertThat;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -35,7 +34,7 @@ public class GuiGeneratorTest extends GuiGeneratorTestBase {
 		testBean.setIntField(5);
 		testBean.setType(ExampleEnum.SECOND_VALUE);
 
-		metawidget = (Composite) guiGenerator.generateGui(testBean, shell);
+		metawidget = guiGenerator.generateGui(testBean, shell);
 	}
 
 	@After
