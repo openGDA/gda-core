@@ -18,10 +18,15 @@
 
 package org.eclipse.scanning.api.points.models;
 
-public class OverlapGridModel extends AbstractOverlapModel {
+import java.util.Random;
 
-	public OverlapGridModel() {
-		setName("Overlap Grid");
+public class PtychographyGridModel extends AbstractOverlapModel {
+
+	private int seed = new Random().nextInt();
+	private double randomOffset = 0.05;
+
+	public PtychographyGridModel() {
+		setName("Ptychography Grid");
 		setOverlap(0.5);
 	}
 
@@ -33,5 +38,22 @@ public class OverlapGridModel extends AbstractOverlapModel {
 		boolean oldValue = this.snake;
 		this.snake = snake;
 		this.pcs.firePropertyChange("snake", oldValue, snake);
+	}
+
+	/**
+	 * @return maximum offset as percentage of step size
+	 */
+	public double getRandomOffset() {
+		return randomOffset;
+	}
+
+	public void setRandomOffset(double offset) {
+		double oldOffset = randomOffset;
+		randomOffset = offset;
+		pcs.firePropertyChange("randomOffset", oldOffset, randomOffset);
+	}
+
+	public int getSeed() {
+		return seed;
 	}
 }

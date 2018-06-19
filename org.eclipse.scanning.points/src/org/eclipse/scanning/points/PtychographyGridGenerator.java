@@ -18,20 +18,22 @@
 
 package org.eclipse.scanning.points;
 
-import static org.eclipse.scanning.points.AbstractScanPointIterator.EMPTY_PY_ARRAY;
-
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.ScanPointIterator;
-import org.eclipse.scanning.api.points.models.OverlapGridModel;
+import org.eclipse.scanning.api.points.models.PtychographyGridModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
+import org.python.core.PyDictionary;
+import org.python.core.PyList;
+import org.python.core.PyObject;
 
-public class OverlapGridGenerator extends AbstractGenerator<OverlapGridModel> {
-	OverlapGridGenerator() {
-		setLabel("Overlap grid");
+public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGridModel> {
+	PtychographyGridGenerator() {
+		setLabel("Ptychography Grid");
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class OverlapGridGenerator extends AbstractGenerator<OverlapGridModel> {
 
 	@Override
 	protected Iterator<IPosition> iteratorFromValidModel() {
-		OverlapGridModel model = getModel();
+		PtychographyGridModel model = getModel();
 
 		double xBeamDim = model.getXBeamSize();
 		double yBeamDim = model.getYBeamSize();
@@ -79,10 +81,24 @@ public class OverlapGridGenerator extends AbstractGenerator<OverlapGridModel> {
 				xPoints,
 				model.isSnake());
 
-		Iterator<?>[] generators = { outerLine, innerLine };
-		String[] axisNames = new String[] { xName, yName };
-		ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(generators,
-				getRegions().toArray(),	axisNames, EMPTY_PY_ARRAY, -1, model.isContinuous());
+		JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
+		int seed = model.getSeed();
+		double maxXOffset = xStep * model.getRandomOffset();
+		double maxYOffset = yStep * model.getRandomOffset();
+
+		final PyDictionary maxOffset = new PyDictionary();
+        maxOffset.put(yName, maxYOffset);
+        maxOffset.put(xName, maxXOffset);
+
+        final PyList axes = new PyList(Arrays.asList(yName, xName));
+		final PyObject randomOffset = randomOffsetMutatorFactory.createObject(seed, axes, maxOffset);
+
+        final Iterator<?>[] generators = { outerLine, innerLine };
+        final PyObject[] mutators = { randomOffset };
+
+        final String[] axisNames = new String[] { xName, yName };
+		final ScanPointIterator pyIterator = CompoundSpgIteratorFactory.createSpgCompoundGenerator(
+				generators, getRegions().toArray(), axisNames, mutators, -1, model.isContinuous());
 
 		return new SpgIterator(pyIterator);
 	}

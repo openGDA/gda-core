@@ -34,7 +34,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	StaticTest.class,
 	StepTest.class,
 	JythonGeneratorTest.class,
-	OverlapGridPathTest.class
+	PtychographyGridPathTest.class
 
 	// TODO Smoke tests?
 	//GridTestLarge.class,
