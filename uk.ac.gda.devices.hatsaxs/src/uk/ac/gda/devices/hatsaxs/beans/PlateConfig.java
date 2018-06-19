@@ -21,11 +21,10 @@ package uk.ac.gda.devices.hatsaxs.beans;
 import java.io.Serializable;
 import java.util.List;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class PlateConfig implements Findable, Serializable{
+public class PlateConfig extends FindableBase implements Serializable {
 	private static final long serialVersionUID = 6948031255054246852L;
-	private String name;
 	private List<Plate> plates;
 	private String[] availableCapillaries;
 
@@ -35,14 +34,7 @@ public class PlateConfig implements Findable, Serializable{
 	public void setPlates(List<Plate> plates) {
 		this.plates = plates;
 	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	@Override
-	public String getName() {
-		return name;
-	}
+
 	public String[] getAvailablePlates() {
 		String[] names = new String[plates.size()];
 		int i = 0;
@@ -67,7 +59,7 @@ public class PlateConfig implements Findable, Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((plates == null) ? 0 : plates.hashCode());
 		return result;
 	}
@@ -83,11 +75,11 @@ public class PlateConfig implements Findable, Serializable{
 			return false;
 		}
 		PlateConfig other = (PlateConfig) obj;
-		if (name == null) {
-			if (other.name != null) {
+		if (getName() == null) {
+			if (other.getName() != null) {
 				return false;
 			}
-		} else if (!name.equals(other.name)) {
+		} else if (!getName().equals(other.getName())) {
 			return false;
 		}
 		if (plates == null) {
