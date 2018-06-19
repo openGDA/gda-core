@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.detector.IPCODiverController;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.epics.connection.EpicsController;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -39,7 +39,7 @@ import gov.aps.jca.TimeoutException;
  * it only requires an instance of {@link ADBase} to support PCO specific {@link PCOTriggerMode}.
  *
  */
-public class PCODriverController implements Findable, IPCODiverController {
+public class PCODriverController extends FindableBase implements IPCODiverController {
 	private static final Logger logger = LoggerFactory.getLogger(PCODriverController.class);
 	// PCO specific EPICS interface element and PV fields
 	private static final String PIX_RATE = "PIX_RATE";
@@ -73,7 +73,6 @@ public class PCODriverController implements Findable, IPCODiverController {
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
 	private ADBase areaDetector;
-	private String name;
 	private String pvName;
 
 	/**
@@ -444,16 +443,6 @@ public class PCODriverController implements Findable, IPCODiverController {
 		if (getAreaDetector() == null) {
 			throw new IllegalArgumentException("'areaDetector' needs to be declared");
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public String getPvName() {

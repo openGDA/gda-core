@@ -21,13 +21,13 @@ package gda.device.detector.pco;
 import java.util.Random;
 
 import gda.device.detector.IPCODiverController;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * simulate PCO Driver specific parameters by java bean.
  *
  */
-public class DummyPCODriverController implements Findable, IPCODiverController {
+public class DummyPCODriverController extends FindableBase implements IPCODiverController {
 	private int pixelRate;
 	private PCOADCMode adcmode=PCOADCMode.OneADC;
 	private double camRamUsage=1;
@@ -40,10 +40,6 @@ public class DummyPCODriverController implements Findable, IPCODiverController {
 	private int acquireMode=1;
 	private int armMode=1;
 	private double delayTime;
-	private String name;
-
-	public DummyPCODriverController() {
-	}
 
 	@Override
 	public int getADCMode() {
@@ -155,16 +151,6 @@ public class DummyPCODriverController implements Findable, IPCODiverController {
 	@Override
 	public void setDelayTime(double value) {
 		delayTime=value;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }
