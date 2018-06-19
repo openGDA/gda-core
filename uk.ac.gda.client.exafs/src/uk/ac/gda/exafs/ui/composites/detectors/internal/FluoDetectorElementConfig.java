@@ -20,7 +20,7 @@ package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import java.util.Map;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * This class is used to hold configuration to control how the detector elements in Fluorescence detector view are displayed.
@@ -28,9 +28,8 @@ import gda.factory.Findable;
  * use by setting the detector name {@link #setDetectorName(String)}, and grid order or {@link #setElementMap(Map)}.
  * @since 6/10/2017
  */
-public class FluoDetectorElementConfig implements Findable {
+public class FluoDetectorElementConfig extends FindableBase {
 
-	private String name;
 	private String detectorName;
 	private int gridOrder;
 	private Map<Integer, Integer> elementMap;
@@ -72,20 +71,5 @@ public class FluoDetectorElementConfig implements Findable {
 	 */
 	public void setDetectorName(String detectorName) {
 		this.detectorName = detectorName;
-	}
-
-	/**
-	 * Name of this Findable
-	 * @param name
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
-
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }

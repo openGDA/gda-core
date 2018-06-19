@@ -21,17 +21,15 @@ package uk.ac.gda.exafs.ui.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class SpreadsheetViewConfig implements Findable {
+public class SpreadsheetViewConfig extends FindableBase {
 
 	private List<ParameterConfig> paramConfigList;
 
-	private String name;
-
 	public SpreadsheetViewConfig() {
 		paramConfigList = new ArrayList<>();
-		name = "";
+		setName("");
 	}
 
 	public List<ParameterConfig> getParameters() {
@@ -57,15 +55,5 @@ public class SpreadsheetViewConfig implements Findable {
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 }
