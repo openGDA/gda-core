@@ -95,7 +95,17 @@ public class EpicsMCASimpleTest {
 		channelToEnergyConverter = mock(FindableConverter.class);
 		when(channelToEnergyConverter.getName()).thenReturn(CALIBRATION_NAME);
 		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenReturn(ENERGY_QUANTITY);
-		when(channelToEnergyConverter.toTarget(ENERGY_QUANTITY)).thenReturn(CHANNEL_QUANTITY);
+		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity>() {
+			@Override
+			public Quantity answer(InvocationOnMock invocation) throws Throwable {
+				final Quantity energy = invocation.getArgumentAt(0, Quantity.class);
+				if (Math.abs(energy.getAmount() - ENERGY_QUANTITY.getAmount()) < 0.001) {
+					return CHANNEL_QUANTITY;
+				}
+				return null;
+			}
+		});
+		//thenReturn(CHANNEL_QUANTITY);
 
 		testFactory = TestHelpers.createTestFactory("EpicsMCASimpleTestFactory");
 		testFactory.addFindable(channelToEnergyConverter);

@@ -18,12 +18,15 @@
 
 package gda.device.detector.analyser;
 
+import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.jscience.physics.quantities.Dimensionless;
 import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +128,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	private String epicsDeviceName;
 
-	private IQuantitiesConverter channelToEnergyConverter = null;
+	private IQuantityConverter channelToEnergyConverter = null;
 
 	private String converterName = "mca_roi_conversion";
 
@@ -873,47 +876,58 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-
 		if (attributeName.startsWith(CHANNEL_TO_ENERGY_PREFIX)) {
-			String energy = null;
-			if (channelToEnergyConverter == null && converterName != null) {
-				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
-			}
-			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				final String channelString = attributeName.substring(CHANNEL_TO_ENERGY_PREFIX.length());
-				final Quantity channel = Quantity.valueOf(channelString);
-				try {
-					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
-					return energy;
-				} catch (Exception e) {
-					throw new DeviceException("EpicsMCA.getAttribute exception", e);
-				}
-			}
-			throw new DeviceException(
-					"EpicsMCA : unable to find suitable converter to convert channel to energy. converterName  "
-							+ (converterName == null ? "not given" : converterName));
+			final String channelString = attributeName.substring(CHANNEL_TO_ENERGY_PREFIX.length());
+			final double energy = getEnergyForChannel(Integer.parseInt(channelString));
+			return Quantity.valueOf(energy, ELECTRON_VOLT).toString();
+
 		} else if (attributeName.startsWith(ENERGY_TO_CHANNEL_PREFIX)) {
-			// String channel = null;
-			if (channelToEnergyConverter == null && converterName != null) {
-				channelToEnergyConverter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
-			}
-			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
-				final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
-				final Quantity energy = Quantity.valueOf(energyString);
-				try {
-					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getAmount();
-					return Long.toString(Math.max(Math.min(ichannel, getNumberOfChannels() - 1), 0));
-				} catch (Exception e) {
-					throw new DeviceException("EpicsMCA.getAttribute exception", e);
-				}
-			}
-			throw new DeviceException(
-					"EpicsTCA : unable to find suitable converter to convert energy to channel. converterName  "
-							+ (converterName == null ? "not given" : converterName));
+			final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
+			final double energy = Quantity.valueOf(energyString).getAmount();
+			return Integer.toString(getChannelForEnergy(energy));
+
 		} else if (attributeName.equals(NUMBER_OF_CHANNELS_ATTR)) {
 			return getNumberOfChannels();
+
 		} else {
 			return super.getAttribute(attributeName);
+		}
+	}
+
+	public double getEnergyForChannel(int channel) throws DeviceException {
+		ensureQuantityConverterExists();
+		try {
+			return channelToEnergyConverter.toSource(Dimensionless.valueOf(channel)).getAmount();
+		} catch (Exception e) {
+			throw new DeviceException(String.format("Error getting energy for channel %d", channel), e);
+		}
+	}
+
+	public int getChannelForEnergy(double energy) throws DeviceException {
+		ensureQuantityConverterExists();
+		try {
+			final Quantity channel = channelToEnergyConverter.toTarget(Quantity.valueOf(energy, ELECTRON_VOLT));
+			return (int) Math.max(Math.min(channel.longValue(), getNumberOfChannels() - 1), 0);
+		} catch (Exception e) {
+			throw new DeviceException(String.format("Error getting channel for energy %s", energy), e);
+		}
+	}
+
+	private void ensureQuantityConverterExists() throws DeviceException {
+		if (channelToEnergyConverter != null) {
+			return;
+		}
+		if (converterName == null || converterName.length() == 0) {
+			throw new DeviceException("Cannot create channel/energy converter: no name specified");
+		}
+		final IQuantitiesConverter converter = CoupledConverterHolder.FindQuantitiesConverter(converterName);
+		if (converter == null) {
+			throw new DeviceException(String.format("Cannot create channel/energy converter: %s not found", converterName));
+		}
+		if (converter instanceof IQuantityConverter) {
+			channelToEnergyConverter = (IQuantityConverter) converter;
+		} else {
+			throw new DeviceException(String.format("Cannot create channel/energy converter: %s is of the wrong type", converterName));
 		}
 	}
 
@@ -997,19 +1011,5 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 
 	public void setReadingDoneIfNotAquiring(boolean readingDoneIfNotAquiring) {
 		this.readingDoneIfNotAquiring = readingDoneIfNotAquiring;
-	}
-
-	public int getChannelForEnergy(double energy) throws DeviceException {
-		final String attrString = ENERGY_TO_CHANNEL_PREFIX + energy + " eV";
-		return Integer.parseInt(getAttribute(attrString).toString());
-	}
-
-	public double getEnergyForChannel(int channel) throws DeviceException {
-		final String attrString = CHANNEL_TO_ENERGY_PREFIX + channel;
-
-		// Remove units (if any) from result
-		final String energy = getAttribute(attrString).toString().trim();
-		final int space = energy.indexOf(' ');
-		return Double.parseDouble(space == -1 ? energy : energy.substring(0, space));
 	}
 }
