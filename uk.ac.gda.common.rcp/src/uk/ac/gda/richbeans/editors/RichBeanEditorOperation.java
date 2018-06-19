@@ -44,7 +44,7 @@ public class RichBeanEditorOperation extends AbstractOperation {
 	}
 
 	public IStatus beanToUI(@SuppressWarnings("unused") IProgressMonitor monitor, IAdaptable info, final Object bean) throws ExecutionException {
-		final Shell shell = (Shell) info.getAdapter(Shell.class);
+		final Shell shell = info.getAdapter(Shell.class);
 		shell.setRedraw(false);
 		richBeanEditor.setUndoStackActive(false);
 		try {

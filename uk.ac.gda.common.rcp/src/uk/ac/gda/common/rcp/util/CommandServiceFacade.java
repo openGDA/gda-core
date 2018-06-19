@@ -47,22 +47,21 @@ public class CommandServiceFacade {
 	 * @param runScanCommandId
 	 * @return null is command cannot be found. The command will return null if
 	 * Eclipse command could not be found. Otherwise the return value of the command handler.
-	 * @throws NotHandledException 
-	 * @throws NotEnabledException 
-	 * @throws NotDefinedException 
-	 * @throws ExecutionException 
+	 * @throws NotHandledException
+	 * @throws NotEnabledException
+	 * @throws NotDefinedException
+	 * @throws ExecutionException
 	 */
-	public static Object runCommand(final IWorkbenchPartSite site, 
-			                        final String             runScanCommandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-		
-		final ICommandService service = (ICommandService)site.getService(ICommandService.class);
-        final Command         run     = service.getCommand(runScanCommandId);
-        if (run!=null) {
-        	final Map<String,String> params = new HashMap<String,String>(1);
+	public static Object runCommand(final IWorkbenchPartSite site, final String runScanCommandId)
+			throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
 
-        	return run.executeWithChecks(new ExecutionEvent(run, params, site, null));
-        }
-			
+		final ICommandService service = site.getService(ICommandService.class);
+		final Command run = service.getCommand(runScanCommandId);
+		if (run!=null) {
+			final Map<String,String> params = new HashMap<String,String>(1);
+			return run.executeWithChecks(new ExecutionEvent(run, params, site, null));
+		}
+
 		return null;
 	}
 
@@ -81,15 +80,15 @@ public class CommandServiceFacade {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void fireCommand(String commandId) {
 		getCommandService();
 		if(null!=cmdService) {
-			Command command = cmdService.getCommand(commandId);	
+			Command command = cmdService.getCommand(commandId);
 			fireCommand(command);
 		}
-	}	
-	
+	}
+
 	public static ICommandService getCommandService() {
 		if(null==cmdService) {
 			initCommandService();
@@ -103,11 +102,11 @@ public class CommandServiceFacade {
 		}
 		return hndService;
 	}
-	
+
 	protected static boolean initCommandService() {
 		if(null==cmdService) {
-			hndService = (IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class);
-			cmdService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+			hndService = PlatformUI.getWorkbench().getService(IHandlerService.class);
+			cmdService = PlatformUI.getWorkbench().getService(ICommandService.class);
 		}
 		return null!=cmdService;
 	}

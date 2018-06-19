@@ -53,7 +53,7 @@ public class GDAMetawidgetInspectorPluginTest extends SWTTestBase {
 		gridModel.setFastAxisPoints(6);
 		gridModel.setBoundingBox(box);
 
-		metawidget = (Composite) guiGenerator.generateGui(gridModel, shell);
+		metawidget = guiGenerator.generateGui(gridModel, shell);
 	}
 
 	@After
