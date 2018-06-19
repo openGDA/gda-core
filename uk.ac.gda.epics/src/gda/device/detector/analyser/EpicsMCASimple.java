@@ -774,7 +774,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		}
 	}
 
-	public void update(Object theObserved, Object changeCode) {
+	private void update(Object theObserved, Object changeCode) {
 		if (theObserved instanceof EpicsRegistrationRequest && changeCode instanceof EpicsMonitorEvent
 				&& ((EpicsMonitorEvent) changeCode).epicsDbr instanceof DBR) {
 			final EpicsMonitorEvent event = (EpicsMonitorEvent) changeCode;
