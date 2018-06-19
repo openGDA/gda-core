@@ -120,7 +120,7 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 	}
 
 	private void appendFieldText(StringBuilder buf, FieldValue ofield) throws Exception {
-		FieldValue field  = (FieldValue)ofield;
+		FieldValue field  = ofield;
 		Object   element  = field.get();
 		if (element == null)    {
 			buf.append(field.getAnnotation().edit()==EditType.COMPOUND ? "..." :  "");

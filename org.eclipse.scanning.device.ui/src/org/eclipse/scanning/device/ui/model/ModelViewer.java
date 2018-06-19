@@ -259,7 +259,7 @@ class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionP
 						viewer.setSelection(new StructuredSelection(ob));
 						refresh(); // Must do global refresh because might effect units of other parameters.
 					} catch (Exception ne) {
-						logger.error("Cannot delete item "+(IStructuredSelection)viewer.getSelection(), ne);
+						logger.error("Cannot delete item "+viewer.getSelection(), ne);
 					}
 
 				}

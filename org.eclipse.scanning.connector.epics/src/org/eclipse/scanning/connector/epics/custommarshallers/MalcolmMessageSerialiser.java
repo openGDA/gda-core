@@ -103,7 +103,7 @@ public class MalcolmMessageSerialiser implements IPVStructureSerialiser<MalcolmM
 			if (msg.getArguments() != null) {
 				if (msg.getArguments() instanceof Map) {
 					ParamMap paramMap = new ParamMap();
-					paramMap.setParametersFromObject((Map)msg.getArguments());
+					paramMap.setParametersFromObject(msg.getArguments());
 					PVStructure params = serialiser.toPVStructure(paramMap);
 					convert.copyStructure(params.getStructureField("parameters"), parameters);
 				} else {

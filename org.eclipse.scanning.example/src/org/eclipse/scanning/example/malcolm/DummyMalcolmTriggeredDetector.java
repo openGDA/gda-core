@@ -97,7 +97,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 	@Override
 	public void validate(T model) throws ValidationException {
 		if (model instanceof INameable) {
-			INameable dmodel = (INameable)model;
+			INameable dmodel = model;
 		    if (dmodel.getName()==null || dmodel.getName().length()<1) {
 			throw new ModelValidationException("The name must be set!", model, "name");
 		    }

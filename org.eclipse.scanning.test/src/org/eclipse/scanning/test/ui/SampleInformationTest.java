@@ -14,7 +14,6 @@ package org.eclipse.scanning.test.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +90,7 @@ public class SampleInformationTest extends ShellTest {
 				// what it does to reproduce an old defect
 				IModelDialog dialog = interfaceService.createModelDialog(shell);
 				dialog.create();
-				dialog.setModel((Serializable)config);
+				dialog.setModel(config);
 			} catch (Exception ne) {
 				errors.add(ne);
 			}

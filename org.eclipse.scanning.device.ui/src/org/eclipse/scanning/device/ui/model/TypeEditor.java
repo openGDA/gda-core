@@ -113,8 +113,8 @@ public class TypeEditor<T> extends Composite implements IModelProvider<T> {
 		}
 
 		AnnotationManager manager = new AnnotationManager(Activator.getDefault(), Inject.class);
-		manager.addContext((IScannableDeviceService)ServiceHolder.getRemote(IScannableDeviceService.class));
-		manager.addContext((IRunnableDeviceService)ServiceHolder.getRemote(IRunnableDeviceService.class));
+		manager.addContext(ServiceHolder.getRemote(IScannableDeviceService.class));
+		manager.addContext(ServiceHolder.getRemote(IRunnableDeviceService.class));
 		manager.addContext(model);
 		manager.addDevices(ret);
 		manager.invoke(Inject.class);

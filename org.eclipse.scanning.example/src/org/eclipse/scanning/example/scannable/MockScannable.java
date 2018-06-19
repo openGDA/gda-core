@@ -101,7 +101,7 @@ public class MockScannable extends CountableScannable<Number> implements IConfig
 		this.model = model;
 
 		if (model instanceof MockScannableModel) {
-			MockScannableModel mod = (MockScannableModel)model;
+			MockScannableModel mod = model;
 
 			// We make a lazy writeable dataset to write out the mandels.
 			final int[] shape = new int[]{mod.getSize()};

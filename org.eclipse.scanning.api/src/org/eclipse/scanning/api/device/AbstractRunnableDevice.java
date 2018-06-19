@@ -396,7 +396,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	 */
 	@Override
 	public <A> void setScanAttribute(String attributeName, A value) throws Exception {
-		scanAttributes.put(attributeName, (A)value);
+		scanAttributes.put(attributeName, value);
 	}
 
 	/**
