@@ -20,13 +20,16 @@ package gda.util.simpleServlet;
 
 import java.lang.reflect.InvocationTargetException;
 
+import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * FindableSimpleServlet Class
  */
+@ServiceInterface(Device.class)
 public class FindableSimpleServlet extends DeviceBase {
 
 	/**
