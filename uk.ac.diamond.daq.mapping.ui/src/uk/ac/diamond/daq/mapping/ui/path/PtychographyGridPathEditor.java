@@ -23,6 +23,8 @@ import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.points.models.AbstractOverlapModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -36,9 +38,9 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OverlapGridPathEditor extends AbstractPathEditor {
+public class PtychographyGridPathEditor extends AbstractPathEditor {
 
-	private static final Logger logger = LoggerFactory.getLogger(OverlapGridPathEditor.class);
+	private static final Logger logger = LoggerFactory.getLogger(PtychographyGridPathEditor.class);
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
@@ -46,13 +48,16 @@ public class OverlapGridPathEditor extends AbstractPathEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText("Beam overlap");
-		Text overlapText = new Text(composite, SWT.BORDER);
+
+		Composite overlapControls = new Composite(composite, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(overlapControls);
+		GridLayoutFactory.fillDefaults().spacing(0, 1).applyTo(overlapControls);
+
+		Text overlapText = new Text(overlapControls, SWT.BORDER);
 		grabHorizontalSpace.applyTo(overlapText);
 		binder.bind(overlapText, "overlap", getModel());
 
-		skipACell(composite);
-
-		Slider overlapSlider = new Slider(composite, SWT.HORIZONTAL);
+		Slider overlapSlider = new Slider(overlapControls, SWT.HORIZONTAL);
 		overlapSlider.setMaximum(100); // not inclusive
 		overlapSlider.setMinimum(0);
 		overlapSlider.setIncrement(5);
@@ -62,9 +67,6 @@ public class OverlapGridPathEditor extends AbstractPathEditor {
 		overlapText.addListener(SWT.Modify, event -> overlapSlider.setSelection((int) (Double.parseDouble(overlapText.getText()) * 100)));
 
 		grabHorizontalSpace.applyTo(overlapSlider);
-
-		makeSnakeControl(composite, getModel());
-		makeContinuousControl(composite, getModel());
 
 		try {
 			Object[] beamDimensions = getBeamDimensions();
@@ -98,6 +100,15 @@ public class OverlapGridPathEditor extends AbstractPathEditor {
 			errorLabel.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 			showErrorDialog(composite.getShell());
 		}
+
+		new Label(composite, SWT.NONE).setText("Random offset");
+		Text offsetText = new Text(composite, SWT.BORDER);
+		offsetText.setToolTipText("% of step size");
+		grabHorizontalSpace.applyTo(offsetText);
+		binder.bind(offsetText, "randomOffset", getModel());
+
+		makeSnakeControl(composite, getModel());
+		makeContinuousControl(composite, getModel());
 
 		return composite;
 	}

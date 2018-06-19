@@ -28,7 +28,7 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.OneDStepModel;
-import org.eclipse.scanning.api.points.models.OverlapGridModel;
+import org.eclipse.scanning.api.points.models.PtychographyGridModel;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.SinglePointModel;
@@ -48,7 +48,7 @@ public final class PathEditorProvider {
 		pathToEditor = new HashMap<>();
 		pathToEditor.put(GridModel.class, GridPathEditor.class);
 		pathToEditor.put(RasterModel.class, RasterPathEditor.class);
-		pathToEditor.put(OverlapGridModel.class, OverlapGridPathEditor.class);
+		pathToEditor.put(PtychographyGridModel.class, PtychographyGridPathEditor.class);
 		pathToEditor.put(SpiralModel.class, SpiralPathEditor.class);
 		pathToEditor.put(LissajousModel.class, LissajousCurvePathEditor.class);
 		pathToEditor.put(RandomOffsetGridModel.class, RandomOffsetGridPathEditor.class);
