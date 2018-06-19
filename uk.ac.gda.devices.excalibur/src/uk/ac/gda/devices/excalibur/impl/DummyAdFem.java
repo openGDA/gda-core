@@ -18,13 +18,13 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import uk.ac.gda.devices.excalibur.IAdFem;
 
 /**
  *
  */
-public class DummyAdFem implements IAdFem, Findable {
+public class DummyAdFem extends FindableBase implements IAdFem {
 
 
 	private short[] calibration;
@@ -37,19 +37,6 @@ public class DummyAdFem implements IAdFem, Findable {
 	@Override
 	public void setCalibration(short[] calibration) throws Exception {
 		this.calibration = calibration;
-	}
-
-
-	String name;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }

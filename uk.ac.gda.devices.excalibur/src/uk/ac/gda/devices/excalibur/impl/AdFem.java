@@ -18,20 +18,19 @@
 
 package uk.ac.gda.devices.excalibur.impl;
 
-import gda.epics.connection.EpicsController;
-import gda.factory.Findable;
-import gov.aps.jca.Channel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.epics.connection.EpicsController;
+import gda.factory.FindableBase;
+import gov.aps.jca.Channel;
 import uk.ac.gda.devices.excalibur.IAdFem;
 
 /**
  *
  */
-public class AdFem implements IAdFem, Findable, InitializingBean {
+public class AdFem extends FindableBase implements IAdFem, InitializingBean {
 
 	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -75,18 +74,6 @@ public class AdFem implements IAdFem, Findable, InitializingBean {
 	 */
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
-	}
-
-	String name;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public Channel getCalibrationChannel() throws Exception {
