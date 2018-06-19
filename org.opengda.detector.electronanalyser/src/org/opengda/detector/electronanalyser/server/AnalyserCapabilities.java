@@ -22,15 +22,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class AnalyserCapabilities implements Findable {
+public class AnalyserCapabilities extends FindableBase {
 
-	private String name = "AnalyserCapabilties";
-
-	private Map<String, double[]> lens2angles = new HashMap<String, double[]>(8);
+	private Map<String, double[]> lens2angles = new HashMap<>(8);
 
 	public AnalyserCapabilities() {
+		setName("AnalyserCapabilties");
 		for(Object[] o: new Object[][] {
 											{"Transmission",
 												new double[] {
@@ -56,16 +55,6 @@ public class AnalyserCapabilities implements Findable {
 
 			lens2angles.put(lens, (double[]) o[1]);
 		}
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public Short[] getPassEnergies() {

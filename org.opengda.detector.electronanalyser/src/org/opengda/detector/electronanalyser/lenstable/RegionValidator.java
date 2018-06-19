@@ -16,7 +16,7 @@ import com.google.common.collect.Table;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * Validate a given region against analyser's energy range for specified element set.
@@ -25,10 +25,9 @@ import gda.factory.Findable;
  *
  * @author fy65
  */
-public class RegionValidator implements Findable {
+public class RegionValidator extends FindableBase {
 	private static final Logger logger = LoggerFactory.getLogger(RegionValidator.class);
 	private Map<String, String> lookupTablePathMap = new HashMap<>();
-	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Scannable pgmEnergy;
 	private Scannable dcmEnergy;
@@ -141,16 +140,6 @@ public class RegionValidator implements Findable {
 
 	public void setLookupTablePathMap(Map<String, String> lookupTablePathMap) {
 		this.lookupTablePathMap = lookupTablePathMap;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public RegionDefinitionResourceUtil getRegionDefinitionResourceUtil() {
