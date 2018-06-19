@@ -88,7 +88,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService, null);
 		pointGenService = new PointGeneratorService();
 
-		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::new);
+		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
 		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));
 	}
 
@@ -148,7 +148,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		verify(malcolmConnection, timeout(250)).send(malcolmDevice, expectedGetDeviceStateMessage2);
 		verify(malcolmEventListener, timeout(250)).eventPerformed(any(MalcolmEvent.class)); // argument checked using custom captor below
 		final MalcolmEvent event = malcolmBeanCaptor.getValue();
-		assertThat(event, is(equalTo(createExpectedMalcolmEventBean(DeviceState.READY, null, "connected to " + malcolmDevice.getName()))));
+		assertThat(event, is(equalTo(createExpectedMalcolmEventBean(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
@@ -205,13 +205,7 @@ public abstract class AbstractMalcolmDeviceTest {
 	}
 
 	protected MalcolmEvent createExpectedMalcolmEventBean(DeviceState state, DeviceState previousState, String message) {
-		MalcolmEvent bean = new MalcolmEvent(malcolmDevice);
-		bean.setDeviceName(malcolmDevice.getName());
-		bean.setMessage(message);
-		bean.setDeviceState(state);
-		bean.setPreviousState(previousState);
-
-		return bean;
+		return MalcolmEvent.forStateChange(malcolmDevice, state, previousState, message);
 	}
 
 }

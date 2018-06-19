@@ -202,7 +202,11 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	protected void setDeviceState(DeviceState newDeviceState) throws ScanningException {
 		final DeviceState previousDeviceState = deviceState;
 		deviceState = newDeviceState;
-		fireStateChanged(previousDeviceState, deviceState);
+		try {
+			fireStateChanged(previousDeviceState, deviceState);
+		} catch (ScanningException e) {
+			logger.error("Error firing state change event ", e);
+		}
 	}
 
 	@Override

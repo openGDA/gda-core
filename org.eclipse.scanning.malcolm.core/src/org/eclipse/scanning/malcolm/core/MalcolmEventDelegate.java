@@ -41,7 +41,7 @@ public class MalcolmEventDelegate {
 	 * @param event
 	 * @throws Exception
 	 */
-	public void sendEvent(MalcolmEvent event)  throws Exception {
+	public void sendEvent(MalcolmEvent event) throws Exception {
 
 		if (templateBean!=null) BeanMerge.merge(templateBean, event);
 		fireMalcolmListeners(event);
@@ -63,11 +63,7 @@ public class MalcolmEventDelegate {
 	}
 
 	public void sendStateChanged(DeviceState state, DeviceState old, String message) throws Exception {
-		final MalcolmEvent evt = new MalcolmEvent(malcolmDevice);
-		evt.setPreviousState(old);
-		evt.setDeviceState(state);
-		evt.setMessage(message);
-		sendEvent(evt);
+		sendEvent(MalcolmEvent.forStateChange(malcolmDevice, state, old, message));
 	}
 
 	public void setTemplateBean(MalcolmEvent bean) {

@@ -170,7 +170,6 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testConnectionStateChange() throws Exception {
 		// Arrange
