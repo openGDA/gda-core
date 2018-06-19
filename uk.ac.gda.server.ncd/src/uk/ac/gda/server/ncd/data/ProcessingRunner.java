@@ -20,25 +20,14 @@ package uk.ac.gda.server.ncd.data;
 
 import java.io.IOException;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public abstract class ProcessingRunner implements Findable {
-
-	private String name;
+public abstract class ProcessingRunner extends FindableBase {
 
 	public abstract void triggerProcessing(String... args) throws IOException;
 
 	public void __call__(String... args) throws IOException {
 		triggerProcessing(args);
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }
