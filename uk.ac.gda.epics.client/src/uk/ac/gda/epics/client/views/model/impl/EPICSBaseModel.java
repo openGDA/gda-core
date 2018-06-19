@@ -18,6 +18,12 @@
 
 package uk.ac.gda.epics.client.views.model.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -26,17 +32,11 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Base model class - model represents the data that is retrieved from EPICS to be represented on the client side UI.
@@ -44,7 +44,7 @@ import org.springframework.beans.factory.InitializingBean;
  *
  * @author rsr31645
  */
-public abstract class EPICSBaseModel<T> implements InitializingBean, InitializationListener, Findable {
+public abstract class EPICSBaseModel<T> extends FindableBase implements InitializingBean, InitializationListener {
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	protected Map<String, Channel> channelMap;
 
@@ -52,24 +52,6 @@ public abstract class EPICSBaseModel<T> implements InitializingBean, Initializat
 	protected String pluginBase;
 	protected String basePVName;
 	protected IPVProvider pvProvider;
-	protected String name;
-
-	/**
-	 * @return Returns the name.
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            The name to set.
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	protected T config;
 

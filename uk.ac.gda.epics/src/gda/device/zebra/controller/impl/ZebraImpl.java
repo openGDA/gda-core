@@ -35,15 +35,14 @@ import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 import gda.observable.Observer;
 
-public class ZebraImpl implements Zebra, Findable, InitializingBean {
+public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraImpl.class);
-	private String name="zebra";
 
 	private static final int SysSignalMin = 0;
 	private static final int SysSignalMax = 63;
@@ -141,6 +140,10 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 	private boolean useAvalField = false;
 
 	private boolean armPutNoWait = false;
+
+	public ZebraImpl() {
+		setName("zebra");
+	}
 
 	public boolean isArmPutNoWait() {
 		return armPutNoWait;
@@ -469,7 +472,7 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( name == null || name.isEmpty())
+		if( getName() == null || getName().isEmpty())
 			throw new Exception("name is not set");
 		if (zebraPrefix == null || zebraPrefix.isEmpty())
 			throw new Exception("zebraPrefix is not set");
@@ -599,17 +602,6 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		pvFactory.getIntegerPVValueCache(pvSuffix).putWait(val);
 	}
 
-
-	@Override
-	public void setName(String name) {
-		this.name=name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	@Override
 	public void setPCArmInput(int input) throws Exception {
 		pvFactory.getIntegerPVValueCache(PCArmInput).putWait(input);
@@ -714,13 +706,13 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		if (16 <= sysStat && sysStat <= 31) { inPV = sysStat1Hi; } else
 		if (32 <= sysStat && sysStat <= 47) { inPV = sysStat2Lo; } else
 		if (48 <= sysStat && sysStat <= 63) { inPV = sysStat2Hi; } else {
-			final String err = "Zebra '" + this.name + "': isSysStatSet(" + sysStat + ") invalid, should be between 0 and 63!";
+			final String err = "Zebra '" + this.getName() + "': isSysStatSet(" + sysStat + ") invalid, should be between 0 and 63!";
 			logger.error(err);
 			throw new IllegalArgumentException(err);
 		}
 		final PV<Integer> pv = pvFactory.getPVInteger(inPV);
 		final int sysStatPvValue = pv.get();
-		logger.info("Zebra '" + this.name + "': isSysStatSet(" + sysStat + ") " + inPV + " = " + sysStatPvValue);
+		logger.info("Zebra '" + this.getName() + "': isSysStatSet(" + sysStat + ") " + inPV + " = " + sysStatPvValue);
 		return isSysStatSet(sysStatPvValue, sysStat);
 	}
 

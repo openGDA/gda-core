@@ -24,17 +24,13 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
-
 /**
  * 'Dummy mode' implementation of TrajectoryScan controller.
  * @since 3/7/2017
  */
-public class DummyTrajectoryScanController extends TrajectoryScanControllerBase implements Findable {
+public class DummyTrajectoryScanController extends TrajectoryScanControllerBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTrajectoryScanController.class);
-
-	private String name;
 
 	private Thread trajectoryExecutionThread;
 	private volatile boolean trajectoryScanInProgress;
@@ -44,16 +40,6 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 	public DummyTrajectoryScanController() {
 		setName("DummyTrajectoryScanController");
 		trajectoryScanInProgress = false;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	private int driveBufferAIndex;

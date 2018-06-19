@@ -32,7 +32,6 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
-import gda.factory.Findable;
 
 /**
  * Epics controller for Trajectory scan.
@@ -43,14 +42,13 @@ import gda.factory.Findable;
  * to Epics using {@link #sendProfileValues}.
  * @since 3/7/2017
  */
-public final class EpicsTrajectoryScanController extends TrajectoryScanControllerBase implements Findable, InitializingBean{
+public final class EpicsTrajectoryScanController extends TrajectoryScanControllerBase implements InitializingBean{
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanController.class);
 
 	private CachedLazyPVFactory pvFactory;
 
-	private String name;
 	private String pvBase;
 
 	private static final String X_POSITION_ARRAY = "X:Positions";
@@ -109,7 +107,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( name == null || name.isEmpty())
+		if( getName() == null || getName().isEmpty())
 			throw new Exception("name is not set");
 		if (pvBase == null || pvBase.isEmpty())
 			throw new Exception("pvBase is not set");
@@ -124,16 +122,6 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 
 	public CachedLazyPVFactory getPVFactory() {
 		return pvFactory;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public void setPvBase(String prefix) {

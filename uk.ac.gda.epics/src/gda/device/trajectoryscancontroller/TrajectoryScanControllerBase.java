@@ -26,11 +26,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+
 /**
  * TrajecoryScan base class implementation, with common functions used to set up trajectory scan point lists in memory.
  * @since 3/7/2017
  */
-public abstract class TrajectoryScanControllerBase implements TrajectoryScanController {
+public abstract class TrajectoryScanControllerBase extends FindableBase implements TrajectoryScanController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TrajectoryScanControllerBase.class);
 

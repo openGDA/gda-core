@@ -18,7 +18,7 @@
 
 package gda.device.detector.nxdetector.roi;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * This class provides a mutable rectangular ROI which is also findable to allow the ROI on a area detector to be adjusted from the GDA command line/scripts. To
@@ -40,9 +40,8 @@ import gda.factory.Findable;
  *
  * @author James Mudd
  */
-public class MutableRectangularIntegerROI implements Findable, RectangularROI<Integer>, RectangularROIProvider<Integer> {
+public class MutableRectangularIntegerROI extends FindableBase implements RectangularROI<Integer>, RectangularROIProvider<Integer> {
 
-	private String name;
 	// Just a note, I would have preferred to call these xStart, yStart, xSize and ySize however the method names in RectangularROI cause this to become messy.
 	private Integer xstart;
 	private Integer ystart;
@@ -51,16 +50,6 @@ public class MutableRectangularIntegerROI implements Findable, RectangularROI<In
 
 	public MutableRectangularIntegerROI() {
 		// No arg constructor
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
@@ -53,15 +53,13 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  * </pre>
  * </p>
  */
-public class ADArrayPlotUpdater implements Findable {
+public class ADArrayPlotUpdater extends FindableBase {
 
 	private static Logger logger = LoggerFactory.getLogger(ADArrayPlotUpdater.class);
 
 	private NDArray arrayPlugin;
 
 	private String plotName;
-
-	private String name;
 
 	private double minUpdateTime = 0.1;
 
@@ -75,19 +73,9 @@ public class ADArrayPlotUpdater implements Findable {
 	}
 
 	public ADArrayPlotUpdater(String name, String plotName, NDArray arrayPlugin) {
-		this.name = name;
+		this.setName(name);
 		this.arrayPlugin = arrayPlugin;
 		this.plotName = plotName;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public NDArray getArrayPlugin() {
@@ -160,7 +148,7 @@ public class ADArrayPlotUpdater implements Findable {
 					update();
 				} catch (Exception e) {
 					// RuntimeException will stop further runs of update, which is desirable for the moment
-					logger.info("Stopping " + name + " updates to " + plotName + " after error");
+					logger.info("Stopping " + getName() + " updates to " + plotName + " after error");
 					throw new RuntimeException(e);
 				}
 			}

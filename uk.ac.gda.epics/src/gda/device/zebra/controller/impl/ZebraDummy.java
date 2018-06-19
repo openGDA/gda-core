@@ -32,19 +32,18 @@ import gda.device.zebra.controller.Zebra;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.DummyReadOnlyPV;
 import gda.epics.ReadOnlyPV;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.observable.Observable;
 import gda.observable.Observer;
 import gda.observable.Predicate;
 
 
-public class ZebraDummy implements Zebra, Findable, InitializingBean {
+public class ZebraDummy extends FindableBase implements Zebra, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraDummy.class);
 
 	private static final String ZEBRA_PV = "ZEBRA:DUMMY:PV";
 
-	private String name;
 	private double pcPulseDelay;
 	private double pcPulseWidth;
 	private double pcPulseStep;
@@ -78,7 +77,7 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	//----------------------------------------------------------------------------------------------------
 
 	private void initialise() {
-		name = "ZebraDummy";
+		setName("ZebraDummy");
 		pcPulseDelay = 0;
 		pcPulseWidth = 0;
 		pcPulseStep = 0;
@@ -114,18 +113,6 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 	// -----------------------------------------------------------------------------------------------------------------
 	@Override
 	public void afterPropertiesSet() throws Exception {
-	}
-
-	// -----------------------------------------------------------------------------------------------------------------
-	// Findable interface
-	// -----------------------------------------------------------------------------------------------------------------
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	// -----------------------------------------------------------------------------------------------------------------
