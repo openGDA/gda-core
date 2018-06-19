@@ -19,9 +19,9 @@
 
 package gda.util.converters.util;
 
-import gda.factory.Findable;
-
 import java.util.ArrayList;
+
+import gda.factory.FindableBase;
 
 /**
  * Class to hold a list of converter names and a range(from - to) for which the converter name is valid. Selects the
@@ -29,11 +29,9 @@ import java.util.ArrayList;
  * of lookuptable converters and their valid range.
  */
 
-public class RangeConverterNameProvider implements ConverterNameProvider, Findable {
+public class RangeConverterNameProvider extends FindableBase implements ConverterNameProvider {
 
 	private ArrayList<RangeandConverterNameHolder> converterList = new ArrayList<RangeandConverterNameHolder>();
-
-	private String name;
 
 	private String converterName = "";
 
@@ -48,18 +46,8 @@ public class RangeConverterNameProvider implements ConverterNameProvider, Findab
 		if (name.equals(converterName)) {
 			throw new IllegalArgumentException("RenameableConverter. name and converterName cannot be the same");
 		}
-		this.name = name;
+		setName(name);
 		this.converterName = converterName;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

@@ -23,17 +23,15 @@ import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
- * Base class of a functions of a single (Quantity) variable. Implements Findable and so that Functions can be specified
- * in XML
+ * Base class of a functions of a single (Quantity) variable.<br>
+ * Extends FindableBase so that Functions can be specified in XML
  */
 
-public abstract class Function implements Findable {
+public abstract class Function extends FindableBase {
 	protected static final Logger logger = LoggerFactory.getLogger(Function.class);
-
-	private String name;
 
 	/**
 	 * Evaluates the function at the given xValue.
@@ -43,14 +41,4 @@ public abstract class Function implements Findable {
 	 * @return the value of the function at xValue
 	 */
 	public abstract Quantity evaluate(Quantity xValue);
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 }

@@ -19,7 +19,7 @@
 package uk.ac.gda.client.live.stream.view;
 
 import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * A class to be used to hold camera configuration for use with the LiveMJPEGView.
@@ -29,10 +29,8 @@ import gda.factory.Findable;
  *
  * @author James Mudd
  */
-public class CameraConfiguration implements Findable {
+public class CameraConfiguration extends FindableBase {
 
-	/** For {@link Findable} interface, set to ID by FindableNameSetterPostProcessor */
-	private String name;
 	/** Typically a "nice" name for the camera e.g "Sample microscope" */
 	private String displayName;
 	/** URL to get the data from the camera needs to be a MJPEG stream */
@@ -49,15 +47,6 @@ public class CameraConfiguration implements Findable {
 	private RemoteRectangularROIsProvider roiProvider;
 	/** If set, adds axes to the camera and allows the image to be set in the Map view. */
 	private CameraCalibration cameraCalibration;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -123,7 +112,7 @@ public class CameraConfiguration implements Findable {
 		result = prime * result + ((arrayPv == null) ? 0 : arrayPv.hashCode());
 		result = prime * result + cacheSize;
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + (rgb ? 1231 : 1237);
 		result = prime * result + ((roiProvider == null) ? 0 : roiProvider.hashCode());
 		result = prime * result + ((cameraCalibration == null) ? 0 : cameraCalibration.hashCode());
@@ -153,10 +142,10 @@ public class CameraConfiguration implements Findable {
 				return false;
 		} else if (!displayName.equals(other.displayName))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		if (rgb != other.rgb)
 			return false;

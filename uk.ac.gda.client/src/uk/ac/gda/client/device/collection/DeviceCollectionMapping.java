@@ -18,13 +18,12 @@
 
 package uk.ac.gda.client.device.collection;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class DeviceCollectionMapping implements Findable{
+public class DeviceCollectionMapping extends FindableBase {
 
 	private String id;
 	private IDeviceCollection collection;
-	private String name;
 
 	/**
 	 * @return Returns the id.
@@ -52,16 +51,6 @@ public class DeviceCollectionMapping implements Findable{
 	 */
 	public void setCollection(IDeviceCollection collection) {
 		this.collection = collection;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 }

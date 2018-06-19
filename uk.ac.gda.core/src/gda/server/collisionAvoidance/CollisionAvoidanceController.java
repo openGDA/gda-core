@@ -33,14 +33,14 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.scannable.CheckedScannableMotion;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
 
 /**
  *
  */
-public class CollisionAvoidanceController implements Findable, Localizable {
+public class CollisionAvoidanceController extends FindableBase implements Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(CollisionAvoidanceController.class);
 
 	// Map of scannables (keyed to their internal name field)
@@ -50,8 +50,6 @@ public class CollisionAvoidanceController implements Findable, Localizable {
 	private Map<String, CacChecker> cacCheckersMap = new HashMap<String, CacChecker>();
 
 	private boolean local = true;
-
-	private String name = "";
 
 	/**
 	 * Shortcut method to get a link the collision avoidance controller from the finder.
@@ -414,20 +412,6 @@ public class CollisionAvoidanceController implements Findable, Localizable {
 	public void setLocal(boolean local) {
 		this.local = local;
 	}
-
-	// /////////// Implement Findable interface./////////////
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	// /////////// Implements Configurable interface./////////////
 
 	static void printTerm(String toPrint) {
 		// TODO: Remove delay after print hack!

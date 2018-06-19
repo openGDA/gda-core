@@ -20,15 +20,14 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import java.util.List;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * Spring-configure this bean to specify which motors may be set
  * as the fast, slow and (optionally) associated axes for mapping experiments.
  */
-public class MappingStageOptions implements Findable {
+public class MappingStageOptions extends FindableBase {
 
-	private String name;
 	private List<String> fastAxes;
 	private List<String> slowAxes;
 	private List<String> associatedAxes;
@@ -51,14 +50,6 @@ public class MappingStageOptions implements Findable {
 	}
 	public void setAssociatedAxes(List<String> associatedAxes) {
 		this.associatedAxes = associatedAxes;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	@Override
-	public String getName() {
-		return name;
 	}
 
 }

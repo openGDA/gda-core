@@ -20,21 +20,11 @@ package uk.ac.gda.client.livecontrol;
 
 import java.util.List;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
-public class ControlSet implements Findable {
+public class ControlSet extends FindableBase {
 
-	String name; // id
-	List<LiveControl> controls;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+	private List<LiveControl> controls;
 
 	public List<LiveControl> getControls() {
 		return controls;

@@ -19,22 +19,17 @@
 
 package gda.util.converters.util;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * RangeandConverterNameHolder Class
  */
-public class RangeandConverterNameHolder implements Findable {
+public class RangeandConverterNameHolder extends FindableBase {
 	private double rangeStart;
 
 	private double rangeStop;
 
 	private String converterName;
-
-	/**
-	 *
-	 */
-	public String name;
 
 	/**
 	 * @param name
@@ -89,17 +84,6 @@ public class RangeandConverterNameHolder implements Findable {
 	 */
 	public void setConverterName(String converterName) {
 		this.converterName = converterName;
-	}
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 }

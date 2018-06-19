@@ -32,7 +32,6 @@ import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.Pair;
-import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
@@ -56,13 +55,10 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
 
-public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object>, Findable {
-
-	private String name;
-
+public class NXMetaDataProvider extends FindableBase implements NexusTreeAppender, Map<String, Object> {
 
 	private static final String GROUP_ITEM_SEPARATOR = ".";		// single dot
 	private static final String FIELD_ITEM_SEPARATOR = ".";		// single dot
@@ -618,16 +614,12 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 	}
 
 	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public String getName() {
-		if ((this.name == null || this.name.isEmpty())) {
+		final String name = super.getName();
+		if (name == null || name.isEmpty()) {
 			logger.warn("getName() called on NXMetaDataProvider when the name has not been set. This may cause problems in the system and should be fixed.");
 		}
-		return this.name;
+		return name;
 	}
 
 	public List<String> getScannableFieldNames(Scannable scannable) {
