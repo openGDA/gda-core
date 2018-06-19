@@ -18,17 +18,16 @@
 
 package gda.hrpd.pmac;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * This data object defines the safe position to park a device when it is not in use while operating other devices around it.
  * It is used to store configurable positions for safe operation of devices on beamline so collision avoidance logic can be implemented elsewhere.
  */
-public class SafePosition implements Findable {
-	private String name;
+public class SafePosition extends FindableBase {
 	private double position;
 	private double tolerance;
-	
+
 	public double getPosition() {
 		return position;
 	}
@@ -40,14 +39,6 @@ public class SafePosition implements Findable {
 	}
 	public void setTolerance(double safePositionTolerance) {
 		this.tolerance = safePositionTolerance;
-	}
-	@Override
-	public String getName() {
-		return this.name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name=name;		
 	}
 
 }

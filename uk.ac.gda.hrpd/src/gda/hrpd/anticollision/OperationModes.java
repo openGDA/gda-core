@@ -18,22 +18,20 @@
 
 package gda.hrpd.anticollision;
 
-
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
-public class OperationModes implements Findable {
-	private String name;
+public class OperationModes extends FindableBase {
 	private Mode mode = Mode.MAC;
-	
+
 	public Mode getMode() {
 		return mode;
 	}
 	public void setMode(Mode mode) {
 		this.mode=mode;
 	}
-	
+
 	public void availableModes() {
 		for (Mode mode: Mode.values()) {
 			ITerminalPrinter printer;
@@ -41,16 +39,6 @@ public class OperationModes implements Findable {
 				printer.print(mode.toString());
 			}
 		}
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name=name;		
 	}
 
 }
