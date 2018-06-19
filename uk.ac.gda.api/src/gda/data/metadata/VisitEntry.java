@@ -19,19 +19,16 @@
 
 package gda.data.metadata;
 
-import org.springframework.util.StringUtils;
-
 /**
  * Holds information about a single visit ID which can be displayed to the user to help them choose which visit to
  * collect data under if several are valid for that user at that time.
  */
 public class VisitEntry {
 
-	private String visitID;
-	private String title;
+	private final String visitID;
+	private final String title;
 
 	public VisitEntry(String visitID, String title) {
-		super();
 		this.visitID = visitID;
 		this.title = title;
 	}
@@ -40,23 +37,13 @@ public class VisitEntry {
 		return visitID;
 	}
 
-	public void setVisitID(String visitID) {
-		this.visitID = visitID;
-	}
-
 	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
 	@Override
 	public String toString() {
-		return String.format("VisitEntry(visitID=%s, title=%s)",
-			StringUtils.quote(visitID),
-			StringUtils.quote(title));
+		return "VisitEntry [visitID=" + visitID + ", title=" + title + "]";
 	}
 
 }
