@@ -19,33 +19,15 @@
 
 package gda.data.metadata;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * A NexusMetadataEntry references to a named metadata entry with an access name
  * comprising a concatenated string of colon-separated (":") groups with each group possessing
  * a name and an NXclass separated by a percentage sign ("%")
  */
-public class NexusMetadataEntry implements Findable {
+public class NexusMetadataEntry extends FindableBase {
 	private String accessName = "";
-
-	private String name = "";
-
-	/**
-	 * No argument constructor.
-	 */
-	public NexusMetadataEntry() {
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	/**
 	 * Gets the access name.

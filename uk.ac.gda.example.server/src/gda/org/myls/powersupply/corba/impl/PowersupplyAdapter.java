@@ -18,7 +18,10 @@
 
 package gda.org.myls.powersupply.corba.impl;
 
-import gda.factory.Findable;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TRANSIENT;
+
+import gda.factory.FindableBase;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
@@ -29,19 +32,14 @@ import gda.org.myls.powersupply.IObservablePowerSupply;
 import gda.org.myls.powersupply.corba.CorbaPowerSupply;
 import gda.org.myls.powersupply.corba.CorbaPowerSupplyHelper;
 
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TRANSIENT;
-
 /**
  *
  */
-public class PowersupplyAdapter implements IObservablePowerSupply, Findable, EventSubscriber{
+public class PowersupplyAdapter extends FindableBase implements IObservablePowerSupply, EventSubscriber{
 
 	protected CorbaPowerSupply corbaPowerSupply;
 
 	protected NetService netService;
-
-	protected String name;
 
 	protected ObservableComponent observableComponent = new ObservableComponent();
 	/**
@@ -52,7 +50,7 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 	public PowersupplyAdapter(org.omg.CORBA.Object obj, String name, NetService netService) {
 		corbaPowerSupply = CorbaPowerSupplyHelper.narrow(obj);
 		this.netService = netService;
-		this.name = name;
+		setName(name);
 
 		EventService eventService = EventService.getInstance();
 		if (eventService != null) {
@@ -66,9 +64,9 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 			try{
 				return corbaPowerSupply.getOn();
 			} catch (TRANSIENT ct) {
-				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(name));
+				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(getName()));
 			} catch (COMM_FAILURE cf) {
-				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(name));
+				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(getName()));
 			}
 		}
 		return false;
@@ -79,18 +77,11 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 			try{
 				corbaPowerSupply.setOn(on);
 			} catch (TRANSIENT ct) {
-				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(name));
+				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(getName()));
 			} catch (COMM_FAILURE cf) {
-				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(name));
+				corbaPowerSupply = CorbaPowerSupplyHelper.narrow(netService.reconnect(getName()));
 			}
 		}
-	}
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
 	}
 
 	@Override
@@ -115,6 +106,6 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 
 	@Override
 	public String toString() {
-		return "[PowerSupply:" + name + (getOn() ? "On" : "Off") + "]";
+		return "[PowerSupply:" + getName() + (getOn() ? "On" : "Off") + "]";
 	}
 }

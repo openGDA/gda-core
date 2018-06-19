@@ -27,20 +27,18 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * NexusMetadataReader class.
  */
-public class NexusMetadataReader implements Findable {
+public class NexusMetadataReader extends FindableBase {
 
 //	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataReader.class);
 
 	NexusFile nf = null;
 
 	String filename = null;
-
-	String name = null;
 
 	static ArrayList<NexusMetadataEntry> nexusMetadataEntries = new ArrayList<NexusMetadataEntry>();
 
@@ -98,16 +96,6 @@ public class NexusMetadataReader implements Findable {
 	public String getNexusMetadata(String location) throws NexusException {
 		nf = NexusFileHDF5.openNexusFileReadOnly(filename);
 		return nf.getData(transformAccessName(location)).getString();
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**

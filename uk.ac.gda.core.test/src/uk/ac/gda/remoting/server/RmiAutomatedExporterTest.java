@@ -47,6 +47,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Findable;
+import gda.factory.FindableBase;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -177,21 +178,9 @@ public class RmiAutomatedExporterTest {
 		}
 	}
 
-	private class TestFindableWithoutServiceInterface implements Findable {
-		private String name;
-
+	private class TestFindableWithoutServiceInterface extends FindableBase {
 		public TestFindableWithoutServiceInterface(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
+			setName(name);
 		}
 	}
 

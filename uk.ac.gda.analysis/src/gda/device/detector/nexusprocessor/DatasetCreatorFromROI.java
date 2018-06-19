@@ -18,14 +18,14 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.factory.Findable;
-
 import java.util.Arrays;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.Slice;
 
-public class DatasetCreatorFromROI implements DatasetCreator, Findable {
+import gda.factory.FindableBase;
+
+public class DatasetCreatorFromROI extends FindableBase implements DatasetCreator {
 
 	private Slice[] sliceArray;
 
@@ -51,18 +51,6 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 
 	public void setSliceArray(Slice[] sliceArray) {
 		this.sliceArray = sliceArray;
-	}
-
-	private String name;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	private boolean enable;

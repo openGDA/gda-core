@@ -18,26 +18,14 @@
 
 package gda.rcp.views;
 
-import gda.factory.Findable;
-
 import org.eclipse.ui.part.ViewPart;
+
+import gda.factory.FindableBase;
 
 /**
  * Base class for (findable) view factory beans.
  */
-public abstract class FindableViewFactoryBase implements IViewFactory, Findable {
-
-	private String name;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+public abstract class FindableViewFactoryBase extends FindableBase implements IViewFactory {
 
 	/**
 	 * Creates the view. Subclasses must override this method.

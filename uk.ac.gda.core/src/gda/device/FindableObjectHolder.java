@@ -18,33 +18,19 @@
 
 package gda.device;
 
-import gda.factory.Findable;
-
 import java.util.Map;
 import java.util.Set;
 
 import org.python.core.PyString;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.factory.FindableBase;
+
 /**
  * Spring configurable Findable to hold a map of objects which are themselves not findable.
  */
-public class FindableObjectHolder implements InitializingBean, Findable{
+public class FindableObjectHolder extends FindableBase implements InitializingBean {
 	Object object;
-
-	String name;
-
-	@Override
-	public void setName(String name) {
-		this.name =name;
-
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
 	Map<String, Object> map;
 
 	public void setMap(Map<String, Object> map) {

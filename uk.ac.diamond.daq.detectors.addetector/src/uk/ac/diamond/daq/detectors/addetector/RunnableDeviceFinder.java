@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.detectors.addetector;
 
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 
-import gda.factory.Findable;
+import gda.factory.FindableBase;
 
 /**
  * This class can be used to get a reference to an instance of a RunnableDevice from Jython.
@@ -52,20 +52,9 @@ pe1AreaDetectorRunnableDeviceProxy.setRunnableDevice(pe1JythonAreaDetectorRunnab
  *
  * @param <Model>
  */
-public class RunnableDeviceFinder<Model> implements Findable {
+public class RunnableDeviceFinder<Model> extends FindableBase {
 
-	private String                      name;
 	private IRunnableEventDevice<Model> runnableDevice;
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 
 	/**
 	 * @return Returns the runnableDevice.

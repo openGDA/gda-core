@@ -18,22 +18,11 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.factory.Findable;
-
 import java.util.Collection;
 
-public abstract class DataSetProcessorBase extends Object implements DataSetProcessor, Findable {
+import gda.factory.FindableBase;
 
-	private String name;
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
+public abstract class DataSetProcessorBase extends FindableBase implements DataSetProcessor {
 
 	boolean enable=true;
 
