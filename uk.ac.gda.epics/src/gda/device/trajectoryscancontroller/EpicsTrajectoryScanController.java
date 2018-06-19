@@ -19,10 +19,7 @@
 package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -94,14 +91,6 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	private PV<Integer[]> velocityModeArrayPv;
 	private PV<Double[]> profileTimeArrayPv;
 	private PV<Double[]> xPositionArrayPv;
-
-	/** Conversion factor from seconds to trajectory scan time units */
-	private int timeConversionFromSecondsToPmacUnits = 1000000;
-
-	/** These Lists are used to store the trajectory scan points when building a profile */
-	private List<Double> trajectoryPositions;
-	private List<Double> trajectoryTimes;
-	private List<Integer> trajectoryVelocityModes;
 
 	public EpicsTrajectoryScanController() {
 		setupMaps();
@@ -180,6 +169,7 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 		return pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS_TO_BUILD_RBV).get();
 	}
 
+	@Override
 	public int getProfileNumPointsToBuild() throws Exception {
 		return pvFactory.getIntegerPVValueCache(PROFILE_NUM_POINTS_TO_BUILD).get();
 	}
@@ -190,9 +180,12 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	}
 
 	// User mode
+	@Override
 	public void setProfileUserArray(Integer[] vals) throws IOException {
 		userArrayPv.putWait(vals);
 	}
+
+	@Override
 	public Integer[] getProfileUserArray() throws IOException {
 		return userArrayPv.get();
 	}
@@ -202,6 +195,8 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	public void setProfileVelocityModeArray(Integer[] vals) throws IOException {
 		velocityModeArrayPv.putWait(vals);
 	}
+
+	@Override
 	public Integer[] getProfileVelocityModeArray() throws IOException {
 		return velocityModeArrayPv.get();
 	}
@@ -211,6 +206,8 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 	public void setProfileTimeArray(Double[] vals) throws IOException {
 		profileTimeArrayPv.putWait(vals);
 	}
+
+	@Override
 	public Double[] getProfileTimeArray() throws IOException {
 		return profileTimeArrayPv.get();
 	}
@@ -328,6 +325,12 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 		pvFactory.getPVDoubleArray(positionPvName).putWait(points);
 	}
 
+	@Override
+	public Double[] getAxisPoints(int axis) throws IOException, Exception{
+		String positionPvName = getPVNameForAxis(axis, POSITION_ARRAY);
+		return pvFactory.getPVDoubleArray(positionPvName).get();
+	}
+
 	//Axis offset
 	@Override
 	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception {
@@ -383,67 +386,6 @@ public final class EpicsTrajectoryScanController extends TrajectoryScanControlle
 
 	public double getProgramVersion() throws IOException {
 		return pvFactory.getPVDouble(PROGRAM_VERSION).get();
-	}
-
-	public int getTimeConversionFromSecondsToPmacUnits() {
-		return timeConversionFromSecondsToPmacUnits;
-	}
-
-	public void setTimeConversionFromSecondsToPmacUnits(int timeConversionFromSecondsToPmacUnits) {
-		this.timeConversionFromSecondsToPmacUnits = timeConversionFromSecondsToPmacUnits;
-	}
-
-	/**
-	 * Return trajectory point time values converted to PMac time units
-	 * @return list of converted time values
-	 */
-	public List<Double> getTrajectoryConvertTimes() {
-		List<Double> convertedTime = new ArrayList<Double>();
-		for(int i=0; i<trajectoryTimes.size(); i++) {
-			convertedTime.add(trajectoryTimes.get(i)*timeConversionFromSecondsToPmacUnits);
-		}
-		return convertedTime;
-	}
-
-	/**
-	 *  Check to make sure converted time isn't too large - otherwise bad things happen and have to reboot IOC...
-	 * @param convertedTime times (in PMac time units)
-	 * @throws Exception if a time value is too large
-	 */
-	private void checkTimes(List<Double> convertedTime) throws Exception {
-		double maxAllowedTimeForPMac = Math.pow(2, 24);
-		for(int i=0; i<convertedTime.size(); i++) {
-			if (convertedTime.get(i)>maxAllowedTimeForPMac) {
-				throw new Exception("Time "+convertedTime.get(i)+" for profile point "+i+" exceeds limit ("+maxAllowedTimeForPMac+")");
-			}
-		}
-	}
-
-	/**
-	 * Send currently stored trajectory scan list values to Epics.
-	 * (i.e. convert from List to array and send to appropriate PV)
-	 * @throws Exception
-	 */
-	@Override
-	public void sendProfileValues() throws Exception {
-		int numPointsInProfile = trajectoryTimes.size();
-		Integer[] userMode = new Integer[numPointsInProfile];
-		Arrays.fill(userMode, 0);
-
-		// Get times in converted time units
-		List<Double> convertedTime = getTrajectoryConvertTimes();
-		checkTimes(convertedTime);
-
-		// These are used for class types by toArray function.
-		Double[] dblArray = new Double[0];
-		Integer[] intArray = new Integer[0];
-
-		// Apply to Epics
-		setProfileNumPointsToBuild(numPointsInProfile);
-		setProfileTimeArray(convertedTime.toArray(dblArray));
-		setProfileXPositionArray(trajectoryPositions.toArray(dblArray));
-		setProfileVelocityModeArray(trajectoryVelocityModes.toArray(intArray) );
-		setProfileUserArray(userMode);
 	}
 
 	@Override
