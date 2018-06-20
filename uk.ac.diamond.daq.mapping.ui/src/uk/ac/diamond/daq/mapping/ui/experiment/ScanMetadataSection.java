@@ -40,7 +40,6 @@ import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
  */
 public class ScanMetadataSection extends AbstractMappingSection {
 
-	private DataBindingContext dataBindingContext;
 	private Binding sampleNameBinding;
 
 	@Override

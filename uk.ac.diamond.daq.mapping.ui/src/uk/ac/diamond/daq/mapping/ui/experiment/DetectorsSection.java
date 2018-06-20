@@ -41,7 +41,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -88,8 +87,6 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
 
-	private DataBindingContext dataBindingContext;
-
 	private Map<String, Button> detectorSelectionCheckboxes;
 	private List<IScanModelWrapper<IDetectorModel>> visibleDetectors; // the detectors
 	private Composite sectionComposite; // parent composite for all controls in the section
@@ -135,18 +132,6 @@ public class DetectorsSection extends AbstractMappingSection {
 
 			createDetectorControls(visibleDetectors);
 			relayoutMappingView();
-		}
-	}
-
-	private void removeOldBindings() {
-		if (dataBindingContext == null) return;
-
-		// copy the bindings to prevent concurrent modification exception
-		@SuppressWarnings("unchecked")
-		final List<Binding> bindings = new ArrayList<>(dataBindingContext.getBindings());
-		for (Binding binding : bindings) {
-			dataBindingContext.removeBinding(binding);
-			binding.dispose();
 		}
 	}
 

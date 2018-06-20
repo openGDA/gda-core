@@ -18,8 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.databinding.Binding;
+import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
@@ -46,6 +50,8 @@ public abstract class AbstractMappingSection {
 	private static FontMetrics fontMetrics = null;
 
 	private MappingExperimentView mappingView;
+
+	protected DataBindingContext dataBindingContext;
 
 	protected void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
@@ -143,5 +149,22 @@ public abstract class AbstractMappingSection {
 	 */
 	protected void loadState(@SuppressWarnings("unused") Map<String, String> persistedState) {
 
+	}
+
+	/**
+	 * Remove all existing bindings in {@link AbstractMappingSection#dataBindingContext}
+	 */
+	protected void removeOldBindings() {
+		if (dataBindingContext == null) {
+			return;
+		}
+
+		// copy the bindings to prevent concurrent modification exception
+		@SuppressWarnings("unchecked")
+		final List<Binding> bindings = new ArrayList<>(dataBindingContext.getBindings());
+		for (Binding binding : bindings) {
+			dataBindingContext.removeBinding(binding);
+			binding.dispose();
+		}
 	}
 }

@@ -70,13 +70,12 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	private Composite processingChainsComposite;
 
-	private final DataBindingContext dataBindingContext = new DataBindingContext();
-
 	private Map<String, Control[]> rowControlsMap;
 	private Map<String, Binding> includeCheckboxBindings;
 
 	@Override
 	public void createControls(Composite parent) {
+		dataBindingContext = new DataBindingContext();
 		Composite processingComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingComposite);
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(processingComposite);

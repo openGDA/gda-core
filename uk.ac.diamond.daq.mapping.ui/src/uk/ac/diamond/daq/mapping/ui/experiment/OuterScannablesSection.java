@@ -216,8 +216,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 	/**
 	 * Main class: define the outer scannables section of the mapping view
 	 */
-	private DataBindingContext dataBindingContext;
-
 	private Map<String, Binding> axisBindings;
 	private Map<String, Binding> checkBoxBindings;
 
