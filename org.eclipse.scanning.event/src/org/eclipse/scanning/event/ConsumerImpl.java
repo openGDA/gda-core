@@ -745,22 +745,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	}
 
 	private Message getMessage(URI uri, String submitQName) throws JMSException {
-		try {
-			if (this.messageConsumer == null) {
-				this.messageConsumer = createMessageConsumer(uri, submitQName);
-			}
-			return messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
-
-		} catch (Exception ne) {
-			if (Thread.interrupted()) return null;
-			messageConsumer = null;
-			try {
-				disconnect();
-			} catch (Exception expected) {
-				LOGGER.info("Cannot close old connection", ne);
-			}
-			throw ne;
+		if (this.messageConsumer == null) {
+			this.messageConsumer = createMessageConsumer(uri, submitQName);
 		}
+		return messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
 	}
 
 	private MessageConsumer createMessageConsumer(URI uri, String submitQName) throws JMSException {
