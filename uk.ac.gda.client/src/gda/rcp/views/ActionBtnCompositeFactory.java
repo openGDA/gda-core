@@ -109,8 +109,8 @@ class ActionBtnComposite extends Composite{
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ICommandService cmdService = (ICommandService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
-				IHandlerService hdlService = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+				ICommandService cmdService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
+				IHandlerService hdlService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
 				Command cmd = cmdService.getCommand(actionId);
 				try {
 					hdlService.executeCommand(cmd.getId(), null);
