@@ -18,10 +18,11 @@
 
 package gda.epics;
 
+import gda.factory.Findable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-public interface IAccessControl {
+public interface IAccessControl extends Findable {
 	/**
 	 * Status enum, containing ENABLED and DISABLED
 	 */

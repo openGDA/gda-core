@@ -26,7 +26,6 @@ import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.observable.IObservable;
@@ -122,7 +121,7 @@ import gov.aps.jca.event.MonitorListener;
  * element. And also add {@code <field name="accessControlName" type="string">} to the mapping.xml.
  * </p>
  */
-public class AccessControl extends ConfigurableBase implements IAccessControl, Findable, IObservable, InitializationListener {
+public class AccessControl extends ConfigurableBase implements IAccessControl, IObservable, InitializationListener {
 
 	private String name;
 
