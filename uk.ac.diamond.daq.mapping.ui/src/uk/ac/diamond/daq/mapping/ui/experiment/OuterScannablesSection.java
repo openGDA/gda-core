@@ -50,11 +50,17 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 /**
- * A section for configuring the outer scannables or a scan, e.g. temperature.
+ * A section for configuring the outer scannables of a scan, e.g. temperature.
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(OuterScannablesSection.class);
+
+	private static final int AXES_COLUMNS = 3;
+
+	/**
+	 * Class to convert a path model to a string
+	 */
 	private static class ScanPathToStringConverter extends Converter {
 
 		public ScanPathToStringConverter() {
@@ -78,7 +84,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private String convertStepModel(StepModel stepModel) {
-			StringBuilder stringBuilder = new StringBuilder();
+			final StringBuilder stringBuilder = new StringBuilder();
 			appendStepModel(stepModel, stringBuilder);
 
 			return stringBuilder.toString();
@@ -95,9 +101,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private String convertMultiStepModel(MultiStepModel multiStepModel) {
-			Iterator<StepModel> iter = multiStepModel.getStepModels().iterator();
+			final Iterator<StepModel> iter = multiStepModel.getStepModels().iterator();
 
-			StringBuilder stringBuilder = new StringBuilder();
+			final StringBuilder stringBuilder = new StringBuilder();
 			while (iter.hasNext()) {
 				appendStepModel(iter.next(), stringBuilder);
 				if (iter.hasNext()) {
@@ -109,8 +115,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private String convertArrayModel(ArrayModel arrayModel) {
-			double[] positions = arrayModel.getPositions();
-			StringBuilder stringBuilder = new StringBuilder();
+			final double[] positions = arrayModel.getPositions();
+			final StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < positions.length; i++) {
 				stringBuilder.append(doubleToString(positions[i]));
 				if (i < positions.length - 1) stringBuilder.append(",");
@@ -119,7 +125,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private String doubleToString(double doubleVal) {
-			String stringVal = Double.toString(doubleVal);
+			final String stringVal = Double.toString(doubleVal);
 			if (stringVal.endsWith(".0")) {
 				return stringVal.substring(0, stringVal.length() - 2);
 			}
@@ -166,7 +172,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private StepModel convertStringToStepModel(String text) {
-			String[] startStopStep= text.split(" ");
+			final String[] startStopStep= text.split(" ");
 			if (startStopStep.length == 3 || startStopStep.length == 4) {
 				StepModel stepModel = new StepModel();
 				stepModel.setName(scannableName);
@@ -180,11 +186,11 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private MultiStepModel convertStringToMultiStepModel(String text) {
-			MultiStepModel multiStepModel = new MultiStepModel();
+			final MultiStepModel multiStepModel = new MultiStepModel();
 			multiStepModel.setName(scannableName);
-			String[] stepModelStrs = text.split(";");
+			final String[] stepModelStrs = text.split(";");
 			for (String stepModelStr : stepModelStrs) {
-				StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
+				final StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
 				if (stepModel == null) {
 					return null;
 				}
@@ -195,18 +201,21 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		private ArrayModel convertStringToArrayModel(String text) {
-			String[] strings = text.split(",");
-			double[] positions = new double[strings.length];
+			final String[] strings = text.split(",");
+			final double[] positions = new double[strings.length];
 			for (int index = 0; index < strings.length; index++) {
 				positions[index] = Double.parseDouble(strings[index]);
 			}
-			ArrayModel arrayModel = new ArrayModel();
+			final ArrayModel arrayModel = new ArrayModel();
 			arrayModel.setName(scannableName);
 			arrayModel.setPositions(positions);
 			return arrayModel;
 		}
 	}
 
+	/**
+	 * Main class: define the outer scannables section of the mapping view
+	 */
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Binding> axisBindings;
@@ -214,44 +223,46 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	@Override
 	public boolean shouldShow() {
-		List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		return outerScannables != null && !outerScannables.isEmpty();
 	}
 
 	@Override
 	public void createControls(Composite parent) {
-		List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
-		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+		final Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
-		final int axesColumns = 3;
-		GridLayoutFactory.swtDefaults().numColumns(axesColumns).applyTo(otherScanAxesComposite);
-		Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
+
+		GridLayoutFactory.swtDefaults().numColumns(AXES_COLUMNS).applyTo(otherScanAxesComposite);
+		final Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
 		otherScanAxesLabel.setText("Other Scan Axes");
-		GridDataFactory.fillDefaults().span(axesColumns, 1).applyTo(otherScanAxesLabel);
+		GridDataFactory.fillDefaults().span(AXES_COLUMNS, 1).applyTo(otherScanAxesLabel);
 
 		dataBindingContext = new DataBindingContext();
 		axisBindings = new HashMap<>();
 		checkBoxBindings = new HashMap<>();
+
+		// Create control for each scannable to be shown
 		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : outerScannables) {
-			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
+			final Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
 			checkBox.setText(scannableAxisParameters.getName());
-			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			final IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
+			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
 
-			Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
+			final Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
 			axisText.setToolTipText("A range <start stop step>\n"
 					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
 					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-			IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+			final IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 
-			Button multiStepButton = new Button(otherScanAxesComposite, 0);
+			final Button multiStepButton = new Button(otherScanAxesComposite, 0);
 			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 			multiStepButton.setToolTipText("Edit a multi-step scan");
 
-			MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
+			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
 			multiStepButton.addListener(SWT.Selection, event-> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
 
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
@@ -259,20 +270,19 @@ class OuterScannablesSection extends AbstractMappingSection {
 	}
 
 	private void editModelThroughDialog(MultiStepEditorDialog dialog, String scannableName, Text axisText) {
-
 		MultiStepModel multiStepModel = new MultiStepModel();
 
 		if (!axisText.getText().isEmpty()) {
-			Object oldModel = (new StringToScanPathConverter(scannableName)).convert(axisText.getText());
+			final Object oldModel = (new StringToScanPathConverter(scannableName)).convert(axisText.getText());
 
 			if (oldModel instanceof MultiStepModel) {
 				multiStepModel = (MultiStepModel) oldModel;
 			} else if (oldModel instanceof StepModel) {
 				multiStepModel.getStepModels().add((StepModel) oldModel);
 			} else if (oldModel instanceof ArrayModel) {
-				double[] positions = ((ArrayModel) oldModel).getPositions();
+				final double[] positions = ((ArrayModel) oldModel).getPositions();
 				for (int i=0; i<positions.length-1; i++) {
-					StepModel stepModel = new StepModel(scannableName,positions[i], positions[i+1], positions[i+1]-positions[i]);
+					final StepModel stepModel = new StepModel(scannableName,positions[i], positions[i+1], positions[i+1]-positions[i]);
 					multiStepModel.getStepModels().add(stepModel);
 				}
 			}
@@ -292,18 +302,18 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
-		IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+		final IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
-		UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
 		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
 		axisTextToModelStrategy.setBeforeSetValidator(value -> {
 			// the value created by the converter will be an IScanPathModel if the text value is valid, or null if not
 			if (value instanceof IScanPathModel) {
 				return ValidationStatus.ok();
 			}
-			boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
-			String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
+			final boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
+			final String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
 			if (scannableAxisParameters.isIncludeInScan()) {
 				return ValidationStatus.error(message);
 			} else {
@@ -313,11 +323,11 @@ class OuterScannablesSection extends AbstractMappingSection {
 		});
 
 		// create an update strategy from model back to text
-		UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
 		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
 
 		// create the binding from the values and the two update strategies
-		Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
+		final Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
 				axisTextToModelStrategy, modelToAxisTextStrategy);
 		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
 		axisBindings.put(scannableName, axisBinding);
@@ -340,18 +350,18 @@ class OuterScannablesSection extends AbstractMappingSection {
 			final String scannableName = scannableAxisParameters.getName();
 
 			// remove the old binding between the checkbox and the old model and create a new one
-			Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
-			IObservableValue checkBoxValue = (IObservableValue) oldCheckBoxBinding.getTarget();
+			final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
+			final IObservableValue checkBoxValue = (IObservableValue) oldCheckBoxBinding.getTarget();
 			dataBindingContext.removeBinding(oldCheckBoxBinding);
 			oldCheckBoxBinding.dispose();
 
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableName, newCheckBoxBinding);
 
 			// remove the binding between the text field and old model
-			Binding oldTextFieldBinding = axisBindings.get(scannableName);
-			IObservableValue axisTextValue = (IObservableValue) oldTextFieldBinding.getTarget();
+			final Binding oldTextFieldBinding = axisBindings.get(scannableName);
+			final IObservableValue axisTextValue = (IObservableValue) oldTextFieldBinding.getTarget();
 			dataBindingContext.removeBinding(oldTextFieldBinding);
 			oldTextFieldBinding.dispose();
 
