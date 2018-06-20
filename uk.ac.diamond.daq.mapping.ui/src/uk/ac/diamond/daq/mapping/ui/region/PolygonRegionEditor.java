@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.property.Properties;
+import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
@@ -101,7 +102,8 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		table.setLinesVisible(true);
 
 		// TableViewer input
-		IObservableList input = Properties.selfList(MutablePoint.class).observe(((PolygonMappingRegion) getModel()).getPoints());
+		IListProperty listProperty = Properties.selfList(MutablePoint.class);
+		IObservableList input = listProperty.observe(((PolygonMappingRegion) getModel()).getPoints());
 		polygonTableViewer.setInput(input);
 	}
 
