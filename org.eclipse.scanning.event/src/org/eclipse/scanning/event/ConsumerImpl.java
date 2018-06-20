@@ -291,7 +291,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			}
 			try {
 				if (queueBrowser != null) queueBrowser.close();
-				if (session != null) session.close();
 			} catch (JMSException e) {
 				throw new EventException("Cannot close session!", e);
 			}
