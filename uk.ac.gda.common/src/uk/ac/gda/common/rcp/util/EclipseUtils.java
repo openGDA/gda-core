@@ -115,7 +115,7 @@ public class EclipseUtils {
 		if (input instanceof FileEditorInput) {
 			return ((FileEditorInput)input).getFile();
 		}
-		return (IFile)input.getAdapter(IFile.class);
+		return input.getAdapter(IFile.class);
 	}
 
 	/**
