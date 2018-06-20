@@ -18,6 +18,8 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import gda.device.DeviceException;
 import gda.device.detector.analyser.EpicsMCASimple;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.epicsdevice.ReturnType;
+import gda.epics.CachedLazyPVFactory;
 import gov.aps.jca.TimeoutException;
 
 /**
@@ -60,6 +63,11 @@ public class EDXDMappingController extends EDXDController implements IEDXDMappin
 	private static final String NEXUS_TEMPLATEFILEPATH = "TemplateFilePath";
 
 	protected NDFileHDF5 hdf5;
+
+	private boolean useWaitAferCaput = false;
+	private int caputSleepTimeMillis = 100;
+	private boolean stopUpdatesMcaPvRecord = false;
+	private CachedLazyPVFactory pvFactory;
 
 	// Add all the EDXD Elements to the detector (called by configure())
 	@Override
@@ -116,13 +124,24 @@ public class EDXDMappingController extends EDXDController implements IEDXDMappin
 	 */
 	@Override
 	public void start() throws DeviceException {
-		xmap.setValueNoWait(ERASESTART, "", 1);
+		setXmapValue(ERASESTART, "", 1);
 	}
 
 	@Override
 	public void stop() throws DeviceException {
 		if (xmap != null && xmap.isConfigured()) {
-			xmap.setValueNoWait(STOPALL, "", 1);
+			setXmapValue(STOPALL, "", 1);
+			if (stopUpdatesMcaPvRecord) {
+				if (isBusy()) {
+					logger.debug("Waiting while detector is busy before updating MCA records...");
+					try {
+						waitWhileBusy();
+					} catch (InterruptedException e) {
+						logger.error("Problem waiting for detector, Continuing anyway...", e);
+					}
+				}
+				updateMcaPvRecords();
+			}
 		}
 	}
 
@@ -133,18 +152,17 @@ public class EDXDMappingController extends EDXDController implements IEDXDMappin
 	 * @throws DeviceException
 	 */
 	@Override
-	public void setResume(boolean resume) throws DeviceException {
-		if (!resume) {
-			xmap.setValueNoWait(ERASEALL, "", 1);
-		}
+	public void setResume(boolean resume)throws DeviceException{
+		if (!resume)
+			setXmapValue(ERASEALL, "", 1);
 	}
 
-	public void clear() throws DeviceException {
-		xmap.setValueNoWait(ERASEALL, "", 1);
+	public void clear()throws DeviceException{
+		setXmapValue(ERASEALL, "", 1);
 	}
 
-	public void clearAndStart() throws DeviceException {
-		xmap.setValueNoWait(ERASESTART, "", 1);
+	public void clearAndStart()throws DeviceException{
+		setXmapValue(ERASESTART, "", 1);
 	}
 
 	@Override
@@ -337,4 +355,112 @@ public class EDXDMappingController extends EDXDController implements IEDXDMappin
 		this.aquisitionTimeOn = aquisitionTimeOn;
 	}
 
+	private void setXmapValue(String record, String field, Object val) throws DeviceException {
+		logger.debug("Set XMap value : record = {}, field = {}, value = {}, put wait = {}", record, field, val, useWaitAferCaput);
+		xmap.setValueNoWait(record, field, val);
+		if (useWaitAferCaput) {
+			try {
+				Thread.sleep(caputSleepTimeMillis);
+			} catch (InterruptedException e) {
+				logger.debug("Sleep interrupted when setting XMap value");
+			}
+		}
+		logger.debug("Set XMap value finished");
+	}
+
+	/**
+	 * Sleep time to use after doing CAput operation in setXmapValue function (milliseconds)
+	 *
+	 * @see #setWaitAfterCaput(boolean)
+	 * @param sleepTimeMillis
+	 */
+	public void setCaputSleepTime(int sleepTimeMillis) {
+		this.caputSleepTimeMillis = sleepTimeMillis;
+	}
+
+	public int getCaputSleepTime() {
+		return caputSleepTimeMillis;
+	}
+
+	public boolean isWaitAfterCaput() {
+		return useWaitAferCaput;
+	}
+
+	/**
+	 * If set to true, then {@link #start()}, {@link #stop()}, {@link #setResume(boolean)}, {@link #clear()} and {@link #clearAndStart()} will wait for a short
+	 * time after doing their CAput operations. Wait time is set by {@link #setCaputSleepTime(int)}.
+	 *
+	 * @param usePutWait
+	 */
+	public void setWaitAfterCaput(boolean usePutWait) {
+		this.useWaitAferCaput = usePutWait;
+	}
+
+	public void updateMcaPvRecords() {
+		for (int i = 0; i < numberOfElements; i++) {
+			try {
+				updateMcaPvRecord(i + elementOffset);
+			} catch (DeviceException | InterruptedException | IOException e) {
+				logger.error("Problem updating MCA record for element {}", i, e);
+			}
+		}
+	}
+
+	/**
+	 * Update the MCA PV record for detector element, by doing caput READ = 1 and
+	 * waiting for the RDNG status to be 'Done'. Waiting is done in a loop with 100ms
+	 * pause at end of each one; if RDNG != 0 after 30 attempts loops, error is put into log.
+	 *
+	 * @param mcaNumber
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	public void updateMcaPvRecord(int mcaNumber) throws DeviceException, InterruptedException, IOException {
+		// Create pv factory if necessary.
+		if (pvFactory == null) {
+			String basePv = xmap.getRecordPV(ERASESTART);
+			int ind = basePv.indexOf(":");
+			String devicePrefix = basePv.substring(0, ind + 1);
+			pvFactory = new CachedLazyPVFactory(devicePrefix);
+		}
+
+		String statPv = String.format("MCA%d.STAT", mcaNumber);
+		String readPv = String.format("MCA%d.READ", mcaNumber);
+		String rdngPv = String.format("MCA%d.RDNG", mcaNumber);
+
+		String result = pvFactory.getPVString(statPv).get();
+		logger.debug("{} = {}", statPv, result);
+
+		// Caput 1 to READ to tell Epics record for MCA data to update
+		logger.debug("set {} = {} to update Epics MCA record.", readPv, 1);
+		pvFactory.getPVInteger(readPv).putNoWait(1);
+
+		// Wait until record has updated. i.e. RDGNG == 0 ('Done')
+		int rdngStatus = pvFactory.getInteger(rdngPv);
+		logger.debug("{} status = {}", rdngPv, rdngStatus);
+		int attemptsLeft = 30;
+		while (rdngStatus != 0) {
+			logger.debug("Loop {} status = {}", rdngPv, rdngStatus);
+			Thread.sleep(100);
+			rdngStatus = pvFactory.getInteger(rdngPv);
+			attemptsLeft--;
+			if (attemptsLeft < 0) {
+				throw new DeviceException("Problem updating MCA PV record - {} status flag not updating to DONE", rdngPv);
+			}
+		}
+		logger.debug("{} ready, status = {}", rdngPv, rdngStatus);
+	}
+
+	public boolean isStopUpdatesMcaPvRecord() {
+		return stopUpdatesMcaPvRecord;
+	}
+
+	/**
+	 * If set to true, MCA PV record will be updated when {@link #stop()} function is called.
+	 *
+	 * @param stopUpdatesMcaPvRecord
+	 */
+	public void setStopUpdatesMcaPvRecord(boolean stopUpdatesMcaPvRecord) {
+		this.stopUpdatesMcaPvRecord = stopUpdatesMcaPvRecord;
+	}
 }

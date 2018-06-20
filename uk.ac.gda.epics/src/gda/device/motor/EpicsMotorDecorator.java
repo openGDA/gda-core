@@ -213,7 +213,6 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements IObserver 
 		if (isIocRunning()) {
 			if (decoratedMotor instanceof EpicsMotor) {
 				((EpicsMotor) decoratedMotor).moveTo(position, moveListener);
-				;
 			}
 		} else {
 			throw new MotorException(MotorStatus.UNKNOWN, "Motor IOC " + getIocPv().split(":")[0] + " is not running");
