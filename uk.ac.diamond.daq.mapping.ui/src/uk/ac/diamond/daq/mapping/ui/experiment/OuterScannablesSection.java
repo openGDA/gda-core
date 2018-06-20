@@ -18,10 +18,15 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -30,6 +35,7 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -56,7 +62,25 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(OuterScannablesSection.class);
 
-	private static final int AXES_COLUMNS = 3;
+	private static final String OUTER_SCANNABLES_SELECTION_KEY_JSON = "outerScannablesSelection.json";
+
+	/**
+	 * Overall composite for section
+	 */
+	private Composite sectionComposite;
+
+	/**
+	 * Composite to hold list of scannables<br>
+	 * The user can choose which scannables to show in this list: see comment on {@link #scannablesToShow}.
+	 */
+	private Composite scannablesComposite;
+
+	/**
+	 * The outer scannables to show in the view<br>
+	 * Initially, this will be all the configured scannables, but the user may choose to filter the list.<br>
+	 * The choice will be saved when the client is closed and restored when opened, unless the client is reset.
+	 */
+	private List<IScanModelWrapper<IScanPathModel>> scannablesToShow;
 
 	/**
 	 * Class to convert a path model to a string
@@ -213,50 +237,77 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 	}
 
-	/**
-	 * Main class: define the outer scannables section of the mapping view
-	 */
+	//--------------------------------------------------------------------------
+	// Main class: define the outer scannables section of the mapping view
+	//--------------------------------------------------------------------------
+
 	private Map<String, Binding> axisBindings;
 	private Map<String, Binding> checkBoxBindings;
 
 	@Override
 	public boolean shouldShow() {
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getOuterScannables();
 		return outerScannables != null && !outerScannables.isEmpty();
 	}
 
 	@Override
 	public void createControls(Composite parent) {
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
-		final Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
+		sectionComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
 
-		GridLayoutFactory.swtDefaults().numColumns(AXES_COLUMNS).applyTo(otherScanAxesComposite);
-		final Label otherScanAxesLabel = new Label(otherScanAxesComposite, SWT.NONE);
+		final Label otherScanAxesLabel = new Label(sectionComposite, SWT.NONE);
 		otherScanAxesLabel.setText("Other Scan Axes");
-		GridDataFactory.fillDefaults().span(AXES_COLUMNS, 1).applyTo(otherScanAxesLabel);
+		GridDataFactory.fillDefaults().applyTo(otherScanAxesLabel);
 
+		// button to open the scannable chooser dialog
+		final Button btnConfigure = new Button(sectionComposite, SWT.PUSH);
+		btnConfigure.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
+		btnConfigure.setToolTipText("Select scannables to show");
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnConfigure);
+		btnConfigure.addListener(SWT.Selection, event -> chooseScannables());
+
+		// If no list of "scannables to show" has been restored, show all available devices
+		if (scannablesToShow == null) {
+			scannablesToShow = getOuterScannables();
+		}
+		createScannableControls();
+	}
+
+	private void createScannableControls() {
+		removeOldBindings();
+
+		// Ensure scannables are shown in alphabetical order (case insensitive)
+		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPathModel>::getName, CASE_INSENSITIVE_ORDER));
+
+		if (scannablesComposite != null) {
+			scannablesComposite.dispose();
+		}
 		dataBindingContext = new DataBindingContext();
 		axisBindings = new HashMap<>();
 		checkBoxBindings = new HashMap<>();
 
-		// Create control for each scannable to be shown
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : outerScannables) {
-			final Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
+		scannablesComposite = new Composite(sectionComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(scannablesComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).margins(0, 0).applyTo(scannablesComposite);
+
+		// Create a control for each scannable to be shown
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
 			checkBox.setText(scannableAxisParameters.getName());
 			final IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
 			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
 			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
 
-			final Text axisText = new Text(otherScanAxesComposite, SWT.BORDER);
+			final Text axisText = new Text(scannablesComposite, SWT.BORDER);
 			axisText.setToolTipText("A range <start stop step>\n"
 					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
 					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
 			final IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 
-			final Button multiStepButton = new Button(otherScanAxesComposite, 0);
+			final Button multiStepButton = new Button(scannablesComposite, 0);
 			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 			multiStepButton.setToolTipText("Edit a multi-step scan");
 
@@ -264,6 +315,25 @@ class OuterScannablesSection extends AbstractMappingSection {
 			multiStepButton.addListener(SWT.Selection, event-> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
 
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
+		}
+	}
+
+	private void chooseScannables() {
+		final ChooseDevicesDialog<IScanPathModel> dialog = new ChooseDevicesDialog<>(getShell(),
+				getOuterScannables(), scannablesToShow);
+		dialog.setTitle("Choose scannables to show");
+
+		if (dialog.open() == Window.OK) {
+			scannablesToShow = dialog.getSelectedDevices();
+
+			// set any scannables not in the new selection to not be included in the scan
+			getOuterScannables().stream().
+				filter(w -> !scannablesToShow.contains(w)).
+				forEach(w -> w.setIncludeInScan(false));
+
+			createScannableControls();
+			relayoutMappingView();
+			updateStatusLabel();
 		}
 	}
 
@@ -344,7 +414,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	@Override
 	public void updateControls() {
 		// update the bindings for exposure time as we may have new models
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
 			final String scannableName = scannableAxisParameters.getName();
 
 			// remove the old binding between the checkbox and the old model and create a new one
@@ -369,4 +439,52 @@ class OuterScannablesSection extends AbstractMappingSection {
 		dataBindingContext.updateTargets();
 	}
 
+	/**
+	 * Persist a list of the names of the scannables currently visible
+	 */
+	@Override
+	protected void saveState(Map<String, String> persistedState) {
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			final List<String> chosenScannableNames = scannablesToShow.stream().
+					map(IScanModelWrapper<IScanPathModel>::getName).
+					collect(toList());
+			persistedState.put(OUTER_SCANNABLES_SELECTION_KEY_JSON, marshaller.marshal(chosenScannableNames));
+		} catch (Exception e) {
+			logger.error("Error saving selection of outer scannables", e);
+		}
+	}
+
+	/**
+	 * Read back the list of scannable names to be shown and return the corresponding IScanModelWrapper objects
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void loadState(Map<String, String> persistedState) {
+		final String json = persistedState.get(OUTER_SCANNABLES_SELECTION_KEY_JSON);
+		if (json == null || json.isEmpty()) {
+			// This happens when client is reset or no outer scannables are configured.
+			return;
+		}
+
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			final Set<String> chosenScannableNames = marshaller.unmarshal(json, Set.class);
+
+			scannablesToShow = getOuterScannables().stream()
+				.filter(scannable -> chosenScannableNames.contains(scannable.getName()))
+				.collect(toList());
+		} catch (Exception e) {
+			logger.error("Error loading selection of outer scannables", e);
+		}
+	}
+
+	/**
+	 * Get all outer scannables
+	 *
+	 * @return a list of all available outer scannables
+	 */
+	private List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
+		return getMappingBean().getScanDefinition().getOuterScannables();
+	}
 }
