@@ -4,7 +4,7 @@ Bundle-Name: Exafs Plug-in
 Bundle-SymbolicName: uk.ac.gda.client.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,
  gda.device.corba,

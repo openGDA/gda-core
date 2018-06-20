@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.timer.Tfg;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
@@ -52,6 +54,8 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	private int maximumNumberOfRois = 32;
 
+	private boolean mcaCollectionUsesTfg = false;
+
 	public NexusXmapFluorescenceDetectorAdapter(NexusXmap xmap, int numberOfElements) {
 		this.xmap = xmap;
 		this.numberOfElements = numberOfElements;
@@ -63,6 +67,28 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 		int[][] xmapData;
 		xmap.setCollectionTime(time);
 		xmap.collectData();
+
+		if (mcaCollectionUsesTfg) {
+			Tfg tfg = (Tfg) xmap.getTfg();
+			try {
+				// Setup Tfg to generate a single timeframe to trigger Xmap
+				tfg.clearFrameSets();
+				tfg.countAsync(time);
+
+				// Wait until Tfg has finished before collecting the data
+				while(tfg.getStatus()!=Timer.IDLE){
+					logger.debug("Waiting for tfg to finish");
+					Thread.sleep(100);
+				}
+
+				xmap.stop();
+				xmap.waitWhileBusy();
+			} catch (InterruptedException e) {
+				logger.error("Problem collecting data from Xmap", e);
+				tfg.stop();
+			}
+		}
+
 		xmapData = xmap.getData();
 		for (int i = 0; i < numberOfElements; i++) {
 			for (int j = 0; j < xmap.getNumberOfBins(); j++) {
@@ -178,5 +204,13 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 
 	public NexusXmap getXmap() {
 		return xmap;
+	}
+
+	public boolean isMcaCollectionUsesTfg() {
+		return mcaCollectionUsesTfg;
+	}
+
+	public void setMcaCollectionUsesTfg(boolean mcaDataUsesTfg) {
+		this.mcaCollectionUsesTfg = mcaDataUsesTfg;
 	}
 }

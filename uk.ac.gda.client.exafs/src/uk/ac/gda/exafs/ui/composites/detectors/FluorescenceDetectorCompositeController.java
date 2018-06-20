@@ -48,6 +48,7 @@ import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
@@ -60,6 +61,10 @@ import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.jython.IJythonServerStatusObserver;
+import gda.jython.InterfaceProvider;
+import gda.scan.Scan.ScanStatus;
+import gda.scan.ScanEvent;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -101,6 +106,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private volatile boolean continuousAquire; // changed to volatile, so changes to it are noticed by different threads
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
+	private volatile boolean scanIsRunning = false;
 
 	// Magic strings
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
@@ -315,6 +321,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge();
 			}
 		});
+
+		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
@@ -621,6 +629,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void acquire(IProgressMonitor monitor, final double collectionTimeValue, boolean writeToDisk) {
 		int numWorkUnits = 2;
 
+		if (scanIsRunning) {
+			logAndAppendStatus("Scan is running - will not acquire data from detector");
+			return;
+		}
+
 		if (monitor != null) {
 			monitor.beginTask("Acquiring snapshot...", numWorkUnits);
 		}
@@ -688,6 +701,17 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	public void applyConfigurationToDetector() {
 		try {
+			// Check that the number of elements on detector matches number of elements in settings
+			if (detectorParameters.getDetectorList() != null
+					&& theDetector.getNumberOfElements() != detectorParameters.getDetectorList().size()) {
+				String message = String.format(
+						"Problem applying detector settings - number of detector elements"
+						+ " in the XML settings (%d) does not match the number of elements on the detector (%d).",
+						detectorParameters.getDetectorList().size(), theDetector.getNumberOfElements());
+				displayErrorMessage("Problem applying detector settings", message);
+				return;
+			}
+
 			theDetector.applyConfigurationParameters(detectorParameters);
 			logAndAppendStatus("Successfully applied settings to detector");
 
@@ -904,4 +928,22 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			updatingRoiUIFromPlot = false;
 		}
 	}
+
+	/**
+	 * Set scanIsRunning variable when scan starts/stops running and enable/disable Acquire button.
+	 */
+	final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> Display.getDefault().asyncExec(() -> {
+		if (changeCode instanceof ScanEvent) {
+			ScanStatus status = ((ScanEvent) changeCode).getLatestStatus();
+			logger.debug("ScanEvent = {}, ScanStatus = {}",changeCode.toString(), status.toString());
+			if (status.isRunning()) {
+				stopContinuousAcquire();
+				scanIsRunning = true;
+			} else if (status.isComplete() || status.isAborting()) {
+				scanIsRunning = false;
+			}
+			logger.debug("Scan is running ? {}", scanIsRunning);
+			fluorescenceDetectorComposite.setAcquireButtonEnabled(!scanIsRunning);
+		}
+	});
 }

@@ -766,7 +766,7 @@
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/ParametersEditorIcon.png"
-            id="uk.ac.gda.exafs.ui.editors.detectors.VortexParametersEditor"
+            id="uk.ac.gda.exafs.ui.VortexParametersEditor"
             name="Vortex Parameters">
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
