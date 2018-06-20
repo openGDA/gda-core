@@ -134,13 +134,13 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			// Actually export the service here
 			serviceExporter.prepare();
 			logger.debug("Exported '{}' with interface '{}'", name, serviceInterface.getName());
+
+			setupEventDispatchIfSupported(bean);
+			// Add to list of exporters for unbinding at shutdown
+			exporters.add(serviceExporter);
 		} catch (RemoteException e) {
 			logger.error("Exception exporting '{}' with interface '{}'", name, serviceInterface.getName(), e);
 		}
-
-		setupEventDispatchIfSupported(bean);
-
-		exporters.add(serviceExporter);
 	}
 
 	private void setupEventDispatchIfSupported(Findable toBeExported) {
