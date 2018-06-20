@@ -60,9 +60,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
@@ -147,9 +147,9 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
 
 		// Assert - check the new mapping bean is the same as the original
-		List<IDetectorModelWrapper> newDetectorParams = mappingBean.getDetectorParameters();
+		List<IScanModelWrapper<IDetectorModel>> newDetectorParams = mappingBean.getDetectorParameters();
 		assertThat(newDetectorParams.size(), is(1));
-		IDetectorModelWrapper wrapper = newDetectorParams.get(0);
+		IScanModelWrapper<IDetectorModel> wrapper = newDetectorParams.get(0);
 		assertThat(wrapper.getName(), is(equalTo(displayName)));
 		assertThat(wrapper.getModel(), is(equalTo(detModel)));
 		assertThat(wrapper.isIncludeInScan(), is(true));
@@ -172,9 +172,9 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
 
 		// Assert again - check the mapping bean is the same as the original
-		List<IDetectorModelWrapper> newDetectorParams = mappingBean.getDetectorParameters();
+		List<IScanModelWrapper<IDetectorModel>> newDetectorParams = mappingBean.getDetectorParameters();
 		assertThat(newDetectorParams.size(), is(1));
-		IDetectorModelWrapper wrapper = newDetectorParams.get(0);
+		IScanModelWrapper<IDetectorModel> wrapper = newDetectorParams.get(0);
 		assertThat(wrapper.getName(), is(equalTo(displayName)));
 		assertThat(wrapper.getModel(), is(equalTo(detModel))); // names must be same, i.e. mandlebrot
 		assertThat(wrapper.isIncludeInScan(), is(false));

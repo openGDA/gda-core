@@ -29,6 +29,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -47,9 +48,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 
 /**
@@ -389,7 +390,7 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
-	public void detectorSelectionChanged(List<IDetectorModelWrapper> selectedDetectors) {
+	public void detectorSelectionChanged(List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
 		RegionAndPathSection section = (RegionAndPathSection) sections.get(RegionAndPathSection.class);
 		if (Objects.isNull(section)) return;
 		section.detectorsChanged(selectedDetectors);

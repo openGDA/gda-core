@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 
 /**
@@ -129,7 +129,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private final IClusterProcessingModelWrapper processingModelWrapper;
 
-	private final List<IDetectorModelWrapper> detectors;
+	private final List<IScanModelWrapper<IDetectorModel>> detectors;
 
 	private Text existingFileText;
 
@@ -150,7 +150,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	protected ProcessingSelectionWizardPage(IEclipseContext context,
 			IClusterProcessingModelWrapper processingModelWrapper,
-			List<IDetectorModelWrapper> detectors) {
+			List<IScanModelWrapper<IDetectorModel>> detectors) {
 		super(ProcessingSelectionWizardPage.class.getName());
 		setTitle("Processing Template and Detector Selection");
 		setDescription("Select the processing template file to use and the detector to apply it to.");
@@ -163,7 +163,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				collect(toList());
 	}
 
-	private static boolean supportsAcquire(IDetectorModelWrapper wrapper) {
+	private static boolean supportsAcquire(IScanModelWrapper<IDetectorModel> wrapper) {
 		if (wrapper.getModel() instanceof IMalcolmModel) {
 			// This property, if set, returns the name of a malcolm device that supports acquire.
 			return wrapper.getModel().getName().equals(LocalProperties.get(PROPERTY_NAME_MALCOLM_ACQUIRE_SUPPORT));
@@ -215,9 +215,10 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		GridDataFactory.swtDefaults().applyTo(detectorsComboViewer.getControl());
 		detectorsComboViewer.setContentProvider(ArrayContentProvider.getInstance());
 		detectorsComboViewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return ((IDetectorModelWrapper) element).getName();
+				return ((IScanModelWrapper<IDetectorModel>) element).getName();
 			}
 		});
 		detectorsComboViewer.setInput(detectors);
@@ -225,7 +226,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 			detectorsComboViewer.setSelection(new StructuredSelection(detectors.get(0)));
 		}
 		detectorsComboViewer.addSelectionChangedListener(evt -> {
-			IDetectorModelWrapper selectedWrapper = (IDetectorModelWrapper) ((IStructuredSelection) evt.getSelection()).getFirstElement();
+			@SuppressWarnings("unchecked")
+			IScanModelWrapper<IDetectorModel> selectedWrapper = (IScanModelWrapper<IDetectorModel>) ((IStructuredSelection) evt.getSelection()).getFirstElement();
 			IDetectorModel detectorModel = selectedWrapper.getModel();
 			if (detectorModel instanceof IMalcolmModel &&
 					!getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel).isPresent()) {
@@ -313,8 +315,9 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		return (File) templatesComboViewer.getStructuredSelection().getFirstElement();
 	}
 
-	private IDetectorModelWrapper getSelectedDetector() {
-		return (IDetectorModelWrapper) detectorsComboViewer.getStructuredSelection().getFirstElement();
+	@SuppressWarnings("unchecked")
+	private IScanModelWrapper<IDetectorModel> getSelectedDetector() {
+		return (IScanModelWrapper<IDetectorModel>) detectorsComboViewer.getStructuredSelection().getFirstElement();
 	}
 
 	private List<File> getTemplateFiles() {

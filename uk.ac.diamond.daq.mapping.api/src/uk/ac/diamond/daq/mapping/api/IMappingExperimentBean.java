@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 
 /**
  * This interface should be implemented by any class which can represent a mapping type experiment
@@ -65,7 +66,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @return detectorParameters
 	 */
-	public List<IDetectorModelWrapper> getDetectorParameters();
+	public List<IScanModelWrapper<IDetectorModel>> getDetectorParameters();
 
 	/**
 	 * Sets the detector parameters to be used in the mapping scan. A <code>List</code> including elements for each of the enabled detectors. The elements will
@@ -73,7 +74,7 @@ public interface IMappingExperimentBean {
 	 *
 	 * @param detectorParameters
 	 */
-	public void setDetectorParameters(List<IDetectorModelWrapper> detectorParameters);
+	public void setDetectorParameters(List<IScanModelWrapper<IDetectorModel>> detectorParameters);
 
 	/**
 	 * Gets the beamline configuration to be used in the mapping scan. e.g. monochromator energy, slit size, attenuation, ID gap, mirror positions ...

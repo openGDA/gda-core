@@ -62,12 +62,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
@@ -161,7 +161,7 @@ public class ScanRequestConverter {
 		}
 
 		// add the required detectors to the scan
-		for (IDetectorModelWrapper detectorWrapper : mappingBean.getDetectorParameters()) {
+		for (IScanModelWrapper<IDetectorModel> detectorWrapper : mappingBean.getDetectorParameters()) {
 			if (detectorWrapper.isIncludeInScan()) {
 				IDetectorModel detectorModel = detectorWrapper.getModel();
 				scanRequest.putDetector(detectorModel.getName(), detectorModel);
@@ -258,7 +258,7 @@ public class ScanRequestConverter {
 	 * The reason for merging into an existing mapping bean is so that we don't remove
 	 * detectors and processing steps that we not selected when this scan was run -
 	 * when creating the scan request from the mapping bean a detector is only added if
-	 * {@link IDetectorModelWrapper#isIncludeInScan()} is true. The mapping bean reconstructed
+	 * {@link IScanModelWrapper#isIncludeInScan()} is true. The mapping bean reconstructed
 	 * from the scan request still needs to include this detector.
 	 *
 	 * @param scanRequest the {@link ScanRequest}
@@ -388,12 +388,12 @@ public class ScanRequestConverter {
 	private void mergeDetectorAndProcessing(ScanRequest<?> scanRequest, MappingExperimentBean mappingBean) {
 		// disable all the existing detectors in the mapping bean, also create a map of them by
 		// detector name (note: the name in the IDetectorModel, not the name in the wrapper)
-		final Map<String, IDetectorModelWrapper> detectorModelWrappers;
+		final Map<String, IScanModelWrapper<IDetectorModel>> detectorModelWrappers;
 		if (mappingBean.getDetectorParameters() == null) {
 			detectorModelWrappers = Collections.emptyMap();
 		} else {
 			detectorModelWrappers = new HashMap<>(mappingBean.getDetectorParameters().size());
-			for (IDetectorModelWrapper detectorModelWrapper : mappingBean.getDetectorParameters()) {
+			for (IScanModelWrapper<IDetectorModel> detectorModelWrapper : mappingBean.getDetectorParameters()) {
 				((DetectorModelWrapper) detectorModelWrapper).setIncludeInScan(false);
 				detectorModelWrappers.put(detectorModelWrapper.getModel().getName(), detectorModelWrapper);
 			}
@@ -420,7 +420,7 @@ public class ScanRequestConverter {
 			for (String name : detectorsAndProcessingMap.keySet()) {
 				final Object model = detectorsAndProcessingMap.get(name);
 				if (model instanceof IDetectorModel) {
-					List<IDetectorModelWrapper> detectorParams = mappingBean.getDetectorParameters();
+					List<IScanModelWrapper<IDetectorModel>> detectorParams = mappingBean.getDetectorParameters();
 					if (detectorParams == null) { // create the list of detector wrapper in the bean if not present
 						detectorParams = new ArrayList<>(4);
 						mappingBean.setDetectorParameters(detectorParams);

@@ -39,6 +39,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
@@ -52,10 +53,10 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
@@ -365,7 +366,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
 		detectorsChanged(getMappingBean().getDetectorParameters().stream()
-							.filter(IDetectorModelWrapper::isIncludeInScan)
+							.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 							.collect(Collectors.toList()));
 
 		relayoutMappingView();
@@ -387,9 +388,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		}
 	}
 
-	public void detectorsChanged(List<IDetectorModelWrapper> selectedDetectors) {
+	public void detectorsChanged(List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
 		final boolean isMalcolm = selectedDetectors.stream()
-									.map(IDetectorModelWrapper::getModel)
+									.map(IScanModelWrapper<IDetectorModel>::getModel)
 									.anyMatch(IMalcolmModel.class::isInstance);
 
 		canEditMappingStage = !isMalcolm;

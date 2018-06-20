@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -33,8 +34,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
 class StatusPanel extends Composite {
@@ -155,7 +156,7 @@ class StatusPanel extends Composite {
 
 	private double getPointExposureTime() {
 		return mappingBean.getDetectorParameters().stream()
-				.filter(IDetectorModelWrapper::isIncludeInScan)
+				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 				.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
 				.max().orElse(0) * getScanPoints();
 	}

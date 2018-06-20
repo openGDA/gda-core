@@ -28,13 +28,14 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleConfiguration;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleViewer;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 
 /**
@@ -42,17 +43,17 @@ import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
  */
 public class ChooseDetectorsDialog extends Dialog {
 
-	private List<IDetectorModelWrapper> originalList;
-	private List<IDetectorModelWrapper> selectedList;
+	private List<IScanModelWrapper<IDetectorModel>> originalList;
+	private List<IScanModelWrapper<IDetectorModel>> selectedList;
 	private ShuffleConfiguration<String> data;
-	private Map<String, IDetectorModelWrapper> labelMap = new HashMap<>();
+	private Map<String, IScanModelWrapper<IDetectorModel>> labelMap = new HashMap<>();
 
 	/**
 	 * @param parentShell
 	 * @param availableDetectors - all detectors configured in Spring
 	 * @param selectedDetectors - previously selected detectors; can be null
 	 */
-	protected ChooseDetectorsDialog(Shell parentShell, List<IDetectorModelWrapper> availableDetectors, List<IDetectorModelWrapper> selectedDetectors) {
+	protected ChooseDetectorsDialog(Shell parentShell, List<IScanModelWrapper<IDetectorModel>> availableDetectors, List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE | SWT.APPLICATION_MODAL);
 		originalList = availableDetectors;
@@ -76,7 +77,7 @@ public class ChooseDetectorsDialog extends Dialog {
 		data.setToLabel("Selected");
 
 		List<String> selectedDetectors = selectedList.stream()
-				.map(IDetectorModelWrapper::getName)
+				.map(IScanModelWrapper<IDetectorModel>::getName)
 				.collect(Collectors.toList());
 
 		List<String> availableDetectors = labelMap.keySet().stream()
@@ -103,7 +104,7 @@ public class ChooseDetectorsDialog extends Dialog {
 		super.okPressed();
 	}
 
-	public List<IDetectorModelWrapper> getSelectedDetectors() {
+	public List<IScanModelWrapper<IDetectorModel>> getSelectedDetectors() {
 		return selectedList;
 	}
 

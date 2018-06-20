@@ -44,6 +44,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
@@ -63,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 /**
  * Dialog providing a simple workflow in configuring detector:
@@ -86,7 +87,7 @@ public class EditDetectorParametersDialog extends Dialog {
 	private static final int MAX_ELEMENTS = 20;
 
 	private final IEclipseContext context;
-	private final IDetectorModelWrapper detectorModel;
+	private final IScanModelWrapper<IDetectorModel> detectorModel;
 	private IPlottingSystem<Composite> plottingSystem;
 
 	private IDataset dataset;
@@ -98,7 +99,7 @@ public class EditDetectorParametersDialog extends Dialog {
 	private Button plotAsLine;
 	private Button plotAsImage;
 
-	public EditDetectorParametersDialog(final Shell parentShell, final IEclipseContext context, final IDetectorModelWrapper detectorModel) {
+	public EditDetectorParametersDialog(final Shell parentShell, final IEclipseContext context, final IScanModelWrapper<IDetectorModel> detectorModel) {
 		super(parentShell);
 		this.context = context;
 		this.detectorModel = detectorModel;
@@ -239,7 +240,7 @@ public class EditDetectorParametersDialog extends Dialog {
 		}
 	}
 
-	private void takeSnapshot(final IDetectorModelWrapper detectorParameters) {
+	private void takeSnapshot(final IScanModelWrapper<IDetectorModel> detectorParameters) {
 		final String messageTitle = "Snapshot";
 
 		// to prevent AcquireRequest interrupting a running scan,

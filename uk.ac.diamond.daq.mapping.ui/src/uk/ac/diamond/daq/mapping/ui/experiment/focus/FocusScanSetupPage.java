@@ -89,9 +89,9 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
@@ -399,9 +399,10 @@ class FocusScanSetupPage extends WizardPage {
 		final ComboViewer comboViewer = new ComboViewer(detectorComposite, SWT.READ_ONLY);
 		comboViewer.setContentProvider(ArrayContentProvider.getInstance());
 		comboViewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return ((IDetectorModelWrapper) element).getName();
+				return ((IScanModelWrapper<IDetectorModel>) element).getName();
 			}
 		});
 
@@ -431,7 +432,8 @@ class FocusScanSetupPage extends WizardPage {
 			}
 
 			final Object selected = ((IStructuredSelection) event.getSelection()).getFirstElement();
-			final IDetectorModel model = ((IDetectorModelWrapper) selected).getModel();
+			@SuppressWarnings("unchecked")
+			final IDetectorModel model = ((IScanModelWrapper<IDetectorModel>) selected).getModel();
 
 			final IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
 			exposureTimeBinding = bindingContext.bindValue(exposureTextValue, exposureTimeValue);
@@ -441,18 +443,18 @@ class FocusScanSetupPage extends WizardPage {
 	}
 
 	private void populateDetectorCombo(ComboViewer comboViewer) {
-		final List<IDetectorModelWrapper> mappingDetectors =
+		final List<IScanModelWrapper<IDetectorModel>> mappingDetectors =
 				mappingBeanProvider.getMappingExperimentBean().getDetectorParameters();
 
 		// get the available detectors for a focus scan
-		final List<IDetectorModelWrapper> availableFocusDetectors;
+		final List<IScanModelWrapper<IDetectorModel>> availableFocusDetectors;
 		// filter out all malcolm devices except the focus malcolm device
 		availableFocusDetectors = mappingDetectors.stream()
 				.filter(wrapper -> !(wrapper.getModel() instanceof IMalcolmModel))
 				.collect(Collectors.toCollection(ArrayList::new));
 
 		final String focusMalcolmDeviceName = focusScanBean.getFocusMalcolmDeviceName();
-		IDetectorModelWrapper focusMalcolmDevice = null;
+		IScanModelWrapper<IDetectorModel> focusMalcolmDevice = null;
 		if (focusMalcolmDeviceName != null) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -473,16 +475,16 @@ class FocusScanSetupPage extends WizardPage {
 
 		// get the detector to select as default
 		// first get the first included detector in the mapping bean
-		final Optional<IDetectorModelWrapper> firstSelected = mappingDetectors.stream()
-				.filter(IDetectorModelWrapper::isIncludeInScan)
+		final Optional<IScanModelWrapper<IDetectorModel>> firstSelected = mappingDetectors.stream()
+				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 				.findFirst();
 		// use that as the default detector as long as it's not a malcolm device
-		Optional<IDetectorModelWrapper> optDefaultDetector =
+		Optional<IScanModelWrapper<IDetectorModel>> optDefaultDetector =
 				firstSelected.filter(wrapper -> !(wrapper.getModel() instanceof IMalcolmModel));
 
 		if (!optDefaultDetector.isPresent()) {
 			// if the selected device is a malcolm device, use the focus malcolm device if present
-			if (firstSelected.map(IDetectorModelWrapper::getModel).filter(IMalcolmModel.class::isInstance).isPresent()
+			if (firstSelected.map(IScanModelWrapper<IDetectorModel>::getModel).filter(IMalcolmModel.class::isInstance).isPresent()
 					&& focusMalcolmDevice != null) {
 				optDefaultDetector = Optional.of(focusMalcolmDevice);
 			}
@@ -494,7 +496,7 @@ class FocusScanSetupPage extends WizardPage {
 
 		// set the initially selected detector
 		if (optDefaultDetector.isPresent()) {
-			IDetectorModelWrapper defaultDectector = optDefaultDetector.get();
+			IScanModelWrapper<IDetectorModel> defaultDectector = optDefaultDetector.get();
 			comboViewer.setSelection(new StructuredSelection(defaultDectector));
 
 			// If we're using the focus malcolm device, compare the axes with the selected malcolm device
@@ -511,7 +513,7 @@ class FocusScanSetupPage extends WizardPage {
 	 * @param selectedMappingMalcolmDevice
 	 * @param focusMalcolmDevice
 	 */
-	private void checkMalcolmDeviceAxes(IDetectorModelWrapper selectedMappingMalcolmDevice, IDetectorModelWrapper focusMalcolmDevice) {
+	private void checkMalcolmDeviceAxes(IScanModelWrapper<IDetectorModel> selectedMappingMalcolmDevice, IScanModelWrapper<IDetectorModel> focusMalcolmDevice) {
 		try {
 			final IRunnableDeviceService runnableDeviceService = getRunnableDeviceService();
 			final Set<String> focusDeviceAxes = getMalcolmAxes(focusMalcolmDevice, runnableDeviceService);
@@ -541,7 +543,7 @@ class FocusScanSetupPage extends WizardPage {
 		}
 	}
 
-	private Set<String> getMalcolmAxes(IDetectorModelWrapper wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
+	private Set<String> getMalcolmAxes(IScanModelWrapper<IDetectorModel> wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		final String deviceName = wrapper.getModel().getName();
 		final IRunnableDevice<?> device = runnableDeviceService.getRunnableDevice(deviceName);
 		if (device instanceof IAttributableDevice) {
@@ -554,7 +556,7 @@ class FocusScanSetupPage extends WizardPage {
 		throw new ScanningException("Cannot get axes for malcolm device " + wrapper.getName());
 	}
 
-	private void editDetectorParameters(IDetectorModelWrapper detectorModelWrapper) {
+	private void editDetectorParameters(IScanModelWrapper<IDetectorModel> detectorModelWrapper) {
 		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(
 				getShell(), injectionContext, detectorModelWrapper);
 		editDialog.create();
@@ -562,9 +564,10 @@ class FocusScanSetupPage extends WizardPage {
 		// The dialog updates the model live, using , so we don't have to do anything here
 	}
 
-	private static IDetectorModelWrapper getDetectorWrapperForSelection(ISelection selection) {
+	@SuppressWarnings("unchecked")
+	private static IScanModelWrapper<IDetectorModel> getDetectorWrapperForSelection(ISelection selection) {
 		final IStructuredSelection sel = (IStructuredSelection) selection;
-		return (IDetectorModelWrapper) sel.getFirstElement();
+		return (IScanModelWrapper<IDetectorModel>) sel.getFirstElement();
 	}
 
 	private void bindControlToProperty(Control control, String propertyName, Object bean) {

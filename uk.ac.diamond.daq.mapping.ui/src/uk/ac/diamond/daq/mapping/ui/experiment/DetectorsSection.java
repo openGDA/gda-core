@@ -70,7 +70,6 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -92,7 +91,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	private DataBindingContext dataBindingContext;
 
 	private Map<String, Button> detectorSelectionCheckboxes;
-	private List<IDetectorModelWrapper> visibleDetectors; // the detectors
+	private List<IScanModelWrapper<IDetectorModel>> visibleDetectors; // the detectors
 	private Composite sectionComposite; // parent composite for all controls in the section
 	private Composite detectorsComposite;
 
@@ -150,7 +149,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 	}
 
-	private void createDetectorControls(List<IDetectorModelWrapper> detectorParametersList) {
+	private void createDetectorControls(List<IScanModelWrapper<IDetectorModel>> detectorParametersList) {
 		removeOldBindings(); // remove any old bindings
 
 		if (detectorsComposite != null) detectorsComposite.dispose();
@@ -161,8 +160,8 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(detectorsComposite);
 		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).margins(0, 0).applyTo(detectorsComposite);
 
-		Optional<IDetectorModelWrapper> selectedMalcolmDevice = Optional.empty();
-		for (IDetectorModelWrapper detectorParameters : detectorParametersList) {
+		Optional<IScanModelWrapper<IDetectorModel>> selectedMalcolmDevice = Optional.empty();
+		for (IScanModelWrapper<IDetectorModel> detectorParameters : detectorParametersList) {
 			// create the detector selection checkbox and bind it to the includeInScan property of the wrapper
 			Button checkBox = new Button(detectorsComposite, SWT.CHECK);
 			detectorSelectionCheckboxes.put(detectorParameters.getName(), checkBox);
@@ -197,7 +196,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		selectedMalcolmDevice.ifPresent(this::detectorSelectionChanged);
 	}
 
-	private void editDetectorParameters(final IDetectorModelWrapper detectorParameters) {
+	private void editDetectorParameters(final IScanModelWrapper<IDetectorModel> detectorParameters) {
 		final EditDetectorParametersDialog editDialog = new EditDetectorParametersDialog(getShell(), getEclipseContext(), detectorParameters);
 		editDialog.create();
 		if (editDialog.open() == Window.OK) {
@@ -212,7 +211,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * @param selectionCheckBoxes
 	 * @param malcolmDeviceCheckBox
 	 */
-	private void detectorSelectionChanged(IDetectorModelWrapper wrapper) {
+	private void detectorSelectionChanged(IScanModelWrapper<IDetectorModel> wrapper) {
 		if (wrapper.getModel() instanceof IMalcolmModel) {
 			final String label = wrapper.getName();
 			final boolean selected = wrapper.isIncludeInScan();
@@ -234,7 +233,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 
 		getMappingView().detectorSelectionChanged(visibleDetectors.stream()
-													.filter(IDetectorModelWrapper::isIncludeInScan)
+													.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 													.collect(Collectors.toList()));
 		updateStatusLabel();
 	}
@@ -249,7 +248,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	 *
 	 * @param wrapper detetor model wrapper of the selected detector
 	 */
-	private void updateMappingStage(IDetectorModelWrapper wrapper) {
+	private void updateMappingStage(IScanModelWrapper<IDetectorModel> wrapper) {
 		final String deviceName = wrapper.getModel().getName();
 		try {
 			// get the axesToMove from the malcolm device
@@ -299,31 +298,31 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 
-	private Map<String, IDetectorModelWrapper> updateDetectorParameters() {
+	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
-		final Function<DeviceInformation<?>, IDetectorModelWrapper> malcolmInfoToWrapper =
+		final Function<DeviceInformation<?>, IScanModelWrapper<IDetectorModel>> malcolmInfoToWrapper =
 				info -> new DetectorModelWrapper(info.getLabel(), (IDetectorModel) info.getModel(), false);
 
 		// get the DeviceInformation objects for the malcolm devices and apply the function
 		// above to create DetectorModelWrappers for them.
-		final Map<String, IDetectorModelWrapper> malcolmParams = getMappingMalcolmDeviceInfos().stream()
+		final Map<String, IScanModelWrapper<IDetectorModel>> malcolmParams = getMappingMalcolmDeviceInfos().stream()
 				.map(malcolmInfoToWrapper::apply)
-				.collect(toMap(IDetectorModelWrapper::getName, identity()));
+				.collect(toMap(IScanModelWrapper<IDetectorModel>::getName, identity()));
 
 		// get the set of names of Malcolm devices
 		final Set<String> malcolmDeviceNames = malcolmParams.values().stream()
-				.map(IDetectorModelWrapper::getModel).map(IDetectorModel::getName)
+				.map(IScanModelWrapper<IDetectorModel>::getModel).map(IDetectorModel::getName)
 				.collect(Collectors.toSet());
 
 		// a predicate to filter out malcolm devices which no longer exist
-		final Predicate<IDetectorModelWrapper> nonExistantMalcolmFilter =
+		final Predicate<IScanModelWrapper<IDetectorModel>> nonExistantMalcolmFilter =
 				wrapper -> !(wrapper.getModel() instanceof IMalcolmModel) || malcolmDeviceNames.contains(wrapper.getModel().getName());
 
 		// create a name-keyed map from the existing detector parameters in the bean, filtering out those for
 		// malcolm devices which no longer exist using the predicate above
-		final Map<String, IDetectorModelWrapper> detectorParamsByName = getMappingBean().getDetectorParameters().stream().
+		final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = getMappingBean().getDetectorParameters().stream().
 				filter(nonExistantMalcolmFilter). // filter out malcolm device which no longer exist
-				collect(toMap(IDetectorModelWrapper::getName, // key by name
+				collect(toMap(IScanModelWrapper<IDetectorModel>::getName, // key by name
 						identity(), // the value is the wrapper itself
 						(v1, v2) -> v1, // merge function not used as there should be no duplicate keys
 						LinkedHashMap::new)); // create a linked hash map to maintain the order
@@ -333,7 +332,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		malcolmParams.forEach((name, params) -> detectorParamsByName.merge(name, params, (v1, v2) -> v1));
 
 		// convert to a list and set this as the detector parameters in the bean
-		final List<IDetectorModelWrapper> detectorParamList = new ArrayList<>(detectorParamsByName.values());
+		final List<IScanModelWrapper<IDetectorModel>> detectorParamList = new ArrayList<>(detectorParamsByName.values());
 		getMappingBean().setDetectorParameters(detectorParamList);
 
 		return detectorParamsByName;
@@ -367,9 +366,9 @@ public class DetectorsSection extends AbstractMappingSection {
 	protected void updateControls() {
 		// add any detectors in the bean to the list of chosen detectors if not present
 		// first create a map of detectors in the mapping bean keyed by name
-		final Map<String, IDetectorModelWrapper> wrappersByName =
+		final Map<String, IScanModelWrapper<IDetectorModel>> wrappersByName =
 				getMappingBean().getDetectorParameters().stream().collect(toMap(
-				IDetectorModelWrapper::getName, identity()));
+				IScanModelWrapper<IDetectorModel>::getName, identity()));
 
 		// take the list of chosen detectors and replace them with the ones in the mapping bean
 		visibleDetectors = visibleDetectors.stream().
@@ -378,7 +377,7 @@ public class DetectorsSection extends AbstractMappingSection {
 					collect(toCollection(ArrayList::new));
 
 		// add any detectors that are in the bean but not in the list of chosen detectors
-		final Set<String> detectorNames = visibleDetectors.stream().map(IDetectorModelWrapper::getName).collect(toSet());
+		final Set<String> detectorNames = visibleDetectors.stream().map(IScanModelWrapper<IDetectorModel>::getName).collect(toSet());
 		visibleDetectors.addAll(
 				getMappingBean().getDetectorParameters().stream().
 					filter(IScanModelWrapper::isIncludeInScan).
@@ -394,7 +393,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
 			List<String> chosenDetectorNames = visibleDetectors.stream().
-					map(IDetectorModelWrapper::getName).
+					map(IScanModelWrapper<IDetectorModel>::getName).
 					collect(Collectors.toList());
 			persistedState.put(DETECTOR_SELECTION_KEY_JSON, marshaller.marshal(chosenDetectorNames));
 		} catch (Exception e) {
@@ -412,7 +411,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
-			final Map<String, IDetectorModelWrapper> detectorParamsByName = updateDetectorParameters();
+			final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = updateDetectorParameters();
 			final List<String> chosenDetectorNames = marshaller.unmarshal(json, List.class);
 
 			visibleDetectors = chosenDetectorNames.stream().

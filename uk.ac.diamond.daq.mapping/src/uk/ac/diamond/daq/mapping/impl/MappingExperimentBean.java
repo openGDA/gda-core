@@ -5,18 +5,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
 	private SimpleSampleMetadata sampleMetadata;
-	private List<IDetectorModelWrapper> detectorParameters = null;
+	private List<IScanModelWrapper<IDetectorModel>> detectorParameters = null;
 	private List<IClusterProcessingModelWrapper> clusterProcessingConfiguration = null;
 	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
@@ -50,12 +51,12 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public List<IDetectorModelWrapper> getDetectorParameters() {
+	public List<IScanModelWrapper<IDetectorModel>> getDetectorParameters() {
 		return detectorParameters;
 	}
 
 	@Override
-	public void setDetectorParameters(List<IDetectorModelWrapper> detectorParameters) {
+	public void setDetectorParameters(List<IScanModelWrapper<IDetectorModel>> detectorParameters) {
 		this.detectorParameters = detectorParameters;
 	}
 

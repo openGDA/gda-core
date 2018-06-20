@@ -53,8 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IDetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
@@ -198,7 +198,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 			final Optional<IDetectorModel> detectorWrapper =
 					getMappingBean().getDetectorParameters().stream().
-					map(IDetectorModelWrapper::getModel).
+					map(IScanModelWrapper<IDetectorModel>::getModel).
 					filter(model -> model.getName().equals(acquireDetectorName)).
 					findFirst();
 			if (!detectorWrapper.isPresent()) {
