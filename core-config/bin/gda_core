@@ -36,14 +36,16 @@ Optional Environment variables:
 
 OPTIONS:
 
- -v --verbose   Turns on verbose logging even if GDA_DEBUG is not defined.
-    --restart   Stop and restart component (default)
-    --start     Start component
-    --stop      Stop component
-    --mode=     Specify a mode (default to GDA_MODE if set, dummy otherwise)
-    --help      Display this help text and exit.
-    -*          Other options will be passed to the gda_*_core scripts and then
-                on to the gda server target launch script.
+ -v --verbose         Turns on verbose logging even if GDA_DEBUG is not defined.
+    --restart         Stop and restart component (default)
+    --start           Start component
+    --stop            Stop component
+    --mode=           Specify a mode (default to GDA_MODE if set, dummy otherwise)
+    --help            Display this help text and exit.
+    --springprofiles= Specify the Spring Profiles to use to load the server
+                      config as a comma separated list (no spaces)
+    -*                Other options will be passed to the gda_*_core scripts and
+                      then on to the gda server target launch script.
 
 SERVER ONLY:
 -d --debug      Start the server in debug mode but do not wait for connection
