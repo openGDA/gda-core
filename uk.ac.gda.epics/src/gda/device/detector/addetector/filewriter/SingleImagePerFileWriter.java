@@ -280,6 +280,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		getNdFile().setFileTemplate(fileTemplateUsed);
 
 		filePathUsed = getFilePath();
+		filePathUsed = filePathUsed.replaceAll("/+", "/");
 		if (!filePathUsed.endsWith(File.separator))
 			filePathUsed += File.separator;
 		File f = new File(filePathUsed);
