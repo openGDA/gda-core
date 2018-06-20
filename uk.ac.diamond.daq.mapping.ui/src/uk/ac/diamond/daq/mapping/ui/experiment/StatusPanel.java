@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 
 class StatusPanel extends Composite {
 
@@ -116,8 +115,8 @@ class StatusPanel extends Composite {
 		int otherAxesPoints = mappingBean.getScanDefinition()
 								.getOuterScannables()
 								.stream()
-								.filter(IScanPathModelWrapper::isIncludeInScan)
-								.map(IScanPathModelWrapper::getModel)
+								.filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan)
+								.map(IScanModelWrapper<IScanPathModel>::getModel)
 								.mapToInt(this::calculatePathPoints)
 								.reduce(1, (a, b) -> a * b);
 

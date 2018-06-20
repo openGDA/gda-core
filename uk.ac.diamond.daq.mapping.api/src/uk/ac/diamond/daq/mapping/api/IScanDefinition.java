@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.api;
 
 import java.util.List;
 
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+
 public interface IScanDefinition {
 
 	/**
@@ -41,7 +43,7 @@ public interface IScanDefinition {
 	 * This list allows complex scan to be built containing many outer loops. Should never be <code>null</code>.
 	 * @return outerScannables the outer scannables
 	 */
-	public List<IScanPathModelWrapper> getOuterScannables();
+	public List<IScanModelWrapper<IScanPathModel>> getOuterScannables();
 
 	/**
 	 * Sets the list of outer scannables including their parameters for use outside the mapping scan. e.g change temperature and at each temperature take a map.
@@ -49,6 +51,6 @@ public interface IScanDefinition {
 	 *
 	 * @param outerScannables
 	 */
-	public void setOuterScannables(List<IScanPathModelWrapper> outerScannables);
+	public void setOuterScannables(List<IScanModelWrapper<IScanPathModel>> outerScannables);
 
 }

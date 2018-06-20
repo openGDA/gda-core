@@ -21,14 +21,16 @@ package uk.ac.diamond.daq.mapping.impl;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.scanning.api.points.models.IScanPathModel;
+
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 public class MappingScanDefinition implements IScanDefinition {
 
 	private IMappingScanRegion mappingScanRegion;
-	private List<IScanPathModelWrapper> outerScannables;
+	private List<IScanModelWrapper<IScanPathModel>> outerScannables;
 
 	public MappingScanDefinition() {
 		mappingScanRegion = new MappingScanRegion();
@@ -46,12 +48,12 @@ public class MappingScanDefinition implements IScanDefinition {
 	}
 
 	@Override
-	public List<IScanPathModelWrapper> getOuterScannables() {
+	public List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
 		return outerScannables;
 	}
 
 	@Override
-	public void setOuterScannables(List<IScanPathModelWrapper> outerScannables) {
+	public void setOuterScannables(List<IScanModelWrapper<IScanPathModel>> outerScannables) {
 		if (outerScannables == null) {
 			throw new NullPointerException();
 		}

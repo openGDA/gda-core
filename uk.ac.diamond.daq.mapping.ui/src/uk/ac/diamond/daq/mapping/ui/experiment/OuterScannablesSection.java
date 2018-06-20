@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 /**
  * A section for configuring the outer scannables or a scan, e.g. temperature.
@@ -214,13 +214,13 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	@Override
 	public boolean shouldShow() {
-		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+		List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		return outerScannables != null && !outerScannables.isEmpty();
 	}
 
 	@Override
 	public void createControls(Composite parent) {
-		List<IScanPathModelWrapper> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+		List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
 		Composite otherScanAxesComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(otherScanAxesComposite);
 		final int axesColumns = 3;
@@ -232,7 +232,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		dataBindingContext = new DataBindingContext();
 		axisBindings = new HashMap<>();
 		checkBoxBindings = new HashMap<>();
-		for (IScanPathModelWrapper scannableAxisParameters : outerScannables) {
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : outerScannables) {
 			Button checkBox = new Button(otherScanAxesComposite, SWT.CHECK);
 			checkBox.setText(scannableAxisParameters.getName());
 			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
@@ -290,7 +290,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 	}
 
-	private void bindScanPathModelToTextField(IScanPathModelWrapper scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
+	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
 		IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
@@ -336,7 +336,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	@Override
 	public void updateControls() {
 		// update the bindings for exposure time as we may have new models
-		for (IScanPathModelWrapper scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : getMappingBean().getScanDefinition().getOuterScannables()) {
 			final String scannableName = scannableAxisParameters.getName();
 
 			// remove the old binding between the checkbox and the old model and create a new one

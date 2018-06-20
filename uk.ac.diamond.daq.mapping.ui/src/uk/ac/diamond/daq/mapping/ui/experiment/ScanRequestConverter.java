@@ -68,7 +68,6 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
@@ -133,8 +132,8 @@ public class ScanRequestConverter {
 		// Build the list of models for the scan
 		// first get the models for any outer scannables to be included
 		final List<IScanPathModel> models = mappingBean.getScanDefinition().getOuterScannables().stream().
-			filter(IScanPathModelWrapper::isIncludeInScan).
-			map(IScanPathModelWrapper::getModel).
+			filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan).
+			map(IScanModelWrapper<IScanPathModel>::getModel).
 			filter(Objects::nonNull).
 			collect(toCollection(ArrayList::new)); // use array list as we're going to add an element
 
@@ -352,7 +351,7 @@ public class ScanRequestConverter {
 	}
 
 	private void mergeOuterScannables(CompoundModel<IROI> compoundModel, MappingExperimentBean mappingBean) {
-		final List<IScanPathModelWrapper> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
 		final List<Object> models = compoundModel.getModels();
 		final List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
 		for (Object model : outerScannableModels) {
@@ -366,7 +365,7 @@ public class ScanRequestConverter {
 		IScanPathModel currentModel =  modelIter.hasNext() ? (IScanPathModel) modelIter.next() : null;
 		// iterate through the list of outer scannable wrappers to find the wrapper for the
 		// current model. If we find a match, then we move on to the next model
-		for (IScanPathModelWrapper outerScannable : outerScannables) {
+		for (IScanModelWrapper<IScanPathModel> outerScannable : outerScannables) {
 			if (currentModel == null || !outerScannable.getName().equals(currentModel.getName())) {
 				// this outer scannable wrapper isn't in the scan request
 				((ScanPathModelWrapper) outerScannable).setIncludeInScan(false);
@@ -381,7 +380,7 @@ public class ScanRequestConverter {
 
 		// We didn't find a wrapper for this model
 		if (currentModel != null) {
-			throw new IllegalArgumentException("No IScanPathModelWrapper found for model " + currentModel.getName());
+			throw new IllegalArgumentException("No IScanModelWrapper<IScanPathModel> found for model " + currentModel.getName());
 		}
 	}
 

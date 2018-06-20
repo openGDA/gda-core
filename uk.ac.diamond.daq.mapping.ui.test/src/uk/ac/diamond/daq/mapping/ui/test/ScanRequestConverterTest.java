@@ -63,7 +63,6 @@ import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.api.IScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
@@ -367,7 +366,7 @@ public class ScanRequestConverterTest {
 	public void testOuterScannableIsSet() throws Exception {
 		// Arrange
 		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
-		final List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
@@ -392,7 +391,7 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// Assert again - check the new mapping bean is the same as the old one
-		List<IScanPathModelWrapper> newOuterScannables = newMappingBean.getScanDefinition().getOuterScannables();
+		List<IScanModelWrapper<IScanPathModel>> newOuterScannables = newMappingBean.getScanDefinition().getOuterScannables();
 		assertThat(newOuterScannables.size(), is(2));
 		assertThat(newOuterScannables.get(0).getName(), is(equalTo(Z_AXIS_NAME)));
 		assertThat(newOuterScannables.get(0).getModel(), is(equalTo(outerModel)));
@@ -405,7 +404,7 @@ public class ScanRequestConverterTest {
 	public void testOuterScannableNotFound() throws Exception {
 		// Arrange
 		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
-		final List<IScanPathModelWrapper> outerScannables = Arrays.asList(new ScanPathModelWrapper(
+		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
 				Z_AXIS_NAME, outerModel, true));
 
 		mappingBean.getScanDefinition().setOuterScannables(outerScannables);
