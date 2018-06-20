@@ -18,16 +18,24 @@
 
 package gda.epics;
 
-public class DummyAccessControl implements IAccessControl {
+import gda.factory.FindableBase;
+
+public class DummyAccessControl extends FindableBase implements IAccessControl {
+
+	private Status status = Status.ENABLED;
 
 	@Override
 	public Status getAccessControlState() {
-		return Status.ENABLED;
+		return status;
 	}
 
 	@Override
 	public Status getStatus() {
-		return Status.ENABLED;
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 }
