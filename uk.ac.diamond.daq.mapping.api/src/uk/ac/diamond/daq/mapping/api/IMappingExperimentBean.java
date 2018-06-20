@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
+import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 
 /**
@@ -125,14 +126,14 @@ public interface IMappingExperimentBean {
 	 * no processing should be performed
 	 * @return cluster processing configuration
 	 */
-	public List<IClusterProcessingModelWrapper> getClusterProcessingConfiguration();
+	public List<IScanModelWrapper<ClusterProcessingModel>> getClusterProcessingConfiguration();
 
 	/**
 	 * Sets the processing steps to be run on the cluster. Can be <code>null</code> indicating
 	 * no processing should be performed
 	 * @param clusterProcessingConfiguration cluster processing configuration
 	 */
-	public void setClusterProcessingConfiguration(List<IClusterProcessingModelWrapper> clusterProcessingConfiguration);
+	public void setClusterProcessingConfiguration(List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration);
 
 	/**
 	 * Gets the script files to run before and after the mapping scan. Can be <code>null</code>

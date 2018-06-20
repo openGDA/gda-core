@@ -52,7 +52,6 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
@@ -121,17 +120,17 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		rowControlsMap = new HashMap<>();
 		includeCheckboxBindings = new HashMap<>();
-		final List<IClusterProcessingModelWrapper> clusterProcessingChains =
+		final List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingChains =
 			getMappingBean().getClusterProcessingConfiguration();
 		if (clusterProcessingChains != null) {
-			for (IClusterProcessingModelWrapper clusterProcessingChain : clusterProcessingChains) {
+			for (IScanModelWrapper<ClusterProcessingModel> clusterProcessingChain : clusterProcessingChains) {
 				addProcessingModelRow(processingChainsComposite, clusterProcessingChain);
 			}
 		}
 	}
 
 	private void addProcessingModelRow(Composite parent,
-			IClusterProcessingModelWrapper clusterProcessingChain) {
+			IScanModelWrapper<ClusterProcessingModel> clusterProcessingChain) {
 		String processingChainName = clusterProcessingChain.getName();
 		Control[] rowControls = new Control[TEMPLATE_ROW_NUM_COLUMNS];
 		int controlIndex = 0;
@@ -176,7 +175,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		rowControlsMap.put(processingChainName, rowControls);
 	}
 
-	private IClusterProcessingModelWrapper configureProcessingModel(IClusterProcessingModelWrapper processingModelWrapper) {
+	private IScanModelWrapper<ClusterProcessingModel> configureProcessingModel(IScanModelWrapper<ClusterProcessingModel> processingModelWrapper) {
 		final List<IOperationSetupWizardPage> startPages = new ArrayList<>(2);
 
 		final AcquireDataWizardPage acquirePage = new AcquireDataWizardPage(getEclipseContext());
@@ -233,7 +232,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		return null;
 	}
 
-	private void deleteProcessingModel(IClusterProcessingModelWrapper processingChain) {
+	private void deleteProcessingModel(IScanModelWrapper<ClusterProcessingModel> processingChain) {
 		// remove the processing chain from the mapping bean
 		getMappingBean().getClusterProcessingConfiguration().remove(processingChain);
 
@@ -254,12 +253,12 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private void addProcessingModel() {
-		IClusterProcessingModelWrapper modelWrapper = configureProcessingModel(null);
+		IScanModelWrapper<ClusterProcessingModel> modelWrapper = configureProcessingModel(null);
 		if (modelWrapper != null) {
 			// if the configure wizard wasn't cancelled, add the new processing model
 			// to the list of models and create the new row for it in the UI
 			IMappingExperimentBean mappingBean = getMappingBean();
-			List<IClusterProcessingModelWrapper> processingModels = mappingBean.getClusterProcessingConfiguration();
+			List<IScanModelWrapper<ClusterProcessingModel>> processingModels = mappingBean.getClusterProcessingConfiguration();
 			if (processingModels == null) {
 				processingModels = new ArrayList<>();
 				mappingBean.setClusterProcessingConfiguration(processingModels);
@@ -286,9 +285,9 @@ public class ProcessingSection extends AbstractMappingSection {
 		// Update the section controls to reflect the new bean
 		// Any additional processing chains in the scan request are added at the end of the list
 		// No existing processing chains are deleted, instead they are just deselected
-		List<IClusterProcessingModelWrapper> processingChains = getMappingBean().getClusterProcessingConfiguration();
+		List<IScanModelWrapper<ClusterProcessingModel>> processingChains = getMappingBean().getClusterProcessingConfiguration();
 		if (processingChains != null) {
-			for (IClusterProcessingModelWrapper processingChain : processingChains) {
+			for (IScanModelWrapper<ClusterProcessingModel> processingChain : processingChains) {
 				if (!rowControlsMap.containsKey(processingChain.getName())) {
 					addProcessingModelRow(processingChainsComposite, processingChain);
 				}

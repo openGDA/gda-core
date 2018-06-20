@@ -80,7 +80,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 
@@ -127,7 +126,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private final IEclipseContext context;
 
-	private final IClusterProcessingModelWrapper processingModelWrapper;
+	private final IScanModelWrapper<ClusterProcessingModel> processingModelWrapper;
 
 	private final List<IScanModelWrapper<IDetectorModel>> detectors;
 
@@ -149,7 +148,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private Map<String, String> malcolmDetectorDatasetNames = null;
 
 	protected ProcessingSelectionWizardPage(IEclipseContext context,
-			IClusterProcessingModelWrapper processingModelWrapper,
+			IScanModelWrapper<ClusterProcessingModel> processingModelWrapper,
 			List<IScanModelWrapper<IDetectorModel>> detectors) {
 		super(ProcessingSelectionWizardPage.class.getName());
 		setTitle("Processing Template and Detector Selection");

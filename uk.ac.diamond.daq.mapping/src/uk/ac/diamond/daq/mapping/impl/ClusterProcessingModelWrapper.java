@@ -20,12 +20,12 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 /**
  * A wrapper for a {@link ClusterProcessingModel} for use in the mapping UI.
  */
-public class ClusterProcessingModelWrapper extends ScanModelWrapper<ClusterProcessingModel> implements IClusterProcessingModelWrapper{
+public class ClusterProcessingModelWrapper extends ScanModelWrapper<ClusterProcessingModel> implements IScanModelWrapper<ClusterProcessingModel>{
 
 	public ClusterProcessingModelWrapper() {
 		// no-arg constructor for json serialization

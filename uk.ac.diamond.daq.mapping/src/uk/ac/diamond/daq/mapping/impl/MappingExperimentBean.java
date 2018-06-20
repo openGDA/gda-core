@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
+import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
@@ -18,7 +18,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 
 	private SimpleSampleMetadata sampleMetadata;
 	private List<IScanModelWrapper<IDetectorModel>> detectorParameters = null;
-	private List<IClusterProcessingModelWrapper> clusterProcessingConfiguration = null;
+	private List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration = null;
 	private Map<String, Object> beamlineConfiguration = null;
 	private IScanDefinition scanDefinition;
 	private IScriptFiles scriptFiles = null;
@@ -91,12 +91,12 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public List<IClusterProcessingModelWrapper> getClusterProcessingConfiguration() {
+	public List<IScanModelWrapper<ClusterProcessingModel>> getClusterProcessingConfiguration() {
 		return clusterProcessingConfiguration;
 	}
 
 	@Override
-	public void setClusterProcessingConfiguration(List<IClusterProcessingModelWrapper> clusterProcessingConfiguration) {
+	public void setClusterProcessingConfiguration(List<IScanModelWrapper<ClusterProcessingModel>> clusterProcessingConfiguration) {
 		this.clusterProcessingConfiguration = clusterProcessingConfiguration;
 	}
 

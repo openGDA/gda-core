@@ -59,7 +59,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
@@ -443,9 +442,9 @@ public class ScanRequestConverterTest {
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
 
 		// Assert again - check the new mapping bean is the same as the old one
-		List<IClusterProcessingModelWrapper> newClusterProcessingList = newMappingBean.getClusterProcessingConfiguration();
+		List<IScanModelWrapper<ClusterProcessingModel>> newClusterProcessingList = newMappingBean.getClusterProcessingConfiguration();
 		assertThat(newClusterProcessingList.size(), is(1));
-		IClusterProcessingModelWrapper clusterProcessingWrapper = newClusterProcessingList.get(0);
+		IScanModelWrapper<ClusterProcessingModel> clusterProcessingWrapper = newClusterProcessingList.get(0);
 		assertThat(clusterProcessingWrapper.getName(), is(equalTo(includedProcessingWrapper.getName())));
 		assertThat(clusterProcessingWrapper.getModel(), is(equalTo(clusterProcessingModel)));
 		assertFalse(newClusterProcessingList.contains(excludedProcessingWrapper));

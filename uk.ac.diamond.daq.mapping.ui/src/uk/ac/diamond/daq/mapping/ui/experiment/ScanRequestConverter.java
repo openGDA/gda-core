@@ -61,7 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.mapping.api.IClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -169,7 +168,7 @@ public class ScanRequestConverter {
 
 		// add the required cluster processing steps
 		if (mappingBean.getClusterProcessingConfiguration() != null) {
-			for (IClusterProcessingModelWrapper processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
+			for (IScanModelWrapper<ClusterProcessingModel> processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
 				if (processingWrapper.isIncludeInScan()) {
 					String name = processingWrapper.getName();
 					if (scanRequest.getDetectors() != null && scanRequest.getDetectors().containsKey(name)) {
@@ -399,12 +398,12 @@ public class ScanRequestConverter {
 		}
 
 		// disable all the existing processing steps
-		final Map<String, IClusterProcessingModelWrapper> processingWrappers;
+		final Map<String, IScanModelWrapper<ClusterProcessingModel>> processingWrappers;
 		if (mappingBean.getClusterProcessingConfiguration() == null) {
 			processingWrappers = Collections.emptyMap();
 		} else {
 			processingWrappers = new HashMap<>(mappingBean.getClusterProcessingConfiguration().size());
-			for (IClusterProcessingModelWrapper processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
+			for (IScanModelWrapper<ClusterProcessingModel> processingWrapper : mappingBean.getClusterProcessingConfiguration()) {
 				((ClusterProcessingModelWrapper) processingWrapper).setIncludeInScan(false);
 				processingWrappers.put(processingWrapper.getModel().getName(),
 						processingWrapper);
@@ -436,7 +435,7 @@ public class ScanRequestConverter {
 						throw new IllegalArgumentException("Unknown detector " + name);
 					}
 				} else if (model instanceof ClusterProcessingModel) {
-					List<IClusterProcessingModelWrapper> processingConfigList = mappingBean.getClusterProcessingConfiguration();
+					List<IScanModelWrapper<ClusterProcessingModel>> processingConfigList = mappingBean.getClusterProcessingConfiguration();
 					if (processingConfigList == null) { // create the list of processing configs if not present
 						processingConfigList = new ArrayList<>(4);
 						mappingBean.setClusterProcessingConfiguration(processingConfigList);
