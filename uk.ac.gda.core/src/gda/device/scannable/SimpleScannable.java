@@ -18,13 +18,16 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-
 import java.io.Serializable;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A bare bones scannable that places no limitation on the type of the position object
  */
+@ServiceInterface(Scannable.class)
 public class SimpleScannable extends ScannableBase {
 
 	private Object currentPosition;
