@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toCollection;
 
-import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +40,8 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
@@ -52,7 +49,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptLanguage;
@@ -60,7 +56,6 @@ import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -101,10 +96,6 @@ public class ScanRequestConverter {
 
 	private MappingStageInfo mappingStageInfo;
 
-	private IEventService eventService;
-
-	private IScannableDeviceService scannableDeviceService;
-
 	public void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
 		this.mappingStageInfo = mappingStageInfo;
 	}
@@ -120,9 +111,8 @@ public class ScanRequestConverter {
 	 * @param mappingBean
 	 *            the IMappingExperimentBean to be converted
 	 * @return the ScanRequest
-	 * @throws ScanningException
 	 */
-	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingBean) throws ScanningException {
+	public ScanRequest<IROI> convertToScanRequest(IMappingExperimentBean mappingBean) {
 		final ScanRequest<IROI> scanRequest = new ScanRequest<>();
 
 		final IMappingScanRegion scanRegion = mappingBean.getScanDefinition().getMappingScanRegion();
@@ -474,27 +464,4 @@ public class ScanRequestConverter {
 		sampleMetadata.setSampleName((String) sampleScanMetadata.getFieldValue(FIELD_NAME_SAMPLE_NAME));
 		sampleMetadata.setDescription((String) sampleScanMetadata.getFieldValue(FIELD_NAME_SAMPLE_DESCRIPTION));
 	}
-
-
-	public void setEventService(IEventService eventService) {
-		this.eventService = eventService;
-	}
-
-	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
-		this.scannableDeviceService = scannableDeviceService;
-	}
-
-	private IScannableDeviceService getScannableDeviceService() throws ScanningException {
-		if (scannableDeviceService == null) {
-			try {
-				URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-				scannableDeviceService = eventService.createRemoteService(jmsURI, IScannableDeviceService.class);
-			} catch (Exception e) {
-				throw new ScanningException("Could not get IScannableDeviceService", e);
-			}
-		}
-
-		return scannableDeviceService;
-	}
-
 }

@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -53,7 +52,6 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -79,8 +77,6 @@ public class ScanRequestConverterTest {
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 	private static final String Z_AXIS_NAME = "testing_z_axis";
 
-	private IScannableDeviceService connector;
-
 	private ScanRequestConverter scanRequestConverter;
 	private MappingStageInfo mappingStageInfo;
 	private MappingExperimentBean mappingBean;
@@ -91,15 +87,12 @@ public class ScanRequestConverterTest {
 	public void setUp() throws Exception {
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
-		connector = new MockScannableConnector(null);
-
 		mappingStageInfo = new MappingStageInfo();
 		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
 		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
 
 		scanRequestConverter = new ScanRequestConverter();
 		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
-		scanRequestConverter.setScannableDeviceService(connector);
 
 		// Set up the experiment bean with some sensible defaults
 		mappingBean = new MappingExperimentBean();
