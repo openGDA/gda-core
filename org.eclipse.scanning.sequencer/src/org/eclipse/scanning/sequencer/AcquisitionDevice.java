@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +49,7 @@ import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.EventException;
@@ -64,6 +66,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanService;
+import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -85,14 +88,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Matthew Gerring
  */
-final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implements IPositionListener, IMalcolmEventListener {
+final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implements IScanDevice, IMalcolmEventListener {
 
 	// Scanning stuff
-	private IPositioner                          positioner;
-	private LevelRunner<IRunnableDevice<?>>      runners;
-	private LevelRunner<IRunnableDevice<?>>      writers;
-	private AnnotationManager                    annotationManager;
-	private ExposureTimeManager                  exposureManager;
+	private IPositioner positioner;
+	private LevelRunner<IRunnableDevice<?>> runners;
+	private LevelRunner<IRunnableDevice<?>> writers;
+	private AnnotationManager annotationManager;
+	private ExposureTimeManager exposureManager;
+	private Set<IPositionListener> positionListeners = new CopyOnWriteArraySet<>();
+
 
 	// the nexus file
 	private INexusScanFileManager nexusScanFileManager = null;
@@ -879,5 +884,31 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	public IPositioner getPositioner() {
 		return positioner;
 	}
+
+	@Override
+	public void addPositionListener(IPositionListener posListener) {
+		positionListeners.add(posListener);
+	}
+
+	@Override
+	public void removePositionListener(IPositionListener posListener) {
+		positionListeners.remove(posListener);
+	}
+
+	private void firePositionComplete(IPosition position) throws ScanningException {
+		final PositionEvent event = new PositionEvent(position, this);
+		for (IPositionListener listener : positionListeners) {
+			listener.positionPerformed(event);
+		}
+	}
+
+	private void firePositionMoveComplete(IPosition position) throws ScanningException {
+		final PositionEvent event = new PositionEvent(position, this);
+		for (IPositionListener listener : positionListeners) {
+			listener.positionMovePerformed(event);
+		}
+	}
+
+
 
 }

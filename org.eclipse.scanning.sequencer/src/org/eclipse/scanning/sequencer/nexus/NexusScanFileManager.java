@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
@@ -75,7 +76,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanFileManager.class);
 
-	private final AbstractRunnableDevice<ScanModel> scanDevice;
+	private final IScanDevice scanDevice;
 	private ScanModel model;
 	private NexusScanInfo scanInfo;
 	private NexusFileBuilder fileBuilder;
@@ -106,7 +107,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	 */
 	private Map<String, Integer> defaultAxisIndexForScannable = null;
 
-	public NexusScanFileManager(AbstractRunnableDevice<ScanModel> scanDevice) {
+	public NexusScanFileManager(IScanDevice scanDevice) {
 		this.scanDevice = scanDevice;
 	}
 
@@ -292,7 +293,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	 */
 	@SuppressWarnings("deprecation")
 	private void addLegacyPerScanMonitors(ScanModel model, Collection<String> scannableNames) throws ScanningException {
-		IScannableDeviceService scannableDeviceService = scanDevice.getConnectorService();
+		IScannableDeviceService scannableDeviceService = ((AbstractRunnableDevice<?>) scanDevice).getConnectorService();
 
 		// build up the set of all metadata scannables
 		final Set<String> perScanMonitorNames = new HashSet<>();
@@ -340,7 +341,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 
 	private IScannable<?> getPerScanMonitor(String monitorName) {
 		try {
-			return scanDevice.getConnectorService().getScannable(monitorName);
+			return ((AbstractRunnableDevice<?>) scanDevice).getConnectorService().getScannable(monitorName);
 		} catch (ScanningException e) {
 			logger.error("No such scannable ''{}''", monitorName);
 			return null;

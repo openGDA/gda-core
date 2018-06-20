@@ -33,10 +33,7 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListenable;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.slf4j.Logger;
@@ -57,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<T>,
-		IModelProvider<T>, IScanAttributeContainer, IPositionListenable, IActivatable{
+		IModelProvider<T>, IScanAttributeContainer, IActivatable {
 	private static Logger logger = LoggerFactory.getLogger(AbstractRunnableDevice.class);
 
 	// Data
@@ -77,7 +74,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	// Listeners
 	private Collection<IRunListener> runListeners;
-	private Collection<IPositionListener> positionListeners;
 
 	// Attributes
 	private Map<String, Object> scanAttributes;
@@ -221,40 +217,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	public void removeRunListener(IRunListener l) {
 		if (runListeners==null) return;
 		runListeners.remove(l);
-	}
-
-	@Override
-	public void addPositionListener(IPositionListener l) {
-		if (positionListeners == null) {
-			positionListeners = Collections.synchronizedCollection(new LinkedHashSet<>());
-		}
-		positionListeners.add(l);
-	}
-
-	@Override
-	public void removePositionListener(IPositionListener l) {
-		if (positionListeners == null) return;
-		positionListeners.remove(l);
-	}
-
-	protected void firePositionComplete(IPosition position) throws ScanningException {
-		if (positionListeners == null) return;
-
-		final PositionEvent evt = new PositionEvent(position, this);
-
-		// Make array, avoid multi-threading issues
-		final IPositionListener[] la = positionListeners.toArray(new IPositionListener[positionListeners.size()]);
-		for (IPositionListener l : la) l.positionPerformed(evt);
-	}
-
-	protected void firePositionMoveComplete(IPosition position) throws ScanningException {
-		if (positionListeners == null) return;
-
-		final PositionEvent evt = new PositionEvent(position, this);
-
-		// Make array, avoid multi-threading issues
-		final IPositionListener[] la = positionListeners.toArray(new IPositionListener[positionListeners.size()]);
-		for (IPositionListener l : la) l.positionMovePerformed(evt);
 	}
 
 	protected void fireStateChanged(DeviceState oldState, DeviceState newState) throws ScanningException {

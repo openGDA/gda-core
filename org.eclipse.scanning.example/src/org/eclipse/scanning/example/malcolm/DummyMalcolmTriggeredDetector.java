@@ -40,11 +40,12 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
+import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.rank.IScanRankService;
 import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.eclipse.scanning.example.Services;
@@ -57,7 +58,7 @@ import org.eclipse.scanning.sequencer.SubscanModerator;
  *
  * @author Matthew Dickie
  */
-public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel> extends AbstractRunnableDevice<T> implements INexusDevice<NXdetector>, IPositionListener {
+public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel> extends AbstractRunnableDevice<T> implements INexusDevice<NXdetector>, IMalcolmEventListener {
 
 	private DummyMalcolmDevice dummyMalcolmDevice;
 
@@ -118,7 +119,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 				IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(
 						detectorEntry.getKey());
 				dummyMalcolmDevice = (DummyMalcolmDevice) runnableDevice;
-				dummyMalcolmDevice.addPositionListener(this);
+				dummyMalcolmDevice.addMalcolmListener(this);
 			}
 		}
 	}
@@ -126,7 +127,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 	@ScanFinally
 	public void scanFinally() {
 		if (dummyMalcolmDevice != null) {
-			dummyMalcolmDevice.removePositionListener(this);
+			dummyMalcolmDevice.removeMalcolmListener(this);
 		}
 		dummyMalcolmDevice = null;
 
@@ -171,8 +172,10 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 	}
 
 	@Override
-	public void positionPerformed(PositionEvent evt) throws ScanningException {
-		hardwareTriggerReceived();
+	public void eventPerformed(MalcolmEvent event) {
+		if (event.getEventType() == MalcolmEventType.STEPS_COMPLETED) {
+			hardwareTriggerReceived();
+		}
 	}
 
 	public void hardwareTriggerReceived() {

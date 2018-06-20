@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
@@ -63,7 +63,7 @@ public class NexusScanFileManagerFactory {
 	}
 
 	public static INexusScanFileManager createNexusScanFileManager(
-			AbstractRunnableDevice<ScanModel> scanDevice) throws ScanningException {
+			IScanDevice scanDevice) throws ScanningException {
 		final ScanModel scanModel = scanDevice.getModel();
 		if (scanModel.getFilePath() == null || ServiceHolder.getFactory() == null) {
 			return new DummyNexusScanFileManager();

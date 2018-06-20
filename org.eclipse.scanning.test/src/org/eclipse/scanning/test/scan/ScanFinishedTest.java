@@ -35,6 +35,7 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -154,7 +155,7 @@ public class ScanFinishedTest {
 
 	@Test
 	public void testAbortingPausedScan() throws Exception {
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>) createStepScan(80, 5);
+		IScanDevice scanner = createStepScan(80, 5);
 		NXentry entry = getNexusEntry(scanner);
 		assertScanNotFinished(entry);
 
@@ -248,12 +249,12 @@ public class ScanFinishedTest {
 
 		return smodel;
 	}
-	private IRunnableDevice<ScanModel> createStepScan(int... size) throws Exception {
+	private IScanDevice createStepScan(int... size) throws Exception {
 
 		ScanModel smodel = createStepModel(size);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IScanDevice scanner = (IScanDevice) dservice.createRunnableDevice(smodel, null);
 
 		final IPointGenerator<?> fgen = (IPointGenerator<?>)smodel.getPositionIterable();
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

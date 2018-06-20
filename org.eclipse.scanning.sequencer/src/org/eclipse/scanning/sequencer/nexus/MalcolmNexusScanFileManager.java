@@ -21,7 +21,7 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -45,7 +45,7 @@ public class MalcolmNexusScanFileManager extends NexusScanFileManager {
 		DEFAULT_SCAN_ROLES.put(NexusBaseClass.NX_POSITIONER, ScanRole.SCANNABLE);
 	}
 
-	public MalcolmNexusScanFileManager(AbstractRunnableDevice<ScanModel> scanDevice) throws ScanningException {
+	public MalcolmNexusScanFileManager(IScanDevice scanDevice) throws ScanningException {
 		super(scanDevice);
 
 		malcolmDevices = scanDevice.getModel().getDetectors().stream().

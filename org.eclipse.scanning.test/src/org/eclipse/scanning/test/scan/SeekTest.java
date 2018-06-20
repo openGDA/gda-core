@@ -25,9 +25,9 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -66,7 +66,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	public void seekFirst() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>)controller.getDevice();
+		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		try {
 			scanner.start(null);
@@ -106,7 +106,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 				                                         Arrays.asList("xNex", "yNex"),
 				                                         temp.getAbsolutePath());
 
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>)controller.getDevice();
+		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		try {
 			scanner.start(null);
@@ -170,7 +170,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	public void seekFirstRestartsInCorrectLocation() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>)controller.getDevice();
+		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		final List<Integer> steps = new ArrayList<Integer>();
 		scanner.addPositionListener(new IPositionListener() {
@@ -233,7 +233,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	public void seekTooLarge() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>)controller.getDevice();
+		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		try {
 			scanner.start(null);
@@ -257,7 +257,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	public void seekTooSmall() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
-		AbstractRunnableDevice<ScanModel> scanner = (AbstractRunnableDevice<ScanModel>)controller.getDevice();
+		IScanDevice scanner = (IScanDevice) controller.getDevice();
 
 		try {
 			scanner.start(null);
