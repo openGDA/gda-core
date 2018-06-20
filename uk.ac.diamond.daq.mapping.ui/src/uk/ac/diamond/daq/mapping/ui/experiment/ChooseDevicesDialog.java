@@ -28,7 +28,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleConfiguration;
 import org.eclipse.richbeans.widgets.shuffle.ShuffleViewer;
-import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -36,35 +36,35 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
-import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 
 /**
- * Lets user choose a subset from their configured detectors.
+ * Lets user choose a subset from their configured devices.
  */
-public class ChooseDetectorsDialog extends Dialog {
+public class ChooseDevicesDialog<M extends INameable> extends Dialog {
 
-	private List<IScanModelWrapper<IDetectorModel>> originalList;
-	private List<IScanModelWrapper<IDetectorModel>> selectedList;
+	private String title = "Choose from available devices";
+	private List<IScanModelWrapper<M>> originalList;
+	private List<IScanModelWrapper<M>> selectedList;
 	private ShuffleConfiguration<String> data;
-	private Map<String, IScanModelWrapper<IDetectorModel>> labelMap = new HashMap<>();
+	private Map<String, IScanModelWrapper<M>> labelMap = new HashMap<>();
 
 	/**
 	 * @param parentShell
-	 * @param availableDetectors - all detectors configured in Spring
-	 * @param selectedDetectors - previously selected detectors; can be null
+	 * @param availableDevices - all devices configured in Spring
+	 * @param selectedDevices - previously selected devices; can be null
 	 */
-	protected ChooseDetectorsDialog(Shell parentShell, List<IScanModelWrapper<IDetectorModel>> availableDetectors, List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
+	protected ChooseDevicesDialog(Shell parentShell, List<IScanModelWrapper<M>> availableDevices, List<IScanModelWrapper<M>> selectedDevices) {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE | SWT.APPLICATION_MODAL);
-		originalList = availableDetectors;
-		selectedList = selectedDetectors == null ? new ArrayList<>() : selectedDetectors;
+		originalList = availableDevices;
+		selectedList = selectedDevices == null ? new ArrayList<>() : selectedDevices;
 		originalList.forEach(model -> labelMap.put(model.getName(), model));
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Choose from available detectors");
+		newShell.setText(title);
 	}
 
 	@Override
@@ -76,20 +76,20 @@ public class ChooseDetectorsDialog extends Dialog {
 		data.setFromLabel("Available");
 		data.setToLabel("Selected");
 
-		List<String> selectedDetectors = selectedList.stream()
-				.map(IScanModelWrapper<IDetectorModel>::getName)
+		final List<String> selectedDevices = selectedList.stream()
+				.map(IScanModelWrapper<M>::getName)
 				.collect(Collectors.toList());
 
-		List<String> availableDetectors = labelMap.keySet().stream()
-				.filter(model -> !selectedDetectors.contains(model))
+		final List<String> availableDevices = labelMap.keySet().stream()
+				.filter(model -> !selectedDevices.contains(model))
 				.collect(Collectors.toList());
 
-		ShuffleViewer<String> viewer = new ShuffleViewer<>(data);
-		Control shuffleComposite = viewer.createPartControl(parent);
+		final ShuffleViewer<String> viewer = new ShuffleViewer<>(data);
+		final Control shuffleComposite = viewer.createPartControl(parent);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(shuffleComposite);
 
-		data.setFromList(availableDetectors);
-		data.setToList(selectedDetectors);
+		data.setFromList(availableDevices);
+		data.setToList(selectedDevices);
 
 		return shuffleComposite;
 	}
@@ -97,15 +97,19 @@ public class ChooseDetectorsDialog extends Dialog {
 	@Override
 	public void okPressed() {
 		selectedList = new ArrayList<>();
-		data.getToList().forEach(detector -> selectedList.add(labelMap.get(detector)));
+		data.getToList().forEach(device -> selectedList.add(labelMap.get(device)));
 
-		// To avoid unexpected behaviour, do not include in scan any detector that isn't selected here
-		data.getFromList().forEach(detector -> ((DetectorModelWrapper) labelMap.get(detector)).setIncludeInScan(false));
+		// To avoid unexpected behaviour, do not include in scan any device that isn't selected here
+		data.getFromList().forEach(device -> labelMap.get(device).setIncludeInScan(false));
 		super.okPressed();
 	}
 
-	public List<IScanModelWrapper<IDetectorModel>> getSelectedDetectors() {
+	public List<IScanModelWrapper<M>> getSelectedDevices() {
 		return selectedList;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }

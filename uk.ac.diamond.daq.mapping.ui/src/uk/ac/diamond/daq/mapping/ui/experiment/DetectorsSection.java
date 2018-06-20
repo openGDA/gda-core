@@ -121,11 +121,12 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private void chooseDetectors() {
-		ChooseDetectorsDialog dialog = new ChooseDetectorsDialog(getShell(),
+		ChooseDevicesDialog<IDetectorModel> dialog = new ChooseDevicesDialog<>(getShell(),
 				getMappingBean().getDetectorParameters(), visibleDetectors);
+		dialog.setTitle("Choose from available detectors");
 
 		if (dialog.open() == Window.OK) {
-			visibleDetectors = dialog.getSelectedDetectors();
+			visibleDetectors = dialog.getSelectedDevices();
 
 			// set any detectors not in the new selection to not be included in the scan
 			getMappingBean().getDetectorParameters().stream().
