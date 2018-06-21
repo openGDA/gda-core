@@ -25,15 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.BlockingMotor;
-import gda.device.ControlPoint;
-import gda.device.DeviceException;
-import gda.device.MotorException;
-import gda.device.MotorStatus;
-import gda.device.scannable.ContinuouslyScannableViaController;
-import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
-import gda.factory.FactoryException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +32,16 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import gda.device.ControlPoint;
+import gda.device.DeviceException;
+import gda.device.Motor;
+import gda.device.MotorException;
+import gda.device.MotorStatus;
+import gda.device.scannable.ContinuouslyScannableViaController;
+import gda.device.scannable.ScannableMotor;
+import gda.device.scannable.scannablegroup.DeferredAndTrajectoryScannableGroup;
+import gda.factory.FactoryException;
 
 /**
  * An integration test is required because the required functionality has spread between
@@ -56,11 +57,11 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 	@Mock
 	ControlPoint mockedControlPoint;
 	@Mock
-	BlockingMotor motora; // EpicsMotor implements this
+	Motor motora; // EpicsMotor implements this
 	@Mock
-	BlockingMotor motorb;
+	Motor motorb;
 	@Mock
-	BlockingMotor motorc;
+	Motor motorc;
 
 	ScannableMotor scna;
 	ScannableMotor scnb;
@@ -114,7 +115,7 @@ public class EpicsTrajectoryMoveControllerAdapterIntegrationTest {
 		controller.setScannableForMovingGroupToStart(trajgroupNoOffset);
 	}
 
-	private ScannableMotor mockScannableMotor(BlockingMotor motor, String name) throws FactoryException, MotorException {
+	private ScannableMotor mockScannableMotor(Motor motor, String name) throws FactoryException, MotorException {
 		when(motor.getMinPosition()).thenReturn(-100.);
 		when(motor.getMaxPosition()).thenReturn(100.);
 		when(motor.getStatus()).thenReturn(MotorStatus.READY);

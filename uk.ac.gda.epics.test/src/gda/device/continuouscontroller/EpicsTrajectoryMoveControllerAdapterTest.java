@@ -18,6 +18,7 @@
 
 package gda.device.continuouscontroller;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,21 +26,20 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.util.OutOfRangeException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 
 import java.util.List;
-
-import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.util.OutOfRangeException;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 
 public class EpicsTrajectoryMoveControllerAdapterTest {
 
@@ -120,7 +120,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 	public void testAddPointAndGetLastPointAdded() throws DeviceException {
 		adapter.addPoint(new Double[]{1., 2., null, 4.});
 		adapter.addPoint(new Double[]{1.1, 2.1, null, 4.1});
-		ArrayAssert.assertEquals(new Double[]{1.1, 2.1, null, 4.1}, adapter.getLastPointAdded());
+		assertArrayEquals(new Double[]{1.1, 2.1, null, 4.1}, adapter.getLastPointAdded());
 	}
 
 
@@ -296,8 +296,8 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		when(mockedController.getMActual(4)).thenReturn(new double[] {4., 4.1});
 		List<double[]> positions = adapter.readActualPositionsFromHardware();
 		verify(mockedController).read();
-		ArrayAssert.assertEquals(positions.get(0), new double[] {4., 3., 2., 1.}, .001);
-		ArrayAssert.assertEquals(positions.get(1), new double[] {4.1, 3.1, 2.1, 1.1}, .001);
+		assertArrayEquals(positions.get(0), new double[] {4., 3., 2., 1.}, .001);
+		assertArrayEquals(positions.get(1), new double[] {4.1, 3.1, 2.1, 1.1}, .001);
 	}
 
 }
