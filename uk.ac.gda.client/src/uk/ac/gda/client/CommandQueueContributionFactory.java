@@ -103,7 +103,7 @@ public class CommandQueueContributionFactory extends ExtensionContributionFactor
 	}
 
 	public void executeCommand(IServiceLocator serviceLocator, String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-		((IHandlerService) serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
+		serviceLocator.getService(IHandlerService.class).executeCommand(commandId, new Event());
 	}
 
 	private Action createAction(final IServiceLocator serviceLocator, final String label, final String commandId,

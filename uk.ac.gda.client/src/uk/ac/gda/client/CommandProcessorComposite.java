@@ -120,7 +120,7 @@ public class CommandProcessorComposite extends Composite {
 			@Override
 			public void run() {
 				try {
-					((IHandlerService) iWorkbenchPartSite.getService(IHandlerService.class)).executeCommand(
+					iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
 							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_SKIP_COMMAND_QUEUE, new Event());
 				} catch (Exception ex) {
 					logger.error("Error executing command "
@@ -141,7 +141,7 @@ public class CommandProcessorComposite extends Composite {
 			@Override
 			public void run() {
 				try {
-					((IHandlerService) iWorkbenchPartSite.getService(IHandlerService.class)).executeCommand(
+					iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
 							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_STOP_COMMAND_QUEUE, new Event());
 				} catch (Exception ex) {
 					logger.error("Error executing command "
@@ -162,7 +162,7 @@ public class CommandProcessorComposite extends Composite {
 			@Override
 			public void run() {
 				try {
-					((IHandlerService) iWorkbenchPartSite.getService(IHandlerService.class)).executeCommand(
+					iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(
 							CommandQueueContributionFactory.UK_AC_GDA_CLIENT_STOP_AFTER_CURRENT_COMMAND_QUEUE, new Event());
 				} catch (Exception ex) {
 					logger.error("Error executing command "
@@ -304,7 +304,7 @@ public class CommandProcessorComposite extends Composite {
 		String commandId = run ? CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE
 				: CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PAUSE_COMMAND_QUEUE;
 		try {
-			((IHandlerService) iWorkbenchPartSite.getService(IHandlerService.class)).executeCommand(commandId,
+			iWorkbenchPartSite.getService(IHandlerService.class).executeCommand(commandId,
 					new Event());
 		} catch (Exception e) {
 			logger.error("Error executing command " + commandId, e);
@@ -431,7 +431,7 @@ class ActionSelectionListener implements SelectionListener {
 	@Override
 	public void widgetSelected(SelectionEvent e) {
 		try {
-			((IHandlerService) serviceLocator.getService(IHandlerService.class)).executeCommand(commandId, new Event());
+			serviceLocator.getService(IHandlerService.class).executeCommand(commandId, new Event());
 		} catch (Exception ex) {
 			logger.error("Error executing command " + commandId);
 		}
