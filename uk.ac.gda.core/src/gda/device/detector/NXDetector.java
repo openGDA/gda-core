@@ -247,37 +247,37 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 	@Override
 	public void setInputNames(String[] names) {
 		// getInputNames generates these dynamically
-		throw new RuntimeException(String.format(UNSUPPORTED_SET_FUNCTION, "inputNames"));
+		throw new UnsupportedOperationException(String.format(UNSUPPORTED_SET_FUNCTION, "inputNames"));
 	}
 
 	@Override
 	public void setExtraNames(String[] names) {
 		// getExtraNames generates these dynamically
-		throw new RuntimeException(String.format(UNSUPPORTED_SET_FUNCTION, "extraNames"));
+		throw new UnsupportedOperationException(String.format(UNSUPPORTED_SET_FUNCTION, "extraNames"));
 	}
 
 	@Override
 	public void setOutputFormat(String[] names) {
 		// getOutputFormats generates these dynamically
-		throw new RuntimeException(String.format(UNSUPPORTED_SET_FUNCTION, "outputFormat"));
+		throw new UnsupportedOperationException(String.format(UNSUPPORTED_SET_FUNCTION, "outputFormat"));
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
 		// should be operated only in a scan
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		throw new UnsupportedOperationException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
 
 	@Override
 	public boolean isBusy() {
 		// should be operated only in a scan
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		throw new UnsupportedOperationException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
 		// should be operated only in a scan
-		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
+		throw new UnsupportedOperationException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
 
 	@Override
