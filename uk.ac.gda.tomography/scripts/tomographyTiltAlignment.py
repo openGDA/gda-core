@@ -2,8 +2,8 @@ import scisoftpy as dnp
 from gda.factory import Finder
 from gda.jython.commands.ScannableCommands import scan
 from i12utilities import pwd
-from gda.util import Sleep
 from org.eclipse.dawnsci.analysis.dataset.impl import Image as javaImage
+from time import sleep
 
 
 plotData = True
@@ -17,7 +17,7 @@ def analyseData(dd):
     print "Median calculated"
     if plotData: dnp.plot.image(med)
     
-    Sleep.sleep(2000)
+    sleep(2)
     #flatFieldCorrectedSum = ss/med
     #dnp.plot.image(flatFieldCorrectedSum)
     
@@ -33,9 +33,9 @@ def analyseData(dd):
         im = dnp.array(im)
         threshold = 0.85
         if plotData: dnp.plot.image(im)
-        if plotData: Sleep.sleep(1000)
+        if plotData: sleep(1)
         if plotData: dnp.plot.image(im < threshold)
-        if plotData: Sleep.sleep(1000)
+        if plotData: sleep(1)
         cent = dnp.centroid(im < threshold)
         yVals.append(cent[0])
         xVals.append(cent[1])
