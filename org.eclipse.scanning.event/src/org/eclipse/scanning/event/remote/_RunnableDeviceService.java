@@ -13,8 +13,8 @@ package org.eclipse.scanning.event.remote;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -23,6 +23,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConnection;
@@ -33,6 +34,7 @@ import org.eclipse.scanning.api.event.core.ResponseConfiguration.ResponseType;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.slf4j.Logger;
@@ -49,10 +51,10 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	@Override
 	public void init() throws EventException {
 		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
-		long timeout = Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceServiceTimeout", 500);
+		long timeout = Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceServiceTimeout", 2000);
 		logger.debug("Setting timeout {} ms" , timeout);
 		requester.setResponseConfiguration(new ResponseConfiguration(ResponseType.ONE, timeout, TimeUnit.MILLISECONDS));
-		runnables = new HashMap<>();
+		runnables = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	@Override
 	public <T> IRunnableDevice<T> createRunnableDevice(T model, boolean configure) throws ScanningException {
 		try {
-			return new _RunnableDevice(new DeviceRequest(model, configure), uri, eservice);
+			return new _RunnableDevice<>(new DeviceRequest(model, configure), uri, eservice);
 		} catch (EventException | InterruptedException e) {
 			throw new ScanningException(e);
 		}
@@ -113,32 +115,40 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 		return getRunnableDevice(name, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IRunnableDevice<T> getRunnableDevice(String name, IPublisher<ScanBean> publisher) throws ScanningException {
-		@SuppressWarnings("unchecked")
-		IRunnableDevice<T> device = (IRunnableDevice<T>)runnables.get(name);
-		if (device == null) {
-			try {
-				final DeviceRequest req = new DeviceRequest(name);
-				final DeviceRequest response = requester.post(req);
-				response.checkException();
-				@SuppressWarnings("unchecked")
-				final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
-				device = new _RunnableDevice<>(info, uri, eservice);
-				runnables.put(name, device);
-			} catch (EventException | InterruptedException e) {
-				throw new ScanningException(e);
-			}
+		try {
+			return (IRunnableDevice<T>) runnables.computeIfAbsent(name, this::createRunnableDevice);
+		} catch (RuntimeException e) {
+			if (e.getCause() instanceof ScanningException) throw (ScanningException) e.getCause();
+			throw e;
 		}
-		return device;
 	}
+
+	private <T> IRunnableDevice<T> createRunnableDevice(String name) {
+		try {
+			final DeviceRequest req = new DeviceRequest(name);
+			final DeviceRequest response = requester.post(req);
+			response.checkException();
+			@SuppressWarnings("unchecked")
+			final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
+			if (info.getDeviceRole() == DeviceRole.MALCOLM) {
+				@SuppressWarnings("unchecked")
+				IMalcolmDevice<T> device = (IMalcolmDevice<T>) new _MalcolmDevice<>((DeviceInformation<MalcolmModel>) info, uri, eservice);
+				return device;
+			} else {
+				return new _RunnableDevice<>(info, uri, eservice);
+			}
+		} catch (EventException | InterruptedException e) {
+			throw new RuntimeException(new ScanningException(e));
+		}
+	}
+
 
 	@Override
 	public Collection<String> getRunnableDeviceNames() throws ScanningException {
-		DeviceInformation<?>[] devices = getDevices();
-	    String[] names = new String[devices.length];
-	    for (int i = 0; i < devices.length; i++) names[i] = devices[i].getName();
-		return Arrays.asList(names);
+		return Arrays.stream(getDevices()).map(DeviceInformation::getName).collect(Collectors.toList());
 	}
 
 	@Override

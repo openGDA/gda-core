@@ -78,7 +78,8 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IAttributabl
 	public boolean isLocked() throws MalcolmDeviceException;
 
 	/**
-	 * Returns the axes that this malcolm device can move.
+	 * Returns the axes that this malcolm device can move. Note that although the returned value
+	 * is a {@link Set}, the iteration order the contained elements is predicatable.
 	 * @return the axes this malcolm device can move, never <code>null</code>
 	 * @throws ScanningException
 	 */

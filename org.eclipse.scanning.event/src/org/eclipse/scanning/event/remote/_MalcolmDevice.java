@@ -1,0 +1,153 @@
+/*-
+ * Copyright © 2018 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.eclipse.scanning.event.remote;
+
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
+import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
+import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.IRunListener;
+
+public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> implements IMalcolmDevice<M> {
+
+	// TODO to implement IMalcolmDevice we have to implement loads of methods that don't make sense on the client.
+	// We should try to fix this. Some methods probably shouldn't be declared on IMalcolmDevice, e.g setFileDir
+	// but on MalcolmDevice, and others, e.g. fire... methods should not be part of the API.
+
+	_MalcolmDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+		super(info, uri, eventService);
+		if (info.getDeviceRole() != DeviceRole.MALCOLM)
+			throw new IllegalArgumentException("Not a malcolm device: " + info.getName());
+	}
+
+	@Override
+	public void addRunListener(IRunListener l) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void removeRunListener(IRunListener l) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void fireRunWillPerform(IPosition position) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void fireRunPerformed(IPosition position) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void fireWriteWillPerform(IPosition position) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void fireWritePerformed(IPosition position) throws ScanningException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void pause() throws ScanningException, InterruptedException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void seek(int stepNumber) throws ScanningException, InterruptedException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void resume() throws ScanningException, InterruptedException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void initialize() throws MalcolmDeviceException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public boolean isLocked() throws MalcolmDeviceException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public Set<String> getAvailableAxes() throws ScanningException {
+		for (IDeviceAttribute<?> attribute : getAllAttributes()) {
+			if (attribute instanceof StringArrayAttribute &&
+					(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
+				// use LinkedHashSet so that iterator has same element order as the string array
+				return new LinkedHashSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
+			}
+		}
+		throw new ScanningException("Could not get available axes for malcolm device " + getName());
+	}
+
+	@Override
+	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void setFileDir(String fileDir) {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public String getFileDir() {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void addMalcolmListener(IMalcolmEventListener listener) {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void removeMalcolmListener(IMalcolmEventListener listener) {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
+	public void dispose() throws MalcolmDeviceException {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+}

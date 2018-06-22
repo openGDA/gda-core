@@ -45,13 +45,20 @@ abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
 	_AbstractRemoteDevice(DeviceRequest req, long timeoutMs, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		this(uri, eservice);
 		logger.debug("Setting  {} {}", timeoutMs, "ms");
-		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS); // Useful for debugging testing
+		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS);
 		connect(req);
 	}
 
 	_AbstractRemoteDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
 		this(uri, eventService);
 		this.info = info;
+		this.name = info.getName();
+	}
+
+	_AbstractRemoteDevice(DeviceInformation<M> info, long timeoutMs, URI uri, IEventService eventService) throws EventException {
+		this(uri, eventService);
+		this.info = info;
+		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS);
 		this.name = info.getName();
 	}
 

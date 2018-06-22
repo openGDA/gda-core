@@ -47,7 +47,10 @@ class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDe
 	}
 
 	_RunnableDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
-		super(info, uri, eventService);
+		super(info,
+			  Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceTimeout", 1000),
+			  uri,
+			  eventService);
 	}
 
 	@SuppressWarnings("unchecked")
