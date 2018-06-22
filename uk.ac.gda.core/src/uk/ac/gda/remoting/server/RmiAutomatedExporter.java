@@ -66,10 +66,10 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	private final int rmiPort = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
 
 	/**
-	 * This is the uk.ac.gda.core OSGi bundle classloader because this class lives in uk.ac.gda.core. It's needed
-	 * because the uk.ac.gda.core bundle can see almost all the classes in GDA due to dependencies and buddying etc.
+	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * export any class Spring has instantiated.
 	 */
-	private static final ClassLoader CORE_BUNDLE_LOADER = RmiAutomatedExporter.class.getClassLoader();
+	private static final ClassLoader SPRING_BUNDLE_LOADER = ApplicationContext.class.getClassLoader();
 
 	private ApplicationContext applicationContext;
 
@@ -103,8 +103,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
 		try {
-			// Switch the TCCL to the core bundle loader which should be able to see all the needed classes
-			Thread.currentThread().setContextClassLoader(CORE_BUNDLE_LOADER);
+			// Switch the TCCL to the Spring bundle loader which should be able to see all the needed classes
+			Thread.currentThread().setContextClassLoader(SPRING_BUNDLE_LOADER);
 
 			for (Entry<String, Findable> entry : allRmiExportableBeans.entrySet()) {
 				final String name = entry.getKey();
