@@ -65,6 +65,12 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	/** The port used to expose both the RMI registry and services */
 	private final int rmiPort = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
 
+	/**
+	 * This is the uk.ac.gda.core OSGi bundle classloader because this class lives in uk.ac.gda.core. It's needed
+	 * because the uk.ac.gda.core bundle can see almost all the classes in GDA due to dependencies and buddying etc.
+	 */
+	private static final ClassLoader CORE_BUNDLE_LOADER = RmiAutomatedExporter.class.getClassLoader();
+
 	private ApplicationContext applicationContext;
 
 	/** List of all the exporters this is to allow them to be unbound at shutdown */
@@ -93,14 +99,26 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 
 		logger.debug("Exporting {} beans over RMI...", allRmiExportableBeans.size());
 
-		for (Entry<String, Findable> entry : allRmiExportableBeans.entrySet()) {
-			final String name = entry.getKey();
-			final Findable bean = entry.getValue();
+		// Cache the existing TCCL to be switched back after exporting
+		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
-			final Class<?> beanClass = bean.getClass();
-			final Class<?> serviceInterface = beanClass.getAnnotation(ServiceInterface.class).value();
+		try {
+			// Switch the TCCL to the core bundle loader which should be able to see all the needed classes
+			Thread.currentThread().setContextClassLoader(CORE_BUNDLE_LOADER);
 
-			export(name, bean, serviceInterface);
+			for (Entry<String, Findable> entry : allRmiExportableBeans.entrySet()) {
+				final String name = entry.getKey();
+				final Findable bean = entry.getValue();
+
+				final Class<?> beanClass = bean.getClass();
+				final Class<?> serviceInterface = beanClass.getAnnotation(ServiceInterface.class).value();
+
+				export(name, bean, serviceInterface);
+			}
+
+		} finally {
+			// Restore the original TCCL
+			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
 		logger.info("Completed RMI exports. Exported {} objects", allRmiExportableBeans.size());
@@ -201,7 +219,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			try {
 				exporter.destroy();
 			} catch (Exception e) {
-				logger.error("Failed to unbind RMI service", exporter);
+				logger.error("Failed to unbind RMI service", exporter, e);
 			}
 		}
 	}
