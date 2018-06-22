@@ -109,15 +109,28 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	}
 
 	@Override
-	public Set<String> getAvailableAxes() throws ScanningException {
-		for (IDeviceAttribute<?> attribute : getAllAttributes()) {
-			if (attribute instanceof StringArrayAttribute &&
-					(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
-				// use LinkedHashSet so that iterator has same element order as the string array
-				return new LinkedHashSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
+	public Set<String> getAvailableAxes() throws MalcolmDeviceException {
+		try {
+			for (IDeviceAttribute<?> attribute : getAllAttributes()) {
+				if (attribute instanceof StringArrayAttribute &&
+						(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
+					// use LinkedHashSet so that iterator has same element order as the string array
+					return new LinkedHashSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
+				}
 			}
+		} catch (ScanningException e) {
+			throw new MalcolmDeviceException(this, e);
 		}
-		throw new ScanningException("Could not get available axes for malcolm device " + getName());
+		throw new MalcolmDeviceException("Could not get available axes for malcolm device " + getName());
+	}
+
+	@Override
+	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
+		try {
+			return getAllAttributes().stream().map(IDeviceAttribute::getName).anyMatch(name -> name.equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES));
+		} catch (ScanningException e) {
+			throw new MalcolmDeviceException(this, e);
+		}
 	}
 
 	@Override

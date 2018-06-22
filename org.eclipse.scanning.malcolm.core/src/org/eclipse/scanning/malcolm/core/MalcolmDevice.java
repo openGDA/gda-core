@@ -643,6 +643,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 						ATTRIBUTE_NAME_SIMULTANEOUS_AXES, ATTRIBUTE_NAME_AXES_TO_MOVE)));
 	}
 
+	@Override
+	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
+		return getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES).isPresent();
+	}
+
 	/**
 	 * Instances of {@link EpicsMalcolmModel} are used to configure the actual malcolm device.
 	 * This class should be distinguished from the {@link IMalcolmModel} that this

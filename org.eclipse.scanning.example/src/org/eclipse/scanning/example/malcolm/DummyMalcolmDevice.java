@@ -849,4 +849,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		return new HashSet<>(Arrays.asList(axesArray));
 	}
 
+	@Override
+	public boolean isNewMalcolmVersion() {
+		return true;
+	}
+
 }
