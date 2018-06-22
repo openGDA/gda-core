@@ -18,19 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -64,8 +59,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IAttributableDevice;
-import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -73,8 +66,7 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -548,18 +540,8 @@ class FocusScanSetupPage extends WizardPage {
 
 	private Set<String> getMalcolmAxes(IScanModelWrapper<IDetectorModel> wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		final String deviceName = wrapper.getModel().getName();
-		final IRunnableDevice<?> device = runnableDeviceService.getRunnableDevice(deviceName);
-		// TODO, use only simultaneous axes when old malcolm no longer used. Also, see DAQ-1517
-		if (device instanceof IAttributableDevice) {
-			for (IDeviceAttribute<?> attribute : ((IAttributableDevice) device).getAllAttributes()) {
-				if ((attribute.getName() == ATTRIBUTE_NAME_SIMULTANEOUS_AXES || attribute.getName() == ATTRIBUTE_NAME_AXES_TO_MOVE)
-						&& attribute instanceof StringArrayAttribute) {
-					// tree set as we want to maintain the order
-					return new TreeSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
-				}
-			}
-		}
-		throw new ScanningException("Cannot get axes for malcolm device " + wrapper.getName());
+		final IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) runnableDeviceService.getRunnableDevice(deviceName);
+		return malcolmDevice.getAvailableAxes();
 	}
 
 	private void editDetectorParameters(IScanModelWrapper<IDetectorModel> detectorModelWrapper) {

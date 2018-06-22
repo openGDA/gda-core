@@ -23,12 +23,9 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,14 +50,13 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -241,7 +237,8 @@ public class DetectorsSection extends AbstractMappingSection {
 		try {
 			// get the axesToMove from the malcolm device
 			final MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
-			final List<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
+			final Set<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
+			final List<String> malcolmAxesList = new ArrayList<>(malcolmAxes); // can convert to list as iteration order is predictable
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.
 			if (malcolmAxes.size() < 2) return;
@@ -252,15 +249,15 @@ public class DetectorsSection extends AbstractMappingSection {
 			boolean updatedFastAndSlowAxes = false;
 			if (!malcolmAxes.contains(stageInfo.getActiveFastScanAxis()) || !malcolmAxes.contains(stageInfo.getActiveSlowScanAxis())) {
 				// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
-				stageInfo.setActiveFastScanAxis(malcolmAxes.get(0));
-				stageInfo.setActiveSlowScanAxis(malcolmAxes.get(1));
+				stageInfo.setActiveFastScanAxis(malcolmAxesList.get(0));
+				stageInfo.setActiveSlowScanAxis(malcolmAxesList.get(1));
 				updatedFastAndSlowAxes = true;
 			}
 
 			boolean updatedAssociatedAxes = false;
 			if (malcolmAxes.size() > 2 && !malcolmAxes.contains(stageInfo.getAssociatedAxis())) {
 				// for a 3+ dimension malcolm device, we can set the z-axis as well
-				stageInfo.setAssociatedAxis(malcolmAxes.get(2));
+				stageInfo.setAssociatedAxis(malcolmAxesList.get(2));
 				updatedAssociatedAxes = true;
 			}
 
@@ -291,27 +288,23 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 	}
 
-	private boolean isNewMalcolm = false;
-
-	private List<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
+	private Set<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
 		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
-		if (!(runnableDevice instanceof IAttributableDevice)) {
-			// we're on the client, so we don't have IMalcolmDevices, but _RunnableDevice which implements IAttributeDevice
-			throw new ScanningException("Device " + malcolmDeviceName + " is not a runnable device");
+		if (!(runnableDevice instanceof IMalcolmDevice)) {
+			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
 		}
 
-		// TODO use only simultaneous axes when old malcolm no longer used. Also, see DAQ-1517
-		for (IDeviceAttribute<?> attribute : ((IAttributableDevice) runnableDevice).getAllAttributes()) {
-			if (attribute instanceof StringArrayAttribute &&
-					(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
-				isNewMalcolm = attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-				return Arrays.asList(((StringArrayAttribute) attribute).getValue());
-			}
-		}
-
-		throw new ScanningException("Could not get malcolm axes for malcolm device: " + malcolmDeviceName);
+		return ((IMalcolmDevice<?>) runnableDevice).getAvailableAxes();
 	}
 
+	private boolean isNewMalcolmVersion(final String malcolmDeviceName) throws ScanningException, EventException {
+		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
+		if (!(runnableDevice instanceof IMalcolmDevice)) {
+			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
+		}
+
+		return ((IMalcolmDevice<?>) runnableDevice).isNewMalcolmVersion();
+	}
 
 	private Map<String, IScanModelWrapper<IDetectorModel>> updateDetectorParameters() {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
@@ -371,7 +364,8 @@ public class DetectorsSection extends AbstractMappingSection {
 	private boolean isMappingMalcolmDevice(DeviceInformation<?> malcolmDeviceInfo) {
 		try {
 			// Filter out malcolm devices with more than 2 axes, unless we're using new malcolm
-			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() <= 2 || isNewMalcolm;
+			final String malcolmDeviceName = malcolmDeviceInfo.getName();
+			return getMalcolmDeviceAxes(malcolmDeviceName).size() <= 2 || isNewMalcolmVersion(malcolmDeviceName);
 		} catch (ScanningException | EventException e) {
 			logger.error("Cannot get axes for malcolm device " + malcolmDeviceInfo.getName(), e);
 			return false;

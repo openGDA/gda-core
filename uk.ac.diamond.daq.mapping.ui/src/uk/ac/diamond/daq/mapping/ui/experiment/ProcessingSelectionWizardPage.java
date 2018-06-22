@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 
 import java.io.File;
 import java.net.URI;
@@ -53,7 +52,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
-import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
@@ -62,9 +60,9 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -489,9 +487,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 			try {
 				malcolmDevice.configure(malcolmModel); // configure the malcolm device, puts it in 'Armed' state
-				if (malcolmDevice instanceof IAttributableDevice) {
-					final IDeviceAttribute<?> tableAttr = ((IAttributableDevice) malcolmDevice).getAttribute(ATTRIBUTE_NAME_DATASETS);
-					final MalcolmTable datasetsTable  = (MalcolmTable) tableAttr.getValue();
+				if (malcolmDevice instanceof IMalcolmDevice<?>) {
+					final MalcolmTable datasetsTable = ((IMalcolmDevice<?>) malcolmDevice).getDatasets();
 					if (datasetsTable != null) {
 						datasetName = getPrimaryDatasetNameForMalcolm(datasetsTable);
 					}
