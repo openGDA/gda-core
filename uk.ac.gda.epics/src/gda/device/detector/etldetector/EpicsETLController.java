@@ -31,7 +31,6 @@ import gda.epics.interfaces.ETLdetectorType;
 import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -187,13 +186,13 @@ public class EpicsETLController extends DeviceBase implements InitializationList
 	 *
 	 * @param hv
 	 * @throws CAException
-	 * @throws OutOfRangeException
+	 * @throws IllegalArgumentException if voltage is outside permissable range
 	 * @throws InterruptedException
 	 */
-	public void setHighVoltage(int hv) throws CAException, OutOfRangeException, InterruptedException {
+	public void setHighVoltage(int hv) throws CAException, InterruptedException {
 		if (hv > 2000000 || hv < 0) {
 			logger.error("The HV setting value is outside the permitted range 0 - 2000 Volt.");
-			throw new OutOfRangeException("Voltage value " + hv + " is outside the permissible range 0 - 2000 Volt.");
+			throw new IllegalArgumentException("Voltage value " + hv + " is outside the permissible range 0 - 2000 Volt.");
 		}
 		controller.caput(ctrl, hv, channelManager);
 

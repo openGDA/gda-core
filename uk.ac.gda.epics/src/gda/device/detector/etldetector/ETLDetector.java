@@ -29,7 +29,6 @@ import gda.device.enumpositioner.EpicsSimpleMbbinary;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
@@ -205,7 +204,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector {
 	public void setHV(int mv) throws DeviceException {
 		try {
 			detector.setHighVoltage(mv);
-		} catch (CAException | InterruptedException | OutOfRangeException e) {
+		} catch (CAException | InterruptedException | IllegalArgumentException e) {
 			throw new DeviceException("Exception caught on setting detector " + detectorName + " high voltage.", e);
 		}
 	}
