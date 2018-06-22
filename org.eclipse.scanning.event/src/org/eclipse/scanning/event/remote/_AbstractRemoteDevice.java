@@ -25,9 +25,8 @@ import org.eclipse.scanning.api.scan.ScanningException;
 
 abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
 
-
-	protected String                          name;
-	protected DeviceInformation<M>            info;
+	protected String name;
+	protected DeviceInformation<M> info;
 	protected final IRequester<DeviceRequest> requester;
 
 	private _AbstractRemoteDevice(URI uri, IEventService eservice) throws EventException {
@@ -36,19 +35,24 @@ abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
 		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 	}
 
-	@SuppressWarnings("unchecked")
 	_AbstractRemoteDevice(DeviceRequest req, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		this(uri, eservice);
-	    logger.debug("Setting timeout {} {}", RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit());
-	    requester.setTimeout(RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit()); // Useful for debugging testing
-	    connect(req);
+		logger.debug("Setting timeout {} {}", RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit());
+		requester.setTimeout(RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit()); // Useful for debugging testing
+		connect(req);
 	}
 
 	_AbstractRemoteDevice(DeviceRequest req, long timeoutMs, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		this(uri, eservice);
-	    logger.debug("Setting  {} {}", timeoutMs, "ms");
-	    requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS); // Useful for debugging testing
-	    connect(req);
+		logger.debug("Setting  {} {}", timeoutMs, "ms");
+		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS); // Useful for debugging testing
+		connect(req);
+	}
+
+	_AbstractRemoteDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+		this(uri, eventService);
+		this.info = info;
+		this.name = info.getName();
 	}
 
 	private void connect(DeviceRequest req) throws EventException, InterruptedException, ValidationException {

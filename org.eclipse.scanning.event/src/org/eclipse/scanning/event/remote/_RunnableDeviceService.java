@@ -115,14 +115,22 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 
 	@Override
 	public <T> IRunnableDevice<T> getRunnableDevice(String name, IPublisher<ScanBean> publisher) throws ScanningException {
-		try {
-			if (runnables.containsKey(name)) return (IRunnableDevice<T>)runnables.get(name);
-			IRunnableDevice<T> device = new _RunnableDevice(new DeviceRequest(name), uri, eservice);
-			runnables.put(name, device);
-			return device;
-		} catch (EventException | InterruptedException e) {
-			throw new ScanningException(e);
+		@SuppressWarnings("unchecked")
+		IRunnableDevice<T> device = (IRunnableDevice<T>)runnables.get(name);
+		if (device == null) {
+			try {
+				final DeviceRequest req = new DeviceRequest(name);
+				final DeviceRequest response = requester.post(req);
+				response.checkException();
+				@SuppressWarnings("unchecked")
+				final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
+				device = new _RunnableDevice<>(info, uri, eservice);
+				runnables.put(name, device);
+			} catch (EventException | InterruptedException e) {
+				throw new ScanningException(e);
+			}
 		}
+		return device;
 	}
 
 	@Override

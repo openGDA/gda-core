@@ -46,6 +46,10 @@ class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDe
 			  eservice);
 	}
 
+	_RunnableDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+		super(info, uri, eventService);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(M model) throws ScanningException {
