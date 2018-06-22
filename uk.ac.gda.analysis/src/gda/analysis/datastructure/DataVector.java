@@ -1182,25 +1182,16 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *
 	 * @param other
 	 *            The DataVector1D value after the '==' sign
-	 * @return PyInteger, containing 1 for true, and 0 for false.
+	 * @return Python boolean True if magnitudes of both vectors are identical, else Python boolean False
 	 */
 	public Object __eq__(DataVector other) {
 
-		double V1 = 0.0;
-		double V2 = 0.0;
+		if (other == null) return Py.False;
 
-		for (int i = 0; i < this.size(); i++) {
-			V1 = V1 + this.getIndex(i) * this.getIndex(i);
-			V2 = V2 + other.getIndex(i) * other.getIndex(i);
+		double v1 = this.stream().mapToDouble(x -> x * x).sum();
+		double v2 = other.stream().mapToDouble(x -> x * x).sum();
 
-		}
-
-		if (V1 == V2) {
-			PyInteger output = new PyInteger(1);
-			return output;
-		}
-		PyInteger out2 = new PyInteger(0);
-		return out2;
+		return Py.newBoolean(v1 == v2);
 	}
 
 	/**

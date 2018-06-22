@@ -19,6 +19,9 @@
 
 package gda.analysis.datavector;
 
+import org.junit.Test;
+import org.python.core.Py;
+
 import gda.analysis.datastructure.DataVector;
 import junit.framework.TestCase;
 
@@ -184,4 +187,9 @@ public class DataVectorTest extends TestCase {
 
 	}
 
+	@Test
+	public void test__eq__WithNullArgument() {
+		Object equals = dv1.__eq__(null); // Should not throw NPE...
+		assertEquals(Py.False, equals);
+	}
 }
