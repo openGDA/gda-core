@@ -1438,7 +1438,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		observableComponent.addIObserver(anIObserver);
-		logger.debug("Added IObserver: {}. Now have {} observers\"", anIObserver, observableComponent.getNumberOfObservers());
+		logger.debug("Added IObserver: {}. Now have {} observers", anIObserver, observableComponent.getNumberOfObservers());
 		logger.trace("Observers: {}", observableComponent.getObservers());
 	}
 
