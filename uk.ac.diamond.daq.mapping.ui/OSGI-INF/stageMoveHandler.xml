@@ -6,4 +6,5 @@
    </service>
    <property name="event.topics" type="String" value="org/dawnsci/mapping/ui/mapview/click"/>
    <reference bind="setMappingStageConfiguration" cardinality="1..1" interface="org.eclipse.scanning.api.ui.IStageScanConfiguration" name="IStageScanConfiguration" policy="static"/>
+   <reference bind="setLoaderService" cardinality="1..1" interface="org.eclipse.dawnsci.analysis.api.io.ILoaderService" name="ILoaderService" policy="static" />
 </scr:component>
