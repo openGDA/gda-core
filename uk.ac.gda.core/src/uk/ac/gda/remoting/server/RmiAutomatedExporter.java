@@ -219,7 +219,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			try {
 				exporter.destroy();
 			} catch (Exception e) {
-				logger.error("Failed to unbind RMI service", exporter, e);
+				logger.error("Failed to unbind RMI service: {}", exporter, e);
 			}
 		}
 	}
