@@ -37,6 +37,7 @@ import org.eclipse.scanning.server.servlet.Services;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SeekTest extends AbstractAcquisitionTest {
@@ -165,6 +166,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	}
 
 	@Test
+	@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
 	public void seekFirstRestartsInCorrectLocation() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
