@@ -18,9 +18,13 @@
 
 package gda.device.scannable;
 
+import org.jscience.physics.quantities.Quantity;
+
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.Motor;
+import gda.device.motor.DummyMotor;
+import gda.device.scannable.component.UnitsComponent;
 
 public class DummyScannableMotor extends DummyScannable implements IScannableMotor {
 
@@ -34,8 +38,9 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 	private Double lowerInnerLimit;
 	private Double upperInnerLimit;
 
-	private Motor motor = null;
+	private Motor motor = new DummyMotor();
 	private String motorName = "DummyScannableMotor";
+	private UnitsComponent unitsComponent = new UnitsComponent();
 
 	@Override
 	public double getSpeed() throws DeviceException {
@@ -123,6 +128,46 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 
 	public void setLowerMotorLimit(double lowerMotorLimit) {
 		this.lowerMotorLimit = lowerMotorLimit;
+	}
+
+	@Override
+	public String getUserUnits() {
+		return unitsComponent.getUserUnitString();
+	}
+
+	@Override
+	public void setUserUnits(String userUnitsString) throws DeviceException {
+		unitsComponent.setUserUnits(userUnitsString);
+	}
+
+	@Override
+	public String getHardwareUnitString() {
+		return unitsComponent.getHardwareUnitString();
+	}
+
+	@Override
+	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
+		unitsComponent.setHardwareUnitString(hardwareUnitString);
+	}
+
+	@Override
+	public String[] getAcceptableUnits() {
+		return unitsComponent.getAcceptableUnits();
+	}
+
+	@Override
+	public void addAcceptableUnit(String newUnit) throws DeviceException {
+		unitsComponent.addAcceptableUnit(newUnit);
+	}
+
+	@Override
+	public Quantity[] getPositionAsQuantityArray() throws DeviceException {
+		return new Quantity[] {Quantity.valueOf(motor.getPosition(), unitsComponent.getUserUnit())};
+	}
+
+	@Override
+	public void setOffset(Object offsetPositionInExternalUnits) {
+		throw new UnsupportedOperationException("Unimplemented");
 	}
 
 }
