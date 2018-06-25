@@ -72,21 +72,11 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, Localizab
 		}
 
 		IMetadataEntry me = metadataEntries.get(name);
-//		if (me instanceof StoredMetadataEntry) {
-//			((StoredMetadataEntry) me).setValue(metadataValue);
-//			return;
-//		}
-//		if (me instanceof PersistantMetadataEntry) {
 			try {
 				me.setValue(metadataValue);
 			} catch (Exception e) {
-				logger.error("Problem setting MetadataEntry entry {} to {} : {}", name, metadataValue);
-				logger.error(e.toString());
+				logger.error("Problem setting MetadataEntry entry '{}' to '{}'", name, metadataValue, e);
 			}
-			return;
-//		}
-
-//		logger.warn("Metadata entry {} is not a StoredMetadataEntry or PersistantMetadataEntry, so its value cannot be set", name);
 	}
 
 	@Override
