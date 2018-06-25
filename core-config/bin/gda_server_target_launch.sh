@@ -106,7 +106,7 @@ for word in $ARGS_IN; do
 done
 
 # Initialise the GDA and java startup arguments, defaulting GDA_MODE to dummy if env var not set
-vm_args="-Dgda.mode=${GDA_MODE:-dummy} -Djava.awt.headless=true"
+vm_args="-XX:ErrorFile=${GDA_LOGS_DIR}/server_hs_err_pid%p.log -Dgda.mode=${GDA_MODE:-dummy} -Djava.awt.headless=true"
 
 if [[ "$ARGS_IN" == *"--debug"* ]]; then
     [[ "$ARGS_IN" == *"--debug-wait"* ]] && wait="y" || wait="n"
