@@ -5,4 +5,5 @@ Bundle-SymbolicName: uk.ac.diamond.daq.mapping.ui.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.diamond.daq.mapping.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.junit;bundle-version="4.0.0"
+Require-Bundle: org.junit;bundle-version="4.0.0",
+ org.eclipse.scanning.example;bundle-version="1.0.0"
