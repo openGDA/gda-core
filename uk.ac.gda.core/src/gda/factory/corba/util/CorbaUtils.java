@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.springframework.util.ClassUtils;
 
 import gda.factory.Findable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * CORBA-related utility methods.
@@ -113,6 +114,13 @@ public class CorbaUtils {
 	 * @since GDA 9.8
 	 */
 	public static String getRmiInterfaces(Findable findable) throws ClassNotFoundException {
+		// Check if the class already has a @ServiceInterface
+		if (findable.getClass().getAnnotationsByType(ServiceInterface.class).length != 0) {
+			return "'" + findable.getName() + "' is of type '" + findable.getClass().getName() + "'\n"
+					+ "It already has a @ServiceInterface defined as '"
+					+ findable.getClass().getAnnotationsByType(ServiceInterface.class)[0].value().getName() + "'";
+		}
+
 		final StringBuilder sb = new StringBuilder(
 				"@ServiceInterface should be added to class: " + findable.getClass().getName() + "\n");
 		final String adaptorClass = getAdapterClassName(findable.getClass());
