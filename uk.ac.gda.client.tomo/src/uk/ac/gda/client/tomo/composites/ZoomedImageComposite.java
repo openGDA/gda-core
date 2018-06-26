@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.tomo.composites;
 
-import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
@@ -26,41 +25,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ZoomedImageComposite extends FixedImageViewerComposite {
-	private final static Logger logger = LoggerFactory.getLogger(ZoomedImageComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(ZoomedImageComposite.class);
 
 	public ZoomedImageComposite(Composite parent, int style) {
 		super(parent, style);
 	}
 
-	@Override
-	public org.eclipse.swt.graphics.Point computeSize(int wHint, int hHint) {
-		org.eclipse.swt.graphics.Point computedSize = super.computeSize(wHint, hHint);
-		return computedSize;
-	}
-
-	@Override
-	public org.eclipse.swt.graphics.Point computeSize(int wHint, int hHint, boolean changed) {
-		org.eclipse.swt.graphics.Point computedSize = super.computeSize(wHint, hHint, changed);
-		return computedSize;
-	}
-
-	public void zoomUpdate(Dimension figureTopLeftRelativeImgBounds, Dimension difference) {
-		// TODO-Ravi Auto-generated method stub
-
-	}
-
-	public void clearZoomWindow() {
-		// TODO-Ravi Auto-generated method stub
-
-	}
-
 	/**
 	 * Reload image from a provided ImageData
-	 * 
+	 *
 	 * @param imageDataIn
 	 *            ImageData
 	 */

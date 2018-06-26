@@ -19,8 +19,6 @@
 package uk.ac.gda.client.tomo.alignment.view;
 
 import static org.eclipse.swt.SWT.DOUBLE_BUFFERED;
-import gda.images.camera.ImageListener;
-import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -60,6 +58,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.PageBook;
 
+import gda.images.camera.ImageListener;
+import gda.images.camera.MotionJpegOverHttpReceiverSwt;
 import uk.ac.gda.client.tomo.ViewerDisplayMode;
 import uk.ac.gda.client.tomo.alignment.view.controller.SaveableConfiguration;
 import uk.ac.gda.client.tomo.alignment.view.controller.TomoAlignmentController;
@@ -327,11 +327,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 							&& (isSingle() || ((fullImgReceiverStarted || zoomReceiverStarted)))) {
 						try {
 							imgViewer.loadMainImage(image);
-
-							//
-							if (ZOOM_LEVEL.NO_ZOOM.equals(leftPanelComposite.getSelectedZoomLevel())) {
-								page_nonProfile_streamZoom.clearZoomWindow();
-							}
 						} catch (Exception ex) {
 							logger.error("Error loading image :{}", ex);
 							loadErrorInDisplay("Error loading image", ex.getMessage());
@@ -339,7 +334,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 					} else {
 						try {
 							imgViewer.loadMainImage(null);
-							page_nonProfile_streamZoom.clearZoomWindow();
 						} catch (Exception ex) {
 							logger.error("Error loading image :{}", ex);
 							loadErrorInDisplay("Error loading image", ex.getMessage());
@@ -1275,7 +1269,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 	/**
 	 * see {@link TomoAlignmentLeftPanelComposite#startStreaming()} to get the Stream button enabled
-	 * 
+	 *
 	 * @throws InvocationTargetException
 	 */
 	public void startStreaming(final double acquireTime) throws InvocationTargetException {
@@ -1428,7 +1422,6 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 
 	public void clearZoomWindow() {
 		demandRawZoomCanvas.clearZoomWindow();
-		page_nonProfile_streamZoom.clearZoomWindow();
 	}
 
 	private synchronized void setLeftWindowDisplayMode(ViewerDisplayMode viewerDisplayMode) {
@@ -1527,7 +1520,7 @@ public class TomoAlignmentView extends BaseTomographyView implements ITomoAlignm
 						// number of projections
 						configuration.setNumProjections(tomoControlComposite.getFramesPerProjection());
 						//
-						
+
 						//if(not present)
 						configuration.setTomoRotationAxis(leftWindowImageViewer.getCrossWire1XRelativeToImage()
 								* tomoAlignmentController.getLeftWindowBinValue());
