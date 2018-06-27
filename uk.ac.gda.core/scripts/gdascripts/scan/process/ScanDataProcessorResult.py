@@ -44,7 +44,17 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 		loadedNodes = loadedFile.getnodes(strippedFieldName, group=False, data=True)
 		if len(loadedNodes) == 0:
 			raise KeyError("%s not found in data file" % strippedFieldName)
-		lazyDataset = loadedNodes[0]
+
+		# Find nodes which have a local_name
+		probableNodes = [loadedNodes[_n] for _n in xrange(len(loadedNodes))
+			if 'local_name' in loadedNodes[_n].attrs]
+		# Use the first local_name which matches the fieldName or fall back on using the first node
+		for node in probableNodes:
+			if node.attrs['local_name'] == fieldName:
+				lazyDataset = node
+				break
+		else:
+			lazyDataset = loadedNodes[0]
 
 		# Use slicing to load the whole lazy dataset into a array i.e. non-lazy dataset
 		dataset = lazyDataset[...]
