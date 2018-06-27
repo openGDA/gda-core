@@ -13,6 +13,7 @@
 	<!-- Include the standard set of properties files -->
 	<include file="${gda.core.dir}/properties/logging_properties_includes.xml" />
 
+	<define scope="context" name="JVMNAME" class="gda.util.logging.JvmNamePropertyDefiner" />
 	<!-- Appender to send log messages to the log server -->
 	<!-- http://logback.qos.ch/manual/appenders.html#SocketAppender -->
 	<appender name="LogServer" class="ch.qos.logback.classic.net.SocketAppender">

@@ -20,7 +20,7 @@
 			<fileNamePattern>${gda.logs.dir}/gda-server-%d{yyyyMMdd}.log.gz</fileNamePattern>
 		</rollingPolicy>
 		<encoder>
-			<pattern>%d %-5level [%property{HOSTNAME}/%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
+			<pattern>%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
 		</encoder>
 	</appender>
 
