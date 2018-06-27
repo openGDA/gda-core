@@ -295,7 +295,7 @@ public class MappingExperimentView implements IAdaptable {
 
 		ScanBean scanBean = (ScanBean) openRequest.getStatusBean();
 		String scanName = scanBean.getName();
-		logger.info("Open Request", "Received an open request for ScanBean with the name: %s", scanName);
+		logger.info("Open Request, Received an open request for ScanBean with the name: {}", scanName);
 
 		// Confirm whether this scan should be opened as it will overwrite the contents of the view
 		Shell shell = (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
