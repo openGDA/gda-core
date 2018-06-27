@@ -117,9 +117,9 @@ class Completer(object):
                 self.builtins.append((x, '', '', TYPE_FUNCTION))
             else:
                 self.builtins.append((x, '', '', TYPE_ATTR))
-        logger.info('Built-ins: %s', str(self.builtins))
+        logger.debug('Built-ins: %s', str(self.builtins))
 
-        logger.info("Completer created, command completion should be available")
+        logger.debug("Completer created, command completion should be available")
 
     def complete(self, command):
         """
