@@ -23,8 +23,10 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -39,6 +41,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  *
  * @author rjw82
  */
+@ServiceInterface(FluorescenceDetector.class)
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;
