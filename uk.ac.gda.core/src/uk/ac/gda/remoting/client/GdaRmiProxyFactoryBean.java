@@ -76,10 +76,16 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 		// implements).
 		ProxyFactory pf = new ProxyFactory();
 		pf.addInterface(getServiceInterface());
+
+		// Allows SpringObjectServer to determine that an object is an RMI proxy
+		pf.addInterface(RmiProxyMarker.class);
+
 		// Custom interceptor runs first, to deal with the IObservable methods
 		pf.addAdvice(interceptor);
+
 		// Then the RMI interceptor runs, doing a RMI for all other method calls
 		pf.addAdvice(this);
+
 		this.serviceProxy = pf.getProxy(getBeanClassLoader());
 
 		// If the remote object is observable, create an event receiver object that will receive events relating to

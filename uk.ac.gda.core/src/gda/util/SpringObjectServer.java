@@ -52,6 +52,7 @@ import gda.factory.Finder;
 import gda.factory.corba.util.AdapterFactory;
 import gda.factory.corba.util.ImplFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
+import uk.ac.gda.remoting.client.RmiProxyMarker;
 
 /**
  * A subclass of {@link ObjectServer} that uses a Spring application context.
@@ -313,7 +314,12 @@ public class SpringObjectServer extends ObjectServer {
 
 			boolean willConfigure = true;
 
-			if (obj instanceof ConditionallyConfigurable) {
+			// If the object is an RMI proxy, do not call its configure() method
+			if (obj instanceof RmiProxyMarker) {
+				willConfigure = false;
+			}
+
+			if (willConfigure && (obj instanceof ConditionallyConfigurable)) {
 				final ConditionallyConfigurable cc = (ConditionallyConfigurable) obj;
 				willConfigure = cc.isConfigureAtStartup();
 			}
