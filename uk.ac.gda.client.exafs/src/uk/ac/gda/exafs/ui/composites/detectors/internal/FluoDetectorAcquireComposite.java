@@ -107,6 +107,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 		GridDataFactory.swtDefaults().applyTo(autoScaleOnAcquireCheckBox);
 		autoScaleOnAcquireCheckBox.setText("Rescale on Acquire");
 		autoScaleOnAcquireCheckBox.setToolTipText("Rescale the plot after each spectrum has been acquired.");
+		autoScaleOnAcquireCheckBox.setSelection(true);
 	}
 
 	private void setAcquireImageToSnapshot() {

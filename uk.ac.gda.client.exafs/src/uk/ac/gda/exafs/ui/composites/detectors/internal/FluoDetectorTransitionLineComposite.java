@@ -32,6 +32,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -66,6 +67,7 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 	private Label lineEnergyValueLabel;
 	private Button showLineButton;
 	private Button setLineFromScanSettingsButton;
+	private Button setWindowFromLineButton;
 
 	// Convert energy from eV to MCA channel
 	// May need to customize this; XSpress2 uses 0.1; Xspress3, Vortex might be different
@@ -103,16 +105,55 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 
 		Group elementEdgeGroup = new Group(this, SWT.NONE);
 		elementEdgeGroup.setText("Element name and line selection");
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(elementEdgeGroup);
+		elementEdgeGroup.setLayout(new GridLayout() );
 
 		showLineButton = new Button(elementEdgeGroup, SWT.CHECK);
-		GridDataFactory.swtDefaults().span(3,1).applyTo(showLineButton);
+		GridDataFactory.swtDefaults().span(4,1).applyTo(showLineButton);
 		showLineButton.setText("Show line in plot");
 		showLineButton.setSelection(false);
 
-		setLineFromScanSettingsButton = new Button(elementEdgeGroup, SWT.PUSH);
-		setLineFromScanSettingsButton.setText("Set line from scan");
-		GridDataFactory.swtDefaults().span(1,1).applyTo(setLineFromScanSettingsButton);
+		// Row with combo buttons to select element and emission line
+		Composite lineSelectionRow = new Composite(elementEdgeGroup, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(lineSelectionRow);
+		lineSelectionRow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		elementNameLabel = new Label(lineSelectionRow, SWT.NONE);
+		elementNameLabel.setText("Element name : ");
+
+		elementNameCombo = new Combo(lineSelectionRow, SWT.READ_ONLY);
+		elementNameCombo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		elementNameCombo.setItems( getElements(5, 93) );
+		elementNameCombo.setSize(75, SWT.DEFAULT);
+		elementNameCombo.select(0);
+
+		elementLineLabel = new Label(lineSelectionRow, SWT.NONE);
+		elementLineLabel.setText("Line : ");
+
+		elementLineCombo = new Combo(lineSelectionRow, SWT.READ_ONLY);
+		elementLineCombo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		elementLineCombo.setSize(75, SWT.DEFAULT);
+
+		// Row showing energy of selected line
+		Composite lineEnergyRow = new Composite(elementEdgeGroup, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(lineEnergyRow);
+		lineEnergyRow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		lineEnergyLabel = new Label(lineEnergyRow, SWT.NONE);
+		lineEnergyLabel.setText("Line energy (keV) : ");
+
+		lineEnergyValueLabel = new Label(lineEnergyRow, SWT.NONE);
+		lineEnergyValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+
+		// Row showing buttons to get line from scan settings, set scaler window from line.
+		Composite setGetButtonRow = new Composite(elementEdgeGroup, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(setGetButtonRow);
+
+		setLineFromScanSettingsButton = new Button(setGetButtonRow, SWT.PUSH);
+		setLineFromScanSettingsButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+
+		setLineFromScanSettingsButton.setText("Get line from edge");
+		setLineFromScanSettingsButton.setToolTipText("Use edge settings from currently selected scan xml to set the transition line");
+
 		setLineFromScanSettingsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -120,27 +161,10 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 			}
 		});
 
-		elementNameLabel = new Label(elementEdgeGroup, SWT.NONE);
-		elementNameLabel.setText("Element name : ");
-
-		elementNameCombo = new Combo(elementEdgeGroup, SWT.READ_ONLY);
-		elementNameCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		elementNameCombo.setItems( getElements(5, 93) );
-		elementNameCombo.setSize(100, SWT.DEFAULT);
-		elementNameCombo.select(0);
-
-		elementLineLabel = new Label(elementEdgeGroup, SWT.NONE);
-		elementLineLabel.setText("Line : ");
-
-		elementLineCombo = new Combo(elementEdgeGroup, SWT.READ_ONLY);
-		elementLineCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		elementLineCombo.setSize(100, SWT.DEFAULT);
-
-		lineEnergyLabel = new Label(elementEdgeGroup, SWT.NONE);
-		lineEnergyLabel.setText("Line energy (keV) : ");
-
-		lineEnergyValueLabel = new Label(elementEdgeGroup, SWT.NONE);
-		lineEnergyValueLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		setWindowFromLineButton = new Button(setGetButtonRow, SWT.PUSH);
+		setWindowFromLineButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+		setWindowFromLineButton.setText("Set window from line");
+		setWindowFromLineButton.setToolTipText("Set all the detector windows using the energy of the currently selected line");
 
 		updateLineComboItems();
 		updateLineEnergyValueLabel();
@@ -186,7 +210,8 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 		try {
 			ExperimentFactory.getExperimentObjectManagerClass();
 		} catch (Exception e1) {
-			logger.info("Element and edge information not available from scan settings - using default values.");
+			logger.info("Element and edge information not available from scan settings - unable to set element and line.");
+			return;
 		}
 
 		try {
@@ -281,7 +306,7 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 	/**
 	 * @return MCA channel corresponding to currently selected element and line (i.e {@link #getLineEnergy()}*energyToMcaChannelFactor)
 	 */
-	public double getEdgeMcaChannel() {
+	public double getLineMcaChannel() {
 		return getLineEnergy()*1000*energyToMcaChannelFactor;
 	}
 	/**
@@ -359,5 +384,9 @@ public class FluoDetectorTransitionLineComposite extends Composite {
 		elementLineCombo.addSelectionListener(listener);
 		showLineButton.addSelectionListener(listener);
 		setLineFromScanSettingsButton.addSelectionListener(listener);
+	}
+
+	public void addSetWindowFromLineListener(SelectionListener listener) {
+		setWindowFromLineButton.addSelectionListener(listener);
 	}
 }
