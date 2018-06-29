@@ -19,12 +19,14 @@
 package gda.device.monitor;
 
 import gda.device.DeviceException;
+import gda.device.Monitor;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A dummy for EpicsMonitor returning a single double value. Optionally, the value can be set to vary on each call to getPosition(): the increment/decrement on
  * each call, and the bounds on the value, are configurable.
  */
-
+@ServiceInterface(Monitor.class)
 public class DummyEpicsMonitorDouble extends DummyEpicsMonitor {
 
 	private double lowerLimit = Double.MIN_VALUE;
