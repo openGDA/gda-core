@@ -18,28 +18,20 @@
 
 package gda.device.monitor;
 
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
+import gda.device.DeviceException;
+import gda.device.Monitor;
+import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
+
+@ServiceInterface(Monitor.class)
 public class DummyEpicsMonitor extends EpicsMonitor {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyEpicsMonitor.class);
 
 	private Object latestValue = 0;
-
-	/**
-	 * Constructor
-	 */
-	public DummyEpicsMonitor() {
-		//controller = EpicsController.getInstance();
-		//channelManager = new EpicsChannelManager(this);
-	}
 
 	/**
 	 * Sets the value of this monitor.
@@ -59,12 +51,9 @@ public class DummyEpicsMonitor extends EpicsMonitor {
 
 	@Override
 	public Object getPosition() throws DeviceException {
-
 		// single or array value?
 		return this.latestValue;
 	}
-
-
 
 	@Override
 	public void initializationCompleted() {
