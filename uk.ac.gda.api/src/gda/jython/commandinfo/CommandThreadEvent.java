@@ -22,8 +22,8 @@ import java.io.Serializable;
 
 public class CommandThreadEvent implements Serializable {
 
-	private CommandThreadEventType event;
-	private ICommandThreadInfo info;
+	private final CommandThreadEventType event;
+	private final ICommandThreadInfo info;
 
 	public CommandThreadEvent(CommandThreadEventType event, ICommandThreadInfo info) {
 		this.event = event;
@@ -36,14 +36,6 @@ public class CommandThreadEvent implements Serializable {
 
 	public ICommandThreadInfo getInfo() {
 		return info;
-	}
-
-	public void setEventType(CommandThreadEventType event) {
-		this.event = event;
-	}
-
-	public void setInfo(ICommandThreadInfo info) {
-		this.info = info;
 	}
 
 	@Override

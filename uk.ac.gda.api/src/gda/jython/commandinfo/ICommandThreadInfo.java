@@ -41,25 +41,4 @@ public interface ICommandThreadInfo extends Serializable {
 	String getTime();
 
 	boolean isInterrupted();
-
-	void setCommand(String command);
-
-	void setCommandThreadType(String threadType);
-
-	void setDate(String date);
-
-	void setId(long id);
-
-	void setJythonServerThreadId(String id);
-
-	void setInterrupted(boolean isInterrupted);
-
-	void setName(String name);
-
-	void setPriority(int priority);
-
-	void setState(String state);
-
-	void setTime(String time);
-
 }
