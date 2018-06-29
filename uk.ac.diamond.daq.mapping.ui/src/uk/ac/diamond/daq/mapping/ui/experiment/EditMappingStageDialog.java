@@ -18,23 +18,29 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
+import org.eclipse.ui.PlatformUI;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingStageOptions;
 
@@ -47,34 +53,46 @@ public class EditMappingStageDialog extends Dialog {
 	private MappingStageInfo stageInfo;
 	private StageManagerControl stageManagerControl;
 	private MappingStageOptions options;
-	private boolean editable; // false when Malcolm device selected, which specifies its own axes.
+	private Optional<String> malcolmDeviceName;
 
-	protected EditMappingStageDialog(Shell parentShell, MappingStageInfo stageInfo, boolean editable) {
+	protected EditMappingStageDialog(Shell parentShell, MappingStageInfo stageInfo, Optional<String> malcolmDeviceName) {
 		super(parentShell);
 		setShellStyle(SWT.RESIZE);
 		this.stageInfo = stageInfo;
+		this.malcolmDeviceName = malcolmDeviceName;
 		findMappingStageOptions();
-		this.editable = editable;
 	}
 
 	private void findMappingStageOptions() {
-		BundleContext context = FrameworkUtil.getBundle(EditMappingStageDialog.class).getBundleContext();
-		ServiceReference<MappingStageOptions> serviceReference = context.getServiceReference(MappingStageOptions.class);
-		if (Objects.nonNull(serviceReference)) {
-			options = context.getService(serviceReference);
+		options = getService(MappingStageOptions.class); // may be null if not configured for this beamline
+		if (malcolmDeviceName.isPresent()) {
+			try {
+				final URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
+				final IEventService eventService = getService(IEventService.class);
+				IRunnableDeviceService runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
+				IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) runnableDeviceService.getRunnableDevice(malcolmDeviceName.get());
+				List<String> availableAxes = new ArrayList<>(malcolmDevice.getAvailableAxes());
+				List<String> associatedAxes = null;
+				if (options != null) {
+					associatedAxes = options.getAssociatedAxes(); // Currently these are not Malcolm related
+				}
+				options = new MappingStageOptions();
+				options.setFastAxes(availableAxes);
+				options.setSlowAxes(availableAxes);
+				if (associatedAxes != null) options.setAssociatedAxes(associatedAxes);
+			} catch (Exception e) {
+				MessageDialog.openError(getShell(), "", "Could not get available axes for malcolm device ''" + malcolmDeviceName.get() + "''");
+			}
 		}
+	}
+
+	private <S> S getService(Class<S> serviceClass) {
+		return PlatformUI.getWorkbench().getService(serviceClass);
 	}
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite mappingStageComposite = (Composite) super.createDialogArea(parent);
-
-		// If x/y axes uneditable (Malcolm device selected), explain this to the user
-		if (!editable) {
-			Label uneditabilityWarning = new Label(mappingStageComposite, SWT.NONE);
-			uneditabilityWarning.setText("Malcolm device selected - fast/slow axes cannot be edited.");
-			uneditabilityWarning.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-		}
 
 		if (Objects.nonNull(options)) {
 			stageManagerControl = new ComboStageManagerControl(mappingStageComposite);
@@ -128,14 +146,12 @@ public class EditMappingStageDialog extends Dialog {
 			fastAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			fastAxis.setItems(options.getFastAxes().toArray(new String[0]));
 			fastAxis.select(options.getFastAxes().indexOf(stageInfo.getActiveFastScanAxis()));
-			fastAxis.setEnabled(editable);
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Combo(mainComposite, SWT.READ_ONLY);
 			slowAxis.setItems(options.getSlowAxes().toArray(new String[0]));
 			slowAxis.select(options.getSlowAxes().indexOf(stageInfo.getActiveSlowScanAxis()));
-			slowAxis.setEnabled(editable);
 			horizGrab.applyTo(slowAxis);
 
 			if (Objects.nonNull(options.getAssociatedAxes())) {
@@ -186,13 +202,11 @@ public class EditMappingStageDialog extends Dialog {
 			new Label(mainComposite, SWT.NONE).setText("Fast axis");
 			fastAxis = new Text(mainComposite, SWT.BORDER);
 			fastAxis.setText(stageInfo.getActiveFastScanAxis());
-			fastAxis.setEnabled(editable);
 			horizGrab.applyTo(fastAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Slow axis");
 			slowAxis = new Text(mainComposite, SWT.BORDER);
 			slowAxis.setText(stageInfo.getActiveSlowScanAxis());
-			slowAxis.setEnabled(editable);
 			horizGrab.applyTo(slowAxis);
 
 			new Label(mainComposite, SWT.NONE).setText("Associated axis");

@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
@@ -39,6 +40,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -138,7 +140,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private AbstractModelEditor<IMappingScanRegionShape> regionEditor;
 	private ComboViewer regionSelector;
 	private ComboViewer pathSelector;
-	private boolean canEditMappingStage = true; // false when Malcolm device selected, which specifies its own axes.
+	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
 
 	@Override
 	protected void initialize(MappingExperimentView mappingView) {
@@ -222,7 +224,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		configureStageButton.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
 		configureStageButton.addListener(SWT.Selection, event -> {
 			MappingStageInfo mappingStage = getService(MappingStageInfo.class);
-			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, canEditMappingStage);
+			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, selectedMalcolmDeviceName);
 			if (dialog.open() == Window.OK) {
 				rebuildMappingSection();
 			}
@@ -389,13 +391,12 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	}
 
 	public void detectorsChanged(List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
-		final boolean isMalcolm = selectedDetectors.stream()
+		selectedMalcolmDeviceName = selectedDetectors.stream()
 									.map(IScanModelWrapper<IDetectorModel>::getModel)
-									.anyMatch(IMalcolmModel.class::isInstance);
-
-		canEditMappingStage = !isMalcolm;
-		((AbstractPathEditor) pathEditor).setContinuousEnabled(isMalcolm);
-
+									.filter(IMalcolmModel.class::isInstance)
+									.map(INameable::getName)
+									.findFirst();
+		((AbstractPathEditor) pathEditor).setContinuousEnabled(selectedMalcolmDeviceName.isPresent());
 	}
 
 	@Override
