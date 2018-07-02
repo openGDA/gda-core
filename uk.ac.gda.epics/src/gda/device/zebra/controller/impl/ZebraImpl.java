@@ -115,6 +115,7 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	public static final String[] PCCapture = {"PC_ENC1", "PC_ENC2", "PC_ENC3", "PC_ENC4", "PC_SYS1", "PC_SYS2", "PC_DIV1", "PC_DIV2", "PC_DIV3", "PC_DIV4", "PC_TIME"};
 	private static final String PCNumberOfPointsCaptured = "PC_NUM_CAP";
 	private static final String PCNumberOfPointsDownloaded = "PC_NUM_DOWN";
+	private static final String PCPointDownload = "ARRAY_ACQ";
 	private static final String PCPulseStepRBV = "PC_PULSE_STEP:RBV";
 	private static final String PCPulseWidthRBV = "PC_PULSE_WID:RBV";
 	private static final String PCPulseDelayRBV = "PC_PULSE_DLY:RBV";
@@ -458,6 +459,11 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	@Override
 	public int getPCNumberOfPointsDownloaded() throws Exception {
 		return pvFactory.getIntegerPVValueCache(PCNumberOfPointsDownloaded).get();
+	}
+
+	@Override
+	public boolean getPCPointDownloadInProgress() throws Exception {
+		return pvFactory.getReadOnlyPVDouble(PCPointDownload).get() > 0.0;
 	}
 
 	@Override
