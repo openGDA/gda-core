@@ -20,7 +20,7 @@
 package gda.factory;
 
 /**
- * An interface to ensure configurability of objects. The {{@link #configure()} method is called after construction of
+ * An interface to ensure configurability of objects. The {@link #configure()} method is called after construction of
  * the instance, generally, by the object server, to perform initialisation.
  *
  * @since GDA 4.0
