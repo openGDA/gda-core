@@ -354,7 +354,7 @@ def repeat(axis=None, count=None, value=None, sleep=None, **kwargs):
     return model, _listify(roi)
 
 def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
-         roi=None, **kwargs):
+         continuous=False, roi=None, **kwargs):
     """Define a grid scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -410,6 +410,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'fastAxisPoints': rows,
                      'slowAxisPoints': cols,
                      'snake': snake,
+                     'continuous' : continuous,
                      'boundingBox': bbox})
 
     else:
@@ -425,6 +426,7 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
                      'fastAxisStep': xStep,
                      'slowAxisStep': yStep,
                      'snake': snake,
+                     'continuous' : continuous,
                      'boundingBox': bbox})
 
     # We _listify() the ROI inputs, so users can type either

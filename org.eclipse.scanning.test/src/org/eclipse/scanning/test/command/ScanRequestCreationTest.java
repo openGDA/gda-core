@@ -92,6 +92,58 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 	}
 
 	@Test
+	public void testGridContinuous() {
+		pi.exec("sr = "
+			  + "scan_request("
+			  + "	path=grid("
+			  + "		axes=('x', 'y'),"
+			  + "		start=(0, 0),"
+			  + "		stop=(1, 1),"
+			  + "		count=(5, 5)," // this is what makes the model a grid
+			  + "		snake=False,"
+			  + "		continuous=True,"
+			  + "		roi=rect(origin=(0, 0), size=(1, 1))),"
+			  + "	det=[detector('mandelbrot', 0.5)]"
+			  + ")"
+		);
+
+		@SuppressWarnings("unchecked")
+		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+
+		Collection<Object> models = request.getCompoundModel().getModels();
+		assertEquals(1, models.size());  // I.e. this is not a compound scan.
+
+		GridModel model = (GridModel) models.iterator().next();
+		assertEquals(true, model.isContinuous());
+	}
+
+	@Test
+	public void testRasterContinuous() {
+		pi.exec("sr = "
+			  + "scan_request("
+			  + "	path=grid("
+			  + "		axes=('x', 'y'),"
+			  + "		start=(0, 0),"
+			  + "		stop=(1, 1),"
+			  + "		step=(0.01, 0.01)," // this is what makes the model a raster
+			  + "		snake=False,"
+			  + "		continuous=True,"
+			  + "		roi=rect(origin=(0, 0), size=(1, 1))),"
+			  + "	det=[detector('mandelbrot', 0.5)]"
+			  + ")"
+		);
+
+		@SuppressWarnings("unchecked")
+		ScanRequest<IROI> request = pi.get("sr", ScanRequest.class);
+
+		Collection<Object> models = request.getCompoundModel().getModels();
+		assertEquals(1, models.size());  // I.e. this is not a compound scan.
+
+		RasterModel model = (RasterModel) models.iterator().next();
+		assertEquals(true, model.isContinuous());
+	}
+
+	@Test
 	public void testGridCommandWithROI() throws Exception {
 		pi.exec("sr =                             "
 			+	"scan_request(                    "
