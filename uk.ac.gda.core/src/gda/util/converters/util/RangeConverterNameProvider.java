@@ -20,6 +20,7 @@
 package gda.util.converters.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import gda.factory.FindableBase;
 
@@ -31,7 +32,7 @@ import gda.factory.FindableBase;
 
 public class RangeConverterNameProvider extends FindableBase implements ConverterNameProvider {
 
-	private ArrayList<RangeandConverterNameHolder> converterList = new ArrayList<RangeandConverterNameHolder>();
+	private List<RangeandConverterNameHolder> converterList = new ArrayList<>();
 
 	private String converterName = "";
 
@@ -74,14 +75,14 @@ public class RangeConverterNameProvider extends FindableBase implements Converte
 	 *
 	 * @param converters the list of converters
 	 */
-	public void setConverters(ArrayList<RangeandConverterNameHolder> converters) {
+	public void setConverters(List<RangeandConverterNameHolder> converters) {
 		this.converterList = converters;
 	}
 
 	/**
 	 * @return converterList
 	 */
-	public ArrayList<RangeandConverterNameHolder> getConverterList() {
+	public List<RangeandConverterNameHolder> getConverterList() {
 		return converterList;
 	}
 
