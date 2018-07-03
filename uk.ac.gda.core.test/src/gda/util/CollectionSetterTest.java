@@ -77,16 +77,16 @@ public class CollectionSetterTest {
 		CoupledScannable cs = new CoupledScannable();
 		assertNull(cs.getScannableNames());
 		cs.setScannableNames(arrayListOf("one", "two", "three"));
-		assertEquals(3, cs.getScannableNames().length);
+		assertEquals(3, cs.getScannableNames().size());
 	}
 
 	@Test
 	public void testCoupledScannableFunctions() {
 		CoupledScannable cs = new CoupledScannable();
-		assertEquals(0, cs.getFunctions().length);
+		assertEquals(0, cs.getFunctions().size());
 		Function function = new IdentityFunction();
 		cs.setFunctions(arrayListOf(function));
-		assertEquals(1, cs.getFunctions().length);
+		assertEquals(1, cs.getFunctions().size());
 	}
 
 	@Test

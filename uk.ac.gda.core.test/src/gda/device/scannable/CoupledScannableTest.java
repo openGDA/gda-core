@@ -19,6 +19,7 @@
 
 package gda.device.scannable;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,6 @@ import org.mockito.Matchers;
 
 import gda.TestHelpers;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
@@ -69,7 +69,7 @@ public class CoupledScannableTest {
 	@Test
 	public void testUseFirstScannableUnits() throws DeviceException, FactoryException {
 		final CoupledScannable scannable = new CoupledScannable();
-		scannable.setScannables(new Scannable[] { dummyScannable1 , dummyScannable2});
+		scannable.setScannables(asList(dummyScannable1 , dummyScannable2));
 		scannable.setName("test");
 		scannable.configure();
 
@@ -87,7 +87,7 @@ public class CoupledScannableTest {
 	@Test
 	public void testUseFirstScannableUnitsButWithInitialUnitsSet() throws DeviceException, FactoryException {
 		final CoupledScannable scannable = new CoupledScannable();
-		scannable.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
+		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
 		scannable.setName("test");
 		scannable.setInitialUserUnits("micron");
 		scannable.configure();
@@ -113,8 +113,8 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("eV");
-		coupled.setScannables(new Scannable[] { dummyScannable1 });
-		coupled.setFunctions(new Function[] { mockFunction1 });
+		coupled.setScannables(asList(dummyScannable1));
+		coupled.setFunctions(asList(mockFunction1));
 		coupled.configure();
 
 		coupled.moveTo(798.34);
@@ -137,8 +137,8 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
-		coupled.setFunctions(new Function[] { mockFunction1, mockFunction2 });
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(mockFunction1, mockFunction2));
 		coupled.configure();
 
 		coupled.moveTo(15.7);
@@ -161,8 +161,8 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannableNames(new String[] { "s1", "s2" });
-		coupled.setFunctions(new Function[] { mockFunction1, mockFunction2 });
+		coupled.setScannableNames(asList("s1", "s2"));
+		coupled.setFunctions(asList(mockFunction1, mockFunction2));
 		coupled.configure();
 
 		coupled.moveTo(15.7);
@@ -179,8 +179,8 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
-		coupled.setFunctions(new Function[] { mockFunction1 });
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(mockFunction1));
 		coupled.configure();
 	}
 
@@ -189,7 +189,7 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.configure();
 
 		coupled.moveTo(15.7);
@@ -209,8 +209,8 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
-		coupled.setFunctions(new Function[] { mockFunction1, mockFunction2 });
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(mockFunction1, mockFunction2));
 		coupled.configure();
 
 		coupled.moveTo(15.7);
@@ -223,7 +223,7 @@ public class CoupledScannableTest {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
-		coupled.setScannables(new Scannable[] { dummyScannable1, dummyScannable2 });
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.addIObserver(observer);
 		coupled.configure();
 

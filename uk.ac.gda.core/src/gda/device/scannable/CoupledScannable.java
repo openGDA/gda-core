@@ -21,10 +21,11 @@
  */
 package gda.device.scannable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
@@ -34,10 +35,8 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.function.Function;
-import gda.observable.IObserver;
 import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -51,13 +50,13 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * currently all Functions return a single value, so all Scannables used here must have one input value.
  */
 @ServiceInterface(ScannableMotionUnits.class)
-public class CoupledScannable extends ScannableMotionUnitsBase implements IObserver {
+public class CoupledScannable extends ScannableMotionUnitsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(CoupledScannable.class);
 
-	private Scannable[] theScannables = new Scannable[0];
-	private Function[] theFunctions = new Function[0];
-	private String[] scannableNames;
+	private List<Scannable> theScannables = new ArrayList<>();
+	private List<Function> theFunctions = new ArrayList<>();
+	private List<String> scannableNames;
 
 	/**
 	 * Keeps track of whether each of the underlying scannables is moving, if this scannable is moved.
@@ -73,37 +72,42 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	public void configure() throws FactoryException {
 
 		// fill the array of Scannables
-		Finder finder = Finder.getInstance();
-		if (scannableNames != null && scannableNames.length > 0) {
+		final Finder finder = Finder.getInstance();
+		if (scannableNames != null && !scannableNames.isEmpty()) {
 			for (String name : scannableNames) {
-				Findable scannable = finder.find(name);
+				final Scannable scannable = finder.find(name);
 
-				if (scannable == null || !(scannable instanceof Scannable)) {
-					logger.warn("Error during configure of " + name + ": scannable " + name
-							+ " could not be found!");
+				if (scannable == null) {
+					logger.warn("Error during configure of {}: scannable {} could not be found!", getName(), name);
 				}
-				theScannables = (Scannable[]) ArrayUtils.add(theScannables, finder.find(name));
+				theScannables.add(scannable);
 			}
 		}
 
-		// check that the arrays are the same length
-		if (theFunctions.length != 0 && theScannables.length != theFunctions.length) {
+		// If functions are defined (which is preferred), check that there are the same number of functions & scannables
+		if (theFunctions.isEmpty()) {
+			logger.warn("No functions defined in '{}'. This will not be permitted from GDA 9.11", getName());
+			logger.warn("Use IdentityFunction if no value transformaton is required");
+		} else if (theScannables.size() != theFunctions.size()) {
 			throw new FactoryException(getName()
 					+ " cannot complete configure() as arrays of Scannables and Functions are of different lengths");
 		}
+
+		// Register for updates with each scannable
 		for (Scannable scannable : theScannables) {
-			scannable.addIObserver(this);
+			scannable.addIObserver(this::handleUpdate);
 		}
 
 		// set up the arrays of input and extra names properly
 		this.inputNames = new String[] { getName() };
 		this.extraNames = new String[0];
 		this.outputFormat = new String[] { "%5.5g" };
-		scannablesMoving = new boolean[theScannables.length];
-		if(!unitsComponent.unitHasBeenSet()){
+		scannablesMoving = new boolean[theScannables.size()];
+
+		if (!unitsComponent.unitHasBeenSet()) {
 			try {
-				Scannable first = theScannables[0];
-				if( first instanceof ScannableMotionUnits){
+				final Scannable first = theScannables.get(0);
+				if (first instanceof ScannableMotionUnits) {
 					this.setUserUnits(((ScannableMotionUnits)first).getUserUnits());
 				}
 			} catch (DeviceException e) {
@@ -115,18 +119,9 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	}
 
 	/**
-	 * Adds a Scannable.
-	 *
-	 * @param newScannable
-	 */
-	public void addScannable(Scannable newScannable) {
-		theScannables = (Scannable[]) ArrayUtils.add(theScannables, newScannable);
-	}
-
-	/**
 	 * @return all the Scannables this operates
 	 */
-	public Scannable[] getScannables() {
+	public List<Scannable> getScannables() {
 		return theScannables;
 	}
 
@@ -135,19 +130,8 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	 *
 	 * @param theScannables
 	 */
-	public void setScannables(Scannable[] theScannables) {
-		this.theScannables = theScannables;
-	}
-
-	/**
-	 * Adds a function to the list
-	 *
-	 * @param newFunction
-	 */
-	public void addFunction(Function newFunction) {
-		if (!ArrayUtils.contains(theFunctions, newFunction)) {
-			theFunctions = (Function[]) ArrayUtils.add(theFunctions, newFunction);
-		}
+	public void setScannables(List<Scannable> theScannables) {
+		this.theScannables = new ArrayList<>(theScannables);
 	}
 
 	/**
@@ -157,39 +141,21 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	 *            the functions
 	 */
 	public void setFunctions(List<Function> functions) {
-		this.theFunctions = new Function[0];
-		for (Function func : functions) {
-			addFunction(func);
-		}
-	}
-
-	// Setter that takes the same type as the return type of the getter (for Spring)
-	public void setFunctions(Function[] functions) {
-		setFunctions(Arrays.asList(functions));
+		this.theFunctions = new ArrayList<>(functions);
 	}
 
 	/**
 	 * @return all the functions this uses.
 	 */
-	public Function[] getFunctions() {
+	public List<Function> getFunctions() {
 		return theFunctions;
 	}
 
 	/**
 	 * @return the names of the Scannables this uses
 	 */
-	public String[] getScannableNames() {
-		return this.scannableNames;
-	}
-
-	/**
-	 * @param newScannableName
-	 *            The Scannable name to add.
-	 */
-	public void addScannableName(String newScannableName) {
-		if (!ArrayUtils.contains(scannableNames, newScannableName)) {
-			scannableNames = (String[]) ArrayUtils.add(scannableNames, newScannableName);
-		}
+	public List<String> getScannableNames() {
+		return scannableNames;
 	}
 
 	/**
@@ -199,23 +165,9 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	 *            the scannable names
 	 */
 	public void setScannableNames(List<String> scannableNames) {
-		this.scannableNames = new String[0];
-		for (String name : scannableNames) {
-			addScannableName(name);
-		}
-	}
-
-	/**
-	 * Alternate setter to match the getter
-	 *
-	 * @param scannableNames
-	 */
-	public void setScannableNames(String[] scannableNames) {
-		this.scannableNames = new String[0];
-		for (String name : scannableNames) {
-			addScannableName(name);
-		}
-
+		logger.warn("Call to setScannableNames() in '{}' is deprecated. This function will be removed in GDA 9.11", getName());
+		logger.warn("Use setScannables() instead and pass in actual Scannable objects");
+		this.scannableNames = new ArrayList<>(scannableNames);
 	}
 
 	@Override
@@ -230,46 +182,39 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		throwExceptionIfInvalidTarget(position);
 
 		// if no functions, so just a fan out
-		if (theFunctions.length == 0) {
-			Object[] targets = new Object[theScannables.length];
-			Arrays.fill(targets, position);
-			moveUnderlyingScannables(targets);
+		if (theFunctions.isEmpty()) {
+			moveUnderlyingScannables(Collections.nCopies(theScannables.size(), position));
 			return;
 		}
 
 		// loop through all functions, calculate and send command to Scannable
-		final Quantity targets[] = new Quantity[theFunctions.length];
+		final List<Quantity> targets = new ArrayList<>(theFunctions.size());
 		final Unit<? extends Quantity> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
 
-		for (int i = 0; i < theFunctions.length; i++) {
-			// if the scannable can use units:
-			if (theScannables[i] instanceof ScannableMotionUnits) {
-				targets[i] = theFunctions[i].evaluate(QuantityFactory.createFromObject(position, userUnits));
-			}
-			// else treat position as a dimensionless number
-			else {
-				targets[i] = theFunctions[i].evaluate(QuantityFactory.createFromObject(position, Unit.ONE));
-			}
+		for (int i = 0; i < theFunctions.size(); i++) {
+			// If scannable cannot use units, treat position as a dimensionless number
+			final Unit<? extends Quantity> unit = (theScannables.get(i) instanceof ScannableMotionUnits) ? userUnits : Unit.ONE;
+			targets.add(theFunctions.get(i).evaluate(QuantityFactory.createFromObject(position, unit)));
 		}
 
 		// if get here without an exception then perform the moves
 		moveUnderlyingScannables(targets);
 	}
 
-	private void moveUnderlyingScannables(Object[] targets) throws DeviceException {
+	private void moveUnderlyingScannables(List<? extends Object> targets) throws DeviceException {
 		Arrays.fill(scannablesMoving, true);
-		for (int i = 0; i < theScannables.length; i++) {
-			theScannables[i].asynchronousMoveTo(targets[i]);
+		for (int i = 0; i < theScannables.size(); i++) {
+			theScannables.get(i).asynchronousMoveTo(targets.get(i));
 		}
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
 		// replicate behaviour of old DOF. This is probably not ideal...
-		Scannable first = theScannables[0];
-		Object posAmount =  ScannableUtils.getCurrentPositionArray(theScannables[0])[0];
-		if( first instanceof ScannableMotionUnits ){
-			Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, QuantityFactory
+		final Scannable first = theScannables.get(0);
+		final Object posAmount =  ScannableUtils.getCurrentPositionArray(first)[0];
+		if (first instanceof ScannableMotionUnits) {
+			final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, QuantityFactory
 					.createUnitFromString(((ScannableMotionUnits)first).getUserUnits()));
 			return (sourcePositionQuantity.to(unitsComponent.getUserUnit())).getAmount();
 		}
@@ -292,30 +237,27 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		return false;
 	}
 
-	@Override
-	public void update(Object theObserved, Object changeCode) {
+	private void handleUpdate(Object theObserved, Object changeCode) {
 
 		boolean scannableReady = true;
-		if ( changeCode instanceof ScannableStatus) {
+		if (changeCode instanceof ScannableStatus) {
 
-			ScannableStatus scanStatus = ((ScannableStatus) changeCode);
-			if (scanStatus == ScannableStatus.BUSY ||  scanStatus== ScannableStatus.FAULT)
-				notifyIObservers(this, scanStatus);
-
-
-			else if(scanStatus == ScannableStatus.IDLE)
-			{
-				for (int i =0 ; i< theScannables.length; i++)
-				{
-					if(theScannables[i].equals(theObserved))
+			final ScannableStatus scannableStatus = ((ScannableStatus) changeCode);
+			if (scannableStatus == ScannableStatus.BUSY ||  scannableStatus== ScannableStatus.FAULT) {
+				notifyIObservers(this, scannableStatus);
+			} else if (scannableStatus == ScannableStatus.IDLE) {
+				for (int i = 0; i < theScannables.size(); i++) {
+					if (theScannables.get(i).equals(theObserved)) {
 						scannablesMoving[i] = false;
-					if(scannablesMoving[i])
+					}
+					if (scannablesMoving[i]) {
 						scannableReady = false;
+					}
 				}
-				if(scannableReady)
-					notifyIObservers(this, scanStatus);
+				if (scannableReady) {
+					notifyIObservers(this, scannableStatus);
+				}
 			}
-
 		}
 	}
 
@@ -329,6 +271,6 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	@Override
 	public String toFormattedString() {
-		return ScannableUtils.formatScannableWithChildren(this, Arrays.asList(theScannables), true);
+		return ScannableUtils.formatScannableWithChildren(this, theScannables, true);
 	}
 }
