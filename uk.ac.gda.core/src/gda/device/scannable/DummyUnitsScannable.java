@@ -19,6 +19,8 @@
 
 package gda.device.scannable;
 
+import java.util.Arrays;
+
 import gda.device.DeviceException;
 
 /**
@@ -28,12 +30,8 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 
 	private double currentPosition = 0;
 
-	/**
-	 * Castor constructor
-	 */
 	public DummyUnitsScannable(){
 	}
-
 
 	/**
 	 * Constructor with minimal required settings.
@@ -79,6 +77,14 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "DummyUnitsScannable [currentPosition=" + currentPosition + ", unitsComponent=" + unitsComponent
+				+ ", numberTries=" + numberTries + ", tolerance=" + Arrays.toString(tolerance) + ", level=" + level
+				+ ", inputNames=" + Arrays.toString(inputNames) + ", extraNames=" + Arrays.toString(extraNames)
+				+ ", outputFormat=" + Arrays.toString(outputFormat) + "]";
 	}
 
 }
