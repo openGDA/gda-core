@@ -23,6 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.util.QuantityFactory;
 
@@ -30,6 +32,8 @@ import gda.util.QuantityFactory;
  * Function of form: y = a * trigFunc( b + x) where trigFunc is sin, cos or tan
  */
 public class SimpleTrigFunction extends Function {
+	private static final Logger logger = LoggerFactory.getLogger(SimpleTrigFunction.class);
+
 	// These are the values as specified in the xml
 	private String outerConstant;
 

@@ -20,8 +20,6 @@
 package gda.function;
 
 import org.jscience.physics.quantities.Quantity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.factory.FindableBase;
 
@@ -31,8 +29,6 @@ import gda.factory.FindableBase;
  */
 
 public abstract class Function extends FindableBase {
-	protected static final Logger logger = LoggerFactory.getLogger(Function.class);
-
 	/**
 	 * Evaluates the function at the given xValue.
 	 *
