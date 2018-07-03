@@ -19,15 +19,17 @@
 
 package gda.function;
 
+import java.util.function.Function;
+
 import org.jscience.physics.quantities.Quantity;
 
 /**
  * Identity function (yValue = xValue).
  */
-public class IdentityFunction extends Function {
+public class IdentityFunction implements Function<Quantity, Quantity> {
 
 	@Override
-	public Quantity evaluate(Quantity xValue) {
-		return (xValue);
+	public Quantity apply(Quantity xValue) {
+		return xValue;
 	}
 }

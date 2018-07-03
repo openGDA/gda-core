@@ -19,22 +19,19 @@
 
 package gda.function;
 
+import java.util.function.Function;
+
 import org.jscience.physics.quantities.Quantity;
 
+import gda.factory.Findable;
 import gda.factory.FindableBase;
 
 /**
- * Base class of a functions of a single (Quantity) variable.<br>
- * Extends FindableBase so that Functions can be specified in XML
+ * Base class for functions that operate on, and return, a Quantity and are {@link Findable}, so they (for example) can
+ * be manipulated in Jython.
+ *
+ * @since GDA 9.9
  */
 
-public abstract class Function extends FindableBase {
-	/**
-	 * Evaluates the function at the given xValue.
-	 *
-	 * @param xValue
-	 *            the xValue (a Quantity)
-	 * @return the value of the function at xValue
-	 */
-	public abstract Quantity evaluate(Quantity xValue);
+public abstract class FindableFunction extends FindableBase implements Function<Quantity, Quantity> {
 }

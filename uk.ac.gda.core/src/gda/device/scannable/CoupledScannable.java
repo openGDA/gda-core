@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -36,7 +37,6 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.function.Function;
 import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -55,7 +55,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	private static final Logger logger = LoggerFactory.getLogger(CoupledScannable.class);
 
 	private List<Scannable> theScannables = new ArrayList<>();
-	private List<Function> theFunctions = new ArrayList<>();
+	private List<Function<Quantity, Quantity>> theFunctions = new ArrayList<>();
 	private List<String> scannableNames;
 
 	/**
@@ -140,14 +140,14 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	 * @param functions
 	 *            the functions
 	 */
-	public void setFunctions(List<Function> functions) {
+	public void setFunctions(List<Function<Quantity, Quantity>> functions) {
 		this.theFunctions = new ArrayList<>(functions);
 	}
 
 	/**
 	 * @return all the functions this uses.
 	 */
-	public List<Function> getFunctions() {
+	public List<Function<Quantity, Quantity>> getFunctions() {
 		return theFunctions;
 	}
 
@@ -194,7 +194,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		for (int i = 0; i < theFunctions.size(); i++) {
 			// If scannable cannot use units, treat position as a dimensionless number
 			final Unit<? extends Quantity> unit = (theScannables.get(i) instanceof ScannableMotionUnits) ? userUnits : Unit.ONE;
-			targets.add(theFunctions.get(i).evaluate(QuantityFactory.createFromObject(position, unit)));
+			targets.add(theFunctions.get(i).apply(QuantityFactory.createFromObject(position, unit)));
 		}
 
 		// if get here without an exception then perform the moves

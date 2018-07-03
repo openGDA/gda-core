@@ -31,7 +31,7 @@ import gda.util.QuantityFactory;
 /**
  * Function of form: y = a * trigFunc( b + x) where trigFunc is sin, cos or tan
  */
-public class SimpleTrigFunction extends Function {
+public class SimpleTrigFunction extends FindableFunction {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleTrigFunction.class);
 
 	// These are the values as specified in the xml
@@ -49,7 +49,7 @@ public class SimpleTrigFunction extends Function {
 	private Method trigMethod;
 
 	@Override
-	public Quantity evaluate(Quantity xValue) {
+	public Quantity apply(Quantity xValue) {
 		double trigValue;
 		Quantity yValue = null;
 

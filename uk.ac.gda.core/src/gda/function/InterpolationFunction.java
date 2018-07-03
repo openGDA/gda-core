@@ -29,7 +29,7 @@ import gda.factory.Finder;
  * To change the template for this generated type comment go to Window - Preferences - Java - Code Generation - Code and
  * Comments
  */
-public class InterpolationFunction extends Function implements Configurable {
+public class InterpolationFunction extends FindableFunction implements Configurable {
 	private double[] xValues;
 
 	private int numberOfXValues;
@@ -218,7 +218,7 @@ public class InterpolationFunction extends Function implements Configurable {
 	}
 
 	@Override
-	public Quantity evaluate(Quantity xValue) {
+	public Quantity apply(Quantity xValue) {
 		Quantity rtrn = null;
 		double x;
 

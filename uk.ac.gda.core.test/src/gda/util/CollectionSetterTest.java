@@ -24,6 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.function.Function;
+
+import org.jscience.physics.quantities.Quantity;
 import org.junit.Test;
 
 import gda.data.metadata.GdaMetadata;
@@ -34,7 +37,6 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.CoupledScannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.function.Function;
 import gda.function.IdentityFunction;
 import gda.util.converters.util.RangeConverterNameProvider;
 import gda.util.converters.util.RangeandConverterNameHolder;
@@ -82,7 +84,7 @@ public class CollectionSetterTest {
 	public void testCoupledScannableFunctions() {
 		CoupledScannable cs = new CoupledScannable();
 		assertEquals(0, cs.getFunctions().size());
-		Function function = new IdentityFunction();
+		Function<Quantity, Quantity> function = new IdentityFunction();
 		cs.setFunctions(asList(function));
 		assertEquals(1, cs.getFunctions().size());
 	}

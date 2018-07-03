@@ -200,7 +200,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 					+ this.toString());
 		}
 		try {
-			return interpolateFunctionTtoS.evaluate(target);
+			return interpolateFunctionTtoS.apply(target);
 		} catch (Exception e) {
 			if (e instanceof IllegalArgumentException &&
 					e.getMessage().startsWith("Input value")) {
@@ -224,7 +224,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 					+ this.toString());
 		}
 		try {
-			return interpolateFunctionStoT.evaluate(source);
+			return interpolateFunctionStoT.apply(source);
 		} catch (Exception e) {
 			if (e instanceof IllegalArgumentException &&
 					e.getMessage().startsWith("Input value")) {

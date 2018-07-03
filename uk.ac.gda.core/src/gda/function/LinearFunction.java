@@ -29,7 +29,7 @@ import gda.util.QuantityFactory;
  * LinearFunction (yValue = xValue * slope + intercept)
  */
 
-public class LinearFunction extends Function {
+public class LinearFunction extends FindableFunction {
 	private static final Logger logger = LoggerFactory.getLogger(LinearFunction.class);
 
 	private Quantity slope;
@@ -119,7 +119,7 @@ public class LinearFunction extends Function {
 	}
 
 	@Override
-	public Quantity evaluate(Quantity xValue) {
+	public Quantity apply(Quantity xValue) {
 		// slope = slopeNumerator.divide(slopeDenominator);
 		slope = slopeNumerator.times(slopeDenominator.reciprocal());
 

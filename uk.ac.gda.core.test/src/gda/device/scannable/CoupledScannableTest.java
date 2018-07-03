@@ -27,6 +27,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.function.Function;
+
 import org.jscience.physics.quantities.Quantity;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +41,7 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.function.Function;
+import gda.function.FindableFunction;
 import gda.observable.IObserver;
 import gda.util.QuantityFactory;
 
@@ -48,19 +50,19 @@ public class CoupledScannableTest {
 	private ScannableMotionUnits dummyScannable1;
 	private ScannableMotionUnits dummyScannable2;
 
-	private Function mockFunction1;
-	private Function mockFunction2;
+	private Function<Quantity, Quantity> mockFunction1;
+	private Function<Quantity, Quantity> mockFunction2;
 
 	@Before
 	public void setUp() throws Exception {
 		dummyScannable1 = new DummyUnitsScannable("s1", 0, "mm", "mm");
 		dummyScannable2 = new DummyUnitsScannable("s2", 0, "nm", "nm");
 
-		mockFunction1 = mock(Function.class);
-		when(mockFunction1.evaluate(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("12.3 cm"));
+		mockFunction1 = mock(FindableFunction.class);
+		when(mockFunction1.apply(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("12.3 cm"));
 
-		mockFunction2 = mock(Function.class);
-		when(mockFunction2.evaluate(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("78.9 nm"));
+		mockFunction2 = mock(FindableFunction.class);
+		when(mockFunction2.apply(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("78.9 nm"));
 	}
 
 	/*
@@ -123,7 +125,7 @@ public class CoupledScannableTest {
 
 		// Verify that the input units of the coupled scannable (i.e. eV) are passed to the evaluation function for the
 		// component scannable
-		verify(mockFunction1).evaluate(quantityCaptor.capture());
+		verify(mockFunction1).apply(quantityCaptor.capture());
 		assertEquals(798.34, quantityCaptor.getValue().getAmount(), 0.0001);
 		assertEquals("eV", quantityCaptor.getValue().getUnit().toString());
 

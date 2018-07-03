@@ -26,13 +26,13 @@ import gda.util.QuantityFactory;
 /**
  * Similar to the IdentityFunction, but holds an offset.
  */
-public class OffsetFunction extends Function {
+public class OffsetFunction extends FindableFunction {
 
 	private double offset = 0.0;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Quantity evaluate(Quantity value) {
+	public Quantity apply(Quantity value) {
 		return value.plus(QuantityFactory.createFromObject(offset, value.getUnit()));
 	}
 
