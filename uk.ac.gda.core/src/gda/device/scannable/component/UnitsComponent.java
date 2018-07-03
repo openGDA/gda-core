@@ -47,11 +47,6 @@ import static org.jscience.physics.units.SI.NEWTON;
 import static org.jscience.physics.units.SI.RADIAN;
 import static org.jscience.physics.units.SI.VOLT;
 import static org.jscience.physics.units.Unit.ONE;
-import gda.device.DeviceException;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.jscience.physics.quantities.Count;
-import gda.jscience.physics.units.NonSIext;
-import gda.util.QuantityFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +75,12 @@ import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.scannable.PositionConvertorFunctions;
+import gda.jscience.physics.quantities.Count;
+import gda.jscience.physics.units.NonSIext;
+import gda.util.QuantityFactory;
+
 /**
  * This class provides Device classes with the functionality to convert between user-units and a lower-level hardware
  * unit.
@@ -106,9 +107,9 @@ public class UnitsComponent implements PositionConvertor {
 	protected Unit<? extends Quantity> userUnit = null;
 	private List<Unit<? extends Quantity>> acceptableUnits;
 
-	private boolean userUnitHasBeenExplicitelySet;
+	private boolean userUnitHasBeenExplicitlySet;
 
-	private boolean hardwareUnitHasBeenExplicitelySet;
+	private boolean hardwareUnitHasBeenExplicitlySet;
 
 	/**
 	 * Constructor. Sets the hardware and user unit to the dimensionless ONE.
@@ -120,8 +121,8 @@ public class UnitsComponent implements PositionConvertor {
 		} catch (DeviceException e) {
 			logger.error("Code logic error:", e);
 		}
-		userUnitHasBeenExplicitelySet = false;
-		hardwareUnitHasBeenExplicitelySet = false;
+		userUnitHasBeenExplicitlySet = false;
+		hardwareUnitHasBeenExplicitlySet = false;
 	}
 
 	/**
@@ -134,7 +135,7 @@ public class UnitsComponent implements PositionConvertor {
 	}
 
 	public boolean unitHasBeenSet() {
-		return (userUnitHasBeenExplicitelySet | hardwareUnitHasBeenExplicitelySet);
+		return (userUnitHasBeenExplicitlySet | hardwareUnitHasBeenExplicitlySet);
 	}
 
 	/**
@@ -163,12 +164,12 @@ public class UnitsComponent implements PositionConvertor {
 	 */
 	public void setUserUnits(String userUnitsString) throws DeviceException {
 		// Make hardware unit compatible if it has not been explicitly set
-		if (!hardwareUnitHasBeenExplicitelySet) {
+		if (!hardwareUnitHasBeenExplicitlySet) {
 			hardwareUnit = QuantityFactory.createUnitFromString(userUnitsString);
 			setCompatibleUnits();
 		}
 		actuallySetUserUnits(userUnitsString);
-		userUnitHasBeenExplicitelySet = true;
+		userUnitHasBeenExplicitlySet = true;
 	}
 
 	protected void actuallySetUserUnits(String userUnitsString) throws DeviceException {
@@ -224,7 +225,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @throws DeviceException
 	 */
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
-		if (userUnitHasBeenExplicitelySet) {
+		if (userUnitHasBeenExplicitlySet) {
 			// Check the new hardware unit is compatible
 			final ArrayList<Unit<? extends Quantity>> compatibleUnits = generateCompatibleUnits(hardwareUnitString);
 			if (!compatibleUnits.contains(userUnit)) {
@@ -235,8 +236,8 @@ public class UnitsComponent implements PositionConvertor {
 		}
 
 		actuallySetHardwareUnitString(hardwareUnitString);
-		hardwareUnitHasBeenExplicitelySet = true;
-		if (!userUnitHasBeenExplicitelySet) {
+		hardwareUnitHasBeenExplicitlySet = true;
+		if (!userUnitHasBeenExplicitlySet) {
 			try {
 				actuallySetUserUnits(hardwareUnitString);
 			} catch (DeviceException e) {
@@ -656,5 +657,12 @@ public class UnitsComponent implements PositionConvertor {
 		Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);
 
 		return PositionConvertorFunctions.toParticularContainer(externalAmountArray, externalPosition);
+	}
+
+	@Override
+	public String toString() {
+		return "UnitsComponent [hardwareUnit=" + hardwareUnit + ", userUnit=" + userUnit + ", acceptableUnits="
+				+ acceptableUnits + ", userUnitHasBeenExplicitlySet=" + userUnitHasBeenExplicitlySet
+				+ ", hardwareUnitHasBeenExplicitlySet=" + hardwareUnitHasBeenExplicitlySet + "]";
 	}
 }
