@@ -28,7 +28,7 @@ public class ServiceHolder {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		ServiceHolder.runnableDeviceService = runnableDeviceService;
 	}
 }
