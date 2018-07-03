@@ -19,6 +19,7 @@
 
 package gda.util;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -43,6 +44,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.ConfigurableEnvironment;
+
+import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConditionallyConfigurable;
@@ -318,6 +321,11 @@ public class SpringObjectServer extends ObjectServer {
 
 	private void configureAllConfigurablesInApplicationContext(ApplicationContext applicationContext)
 			throws FactoryException {
+
+		// Stats about configuring
+		int configuredCounter = 0;
+		final Stopwatch configureStopwatch = Stopwatch.createStarted();
+
 		Map<String, Configurable> configurables = applicationContext.getBeansOfType(Configurable.class);
 		for (Map.Entry<String, Configurable> entry : configurables.entrySet()) {
 			String name = entry.getKey();
@@ -339,6 +347,7 @@ public class SpringObjectServer extends ObjectServer {
 				logger.info("Configuring {}", name);
 				try {
 					obj.configure();
+					configuredCounter++;
 				} catch (Exception e) {
 					if (!allowExceptionInConfigure) {
 						throw new FactoryException("Error in configure for " + name, e);
@@ -349,6 +358,11 @@ public class SpringObjectServer extends ObjectServer {
 				logger.info("Not configuring {}", name);
 			}
 		}
+
+		// Analyse and log stats
+		configureStopwatch.stop();
+		logger.info("Finished configuring objects. Confgured {} objects in {} seconds", configuredCounter,
+				configureStopwatch.elapsed(SECONDS));
 	}
 
 }
