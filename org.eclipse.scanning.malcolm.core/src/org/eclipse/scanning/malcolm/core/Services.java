@@ -24,7 +24,7 @@ public class Services {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		Services.runnableDeviceService = runnableDeviceService;
 	}
 
@@ -32,7 +32,7 @@ public class Services {
 		return Services.connectorService;
 	}
 
-	public static void setConnectorService(IMalcolmConnection connectorService) {
+	public void setConnectorService(IMalcolmConnection connectorService) {
 		Services.connectorService = connectorService;
 	}
 

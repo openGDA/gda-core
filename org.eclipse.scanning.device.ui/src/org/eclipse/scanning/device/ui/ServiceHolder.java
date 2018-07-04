@@ -63,7 +63,7 @@ public class ServiceHolder {
 		return eventService;
 	}
 
-	public static void setEventService(IEventService eventService) {
+	public void setEventService(IEventService eventService) {
 		ServiceHolder.eventService = eventService;
 	}
 
@@ -81,7 +81,7 @@ public class ServiceHolder {
 		return expressionService;
 	}
 
-	public static void setExpressionService(IExpressionService expressionService) {
+	public void setExpressionService(IExpressionService expressionService) {
 		ServiceHolder.expressionService = expressionService;
 	}
 
@@ -117,7 +117,7 @@ public class ServiceHolder {
 		return validatorService;
 	}
 
-	public static void setValidatorService(IValidatorService validatorService) {
+	public void setValidatorService(IValidatorService validatorService) {
 		ServiceHolder.validatorService = validatorService;
 	}
 
@@ -126,7 +126,7 @@ public class ServiceHolder {
 		return springParser;
 	}
 
-	public static void setSpringParser(ISpringParser springParser) {
+	public void setSpringParser(ISpringParser springParser) {
 		ServiceHolder.springParser = springParser;
 	}
 
@@ -135,7 +135,7 @@ public class ServiceHolder {
 		return marshallerService;
 	}
 
-	public static void setMarshallerService(IMarshallerService marshallerService) {
+	public void setMarshallerService(IMarshallerService marshallerService) {
 		ServiceHolder.marshallerService = marshallerService;
 	}
 
@@ -144,7 +144,7 @@ public class ServiceHolder {
 		return plottingService;
 	}
 
-	public static void setPlottingService(IPlottingService plottingService) {
+	public void setPlottingService(IPlottingService plottingService) {
 		ServiceHolder.plottingService = plottingService;
 	}
 
@@ -153,7 +153,7 @@ public class ServiceHolder {
 		return remoteDatasetService;
 	}
 
-	public static void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
+	public void setRemoteDatasetService(IRemoteDatasetService remoteDatasetService) {
 		ServiceHolder.remoteDatasetService = remoteDatasetService;
 	}
 
@@ -162,7 +162,7 @@ public class ServiceHolder {
 		return eventAdmin;
 	}
 
-	public static void setEventAdmin(EventAdmin eventAdmin) {
+	public void setEventAdmin(EventAdmin eventAdmin) {
 		ServiceHolder.eventAdmin = eventAdmin;
 	}
 
@@ -171,7 +171,7 @@ public class ServiceHolder {
 		return parserService;
 	}
 
-	public static void setParserService(IParserService parserService) {
+	public void setParserService(IParserService parserService) {
 		ServiceHolder.parserService = parserService;
 	}
 
@@ -180,7 +180,7 @@ public class ServiceHolder {
 		return interfaceService;
 	}
 
-	public static void setInterfaceService(IInterfaceService interfaceService) {
+	public void setInterfaceService(IInterfaceService interfaceService) {
 		ServiceHolder.interfaceService = interfaceService;
 	}
 
@@ -191,7 +191,7 @@ public class ServiceHolder {
 		return filePathService;
 	}
 
-	public static void setFilePathService(IFilePathService filePathService) {
+	public void setFilePathService(IFilePathService filePathService) {
 		ServiceHolder.filePathService = filePathService;
 	}
 

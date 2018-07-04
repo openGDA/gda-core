@@ -52,7 +52,7 @@ public class ServiceHolder {
 		return watchdogService;
 	}
 
-	public static void setWatchdogService(IDeviceWatchdogService watchdogService) {
+	public void setWatchdogService(IDeviceWatchdogService watchdogService) {
 		ServiceHolder.watchdogService = watchdogService;
 	}
 
@@ -83,7 +83,7 @@ public class ServiceHolder {
 		return eventService;
 	}
 
-	public static void setEventService(IEventService eventService) {
+	public void setEventService(IEventService eventService) {
 		ServiceHolder.eventService = eventService;
 	}
 
@@ -103,7 +103,7 @@ public class ServiceHolder {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		ServiceHolder.runnableDeviceService = runnableDeviceService;
 	}
 
@@ -142,8 +142,7 @@ public class ServiceHolder {
 	/**
 	 * Used to provide services when tests running in non-OSGi mode.
 	 */
-	@SuppressWarnings("javadoc")
-	public static void setTestServices(ILoaderService ls,
+	public void setTestServices(ILoaderService ls,
 			NexusBuilderFactory defaultNexusBuilderFactory, IOperationService oservice) {
 		loaderService = ls;
 		factory = defaultNexusBuilderFactory;
@@ -153,8 +152,7 @@ public class ServiceHolder {
 	/**
 	 * Used to provide services when tests running in non-OSGi mode.
 	 */
-	@SuppressWarnings("javadoc")
-	public static void setTestServices(ILoaderService ls,
+	public void setTestServices(ILoaderService ls,
 			NexusBuilderFactory defaultNexusBuilderFactory, IOperationService oservice,
 			IFilePathService fpservice, IPointGeneratorService gService) {
 		loaderService = ls;
