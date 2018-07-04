@@ -71,12 +71,11 @@ public class GDAServerApplication implements IApplication {
 					logger.info("Name server starting");
 					processes.put(EVENT, configurationService.getEventServerCommand().execute());
 					logger.info("Channel/Event server starting");
-				}
-				else {
+					// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
+					Thread.sleep(SERVER_WAIT_MILLIS);
+				} else {
 					logger.info("Corba is disabled");
 				}
-				// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
-				Thread.sleep(SERVER_WAIT_MILLIS);
 			}
 			catch (Exception subEx) {
 				String[] failedServer = {"Log", "Name", "Event"};
