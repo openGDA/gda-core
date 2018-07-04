@@ -46,8 +46,8 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, Localizab
 
 	private boolean local;
 
-	Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<>();
-	private ObservableComponent observableComponent = new ObservableComponent();
+	private final Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<>();
+	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	/**
 	 * Constructor.
@@ -122,7 +122,7 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, Localizab
 	 *            the metadata entries
 	 */
 	public void setMetadataEntries(List<IMetadataEntry> entries) {
-		metadataEntries = new LinkedHashMap<>();
+		metadataEntries.clear();
 		for (IMetadataEntry entry : entries) {
 			addMetadataEntry(entry);
 		}
