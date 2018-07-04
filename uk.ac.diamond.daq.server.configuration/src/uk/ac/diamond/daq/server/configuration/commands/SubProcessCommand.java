@@ -1,5 +1,8 @@
 package uk.ac.diamond.daq.server.configuration.commands;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
 
 import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
@@ -36,5 +39,10 @@ public class SubProcessCommand {
 		final ProcessBuilder pBuilder = new ProcessBuilder(command).inheritIO();
 		pBuilder.environment().put(CLASSPATH, classpath);
 		return pBuilder.start();
+	}
+
+	@Override
+	public String toString() {
+		return stream(command).collect(joining(" ", "SubProcessCommand(", ")"));
 	}
 }
