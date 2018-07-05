@@ -18,6 +18,8 @@
 
 package gda.jython;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,13 +121,9 @@ public class ScriptPaths {
 	 * @return A comma-separated list of the paths used by this object.
 	 */
 	public String description() {
-		StringBuilder builder = new StringBuilder("script search paths: ");
-		for (String path: this.getPaths()) {
-			builder.append(path + ", ");
-		}
-		builder.delete(builder.length() - 2, builder.length());
-		builder.append(".");
-		return builder.toString();
+		return getPaths()
+				.stream()
+				.collect(joining("\n  ", "Script search paths:\n  ", ""));
 	}
 
 	/**

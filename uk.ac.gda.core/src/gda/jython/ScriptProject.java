@@ -130,4 +130,9 @@ public class ScriptProject {
 		}
 		return path;
 	}
+
+	@Override
+	public String toString() {
+		return "ScriptProject [" + name + " (" + type + "): " + path + "]";
+	}
 }
