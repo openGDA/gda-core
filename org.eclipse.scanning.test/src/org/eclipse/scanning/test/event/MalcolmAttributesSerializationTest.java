@@ -15,7 +15,6 @@ import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.PointGeneratorAttribute;
@@ -175,7 +174,7 @@ public class MalcolmAttributesSerializationTest {
 
 	@Test
 	public void testSerializeHealthAttribute() throws Exception {
-		HealthAttribute attrib = new HealthAttribute();
+		StringAttribute attrib = new StringAttribute();
 		attrib.setName("healthAttribute");
 		attrib.setLabel("Health Attribute");
 		attrib.setDescription("Description of a health attribute");
@@ -184,7 +183,7 @@ public class MalcolmAttributesSerializationTest {
 		attrib.setValue("Good Health");
 
 		String json = service.marshal(attrib);
-		HealthAttribute newAttrib = service.unmarshal(json, HealthAttribute.class);
+		StringAttribute newAttrib = service.unmarshal(json, StringAttribute.class);
 		assertEquals(attrib, newAttrib);
 	}
 

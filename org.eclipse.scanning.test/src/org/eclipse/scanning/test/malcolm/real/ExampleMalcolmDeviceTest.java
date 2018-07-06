@@ -26,8 +26,8 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -111,7 +111,7 @@ public class ExampleMalcolmDeviceTest {
 		assertEquals("Test Health", malcolmDevice.getAttributeValue("health"));
 		assertEquals(false, malcolmDevice.getAttributeValue("busy"));
 		assertEquals(Integer.valueOf(123), malcolmDevice.getAttributeValue("totalSteps"));
-		HealthAttribute healthAttributeValue = (HealthAttribute) (Object) malcolmDevice.getAttribute("health"); // TODO why is this double cast necessary?
+		StringAttribute healthAttributeValue = (StringAttribute) (Object) malcolmDevice.getAttribute("health"); // TODO why is this double cast necessary?
 		assertEquals("health", healthAttributeValue.getName());
 		assertEquals("Test Health", healthAttributeValue.getValue());
 		assertEquals(false, malcolmDevice.getAttribute("A").isWriteable());

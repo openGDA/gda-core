@@ -36,7 +36,6 @@ import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
@@ -169,7 +168,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, StringArrayAttribute.class);
 		registerClass(tmp, StringAttribute.class);
 		registerClass(tmp, TableAttribute.class);
-		registerClass(tmp, HealthAttribute.class);
 
 		// api.scan
 		registerClass(tmp, PositionEvent.class);

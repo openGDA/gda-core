@@ -15,11 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 
 /**
  * TODO: try to simplify the method in this class, or even remove them.
@@ -95,9 +92,6 @@ public class MalcolmUtil {
 		try {
 			if (msg.getValue() instanceof String) {
 				return msg.getValue().toString();
-			} else if (msg.getValue() instanceof HealthAttribute) {
-				HealthAttribute attribute = (HealthAttribute)msg.getValue();
-				return attribute.getValue().toString();
 			} else if (msg.getValue() instanceof StringAttribute) {
 				StringAttribute attribute = (StringAttribute)msg.getValue();
 				return attribute.getValue().toString();

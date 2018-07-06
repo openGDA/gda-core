@@ -44,10 +44,10 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
@@ -414,7 +414,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		state.setName(STATE_ENDPOINT);
 		responseValue.put(state.getName(), state);
 
-		HealthAttribute health = new HealthAttribute();
+		StringAttribute health = new StringAttribute();
 		health.setValue("Waiting");
 		health.setName(HEALTH_ENDPOINT);
 		responseValue.put(health.getName(), health);

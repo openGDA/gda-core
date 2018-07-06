@@ -13,7 +13,6 @@ package org.eclipse.scanning.connector.epics.custommarshallers;
 
 import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.HealthAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.epics.pvdata.pv.PVField;
@@ -68,7 +67,7 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 			String value = pvStructure.getStringField(valueField).get();
 			attribute.setValue(value);
 			return attribute;
-		} else if (metaId.startsWith(StringAttribute.STRING_ID)) {
+		} else if (metaId.startsWith(StringAttribute.STRING_ID) || metaId.startsWith(StringAttribute.HEALTH_ID)) {
 			StringAttribute attribute = new StringAttribute();
 
 			attribute.setDescription(description);
@@ -117,18 +116,6 @@ public class NTScalarDeserialiser implements IPVStructureDeserialiser {
 				throw new Exception(pvStructure.getFullName() + " has a number field that isn't a number");
 			}
 
-			return attribute;
-		} else if (metaId.startsWith(HealthAttribute.HEALTH_ID)) {
-			HealthAttribute attribute = new HealthAttribute();
-
-			attribute.setDescription(description);
-			attribute.setLabel(label);
-			attribute.setTags(tagsArrayData.data);
-			attribute.setWriteable(writeable);
-			attribute.setName(pvStructure.getFullName());
-
-			String value = pvStructure.getStringField(valueField).get();
-			attribute.setValue(value);
 			return attribute;
 		}
 
