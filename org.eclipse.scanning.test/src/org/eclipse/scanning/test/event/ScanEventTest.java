@@ -12,8 +12,7 @@
 package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 
 /**
@@ -24,15 +23,11 @@ import org.junit.Before;
  */
 public class ScanEventTest extends AbstractScanEventTest{
 
-
 	@Before
 	public void createServices() {
+		ServiceTestHelper.setupServices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		eventService = ServiceTestHelper.getEventService();
 
 		publisher = eventService.createPublisher(uri, EventConstants.SCAN_TOPIC);
 		subscriber = eventService.createSubscriber(uri, EventConstants.SCAN_TOPIC);

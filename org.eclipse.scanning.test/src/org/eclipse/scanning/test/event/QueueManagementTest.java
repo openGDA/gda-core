@@ -35,9 +35,8 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -67,11 +66,9 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		ServiceTestHelper.setupServices();
+
+		eservice = ServiceTestHelper.getEventService();
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally

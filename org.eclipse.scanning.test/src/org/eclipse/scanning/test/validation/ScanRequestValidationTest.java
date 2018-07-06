@@ -18,6 +18,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -25,10 +26,29 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
+import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
+import org.eclipse.scanning.test.ServiceTestHelper;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ScanRequestValidationTest extends AbstractValidationTest {
 
+	@Before
+	public void setup() throws Exception {
+		ClusterProcessingModel cmodel = new ClusterProcessingModel();
+		cmodel.setDetectorName(null); // Intentionally not one
+		cmodel.setName("processing");
+		cmodel.setProcessingFilePath(null);
+		RunnableDeviceServiceImpl runnableDeviceServiceImpl = (RunnableDeviceServiceImpl) ServiceTestHelper
+				.getRunnableDeviceService();
+		runnableDeviceServiceImpl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
+		runnableDeviceServiceImpl.createRunnableDevice(cmodel);
+		runnableDeviceServiceImpl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
+		ProcessingRunnableDevice processingRunnableDevice = new ProcessingRunnableDevice();
+		runnableDeviceServiceImpl._register(null, processingRunnableDevice);
+	}
 
 	@Test(expected=ModelValidationException.class)
 	public void emptyRequest() throws Exception {
@@ -96,7 +116,6 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
 		req.putDetector("processing", new ProcessingModel());
 
 		validator.validate(req);
@@ -107,7 +126,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
 		req.putDetector("processing", new ProcessingModel("processing", "/tmp/datafile", "/tmp/operationfile", 100));
 
@@ -119,7 +138,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
 		req.putDetector("dkExmpl", dservice.getDeviceInformation("dkExmpl").getModel());
 		req.putDetector("processing", new ProcessingModel("processing", "/tmp/datafile", "/tmp/operationfile", 100));
@@ -132,7 +151,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
 		req.putDetector("dkExmpl", dservice.getDeviceInformation("dkExmpl").getModel());
 		req.putDetector("processing1", new ProcessingModel("processing1", "/tmp/datafile1", "/tmp/operationfile1", 100));
@@ -147,7 +166,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
 		req.putDetector("malcolm",    dservice.getDeviceInformation("malcolm").getModel());
 
@@ -159,7 +178,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("malcolm",    dservice.getDeviceInformation("malcolm").getModel());
 	req.putDetector("processing", new ProcessingModel("processing", "/tmp/datafile", "/tmp/operationfile", 100));
@@ -172,7 +191,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
@@ -185,7 +204,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("mandelbrot", dservice.getDeviceInformation("mandelbrot").getModel());
 		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
@@ -199,7 +218,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
@@ -213,7 +232,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("dummyMalcolmTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
 
@@ -224,7 +243,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 	public void aHardwareOrSoftwareTriggered() throws Exception {
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("dummyHardwareOrSoftwareTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
 
 		validator.validate(req);
@@ -235,7 +254,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		req.putDetector("malcolm", dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("dummyHardwareOrSoftwareTriggered", dservice.getDeviceInformation("dummyMalcolmTriggered").getModel());
@@ -248,7 +267,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("malcolm2",    dservice.getDeviceInformation("malcolm").getModel());
 
@@ -260,7 +279,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		ScanRequest<IROI> req = createScanRequest();
 
-		IRunnableDeviceService dservice = validator.getRunnableDeviceService();
+		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();
 		req.putDetector("malcolm1",    dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("malcolm2",    dservice.getDeviceInformation("malcolm").getModel());
 		req.putDetector("malcolm3",    dservice.getDeviceInformation("malcolm").getModel());

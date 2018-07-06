@@ -13,14 +13,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.ISubmitter;
@@ -34,28 +29,12 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
-import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.file.MockFilePathService;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ScanPointGeneratorFactory;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
-import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockOperationService;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.eclipse.scanning.test.scan.nexus.ScanClusterProcessingChecker;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -78,7 +57,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	}
 
 	protected static IRunnableDeviceService      dservice;
-	protected static IScannableDeviceService     connector;
 	protected static IPointGeneratorService      gservice;
 	protected static IEventService               eservice;
 	protected static ILoaderService              lservice;
@@ -88,80 +66,12 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
 	@BeforeClass
 	public static void create() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createMarshaller());
-		eservice  = new EventServiceImpl(activemqConnectorService);
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE
-		connector = new MockScannableConnector(null);
-		dservice  = new RunnableDeviceServiceImpl(connector);
-		fileFactory = new NexusFileFactoryHDF5();
-
-
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		impl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-		impl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
-
-		final MockDetectorModel dmodel = new MockDetectorModel();
-		dmodel.setName("detector");
-		dmodel.setExposureTime(0.1);
-		impl.createRunnableDevice(dmodel);
-
-		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
-		model.setName("mandelbrot");
-		model.setExposureTime(0.001);
-		impl.createRunnableDevice(model);
-
-		ClusterProcessingModel cmodel = new ClusterProcessingModel();
-		cmodel.setDetectorName(null); // Intentionally not one
-		cmodel.setName("processing");
-		cmodel.setProcessingFilePath(null);
-		impl.createRunnableDevice(cmodel);
-
-		model = new MandelbrotModel("xNex", "yNex");
-		model.setName("m");
-		model.setExposureTime(0.001);
-		impl.createRunnableDevice(model);
-
-		cmodel = new ClusterProcessingModel();
-		cmodel.setDetectorName(null); // Intentionally not one
-		cmodel.setName("p");
-		cmodel.setProcessingFilePath(null);
-		impl.createRunnableDevice(cmodel);
-
-		gservice  = new PointGeneratorService();
-		wservice = new DeviceWatchdogService();
-		lservice = new LoaderServiceMock();
-
-		// Provide lots of services that OSGi would normally.
-		Services.setEventService(eservice);
-		ServiceHolder.setEventService(eservice);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		Services.setWatchdogService(wservice);
-		org.eclipse.scanning.command.Services.setEventService(eservice);
-		org.eclipse.scanning.command.Services.setRunnableDeviceService(dservice);
-		org.eclipse.scanning.command.Services.setScannableDeviceService(connector);
-
-		org.eclipse.scanning.sequencer.ServiceHolder.setTestServices(lservice,
-				                                                     new DefaultNexusBuilderFactory(),
-				                                                     new MockOperationService(),
-				                                                     new MockFilePathService(), gservice);
-
-		org.eclipse.scanning.example.Services.setPointGeneratorService(gservice);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-
-		validator = new ValidatorService();
-		validator.setPointGeneratorService(gservice);
-		validator.setRunnableDeviceService(dservice);
-		Services.setValidatorService(validator);
-
+		eservice = ServiceTestHelper.getEventService();
+		dservice  = ServiceTestHelper.getRunnableDeviceService();
+		fileFactory = ServiceTestHelper.getNexusFileFactory();
 
 		// Create an object for the servlet
 		/**
@@ -181,7 +91,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		servlet.setBroker(uri.toString());
 		servlet.setDurable(true);
 		servlet.connect(); // Gets called by Spring automatically
-
 	}
 
 	@AfterClass

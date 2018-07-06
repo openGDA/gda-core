@@ -51,7 +51,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,7 +84,8 @@ public abstract class AbstractMalcolmDeviceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		this.runnableDeviceService = new RunnableDeviceServiceImpl();
+		ServiceTestHelper.setupServices();
+		this.runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
 
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
 		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService);

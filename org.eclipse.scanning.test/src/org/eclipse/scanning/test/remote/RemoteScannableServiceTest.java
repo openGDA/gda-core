@@ -16,9 +16,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.IScannable;
@@ -31,15 +30,12 @@ import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.remote.RemoteServiceFactory;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.server.servlet.AbstractResponderServlet;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -55,23 +51,11 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 	@BeforeClass
 	public static void createServices() throws Exception {
+		ServiceTestHelper.setupServices();
+		eservice = ServiceTestHelper.getEventService();
+		cservice = ServiceTestHelper.getScannableDeviceService();
 
-		System.out.println("Create Services");
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// Set up stuff because we are not in OSGi with a test
-		// DO NOT COPY TESTING ONLY
-		cservice = new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC));
-
-		Services.setEventService(eservice);
-		Services.setConnector(cservice);
-		System.out.println("Set connectors");
 
 		dservlet = new DeviceServlet();
 		dservlet.setBroker(uri.toString());
@@ -85,7 +69,6 @@ public class RemoteScannableServiceTest extends BrokerTest {
 		pservlet.setResponseTopic(EventConstants.POSITIONER_RESPONSE_TOPIC);
 		pservlet.connect();
 		System.out.println("Made Servlets");
-
 	}
 
 	@Before
@@ -182,13 +165,13 @@ public class RemoteScannableServiceTest extends BrokerTest {
 		System.out.println("rservice = " + rservice);
 		IScannable<Double> temp = rservice.getScannable("T");
 
-		List<Double> positions = new ArrayList<>();
+		CountDownLatch latch = new CountDownLatch(10); // MockScannable.doRealisticMove() always fires 10 events during the move
 		((IPositionListenable)temp).addPositionListener(new IPositionListener() {
 			@Override
 			public void positionChanged(PositionEvent evt) throws ScanningException {
 				double val = (Double)evt.getPosition().get("T");
 				System.out.println("The value of T was at "+val);
-				positions.add(val);
+				latch.countDown();
 			}
 		});
 
@@ -198,8 +181,10 @@ public class RemoteScannableServiceTest extends BrokerTest {
 		System.out.println("Moving to "+ newPosition+" from "+currPosition);
 		temp.setPosition(newPosition);
 
+		// Ensure 10 events were received before the timeout
+		assertTrue("Latch broke before 10 events were received", latch.await(60, TimeUnit.SECONDS)); //TODO decrease time
+		// Ensure T is now at the new position
 		assertEquals(newPosition, temp.getPosition(), 1e-15);
-		assertEquals(10, positions.size()); // MockScannable.doRealisticMove() always fires 10 events during the move
 	}
 
 }

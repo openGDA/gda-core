@@ -17,20 +17,16 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -40,26 +36,21 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LegacyDeviceSupportScanTest {
 
 	private IRunnableDeviceService runnableDeviceService;
-	private IScannableDeviceService connector;
 	private IPointGeneratorService pointGeneratorService;
 	private INexusFileFactory fileFactory;
 
 	@Before
-	public void before() throws Exception {
-		fileFactory = new NexusFileFactoryHDF5();
-		ServiceHolder.setNexusFileFactory(fileFactory);
-		(new org.eclipse.scanning.sequencer.ServiceHolder()).setFactory(new DefaultNexusBuilderFactory());
-		connector = new MockLegacyScannableConnector();
-		runnableDeviceService = new RunnableDeviceServiceImpl(connector);
-		pointGeneratorService = new PointGeneratorService();
+	public void before() {
+		fileFactory = ServiceTestHelper.getNexusFileFactory();
+		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		pointGeneratorService = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@Test

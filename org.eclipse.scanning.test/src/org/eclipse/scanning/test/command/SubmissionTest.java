@@ -17,7 +17,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
@@ -25,9 +24,7 @@ import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,8 +33,7 @@ import org.junit.Test;
 
 public class SubmissionTest extends AbstractJythonTest {
 
-	protected static IEventService eservice;
-	protected static IConsumer<ScanBean> consumer;
+	private static IConsumer<ScanBean> consumer;
 
 	private static BlockingQueue<String> testLog;
 	// We'll use this to check that things happen in the right order.
@@ -47,14 +43,9 @@ public class SubmissionTest extends AbstractJythonTest {
 
 	@BeforeClass
 	public static void start() throws Exception {
+		ServiceTestHelper.setupServices();
 
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService);
-		Services.setEventService(eservice);
-		org.eclipse.scanning.command.Services.setEventService(eservice);
-
-		consumer = eservice.createConsumer(uri);
+		consumer = ServiceTestHelper.getEventService().createConsumer(uri);
 
 		consumer.setRunner(new IProcessCreator<ScanBean>() {
 			@Override

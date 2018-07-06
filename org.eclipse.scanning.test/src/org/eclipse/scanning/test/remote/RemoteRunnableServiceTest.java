@@ -23,21 +23,14 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConnection;
-import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.scan.event.IPositioner;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.remote.RemoteServiceFactory;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
-import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AbstractResponderServlet;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,39 +39,21 @@ import org.junit.Test;
 
 public class RemoteRunnableServiceTest extends BrokerTest {
 
-	private static  IRunnableDeviceService    dservice;
-	private static  IEventService             eservice;
-	private static AbstractResponderServlet<?>  dservlet, pservlet;
+	private static IRunnableDeviceService dservice;
+	private static IEventService eservice;
+	private static AbstractResponderServlet<?> dservlet, pservlet;
 
 	@BeforeClass
 	public static void createServices() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		System.out.println("Create Services");
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		eservice = ServiceTestHelper.getEventService();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
 
-		// Set up stuff because we are not in OSGi with a test
-		// DO NOT COPY TESTING ONLY
-		dservice = new RunnableDeviceServiceImpl(new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC)));
-		MandelbrotDetector mandy = new MandelbrotDetector();
-		final DeviceInformation<MandelbrotModel> info = new DeviceInformation<MandelbrotModel>(); // This comes from extension point or spring in the real world.
-		info.setName("mandelbrot");
-		info.setLabel("Example Mandelbrot");
-		info.setDescription("Example mandelbrot device");
-		info.setId("org.eclipse.scanning.example.detector.mandelbrotDetector");
-		info.setIcon("org.eclipse.scanning.example/icon/mandelbrot.png");
-		mandy.setDeviceInformation(info);
-		((RunnableDeviceServiceImpl)dservice)._register("mandelbrot", mandy);
-
-		Services.setRunnableDeviceService(dservice);
-		Services.setEventService(eservice);
-		System.out.println("Set connectors");
-
+		// Setup Servlets
 		dservlet = new DeviceServlet();
 		dservlet.setBroker(uri.toString());
 		dservlet.setRequestTopic(EventConstants.DEVICE_REQUEST_TOPIC);
@@ -90,8 +65,6 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		pservlet.setRequestTopic(EventConstants.POSITIONER_REQUEST_TOPIC);
 		pservlet.setResponseTopic(EventConstants.POSITIONER_RESPONSE_TOPIC);
 		pservlet.connect();
-		System.out.println("Made Servlets");
-
 	}
 
 	@AfterClass

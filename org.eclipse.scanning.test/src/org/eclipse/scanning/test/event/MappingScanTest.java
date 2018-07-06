@@ -30,31 +30,25 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MappingScanTest extends BrokerTest{
 
-	protected IEventService eservice;
-	protected IPublisher<ScanBean> publisher;
-	protected ISubscriber<IScanListener> subscriber;
-	protected IPointGeneratorService gservice;
+	private IEventService eservice;
+	private IPublisher<ScanBean> publisher;
+	private ISubscriber<IScanListener> subscriber;
+	private IPointGeneratorService gservice;
 
 	@Before
 	public void createServices() {
+		ServiceTestHelper.setupServices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		gservice = new PointGeneratorService();
+		gservice = ServiceTestHelper.getPointGeneratorService();
+		eservice = ServiceTestHelper.getEventService();
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
@@ -64,7 +58,6 @@ public class MappingScanTest extends BrokerTest{
 
 	@After
 	public void disconnect() throws Exception {
-
 		publisher.disconnect();
 		subscriber.disconnect();
 	}

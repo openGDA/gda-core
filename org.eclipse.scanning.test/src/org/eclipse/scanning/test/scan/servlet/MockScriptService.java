@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 
-final class MockScriptService implements IScriptService {
+public final class MockScriptService implements IScriptService {
 
 	private List<ScriptRequest> scriptRequests = new ArrayList<>();
 

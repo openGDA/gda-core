@@ -30,13 +30,11 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 
 
 /**
@@ -53,14 +51,10 @@ public class JavaMessagingTests extends BrokerTest {
 	protected IEventService             eservice;
 
 	@Before
-	public void setup() throws Exception {
-
-		uri = new URI("vm://localhost?broker.persistent=false");
-
-		createNonOSGIActivemqMarshaller();
-		eservice  = new EventServiceImpl(new ActivemqConnectorService());
-
-		dservice = eservice.createRemoteService(uri, IRunnableDeviceService.class); // Can make a RunnableDeviceService to obtain runnable devices.
+	public void setup() {
+		ServiceTestHelper.setupServices();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		eservice = ServiceTestHelper.getEventService();
 	}
 
 	@Test
