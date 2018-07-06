@@ -246,7 +246,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	private void checkPauseAndResumeScan(BeanCollectingAnswer<ScanBean> beanCaptor, final IRunnableDevice<ScanModel> scanner) throws Exception {
 		// Arrange
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, "state")))
-				.thenReturn(createExpectedMalcolmOkReply("running"));
+				.thenReturn(createExpectedMalcolmStateReply(DeviceState.RUNNING));
 		when(malcolmConnection.send(malcolmDevice, createExpectedCallMessage(id++, MalcolmMethod.PAUSE, null)))
 				.thenReturn(createExpectedMalcolmOkReply(null));
 
@@ -271,7 +271,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Resume the scan and check the correct messages are sent
 		// Arrange
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, "state")))
-				.thenReturn(createExpectedMalcolmOkReply("paused"));
+				.thenReturn(createExpectedMalcolmStateReply(DeviceState.PAUSED));
 		when(malcolmConnection.send(malcolmDevice, createExpectedCallMessage(id++, MalcolmMethod.RESUME, null)))
 				.thenReturn(createExpectedMalcolmOkReply(null));
 

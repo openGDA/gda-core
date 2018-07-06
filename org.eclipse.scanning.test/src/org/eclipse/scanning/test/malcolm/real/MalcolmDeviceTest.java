@@ -89,7 +89,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			final DeviceState deviceState = deviceStates[i];
 			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, STATE_ENDPOINT);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
-					createExpectedMalcolmOkReply(deviceState.toString()));
+					createExpectedMalcolmStateReply(deviceState));
 
 			// Act / Assert
 			assertThat(malcolmDevice.getDeviceState(), is(deviceState));
@@ -107,7 +107,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			final String deviceHealth = healthValues[i];
 			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, HEALTH_ENDPOINT);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
-					createExpectedMalcolmOkReply(deviceHealth));
+					createExpectedMalcolmHealthReply(deviceHealth));
 
 			// Act / Assert
 			assertThat(malcolmDevice.getDeviceHealth(), is(deviceHealth));
@@ -131,7 +131,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			final DeviceState deviceState = deviceStates[i];
 			MalcolmMessage expectedMessage = createExpectedMalcolmMessage(i, Type.GET, STATE_ENDPOINT);
 			when(malcolmConnection.send(malcolmDevice, expectedMessage)).thenReturn(
-					createExpectedMalcolmOkReply(deviceState.toString()));
+					createExpectedMalcolmStateReply(deviceState));
 
 			// Act / Assert
 			assertThat(malcolmDevice.isDeviceBusy(), is(!deviceState.isRestState()));

@@ -150,7 +150,8 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 
 		// Arrange
 		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, "state");
-		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.READY));
 
 		// Act
 		connectionChangeListener.connectionStateChanged(true);

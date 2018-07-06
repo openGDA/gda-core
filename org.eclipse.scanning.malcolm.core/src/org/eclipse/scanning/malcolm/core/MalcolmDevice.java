@@ -14,12 +14,10 @@ package org.eclipse.scanning.malcolm.core;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,9 +31,11 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
+import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
@@ -43,7 +43,6 @@ import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
-import org.eclipse.scanning.api.malcolm.message.MalcolmUtil;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -277,8 +276,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	protected void handleStateChange(MalcolmMessage message) {
 		try {
 			logger.debug("Received malcolm state change with message: {}", message);
-			DeviceState newState = MalcolmUtil.getState(message, false);
 
+			final ChoiceAttribute attribute = (ChoiceAttribute) message.getValue();
+			final DeviceState newState = DeviceState.valueOf(attribute.getValue().toUpperCase());
 			handleStateChange(newState, message.getMessage());
 
 			if (message.getType().isError()) { // Currently used for debugging the device.
@@ -316,7 +316,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 			}
 
-			return MalcolmUtil.getState(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
+			final ChoiceAttribute choiceAttr = (ChoiceAttribute) reply.getValue();
+			return DeviceState.valueOf(choiceAttr.getValue().toUpperCase());
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
 		} catch (Exception ne) {
@@ -333,7 +334,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 			}
 
-			return MalcolmUtil.getHealth(reply); // TODO refactor this to not use MalcolmUtil. See JIRA ticket DAQ-1436
+			final StringAttribute attribute = (StringAttribute) reply.getValue();
+			return attribute.getValue();
 		} catch (MalcolmDeviceException mne) {
 			throw mne;
 		} catch (Exception ne) {

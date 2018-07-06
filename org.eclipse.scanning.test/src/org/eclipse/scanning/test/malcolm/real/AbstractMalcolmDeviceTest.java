@@ -34,6 +34,8 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionEventListener;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.IMalcolmConnectionStateListener;
@@ -113,8 +115,10 @@ public abstract class AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedSubscribeCompletedStepsMessage = createExpectedMalcolmMessage(id++, Type.SUBSCRIBE, "completedSteps");
 		final MalcolmMessage expectedGetDeviceStateMessage2 = createExpectedMalcolmMessage(id++, Type.GET, "state");
 
-		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(createExpectedMalcolmOkReply("ready"));
-		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage2)).thenReturn(createExpectedMalcolmOkReply("ready"));
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.READY));
+		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage2)).thenReturn(
+				createExpectedMalcolmStateReply(DeviceState.READY));
 
 		// Act: call initialize() on the malcolm device
 		assertThat(malcolmDevice.isAlive(), is(false));
@@ -189,6 +193,22 @@ public abstract class AbstractMalcolmDeviceTest {
 		final MalcolmMessage msg = new MalcolmMessage();
 		msg.setValue(value);
 		return msg;
+	}
+
+	protected MalcolmMessage createExpectedMalcolmStateReply(DeviceState deviceState) {
+		final ChoiceAttribute stateAttr = new ChoiceAttribute();
+		stateAttr.setName("state");
+		stateAttr.setLabel("state");
+		stateAttr.setValue(deviceState.toString());
+		return createExpectedMalcolmOkReply(stateAttr);
+	}
+
+	protected MalcolmMessage createExpectedMalcolmHealthReply(String health) {
+		final StringAttribute healthAttr = new StringAttribute();
+		healthAttr.setName("health");
+		healthAttr.setLabel("health");
+		healthAttr.setValue(health);
+		return createExpectedMalcolmOkReply(healthAttr);
 	}
 
 	protected MalcolmMessage createExpectedMalcolmValdiateReturnReply(Object rawValue) {
