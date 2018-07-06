@@ -309,38 +309,26 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	@Override
 	public DeviceState getDeviceState() throws MalcolmDeviceException {
-		try {
-			final MalcolmMessage message = messageGenerator.createGetMessage(STATE_ENDPOINT);
-			final MalcolmMessage reply = send(message, Timeout.STANDARD.toMillis());
-			if (reply.getType()==Type.ERROR) {
-				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-			}
-
-			final ChoiceAttribute choiceAttr = (ChoiceAttribute) reply.getValue();
-			return DeviceState.valueOf(choiceAttr.getValue().toUpperCase());
-		} catch (MalcolmDeviceException mne) {
-			throw mne;
-		} catch (Exception ne) {
-			throw new MalcolmDeviceException(this, "Cannot connect to device '" + getName() + "'", ne);
+		final MalcolmMessage message = messageGenerator.createGetMessage(STATE_ENDPOINT);
+		final MalcolmMessage reply = wrap(() -> send(message, Timeout.STANDARD.toMillis()));
+		if (reply.getType()==Type.ERROR) {
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
+
+		final ChoiceAttribute choiceAttr = (ChoiceAttribute) reply.getValue();
+		return DeviceState.valueOf(choiceAttr.getValue().toUpperCase());
 	}
 
 	@Override
 	public String getDeviceHealth() throws MalcolmDeviceException {
-		try {
-			final MalcolmMessage message = messageGenerator.createGetMessage(HEALTH_ENDPOINT);
-			final MalcolmMessage reply = send(message, Timeout.STANDARD.toMillis());
-			if (reply.getType()==Type.ERROR) {
-				throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-			}
-
-			final StringAttribute attribute = (StringAttribute) reply.getValue();
-			return attribute.getValue();
-		} catch (MalcolmDeviceException mne) {
-			throw mne;
-		} catch (Exception ne) {
-			throw new MalcolmDeviceException(this, "Cannot connect to device '" + getName() + "'", ne);
+		final MalcolmMessage message = messageGenerator.createGetMessage(HEALTH_ENDPOINT);
+		final MalcolmMessage reply = wrap(() -> send(message, Timeout.STANDARD.toMillis()));
+		if (reply.getType()==Type.ERROR) {
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
+
+		final StringAttribute attribute = (StringAttribute) reply.getValue();
+		return attribute.getValue();
 	}
 
 	@Override
