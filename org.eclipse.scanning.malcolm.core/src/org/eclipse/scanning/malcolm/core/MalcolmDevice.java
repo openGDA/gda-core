@@ -309,25 +309,13 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	@Override
 	public DeviceState getDeviceState() throws MalcolmDeviceException {
-		final MalcolmMessage message = messageGenerator.createGetMessage(STATE_ENDPOINT);
-		final MalcolmMessage reply = wrap(() -> send(message, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
-
-		final ChoiceAttribute choiceAttr = (ChoiceAttribute) reply.getValue();
+		final ChoiceAttribute choiceAttr = (ChoiceAttribute) getEndpointValue(STATE_ENDPOINT);
 		return DeviceState.valueOf(choiceAttr.getValue().toUpperCase());
 	}
 
 	@Override
 	public String getDeviceHealth() throws MalcolmDeviceException {
-		final MalcolmMessage message = messageGenerator.createGetMessage(HEALTH_ENDPOINT);
-		final MalcolmMessage reply = wrap(() -> send(message, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
-
-		final StringAttribute attribute = (StringAttribute) reply.getValue();
+		final StringAttribute attribute = (StringAttribute) getEndpointValue(HEALTH_ENDPOINT);
 		return attribute.getValue();
 	}
 
@@ -387,6 +375,16 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 		setModel(model);
+	}
+
+	private Object getEndpointValue(String endpointName) throws MalcolmDeviceException {
+		final MalcolmMessage message = messageGenerator.createGetMessage(endpointName);
+		final MalcolmMessage reply   = wrap(()->send(message, Timeout.STANDARD.toMillis()));
+		if (reply.getType()==Type.ERROR) {
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
+		}
+
+		return reply.getValue();
 	}
 
 	/**
@@ -562,13 +560,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
 		logger.debug("getAttribute() called with attribute name {}", attributeName);
-		final MalcolmMessage message = messageGenerator.createGetMessage(attributeName);
-		final MalcolmMessage reply   = wrap(()->send(message, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
-
-		Object result = reply.getValue();
+		Object result = getEndpointValue(attributeName);
 		if (!(result instanceof MalcolmAttribute)) {
 			throw new MalcolmDeviceException("No such attribute: " + attributeName);
 		}
@@ -581,14 +573,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public List<IDeviceAttribute<?>> getAllAttributes() throws MalcolmDeviceException {
 		logger.debug("getAllAttributes() called");
-		final MalcolmMessage message = messageGenerator.createGetMessage("");
-		final MalcolmMessage reply   = wrap(()->send(message, Timeout.STANDARD.toMillis()));
-		if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
-		}
-
 		@SuppressWarnings("unchecked")
-		Map<String, Object> wholeBlockMap = (Map<String, Object>) reply.getValue();
+		Map<String, Object> wholeBlockMap = (Map<String, Object>) getEndpointValue("");
 		return wholeBlockMap.values().stream().
 				filter(MalcolmAttribute.class::isInstance).map(IDeviceAttribute.class::cast).
 				collect(Collectors.toList());
