@@ -570,59 +570,6 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	@Override
-	public DeviceState latch(long time, TimeUnit unit, final DeviceState... ignoredStates) throws MalcolmDeviceException {
-		try {
-			final CountDownLatch latch = new CountDownLatch(1);
-			final List<DeviceState> stateContainer = new ArrayList<>(1);
-			final List<Exception> exceptionContainer = new ArrayList<>(1);
-
-			// Make a listener to check for state and then add it and latch
-			IMalcolmConnectionEventListener stateChanger = msg -> {
-				try {
-					DeviceState state = MalcolmUtil.getState(msg);
-					if (state != null && ignoredStates != null && Arrays.asList(ignoredStates).contains(state)) {
-						return; // Found state that we don't want!
-					}
-					stateContainer.add(state);
-					latch.countDown();
-
-				} catch (Exception ne) {
-					exceptionContainer.add(ne);
-					latch.countDown();
-				}
-			};
-
-			subscribe(stateSubscribeMessage, stateChanger);
-
-			boolean countedDown = false;
-			if (time>0) {
-				countedDown = latch.await(time, unit);
-			} else {
-				latch.await();
-			}
-
-			unsubscribe(stateSubscribeMessage, stateChanger);
-
-			if (!exceptionContainer.isEmpty()) throw exceptionContainer.get(0);
-
-			if (!stateContainer.isEmpty()) return stateContainer.get(0);
-
-			if (countedDown) {
-				throw new MalcolmDeviceException("The countdown of "+time+" "+unit+" timed out waiting for state change for device "+getName());
-			} else {
-				throw new MalcolmDeviceException("A problem occured trying to latch state change for device "+getName());
-			}
-
-		} catch (MalcolmDeviceException ne) {
-			throw ne;
-
-		} catch (Exception neOther) {
-			throw new MalcolmDeviceException(this, neOther);
-		}
-
-	}
-
-	@Override
 	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
 		logger.debug("getAttribute() called with attribute name {}", attributeName);
 		final MalcolmMessage message = messageGenerator.createGetMessage(attributeName);

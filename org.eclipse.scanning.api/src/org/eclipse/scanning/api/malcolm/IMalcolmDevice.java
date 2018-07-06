@@ -61,7 +61,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @param <T> the type of the model for this malcolm device
  *
  */
-public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, ILatchableDevice, IAttributableDevice, IValidator<T> {
+public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IAttributableDevice, IValidator<T> {
 
 	/**
 	 * Initializes the connection to the actual malcolm device. This methods must be called before
