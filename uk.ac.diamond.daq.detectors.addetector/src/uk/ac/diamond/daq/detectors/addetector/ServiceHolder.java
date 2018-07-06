@@ -22,14 +22,13 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 
 public class ServiceHolder {
 
-
 	private static IRunnableDeviceService runnableDeviceService;
 
 	public static IRunnableDeviceService getRunnableDeviceService() {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		ServiceHolder.runnableDeviceService = runnableDeviceService;
 	}
 }

@@ -144,7 +144,6 @@ import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import uk.ac.diamond.scisoft.analysis.io.LoaderServiceImpl;
 
 /**
  * Test {@link ScannableNexusWrapper}. In particular tests that it
@@ -181,12 +180,15 @@ public class ScannableNexusWrapperScanTest {
 		impl._register(DarkImageModel.class, DarkImageDetector.class);
 		impl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
 
-		Services.setEventService(eservice);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(fileFactory);
-		org.eclipse.scanning.sequencer.ServiceHolder.setTestServices(new LoaderServiceImpl(), new DefaultNexusBuilderFactory(), new MockOperationService());
+		final Services services = new Services();
+		services.setEventService(eservice);
+		services.setRunnableDeviceService(dservice);
+		services.setGeneratorService(gservice);
+		services.setConnector(connector);
+		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(fileFactory);
+		org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
+		serviceHolder.setFactory(new DefaultNexusBuilderFactory());
+		serviceHolder.setOperationService(new MockOperationService());
 	}
 
 
