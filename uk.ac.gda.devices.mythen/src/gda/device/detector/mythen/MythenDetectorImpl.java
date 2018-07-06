@@ -20,6 +20,20 @@ package gda.device.detector.mythen;
 
 import static gda.device.detector.mythen.client.Trigger.NONE;
 import static java.math.BigDecimal.ZERO;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -29,6 +43,7 @@ import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.Mythen;
 import gda.device.detector.mythen.client.AcquisitionParameters;
+import gda.device.detector.mythen.client.EpicsMythenClient;
 import gda.device.detector.mythen.client.MythenClient;
 import gda.device.detector.mythen.client.Trigger;
 import gda.device.detector.mythen.data.DataConverter;
@@ -37,18 +52,9 @@ import gda.device.detector.mythen.data.MythenProcessedDataset;
 import gda.device.detector.mythen.data.MythenRawDataset;
 import gda.device.detector.mythen.tasks.AtPointEndTask;
 import gda.device.detector.mythen.tasks.ScanTask;
+import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Implementation of the GDA Mythen interface.
@@ -66,7 +72,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	 * Exposure time in seconds.
 	 */
 	protected BigDecimal exposureTime;
-	
+
 	protected volatile int status = IDLE;
 
 	protected String detectorID = "unknown";
@@ -81,6 +87,9 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	protected MythenClient mythenClient;
 
 	protected Scannable deltaScannable;
+
+	/** Map containing scannables to record position of in the header. key=scannable, value=label to use to annotate the value (optional, can be null) */
+	protected Map<Scannable, String> scannablesForHeader = new LinkedHashMap<>();
 
 	/**
 	 * The converter that converts raw Mythen data (channel and count) to processed data (angle and count).
@@ -120,10 +129,29 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	}
 
-	
+	public void addScannableForHeader(Scannable scn) {
+		scannablesForHeader.put(scn, scn.getName());
+	}
+
+	public void addScannableForHeader(Scannable scn, String userLabel) {
+		scannablesForHeader.put(scn, userLabel);
+	}
+
+	public void clearScannablesForHeader() {
+		scannablesForHeader.clear();
+	}
+
+	public Map<Scannable, String> getScannablesForHeader() {
+		return scannablesForHeader;
+	}
+
+	public void setScannablesForHeader(Map<Scannable, String> scannablesForHeader) {
+		this.scannablesForHeader = scannablesForHeader;
+	}
+
 	/**
 	 * Sets the detector ID.
-	 * 
+	 *
 	 * @param detectorID
 	 *            the detector ID
 	 */
@@ -133,7 +161,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * Sets the Mythen client used by this Mythen detector object.
-	 * 
+	 *
 	 * @param mythenClient
 	 *            the Mythen client
 	 */
@@ -143,7 +171,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * Sets the {@link Scannable} representing the delta circle.
-	 * 
+	 *
 	 * @param deltaScannable
 	 *            the delta scannable
 	 */
@@ -153,7 +181,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * Sets the Mythen data converter used by this Mythen detector object.
-	 * 
+	 *
 	 * @param dataConverter
 	 *            the data converter
 	 */
@@ -175,7 +203,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * Returns the data directory into which Mythen data files will be written.
-	 * 
+	 *
 	 * @return the data directory
 	 */
 	public synchronized File getDataDirectory() {
@@ -303,10 +331,10 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		collectionNumber++;
 		beforeCollectData(collectionNumber);
 	}
-	
+
 	/**
 	 * this method is developed for external scripting where the script control collection number.
-	 * 
+	 *
 	 * @param collectionNumber
 	 * @throws DeviceException
 	 */
@@ -327,6 +355,22 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		updateDeltaPosition();
 	}
 
+	/**
+	 * Make list of additional header strings from positions of scannables.
+	 */
+	protected List<String> getHeaderStrings() {
+		List<String> headerStrings = new ArrayList<String>();
+		scannablesForHeader.forEach((scannable, label) -> {
+			String position = "Position not available";
+			try {
+				position = ScannableUtils.getFormattedCurrentPosition(scannable);
+			} catch (DeviceException e) {
+				logger.warn("Problem getting position of scannable {} for Mythen text file header string.", scannable.getName(), e);
+			}
+			headerStrings.add(String.format("%s\t: %s", label, position));
+		});
+		return headerStrings;
+	}
 
 	protected void updateDeltaPosition() throws DeviceException {
 		if (deltaScannable != null) {
@@ -375,8 +419,18 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	protected void afterCollectData() {
 		// read data and process it
-		rawData = new MythenRawDataset(rawFile);
+		if (mythenClient instanceof EpicsMythenClient) {
+			rawData = ((EpicsMythenClient) mythenClient).getRawData();
+		} else {
+			rawData = new MythenRawDataset(rawFile);
+		}
+
+		// Update header strings at end - motors might not have been in correct positions if this is done in beforeCollectData()
+		List<String> headerStrings = getHeaderStrings();
+
 		processedData = dataConverter.process(rawData, delta);
+		processedData.setAdditionalHeaderStrings(headerStrings);
+
 		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
 		processedData.save(processedFile, isHasChannelInfo());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
@@ -558,7 +612,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/**
 	 * gated multiple frames collection - one frame per file - where Mythen detector controls the frame number increment
 	 * starting from 0. It launches only single textclient to collect multiple frames
-	 * 
+	 *
 	 * @param numFrames
 	 * @param numGates
 	 * @param scanNumber
@@ -595,7 +649,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/**
 	 * post processes of multiple frames collection and plotting them. this method is developed for external scripting
 	 * use in which the collection file name is settable
-	 * 
+	 *
 	 * @param collectionFilenameRoot
 	 */
 	protected void afterCollectData(String collectionFilenameRoot, int numFiles) {
@@ -626,7 +680,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * plotting processed data.
-	 * 
+	 *
 	 * @param filename
 	 * @param processedData
 	 * @param clearFirst
@@ -640,7 +694,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	/**
 	 * gated multiple or single frame collection - one or more frames per file - where GDA controls the collection
 	 * number increment.
-	 * 
+	 *
 	 * @param numFrames
 	 * @param numGates
 	 * @param scanNumber
@@ -707,7 +761,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	/**
 	 * this method is developed for external scripting use in which the collection file name is settable
-	 * 
+	 *
 	 * @param collectionFilename
 	 */
 	protected void afterCollectData(File rawFile, String collectionFilename) {
