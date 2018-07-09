@@ -19,6 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(org.junit.runners.Suite.class)
 @SuiteClasses({
 
+	org.eclipse.scanning.sequencer.Suite.class,
 	org.eclipse.scanning.test.annot.Suite.class,
 	org.eclipse.scanning.test.command.Suite.class,
 	org.eclipse.scanning.test.epics.Suite.class,
