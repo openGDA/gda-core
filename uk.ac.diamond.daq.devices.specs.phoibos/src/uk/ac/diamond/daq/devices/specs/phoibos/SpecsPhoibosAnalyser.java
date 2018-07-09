@@ -906,6 +906,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 				.keEnergyAxis(keEnergyAxis)
 				.beEnergyAxis(beEnergyAxis)
 				.yAxis(getYAxis())
+				.yAxisUnits(getYUnits())
 				.build();
 	}
 

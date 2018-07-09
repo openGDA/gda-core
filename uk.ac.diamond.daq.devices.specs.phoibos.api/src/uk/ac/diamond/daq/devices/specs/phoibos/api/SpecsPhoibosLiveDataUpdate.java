@@ -44,6 +44,7 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 	private final double[] keEnergyAxis;
 	private final double[] beEnergyAxis;
 	private final double[] yAxis;
+	private final String yAxisUnits;
 
 	public static class Builder {
 
@@ -58,6 +59,7 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		private double[] keEnergyAxis;
 		private double[] beEnergyAxis;
 		private double[] yAxis;
+		private String yAxisUnits;
 
 		public Builder regionName(String val) {
 			regionName = val;
@@ -114,6 +116,11 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 			return this;
 		}
 
+		public Builder yAxisUnits(String val) {
+			yAxisUnits = val;
+			return this;
+		}
+
 		public SpecsPhoibosLiveDataUpdate build() {
 			return new SpecsPhoibosLiveDataUpdate(this);
 		}
@@ -132,6 +139,7 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 		keEnergyAxis = builder.keEnergyAxis;
 		beEnergyAxis = builder.beEnergyAxis;
 		yAxis = builder.yAxis;
+		yAxisUnits = builder.yAxisUnits;
 	}
 
 	public String getPositionString() {
@@ -176,6 +184,10 @@ public class SpecsPhoibosLiveDataUpdate implements Serializable {
 
 	public double[] getyAxis() {
 		return yAxis;
+	}
+
+	public String getYAxisUnits() {
+		return yAxisUnits;
 	}
 
 }

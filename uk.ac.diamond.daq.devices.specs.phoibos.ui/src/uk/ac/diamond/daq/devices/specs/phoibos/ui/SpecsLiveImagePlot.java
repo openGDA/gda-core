@@ -73,13 +73,13 @@ public class SpecsLiveImagePlot extends SpecsLivePlot {
 		}
 
 		// Y axis
-		final IDataset yAxis = DatasetFactory.createFromObject(analyser.getYAxis());
-		String units = analyser.getYUnits();
+		final IDataset yAxis = DatasetFactory.createFromObject(update.getyAxis());
+		String units = update.getYAxisUnits();
 		yAxis.setName("Y scale (" + units + ")");
 		List<IDataset> axis = Arrays.asList(energyAxisDataset, yAxis);
 
 		// Get the image data
-		IDataset image = DatasetFactory.createFromObject(analyser.getImage());
+		IDataset image = DatasetFactory.createFromObject(update.getImage());
 
 		// Thread safe so don't need to be in the UI thread
 		plottingSystem.updatePlot2D(image, axis, null);
