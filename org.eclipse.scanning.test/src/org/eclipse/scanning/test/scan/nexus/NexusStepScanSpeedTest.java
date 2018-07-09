@@ -104,7 +104,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 			xNex.setWritingOn(false);
 			// We create a step scan
 			final IRunnableDevice<ScanModel> scan = dservice.createRunnableDevice(new ScanModel(gen, output));
-			runAndCheck("Scan no 'setSlice'", scan, 10, 2048, 2000L);
+			runAndCheck("Scan no 'setSlice'", scan, 10, 3072, 2000L);
 		} finally {
 			xNex.setWritingOn(true);
 		}
@@ -115,7 +115,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 		// We create a step scan
 		final IRunnableDevice<ScanModel> scan = dservice.createRunnableDevice(new ScanModel(gen, output));
-		runAndCheck("Normal NeXus Scan", scan, 10, 2048, 2000L);
+		runAndCheck("Normal NeXus Scan", scan, 10, 3072, 2000L);
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		// We create a step scan
 		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.getUri(), EventConstants.SCAN_TOPIC);
 		final IRunnableDevice<ScanModel> scan = dservice.createRunnableDevice(new ScanModel(gen, output), publisher);
-		runAndCheck("NeXus with Publish", scan, 10, 2048, 2000L);
+		runAndCheck("NeXus with Publish", scan, 10, 3072, 2000L);
 	}
 
 

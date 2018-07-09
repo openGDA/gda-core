@@ -11,16 +11,21 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder.ATTR_NAME_AXES;
 import static org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder.ATTR_NAME_SIGNAL;
 import static org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder.ATTR_NAME_TARGET;
 import static org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder.ATTR_SUFFIX_INDICES;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME_PERCENT;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DURATION;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_ESTIMATED_DURATION;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_FINISHED;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_SOLSTICE_SCAN;
@@ -29,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -48,8 +54,10 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
 
 /**
@@ -128,6 +136,156 @@ public class NexusAssert {
 
 		// workaround for StaticGenerator with StaticModel of size 1 producing scan of rank 1 and shape { 1 }
 		assertUniqueKeys(malcolmScan, snake, foldedGrid, expectedExternalFiles, keysCollection, sizes);
+
+		assertScanTimeStamps(solsticeScanCollection);
+		if (!(sizes.length == 0 || malcolmScan)) {
+			assertPointTimeStamps(solsticeScanCollection, sizes, snake, foldedGrid);
+		}
+	}
+
+	private static void assertScanTimeStamps(NXcollection solsticeScanCollection) {
+		// check scan start and stop time datasets
+		DataNode startTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME);
+		DataNode endTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME);
+
+		assertNotNull(startTimeNode);
+		assertNotNull(endTimeNode);
+
+		IDataset startTimeDataset, endTimeDataset;
+		try {
+			startTimeDataset = startTimeNode.getDataset().getSlice();
+			endTimeDataset = endTimeNode.getDataset().getSlice();
+		} catch (DatasetException e) {
+			throw new AssertionError("Could not get timestamp data from lazy dataset", e);
+		}
+
+		assertEquals(String.class, startTimeDataset.getElementClass());
+		assertEquals(String.class, endTimeDataset.getElementClass());
+
+		LocalDateTime startTime = LocalDateTime.parse(((Dataset) startTimeDataset).getStringAbs(0), ISO_DATE_TIME);
+		LocalDateTime endTime = LocalDateTime.parse(((Dataset) endTimeDataset).getStringAbs(0), ISO_DATE_TIME);
+
+		assertTrue(startTime.isBefore(endTime));
+	}
+
+	private static void assertPointTimeStamps(NXcollection solsticeScanCollection, int[] sizes, boolean snake, boolean foldedGrid) {
+
+		DataNode pointStartTimesNode = solsticeScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME);
+		DataNode pointEndTimesNode = solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME);
+
+		assertNotNull(pointStartTimesNode);
+		assertNotNull(pointEndTimesNode);
+
+		IDataset pointStartTimesDataset, pointEndTimesDataset;
+		try {
+			pointStartTimesDataset = pointStartTimesNode.getDataset().getSlice();
+			pointEndTimesDataset = pointEndTimesNode.getDataset().getSlice();
+		} catch (DatasetException e) {
+			throw new AssertionError("Could not get timestamp data from lazy dataset", e);
+		}
+
+		assertEquals(String.class, pointStartTimesDataset.getElementClass());
+		assertEquals(String.class, pointEndTimesDataset.getElementClass());
+
+		assertTrue(pointStartTimesDataset.getRank() == pointEndTimesDataset.getRank());
+		assertEquals(sizes.length, pointStartTimesDataset.getRank());
+
+		assertArrayEquals(pointStartTimesDataset.getShape(), pointEndTimesDataset.getShape());
+		assertArrayEquals(sizes, pointStartTimesDataset.getShape());
+
+		Dataset startTimes = DatasetUtils.convertToDataset(pointStartTimesDataset);
+		Dataset endTimes = DatasetUtils.convertToDataset(pointEndTimesDataset);
+
+		IndexIterator iterator = startTimes.getIterator(true);
+
+		if (!snake || sizes.length == 1) {
+			LocalDateTime prevEnd = null;
+			while (iterator.hasNext()) {
+				String startString = startTimes.getString(iterator.getPos());
+				String endString = endTimes.getString(iterator.getPos());
+				LocalDateTime start = LocalDateTime.parse(startString, ISO_DATE_TIME);
+				LocalDateTime end = LocalDateTime.parse(endString, ISO_DATE_TIME);
+				assertTrue(start.isBefore(end) || start.isEqual(end));
+				if (prevEnd != null) {
+					assertTrue(start.isAfter(prevEnd) || start.isEqual(prevEnd));
+				}
+				prevEnd = end;
+			}
+		} else {
+			String[] flatStartTimes = flattenSnakeDataset(pointStartTimesDataset, foldedGrid);
+			String[] flatEndTimes = flattenSnakeDataset(pointEndTimesDataset, foldedGrid);
+
+			LocalDateTime previousEnd = null;
+			for (int index = 0; index < flatStartTimes.length; index++) {
+				LocalDateTime start = LocalDateTime.parse(flatStartTimes[index], ISO_DATE_TIME);
+				LocalDateTime end = LocalDateTime.parse(flatEndTimes[index], ISO_DATE_TIME);
+				assertTrue(start.isBefore(end) || start.isEqual(end));
+				if (previousEnd != null) {
+					assertTrue(start.isAfter(previousEnd) || start.isEqual(previousEnd));
+				}
+				previousEnd = end;
+			}
+		}
+
+	}
+
+	private static String[] flattenSnakeDataset(IDataset dataset, boolean foldedGrid) {
+		int pointIndex = 1;
+		int[] shape = dataset.getShape();
+		int flatArraySize = 1;
+		for (int axisPoints : shape) {
+			flatArraySize *= axisPoints;
+		}
+		String[] flatDataset = new String[flatArraySize];
+		PositionIterator iter = new PositionIterator(shape);
+
+		// the PositionIterator iterates through all points top to bottom, left to right
+		// whereas the snake scan alternates first horizontally, and then and the end of
+		// each inner scan vertically
+		final int lineSize = shape[shape.length - 1];
+		final int numRows = shape[shape.length - 2];
+		final boolean oddNumRows = numRows % 2 == 1;
+		final int innerScanSize = lineSize * numRows; // not used for folded grid scans
+		boolean isBackwardLine = false;
+		boolean isBottomToTopInnerScan = false;
+		int expectedLineEnd = lineSize;
+		int expectedInnerScanEnd = innerScanSize - (oddNumRows ? 0 : lineSize - 1);
+		while (iter.hasNext()) { // hasNext also increments the position iterator (ugh!)
+			flatDataset[pointIndex-1] = dataset.getString(iter.getPos());
+
+			if (!foldedGrid && !isBottomToTopInnerScan && pointIndex == expectedInnerScanEnd) {
+				// end of top to bottom inner scan, next is bottom to top
+				isBottomToTopInnerScan = true;
+				isBackwardLine = true; // top line of bottom to top scan is always backward
+				pointIndex += innerScanSize + (oddNumRows ? 0 : lineSize - 1);
+				expectedLineEnd = pointIndex - lineSize + 1;
+				expectedInnerScanEnd = (pointIndex - innerScanSize) + (oddNumRows ? 1 : lineSize);
+			} else if (!foldedGrid && isBottomToTopInnerScan && pointIndex == expectedInnerScanEnd) {
+				// end of bottom to top inner scan, next is top to bottom
+				isBottomToTopInnerScan = false;
+				isBackwardLine = false; // top line of top to bottom scan is always forward
+				pointIndex += innerScanSize - (oddNumRows ? 0 : lineSize - 1);
+				expectedLineEnd = pointIndex + lineSize - 1;
+				expectedInnerScanEnd = pointIndex + innerScanSize - (oddNumRows ? 1 : lineSize);
+			} else if (!isBackwardLine && pointIndex == expectedLineEnd) {
+				// end of forward line
+				isBackwardLine = true; // next line is backward
+				pointIndex += (isBottomToTopInnerScan ? -lineSize : lineSize);
+				expectedLineEnd += 1;
+			} else if (isBackwardLine && pointIndex == expectedLineEnd) {
+				// end of backward line
+				isBackwardLine = false; // next line is forward
+				pointIndex += (isBottomToTopInnerScan ? -lineSize : lineSize);
+				expectedLineEnd += (isBottomToTopInnerScan ? -1 : (lineSize * 2) - 1);
+			} else if (isBackwardLine) {
+				// a point on a backward line
+				pointIndex--;
+			} else {
+				// a point on a forward line
+				pointIndex++;
+			}
+		}
+		return flatDataset;
 	}
 
 	private static void assertScanShape(NXcollection solsticeScanCollection, int... sizes) {

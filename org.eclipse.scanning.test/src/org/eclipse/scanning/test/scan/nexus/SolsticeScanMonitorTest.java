@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME_PERCENT;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DURATION;
@@ -18,6 +20,8 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_FINISHED;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_RANK;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_START_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
@@ -349,6 +353,19 @@ public class SolsticeScanMonitorTest {
 				assertEquals(uniqueKeysPath, symbolicNode.getPath());
 			}
 		}
+
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), scanShape);
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), scanShape);
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME), new int[] {1});
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME), new int[] {1});
+	}
+
+	private void checkTimeStampDataset(DataNode node, int[] expectedShape) {
+		assertNotNull(node);
+		ILazyDataset startTimeStampsDataset = node.getDataset();
+		assertNotNull(startTimeStampsDataset);
+		assertEquals(String.class, startTimeStampsDataset.getElementClass());
+		assertArrayEquals(expectedShape, startTimeStampsDataset.getShape());
 	}
 
 	@Test
@@ -398,6 +415,14 @@ public class SolsticeScanMonitorTest {
 		ILazyWriteableDataset deadTimePercentDataset = (ILazyWriteableDataset) deadTimePercentDataNode.getDataset();
 		MockLazySaver deadTimePercentSaver = new MockLazySaver();
 		deadTimePercentDataset.setSaver(deadTimePercentSaver);
+
+		DataNode startTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME);
+		ILazyWriteableDataset startTimeDataset = (ILazyWriteableDataset) startTimeNode.getDataset();
+		startTimeDataset.setSaver(new MockLazySaver());
+
+		DataNode stopTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME);
+		ILazyWriteableDataset stopTimeDataset = (ILazyWriteableDataset) stopTimeNode.getDataset();
+		stopTimeDataset.setSaver(new MockLazySaver());
 
 		// assert scan shape set correctly
 		DataNode scanShapeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_SHAPE);

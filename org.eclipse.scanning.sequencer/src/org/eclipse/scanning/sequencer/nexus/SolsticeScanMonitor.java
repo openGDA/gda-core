@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_CMD;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME_PERCENT;
@@ -20,6 +24,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_MODELS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_RANK;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_SOLSTICE_SCAN;
@@ -31,6 +36,7 @@ import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -99,13 +105,18 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 	private NexusObjectProvider<NXcollection> nexusProvider = null;
 
 	// Writing Datasets
-	private ILazyWriteableDataset uniqueKeysDataset = null;
-	private ILazyWriteableDataset scanFinishedDataset = null;
-	private ILazyWriteableDataset scanDurationDataset = null;
-	private ILazyWriteableDataset scanDeadTimeDataset = null;
-	private ILazyWriteableDataset scanDeadTimePercentDataset = null;
+	private ILazyWriteableDataset uniqueKeysDataset;
+	private ILazyWriteableDataset scanFinishedDataset;
+	private ILazyWriteableDataset scanDurationDataset;
+	private ILazyWriteableDataset scanDeadTimeDataset;
+	private ILazyWriteableDataset scanDeadTimePercentDataset;
+	private ILazyWriteableDataset scanStartTimeDataset;
+	private ILazyWriteableDataset scanEndTimeDataset;
+	private ILazyWriteableDataset pointStartTimeStamps;
+	private ILazyWriteableDataset pointEndTimeStamps;
 
 	// State
+	private boolean isMalcolmScan;
 	private boolean writeGlobalUniqueKeys = true;
 	private final ScanModel model;
 	private Instant scanStartTime = null;
@@ -136,6 +147,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 
 	public void setNexusObjectProviders(List<NexusObjectProvider<?>> nexusObjectProviders) {
 		this.nexusObjectProviders = nexusObjectProviders;
+		isMalcolmScan = isMalcolmScan();
 		writeGlobalUniqueKeys = shouldWriteGlobalUniqueKeys();
 	}
 
@@ -143,11 +155,16 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		this.writeGlobalUniqueKeys = writeGlobalUniqueKeys;
 	}
 
+	private boolean isMalcolmScan() {
+		return model.getDetectors() != null
+				&& model.getDetectors().stream().anyMatch(IMalcolmDevice.class::isInstance);
+	}
+
 	private boolean shouldWriteGlobalUniqueKeys() {
 		// the global unique keys dataset is used to determine whether processing can be performed for each point in the scan
 		// we don't write it if a device performs an inner scan (i.e. a malcolm device) or performs multiple exposures
 		// within each position that should be processed before the position has been completed
-		return !(model.getDetectors() != null && model.getDetectors().stream().anyMatch(IMalcolmDevice.class::isInstance)
+		return !(isMalcolmScan
 				|| nexusObjectProviders.stream().map(prov -> prov.getPropertyValue(PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS))
 						.filter(Objects::nonNull).anyMatch(Boolean.TRUE::equals));
 	}
@@ -242,6 +259,21 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		// add external links to the unique key datasets for each external HD5 file
 		addLinksToExternalFiles(keysCollection);
 
+		scanStartTimeDataset = new LazyWriteableDataset(FIELD_NAME_START_TIME, String.class, new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
+		scanEndTimeDataset = new LazyWriteableDataset(FIELD_NAME_END_TIME, String.class, new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
+		scanPointsCollection.createDataNode(FIELD_NAME_START_TIME, scanStartTimeDataset);
+		scanPointsCollection.createDataNode(FIELD_NAME_END_TIME, scanEndTimeDataset);
+
+		if (!isMalcolmScan) {
+			pointStartTimeStamps = new LazyWriteableDataset(FIELD_NAME_POINT_START_TIME, String.class, info.getShape(),
+					null, null, null);
+			scanPointsCollection.createDataNode(FIELD_NAME_POINT_START_TIME, pointStartTimeStamps);
+
+			pointEndTimeStamps = new LazyWriteableDataset(FIELD_NAME_POINT_END_TIME, String.class, info.getShape(),
+					null, null, null);
+			scanPointsCollection.createDataNode(FIELD_NAME_POINT_END_TIME, pointEndTimeStamps);
+		}
+
 		return scanPointsCollection;
 	}
 
@@ -266,6 +298,21 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 	 * @throws ScanningException
 	 */
 	public void scanFinished() throws ScanningException {
+		final Instant scanEndTime = Instant.now();
+		final Dataset startTime = DatasetFactory.createFromObject(scanStartTime.toString());
+		try {
+			scanStartTimeDataset.setSlice(null, startTime, null, null, null);
+		} catch (DatasetException e) {
+			throw new ScanningException("Could not write start_time to NeXus file", e);
+		}
+
+		final Dataset endTime = DatasetFactory.createFromObject(scanEndTime.toString());
+		try {
+			scanEndTimeDataset.setSlice(null, endTime, null, null, null);
+		} catch (DatasetException e) {
+			throw new ScanningException("Could not write stop_time to NeXus file", e);
+		}
+
 		// Note: we don't use scanFinally as that is called after the nexus file is closed.
 		final Dataset scanFinishedDataset = DatasetFactory.createFromObject(IntegerDataset.class, 1, null);
 		try {
@@ -275,7 +322,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 			throw new ScanningException("Could not write scanFinished to NeXus file", e);
 		}
 
-		Duration scanDuration = Duration.between(scanStartTime, Instant.now());
+		Duration scanDuration = Duration.between(scanStartTime, scanEndTime);
 		String scanDurationStr = durationInMillisToString(scanDuration);
 		logger.info("Scan finished in " + scanDurationStr);
 
@@ -416,6 +463,36 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 
 	public boolean writeAfterMovePerformed() {
 		return writeAfterMovePerformed;
+	}
+
+	public void pointStarted(IPosition position) {
+		addTimeStampToDataset(pointStartTimeStamps, position);
+	}
+
+	public void pointFinished(IPosition position) {
+		addTimeStampToDataset(pointEndTimeStamps, position);
+	}
+
+	private void addTimeStampToDataset(ILazyWriteableDataset dataset, IPosition position) {
+		if (writeGlobalUniqueKeys) {
+			try {
+				dataset.setSlice(null, createTimeStamp(), getPointSlice(position));
+			} catch (DatasetException e) {
+				logger.error("Could not write timestamp", e);
+			}
+		}
+	}
+
+	/**
+	 * @return timestamp in ISO-8601 representation as String dataset
+	 */
+	private Dataset createTimeStamp() {
+		return DatasetFactory.createFromObject(ISO_DATE_TIME.format(ZonedDateTime.now()));
+	}
+
+	private SliceND getPointSlice(IPosition position) {
+		IScanSlice rslice = IScanRankService.getScanRankService().createScanSlice(position);
+		return new SliceND(uniqueKeysDataset.getShape(), uniqueKeysDataset.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
 	}
 
 }
