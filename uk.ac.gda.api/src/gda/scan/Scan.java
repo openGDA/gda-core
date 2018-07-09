@@ -129,11 +129,6 @@ public interface Scan extends Serializable {
 	}
 
 	/**
-	 * Name of the thread which all scans run within when started by their runScan method.
-	 */
-	public static final String THREADNAME = "scan_thread";
-
-	/**
 	 * pause the scans progress
 	 */
 	public void pause();
