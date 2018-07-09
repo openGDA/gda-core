@@ -1,5 +1,8 @@
 package uk.ac.diamond.daq.server.configuration.commands;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import gda.util.ObjectServer;
 
 
@@ -44,4 +47,8 @@ public class ObjectServerCommand {
 		return ObjectServer.spawn(args);
 	}
 	
+	@Override
+	public String toString() {
+		return stream(args).collect(joining(" ", "ObjectServerCommand(", ")"));
+	}
 }
