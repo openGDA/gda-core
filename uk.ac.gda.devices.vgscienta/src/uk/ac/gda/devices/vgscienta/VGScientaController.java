@@ -916,7 +916,7 @@ public class VGScientaController extends ConfigurableBase {
 			throw new IllegalArgumentException(
 					String.format("ROI X start position must be less than X size of sensor: %d", sensorXSize));
 		}
-		EPICS_CONTROLLER.caput(getChannel(ROI_START_X), value);
+		EPICS_CONTROLLER.caputWait(getChannel(ROI_START_X), value);
 	}
 
 	/**
@@ -933,7 +933,7 @@ public class VGScientaController extends ConfigurableBase {
 			throw new IllegalArgumentException(
 					String.format("ROI Y start position must be less than Y size of sensor: %d", sensorYSize));
 		}
-		EPICS_CONTROLLER.caput(getChannel(ROI_START_Y), value);
+		EPICS_CONTROLLER.caputWait(getChannel(ROI_START_Y), value);
 	}
 
 	/**
@@ -949,7 +949,7 @@ public class VGScientaController extends ConfigurableBase {
 		if (value > sensorXSize) {
 			throw new IllegalArgumentException("ROI X size cannot be larger than sensor X size");
 		}
-		EPICS_CONTROLLER.caput(getChannel(ROI_SIZE_X), value);
+		EPICS_CONTROLLER.caputWait(getChannel(ROI_SIZE_X), value);
 	}
 
 	/**
@@ -971,7 +971,7 @@ public class VGScientaController extends ConfigurableBase {
 		if (value > sensorYSize) {
 			throw new IllegalArgumentException("ROI Y cannot be larger than Y sensor size");
 		}
-		EPICS_CONTROLLER.caput(getChannel(ROI_SIZE_Y), value);
+		EPICS_CONTROLLER.caputWait(getChannel(ROI_SIZE_Y), value);
 	}
 
 	/**

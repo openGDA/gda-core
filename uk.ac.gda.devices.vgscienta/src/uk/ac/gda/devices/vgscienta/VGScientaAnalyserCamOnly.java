@@ -140,7 +140,6 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	private long timeSpentWithEpicsAcquiring;
 	private long timeSpentGettingDataBackOverEpics;
 
-	private boolean fixedMode;
 	private int sensorXSize;
 	private int sensorYSize;
 
@@ -151,7 +150,6 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 		// Validate the fixed mode and swept mode regions
 		try {
-			fixedMode = isFixedMode();
 			sensorXSize = controller.getSensorXSize();
 			sensorYSize = controller.getSensorYSize();
 		} catch (Exception e1) {
@@ -173,6 +171,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		try {
 			// See if the swept mode configuration can be set
 			controller.setDetectorConfiguration(sweptModeConfiguration);
+			logger.debug("Swept region is ok");
 		} catch (Exception e3) {
 			logger.info("Swept mode detector configuration is invalid:", e3);
 			// If not, set the region size to the same as the sensor size
@@ -186,6 +185,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		try {
 			// See if the fixed mode configuration can be set leave it in that state
 			controller.setDetectorConfiguration(fixedModeConfiguration);
+			logger.debug("Fixed region is ok");
 		} catch (Exception e2) {
 			logger.info("Fixed mode detector configuration is invalid:", e2);
 			// If not, set the region size to the same as the sensor size
