@@ -80,7 +80,7 @@ public class TrajectoryScanTest {
 		if (trajScan.profileBuiltOk()) {
 			trajScan.setExecuteProfile();
 			while (trajScan.getExecuteState() == ExecuteState.EXECUTING) {
-				System.out.println("Waiting for trjactory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
+				System.out.println("Waiting for trajectory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
 				Thread.sleep(1000);
 			}
 		}
@@ -97,7 +97,7 @@ public class TrajectoryScanTest {
 		if (trajScan.profileBuiltOk()) {
 			trajScan.setExecuteProfile();
 			while (trajScan.getExecuteState() == ExecuteState.EXECUTING) {
-				System.out.println("Waiting for trjactory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
+				System.out.println("Waiting for trajectory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
 				Thread.sleep(50);
 				trajScan.setExecuteStatus(ExecuteStatus.FAILURE);
 			}
@@ -115,7 +115,7 @@ public class TrajectoryScanTest {
 		if (trajScan.profileBuiltOk()) {
 			trajScan.setExecuteProfile();
 			while (trajScan.getExecuteState() == ExecuteState.EXECUTING) {
-				System.out.println("Waiting for trjactory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
+				System.out.println("Waiting for trajectory scan to finish. " + trajScan.getScanPercentComplete() + "% complete.");
 				Thread.sleep(500);
 				trajScan.setAbortProfile();
 			}
