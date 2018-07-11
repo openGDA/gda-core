@@ -257,7 +257,7 @@ public class LevelRunnerTest {
 
 		assertTrue(emptyRunner.run(position));
 		assertEquals(position, emptyRunner.await());
-		assertNull(emptyRunner.getDevices());
+		assertTrue(emptyRunner.getDevices().isEmpty());
 		assertNull(emptyRunner.create(levelObject, position));
 		assertNull(emptyRunner.getLevelRole());
 	}

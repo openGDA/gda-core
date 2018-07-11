@@ -57,9 +57,8 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	 * Objects at a given level are checked to find their maximum timeout.
 	 * By default those objects will return -1 so the three minute wait time is used.
 	 */
-	@Override
 	public long getTimeout(List<IScannable<?>> objects) {
-		long defaultTimeout = super.getTimeout(objects); // Three minutes (see above)
+		long defaultTimeout = super.getTimeout(); // Three minutes (see above)
 		if (objects==null) return defaultTimeout;
 
 		long time = Long.MIN_VALUE;
