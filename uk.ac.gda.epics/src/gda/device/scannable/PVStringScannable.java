@@ -40,18 +40,15 @@ public class PVStringScannable extends PVScannable {
 	public Object getPosition() throws DeviceException {
 		try {
 			return controller.cagetString(theChannel);
-		} catch (InterruptedException e) {
-			throw new DeviceException(getName() + " exception in getPosition", e);
-		} catch (CAException e) {
-			throw new DeviceException(getName() + " exception in getPosition", e);
-		} catch (TimeoutException e) {
+		} catch (InterruptedException | TimeoutException | CAException e) {
 			throw new DeviceException(getName() + " exception in getPosition", e);
 		}
 	}
 
 	@Override
-	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+	public void asynchronousMoveTo(Object position) throws DeviceException {
 		try {
+			// TODO: This should be made asynchronous
 			controller.caput(theChannel, position.toString());
 		} catch (CAException | InterruptedException | NullPointerException e) {
 			throw new DeviceException("Could not set the position of {}", getName(), e);
