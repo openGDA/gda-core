@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device;
 
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-
 import java.util.Collection;
 
 import org.eclipse.scanning.api.INameable;
@@ -27,7 +24,7 @@ import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.DeviceAction;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
@@ -194,7 +191,7 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 				}
 			}
 
-			addDeviceInformationAndAttributes(device, request);
+			addDeviceInformation(device, request);
 		} else if (request.getDeviceModel()!=null) { // Modelled device created
 
 			String name = request.getDeviceModel() instanceof INameable
@@ -204,7 +201,7 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 			if (device == null) {
 				device = dservice.createRunnableDevice(request.getDeviceModel(), request.isConfigure());
 			}
-			addDeviceInformationAndAttributes(device, request);
+			addDeviceInformation(device, request);
 
 		} else {  // Device list needed.
 
@@ -218,23 +215,15 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 		}
 	}
 
-	private static void addDeviceInformationAndAttributes(
+	private static void addDeviceInformation(
 			IRunnableDevice<Object> device, DeviceRequest request) throws ScanningException {
 		// get the device information and set it in the request
 		DeviceInformation<?> info = ((AbstractRunnableDevice<?>)device).getDeviceInformation();
 		request.addDeviceInformation(info);
 
-		// check this device can have attribute, if so cast it
-		if (!(device instanceof IAttributableDevice)) return;
-		IAttributableDevice attrDevice = (IAttributableDevice) device;
-
-		if (request.isGetAllAttributes()) {
+		if (device instanceof IMalcolmDevice && request.isGetDatasets()) {
 			// convert the list of attributes to a map and set in the request
-			request.setAttributes(attrDevice.getAllAttributes().stream()
-					.collect(toMap(IDeviceAttribute::getName, identity())));
-		} else if (request.getAttributeName() != null) {
-			// add the single attribute with the given name - note: exception thrown if no such attribute
-			request.addAttribute(attrDevice.getAttribute(request.getAttributeName()));
+			request.setDatasets(((IMalcolmDevice<?>) device).getDatasets());
 		}
 	}
 

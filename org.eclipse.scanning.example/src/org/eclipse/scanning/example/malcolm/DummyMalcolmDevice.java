@@ -29,7 +29,6 @@ import static org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType.SEC
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -382,8 +381,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		allAttributes = new LinkedHashMap<>();
 
 		state = new ChoiceAttribute();
-		state.setChoices(Arrays.stream(DeviceState.values()).map(
-				state -> state.toString()).toArray(String[]::new));
+		state.setChoices(Arrays.stream(DeviceState.values()).map(DeviceState::toString).toArray(String[]::new));
 		state.setValue(DeviceState.READY.toString());
 		state.setName("state");
 		state.setLabel("state");
@@ -771,8 +769,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		return false;
 	}
 
-	@Override
-	public <T> T getAttributeValue(String attributeName) throws MalcolmDeviceException {
+	private <T> T getAttributeValue(String attributeName) throws MalcolmDeviceException {
 		try {
 			updateAttributesWithLatestValues();
 		} catch (ScanningException e) {
@@ -787,8 +784,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		return null;
 	}
 
-	@Override
-	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws ScanningException {
+	private <T> IDeviceAttribute<T> getAttribute(String attributeName) throws ScanningException {
 		updateAttributesWithLatestValues();
 
 		@SuppressWarnings("unchecked")
@@ -822,13 +818,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		paused = false;
 	}
 
-	@Override
-	public List<IDeviceAttribute<?>> getAllAttributes() throws ScanningException {
-		updateAttributesWithLatestValues();
-
-		return new ArrayList<>(allAttributes.values());
-	}
-
 	private void updateAttributesWithLatestValues() throws ScanningException {
 		DeviceState deviceState = getDeviceState();
 		if (deviceState == null) deviceState = DeviceState.READY;
@@ -852,6 +841,11 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	@Override
 	public boolean isNewMalcolmVersion() {
 		return true;
+	}
+
+	@Override
+	public MalcolmTable getDatasets() throws MalcolmDeviceException {
+		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 	}
 
 }

@@ -18,15 +18,16 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.COMPLETED_STEPS_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.HEALTH_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -34,21 +35,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
+import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
@@ -57,6 +55,7 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice.EpicsMalcolmModel;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 /**
@@ -369,105 +368,44 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testGetAttribute() throws Exception {
+	public void testGetAvailableAxes() throws Exception {
 		// Arrange: set up mocks
-		final String attributeName = COMPLETED_STEPS_ENDPOINT;
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, attributeName);
-		NumberAttribute completedSteps= new NumberAttribute();
-		completedSteps = new NumberAttribute();
-		completedSteps.setValue(58);
-		completedSteps.setName(attributeName);
+		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		String[] axesNames = new String[] { "stage_x", "stage_y" };
+		StringArrayAttribute availableAxes = new StringArrayAttribute(axesNames);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmOkReply(completedSteps));
+				.thenReturn(createExpectedMalcolmOkReply(availableAxes));
 
 		// Act / Assert
-		assertThat(malcolmDevice.getAttribute(attributeName), is(completedSteps));
-		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
-
-		final String noSuchAttrName = "noSuchAttribute";
-		final String errorMessage = "No such attribute: " + noSuchAttrName;
-		expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, noSuchAttrName);
-		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmErrorReply(errorMessage));
-
-		try {
-			malcolmDevice.getAttribute(noSuchAttrName);
-		} catch (MalcolmDeviceException e) {
-			assertThat(e.getMessage(), is(equalTo(STANDARD_MALCOLM_ERROR_STR + errorMessage)));
-		}
-		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
+		assertThat(malcolmDevice.getAvailableAxes(), contains(axesNames[0], axesNames[1]));
 	}
 
 	@Test
-	public void testGetAttributeValue() throws Exception {
+	public void testGetDatasets() throws Exception {
 		// Arrange: set up mocks
-		final String attributeName = COMPLETED_STEPS_ENDPOINT;
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, attributeName);
-		NumberAttribute completedSteps= new NumberAttribute();
-		completedSteps = new NumberAttribute();
-		completedSteps.setValue(58);
-		completedSteps.setName(attributeName);
+		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_DATASETS);
+		MalcolmTable datasetsTable = new MalcolmTable(); // TODO complete table?
+		TableAttribute datasetsAttr = new TableAttribute();
+		datasetsAttr.setValue(datasetsTable);
+		datasetsAttr.setName(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmOkReply(completedSteps));
+				.thenReturn(createExpectedMalcolmOkReply(datasetsAttr));
 
 		// Act / Assert
-		assertThat(malcolmDevice.getAttributeValue(attributeName), is(completedSteps.getValue()));
-		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
-
-		final String noSuchAttrName = "noSuchAttribute";
-		final String errorMessage = "No such attribute: " + noSuchAttrName;
-		expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, noSuchAttrName);
-		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmErrorReply(errorMessage));
-
-		try {
-			malcolmDevice.getAttributeValue(noSuchAttrName);
-		} catch (MalcolmDeviceException e) {
-			assertThat(e.getMessage(), is(equalTo(STANDARD_MALCOLM_ERROR_STR + errorMessage)));
-		}
-		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
+		assertThat(malcolmDevice.getDatasets(), is(Matchers.sameInstance(datasetsTable)));
 	}
 
 	@Test
-	public void testGetAllAttributes() throws Exception {
-		// Arrange: set up mocks
-		Map<String, Object> responseValue = new HashMap<>();
-		ChoiceAttribute state = new ChoiceAttribute();
-		state.setChoices(Arrays.stream(DeviceState.values()).
-				map(DeviceState::toString).toArray(String[]::new));
-		state.setValue(DeviceState.READY.toString());
-		state.setName(STATE_ENDPOINT);
-		responseValue.put(state.getName(), state);
-
-		StringAttribute health = new StringAttribute();
-		health.setValue("Waiting");
-		health.setName(HEALTH_ENDPOINT);
-		responseValue.put(health.getName(), health);
-
-		NumberAttribute completedSteps = new NumberAttribute();
-		completedSteps.setValue(58);
-		completedSteps.setName(COMPLETED_STEPS_ENDPOINT);
-		responseValue.put(completedSteps.getName(), completedSteps);
-
-		StringArrayAttribute axesToMove = new StringArrayAttribute();
-		axesToMove.setValue(new String[] { "stage_x", "stage_y" });
-		axesToMove.setName("axesToMove");
-		responseValue.put(axesToMove.getName(), axesToMove);
-
-		// The response from malcolm could contains other things besides attributes, these should be filtered out
-		responseValue.put("foo", "bar");
-		responseValue.put("something", new Object());
-
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, "");
+	public void testIsNewMalcolm() throws Exception {
+		// Arrange
+		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		String[] axesNames = new String[] { "stage_x", "stage_y" };
+		StringArrayAttribute availableAxes = new StringArrayAttribute(axesNames);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
-				.thenReturn(createExpectedMalcolmOkReply(responseValue));
+				.thenReturn(createExpectedMalcolmOkReply(availableAxes));
 
-		// Act
-		List<IDeviceAttribute<?>> attributes = malcolmDevice.getAllAttributes();
-		assertThat(attributes, containsInAnyOrder(state, health, completedSteps, axesToMove));
-
-		// Assert
-		verify(malcolmConnection).send(malcolmDevice, expectedMessage);
+		// Act / Assert
+		assertTrue(malcolmDevice.isNewMalcolmVersion());
 	}
 
 }

@@ -18,12 +18,7 @@
 
 package org.eclipse.scanning.event.remote;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-
 import java.net.URI;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.scanning.api.device.models.DeviceRole;
@@ -31,10 +26,10 @@ import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -111,24 +106,38 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	@Override
 	public Set<String> getAvailableAxes() throws MalcolmDeviceException {
 		try {
-			for (IDeviceAttribute<?> attribute : getAllAttributes()) {
-				if (attribute instanceof StringArrayAttribute &&
-						(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
-					// use LinkedHashSet so that iterator has same element order as the string array
-					return new LinkedHashSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
-				}
-			}
-		} catch (ScanningException e) {
+			updateDeviceInfo();
+			return info.getAvailableAxes();
+		} catch (Exception e) {
 			throw new MalcolmDeviceException(this, e);
 		}
-		throw new MalcolmDeviceException("Could not get available axes for malcolm device " + getName());
 	}
 
 	@Override
 	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
 		try {
-			return getAllAttributes().stream().map(IDeviceAttribute::getName).anyMatch(name -> name.equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES));
-		} catch (ScanningException e) {
+			updateDeviceInfo();
+			return info.isNewMalcolm();
+		} catch (Exception e) {
+			throw new MalcolmDeviceException(this, e);
+		}
+	}
+
+	private void updateDeviceInfo() throws EventException, InterruptedException {
+		DeviceRequest req = new DeviceRequest(name);
+		DeviceRequest res = requester.post(req);
+		merge((DeviceInformation<M>)res.getDeviceInformation());
+	}
+
+	@Override
+	public MalcolmTable getDatasets() throws MalcolmDeviceException {
+		try {
+			DeviceRequest req = new DeviceRequest(name);
+			req.setGetDatasets(true);
+			DeviceRequest res = requester.post(req);
+			merge((DeviceInformation<M>)res.getDeviceInformation());
+			return req.getDatasets();
+		} catch (Exception e) {
 			throw new MalcolmDeviceException(this, e);
 		}
 	}

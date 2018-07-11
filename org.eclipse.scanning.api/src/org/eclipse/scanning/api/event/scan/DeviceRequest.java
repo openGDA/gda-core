@@ -13,17 +13,14 @@ package org.eclipse.scanning.api.event.scan;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IdBean;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.points.IPosition;
 
 /**
@@ -101,23 +98,6 @@ public class DeviceRequest extends IdBean {
 	private IPosition position;
 
 	/**
-	 * If this field is set to a value, and the device implements {@link IAttributableDevice},
-	 * the {@link DeviceInformation} for this device will include the value of this attribute.
-	 */
-	private String attributeName = null;
-
-	/**
-	 * If this field is set to <code>true</code>, and the device implements {@link IAttributableDevice},
-	 * the {@link DeviceInformation} for this device will include the values of all attributes for this device.
-	 */
-	private boolean getAllAttributes = false;
-
-	/**
-	 * The device attributes. This field is set by the server.
-	 */
-	private Map<String, IDeviceAttribute<?>> attributes = null;
-
-	/**
 	 * If there is an error in the request.
 	 */
 	private String errorMessage;
@@ -129,6 +109,18 @@ public class DeviceRequest extends IdBean {
 	 * the device itself from a device that is marked as not being alive.
 	 */
 	private boolean includeNonAlive = false;
+
+	/**
+	 * Sets whether to get the datasets attributes of a malcolm device.
+	 */
+	private boolean getDatasets = false;
+
+	/**
+	 * A {@link MalcolmTable} detailing the datasets that would be created by this malcolm device.
+	 * Only set when this object is returned as a response from the server and
+	 * {@link #getDatasets} is <code>true</code>.
+	 */
+	private MalcolmTable datasets;
 
 	@Override
 	public <A extends IdBean> void merge(A with) {
@@ -142,12 +134,11 @@ public class DeviceRequest extends IdBean {
 		deviceValue      = dr.deviceValue;
 		configure        = dr.configure;
 		position         = dr.position;
-		attributeName    = dr.attributeName;
-		getAllAttributes = dr.getAllAttributes;
 		errorMessage     = dr.errorMessage;
 		errorFieldNames  = dr.errorFieldNames;
-		attributes       = dr.attributes;
 		includeNonAlive  = dr.includeNonAlive;
+		getDatasets      = dr.getDatasets;
+		datasets         = dr.datasets;
 	}
 
 
@@ -235,7 +226,6 @@ public class DeviceRequest extends IdBean {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((attributeName == null) ? 0 : attributeName.hashCode());
 		result = prime * result + (configure ? 1231 : 1237);
 		result = prime * result + ((deviceAction == null) ? 0 : deviceAction.hashCode());
 		result = prime * result + ((deviceModel == null) ? 0 : deviceModel.hashCode());
@@ -245,10 +235,10 @@ public class DeviceRequest extends IdBean {
 		result = prime * result + ((devices == null) ? 0 : devices.hashCode());
 		result = prime * result + Arrays.hashCode(errorFieldNames);
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
-		result = prime * result + (getAllAttributes ? 1231 : 1237);
+		result = prime * result + (getDatasets ? 1231 : 1237);
 		result = prime * result + (includeNonAlive ? 1231 : 1237);
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
+		result = prime * result + ((datasets == null) ? 0 : datasets.hashCode());
 		return result;
 	}
 
@@ -262,11 +252,6 @@ public class DeviceRequest extends IdBean {
 		if (getClass() != obj.getClass())
 			return false;
 		DeviceRequest other = (DeviceRequest) obj;
-		if (attributeName == null) {
-			if (other.attributeName != null)
-				return false;
-		} else if (!attributeName.equals(other.attributeName))
-			return false;
 		if (configure != other.configure)
 			return false;
 		if (deviceAction != other.deviceAction)
@@ -300,7 +285,7 @@ public class DeviceRequest extends IdBean {
 				return false;
 		} else if (!errorMessage.equals(other.errorMessage))
 			return false;
-		if (getAllAttributes != other.getAllAttributes)
+		if (getDatasets != other.getDatasets)
 			return false;
 		if (includeNonAlive != other.includeNonAlive)
 			return false;
@@ -309,17 +294,17 @@ public class DeviceRequest extends IdBean {
 				return false;
 		} else if (!position.equals(other.position))
 			return false;
-		if (attributes == null) {
-			if (other.attributes != null)
+		if (datasets == null) {
+			if (other.datasets != null)
 				return false;
-		} else if (!attributes.equals(other.attributes))
+		} else if (!datasets.equals(other.datasets))
 			return false;
 		return true;
 	}
 
 
 	public void addDeviceInformation(DeviceInformation<?> info) {
-		if (devices==null) devices = new LinkedHashSet<DeviceInformation<?>>(7);
+		if (devices==null) devices = new LinkedHashSet<>();
 		devices.add(info);
 	}
 
@@ -360,36 +345,12 @@ public class DeviceRequest extends IdBean {
 		this.deviceType = deviceType;
 	}
 
-	public String getAttributeName() {
-		return attributeName;
+	public boolean isGetDatasets() {
+		return getDatasets;
 	}
 
-	public void setAttributeName(String attributeName) {
-		this.attributeName = attributeName;
-	}
-
-	public boolean isGetAllAttributes() {
-		return getAllAttributes;
-	}
-
-	public void setGetAllAttributes(boolean getAllAttributes) {
-		this.getAllAttributes = getAllAttributes;
-	}
-
-	public Map<String, IDeviceAttribute<?>> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<String, IDeviceAttribute<?>> attributes) {
-		this.attributes = attributes;
-	}
-
-	public void addAttribute(IDeviceAttribute<?> attribute) {
-		if (attributes == null) {
-			attributes = new HashMap<>();
-		}
-
-		attributes.put(attribute.getName(), attribute);
+	public void setGetDatasets(boolean getDatasets) {
+		this.getDatasets = getDatasets;
 	}
 
 	public boolean isConfigure() {
@@ -439,8 +400,7 @@ public class DeviceRequest extends IdBean {
 	@Override
 	public String toString() {
 		return "DeviceRequest [deviceType=" + deviceType + ", deviceName=" + deviceName + ", deviceValue=" + deviceValue
-				+ ", deviceAction=" + deviceAction + ", attributeName=" + attributeName + ", getAllAttributes="
-				+ getAllAttributes + ", errorMessage=" + errorMessage + "]";
+				+ ", deviceAction=" + deviceAction + ", getDatasets=" + getDatasets + ", errorMessage=" + errorMessage + "]";
 	}
 
 	public String[] getErrorFieldNames() {
@@ -457,6 +417,14 @@ public class DeviceRequest extends IdBean {
 
 	public void setIncludeNonAlive(boolean includeNonAlive) {
 		this.includeNonAlive = includeNonAlive;
+	}
+
+	public MalcolmTable getDatasets() {
+		return datasets;
+	}
+
+	public void setDatasets(MalcolmTable datasets) {
+		this.datasets = datasets;
 	}
 
 	/**

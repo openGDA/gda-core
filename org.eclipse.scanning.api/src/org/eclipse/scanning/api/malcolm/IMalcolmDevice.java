@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.malcolm;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IValidator;
-import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -61,7 +60,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @param <T> the type of the model for this malcolm device
  *
  */
-public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IAttributableDevice, IValidator<T> {
+public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T> {
 
 	/**
 	 * Initializes the connection to the actual malcolm device. This methods must be called before
@@ -131,11 +130,19 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IAttributabl
 	public boolean isNewMalcolmVersion() throws MalcolmDeviceException;
 
 	/**
+	 * Returns a {@link MalcolmTable} object describing the datasets that this malcolm device is configured to create
+	 * during a scan. This method should only be called after {@link #configure(Object)} has been called
+	 * on this malcolm device.
+	 * @return a table of the datasets created by this malcolm device
+	 * @throws MalcolmDeviceException if the datasets table could not be returned for any reason
+	 */
+	public MalcolmTable getDatasets() throws MalcolmDeviceException;
+
+	/**
 	 * Disposes of the malcolm device causing it to disconnect from the underlying malcolm device.
 	 *
 	 * @throws MalcolmDeviceException
 	 */
 	public void dispose() throws MalcolmDeviceException;
-
 
 }

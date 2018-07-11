@@ -24,6 +24,8 @@ import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
+import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
+import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -191,28 +193,25 @@ public class MalcolmEpicsV4ConnectorTest {
 	/**
 	 * Starts an instance of the ExampleMalcolmDevice and then attempts to get an attribute that doesn't exist.
 	 * This should throw an exception with a message detailing that the attribute is not accessible.
+	 * Note: this method uses the connector service directly as Malcolm devices now encapsulate their
+	 * attributes rather than allowing access to arbitrarily named attributes.
 	 * @throws Exception
 	 */
 	@Test
 	public void getNonExistantAttribute() throws Exception {
 		final String attrName = "nonExistant";
-		try {
-			// Start the dummy test device
-			DeviceRunner runner = new DeviceRunner();
-			epicsv4Device = runner.start();
+		// Start the dummy test device
+		DeviceRunner runner = new DeviceRunner();
+		epicsv4Device = runner.start();
+		// Get the device
+		IMalcolmDevice<?> malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
 
-			// Get the device
-			IMalcolmDevice<?> malcolmDevice = createMalcolmDevice(epicsv4Device.getRecordName());
-
-			// Get the device state. This should fail as the device does no exist
-			malcolmDevice.getAttribute(attrName);
-
-			fail("No exception thrown but one was expected");
-
-		} catch (Exception ex) {
-			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertEquals(ex.getMessage(), MalcolmDevice.STANDARD_MALCOLM_ERROR_STR + "No such attribute: " + attrName);
-		}
+		// Send a message to the connector service to get a non-existent attribute
+		// An error message will be returned
+		MalcolmMessage msg = connectorService.getMessageGenerator().createGetMessage(attrName);
+		MalcolmMessage reply = connectorService.send(malcolmDevice, msg);
+		assertEquals(Type.ERROR, reply.getType());
+		assertTrue(reply.getMessage().contains("CreateGet failed for '" + attrName + "'"));
 	}
 
 	/**

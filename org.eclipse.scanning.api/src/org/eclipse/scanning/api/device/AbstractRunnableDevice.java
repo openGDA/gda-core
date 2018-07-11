@@ -383,7 +383,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	 * @return
 	 * @throws ScanningException
 	 */
-	public final DeviceInformation<T> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
+	public DeviceInformation<T> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
 		if (deviceInformation==null) {
 			deviceInformation = new DeviceInformation<T>();
 		}
