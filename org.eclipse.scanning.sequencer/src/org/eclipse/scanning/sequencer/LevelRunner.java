@@ -297,8 +297,10 @@ abstract class LevelRunner<L extends ILevel> {
 		logger.debug(message, ne); // Just for testing we make sure that the stack is visible.
 		abortException = ne instanceof ScanningException ? (ScanningException) ne
 				: new ScanningException(ne.getMessage(), ne);
-		eservice.shutdownNow();
-		eservice = null;
+		if (eservice != null) {
+			eservice.shutdownNow();
+			eservice = null;
+		}
 	}
 
 	/**

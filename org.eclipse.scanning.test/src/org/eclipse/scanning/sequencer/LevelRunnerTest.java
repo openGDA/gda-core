@@ -223,24 +223,14 @@ public class LevelRunnerTest {
 		runnerThrowingException.run(position);
 	}
 
-	/**
-	 * TODO: The call to {@link LevelRunner#run(IPosition)} should throw the {@link ScanningException} passed to
-	 * {@link LevelRunner#abortWithError(INameable, IPosition, Throwable)}, but there is currently a bug in
-	 * {@link LevelRunner#abort()}, whcih does not check for a null service, so it throws a {@link NullPointerException}
-	 * instead.
-	 */
-	@Test(expected = NullPointerException.class)
+	@Test(expected = ScanningException.class)
 	public void testRunFailsAfterAbortException() throws Exception {
 		runner.setDevices(asList(level5a, level5b));
 		runner.abortWithError(scan, position, new ScanningException("Test scan failure"));
 		runner.run(position);
 	}
 
-	/**
-	 * TODO: This should not throw an exception, but does due to bug: see comment on
-	 * {@link #testRunFailsAfterAbortException()}
-	 */
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testResetClearsException() throws Exception {
 		runner.setDevices(asList(level5a, level5b));
 		runner.abortWithError(scan, position, new ScanningException("Test scan failure"));
