@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.python.core.ContextManager;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyModule;
@@ -52,6 +53,7 @@ import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
+import org.python.core.ThreadState;
 import org.python.core.imp;
 import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
@@ -80,6 +82,8 @@ public class GDAJythonInterpreter {
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
 	private static final String UTF_8 = "UTF-8";
 	private static final Properties sysProps;
+
+	private final OverwriteLock overwriteLock = new OverwriteLock();
 
 	private static File cacheDir;
 
@@ -272,6 +276,8 @@ public class GDAJythonInterpreter {
 
 		// Create the __main__ module for the console to use
 		PyModule mod = imp.addModule("__main__");
+
+		PySystemState.getDefaultBuiltins().__setitem__("overwriting", overwriteLock);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
 		GdaGlobals globals = new GdaGlobals();
@@ -756,6 +762,31 @@ public class GDAJythonInterpreter {
 		return interactiveConsole;
 	}
 
+	public class OverwriteLock extends PyObject implements ContextManager {
+		ThreadLocal<Boolean> locked = new ThreadLocal<>();
+		@Override
+		public PyObject __enter__(ThreadState ts) {
+			logger.trace("Allowing scannable overwriting");
+			locked.set(true);
+			return Py.None;
+		}
+
+		@Override
+		public boolean __exit__(ThreadState ts, PyException exception) {
+			logger.trace("Preventing scannable overwriting");
+			locked.set(false);
+			return false;
+		}
+
+		protected boolean enabled() {
+			return locked.get();
+		}
+
+		@Override
+		public String toString() {
+			return "ScannableOverwritingBypass";
+		}
+	}
 
 	/**
 	 * Extension of dictionary to use for python globals so that we can intercept sets
@@ -781,7 +812,12 @@ public class GDAJythonInterpreter {
 			PyObject obj = get(new PyString(key), Py.None);
 			// Check if it's a scannable
 			if (!Py.None.equals(obj) && obj.__tojava__(Scannable.class) != Py.NoConversion) {
-				logger.debug("Overwriting scannable '{}' with '{}'", key, value);
+				if (overwriteLock.enabled()) {
+					logger.debug("Overwriting scannable '{}' with '{}'", key, value);
+				} else {
+					// TODO: Throw exception instead of logging a warning
+					logger.warn("Overwriting scannable '{}' with '{}' without overwriting enabled", key, value);
+				}
 			}
 			super.__setitem__(key, value);
 		}
