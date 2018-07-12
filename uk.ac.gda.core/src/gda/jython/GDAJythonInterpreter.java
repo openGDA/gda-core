@@ -20,6 +20,7 @@
 package gda.jython;
 
 import static java.util.Arrays.stream;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
@@ -57,6 +58,8 @@ import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
@@ -561,13 +564,15 @@ public class GDAJythonInterpreter {
 		// File localStation = new File(getGdaScriptDir() + "localStation.py");
 		if (StringUtils.hasText(gdaStationScript)) {
 			logger.info("Running startupScript: {}", gdaStationScript);
-			try{
+			final Stopwatch localStationStopwatch = Stopwatch.createStarted();
+			try {
 				File localStation = new File(gdaStationScript);
 				final String lines = JythonServerFacade.slurp(localStation);
 				this.runscript(lines);
-				logger.info("Completed startupScript");
-			} catch(Exception e){
-				logger.error("Error running startupScript",e);
+				logger.info("Completed startupScript. Took {} seconds", localStationStopwatch.elapsed(SECONDS));
+			} catch (Exception e) {
+				logger.error("Error running startupScript. Failed after {} seconds",
+						localStationStopwatch.elapsed(SECONDS), e);
 			}
 		} else {
 			logger.info("No startupScript defined");
