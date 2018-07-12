@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.connector.epics;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,7 +52,11 @@ import org.slf4j.LoggerFactory;
  */
 public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
+	private static final String ERROR_MESSAGE_PATTERN_FAILED_TO_CONNECT =  ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT + " ''{0}'' ({1}: {2})";
+
 	private static final double REQUEST_TIMEOUT = 1.0;
+
+	private static final double NO_TIMEOUT = 0.0;
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmEpicsV4Connection.class);
 
@@ -117,15 +122,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
 		try {
 			EpicsV4ClientMonitorRequester monitorRequester = new EpicsV4ClientMonitorRequester(listener, subscribeMessage);
-			PvaClientChannel pvaChannel = pvaClient.createChannel(device.getName(), "pva");
-			pvaChannel.issueConnect();
-			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-			if (!status.isOK()) {
-				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
-						+ status.getMessage() + ")";
-				logger.error(errMessage);
-				throw new MalcolmDeviceException(device, errMessage);
-			}
+			PvaClientChannel pvaChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
 
 			PvaClientMonitor monitor = pvaChannel.monitor(subscribeMessage.getEndpoint(), monitorRequester, monitorRequester);
 
@@ -148,21 +145,25 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			throws MalcolmDeviceException {
 
 		try {
-			PvaClientChannel pvaChannel = pvaClient.createChannel(device.getName(), "pva");
-			pvaChannel.issueConnect();
-			Status status = pvaChannel.waitConnect(0); // Wait forever for this connection.
-			if (!status.isOK()) {
-				String errorMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
-						+ status.getMessage() + ")";
-				logger.error(errorMessage);
-				throw new MalcolmDeviceException(device, errorMessage);
-			}
+			PvaClientChannel pvaChannel = createAndCheckChannel(device, 0);
 			pvaChannel.setStateChangeRequester(new StateChangeRequester(listener));
 
 		} catch (Exception e) {
 			logger.error("Could not subscribe to connection state changes", e);
 			throw new MalcolmDeviceException(device, e.getMessage());
 		}
+	}
+
+	private PvaClientChannel createAndCheckChannel(IMalcolmDevice<?> device, double timeout) throws MalcolmDeviceException {
+		PvaClientChannel pvaChannel = pvaClient.createChannel(device.getName(), "pva");
+		pvaChannel.issueConnect();
+		Status status = pvaChannel.waitConnect(timeout);
+		if (!status.isOK()) {
+			String errorMessage = MessageFormat.format(ERROR_MESSAGE_PATTERN_FAILED_TO_CONNECT, device.getName(), status.getType(), status.getMessage());
+			logger.error(errorMessage);
+			throw new MalcolmDeviceException(device, errorMessage);
+		}
+		return pvaChannel;
 	}
 
 	@Override
@@ -210,20 +211,13 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		PvaClientChannel pvaChannel = null;
 		try {
 			PVStructure pvResult = null;
-			pvaChannel = pvaClient.createChannel(device.getName(), "pva");
-			pvaChannel.issueConnect();
-			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-			if (!status.isOK()) {
-				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
-						+ status.getMessage() + ")";
-				throw new Exception(errMessage);
-			}
+			pvaChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
 
 			String requestString = message.getEndpoint();
 			logger.debug("Get '{}'", requestString);
 			PvaClientGet pvaGet = pvaChannel.createGet(requestString);
 			pvaGet.issueConnect();
-			status = pvaGet.waitConnect();
+			Status status = pvaGet.waitConnect();
 			if (!status.isOK()) {
 				String errMessage = "CreateGet failed for '" + requestString + "' (" + status.getType() + ": "
 						+ status.getMessage() + ")";
@@ -261,16 +255,10 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		try {
 			String requestString = message.getEndpoint();
 
-			pvaChannel = pvaClient.createChannel(device.getName(), "pva");
-			pvaChannel.issueConnect();
-			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-			if (!status.isOK()) {
-				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": " + status.getMessage() + ")";
-				throw new MalcolmDeviceException(device, errMessage);
-			}
+			pvaChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
 			PvaClientPut pvaPut = pvaChannel.createPut(requestString);
 			pvaPut.issueConnect();
-			status = pvaPut.waitConnect();
+			Status status = pvaPut.waitConnect();
 			if (!status.isOK()) {
 				String errMessage = "CreatePut failed for '" + requestString + "' (" + status.getType() + ": " + status.getMessage() + ")";
 				throw new MalcolmDeviceException(device, errMessage);
@@ -307,19 +295,12 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			PVStructure methodStructure = pvRequest.getStructureField("method");
 			PVStructure parametersStructure = pvRequest.getStructureField("parameters");
 
-			pvaChannel = pvaClient.createChannel(device.getName(), "pva");
-			pvaChannel.issueConnect();
-			Status status = pvaChannel.waitConnect(REQUEST_TIMEOUT);
-			if (!status.isOK()) {
-				String errMessage = "Failed to connect to device '" + device.getName() + "' (" + status.getType() + ": "
-						+ status.getMessage() + ")";
-				throw new MalcolmDeviceException(errMessage);
-			}
+			pvaChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
 
 			logger.debug("Call method = \n{}\nEND", methodStructure);
 			PvaClientRPC rpc = pvaChannel.createRPC(methodStructure);
 			rpc.issueConnect();
-			status = rpc.waitConnect();
+			Status status = rpc.waitConnect();
 
 			if (!status.isOK()) {
 				String errMessage = "CreateRPC failed for '" + message.getMethod() + "' (" + status.getType() + ": "

@@ -13,6 +13,7 @@ package org.eclipse.scanning.malcolm.core;
 
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -592,7 +593,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			return Optional.of(result);
 		}
 		// check if the error message is a connection failure, in this case throw an exception
-		if (reply.getType() == Type.ERROR && reply.getMessage().startsWith("Failed to connect to device")) {
+		if (reply.getType() == Type.ERROR && reply.getMessage().startsWith(ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT)) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
 

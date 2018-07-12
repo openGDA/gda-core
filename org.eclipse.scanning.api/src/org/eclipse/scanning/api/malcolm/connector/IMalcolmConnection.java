@@ -56,6 +56,11 @@ public interface IMalcolmConnection {
 	}
 
 	/**
+	 * Prefix for connection error messages.
+	 */
+	public static final String ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT = "Failed to connect to device";
+
+	/**
 	 * Returns the message generator.
 	 * @return
 	 */

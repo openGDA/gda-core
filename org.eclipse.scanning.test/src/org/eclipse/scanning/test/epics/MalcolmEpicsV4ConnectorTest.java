@@ -162,8 +162,8 @@ public class MalcolmEpicsV4ConnectorTest {
 
 		} catch (Exception ex) {
 			assertEquals(MalcolmDeviceException.class, ex.getClass());
-			assertTrue(ex.getMessage().contains("Failed to connect to device 'INVALID_DEVICE'"));
-			assertTrue(ex.getMessage().contains("channel not connected"));
+			assertTrue(ex.getMessage(), ex.getMessage().contains("Failed to connect to device 'INVALID_DEVICE'"));
+			assertTrue(ex.getMessage(), ex.getMessage().contains("channel not connected"));
 		}
 	}
 
