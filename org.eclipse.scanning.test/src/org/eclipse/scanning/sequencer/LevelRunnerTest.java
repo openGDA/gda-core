@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -48,8 +49,13 @@ import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LevelRunnerTest {
+
+	private static Logger logger = LoggerFactory.getLogger(LevelRunnerTest.class);
+
 	private ScannableForTest level1a;
 	private ScannableForTest level1b;
 	private ScannableForTest level2a;
@@ -218,9 +224,42 @@ public class LevelRunnerTest {
 
 	@Test(expected = ScanningException.class)
 	public void testExceptionHandling() throws Exception {
-		final LevelRunnerForTest<ILevel> runnerThrowingException = new LevelRunnerForTestThrowingException<>(scan);
+		final LevelRunnerThrowingException<ILevel> runnerThrowingException = new LevelRunnerThrowingException<>(scan);
 		runnerThrowingException.setDevices(asList(level5a));
 		runnerThrowingException.run(position);
+	}
+
+	/*
+	 * Test behaviour when a timeout occurs.
+	 *
+	 * LevelRunner creates a Callable task for each device and submits them to the ForkJoinPool with a specified
+	 * timeout, i.e. it is the ForkJoinPool that enforces the timeout.
+	 *
+	 * The following test behaviour for different combinations of delay and timeout.
+	 */
+	@Test(expected = ScanningException.class)
+	public void testTimeout1Second() throws Exception {
+		testDelayTimeout(3, 1);
+	}
+
+	// Currently a bug so CancellationException is thrown here instead of ScanningException
+	@Test(expected = CancellationException.class)
+	public void testTimeout2Seconds() throws Exception {
+		testDelayTimeout(3, 2);
+	}
+
+	@Test
+	public void testTimeout4Seconds() throws Exception {
+		testDelayTimeout(3, 4);
+	}
+
+	private void testDelayTimeout(int delayInSeconds, int timeoutInSeconds) throws Exception {
+		logger.debug("Running timeout test for delay: {}s, timeout: {}s", delayInSeconds, timeoutInSeconds);
+		final LevelRunnerWithSleep<ILevel> runnerWithSleep = new LevelRunnerWithSleep<>(scan);
+		runnerWithSleep.setSleep(1000 * delayInSeconds);
+		runnerWithSleep.setDevices(asList(level5a));
+		runnerWithSleep.setTimeout(timeoutInSeconds);
+		runnerWithSleep.run(position);
 	}
 
 	@Test(expected = ScanningException.class)
@@ -256,7 +295,7 @@ public class LevelRunnerTest {
 	 * Minimal subclass of {@link LevelRunner} implementing required methods and logging calls to
 	 * {@link #create(ILevel, IPosition)} and calls to the tasks created.
 	 */
-	private class LevelRunnerForTest<L extends ILevel> extends LevelRunner<L> {
+	private static class LevelRunnerForTest<L extends ILevel> extends LevelRunner<L> {
 
 		private Collection<L> devices = Collections.emptyList();
 
@@ -307,9 +346,9 @@ public class LevelRunnerTest {
 	/**
 	 * Further extension of {@link LevelRunner} creating tasks that fail
 	 */
-	private class LevelRunnerForTestThrowingException<L extends ILevel> extends LevelRunnerForTest<L> {
+	private static class LevelRunnerThrowingException<L extends ILevel> extends LevelRunnerForTest<L> {
 
-		protected LevelRunnerForTestThrowingException(INameable device) {
+		protected LevelRunnerThrowingException(INameable device) {
 			super(device);
 		}
 
@@ -322,9 +361,35 @@ public class LevelRunnerTest {
 	}
 
 	/**
+	 * Extension of {@link LevelRunner} creating tasks that take a (configurable) time to execute
+	 * <p>
+	 * This allows testing of timeouts
+	 */
+	private static class LevelRunnerWithSleep<L extends ILevel> extends LevelRunnerForTest<L> {
+
+		private int sleep = 0; // Delay in ms
+
+		protected LevelRunnerWithSleep(INameable device) {
+			super(device);
+		}
+
+		@Override
+		protected Callable<IPosition> create(ILevel levelObject, IPosition position) throws ScanningException {
+			return () -> {
+				Thread.sleep(sleep);
+				return null;
+			};
+		}
+
+		public void setSleep(int sleep) {
+			this.sleep = sleep;
+		}
+	}
+
+	/**
 	 * Class to hold data corresponding to a task
 	 */
-	private class TestTask {
+	private static class TestTask {
 		public final ILevel levelObject;
 		public final IPosition position;
 
@@ -342,7 +407,7 @@ public class LevelRunnerTest {
 	/**
 	 * Simple implementaton of IScannable
 	 */
-	private class ScannableForTest implements IScannable<Double> {
+	private static class ScannableForTest implements IScannable<Double> {
 		private int level;
 		private String name;
 		private double value;
