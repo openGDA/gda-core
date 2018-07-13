@@ -123,6 +123,9 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			// scannable name
 			this.inputNames[0] = getName();
 			this.outputFormat[0] = "%5.4f";
+			if (enableValueMonitoring) {
+				enableValueMonitoring();
+			}
 			setConfigured(true);
 		}// end of if (!configured)
 	}
@@ -424,7 +427,11 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	public void enableValueMonitoring() {
 		if (Ic != null && iMonitor != null) {
 			try {
+				if (monitor != null) {
+					monitor.removeMonitorListener(iMonitor);
+				}
 				monitor = Ic.addMonitor(DBRType.CTRL_DOUBLE, 0, Monitor.VALUE, iMonitor);
+				monitor.getContext().flushIO();
 				setEnableValueMonitoring(true);
 				setPoll(false);
 			} catch (IllegalStateException e) {
