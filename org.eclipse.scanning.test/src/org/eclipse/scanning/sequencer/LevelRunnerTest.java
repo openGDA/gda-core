@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -242,8 +241,7 @@ public class LevelRunnerTest {
 		testDelayTimeout(3, 1);
 	}
 
-	// Currently a bug so CancellationException is thrown here instead of ScanningException
-	@Test(expected = CancellationException.class)
+	@Test(expected = ScanningException.class)
 	public void testTimeout2Seconds() throws Exception {
 		testDelayTimeout(3, 2);
 	}

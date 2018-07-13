@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -186,14 +188,15 @@ abstract class LevelRunner<L extends ILevel> {
 					logger.debug("Starting blocking scan for level {}", level);
 					final List<Future<IPosition>> pos = eservice.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS);
 
-					// If timed out, some isDone will be false.
-					for (Future<IPosition> future : pos) {
-						if (!future.isDone()) {
-							logger.error("Timeout error at level {} for {}", level, pos);
-							throw new ScanningException(
-									"The timeout of " + timeout + "s has been reached waiting for level " + level
-											+ " objects " + toString(lobjects));
-						}
+					// If timed out, some tasks will have been cancelled
+					final List<Future<IPosition>> cancelledTasks = pos.stream()
+							.filter(Future::isCancelled)
+							.collect(toList());
+					if(!cancelledTasks.isEmpty()) {
+						logger.error("Timeout error at level {}", level);
+						throw new ScanningException(
+								"The timeout of " + timeout + "s has been reached waiting for level " + level
+										+ " objects " + lobjects);
 					}
 					pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, pos));
 				}
