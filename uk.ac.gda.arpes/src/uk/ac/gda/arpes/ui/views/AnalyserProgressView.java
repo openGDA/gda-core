@@ -199,14 +199,10 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					progressBar.setText(running ? String.format("Running: %d%% completed", sp.pct) : "IDLE");
-					progressBar.setSelection(sp.pct);
-					try {
-						completedIterTxt.setText(String.valueOf(analyser.getCurrentIterations()));
-					} catch (Exception e) {
-						logger.warn("Could not get number of current iterations from analyser.", e);
-					}
-					if (sp.current > 0)
+					progressBar.setText(running ? String.format("Running: %d%% completed", sp.getPercent()) : "IDLE");
+					progressBar.setSelection(sp.getPercent());
+					completedIterTxt.setText(String.valueOf(sp.getCurrentIter()));
+					if (sp.getCurrentPoint() > 0)
 						progressBar.setBackground(postColor);
 					else
 						progressBar.setBackground(idleColor);
