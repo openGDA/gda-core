@@ -139,6 +139,7 @@ abstract class LevelRunner<L extends ILevel> {
 		 * return the last run position while returning the last-1 run position. Position is a best guess of what
 		 * position happened.
 		 */
+		logger.debug("Starting scan for {}", loc);
 		this.position = loc;
 		if (!pDelegate.firePositionWillPerform(loc)) {
 			return false;
@@ -175,17 +176,20 @@ abstract class LevelRunner<L extends ILevel> {
 				managerMap.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
 				if (!it.hasNext() && !block) {
 					// The last one and we are non-blocking
+					logger.debug("Starting non-blocking scan for level {}", level);
 					for (Callable<IPosition> callable : tasks) {
 						eservice.submit(callable);
 					}
 				} else {
 					// Normally we block until done.
 					// Blocks until level has run
+					logger.debug("Starting blocking scan for level {}", level);
 					final List<Future<IPosition>> pos = eservice.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS);
 
 					// If timed out, some isDone will be false.
 					for (Future<IPosition> future : pos) {
 						if (!future.isDone()) {
+							logger.error("Timeout error at level {} for {}", level, pos);
 							throw new ScanningException(
 									"The timeout of " + timeout + "s has been reached waiting for level " + level
 											+ " objects " + toString(lobjects));
@@ -210,6 +214,7 @@ abstract class LevelRunner<L extends ILevel> {
 			}
 		}
 
+		logger.debug("Finished scan for {}", loc);
 		return true;
 	}
 
@@ -249,9 +254,11 @@ abstract class LevelRunner<L extends ILevel> {
 			throw abortException;
 		}
 		if (eservice == null) {
+			logger.debug("await(): eservice is null");
 			return position;
 		}
 		if (eservice.isTerminated()) {
+			logger.debug("await(): eservice is terminated");
 			eservice = null;
 			return position;
 		}
