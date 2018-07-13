@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -70,7 +73,7 @@ import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -546,11 +549,14 @@ class FocusScanSetupPage extends WizardPage {
 	private Set<String> getMalcolmAxes(IScanModelWrapper<IDetectorModel> wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		final String deviceName = wrapper.getModel().getName();
 		final IRunnableDevice<?> device = runnableDeviceService.getRunnableDevice(deviceName);
+		// TODO, use only simultaneous axes when old malcolm no longer used. Also, see DAQ-1517
 		if (device instanceof IAttributableDevice) {
-			Object axesToMoveAttr = ((IAttributableDevice) device).getAttribute(MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE);
-			if (axesToMoveAttr instanceof StringArrayAttribute) {
-				final String[] axesArray = ((StringArrayAttribute) axesToMoveAttr).getValue();
-				return new TreeSet<>(Arrays.asList(axesArray));
+			for (IDeviceAttribute<?> attribute : ((IAttributableDevice) device).getAllAttributes()) {
+				if ((attribute.getName() == ATTRIBUTE_NAME_SIMULTANEOUS_AXES || attribute.getName() == ATTRIBUTE_NAME_AXES_TO_MOVE)
+						&& attribute instanceof StringArrayAttribute) {
+					// tree set as we want to maintain the order
+					return new TreeSet<>(Arrays.asList(((StringArrayAttribute) attribute).getValue()));
+				}
 			}
 		}
 		throw new ScanningException("Cannot get axes for malcolm device " + wrapper.getName());

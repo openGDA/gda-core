@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_AXES_TO_MOVE;
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -239,39 +241,57 @@ public class DetectorsSection extends AbstractMappingSection {
 		try {
 			// get the axesToMove from the malcolm device
 			final MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
-			final List<String> axesToMove = getMalcolmDeviceAxes(deviceName);
+			final List<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.
-			if (axesToMove.size() < 2) return;
+			if (malcolmAxes.size() < 2) return;
 
-			if (axesToMove.contains(stageInfo.getActiveFastScanAxis()) && axesToMove.contains(
-					stageInfo.getActiveSlowScanAxis())) {
-				// the mapping stage is already set correctly for the malcolm device, no update required
-				return;
+			// if the current fast and slow axes are contained in the malcolm axes, then the mapping stage
+			// is already set correctly for the malcolm device, no update is required
+			// note if new (2018) malcolm, malcolmAxes will contain all
+			boolean updatedFastAndSlowAxes = false;
+			if (!malcolmAxes.contains(stageInfo.getActiveFastScanAxis()) || !malcolmAxes.contains(stageInfo.getActiveSlowScanAxis())) {
+				// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
+				stageInfo.setActiveFastScanAxis(malcolmAxes.get(0));
+				stageInfo.setActiveSlowScanAxis(malcolmAxes.get(1));
+				updatedFastAndSlowAxes = true;
 			}
 
-			// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
-			stageInfo.setActiveFastScanAxis(axesToMove.get(0));
-			stageInfo.setActiveSlowScanAxis(axesToMove.get(1));
-			// TODO: we should update the associated (i.e. 'z') axis as well. We need some way to get this from malcolm.
-
-			// show a dialog to inform the user of the change (unless overridden in the preferences)
-			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
-			if (prefs.getBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, true)) {
-				final String message = MessageFormat.format(
-						"The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''. The associated axis is ''{2}'' and has not been changed.",
-						stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis(), stageInfo.getAssociatedAxis());
-				MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
-						"Don't show this dialog again", false, null, null);
-				prefs.putBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, !dialog.getToggleState());
+			boolean updatedAssociatedAxes = false;
+			if (malcolmAxes.size() > 2 && !malcolmAxes.contains(stageInfo.getAssociatedAxis())) {
+				// for a 3+ dimension malcolm device, we can set the z-axis as well
+				stageInfo.setAssociatedAxis(malcolmAxes.get(2));
+				updatedAssociatedAxes = true;
 			}
 
-			// Region and path composites need updating to reflect this change.
-			getMappingView().redrawRegionAndPathComposites();
+			if (updatedFastAndSlowAxes || updatedAssociatedAxes) {
+				// show a dialog to inform the user of the change (unless overridden in the preferences)
+				IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+				if (prefs.getBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, true)) {
+					String message = "";
+					if (updatedFastAndSlowAxes) {
+						message += MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''.",
+							stageInfo.getActiveFastScanAxis(), stageInfo.getActiveSlowScanAxis());
+					}
+					if (updatedAssociatedAxes) {
+						message += MessageFormat.format(" The associated axis has been updated to ''{0}''.", stageInfo.getAssociatedAxis());
+					} else {
+						message += MessageFormat.format(" The associated axis is ''{0}'' and has not been changed.", stageInfo.getAssociatedAxis());
+					}
+					MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
+							"Don't show this dialog again", false, null, null);
+					prefs.putBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, !dialog.getToggleState());
+				}
+
+				// Region and path composites need updating to reflect this change.
+				getMappingView().redrawRegionAndPathComposites();
+			}
 		} catch (ScanningException | EventException e) {
 			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
 		}
 	}
+
+	private boolean isNewMalcolm = false;
 
 	private List<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
 		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
@@ -279,8 +299,17 @@ public class DetectorsSection extends AbstractMappingSection {
 			// we're on the client, so we don't have IMalcolmDevices, but _RunnableDevice which implements IAttributeDevice
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a runnable device");
 		}
-		final String[] axesArray = (((IAttributableDevice) runnableDevice).getAttributeValue(ATTRIBUTE_NAME_AXES_TO_MOVE));
-		return Arrays.asList(axesArray);
+
+		// TODO use only simultaneous axes when old malcolm no longer used. Also, see DAQ-1517
+		for (IDeviceAttribute<?> attribute : ((IAttributableDevice) runnableDevice).getAllAttributes()) {
+			if (attribute instanceof StringArrayAttribute &&
+					(attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES) || attribute.getName().equals(ATTRIBUTE_NAME_AXES_TO_MOVE))) {
+				isNewMalcolm = attribute.getName().equals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+				return Arrays.asList(((StringArrayAttribute) attribute).getValue());
+			}
+		}
+
+		throw new ScanningException("Could not get malcolm axes for malcolm device: " + malcolmDeviceName);
 	}
 
 
@@ -341,7 +370,8 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private boolean isMappingMalcolmDevice(DeviceInformation<?> malcolmDeviceInfo) {
 		try {
-			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() <= 2;
+			// Filter out malcolm devices with more than 2 axes, unless we're using new malcolm
+			return getMalcolmDeviceAxes(malcolmDeviceInfo.getName()).size() <= 2 || isNewMalcolm;
 		} catch (ScanningException | EventException e) {
 			logger.error("Cannot get axes for malcolm device " + malcolmDeviceInfo.getName(), e);
 			return false;
