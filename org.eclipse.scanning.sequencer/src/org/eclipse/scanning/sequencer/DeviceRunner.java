@@ -41,9 +41,7 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 	DeviceRunner(INameable source, Collection<IRunnableDevice<?>> devices) {
 		super(source);
 		this.devices = devices;
-
-		long timeout = calculateTimeout(devices);
-		setTimeout(timeout);
+		setTimeout(calculateTimeout(devices));
 	}
 
 	/**
@@ -67,18 +65,19 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 		for (IRunnableDevice<?> device : devices) {
 			time = Math.max(time, getTimeout(device));
 		}
-		if (time<=0) time = 10; // seconds
+		if (time <= 0) {
+			time = 10; // seconds
+		}
 		return time;
 	}
 
 	private long getTimeout(IRunnableDevice<?> device) {
-
-		Object model = device.getModel();
+		final Object model = device.getModel();
 		long timeout = -1;
 		if (model instanceof ITimeoutable) {
-			timeout = ((ITimeoutable)model).getTimeout();
+			timeout = ((ITimeoutable) model).getTimeout();
 			if (timeout <= 0 && model instanceof IDetectorModel) {
-				IDetectorModel dmodel = (IDetectorModel)model;
+				final IDetectorModel dmodel = (IDetectorModel) model;
 				timeout = (long) Math.ceil(dmodel.getExposureTime() + 1);
 			}
 		}
@@ -105,31 +104,32 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 			this.position = position;
 		}
 
-		@SuppressWarnings("rawtypes")
 		@Override
 		public IPosition call() throws Exception {
 			if (detector instanceof IRunnableEventDevice) {
-				((IRunnableEventDevice)detector).fireRunWillPerform(position);
+				((IRunnableEventDevice<?>) detector).fireRunWillPerform(position);
 			}
 			try {
-				if (detector instanceof AbstractRunnableDevice) ((AbstractRunnableDevice)detector).setBusy(true);
-			    detector.run(position);
-			} catch (Throwable ne) {
+				if (detector instanceof AbstractRunnableDevice) {
+					((AbstractRunnableDevice<?>) detector).setBusy(true);
+				}
+				detector.run(position);
+			} catch (Exception ne) {
 				abortWithError(detector, position, ne);
 			} finally {
-				if (detector instanceof AbstractRunnableDevice) ((AbstractRunnableDevice)detector).setBusy(false);
+				if (detector instanceof AbstractRunnableDevice) {
+					((AbstractRunnableDevice<?>) detector).setBusy(false);
+				}
 			}
 			if (detector instanceof IRunnableEventDevice) {
-				((IRunnableEventDevice)detector).fireRunPerformed(position);
+				((IRunnableEventDevice<?>) detector).fireRunPerformed(position);
 			}
 			return null; // Faster if we are not adding new information.
 		}
-
 	}
 
 	@Override
 	protected LevelRole getLevelRole() {
 		return LevelRole.RUN;
 	}
-
 }
