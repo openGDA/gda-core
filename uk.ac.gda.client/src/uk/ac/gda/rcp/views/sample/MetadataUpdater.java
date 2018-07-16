@@ -21,8 +21,6 @@ package uk.ac.gda.rcp.views.sample;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -42,6 +40,7 @@ import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
 import gda.jython.commandinfo.CommandThreadEvent;
@@ -184,15 +183,6 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 			this.arg = arg;
 		}
 
-		private List<Integer> parseScanDimensions(String string) {
-			StringTokenizer st = new StringTokenizer(string, "[], ");
-			List<Integer> sd = new Vector<Integer>();
-			while (st.hasMoreTokens()) {
-				sd.add(Integer.valueOf(st.nextToken()));
-			}
-			return sd;
-		}
-
 		private Integer multiply(Collection<Integer> c) {
 			int a = 1;
 			for (Integer integer : c) {
@@ -305,8 +295,11 @@ public class MetadataUpdater implements IObserver, IScanDataPointObserver, IJyth
 						client.scanStatus.setText("RUNNING");
 						started = new Date();
 						client.elapsedTime.setText("00:00:00");
-						scanstring = jsf.evaluateCommand("finder.find(\"command_server\").getCurrentScanInformation().getDimensions().tolist()");
-						scandimensions = parseScanDimensions(scanstring);
+						int[] dimensions = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDimensions();
+						scandimensions.clear();
+						for (Integer dim : dimensions) {
+							scandimensions.add(dim);
+						}
 						totalScanPoints = multiply(scandimensions);
 						break;
 					default:

@@ -106,10 +106,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
-	/**
-	 * Name of this object. This should agree with the string used in Castor.
-	 */
-	public static final String SERVERNAME = "command_server";
 	public static final String NULL = String.valueOf((char)0);
 
 	public static final String SSH_PORT_PROPERTY = "gda.server.ssh.port";
@@ -229,7 +225,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 	@Override
 	public String getName() {
-		return SERVERNAME;
+		return Jython.SERVER_NAME;
 	}
 
 	@Override
@@ -280,7 +276,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 				throw new FactoryException("Could not create interpreter", e);
 			}
 
-			interp.placeInJythonNamespace("command_server", this);
+			interp.placeInJythonNamespace(Jython.SERVER_NAME, this);
 			runningLocalStation = true;
 			try {
 				interp.initialise(this);

@@ -18,9 +18,6 @@
 
 package gda.commandqueue;
 
-import gda.factory.Finder;
-import gda.jython.JythonServer;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +27,9 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 
 import org.springframework.util.StringUtils;
+
+import gda.factory.Finder;
+import gda.jython.JythonServer;
 
 public class JythonCommandCommandProvider implements CommandProvider, Serializable{
 
@@ -57,7 +57,7 @@ public class JythonCommandCommandProvider implements CommandProvider, Serializab
 			String[] split = trim.split(" ");
 			if( split.length ==2){
 				String scriptName = split[1].replaceAll("[\"\']", "");
-				JythonServer server = (JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME);
+				JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
 				scriptPath = server.getJythonScriptPaths().pathToScript(scriptName);
 				if (scriptPath == null) {
 					throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in " + server.getJythonScriptPaths().description() + ".");

@@ -1,4 +1,3 @@
-from gda.factory import Finder
 from gda.scan import TrajectoryScanLine, ConcurrentScan, \
     ConstantVelocityScanLine
 
@@ -11,12 +10,12 @@ POSITION_CALLABLE_THREADPOOL_SIZE = 4
 
 def setDefaultScannables(new):
     # TODO: Replace this lot with a call to create a Scan with no defaults.
-    cs = Finder.getInstance().find("command_server")
-    original = list(cs.getDefaultScannables())
+    from gda.jython.commands.ScannableCommands import get_defaults, add_default, remove_default
+    original = get_defaults()
     for scn in original:
-        cs.removeDefault(scn)
+        remove_default(scn)
     for scn in new:
-        cs.addDefault(scn)
+        add_default(scn)
     return original
 
 

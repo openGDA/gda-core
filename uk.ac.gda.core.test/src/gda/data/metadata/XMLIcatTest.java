@@ -21,17 +21,25 @@ package gda.data.metadata;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.icat.Icat;
-import gda.data.metadata.icat.IcatProvider;
-import gda.jython.authenticator.UserAuthentication;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.icat.Icat;
+import gda.data.metadata.icat.IcatProvider;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.jython.Jython;
+import gda.jython.authenticator.UserAuthentication;
 
 /**
  *
@@ -62,6 +70,16 @@ public class XMLIcatTest {
 		System.setProperty("user.name", "abc123");
 		UserAuthentication.setToUseOSAuthentication();
 
+		Jython jython = mock(Jython.class);
+		Factory factory = mock(Factory.class);
+		when(factory.getFindables()).thenReturn(Arrays.asList(jython));
+		Finder.getInstance().addFactory(factory);
+
+	}
+
+	@After
+	public void cleanUpFinder() {
+		Finder.getInstance().removeAllFactories();
 	}
 
 	/**

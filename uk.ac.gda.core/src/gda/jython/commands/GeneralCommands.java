@@ -244,7 +244,7 @@ public final class GeneralCommands {
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
-		JythonServer server = Finder.getInstance().find(JythonServer.SERVERNAME);
+		JythonServer server = Finder.getInstance().findSingleton(JythonServer.class);
 
 		// allow full paths to be given to this method
 		String path = scriptName;
@@ -270,7 +270,7 @@ public final class GeneralCommands {
 	 */
 	public static void reset_namespace() {
 		logger.info("Resetting Jython namespace");
-		((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME)).restart();
+		Finder.getInstance().findSingleton(JythonServer.class).restart();
 		reconfigureScriptControllers();
 	}
 

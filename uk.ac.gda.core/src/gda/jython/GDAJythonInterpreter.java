@@ -402,7 +402,7 @@ public class GDAJythonInterpreter {
 
 				// give Jython the reference to this wrapper object
 				interactiveConsole.set("GDAJythonInterpreter", this);
-				interactiveConsole.set("command_server", jythonServer);
+				interactiveConsole.set(Jython.SERVER_NAME, jythonServer);
 
 				// standard imports
 				logger.info("performing standard Jython interpreter imports...");

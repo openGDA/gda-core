@@ -34,6 +34,7 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +42,10 @@ import org.mockito.ArgumentCaptor;
 import gda.TestHelpers;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
+import gda.factory.Factory;
 import gda.factory.FactoryException;
+import gda.factory.Finder;
+import gda.jython.Jython;
 import gda.scan.IScanDataPoint;
 
 public class FileRegistrarUnitTest {
@@ -87,6 +91,19 @@ public class FileRegistrarUnitTest {
 
 		filePathService = mock(IFilePathService.class);
 		FileRegistrarServiceHolder.setFilePathService(filePathService);
+	}
+
+	@Before
+	public void addMockJythonToFinder() {
+		Jython jython = mock(Jython.class);
+		Factory factory = mock(Factory.class);
+		when(factory.getFindables()).thenReturn(Arrays.asList(jython));
+		Finder.getInstance().addFactory(factory);
+	}
+
+	@After
+	public void cleanUpFinder() {
+		Finder.getInstance().removeAllFactories();
 	}
 
 	@SuppressWarnings("unused")
