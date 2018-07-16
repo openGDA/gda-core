@@ -23,6 +23,8 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,6 +37,8 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *
  */
 class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
+
+	private static final Logger logger = LoggerFactory.getLogger(DeviceRunner.class);
 
 	private Collection<IRunnableDevice<?>>  devices;
 
@@ -113,7 +117,9 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 				if (detector instanceof AbstractRunnableDevice) {
 					((AbstractRunnableDevice<?>) detector).setBusy(true);
 				}
+				logger.debug("Starting to run detector {}", detector.getName());
 				detector.run(position);
+				logger.debug("Finished running detector {}", detector.getName());
 			} catch (Exception ne) {
 				abortWithError(detector, position, ne);
 			} finally {
