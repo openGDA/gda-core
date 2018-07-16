@@ -28,7 +28,7 @@ public class ServiceLoader {
 		return tracker;
 	}
 
-	public static void setEventTracker(EventTracker tracker) {
+	public void setEventTracker(EventTracker tracker) {
 		ServiceLoader.tracker = tracker;
 	}
 }
