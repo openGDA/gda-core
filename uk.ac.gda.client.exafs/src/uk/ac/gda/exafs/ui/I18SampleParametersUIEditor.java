@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2018 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,145 +18,371 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 
-import org.eclipse.richbeans.widgets.FieldComposite;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.nebula.widgets.opal.checkboxgroup.CheckBoxGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
-import uk.ac.gda.exafs.ui.composites.AttenuatorParametersComposite;
-import uk.ac.gda.exafs.ui.composites.I18SampleParametersComposite;
-import uk.ac.gda.exafs.ui.composites.SampleStageParametersComposite;
+import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
 
-public final class I18SampleParametersUIEditor extends RichBeanEditorPart {
+public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SampleParameters> {
 
-	private static final Logger logger = LoggerFactory.getLogger(I18SampleParametersUIEditor.class);
-
-	private I18SampleParametersComposite beanComposite;
-
-	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+	public I18SampleParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, I18SampleParameters editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 	}
 
-	@Override
-	public String getRichEditorTabText() {
-		return "I18SampleParameters";
-	}
+	private static final int GROUP_WIDTH = 380;
+
+	/**
+	 * GridData for groups to be left aligned and have a width of {@link #GROUP_WIDTH}
+	 */
+	private static final GridDataFactory GROUP_FORMAT = GridDataFactory
+														.fillDefaults()
+														.align(SWT.LEFT, SWT.CENTER)
+														.hint(GROUP_WIDTH, SWT.DEFAULT)
+														.grab(true, false);
+
+	/**
+	 * 2-column layout for composites inside groups
+	 */
+	private static final GridLayoutFactory TWO_COLUMN_LAYOUT = GridLayoutFactory
+																.fillDefaults()
+																.numColumns(2)
+																.equalWidth(true)
+																.spacing(20, 5);
+
+	/**
+	 * For right-aligned labels
+	 */
+	private static final GridDataFactory RIGHT_ALIGN = GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER);
+
+	/**
+	 * For controls to take all available space horizontally
+	 */
+	private static final GridDataFactory STRETCH = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
+
+	private ScrolledComposite scrolledComposite;
 
 	@Override
-	public void createPartControl(Composite comp) {
-		ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
+	public void createPartControl(Composite parent) {
+
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		beanComposite = new I18SampleParametersComposite(scrolledComposite, SWT.NONE,
-				(I18SampleParameters) editingBean);
-		try {
-			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
-				this.beanComposite.disableSample();
-			else
-				this.beanComposite.enableSample();
+		Composite sampleParametersComposite = new Composite(scrolledComposite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().applyTo(sampleParametersComposite);
 
-		} catch (Exception e) {
-			logger.error("Error enabling/disabling sample", e);
-		}
+		scrolledComposite.setContent(sampleParametersComposite);
 
-		ExpansionAdapter stageExpansionListener = new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				beanComposite.setVfmxActive(e.getState());
-				dirtyContainer.setDirty(true);
-			}
-		};
-		beanComposite.getKbExpandableComposite().addExpansionListener(stageExpansionListener);
+		Composite details = formattedCompositeInGroup(sampleParametersComposite, "Sample Details");
+		createSampleDetailsSection(details);
 
-		fillAttenuatorPositions();
-		addListeners();
-		scrolledComposite.setContent(beanComposite);
-		beanComposite.layout();
-		scrolledComposite.setMinSize(beanComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		Composite sampleStage = formattedCompositeInGroup(sampleParametersComposite, "Sample Stage");
+		createSampleStageSection(sampleStage);
+
+		Composite attenuators = formattedCompositeInGroup(sampleParametersComposite, "Attenuators");
+		createAttenuatorsSection(attenuators);
+
+		createMirrorSection(sampleParametersComposite);
+
+		scrolledComposite.setMinSize(sampleParametersComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private void addListeners() {
+	private Composite formattedCompositeInGroup(Composite parent, String groupName) {
+		final Group group = new Group(parent, SWT.NONE);
+		group.setText(groupName);
 
-		beanComposite.getAttnCurrentPosition().addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				String att1val = JythonServerFacade.getInstance().evaluateCommand("D7A()");
-				String att2val = JythonServerFacade.getInstance().evaluateCommand("D7B()");
-				beanComposite.getAttenuatorParameter1().getSelectedPosition().setValue(att1val);
-				beanComposite.getAttenuatorParameter2().getSelectedPosition().setValue(att2val);
-				beanComposite.getAttenuatorParameter1().setPosition(att1val);
-				beanComposite.getAttenuatorParameter2().setPosition(att2val);
+		GridLayoutFactory.swtDefaults().applyTo(group);
+		GROUP_FORMAT.applyTo(group);
+
+		final Composite composite = new Composite(group, SWT.NONE);
+		TWO_COLUMN_LAYOUT.applyTo(composite);
+
+		STRETCH.applyTo(composite);
+
+		return composite;
+	}
+
+	private void createSampleDetailsSection(Composite details) {
+
+		// controls
+		Label nameLabel = new Label(details, SWT.NONE);
+		nameLabel.setText("Name");
+		RIGHT_ALIGN.applyTo(nameLabel);
+
+		Text name = new Text(details, SWT.BORDER);
+		STRETCH.applyTo(name);
+
+		Label descriptionLabel = new Label(details, SWT.NONE);
+		descriptionLabel.setText("Description");
+		RIGHT_ALIGN.copy().align(SWT.RIGHT, SWT.TOP).applyTo(descriptionLabel);
+
+		Text description = new Text(details, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+		STRETCH.copy().hint(SWT.DEFAULT, 50).applyTo(description);
+
+		// bindings
+		name.setText(getBean().getName() == null ? "" : getBean().getName());
+		name.addListener(SWT.Modify, event -> {
+			getBean().setName(name.getText());
+			beanChanged();
+		});
+
+		description.setText(getBean().getDescription() == null ? "" : getBean().getDescription());
+		description.addListener(SWT.Modify, event -> {
+			getBean().setDescription(description.getText());
+			beanChanged();
+		});
+	}
+
+	private void createSampleStageSection(Composite section) {
+
+		// controls
+		Label xLabel = new Label(section, SWT.NONE);
+		RIGHT_ALIGN.applyTo(xLabel);
+		xLabel.setText("X");
+
+		Text x = new Text(section, SWT.BORDER);
+		STRETCH.applyTo(x);
+
+		Label yLabel = new Label(section, SWT.NONE);
+		RIGHT_ALIGN.applyTo(yLabel);
+		yLabel.setText("Y");
+
+		Text y = new Text(section, SWT.BORDER);
+		STRETCH.applyTo(y);
+
+		Label zLabel = new Label(section, SWT.NONE);
+		RIGHT_ALIGN.applyTo(zLabel);
+		zLabel.setText("Z");
+
+		Text z = new Text(section, SWT.BORDER);
+		STRETCH.applyTo(z);
+
+		skipCell(section);
+
+		Button fetchPosition = new Button(section, SWT.PUSH);
+		fetchPosition.setText("Fetch stage position");
+		STRETCH.applyTo(fetchPosition);
+
+
+		// bindings
+		SampleStageParameters bean = getBean().getSampleStageParameters();
+
+		x.setText(String.valueOf(bean.getX()));
+		x.addListener(SWT.Modify, event -> {
+			bean.setX(Double.parseDouble(x.getText()));
+			beanChanged();
+		});
+
+		y.setText(String.valueOf(bean.getY()));
+		y.addListener(SWT.Modify, event -> {
+			bean.setY(Double.parseDouble(y.getText()));
+			beanChanged();
+		});
+
+		z.setText(String.valueOf(bean.getZ()));
+		z.addListener(SWT.Modify, event -> {
+			bean.setZ(Double.parseDouble(z.getText()));
+			beanChanged();
+		});
+
+		fetchPosition.addListener(SWT.Selection, event -> {
+
+			Finder finder = Finder.getInstance();
+
+			Scannable xAxis = finder.find("t1x");
+			Scannable yAxis = finder.find("t1y");
+			Scannable zAxis = finder.find("t1z");
+
+			try {
+				double xPos = (double) xAxis.getPosition();
+				double yPos = (double) yAxis.getPosition();
+				double zPos = (double) zAxis.getPosition();
+
+				x.setText(String.valueOf(xPos));
+				y.setText(String.valueOf(yPos));
+				z.setText(String.valueOf(zPos));
+
+				bean.setX(xPos);
+				bean.setY(yPos);
+				bean.setZ(zPos);
+
+				beanChanged();
+			} catch (DeviceException e) {
+				logger.error("Error retrieving stage position");
+			}
+
+		});
+	}
+
+	private void createAttenuatorsSection(Composite section) {
+
+		// controls
+
+		// TODO I18SampleParameters needs to have List<AttenuatorParameters>
+		// in which case we iterate through the list building identical controls.
+		// For the 'fetch' button later (single button to fetch all positions)
+		// we would need to keep a map of attenuator name to combo box
+		Label attn1Label = new Label(section, SWT.NONE);
+		attn1Label.setText("D7A");
+		RIGHT_ALIGN.applyTo(attn1Label);
+
+		Combo attn1 = new Combo(section, SWT.READ_ONLY);
+		STRETCH.applyTo(attn1);
+
+		Label attn2Label = new Label(section, SWT.NONE);
+		attn2Label.setText("D7B");
+		RIGHT_ALIGN.applyTo(attn2Label);
+
+		Combo attn2 = new Combo(section, SWT.READ_ONLY);
+		STRETCH.applyTo(attn2);
+
+		skipCell(section);
+
+		Button fetch = new Button(section, SWT.PUSH);
+		fetch.setText("Fetch positions");
+		STRETCH.applyTo(fetch);
+
+
+		// binding
+		AttenuatorParameters a1Params = getBean().getAttenuatorParameter1();
+		List<String> attn1Positions = a1Params.getPosition();
+		attn1.setItems(attn1Positions.toArray(new String[0]));
+		attn1.select(attn1Positions.indexOf(a1Params.getSelectedPosition()));
+		attn1.addListener(SWT.Selection, event -> {
+			a1Params.setSelectedPosition(attn1.getText());
+			beanChanged();
+		});
+
+		AttenuatorParameters a2Params = getBean().getAttenuatorParameter2();
+		List<String> attn2Positions = a2Params.getPosition();
+		attn2.setItems(attn2Positions.toArray(new String[0]));
+		attn2.select(attn2Positions.indexOf(a2Params.getSelectedPosition()));
+		attn2.addListener(SWT.Selection, event -> {
+			a2Params.setSelectedPosition(attn2.getText());
+			beanChanged();
+		});
+
+		fetch.addListener(SWT.Selection, event -> {
+			Finder finder = Finder.getInstance();
+			Scannable a1Motor = finder.find("D7A");
+			Scannable a2Motor = finder.find("D7B");
+			try {
+				String a1Pos = (String) a1Motor.getPosition();
+				String a2Pos = (String) a2Motor.getPosition();
+
+				attn1.select(attn1Positions.indexOf(a1Pos));
+				attn2.select(attn2Positions.indexOf(a2Pos));
+
+				a1Params.setSelectedPosition(a1Pos);
+				a2Params.setSelectedPosition(a2Pos);
+
+				beanChanged();
+			} catch (DeviceException e) {
+				logger.error("Error fetching attenuator positions", e);
 			}
 		});
 	}
 
-	private void fillAttenuatorPositions() {
-		AttenuatorParametersComposite at1 = this.beanComposite.getAttenuatorParameter1();
-		AttenuatorParametersComposite at2 = this.beanComposite.getAttenuatorParameter2();
-		I18SampleParameters sampleBean = (I18SampleParameters) editingBean;
-		ArrayList<String> positions1 = sampleBean.getAttenuatorParameter1().getPosition();
-		ArrayList<String> positions2 = sampleBean.getAttenuatorParameter2().getPosition();
-		at1.getSelectedPosition().setItems(positions1.toArray(new String[]{}));
-		at2.getSelectedPosition().setItems(positions2.toArray(new String[]{}));
+	private void createMirrorSection(Composite parent) {
+
+		//controls
+		final CheckBoxGroup group = new CheckBoxGroup(parent, SWT.NONE);
+		group.setText("KB Mirror");
+
+		GridLayoutFactory.swtDefaults().applyTo(group);
+		GROUP_FORMAT.applyTo(group);
+
+		final Composite section = group.getContent();
+		TWO_COLUMN_LAYOUT.applyTo(section);
+		STRETCH.applyTo(section);
+
+		Label xLabel = new Label(section, SWT.NONE);
+		xLabel.setText("X");
+		RIGHT_ALIGN.applyTo(xLabel);
+
+		Text x = new Text(section, SWT.BORDER);
+		STRETCH.applyTo(x);
+
+		skipCell(section);
+
+		Button fetch = new Button(section, SWT.PUSH);
+		fetch.setText("Fetch position");
+		STRETCH.applyTo(fetch);
+
+		// binding
+		group.setSelection(getBean().isVfmxActive());
+		group.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getBean().setVfmxActive(group.isActivated());
+				beanChanged();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// do not bind unless selection is deliberate
+			}
+		});
+
+
+		x.setText(String.valueOf(getBean().getVfmx()));
+		x.addListener(SWT.Modify, event -> {
+			getBean().setVfmx(Double.parseDouble(x.getText()));
+			beanChanged();
+		});
+
+		fetch.addListener(SWT.Selection, event -> {
+			Scannable xMotor = Finder.getInstance().find("kb_vfm_x");
+			try {
+				double position = (double) xMotor.getPosition();
+				x.setText(String.valueOf(position));
+				getBean().setVfmx(position);
+				beanChanged();
+			} catch (DeviceException e) {
+				logger.error("Error getting KB mirror position", e);
+			}
+		});
+	}
+
+	@SuppressWarnings("unused")
+	private void skipCell(Composite composite) {
+		new Label(composite, SWT.NONE);
 	}
 
 	@Override
 	public void setFocus() {
-	}
-
-	public FieldComposite getName() {
-		return beanComposite.getName();
-	}
-
-	public FieldComposite getDescription() {
-		return beanComposite.getDescription();
-	}
-
-	public SampleStageParametersComposite getSampleStageParameters() {
-		return beanComposite.getSampleStageParameters();
-	}
-
-	public AttenuatorParametersComposite getAttenuatorParameter1() {
-		return beanComposite.getAttenuatorParameter1();
-	}
-
-	public AttenuatorParametersComposite getAttenuatorParameter2() {
-		return beanComposite.getAttenuatorParameter2();
-	}
-
-	public FieldComposite getVfmx() {
-		return beanComposite.getVfmx();
-	}
-
-	public boolean isVfmxActive() {
-		return beanComposite.isVfmxActive();
+		scrolledComposite.setFocus();
 	}
 
 	@Override
-	public void linkUI(final boolean isPageChange) {
-		super.linkUI(isPageChange);
-		try {
-			if (((I18SampleParameters) editingBean).getSampleStageParameters().getDisable())
-				beanComposite.disableSample();
-			else
-				beanComposite.enableSample();
-		} catch (Exception e) {
-			logger.error("Error while trying to enable/disable sample on the bean for sample parameters", e);
-		}
+	protected String getRichEditorTabText() {
+		return "Sample Parameters";
+	}
+
+	@Override
+	public void dispose() {
+		scrolledComposite.dispose();
 	}
 }

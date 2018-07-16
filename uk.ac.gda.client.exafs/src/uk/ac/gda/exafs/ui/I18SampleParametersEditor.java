@@ -23,6 +23,7 @@ import java.net.URL;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.richbeans.editors.xml.XMLBeanEditor;
 
 public final class I18SampleParametersEditor extends ExperimentBeanMultiPageEditor {
 
@@ -38,12 +39,19 @@ public final class I18SampleParametersEditor extends ExperimentBeanMultiPageEdit
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new I18SampleParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		return new I18SampleParametersUIEditor(path, getMappingUrl(), this, (I18SampleParameters) editingBean);
 	}
 
 	@Override
 	public URL getSchemaUrl() {
 		return I18SampleParameters.schemaURL; // Please make sure this field is present and the schema
+	}
+
+	@Override
+	protected XMLBeanEditor createPage1() {
+		// We do not want an XML editor
+		// so we return null
+		return null;
 	}
 
 }
