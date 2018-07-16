@@ -16,6 +16,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(org.junit.runners.Suite.class)
 @SuiteClasses({
+	DeviceRunnerTest.class,
 	LevelRunnerTest.class,
 })
 public class Suite { }
