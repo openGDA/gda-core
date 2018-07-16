@@ -70,16 +70,6 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	}
 
 	@Override
-	protected String toString(List<IScannable<?>> lobjects) {
-		final StringBuilder buf = new StringBuilder("[");
-		for (IScannable<?> s : lobjects) {
-			buf.append(s.getName());
-			buf.append(", ");
-		}
-		return buf.toString();
-	}
-
-	@Override
 	public boolean setPosition(IPosition position) throws ScanningException, InterruptedException {
 		run(position);
 		return true;

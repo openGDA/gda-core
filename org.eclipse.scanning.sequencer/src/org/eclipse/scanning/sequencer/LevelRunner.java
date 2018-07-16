@@ -167,7 +167,7 @@ abstract class LevelRunner<L extends ILevel> {
 
 				final int level = it.next();
 				final List<L> lobjects = positionMap.get(level);
-				final Collection<Callable<IPosition>> tasks = new ArrayList<>(lobjects.size());
+				final List<Callable<IPosition>> tasks = new ArrayList<>(lobjects.size());
 				for (L lobject : lobjects) {
 					final Callable<IPosition> c = create(lobject, loc);
 					if (c != null) { // legal to say that there is nothing to do for a given object.
@@ -186,19 +186,39 @@ abstract class LevelRunner<L extends ILevel> {
 					// Normally we block until done.
 					// Blocks until level has run
 					logger.debug("Starting blocking scan for level {}", level);
-					final List<Future<IPosition>> pos = eservice.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS);
+					final List<Future<IPosition>> taskFutures = eservice.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS);
+
+					// Check first for abort exception
+					if (abortException != null) {
+						throw abortException;
+					}
 
 					// If timed out, some tasks will have been cancelled
-					final List<Future<IPosition>> cancelledTasks = pos.stream()
+					final List<Future<IPosition>> cancelledTasks = taskFutures.stream()
 							.filter(Future::isCancelled)
 							.collect(toList());
-					if(!cancelledTasks.isEmpty()) {
+					if (!cancelledTasks.isEmpty()) {
 						logger.error("Timeout error at level {}", level);
-						throw new ScanningException(
-								"The timeout of " + timeout + "s has been reached waiting for level " + level
-										+ " objects " + lobjects);
+
+						// You cannot get the original task from a Future, so use a map to identify the scannables whose
+						// tasks have been cancelled
+						final Map<Future<IPosition>, L> taskMap = new HashMap<>(tasks.size());
+						for (int i = 0; i < tasks.size(); i++) {
+							taskMap.put(taskFutures.get(i), lobjects.get(i));
+						}
+
+						final StringBuilder messageBuilder = new StringBuilder();
+						messageBuilder.append("The timeout of ").append(timeout)
+								.append("s has been reached waiting for level ").append(level)
+								.append(" device(s): ");
+						for (Future<IPosition> taskFuture : cancelledTasks) {
+							messageBuilder.append(taskMap.get(taskFuture).toString()).append(", ");
+						}
+						final String message = messageBuilder.toString().replaceAll(", $", "");
+						logger.error(message);
+						throw new ScanningException(message);
 					}
-					pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, pos));
+					pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, taskFutures));
 				}
 				managerMap.get(level).invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
 			}
@@ -211,23 +231,13 @@ abstract class LevelRunner<L extends ILevel> {
 				throw abortException;
 			}
 			throw new ScanningException("Scanning interrupted while moving to new position!", e);
-		} finally {
-			if (block) {
-				await();
-			}
+		}
+		if (block) {
+			await();
 		}
 
 		logger.debug("Finished scan for {}", loc);
 		return true;
-	}
-
-	protected String toString(List<L> lobjects) {
-		final StringBuilder buf = new StringBuilder("[");
-		for (L l : lobjects) {
-			buf.append(l);
-			buf.append(", ");
-		}
-		return buf.toString();
 	}
 
 	/**
@@ -266,8 +276,9 @@ abstract class LevelRunner<L extends ILevel> {
 			return position;
 		}
 		if (!eservice.awaitQuiescence(time, TimeUnit.SECONDS)) { // Might have nullified service during wait.
-			throw new ScanningException("The timeout of " + timeout
-					+ "s has been reached, scan aborting. Please implement ITimeoutable to define how long your device needs to write.");
+			final String message = String.format("The timeout of %d seconds has been reached waiting for the scan to complete, scan aborting.", timeout);
+			logger.error(message);
+			throw new ScanningException(message);
 		}
 		return position;
 	}

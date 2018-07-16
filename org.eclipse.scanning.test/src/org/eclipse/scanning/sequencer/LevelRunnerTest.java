@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -223,9 +224,9 @@ public class LevelRunnerTest {
 
 	@Test(expected = ScanningException.class)
 	public void testExceptionHandling() throws Exception {
-		final LevelRunnerThrowingException<ILevel> runnerThrowingException = new LevelRunnerThrowingException<>(scan);
-		runnerThrowingException.setDevices(asList(level5a));
-		runnerThrowingException.run(position);
+		runner.setThrowsException(true);
+		runner.setDevices(asList(level5a));
+		runner.run(position);
 	}
 
 	/*
@@ -253,11 +254,25 @@ public class LevelRunnerTest {
 
 	private void testDelayTimeout(int delayInSeconds, int timeoutInSeconds) throws Exception {
 		logger.debug("Running timeout test for delay: {}s, timeout: {}s", delayInSeconds, timeoutInSeconds);
-		final LevelRunnerWithSleep<ILevel> runnerWithSleep = new LevelRunnerWithSleep<>(scan);
-		runnerWithSleep.setSleep(1000 * delayInSeconds);
-		runnerWithSleep.setDevices(asList(level5a));
-		runnerWithSleep.setTimeout(timeoutInSeconds);
-		runnerWithSleep.run(position);
+		level5b.setDelay(delayInSeconds);
+		runner.setDevices(asList(level5a, level5b));
+		runner.setTimeout(timeoutInSeconds);
+		runner.run(position);
+	}
+
+	@Test
+	public void testTimeoutMessage() {
+		// Exception message should contain only the device that has times out
+		final String expectedMessage = "The timeout of 1s has been reached waiting for level 5 device(s): ScannableForTest [level=5, name=level5b, value=52.0]";
+		level5b.setDelay(2);
+		runner.setDevices(asList(level5a, level5b));
+		runner.setTimeout(1);
+		try {
+			runner.run(position);
+			fail("Expected to throw an exception due to timeout");
+		} catch (ScanningException e) {
+			assertEquals(expectedMessage, e.getMessage());
+		}
 	}
 
 	@Test(expected = ScanningException.class)
@@ -300,6 +315,8 @@ public class LevelRunnerTest {
 		protected List<TestTask> tasksCreated = new ArrayList<>();
 		protected List<TestTask> tasksRun = new ArrayList<>();
 
+		private boolean throwsException = false;
+
 		protected LevelRunnerForTest(INameable device) {
 			super(device);
 		}
@@ -316,9 +333,16 @@ public class LevelRunnerTest {
 			// Register the create
 			tasksCreated.add(task);
 
-			// Register the call, but we don't need to the Callable to do anything
 			return () -> {
+				if (throwsException ) {
+					throw new ScanningException("Exception running device");
+				}
+				// Register the call and delay if set, but we don't need to the Callable to do anything else
 				tasksRun.add(task);
+				final int delay = ((ScannableForTest) levelObject).getDelay();
+				if (delay > 0) {
+					Thread.sleep(delay * 1000);
+				}
 				return null;
 			};
 		}
@@ -339,48 +363,9 @@ public class LevelRunnerTest {
 		public List<TestTask> getTasksRun() {
 			return tasksRun;
 		}
-	}
 
-	/**
-	 * Further extension of {@link LevelRunner} creating tasks that fail
-	 */
-	private static class LevelRunnerThrowingException<L extends ILevel> extends LevelRunnerForTest<L> {
-
-		protected LevelRunnerThrowingException(INameable device) {
-			super(device);
-		}
-
-		@Override
-		protected Callable<IPosition> create(ILevel levelObject, IPosition position) throws ScanningException {
-			return () -> {
-				throw new ScanningException("Exception running device");
-			};
-		}
-	}
-
-	/**
-	 * Extension of {@link LevelRunner} creating tasks that take a (configurable) time to execute
-	 * <p>
-	 * This allows testing of timeouts
-	 */
-	private static class LevelRunnerWithSleep<L extends ILevel> extends LevelRunnerForTest<L> {
-
-		private int sleep = 0; // Delay in ms
-
-		protected LevelRunnerWithSleep(INameable device) {
-			super(device);
-		}
-
-		@Override
-		protected Callable<IPosition> create(ILevel levelObject, IPosition position) throws ScanningException {
-			return () -> {
-				Thread.sleep(sleep);
-				return null;
-			};
-		}
-
-		public void setSleep(int sleep) {
-			this.sleep = sleep;
+		public void setThrowsException(boolean throwsException) {
+			this.throwsException = throwsException;
 		}
 	}
 
@@ -403,12 +388,13 @@ public class LevelRunnerTest {
 	}
 
 	/**
-	 * Simple implementaton of IScannable
+	 * Simple implementation of IScannable, with the ability to specify delay time, for testing timeout
 	 */
 	private static class ScannableForTest implements IScannable<Double> {
 		private int level;
 		private String name;
 		private double value;
+		private int delay = 0; // delay time in seconds
 
 		public ScannableForTest(int level, String name, double value) {
 			this.level = level;
@@ -450,6 +436,14 @@ public class LevelRunnerTest {
 		@Override
 		public String toString() {
 			return "ScannableForTest [level=" + level + ", name=" + name + ", value=" + value + "]";
+		}
+
+		public int getDelay() {
+			return delay;
+		}
+
+		public void setDelay(int delay) {
+			this.delay = delay;
 		}
 	}
 }
