@@ -28,7 +28,7 @@ public class ServiceGrabber {
 		return beanService;
 	}
 
-	public static void setBeanService(IBeanService bs) {
+	public void setBeanService(IBeanService bs) {
 		beanService = bs;
 	}
 }
