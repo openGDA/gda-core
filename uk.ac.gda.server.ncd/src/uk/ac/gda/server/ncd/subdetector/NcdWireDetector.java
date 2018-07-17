@@ -36,7 +36,7 @@ import gda.factory.FactoryException;
 /**
  * A class to represent a detector for NCD.
  */
-public class NcdWireDetector extends NcdSubDetector implements INcdSubDetector {
+public class NcdWireDetector extends NcdSubDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdWireDetector.class);
 	protected Gdhist memory = null;
