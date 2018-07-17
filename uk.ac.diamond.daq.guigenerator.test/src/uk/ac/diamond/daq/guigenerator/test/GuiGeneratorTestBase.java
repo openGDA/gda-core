@@ -24,8 +24,9 @@ public class GuiGeneratorTestBase extends SWTTestBase {
 
 	@BeforeClass
 	public static void initialiseGuiGeneratorService() {
-		GuiGeneratorService.addDomInspector(new RichbeansAnnotationsInspector());
-		GuiGeneratorService.addDomInspector(new MetawidgetAnnotationInspector());
+		GuiGeneratorService guiGeneratorService = new GuiGeneratorService();
+		guiGeneratorService.addDomInspector(new RichbeansAnnotationsInspector());
+		guiGeneratorService.addDomInspector(new MetawidgetAnnotationInspector());
 	}
 
 	@Before

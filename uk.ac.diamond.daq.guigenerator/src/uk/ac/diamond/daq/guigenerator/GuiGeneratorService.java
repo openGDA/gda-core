@@ -63,12 +63,12 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 	// This is a workaround to get metadata from annotations and beans in org.eclipse.scanning.api, when we are not
 	// allowed a dependency in either direction between the richbeans and scanning projects. Somewhere else in the GDA
 	// codebase we will need a metawidget inspector to register as an OSGi service and inspect the scanning beans.
-	public static synchronized void addDomInspector(DomInspector<?> inspector) {
+	public synchronized void addDomInspector(DomInspector<?> inspector) {
 		DOM_INSPECTORS.add(inspector);
 		updateCompositeInspector();
 	}
 
-	public static synchronized void removeDomInspector(DomInspector<?> inspector) {
+	public synchronized void removeDomInspector(DomInspector<?> inspector) {
 		DOM_INSPECTORS.remove(inspector);
 		updateCompositeInspector();
 	}

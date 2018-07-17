@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.guigenerator.example;
 
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -22,7 +21,7 @@ public abstract class GuiGeneratorRunnerBase<T> {
 
 	private Display display;
 	private Shell shell;
-	private IGuiGeneratorService guiGenerator;
+	private GuiGeneratorService guiGenerator;
 
 	/**
 	 * Display a window containing an auto-generated GUI. This method will return when the user closes the window.
@@ -62,9 +61,9 @@ public abstract class GuiGeneratorRunnerBase<T> {
 
 	private void initializeGuiGenerator() {
 		// Add annotation inspectors to the GUI generator service. Normally this would be done automatically by OSGi.
-		GuiGeneratorService.addDomInspector(new RichbeansAnnotationsInspector());
-		GuiGeneratorService.addDomInspector(new MetawidgetAnnotationInspector());
 		guiGenerator = new GuiGeneratorService();
+		guiGenerator.addDomInspector(new RichbeansAnnotationsInspector());
+		guiGenerator.addDomInspector(new MetawidgetAnnotationInspector());
 	}
 
 	private void displayShell() {
