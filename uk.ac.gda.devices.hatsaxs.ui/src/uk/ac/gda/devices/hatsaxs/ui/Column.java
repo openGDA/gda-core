@@ -258,6 +258,9 @@ public abstract class Column<T,V> {
 	}
 	public abstract V getRealValue(T element);
 	public abstract void setNewValue(T element, String value);
+	public void setNewValue(T element, Object value) {
+		setNewValue(element, value.toString());
+	}
 	public int getWidth() {
 		return this.width;
 	}
