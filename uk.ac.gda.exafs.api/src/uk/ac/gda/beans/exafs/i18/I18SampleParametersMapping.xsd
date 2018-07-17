@@ -20,8 +20,6 @@
 								minOccurs="1" />
 							<xsd:element name="z" type="xsd:double" maxOccurs="1"
 								minOccurs="1" />
-							<xsd:element name="disable" type="xsd:boolean" maxOccurs="1"
-								minOccurs="0" />
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
