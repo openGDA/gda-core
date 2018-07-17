@@ -22,13 +22,12 @@ package uk.ac.gda.devices.bssc;
 import java.util.Hashtable;
 
 import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends Plugin implements BundleActivator {
+public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.gda.devices.bssc"; //$NON-NLS-1$
