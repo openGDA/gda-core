@@ -20,7 +20,6 @@ package gda.util.userOptions;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,7 +40,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
  * UserOptions Class Use TreeMap as it is sorted by the key as opposed to HashMaps which are not.
  */
 @SuppressWarnings( { "unchecked", "rawtypes" })
-public class UserOptions extends java.util.LinkedHashMap<String, UserOption> implements Serializable {
+public class UserOptions extends java.util.LinkedHashMap<String, UserOption> {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserOptions.class);
 

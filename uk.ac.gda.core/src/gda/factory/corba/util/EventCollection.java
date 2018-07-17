@@ -20,10 +20,9 @@ package gda.factory.corba.util;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class EventCollection extends ArrayList<Object> implements Serializable {
+public class EventCollection extends ArrayList<Object> {
 
 	private static final int ELEMENT_STRING_LIMIT = 20;
 

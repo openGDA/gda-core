@@ -66,7 +66,7 @@ import gda.scan.IScanDataPoint;
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
  */
-public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
+public class SixdNexusDataWriter extends DataWriterBase {
 
 	/**
 	 * Property to control the level of instrumentation of the nexus api

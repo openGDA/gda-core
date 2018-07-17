@@ -37,7 +37,7 @@ import gda.data.PathConstructor;
  * <P>
  * The files created use names which are an increment from the last name. Files are named in the format 0001.dat
  */
-public abstract class IncrementalFile extends DataWriterBase implements DataWriter {
+public abstract class IncrementalFile extends DataWriterBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(IncrementalFile.class);
 

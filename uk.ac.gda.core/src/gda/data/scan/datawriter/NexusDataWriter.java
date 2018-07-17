@@ -89,7 +89,7 @@ import gda.util.QuantityFactory;
 /**
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
  */
-public class NexusDataWriter extends DataWriterBase implements DataWriter {
+public class NexusDataWriter extends DataWriterBase {
 	private static final String INSTRUMENT = "instrument";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);

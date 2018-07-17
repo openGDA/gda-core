@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An extension to the GeneralTranslator class for the Diamond I16 Materials and Magnetism beamline.
  */
-public class MMTranslator extends GeneralTranslator implements Translator {
+public class MMTranslator extends GeneralTranslator {
 
 	private static final Logger logger = LoggerFactory.getLogger(MMTranslator.class);
 

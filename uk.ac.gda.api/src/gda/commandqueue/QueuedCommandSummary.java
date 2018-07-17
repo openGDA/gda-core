@@ -18,14 +18,12 @@
 
 package gda.commandqueue;
 
-import java.io.Serializable;
-
 /**
  * QueuedCommandSummary is used to provide a summary of the Commands in a CommandQueue
  * For contains the unique CommandId that can be used in calls to manipulate the
  * Queue and a descriptive string to display to the user
  */
-public class QueuedCommandSummary implements CommandSummary, Serializable{
+public class QueuedCommandSummary implements CommandSummary {
 	final public CommandId id;
 	final public CommandSummary commandSummary;
 	public QueuedCommandSummary(CommandId id, CommandSummary commandSummary) {

@@ -33,7 +33,7 @@ import gda.jython.authenticator.LdapMixin;
  * Extension to the FileAuthoriser which fetches information from an ldap server if the account is not listed in the xml
  * files.
  */
-public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
+public class LdapAuthoriser extends FileAuthoriser {
 
 	/**
 	 * The java property to use to define which class of Authenticator to use

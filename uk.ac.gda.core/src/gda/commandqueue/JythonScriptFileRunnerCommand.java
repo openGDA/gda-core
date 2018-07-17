@@ -19,7 +19,6 @@
 package gda.commandqueue;
 
 import java.io.File;
-import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ import gda.observable.IObserver;
  * JythonScriptFileRunnerCommand is an implementation of Command whose run method runs the script file set by the
  * setScriptFile method in the CommandRunner
  */
-public class JythonScriptFileRunnerCommand extends CommandBase implements Serializable {
+public class JythonScriptFileRunnerCommand extends CommandBase {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonScriptFileRunnerCommand.class);
 

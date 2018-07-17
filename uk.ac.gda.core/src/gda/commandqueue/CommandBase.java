@@ -21,8 +21,6 @@ package gda.commandqueue;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-import java.io.Serializable;
-
 /**
  * The class provides default implementations Command interface methods:
  * getDescription and getState
@@ -33,7 +31,7 @@ import java.io.Serializable;
  * is set correctly
  *
  */
-public abstract class CommandBase implements Command, Serializable {
+public abstract class CommandBase implements Command {
 	protected ObservableComponent obsComp = new ObservableComponent();
 
 	STATE state=STATE.NOT_STARTED;

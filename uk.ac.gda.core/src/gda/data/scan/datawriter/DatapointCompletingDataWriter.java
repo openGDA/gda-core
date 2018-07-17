@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatapointCompletingDataWriter extends DataWriterBase implements DataWriter {
+public class DatapointCompletingDataWriter extends DataWriterBase {
 
 	private DataWriter sink;
 

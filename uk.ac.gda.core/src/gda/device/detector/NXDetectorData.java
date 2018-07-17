@@ -19,7 +19,6 @@
 
 package gda.device.detector;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ import gda.device.scannable.ScannableUtils;
 /**
  * Basic class which wrappers up a lot of nexus calls so that detectors can integrate more easily
  */
-public class NXDetectorData implements GDANexusDetectorData, Serializable {
+public class NXDetectorData implements GDANexusDetectorData {
 
 	public static final String DATA_FILE_CLASS_NAME = "data_file";
 	public static final String FILE_NAME_NODE_NAME = "file_name";

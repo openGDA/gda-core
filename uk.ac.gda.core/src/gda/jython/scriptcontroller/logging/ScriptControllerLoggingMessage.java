@@ -20,15 +20,13 @@ package gda.jython.scriptcontroller.logging;
 
 import gda.commandqueue.CommandProgress;
 
-import java.io.Serializable;
-
 /**
  * Beans which are sent used by a script to send messages to its ScriptContoller.
  * <p>
  * The broadcast of the beans are logged in a database by the ScriptContoller. The method which provide data should be
  * marked by annotation.
  */
-public interface ScriptControllerLoggingMessage extends Serializable, CommandProgress{
+public interface ScriptControllerLoggingMessage extends CommandProgress{
 
 	@ScriptControllerLogColumn(columnName = "Visit ID", refresh = false, columnIndex = -1)
 	public String getVisitID();

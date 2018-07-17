@@ -18,9 +18,7 @@
 
 package gda.commandqueue;
 
-import java.io.Serializable;
-
-public class SimpleCommandProgress implements Serializable, CommandProgress {
+public class SimpleCommandProgress implements CommandProgress {
 	float percentDone;
 	String msg;
 

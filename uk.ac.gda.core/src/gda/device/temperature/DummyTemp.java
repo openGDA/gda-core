@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Temperature;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
@@ -35,7 +34,7 @@ import gda.util.PollerEvent;
 /**
  * Simulator device for temperature controllers
  */
-public class DummyTemp extends TemperatureBase implements Temperature {
+public class DummyTemp extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemp.class);
 

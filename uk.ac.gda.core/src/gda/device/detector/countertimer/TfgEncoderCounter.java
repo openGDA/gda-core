@@ -19,7 +19,6 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.Memory;
 import gda.factory.FactoryException;
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * be part of a TfgScaler combination there is a slave mode. In this mode methods which set things on the Tfg do
  * nothing.
  */
-public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
+public class TfgEncoderCounter extends TFGCounterTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgEncoderCounter.class);
 
