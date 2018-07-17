@@ -32,7 +32,7 @@ import gda.factory.corba.util.CorbaImplClass;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoVCT6 extends gda.device.detector.DetectorBase implements Detector {
+public class TangoVCT6 extends gda.device.detector.DetectorBase {
 //	private static final Logger logger = LoggerFactory.getLogger(TangoVCT6.class);
 
 	private TangoDeviceProxy deviceProxy;

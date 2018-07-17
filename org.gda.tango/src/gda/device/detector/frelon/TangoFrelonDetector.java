@@ -20,7 +20,6 @@ package gda.device.detector.frelon;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceAttribute;
@@ -39,7 +38,7 @@ import gda.observable.IObserver;
 
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoFrelonDetector extends TangoLimaDetector implements InitializingBean, IObserver {
+public class TangoFrelonDetector extends TangoLimaDetector implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoFrelonDetector.class);
 	private TangoDeviceProxy dev = null;

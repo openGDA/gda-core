@@ -29,7 +29,7 @@ import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TangoDeviceProxy;
 
-public class TangoSerial extends SerialBase implements Serial, InitializingBean {
+public class TangoSerial extends SerialBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoSerial.class);
 	private TangoDeviceProxy tangoDeviceProxy;

@@ -20,7 +20,6 @@ package gda.device.lima.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import fr.esrf.Tango.DevError;
 import fr.esrf.Tango.DevFailed;
@@ -35,7 +34,7 @@ import gda.device.lima.LimaFlip;
 import gda.device.lima.LimaROIInt;
 import gda.device.lima.LimaSavingHeaderDelimiter;
 
-public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
+public class LimaCCDImpl extends BaseImpl implements LimaCCD {
 
 	private static final Logger logger = LoggerFactory.getLogger(LimaCCDImpl.class);
 

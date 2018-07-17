@@ -32,7 +32,7 @@ import gda.factory.corba.util.CorbaImplClass;
 
 @CorbaAdapterClass(CountertimerAdapter.class)
 @CorbaImplClass(CountertimerImpl.class)
-public class TangoCounterTimer extends gda.device.detector.DetectorBase implements Detector {
+public class TangoCounterTimer extends gda.device.detector.DetectorBase {
 //	private static final Logger logger = LoggerFactory.getLogger(TangoCounterTimer.class);
 
 	// Attribute names defined by the Tango CounterTimer API

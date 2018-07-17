@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TangoCcd extends DetectorBase implements Detector {
+public class TangoCcd extends DetectorBase {
 	private static final Logger logger = LoggerFactory.getLogger(TangoCcd.class);
 
 	private TangoDeviceProxy deviceProxy;

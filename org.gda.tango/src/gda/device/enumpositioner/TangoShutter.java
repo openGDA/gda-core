@@ -29,12 +29,11 @@ import org.slf4j.LoggerFactory;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.TangoDeviceProxy;
 import gda.factory.FactoryException;
 
-public class TangoShutter extends EnumPositionerBase implements EnumPositioner {
+public class TangoShutter extends EnumPositionerBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoShutter.class);
 	private TangoDeviceProxy dev;

@@ -32,14 +32,13 @@ import gda.factory.corba.util.CorbaImplClass;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Mythen counter timer detectors interface.
  */
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoMythenDetectorCT extends TangoLimaDetector implements InitializingBean {
+public class TangoMythenDetectorCT extends TangoLimaDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoMythenDetectorCT.class);
 	private TangoDeviceProxy tangoDeviceProxy = null;

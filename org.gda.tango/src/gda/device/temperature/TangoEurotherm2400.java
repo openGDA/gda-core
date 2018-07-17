@@ -30,13 +30,12 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceData;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
-import gda.device.Temperature;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.util.PollerEvent;
 
-public class TangoEurotherm2400 extends TemperatureBase implements Temperature, InitializingBean {
+public class TangoEurotherm2400 extends TemperatureBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoEurotherm2400.class);
 	private final static double MAXTEMP = 900.0;

@@ -25,7 +25,6 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DeviceAttribute;
 import gda.device.DeviceException;
-import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.TangoDeviceProxy;
@@ -35,7 +34,7 @@ import gda.factory.FactoryException;
 /**
  * A class to control a Tango motor
  */
-public class TangoSpecMotor extends MotorBase implements Motor {
+public class TangoSpecMotor extends MotorBase {
 	private static final Logger logger = LoggerFactory.getLogger(TangoSpecMotor.class);
 
 	private volatile MotorStatus motorStatus = MotorStatus.UNKNOWN;
