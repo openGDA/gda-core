@@ -19,10 +19,6 @@
 
 package gda.scan;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-
 import java.lang.reflect.Array;
 import java.util.Vector;
 
@@ -31,10 +27,14 @@ import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+
 /**
  * Wrapper for the ConcurrentScan, except it takes centroid, width, step as arguments.
  */
-public class CentroidScan extends ScanBase implements Scan {
+public class CentroidScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(CentroidScan.class);
 

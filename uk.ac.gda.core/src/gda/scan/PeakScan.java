@@ -19,16 +19,16 @@
 
 package gda.scan;
 
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.scan.datawriter.DataWriterBase;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
-
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Given a scannable step through, and a detector to observe, finds the peak value from the detector in that region.
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * [algorithm] relates to which algorithm will be used to determine the peak's properties. If no algorithm is given,
  * then no peak finding calculation will be made and the position of the maximum detector readout will be the peak.
  */
-public class PeakScan extends ConcurrentScan implements Scan {
+public class PeakScan extends ConcurrentScan {
 
 	private static final Logger logger = LoggerFactory.getLogger(PeakScan.class);
 

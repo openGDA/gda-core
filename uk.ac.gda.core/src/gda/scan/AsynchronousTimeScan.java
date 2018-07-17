@@ -19,12 +19,6 @@
 
 package gda.scan;
 
-import gda.device.AsynchronousDetector;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.DummyScannable;
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Vector;
@@ -32,11 +26,17 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.AsynchronousDetector;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
+
 /**
  * An asynchronous timeScan that can be started collecting data and read out at intervals during continuous data
  * collection
  */
-public class AsynchronousTimeScan extends ScanBase implements Scan {
+public class AsynchronousTimeScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsynchronousTimeScan.class);
 
