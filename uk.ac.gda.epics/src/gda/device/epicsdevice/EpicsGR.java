@@ -21,12 +21,10 @@ package gda.device.epicsdevice;
 import gov.aps.jca.dbr.GR;
 import gov.aps.jca.dbr.PRECISION;
 
-import java.io.Serializable;
-
 /**
  * EpicsGR Class
  */
-public class EpicsGR extends EpicsTime implements Serializable {
+public class EpicsGR extends EpicsTime {
 	/**
 	 *
 	 */

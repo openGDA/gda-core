@@ -18,12 +18,10 @@
 
 package gda.epics;
 
-import java.io.Serializable;
-
 /**
  * A Device Exception class
  */
-public class EpicsException extends Exception implements Serializable {
+public class EpicsException extends Exception {
 	/**
 	 * Create a EPICS exception.
 	 *

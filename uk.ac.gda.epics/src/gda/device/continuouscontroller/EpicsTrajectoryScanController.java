@@ -31,9 +31,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.TrajectoryScanType;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -57,7 +55,7 @@ import gov.aps.jca.event.MonitorListener;
  * </ol>
  * Detector data collection will be handled by MCA object.
  */
-public class EpicsTrajectoryScanController extends DeviceBase implements TrajectoryScanController, InitializationListener, Configurable, Findable {
+public class EpicsTrajectoryScanController extends DeviceBase implements TrajectoryScanController, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTrajectoryScanController.class);
 

@@ -1262,7 +1262,7 @@ public class LazyPVFactory {
 
 	}
 
-	static private class StringFromWaveform extends AbstractPVAdapter<Byte[], String> implements PV<String> {
+	static private class StringFromWaveform extends AbstractPVAdapter<Byte[], String> {
 
 		private StringFromWaveform(PV<Byte[]> byteArrayPV) {
 			super(byteArrayPV);
@@ -1285,7 +1285,7 @@ public class LazyPVFactory {
 
 	}
 
-	static private class BooleanFromInteger extends AbstractPVAdapter<Integer, Boolean> implements PV<Boolean> {
+	static private class BooleanFromInteger extends AbstractPVAdapter<Integer, Boolean> {
 
 		private BooleanFromInteger(LazyPV<Integer> pv) {
 			super(pv);
@@ -1308,7 +1308,7 @@ public class LazyPVFactory {
 
 	}
 
-	static private class BooleanFromShort extends AbstractPVAdapter<Short, Boolean> implements PV<Boolean> {
+	static private class BooleanFromShort extends AbstractPVAdapter<Short, Boolean> {
 
 		private BooleanFromShort(LazyPV<Short> pv) {
 			super(pv);
@@ -1331,7 +1331,7 @@ public class LazyPVFactory {
 
 	}
 
-	static private class BooleanFromDouble extends AbstractPVAdapter<Double, Boolean> implements PV<Boolean> {
+	static private class BooleanFromDouble extends AbstractPVAdapter<Double, Boolean> {
 
 		private BooleanFromDouble(LazyPV<Double> pv) {
 			super(pv);

@@ -20,7 +20,6 @@ package gda.device.currentamplifier;
 
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
-import gda.device.Scannable;
 
 /**
  * Interface used for Stanford current amplifier - used by
@@ -28,7 +27,7 @@ import gda.device.Scannable;
  *
  * @since 12/10/2016
  */
-public interface StanfordAmplifier extends Scannable, CurrentAmplifier {
+public interface StanfordAmplifier extends CurrentAmplifier {
 
 	public int getSensitivity() throws DeviceException;
 

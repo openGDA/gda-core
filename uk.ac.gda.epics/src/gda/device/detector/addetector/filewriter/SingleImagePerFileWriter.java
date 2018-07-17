@@ -23,7 +23,6 @@ import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
-import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitor;
 import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *   SingleImagePerFileWriter();
  *   SingleImagePerFileWriter("detectorName");
  */
-public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin{
+public class SingleImagePerFileWriter extends FileWriterBase {
 
 	protected static final String FILEPATH_EXTRANAME = "filepath";
 	protected static final String DEFAULT_FILEWRITERNAME = "tifwriter";

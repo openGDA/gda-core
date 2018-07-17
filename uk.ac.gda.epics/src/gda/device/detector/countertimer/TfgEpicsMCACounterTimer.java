@@ -25,7 +25,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.adc.EpicsADC;
 import gda.device.detector.analyser.EpicsMCARegionOfInterest;
@@ -38,7 +37,7 @@ import gda.scan.Scan;
  * Represents a Tfg and EpicsMCA acting as a CounterTimer combination. Since the Tfg will generally also be part of a
  * TfgScaler combination there is a slave mode. In this mode methods which set things on the Tfg do nothing.
  */
-public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterTimer {
+public class TfgEpicsMCACounterTimer extends TFGCounterTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgEpicsMCACounterTimer.class);
 

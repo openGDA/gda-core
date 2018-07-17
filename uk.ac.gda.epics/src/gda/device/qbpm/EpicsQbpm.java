@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Monitor;
 import gda.device.Qbpm;
@@ -37,7 +36,7 @@ import gda.factory.Finder;
 /**
  * EpicsQbpm Class
  */
-public class EpicsQbpm extends EnumPositionerBase implements Monitor, InitializationListener, EnumPositioner, Qbpm {
+public class EpicsQbpm extends EnumPositionerBase implements Monitor, InitializationListener, Qbpm {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQbpm.class);
 

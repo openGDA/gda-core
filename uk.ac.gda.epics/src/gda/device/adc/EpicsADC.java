@@ -18,8 +18,6 @@
 
 package gda.device.adc;
 
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +149,7 @@ public class EpicsADC extends DeviceBase implements Adc, InitializationListener 
 	/**
 	 * gmod enum
 	 */
-	public enum gmodEnum implements Serializable {
+	public enum gmodEnum {
 		/**
 		 *
 		 */
@@ -190,7 +188,7 @@ public class EpicsADC extends DeviceBase implements Adc, InitializationListener 
 	/**
 	 * amod enum
 	 */
-	public enum amodEnum implements Serializable {
+	public enum amodEnum {
 		/**
 		 *
 		 */

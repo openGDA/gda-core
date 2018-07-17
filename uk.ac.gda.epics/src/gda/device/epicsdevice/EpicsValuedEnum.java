@@ -18,12 +18,10 @@
 
 package gda.device.epicsdevice;
 
-import java.io.Serializable;
-
 /**
  * EpicsValuedEnum Class
  */
-public class EpicsValuedEnum extends EpicsSimpleEnum implements Serializable {
+public class EpicsValuedEnum extends EpicsSimpleEnum {
 	final static long serialVersionUID = 1;
 	/**
 	 *

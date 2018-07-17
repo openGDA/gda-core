@@ -21,12 +21,10 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.v17.NDParallelHDF;
 import gda.epics.CachedLazyPVFactory;
 
-import org.springframework.beans.factory.InitializingBean;
-
 /**
  * class to implement the Area Detector Parallel-HDF plugin
  */
-public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, InitializingBean {
+public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF {
 
 	private static final String ROI_POS2 = "RoiPos2";
 	private static final String ROI_POS2_RBV = "RoiPos2_RBV";

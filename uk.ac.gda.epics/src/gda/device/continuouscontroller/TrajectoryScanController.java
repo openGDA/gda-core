@@ -20,13 +20,11 @@ package gda.device.continuouscontroller;
 
 import gda.device.Device;
 import gda.device.DeviceException;
-import gda.factory.Configurable;
-import gda.factory.Findable;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-public interface TrajectoryScanController extends Device, Configurable, Findable {
+public interface TrajectoryScanController extends Device {
 	public enum TrajectoryScanProperty {
 		/** */
 		BUILD,

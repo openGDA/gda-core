@@ -21,12 +21,10 @@ package gda.device.epicsdevice;
 import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.dbr.LABELS;
 
-import java.io.Serializable;
-
 /**
  * EpicsLabelsEnum Class
  */
-public class EpicsLabelsEnum extends EpicsSTS implements Serializable, LABELS {
+public class EpicsLabelsEnum extends EpicsSTS implements LABELS {
 	protected String[] strings;
 
 	EpicsLabelsEnum(DBR_LABELS_Enum lblsEnum) {

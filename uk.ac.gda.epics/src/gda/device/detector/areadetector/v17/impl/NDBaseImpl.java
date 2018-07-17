@@ -18,11 +18,10 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import gda.device.detector.areadetector.v17.ADCommon;
 import gda.device.detector.areadetector.v17.GetPluginBaseAvailable;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 
-public abstract class NDBaseImpl implements ADCommon, GetPluginBaseAvailable {
+public abstract class NDBaseImpl implements GetPluginBaseAvailable {
 
 	private NDPluginBase pluginBase;
 
