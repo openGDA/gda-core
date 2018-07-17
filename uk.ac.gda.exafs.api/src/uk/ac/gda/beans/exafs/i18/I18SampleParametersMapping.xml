@@ -33,6 +33,15 @@
 		<field name="z" type="double">
 			<bind-xml name="z" node="element" />
 		</field>
+		<field name="xName" type="string">
+			<bind-xml name="xName" node="element" />
+		</field>
+		<field name="yName" type="string">
+			<bind-xml name="yName" node="element" />
+		</field>
+		<field name="zName" type="string">
+			<bind-xml name="zName" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.i18.AttenuatorParameters">

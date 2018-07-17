@@ -159,6 +159,22 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 	private void createSampleStageSection(Composite section) {
 
 		// controls
+		Label selectionLabel = new Label(section, SWT.NONE);
+		selectionLabel.setText("Selected stage");
+		RIGHT_ALIGN.applyTo(selectionLabel);
+
+		Composite stageSelection = new Composite(section, SWT.NONE);
+		TWO_COLUMN_LAYOUT.applyTo(stageSelection);
+		STRETCH.applyTo(stageSelection);
+
+		Button stage1 = new Button(stageSelection, SWT.RADIO);
+		stage1.setText("Table 1");
+		STRETCH.applyTo(stage1);
+
+		Button stage2 = new Button(stageSelection, SWT.RADIO);
+		stage2.setText("Table 3"); // [sic] blame the beamline staff
+		STRETCH.applyTo(stage2);
+
 		Label xLabel = new Label(section, SWT.NONE);
 		RIGHT_ALIGN.applyTo(xLabel);
 		xLabel.setText("X");
@@ -190,6 +206,18 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		// bindings
 		SampleStageParameters bean = getBean().getSampleStageParameters();
 
+		if (bean.getXName().equals("t1x")) stage1.setSelection(true);
+		else if (bean.getXName().equals("t3x")) stage2.setSelection(true);
+
+		stage1.addListener(SWT.Selection, event -> {
+			selectStage("t1", bean);
+			beanChanged();
+		});
+		stage2.addListener(SWT.Selection, event -> {
+			selectStage("t3", bean);
+			beanChanged();
+		});
+
 		x.setText(String.valueOf(bean.getX()));
 		x.addListener(SWT.Modify, event -> {
 			bean.setX(Double.parseDouble(x.getText()));
@@ -212,9 +240,9 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 
 			Finder finder = Finder.getInstance();
 
-			Scannable xAxis = finder.find("t1x");
-			Scannable yAxis = finder.find("t1y");
-			Scannable zAxis = finder.find("t1z");
+			Scannable xAxis = finder.find(bean.getXName());
+			Scannable yAxis = finder.find(bean.getYName());
+			Scannable zAxis = finder.find(bean.getZName());
 
 			try {
 				double xPos = (double) xAxis.getPosition();
@@ -235,6 +263,12 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 			}
 
 		});
+	}
+
+	private void selectStage(String stagePrefix, SampleStageParameters bean) {
+		bean.setXName(stagePrefix + "x");
+		bean.setYName(stagePrefix + "y");
+		bean.setZName(stagePrefix + "z");
 	}
 
 	private void createAttenuatorsSection(Composite section) {
