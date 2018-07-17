@@ -20,15 +20,15 @@
 package gda.scan;
 
 
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.jython.JythonServerFacade;
-
 import java.util.TreeMap;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.jython.JythonServerFacade;
 
 /**
  * Zac stands for Zero Acceleration
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * all detectors are assumed capable of storing data frame by frame so that
  * it can be read out at the end of the scan.
  */
-public class ZacScan extends ScanBase implements Scan {
+public class ZacScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZacScan.class);
 

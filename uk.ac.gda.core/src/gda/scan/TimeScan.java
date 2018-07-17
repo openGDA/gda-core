@@ -19,11 +19,6 @@
 
 package gda.scan;
 
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.Detector;
-import gda.device.detector.DetectorBase;
-import gda.device.scannable.DummyScannable;
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,13 +26,18 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.Detector;
+import gda.device.detector.DetectorBase;
+import gda.device.scannable.DummyScannable;
+
 /**
  * Performs a TimeScan experiments. In this scan, no beamline settings are changed - data is collected from a detector
  * for periods of CollectTime, with periods of PauseTime in between up to a total time of TotalTime.
  * <p>
  * Time units are seconds.
  */
-public class TimeScan extends ScanBase implements Scan {
+public class TimeScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeScan.class);
 

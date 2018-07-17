@@ -19,20 +19,20 @@
 
 package gda.scan;
 
-import gda.device.Scannable;
-import gda.device.scannable.DummyScannable;
-
 import java.text.DateFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
+
 /**
  * A scan which operates over one or more pseudo devices and reads out their current position at fixed time intervals.
  * It makes no attempt to move them.
  */
-public class PseudoDeviceTimeScan extends ScanBase implements Scan {
+public class PseudoDeviceTimeScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(PseudoDeviceTimeScan.class);
 

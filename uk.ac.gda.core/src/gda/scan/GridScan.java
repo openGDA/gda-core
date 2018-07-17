@@ -19,15 +19,15 @@
 
 package gda.scan;
 
+import org.python.core.PyList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.ScriptAdapter;
-
-import org.python.core.PyList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class to control the stepped movement of a Scannable object.
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * At each step, after movement, the readout() method of all object in the DetectorBase.activeDetectors arraylist is
  * called.
  */
-public class GridScan extends ScanBase implements Scan {
+public class GridScan extends ScanBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(GridScan.class);
 

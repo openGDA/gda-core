@@ -19,14 +19,14 @@
 
 package gda.scan;
 
-import gda.device.Scannable;
-
 import java.util.Vector;
+
+import gda.device.Scannable;
 
 /**
  * Wrapper for the ConcurrentScan, except it takes start,step,number of points as arguments.
  */
-public class PointsScan extends PassthroughScanAdapter implements Scan {
+public class PointsScan extends PassthroughScanAdapter {
 
 
 	/**
