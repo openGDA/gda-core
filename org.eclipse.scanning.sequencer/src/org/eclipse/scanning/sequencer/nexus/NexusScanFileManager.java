@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -250,16 +251,28 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 
 	@SuppressWarnings({"squid:S1452", "squid:S3776"})
 	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {
+		logger.trace("extractNexusProviders() called");
 		Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = new EnumMap<>(ScanRole.class);
 		for (ScanRole deviceType: ScanRole.values()) {
+			logger.trace("extractNexusProviders deviceType={}", deviceType);
 			final Collection<INexusDevice<?>> nexusDevicesForType = nexusDevices.get(deviceType);
 			final List<NexusObjectProvider<?>> nexusObjectProvidersForType =
 					new ArrayList<>(nexusDevicesForType.size());
 			for (INexusDevice<?> nexusDevice : nexusDevicesForType) {
+				logger.trace("extractNexusProviders nexusDevice={}", nexusDevice);
 				try {
 					NexusObjectProvider<?> nexusProvider = nexusDevice.getNexusProvider(scanInfo);
 					if (nexusProvider != null) {
+						logger.trace("extractNexusProviders nexusProvider={}", nexusProvider);
 						nexusObjectProvidersForType.add(nexusProvider);
+					}
+					if (nexusDevice instanceof IMultipleNexusDevice) {
+						List<NexusObjectProvider<?>> nexusProviders = ((IMultipleNexusDevice) nexusDevice).getNexusProviders(scanInfo);
+						logger.trace("extractNexusProviders nexusProviders={}", nexusProviders);
+						// Do we want to only extract nexusProviders with matching scan roles?
+						for (NexusObjectProvider<?> nexusProvider2: nexusProviders) {
+							nexusObjectProvidersForType.add(nexusProvider2);
+						}
 					}
 				} catch (NexusException e) {
 					final String deviceName = (nexusDevice instanceof INameable) ? ((INameable) nexusDevice).getName() : "(unknown device)";

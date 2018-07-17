@@ -18,6 +18,9 @@
 
 package org.eclipse.scanning.sequencer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -99,6 +102,15 @@ public abstract class AbstractRunnableDeviceDelegate {
 		return null;
 	}
 
+	// Delegated interface IMultipleNexusDevice methods
+
+	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
+		logger.trace("getNexusProviders({}) on {} returning {}", info, runnableDeviceProxy.getName(), nexusObjectProviders);
+		return nexusObjectProviders;
+	}
+
+	// Nexus Objects wrapper helper functions
 
 	protected NexusObjectWrapper<NXobject> getNexusObjectWrapper(String name, NXobject nexusBaseClass) {
 		return new NexusObjectWrapper<NXobject>(name, nexusBaseClass);
