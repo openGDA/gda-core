@@ -19,7 +19,9 @@
 package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -237,25 +239,26 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 
 	private void createAttenuatorsSection(Composite section) {
 
-		// controls
+		Map<String, Combo> attenuators = new HashMap<>();
 
-		// TODO I18SampleParameters needs to have List<AttenuatorParameters>
-		// in which case we iterate through the list building identical controls.
-		// For the 'fetch' button later (single button to fetch all positions)
-		// we would need to keep a map of attenuator name to combo box
-		Label attn1Label = new Label(section, SWT.NONE);
-		attn1Label.setText("D7A");
-		RIGHT_ALIGN.applyTo(attn1Label);
+		for (AttenuatorParameters attenuator : getBean().getAttenuators()) {
+			Label label = new Label(section, SWT.NONE);
+			label.setText(attenuator.getName());
+			RIGHT_ALIGN.applyTo(label);
 
-		Combo attn1 = new Combo(section, SWT.READ_ONLY);
-		STRETCH.applyTo(attn1);
+			Combo combo = new Combo(section, SWT.READ_ONLY);
+			STRETCH.applyTo(combo);
 
-		Label attn2Label = new Label(section, SWT.NONE);
-		attn2Label.setText("D7B");
-		RIGHT_ALIGN.applyTo(attn2Label);
+			List<String> attn1Positions = attenuator.getPosition();
+			combo.setItems(attn1Positions.toArray(new String[0]));
+			combo.select(attn1Positions.indexOf(attenuator.getSelectedPosition()));
+			combo.addListener(SWT.Selection, event -> {
+				attenuator.setSelectedPosition(combo.getText());
+				beanChanged();
+			});
 
-		Combo attn2 = new Combo(section, SWT.READ_ONLY);
-		STRETCH.applyTo(attn2);
+			attenuators.put(attenuator.getName(), combo);
+		}
 
 		skipCell(section);
 
@@ -263,43 +266,20 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		fetch.setText("Fetch positions");
 		STRETCH.applyTo(fetch);
 
-
-		// binding
-		AttenuatorParameters a1Params = getBean().getAttenuatorParameter1();
-		List<String> attn1Positions = a1Params.getPosition();
-		attn1.setItems(attn1Positions.toArray(new String[0]));
-		attn1.select(attn1Positions.indexOf(a1Params.getSelectedPosition()));
-		attn1.addListener(SWT.Selection, event -> {
-			a1Params.setSelectedPosition(attn1.getText());
-			beanChanged();
-		});
-
-		AttenuatorParameters a2Params = getBean().getAttenuatorParameter2();
-		List<String> attn2Positions = a2Params.getPosition();
-		attn2.setItems(attn2Positions.toArray(new String[0]));
-		attn2.select(attn2Positions.indexOf(a2Params.getSelectedPosition()));
-		attn2.addListener(SWT.Selection, event -> {
-			a2Params.setSelectedPosition(attn2.getText());
-			beanChanged();
-		});
-
 		fetch.addListener(SWT.Selection, event -> {
 			Finder finder = Finder.getInstance();
-			Scannable a1Motor = finder.find("D7A");
-			Scannable a2Motor = finder.find("D7B");
-			try {
-				String a1Pos = (String) a1Motor.getPosition();
-				String a2Pos = (String) a2Motor.getPosition();
 
-				attn1.select(attn1Positions.indexOf(a1Pos));
-				attn2.select(attn2Positions.indexOf(a2Pos));
-
-				a1Params.setSelectedPosition(a1Pos);
-				a2Params.setSelectedPosition(a2Pos);
-
-				beanChanged();
-			} catch (DeviceException e) {
-				logger.error("Error fetching attenuator positions", e);
+			for (AttenuatorParameters attenuatorBean : getBean().getAttenuators()) {
+				String attenuatorName = attenuatorBean.getName();
+				Scannable attenuator = finder.find(attenuatorName);
+				try {
+					String position = (String) attenuator.getPosition();
+					attenuators.get(attenuatorName).select(attenuatorBean.getPosition().indexOf(position));
+					attenuatorBean.setSelectedPosition(position);
+					beanChanged();
+				} catch (DeviceException e) {
+					logger.error("Error getting position for attenuator {}", attenuatorName, e);
+				}
 			}
 		});
 	}

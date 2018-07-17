@@ -19,6 +19,7 @@
 package uk.ac.gda.beans.exafs.i18;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,8 +34,7 @@ public class I18SampleParameters implements ISampleParameters {
 
 	private String name = "";
 	private SampleStageParameters sampleStageParameters;
-	private AttenuatorParameters attenuatorParameter1;
-	private AttenuatorParameters attenuatorParameter2;
+	private List<AttenuatorParameters> attenuators = new ArrayList<>();
 	private String description = "";
 	private double vfmx;
 	private boolean vfmxActive;
@@ -47,20 +47,12 @@ public class I18SampleParameters implements ISampleParameters {
 		return sampleStageParameters;
 	}
 
-	public void setAttenuatorParameter1(AttenuatorParameters atp) {
-		this.attenuatorParameter1 = atp;
+	public List<AttenuatorParameters> getAttenuators() {
+		return attenuators;
 	}
 
-	public AttenuatorParameters getAttenuatorParameter1() {
-		return this.attenuatorParameter1;
-	}
-
-	public void setAttenuatorParameter2(AttenuatorParameters atp) {
-		this.attenuatorParameter2 = atp;
-	}
-
-	public AttenuatorParameters getAttenuatorParameter2() {
-		return this.attenuatorParameter2;
+	public void addAttenuator(AttenuatorParameters bean) {
+		if (!attenuators.contains(bean)) attenuators.add(bean);
 	}
 
 	public String getDescription() {
@@ -114,8 +106,7 @@ public class I18SampleParameters implements ISampleParameters {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((attenuatorParameter1 == null) ? 0 : attenuatorParameter1.hashCode());
-		result = prime * result + ((attenuatorParameter2 == null) ? 0 : attenuatorParameter2.hashCode());
+		result = prime * result + ((attenuators == null) ? 0 : attenuators.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((sampleStageParameters == null) ? 0 : sampleStageParameters.hashCode());
@@ -135,15 +126,10 @@ public class I18SampleParameters implements ISampleParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		I18SampleParameters other = (I18SampleParameters) obj;
-		if (attenuatorParameter1 == null) {
-			if (other.attenuatorParameter1 != null)
+		if (attenuators == null) {
+			if (other.attenuators != null)
 				return false;
-		} else if (!attenuatorParameter1.equals(other.attenuatorParameter1))
-			return false;
-		if (attenuatorParameter2 == null) {
-			if (other.attenuatorParameter2 != null)
-				return false;
-		} else if (!attenuatorParameter2.equals(other.attenuatorParameter2))
+		} else if (!attenuators.equals(other.attenuators))
 			return false;
 		if (description == null) {
 			if (other.description != null)
