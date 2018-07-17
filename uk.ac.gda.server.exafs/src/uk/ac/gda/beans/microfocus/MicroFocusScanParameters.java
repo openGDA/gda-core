@@ -18,7 +18,6 @@
 
 package uk.ac.gda.beans.microfocus;
 
-import java.io.Serializable;
 import java.net.URL;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -30,7 +29,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * Class for the Microfocus Scan parameters
  */
 
-public class MicroFocusScanParameters implements Serializable, IScanParameters {
+public class MicroFocusScanParameters implements IScanParameters {
 
 	static public final URL mappingURL = MicroFocusScanParameters.class.getResource("MicroFocusParameterMapping.xml");
 

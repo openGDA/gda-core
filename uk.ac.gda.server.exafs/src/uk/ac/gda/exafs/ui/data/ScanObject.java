@@ -40,7 +40,6 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
-import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
 import uk.ac.gda.server.exafs.scan.ScanType;
 import uk.ac.gda.util.beans.BeansFactory;
@@ -51,7 +50,7 @@ import uk.ac.gda.util.beans.xml.XMLRichBean;
  * This class looks a bit like a bean but it is not designed to be a bean. It is an interface to the .scan file. setting
  * the file names can also be committed to the file by calling the write() method.
  */
-public class ScanObject extends ExperimentObject implements IExperimentObject {
+public class ScanObject extends ExperimentObject {
 
 	public static final String DETECTORBEANTYPE = "Detector";
 	public static final String OUTPUTBEANTYPE = "Output";

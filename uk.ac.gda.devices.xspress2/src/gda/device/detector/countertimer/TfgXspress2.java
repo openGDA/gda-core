@@ -23,7 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -37,7 +36,7 @@ import uk.ac.gda.beans.xspress.XspressDetector;
  * This has a slave mode for when its used in the same scan as another class which triggers the tfg.
  */
 @Deprecated
-public class TfgXspress2 extends TFGCounterTimer implements CounterTimer {
+public class TfgXspress2 extends TFGCounterTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TfgXspress2.class);
 

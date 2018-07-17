@@ -20,13 +20,12 @@ package gda.device.detector.xmap;
 
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.XmapDetector;
 import gda.device.scannable.PositionCallableProvider;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CallableXmap extends NexusXmap implements XmapDetector, PositionCallableProvider<NexusTreeProvider> {
+public class CallableXmap extends NexusXmap implements PositionCallableProvider<NexusTreeProvider> {
 	private static final long serialVersionUID = 2094380275666817928L;
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);
