@@ -35,7 +35,7 @@ import org.eclipse.swt.graphics.RGB;
 /**
  * Task that captures frames from the MJPEG stream and dispatches SWT images.
  */
-public class SwtFrameCaptureTaskFalseColours extends FrameCaptureTask<ImageData> implements Runnable {
+public class SwtFrameCaptureTaskFalseColours extends FrameCaptureTask<ImageData> {
 
 	private int redMask;
 	private int greenMask;

@@ -35,7 +35,7 @@ import org.eclipse.swt.graphics.RGB;
 /**
  * Task that captures frames from the MJPEG stream and dispatches SWT images.
  */
-public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> implements Runnable {
+public class SwtFrameCaptureTask extends FrameCaptureTask<ImageData> {
 
 	public SwtFrameCaptureTask(String urlSpec, ExecutorService imageDecodingService,
 			BlockingQueue<Future<ImageData>> receivedImages, int readTimeout, boolean acceptReadTimeout) {
