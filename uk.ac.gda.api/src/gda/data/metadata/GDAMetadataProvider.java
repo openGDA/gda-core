@@ -27,7 +27,11 @@ import gda.factory.Finder;
 /**
  * Class that holds a singleton metadata instance.
  */
-public class GDAMetadataProvider {
+public final class GDAMetadataProvider {
+
+	private GDAMetadataProvider() {
+		// Prevent instances
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(GDAMetadataProvider.class);
 
@@ -66,7 +70,7 @@ public class GDAMetadataProvider {
 	/**
 	 * @return an Object in the finder implementing Metadata. If non-existent then a GdaMetadata instance is constructed
 	 */
-	public synchronized static Metadata getInstance() {
+	public static synchronized Metadata getInstance() {
 		return getInstance(true);
 	}
 
@@ -75,7 +79,7 @@ public class GDAMetadataProvider {
 	 * @return an Object in the finder implementing Metadata. If non-existent then a GdaMetadata can be constructed if
 	 *         required.
 	 */
-	public synchronized static Metadata getInstance(boolean createIfNonExistent) {
+	public static synchronized Metadata getInstance(boolean createIfNonExistent) {
 		if (instance == null) {
 
 			instance = Finder.getInstance().find(GDAMETADATANAME);
@@ -97,7 +101,7 @@ public class GDAMetadataProvider {
 	 * @throws RuntimeException
 	 *             if the singleton instance has already been set
 	 */
-	public synchronized static void setInstance(Metadata metadata) {
+	public static synchronized void setInstance(Metadata metadata) {
 		if (instance != null) {
 			throw new RuntimeException("Metadata instance has already been set");
 		}
@@ -110,7 +114,7 @@ public class GDAMetadataProvider {
 	 *
 	 * @param metadata Metadata
 	 */
-	public synchronized static void setInstanceForTesting(Metadata metadata) {
+	public static synchronized void setInstanceForTesting(Metadata metadata) {
 		logger.warn("setInstanceForTesting called");
 		instance=metadata;
 	}
