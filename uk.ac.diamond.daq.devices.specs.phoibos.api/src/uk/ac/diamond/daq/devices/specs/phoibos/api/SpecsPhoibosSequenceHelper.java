@@ -72,7 +72,7 @@ public final class SpecsPhoibosSequenceHelper {
 	}
 
 	/**
-	 * Loads a SPECS sequence from XML file.
+	 * Loads a SPECS sequence from JSON file.
 	 *
 	 * @param path
 	 *            The path to the sequence file to load
