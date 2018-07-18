@@ -253,7 +253,7 @@ public class TangoXmapController extends DeviceBase implements XmapController, I
 			long[] output = argout.extractULongArray();
 			double[] data = new double[output.length];
 			for (int i = 0; i < output.length; i++) {
-				data[i] = (double) output[i];
+				data[i] = output[i];
 			}
 			// for testing only
 			// for (int i = 0; i < numberOfScas; i++) {
