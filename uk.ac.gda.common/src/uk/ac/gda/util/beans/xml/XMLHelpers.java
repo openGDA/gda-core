@@ -39,14 +39,16 @@ import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.XMLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import uk.ac.gda.util.beans.BeansFactory;
 
 public final class XMLHelpers {
 
+	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
 	private static final Map<UrlClassLoaderPair, XMLContext> xmlContextCache = new HashMap<>();
-
 	private static URLResolver urlResolver;
 
 	private static class UrlClassLoaderPair {
@@ -122,6 +124,7 @@ public final class XMLHelpers {
 				break;
 			}
 		}
+		if (mapping == null) logger.warn("Mapping URL not found in class {}", editingBean.getClass().getName());
 		writeToXML(mapping, editingBean, templatePath);
 	}
 
@@ -479,6 +482,9 @@ public final class XMLHelpers {
 				mapping = (URL)fa[i].get(null);
 			} else if (fa[i].getName().equalsIgnoreCase("schemaurl")) {
 				schema = (URL)fa[i].get(null);
+			}
+			if (mapping == null || schema == null) {
+				logger.warn("Mapping/schema URLs not found in class {}", beanClass.getName());
 			}
 		}
 		return createFromXML(mapping, beanClass, schema, beanFile);
