@@ -193,7 +193,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		InputSource source = new InputSource(stream);
 
 		try {
-			xspressBean = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
+			xspressBean = XMLHelpers.createFromXML(XspressParameters.mappingURL,
 					XspressParameters.class, XspressParameters.schemaURL, source);
 		} catch (Exception e2) {
 			logger.error("Could not create XspressParameters bean from nexus file", e2);
@@ -261,7 +261,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		InputSource source = new InputSource(stream);
 
 		try {
-			vortexBean = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
+			vortexBean = XMLHelpers.createFromXML(VortexParameters.mappingURL,
 					VortexParameters.class, VortexParameters.schemaURL, source);
 		} catch (Exception e2) {
 			logger.error("Could not create VortexParameters bean from nexus file", e2);
@@ -365,7 +365,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		InputSource source = new InputSource(stream);
 
 		try {
-			xspress3Bean = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
+			xspress3Bean = XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
 					Xspress3Parameters.class, Xspress3Parameters.schemaURL, source);
 		} catch (Exception e2) {
 			logger.error("Could not create Xspress3Parameters bean from nexus file", e2);

@@ -83,7 +83,7 @@ public class XasScanParametersTest {
 	@Test
 	public void testCreateFromXMLWithClass() {
 		try {
-			final XasScanParameters s = (XasScanParameters) XMLHelpers.createFromXML(XasScanParameters.mappingURL,
+			final XasScanParameters s = XMLHelpers.createFromXML(XasScanParameters.mappingURL,
 					XasScanParameters.class, XasScanParameters.schemaUrl, new File(PackageUtils.getTestPath(getClass())
 							+ "XAS_Parameters.xml"));
 			System.out.println(s);

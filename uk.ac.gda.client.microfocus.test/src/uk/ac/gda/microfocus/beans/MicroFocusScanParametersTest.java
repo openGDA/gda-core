@@ -40,7 +40,7 @@ public class MicroFocusScanParametersTest {
 	@Test
 	public void testCreateFromXMLWithClass() {
 		try {
-			final MicroFocusScanParameters s = (MicroFocusScanParameters)XMLHelpers.createFromXML(MicroFocusScanParameters.mappingURL,
+			final MicroFocusScanParameters s = XMLHelpers.createFromXML(MicroFocusScanParameters.mappingURL,
 					MicroFocusScanParameters.class,
 					MicroFocusScanParameters.schemaUrl,
 					new File("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MicroFocus_Parameters.xml"));

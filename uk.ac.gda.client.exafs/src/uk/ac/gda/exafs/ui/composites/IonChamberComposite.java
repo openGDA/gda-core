@@ -490,8 +490,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			if (!isUseGasProperties() || workingEnergy.getValue() == null)
 				return;
 			// We run the pressure code in a separate progressible task, just in case.
-			final IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(
-					IProgressService.class);
+			final IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 			try {
 
 				// Get the working energy before starting the task.

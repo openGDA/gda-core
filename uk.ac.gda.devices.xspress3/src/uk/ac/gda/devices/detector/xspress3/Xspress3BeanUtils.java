@@ -33,7 +33,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public class Xspress3BeanUtils {
 
 	public static Xspress3Parameters createBeanFromXML(String xmlPath) throws Exception{
-		return (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class, VortexParameters.schemaURL, new File(xmlPath));
+		return XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
 
 	public static void createXMLfromBean(Xspress3 xspress3, Xspress3Parameters xspress3Bean) throws Exception{

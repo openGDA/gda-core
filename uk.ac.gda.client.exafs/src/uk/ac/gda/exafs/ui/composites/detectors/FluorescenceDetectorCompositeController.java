@@ -612,7 +612,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	private void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) {
 
-		IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
+		IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 		try {
 			service.run(true, false, new IRunnableWithProgress() {
 				@Override

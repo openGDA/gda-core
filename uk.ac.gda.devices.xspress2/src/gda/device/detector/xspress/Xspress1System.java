@@ -529,9 +529,9 @@ public class Xspress1System extends XspressSystem implements XspressFluorescence
 		if (windowed <= 0 || total <= 0) {
 			return (0);
 		}
-		A = (double)total / collectionTime;
-		B = (double)resets / collectionTime;
-		D = (double)windowed / collectionTime;
+		A = total / collectionTime;
+		B = resets / collectionTime;
+		D = windowed / collectionTime;
 
 		factor = (1.0 / (1.0 - B * 1.0e-07));
 

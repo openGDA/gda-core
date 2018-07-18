@@ -46,7 +46,7 @@ public class ScalerMFMappableDataProviderTest {
 		Class<?> c = Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<?> c1 = Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		Class<?> c2 = Class.forName("uk.ac.gda.beans.exafs.DetectorParameters");
-		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[]{c, c1, c2});
+		BeansFactory.setClasses(new Class<?>[]{c, c1, c2});
 	}
 
 	@SuppressWarnings("unused")

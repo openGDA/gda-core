@@ -108,9 +108,9 @@ public class B18FurnaceComposite extends FieldBeanComposite {
 		numberFormat.setMaximumFractionDigits(decimalPlaces);
 		numberFormat.setMinimumFractionDigits(decimalPlaces);
 		numberFormat.setGroupingUsed(false);
-		DecimalFormatSymbols dfs = ((DecimalFormat) numberFormat).getDecimalFormatSymbols();
+		DecimalFormatSymbols dfs = numberFormat.getDecimalFormatSymbols();
 		dfs.setInfinity(String.valueOf(Double.POSITIVE_INFINITY));
-		((DecimalFormat) numberFormat).setDecimalFormatSymbols(dfs);
+		numberFormat.setDecimalFormatSymbols(dfs);
 		return numberFormat;
 	}
 

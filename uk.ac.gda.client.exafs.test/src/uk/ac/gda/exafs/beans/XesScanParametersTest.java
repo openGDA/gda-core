@@ -82,7 +82,7 @@ public class XesScanParametersTest {
 	@Test
 	public void testCreateFromXMLWithClass() throws Exception {
 		final File testFile = new File(xesParametersFilePath);
-		final XesScanParameters s = (XesScanParameters)XMLHelpers.createFromXML(XesScanParameters.mappingURL,
+		final XesScanParameters s = XMLHelpers.createFromXML(XesScanParameters.mappingURL,
 									XesScanParameters.class,
 									XesScanParameters.schemaURL,
 									testFile);

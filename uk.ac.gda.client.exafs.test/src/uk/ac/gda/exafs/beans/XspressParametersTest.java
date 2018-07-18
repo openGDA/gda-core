@@ -66,7 +66,7 @@ public class XspressParametersTest {
 	@Test
 	public void testZeros() throws Exception {
 
-		final XspressDeadTimeParameters s1 = (XspressDeadTimeParameters) XMLHelpers.createFromXML(XspressDeadTimeParameters.mappingURL,
+		final XspressDeadTimeParameters s1 = XMLHelpers.createFromXML(XspressDeadTimeParameters.mappingURL,
 				XspressDeadTimeParameters.class, XspressDeadTimeParameters.schemaURL, new File(PackageUtils.getTestPath(getClass())
 						+ "Xspress_DeadTime_Parameters.xml"));
 
@@ -80,14 +80,14 @@ public class XspressParametersTest {
 	@Test
 	public void testCreateFromXMLWithClass() {
 		try {
-			final XspressParameters s1 = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
+			final XspressParameters s1 = XMLHelpers.createFromXML(XspressParameters.mappingURL,
 					XspressParameters.class, XspressParameters.schemaURL, new File(PackageUtils.getTestPath(getClass())
 							+ "Xspress_Parameters.xml"));
 
 			XMLHelpers.writeToXML(XspressParameters.mappingURL, s1, testScratchDirectoryName
 					+ "XspressParameters_written.xml");
 
-			final XspressParameters s2 = (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
+			final XspressParameters s2 = XMLHelpers.createFromXML(XspressParameters.mappingURL,
 					XspressParameters.class, XspressParameters.schemaURL, new File(testScratchDirectoryName
 							+ "XspressParameters_written.xml"));
 

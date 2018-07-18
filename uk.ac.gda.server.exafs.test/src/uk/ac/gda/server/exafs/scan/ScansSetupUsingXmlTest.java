@@ -443,7 +443,7 @@ public class ScansSetupUsingXmlTest {
 			if (det instanceof Xspress2Detector || det instanceof Xspress2BufferedDetector) {
 				checkXSpress2DataShape(nexusName, det.getName(), numPoints);
 			} else if (det instanceof BufferedDetector || det instanceof TfgScaler || det instanceof TfgFFoverI0) {
-				checkDetectorDataShape(nexusName, (Detector)det, numPoints);
+				checkDetectorDataShape(nexusName, det, numPoints);
 			}
 		}
 	}

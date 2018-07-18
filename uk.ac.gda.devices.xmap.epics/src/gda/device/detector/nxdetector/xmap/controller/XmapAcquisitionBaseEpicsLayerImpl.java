@@ -256,7 +256,7 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 	public double[] getDataPerElement(int i) throws IOException {
 		double[] MCAspectrum = new double[latestMCA.get().length];
 		for (i = 0; i < latestMCA.get().length; i++) {
-			MCAspectrum[i] = (double) (ArrayUtils.toPrimitive(latestMCA.get())[i]);
+			MCAspectrum[i] = ArrayUtils.toPrimitive(latestMCA.get())[i];
 		}
 		return MCAspectrum;
 	}

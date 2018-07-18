@@ -107,7 +107,7 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 			for (int i = 0; i < numberOfElements; i++) {
 				// in EDXD interface, the getData already contains a waitWhileBusy()
 				for (int j = 0; j < edxdInterface.getData()[i].length; j++)
-					MCAdata[i][j] = (double) (edxdInterface.getData(i)[j]);
+					MCAdata[i][j] = edxdInterface.getData(i)[j];
 			}
 		} catch (Exception e) {
 			logger.error("Error getting MCA data.", e);

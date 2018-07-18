@@ -26,7 +26,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public class VortexBeanUtils {
 
 	public static VortexParameters createBeanFromXML(String xmlPath) throws Exception{
-		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
+		return XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
 
 	public static void createXMLfromBean(Xmap xmap, VortexParameters vortexBean) throws Exception{
