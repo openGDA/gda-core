@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.device.IActivatable;
-import org.eclipse.scanning.api.device.IAttributableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.ScanMode;
@@ -35,7 +34,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDevice<M>, IActivatable, IAttributableDevice {
+class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDevice<M>, IActivatable {
 
 	private static final Logger logger = LoggerFactory.getLogger(_RunnableDevice.class);
 
@@ -194,39 +193,5 @@ class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDe
 	@Override
 	public void setAlive(boolean alive) {
 		info.setAlive(alive);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws ScanningException {
-		try {
-			DeviceRequest req = new DeviceRequest(name);
-			req.setAttributeName(attributeName);
-			DeviceRequest res = requester.post(req);
-			merge((DeviceInformation<M>)req.getDeviceInformation());
-			return (IDeviceAttribute<T>) res.getAttributes().get(attributeName);
-		} catch (Exception e) {
-			throw new ScanningException(e);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<IDeviceAttribute<?>> getAllAttributes() throws ScanningException {
-		try {
-			DeviceRequest req = new DeviceRequest(name);
-			req.setGetAllAttributes(true);
-			DeviceRequest res = requester.post(req);
-			merge((DeviceInformation<M>) req.getDeviceInformation());
-			return new ArrayList<>(res.getAttributes().values());
-		} catch (Exception e) {
-			throw new ScanningException(e);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getAttributeValue(String attributeName) throws ScanningException {
-		return (T) getAttribute(attributeName).getValue();
 	}
 }

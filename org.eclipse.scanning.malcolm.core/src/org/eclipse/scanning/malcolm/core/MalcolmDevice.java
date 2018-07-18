@@ -32,14 +32,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
+import org.eclipse.scanning.api.malcolm.MalcolmConstants;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
@@ -601,29 +602,17 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		return Optional.empty();
 	}
 
-	@Override
-	public <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
+	private <T> IDeviceAttribute<T> getAttribute(String attributeName) throws MalcolmDeviceException {
 		@SuppressWarnings("unchecked") // temp variable to avoid annotation on method
 		final IDeviceAttribute<T> attribute = (IDeviceAttribute<T>) getOptionalAttribute(attributeName).
 				orElseThrow(() -> new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + "No such attribute: " + attributeName));
 		return attribute;
 	}
 
-	@Override
-	public List<IDeviceAttribute<?>> getAllAttributes() throws MalcolmDeviceException {
-		logger.debug("getAllAttributes() called");
-		@SuppressWarnings("unchecked")
-		Map<String, Object> wholeBlockMap = (Map<String, Object>) getEndpointValue("");
-		return wholeBlockMap.values().stream().
-				filter(MalcolmAttribute.class::isInstance).map(IDeviceAttribute.class::cast).
-				collect(Collectors.toList());
-	}
-
 	/**
 	 * Gets the value of an attribute on the device
 	 */
-	@Override
-	public <T> T getAttributeValue(String attributeName) throws MalcolmDeviceException {
+	private <T> T getAttributeValue(String attributeName) throws MalcolmDeviceException {
 		logger.debug("getAttributeValue() called with attribute name {}", attributeName);
 		IDeviceAttribute<T> attribute = getAttribute(attributeName);
 		return attribute.getValue();
@@ -646,6 +635,11 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public boolean isNewMalcolmVersion() throws MalcolmDeviceException {
 		return getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES).isPresent();
+	}
+
+	@Override
+	public MalcolmTable getDatasets() throws MalcolmDeviceException {
+		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 	}
 
 	/**

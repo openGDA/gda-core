@@ -11,19 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.event;
 
-import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -52,8 +51,7 @@ import org.eclipse.scanning.api.event.scan.DeviceAction;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
+import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.EventTimingsHelper;
@@ -296,54 +294,39 @@ public class DeviceRequestTest extends BrokerTest {
 	}
 
 	@Test
-	public void testGetAttribute() throws Exception {
+	public void testGetAvailableAxes() throws Exception {
 		DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
-		req.setAttributeName(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		DeviceRequest res = requester.post(req);
 		assertNotNull(res);
-		assertNotNull(res.getAttributes());
 		assertEquals(1, res.size());
-		IDeviceAttribute<?> attr = res.getAttributes().get(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		assertNotNull(attr);
-		assertEquals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, attr.getName());
-		assertEquals(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, attr.getLabel());
-		assertEquals("Default axis names to scan for configure()", attr.getDescription());
-		assertEquals(StringArrayAttribute.class, attr.getClass());
-		assertArrayEquals(new String[] { "stage_x", "stage_y" }, (String[]) attr.getValue());
+		DeviceInformation<?> deviceInfo = res.getDeviceInformation();
+		assertNotNull(deviceInfo);
+
+		Set<String> availableAxes = deviceInfo.getAvailableAxes();
+		assertNotNull(availableAxes);
+		assertThat(availableAxes, contains("stage_x", "stage_y"));
+
 	}
 
 	@Test
-	public void testGetAllAttributes() throws Exception {
+	public void testGetDatasets() throws Exception {
 		DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
-		req.setGetAllAttributes(true);
+		req.setGetDatasets(true);
 		DeviceRequest res = requester.post(req);
-		assertThat(res.getAttributes().keySet(), containsInAnyOrder("layout", "completedSteps",
-				ATTRIBUTE_NAME_SIMULTANEOUS_AXES, "busy", "totalSteps", "configuredSteps",
-				"health", "datasets", "state"));
 
-		// no need to test all 9 attributes, we'll just test a couple
-		IDeviceAttribute<?> stateAttr = res.getAttributes().get("state");
-		assertNotNull(stateAttr);
-		assertEquals("state", stateAttr.getName());
-		assertEquals("Ready", stateAttr.getValue());
-
-		IDeviceAttribute<?> totalSteps = res.getAttributes().get("totalSteps");
-		assertNotNull(totalSteps);
-		assertEquals("totalSteps", totalSteps.getName());
-		assertEquals(0, totalSteps.getValue());
+		MalcolmTable datasetsTable = res.getDatasets();
+		assertNotNull(datasetsTable);
 	}
 
 	@Test
-	public void testGetUnknownAttribute() throws Exception {
+	public void testIsNewMalcolm() throws Exception {
 		DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
-		req.setAttributeName("unknown");
 		DeviceRequest res = requester.post(req);
-		assertNotNull(res);
-		assertTrue(res.getAttributes() == null || res.getAttributes().isEmpty());
-		assertEquals("No such attribute: unknown", res.getErrorMessage());
+
+		assertTrue(res.getDeviceInformation().isNewMalcolm());
 	}
 
 }

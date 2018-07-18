@@ -158,7 +158,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		malcolmDevice.run(new StaticPosition());
 
 		// Check file has been written with some data
-		checkMalcolmNexusFiles(model, (IMalcolmDevice<DummyMalcolmModel>) malcolmDevice, scanRank);
+		checkMalcolmNexusFiles((IMalcolmDevice<DummyMalcolmModel>) malcolmDevice, scanRank);
 	}
 
 	@Test
@@ -188,11 +188,10 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		return root.getEntry();
 	}
 
-	private void checkMalcolmNexusFiles(DummyMalcolmModel model,
-			IMalcolmDevice<DummyMalcolmModel> malcolmDevice, int scanRank)
+	private void checkMalcolmNexusFiles(IMalcolmDevice<DummyMalcolmModel> malcolmDevice,
+			int scanRank)
 			throws MalcolmDeviceException, Exception {
-		Object datasetsValue = malcolmDevice.getAttributeValue("datasets");
-		MalcolmTable table = (MalcolmTable) datasetsValue;
+		MalcolmTable table = malcolmDevice.getDatasets();
 		Map<String, NXentry> nexusEntries = new HashMap<>();
 		for (Map<String, Object> datasetRow : table) {
 			String filename = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);

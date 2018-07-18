@@ -25,6 +25,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
+import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
@@ -98,6 +99,15 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	@Override
 	public String getFileDir() {
 		return fileDir;
+	}
+
+	@Override
+	public DeviceInformation<M> getDeviceInformation(boolean includeNonAlive) throws ScanningException {
+		final DeviceInformation<M> info = super.getDeviceInformation(includeNonAlive);
+		info.setNewMalcolm(isNewMalcolmVersion());
+		info.setAvailableAxes(getAvailableAxes());
+
+		return info;
 	}
 
 	/**

@@ -76,7 +76,7 @@ class MalcolmNexusObjectBuilder<M extends IMalcolmModel> {
 	 * @throws ScanningException
 	 */
 	public List<NexusObjectProvider<?>> buildNexusObjects(NexusScanInfo scanInfo) throws ScanningException {
-		MalcolmTable datasetsTable = (MalcolmTable) malcolmDevice.getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
+		MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 
 		for (Map<String, Object> datasetRow : datasetsTable) {
 			final String datasetFullName = (String) datasetRow.get(MalcolmConstants.DATASETS_TABLE_COLUMN_NAME);

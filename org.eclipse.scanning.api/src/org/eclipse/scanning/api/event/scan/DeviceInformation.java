@@ -131,6 +131,10 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	 */
 	private boolean alive = true;
 
+	private Set<String> availableAxes;
+
+	private boolean isNewMalcolm;
+
 	public DeviceInformation() {
 
 	}
@@ -244,6 +248,9 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + ((supportedScanModes == null) ? 0 : supportedScanModes.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		result = prime * result + ((upper == null) ? 0 : upper.hashCode());
+		result = prime * result + ((availableAxes == null ? 0 : availableAxes.hashCode()));
+		result = prime * result + (isNewMalcolm ? 1231 : 1237);
+
 		return result;
 	}
 
@@ -323,6 +330,13 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.upper != null)
 				return false;
 		} else if (!upper.equals(other.upper))
+			return false;
+		if (availableAxes == null) {
+			if (other.availableAxes != null)
+				return false;
+		} else if (!availableAxes.equals(other.availableAxes))
+			return false;
+		if (isNewMalcolm != other.isNewMalcolm)
 			return false;
 		return true;
 	}
@@ -423,6 +437,22 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setAlive(boolean alive) {
 		this.alive = alive;
+	}
+
+	public Set<String> getAvailableAxes() {
+		return availableAxes;
+	}
+
+	public void setAvailableAxes(Set<String> availableAxes) {
+		this.availableAxes = availableAxes;
+	}
+
+	public boolean isNewMalcolm() {
+		return isNewMalcolm;
+	}
+
+	public void setNewMalcolm(boolean isNewMalcolm) {
+		this.isNewMalcolm = isNewMalcolm;
 	}
 
 }

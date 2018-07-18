@@ -11,24 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.malcolm.real;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
+import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.api.malcolm.attributes.IDeviceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -101,26 +95,12 @@ public class ExampleMalcolmDeviceTest {
 		configureMalcolmDevice();
 
 		// Test that malcolm attributes have the expected value
-		List<IDeviceAttribute<?>> attribs = malcolmDevice.getAllAttributes();
-		assertEquals(11, attribs.size());
-		Set<String> attributeNames = attribs.stream().map(IDeviceAttribute::getName).collect(Collectors.toSet());
-		assertThat(attributeNames, containsInAnyOrder("state", "health", "busy", "totalSteps", "A", "B", "axesToMove",
-				"datasets", "generator", "completedSteps", "layout"));
-
-		assertEquals("ARMED", malcolmDevice.getAttributeValue("state"));
-		assertEquals("Test Health", malcolmDevice.getAttributeValue("health"));
-		assertEquals(false, malcolmDevice.getAttributeValue("busy"));
-		assertEquals(Integer.valueOf(123), malcolmDevice.getAttributeValue("totalSteps"));
-		StringAttribute healthAttributeValue = (StringAttribute) (Object) malcolmDevice.getAttribute("health"); // TODO why is this double cast necessary?
-		assertEquals("health", healthAttributeValue.getName());
-		assertEquals("Test Health", healthAttributeValue.getValue());
-		assertEquals(false, malcolmDevice.getAttribute("A").isWriteable());
-		assertEquals(true, malcolmDevice.getAttribute("B").isWriteable());
+		assertEquals(DeviceState.ARMED, malcolmDevice.getDeviceState());
+		assertEquals("Test Health", malcolmDevice.getDeviceHealth());
+		assertEquals(false, malcolmDevice.isDeviceBusy());
 
 		// Test the 'datasets' attribute
-		TableAttribute datasetAttributeValue = (TableAttribute) (Object) malcolmDevice.getAttribute("datasets"); // TODO why is this double cast necessary?
-		assertEquals("datasets", datasetAttributeValue.getName());
-		MalcolmTable malcolmTable = datasetAttributeValue.getValue();
+		MalcolmTable malcolmTable = malcolmDevice.getDatasets();
 
 		assertEquals(4, malcolmTable.getHeadings().size());
 		assertEquals("detector", malcolmTable.getHeadings().get(0));
