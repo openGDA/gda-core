@@ -19,7 +19,7 @@
 
 package gda.data.scan.datawriter;
 
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 import java.io.File;
 import java.io.IOException;
@@ -881,7 +881,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	@Override
 	public void completeCollection() throws Exception {
 		GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
-		NexusUtils.write(file, g, "end_time", ISO_DATE_TIME.format(ZonedDateTime.now()));
+		NexusUtils.write(file, g, "end_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
 		releaseFile();
 		super.completeCollection();
 		int numberOfPoints = scanPointNumber + 1;
@@ -946,7 +946,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (!g.containsNode("title")) {
 				NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
 			}
-			NexusUtils.writeString(file, g, "start_time", ISO_DATE_TIME.format(ZonedDateTime.now()));
+			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
 			createCustomMetaData(g);
 		} catch (Exception e) {
 			logger.info("error writing less important scan information", e);
