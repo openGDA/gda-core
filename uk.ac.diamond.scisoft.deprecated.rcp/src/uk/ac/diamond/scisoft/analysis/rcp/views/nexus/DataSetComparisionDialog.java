@@ -73,7 +73,7 @@ public class DataSetComparisionDialog extends Dialog {
 		this.commonDataSets = new HashSet<String>(31);
 		this.allDataSets    = new HashSet<String>(31);
 		
-		IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
+		IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 
 		// Changed to cancellable as sometimes loading the tree takes ages and you
 		// did not mean such to choose the file.

@@ -99,7 +99,7 @@ public class OpenDataFileAction extends AbstractHandler {
 		if (file.getName()==null) return Boolean.FALSE;
 		if (file.getName().toLowerCase().endsWith(".nxs")) {// Open in nexus view
 
-			IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
+			IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 
 			try {
 				// Changed to cancellable as sometimes loading the tree takes ages and you

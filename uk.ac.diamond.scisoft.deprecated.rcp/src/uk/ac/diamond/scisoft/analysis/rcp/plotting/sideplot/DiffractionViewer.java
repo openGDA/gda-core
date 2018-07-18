@@ -1058,7 +1058,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		diffractionViewer = new Action() {
 			@Override
 			public void run() {
-				IHandlerService handler = (IHandlerService) site.getService(IHandlerService.class);
+				IHandlerService handler = site.getService(IHandlerService.class);
 				try {
 					handler.executeCommand("uk.ac.diamond.scisoft.analysis.rcp.ViewDiffractionViewerSettings", null);
 				} catch (Exception e) {

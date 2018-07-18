@@ -159,7 +159,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 				if (event.getProperty().equals(DeprecatedPreferenceConstants.IGNORE_DATASET_FILTERS)) {
 					
 					if (filePath==null) return;
-					IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
+					IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 					try {
 						// Changed to cancellable as sometimes loading the tree takes ages and you
 						// did not mean such to choose the file.

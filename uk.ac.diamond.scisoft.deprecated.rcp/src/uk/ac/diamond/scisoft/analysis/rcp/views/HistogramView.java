@@ -706,7 +706,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 					int yReduce = (int) Math.ceil(shape[0] / 512.0);
 					int xReduce = (int) Math.ceil(shape[1] / 512.0);
 					Downsample sample = new Downsample(DownsampleMode.MAXIMUM, xReduce, yReduce);
-					m = Stats.quantile((Dataset)sample.value(data).get(0), getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
+					m = Stats.quantile(sample.value(data).get(0), getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 				} else
 					m = Stats.quantile(data, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 			} catch (Exception e) {

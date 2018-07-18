@@ -605,7 +605,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
 				newRegion.setROI(rroi);
 				plottingSystem.addRegion(newRegion);
-				IToolPageSystem tps = (IToolPageSystem)plottingSystem.getAdapter(IToolPageSystem.class);
+				IToolPageSystem tps = plottingSystem.getAdapter(IToolPageSystem.class);
 				if(tps != null)
 					tps.setToolVisible("org.dawnsci.plotting.histogram.histogram_tool_page",
 						ToolPageRole.ROLE_2D, "org.dawb.workbench.plotting.views.toolPageView.2D");

@@ -82,7 +82,7 @@ public class CompareDataSetsHandler extends AbstractHandler implements IHandler,
 			if (d.open() == IDialogConstants.CANCEL_ID) return Boolean.FALSE;
 			
 			final AbstractPlotWindow window  = getPlotWindow();
-			IProgressService service = (IProgressService)PlatformUI.getWorkbench().getService(IProgressService.class);
+			IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 
 			final PlotMode plotMode  = d.getDataSetPlotView().getPlotMode();
 			
