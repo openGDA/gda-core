@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.bssc.ui;
 
+import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +76,6 @@ import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.Plate;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
 import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnHelper;
-import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class MeasurementsFieldComposite extends FieldComposite {
@@ -170,7 +171,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return okay;
 			}
 		}));
-		columns.put("Sample Name",new Column<TitrationBean, String>(100, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Sample Name",new Column<TitrationBean, String>(100, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(TitrationBean element) {
 				return element.getSampleName();
@@ -180,7 +181,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setSampleName(value);
 			}
 		});
-		columns.put("Concentration", new Column<TitrationBean, Double>(100, tableViewer, rbeditor,ColumnType.DOUBLE) {
+		columns.put("Concentration", new Column<TitrationBean, Double>(100, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(TitrationBean element) {
 				return element.getConcentration();
@@ -202,7 +203,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setViscosity(value);
 			}
 		});
-		columns.put("Molecular\n Weight", new Column<TitrationBean, Double>(70, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Molecular\n Weight", new Column<TitrationBean, Double>(70, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(TitrationBean element) {
 				return element.getMolecularWeight();
@@ -214,7 +215,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 		});
 		columns.get("Molecular\n Weight").setOutputFormat("%s kDa");
-		columns.put("isBuffer", new Column<TitrationBean, Boolean>(40, tableViewer, rbeditor, ColumnType.BOOL) {
+		columns.put("isBuffer", new Column<TitrationBean, Boolean>(40, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
 				return element.isBuffer();
@@ -227,7 +228,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 
 		});
-		columns.put("Buffers", new Column<TitrationBean, String>(40, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Buffers", new Column<TitrationBean, String>(40, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(TitrationBean element) {
 				return element.getBuffers();
@@ -260,7 +261,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 //				return okay;
 //			}
 //		}));
-		columns.put("Recoup", new Column<TitrationBean, Boolean>(50, tableViewer, rbeditor, ColumnType.BOOL) {
+		columns.put("Recoup", new Column<TitrationBean, Boolean>(50, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
 				return element.getRecouperateLocation() != null;
@@ -305,7 +306,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		});
 		columns.putAll(recoup);
 
-		columns.put("Time per\nFrame", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Time per\nFrame", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(TitrationBean element) {
 				return element.getTimePerFrame();
@@ -320,7 +321,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 		});
 		columns.get("Time per\nFrame").setOutputFormat("%5.3f s");
-		columns.put("Frames", new Column<TitrationBean, Integer>(40, tableViewer, rbeditor, ColumnType.INTEGER) {
+		columns.put("Frames", new Column<TitrationBean, Integer>(40, tableViewer, rbeditor, INTEGER) {
 			@Override
 			public Integer getRealValue(TitrationBean element) {
 				return element.getFrames();
@@ -334,7 +335,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				}
 			}
 		});
-		columns.put("Exposure\nTemperature", new Column<TitrationBean, Float>(40, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Exposure\nTemperature", new Column<TitrationBean, Float>(40, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Float getRealValue(TitrationBean element) {
 				return element.getExposureTemperature();
@@ -350,7 +351,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		});
 		columns.get("Exposure\nTemperature").setOutputFormat("%4.1f \u00B0C");
 
-		columns.put("Sample\nVolume", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Sample\nVolume", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(TitrationBean element) {
 				return element.getSampleVolume();
@@ -390,7 +391,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return null;
 			}
 		});
-		columns.put("Key", new Column<TitrationBean, String>(40, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Key", new Column<TitrationBean, String>(40, tableViewer, rbeditor, TEXT) {
 
 			@Override
 			public String getRealValue(TitrationBean element) {
@@ -403,7 +404,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 
 		});
-		columns.put("Move", new Column<TitrationBean, Boolean>(25, tableViewer, rbeditor, ColumnType.BOOL) {
+		columns.put("Move", new Column<TitrationBean, Boolean>(25, tableViewer, rbeditor, BOOL) {
 			@Override
 			public Boolean getRealValue(TitrationBean element) {
 				return element.getMove();
@@ -414,7 +415,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 		});
 		if (isStaff) {
-			columns.put("Visit", new Column<TitrationBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
+			columns.put("Visit", new Column<TitrationBean, String>(70, tableViewer, rbeditor, TEXT) {
 				private boolean validVisit(TitrationBean element) {
 					String visit = element.getVisit();
 					HashMap<String, String> overrides = new HashMap<>();
@@ -450,7 +451,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 					return super.getToolTip(element);
 				}
 			});
-			columns.put("Username", new Column<TitrationBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
+			columns.put("Username", new Column<TitrationBean, String>(70, tableViewer, rbeditor, TEXT) {
 				@Override
 				public String getRealValue(TitrationBean element) {
 					return element.getUsername();
@@ -661,7 +662,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 	private Map<String,Column<TitrationBean,?>> getLocationColumns(final String prefix, final ColumnHelper<TitrationBean, LocationBean> helper) {
 		Map<String,Column<TitrationBean,?>> columns = new LinkedHashMap<>();
 
-		Column<TitrationBean, String> plateColumn = new Column<TitrationBean, String>(40, tableViewer, rbeditor, Column.ColumnType.CHOICE) {
+		Column<TitrationBean, String> plateColumn = new Column<TitrationBean, String>(40, tableViewer, rbeditor, CHOICE) {
 			private ColumnHelper<TitrationBean, LocationBean> help = helper;
 			@Override
 			public String getRealValue(TitrationBean element) {
@@ -694,7 +695,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		String[] plateArray = BSSCSessionBean.BSSC_PLATES.getAvailablePlates();
 		plateColumn.setInput(plateArray);
 		columns.put(prefix + "Plate", plateColumn);
-		columns.put(prefix + "Row", new Column<TitrationBean,Character>(40, tableViewer, rbeditor, Column.ColumnType.CHOICE ) {
+		columns.put(prefix + "Row", new Column<TitrationBean, Character>(40, tableViewer, rbeditor, CHOICE) {
 			@Override
 			public Character getRealValue(TitrationBean element) {
 				LocationBean loc = helper.getValue(element);
@@ -731,7 +732,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return helper.toolTip(tb);
 			}
 		});
-		columns.put(prefix + "Column", new Column<TitrationBean,Integer>(40,tableViewer, rbeditor, Column.ColumnType.CHOICE) {
+		columns.put(prefix + "Column", new Column<TitrationBean, Integer>(40,tableViewer, rbeditor, CHOICE) {
 			@Override
 			public Integer getRealValue(TitrationBean element) {
 				LocationBean loc = helper.getValue(element);

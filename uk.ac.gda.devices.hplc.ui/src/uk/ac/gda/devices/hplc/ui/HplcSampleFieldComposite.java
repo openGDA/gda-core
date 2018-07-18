@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.hplc.ui;
 
+import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +74,6 @@ import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.Plate;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
 import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnHelper;
-import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
 import uk.ac.gda.devices.hplc.beans.HplcSessionBean;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -152,7 +153,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 
 		columns = new LinkedHashMap<>();
-		columns.put("Location", new Column<HplcBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Location", new Column<HplcBean, String>(70, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
 				return element.getLocation();
@@ -162,7 +163,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				element.setLocation(value);
 			}
 		});
-		columns.put("Sample Name",new Column<HplcBean, String>(100, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Sample Name",new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
 				return element.getSampleName();
@@ -172,7 +173,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				element.setSampleName(value);
 			}
 		});
-		columns.put("Concentration", new Column<HplcBean, Double>(70, tableViewer, rbeditor,ColumnType.DOUBLE) {
+		columns.put("Concentration", new Column<HplcBean, Double>(70, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(HplcBean element) {
 				return element.getConcentration();
@@ -184,7 +185,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			}
 		});
 		columns.get("Concentration").setOutputFormat("%5.5f mg/ml");
-		columns.put("Molecular\n  Weight", new Column<HplcBean, Double>(50, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Molecular\n  Weight", new Column<HplcBean, Double>(50, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(HplcBean element) {
 				return element.getMolecularWeight();
@@ -197,7 +198,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 		});
 		columns.get("Molecular\n  Weight").setOutputFormat("%s kDa");
 
-		columns.put("Time per\n  Frame", new Column<HplcBean, Double>(50, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Time per\n  Frame", new Column<HplcBean, Double>(50, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(HplcBean element) {
 				return element.getTimePerFrame();
@@ -212,7 +213,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			}
 		});
 		columns.get("Time per\n  Frame").setOutputFormat("%5.3f s");
-		columns.put("Total\nDuration", new Column<HplcBean, Double>(50, tableViewer, rbeditor, ColumnType.DOUBLE) {
+		columns.put("Total\nDuration", new Column<HplcBean, Double>(50, tableViewer, rbeditor, DOUBLE) {
 			@Override
 			public Double getRealValue(HplcBean element) {
 				return element.getTotalDuration();
@@ -227,7 +228,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			}
 		});
 		columns.get("Total\nDuration").setOutputFormat("%.1f min");
-		columns.put("Buffers", new Column<HplcBean, String>(100, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Buffers", new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
 				return element.getBuffers();
@@ -237,7 +238,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				element.setBuffers(value);
 			}
 		});
-		columns.put("Column\nType", new Column<HplcBean, String>(100, tableViewer, rbeditor, ColumnType.CHOICE) {
+		columns.put("Column\nType", new Column<HplcBean, String>(100, tableViewer, rbeditor, CHOICE) {
 
 			@Override
 			public String getRealValue(HplcBean element) {
@@ -251,7 +252,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 		});
 		columns.get("Column\nType").setInput(HplcSessionBean.HPLC_PLATES.getAvailableCapillaries());
-		columns.put("Comment", new Column<HplcBean, String>(100, tableViewer, rbeditor, ColumnType.TEXT) {
+		columns.put("Comment", new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
 			@Override
 			public String getRealValue(HplcBean element) {
 				return element.getComment();
@@ -262,7 +263,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			}
 		});
 		if (isStaff) {
-			columns.put("Visit", new Column<HplcBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
+			columns.put("Visit", new Column<HplcBean, String>(70, tableViewer, rbeditor, TEXT) {
 				private boolean validVisit(HplcBean element) {
 					String visit = element.getVisit();
 					HashMap<String, String> overrides = new HashMap<>();
@@ -296,7 +297,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 					return super.getToolTip(element);
 				}
 			});
-			columns.put("Username", new Column<HplcBean, String>(70, tableViewer, rbeditor, ColumnType.TEXT) {
+			columns.put("Username", new Column<HplcBean, String>(70, tableViewer, rbeditor, TEXT) {
 				@Override
 				public String getRealValue(HplcBean element) {
 					return element.getUsername();
