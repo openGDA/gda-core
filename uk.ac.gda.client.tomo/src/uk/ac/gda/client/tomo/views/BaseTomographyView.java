@@ -127,7 +127,7 @@ public abstract class BaseTomographyView extends ViewPart {
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			IContextService cs = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
+			IContextService cs = PlatformUI.getWorkbench().getService(IContextService.class);
 			if (cs != null) {
 
 				try {
@@ -184,7 +184,7 @@ public abstract class BaseTomographyView extends ViewPart {
 		if (checkIocStatusJob != null) {
 			checkIocStatusJob.cancel();
 		}
-		IContextService cs = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
+		IContextService cs = PlatformUI.getWorkbench().getService(IContextService.class);
 		if (cs != null && contextActivation != null) {
 			cs.deactivateContext(contextActivation);
 			contextActivation = null;
