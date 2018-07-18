@@ -101,7 +101,7 @@ public class BoundingBoxTest extends ShellTest{
 				// was not serializable
 				IModelDialog dialog = interfaceService.createModelDialog(shell);
 				dialog.create();
-				dialog.setModel((Serializable)bbox);
+				dialog.setModel(bbox);
 			} catch (Exception ne) {
 				errors.add(ne);
 			}

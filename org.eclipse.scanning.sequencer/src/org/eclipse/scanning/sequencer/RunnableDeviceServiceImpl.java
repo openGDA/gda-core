@@ -283,7 +283,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	public <T> IRunnableDevice<T> getRunnableDevice(String name, IPublisher<ScanBean> publisher) throws ScanningException {
 
 		@SuppressWarnings("unchecked")
-		IRunnableDevice<T> device = (IRunnableDevice<T>)namedDevices.get(name);
+		IRunnableDevice<T> device = namedDevices.get(name);
 		if (device!=null && publisher!=null && device instanceof AbstractRunnableDevice) {
 			AbstractRunnableDevice<T> adevice = (AbstractRunnableDevice<T>)device;
 			adevice.setPublisher(publisher); // Now all its moves will be reported by this publisher.
