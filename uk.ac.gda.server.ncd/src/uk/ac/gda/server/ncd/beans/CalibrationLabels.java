@@ -43,7 +43,7 @@ public class CalibrationLabels implements Serializable {
 	 * @throws Exception
 	 */
 	public static CalibrationLabels createFromXML(String filename) throws Exception {
-		return (CalibrationLabels) XMLHelpers.createFromXML(mappingURL, CalibrationLabels.class, schemaUrl, filename);
+		return XMLHelpers.createFromXML(mappingURL, CalibrationLabels.class, schemaUrl, filename);
 	}
 
 	/**

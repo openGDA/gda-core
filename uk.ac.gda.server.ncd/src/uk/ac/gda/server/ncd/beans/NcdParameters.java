@@ -43,7 +43,7 @@ public class NcdParameters {
 	 * @throws Exception
 	 */
 	public static NcdParameters createFromXML(String filename) throws Exception {
-		return (NcdParameters) XMLHelpers.createFromXML(mappingURL, NcdParameters.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, NcdParameters.class, schemaURL, filename);
 	}
 
 	/**

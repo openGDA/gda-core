@@ -45,7 +45,7 @@ public class TemperatureProfileParameters implements Serializable {
 	 * @throws Exception
 	 */
 	public static TemperatureProfileParameters createFromXML(String filename) throws Exception {
-		return (TemperatureProfileParameters) XMLHelpers.createFromXML(mappingURL, TemperatureProfileParameters.class, schemaUrl, filename);
+		return XMLHelpers.createFromXML(mappingURL, TemperatureProfileParameters.class, schemaUrl, filename);
 	}
 
 	/**
