@@ -574,7 +574,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						activeEditor.doSave(new NullProgressMonitor());
 					}
 					
-					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
+					IFile file = activeEditor.getEditorInput().getAdapter(IFile.class);
 					if (file==null) throw new FileNotFoundException();
 
 					final String filename = file.getRawLocation().toOSString();

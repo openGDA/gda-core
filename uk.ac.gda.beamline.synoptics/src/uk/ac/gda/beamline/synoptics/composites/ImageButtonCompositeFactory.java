@@ -126,8 +126,8 @@ class ImageButtonComposite extends Composite {
 			public void mouseUp(MouseEvent event) {
 				if (event.button == 1) {
 					if (event.button == 1) {
-						ICommandService cmdService = (ICommandService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
-						IHandlerService hdlService = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+						ICommandService cmdService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
+						IHandlerService hdlService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
 						Command cmd = cmdService.getCommand(actionId);
 						try {
 							hdlService.executeCommand(cmd.getId(), null);

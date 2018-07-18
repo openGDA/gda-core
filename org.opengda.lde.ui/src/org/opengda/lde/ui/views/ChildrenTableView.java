@@ -319,7 +319,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							
 							viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 							viewer.setLabelProvider(new SampleGroupViewLabelProvider());
-							IFile file = (IFile) getViewSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+							IFile file = getViewSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
 							String filename = file.getRawLocation().toOSString();
 							try {
 								List<Sample> samples=new ArrayList<Sample>();

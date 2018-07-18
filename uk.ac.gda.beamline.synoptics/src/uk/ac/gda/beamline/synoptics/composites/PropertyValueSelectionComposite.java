@@ -168,8 +168,8 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 	public void update(Object source, Object arg) {
 		//implement property changed by a server component
 		if (source instanceof String && ((String)source).equals(property.getPropertyName())) {
-			logger.debug("Update property {} value to {} by the server", (String)source, (String)arg);
-			viewer.setSelection(new StructuredSelection((String)arg));
+			logger.debug("Update property {} value to {} by the server", source, arg);
+			viewer.setSelection(new StructuredSelection(arg));
 			currentSelection=(IStructuredSelection) viewer.getSelection();
 		}
 	}
