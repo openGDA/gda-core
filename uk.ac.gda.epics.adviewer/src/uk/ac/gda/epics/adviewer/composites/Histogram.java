@@ -307,8 +307,7 @@ public class Histogram extends Composite {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					try {
-						ICommandService cs = (ICommandService) parentViewPart.getSite().getService(
-								ICommandService.class);
+						ICommandService cs = parentViewPart.getSite().getService(ICommandService.class);
 						Command command = cs.getCommand(Ids.COMMANDS_SET_LIVEVIEW_SCALE);
 						IParameter parameter = command
 								.getParameter(Ids.COMMAND_PARAMTER_ADCONTROLLER_SERVICE_NAME);
@@ -316,7 +315,7 @@ public class Histogram extends Composite {
 						Parameterization[] parameterizations = new Parameterization[] { new Parameterization(parameter,
 								name	) };
 						ParameterizedCommand cmd = new ParameterizedCommand(command, parameterizations);
-						ExecutionEvent executionEvent = ((IHandlerService) parentViewPart.getSite().getService(
+						ExecutionEvent executionEvent = (parentViewPart.getSite().getService(
 								IHandlerService.class)).createExecutionEvent(cmd, null);
 						command.executeWithChecks(executionEvent);
 					} catch (Exception e1) {
