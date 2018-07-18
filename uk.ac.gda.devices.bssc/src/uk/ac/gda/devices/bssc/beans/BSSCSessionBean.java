@@ -49,7 +49,7 @@ public class BSSCSessionBean implements XMLRichBean{
 	}
 
 	public static BSSCSessionBean createFromXML(String filename) throws Exception {
-		return (BSSCSessionBean) XMLHelpers.createFromXML(mappingURL, BSSCSessionBean.class, schemaURL, filename);
+		return XMLHelpers.createFromXML(mappingURL, BSSCSessionBean.class, schemaURL, filename);
 	}
 
 	public static void writeToXML(BSSCSessionBean bean, String filename) throws Exception {

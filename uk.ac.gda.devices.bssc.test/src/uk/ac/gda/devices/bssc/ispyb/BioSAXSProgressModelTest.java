@@ -76,17 +76,17 @@ public class BioSAXSProgressModelTest {
 
 			// Check collection status of model object is the same as the status
 			// in ISpyB
-			ISpyBStatus expectedCollectionStatus = (ISpyBStatus) iSpyBSAXSDataCollections
+			ISpyBStatus expectedCollectionStatus = iSpyBSAXSDataCollections
 					.get(i).getCollectionStatus().getStatus();
-			ISpyBStatusInfo modelCollectionStatus = ((ISpyBStatusInfo) modelProgressItem
+			ISpyBStatusInfo modelCollectionStatus = ( modelProgressItem
 					.getCollectionStatusInfo());
 			assertEquals(expectedCollectionStatus, modelCollectionStatus.getStatus());
 
 			// Check reduction status of model object is the same as the status
 			// in ISpyB
-			ISpyBStatus expectedReductionStatus = (ISpyBStatus) iSpyBSAXSDataCollections
+			ISpyBStatus expectedReductionStatus = iSpyBSAXSDataCollections
 					.get(i).getReductionStatus().getStatus();
-			ISpyBStatusInfo modelReductionStatus = ((ISpyBStatusInfo) modelProgressItem
+			ISpyBStatusInfo modelReductionStatus = (modelProgressItem
 					.getReductionStatusInfo());
 			assertEquals(expectedReductionStatus, modelReductionStatus.getStatus());
 
