@@ -27,57 +27,42 @@ import gda.factory.Finder;
 /**
  * Class that holds a singleton metadata instance.
  */
-public class GDAMetadataProvider {
+public final class GDAMetadataProvider {
+
+	private GDAMetadataProvider() {
+		// Prevent instances
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(GDAMetadataProvider.class);
-	/**
-	 * The single instance of GdaMetadata should be named GDAMetadata
-	 */
+
+	/** The single instance of GdaMetadata should be named GDAMetadata */
 	public static final String GDAMETADATANAME = "GDAMetadata";
 
-	/*
-	 * key for metadataEntry used to provide value for facility run cycle
-	 */
+	/** Key for metadataEntry used to provide value for facility run cycle */
 	public static final String FACILITY_RUN_CYCLE = "facility.run_cycle";
 
-	/*
-	 * key for metadataEntry used to provide value for collection description
-	 */
+	/** Key for metadataEntry used to provide value for collection description */
 	public static final String COLLECTION_DESCRIPTION = "collection_description";
 
-	/*
-	 * key for metadataEntry used to provide value for collection identifier
-	 */
+	/** Key for metadataEntry used to provide value for collection identifier */
 	public static final String COLLECTION_IDENTIFIER = "collection_identifier";
 
-	/*
-	 * key for metadataEntry used to provide value for experiment description
-	 */
+	/** Key for metadataEntry used to provide value for experiment description */
 	public static final String EXPERIMENT_DESCRIPTION = "experiment_description";
 
-	/*
-	 * key for metadataEntry used to provide value for experiment identifier
-	 */
+	/** Key for metadataEntry used to provide value for experiment identifier */
 	public static final String EXPERIMENT_IDENTIFIER = "visit";
 
-	/*
-	 * key for metadataEntry used to provide value for proposal
-	 */
+	/** Key for metadataEntry used to provide value for proposal */
 	public static final String PROPOSAL = "proposal";
 
-	/*
-	 * key for metadataEntry used to provide value for investigation
-	 */
+	/** Key for metadataEntry used to provide value for investigation */
 	public static final String INVESTIGATION = "investigation";
 
-	/*
-	 * key for metadataEntry used to provide value for facility run cycle
-	 */
+	/** Key for metadataEntry used to provide value for facility run cycle */
 	public static final String TITLE = "title";
 
-	/*
-	 * key for metadataEntry used to provide value for scan identifier
-	 */
+	/** Key for metadataEntry used to provide value for scan identifier */
 	public static final String SCAN_IDENTIFIER = "scan_identifier";
 
 	private static Metadata instance;
@@ -85,7 +70,7 @@ public class GDAMetadataProvider {
 	/**
 	 * @return an Object in the finder implementing Metadata. If non-existent then a GdaMetadata instance is constructed
 	 */
-	public synchronized static Metadata getInstance() {
+	public static synchronized Metadata getInstance() {
 		return getInstance(true);
 	}
 
@@ -94,7 +79,7 @@ public class GDAMetadataProvider {
 	 * @return an Object in the finder implementing Metadata. If non-existent then a GdaMetadata can be constructed if
 	 *         required.
 	 */
-	public synchronized static Metadata getInstance(boolean createIfNonExistent) {
+	public static synchronized Metadata getInstance(boolean createIfNonExistent) {
 		if (instance == null) {
 
 			instance = Finder.getInstance().find(GDAMETADATANAME);
@@ -116,7 +101,7 @@ public class GDAMetadataProvider {
 	 * @throws RuntimeException
 	 *             if the singleton instance has already been set
 	 */
-	public synchronized static void setInstance(Metadata metadata) {
+	public static synchronized void setInstance(Metadata metadata) {
 		if (instance != null) {
 			throw new RuntimeException("Metadata instance has already been set");
 		}
@@ -129,7 +114,7 @@ public class GDAMetadataProvider {
 	 *
 	 * @param metadata Metadata
 	 */
-	public synchronized static void setInstanceForTesting(Metadata metadata) {
+	public static synchronized void setInstanceForTesting(Metadata metadata) {
 		logger.warn("setInstanceForTesting called");
 		instance=metadata;
 	}
