@@ -389,7 +389,7 @@ public class SerializationTest {
 
         Iterator<INamedNode> it = tree.iterator();
         while (it.hasNext()) {
-			INamedNode iNamedNode = (INamedNode) it.next();
+			INamedNode iNamedNode = it.next();
 			if (iNamedNode instanceof ControlNode) {
 				((ControlNode)iNamedNode).setValue(Math.random());
 			}
@@ -400,7 +400,7 @@ public class SerializationTest {
         assertTrue(pos.size()>0);
         it = tree.iterator();
         while (it.hasNext()) {
-			INamedNode iNamedNode = (INamedNode) it.next();
+			INamedNode iNamedNode = it.next();
 			if (iNamedNode instanceof ControlNode) {
 				Object value = ((ControlNode)iNamedNode).getValue();
 				assertEquals(value, pos.get(iNamedNode.getName()));

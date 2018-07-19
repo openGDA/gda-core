@@ -167,7 +167,7 @@ public class HeartbeatBean extends ConsumerCommandBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeartbeatBean other = (HeartbeatBean) obj;
+		HeartbeatBean other = obj;
 		if (beamline == null) {
 			if (other.beamline != null)
 				return false;

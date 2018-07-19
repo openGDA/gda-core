@@ -103,7 +103,7 @@ public class AxisConfigurationTest extends ShellTest{
 				// what it does to reproduce an old defect
 				IModelDialog dialog = interfaceService.createModelDialog(shell);
 				dialog.create();
-				dialog.setModel((Serializable)config);
+				dialog.setModel(config);
 			} catch (Exception ne) {
 				errors.add(ne);
 			}

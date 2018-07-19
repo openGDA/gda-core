@@ -70,7 +70,7 @@ class ControlEditingSupport extends EditingSupport {
 
 		final Composite parent = (Composite) getViewer().getControl();
 
-		final ControlNode controlNode = (ControlNode) element;
+		final ControlNode controlNode = element;
 		Object value = getValue(controlNode);
 		if (value instanceof Number) {
 			return new ControlValueCellEditor(parent, cservice, mode);
