@@ -433,10 +433,8 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, snake=True,
     # roi=circ(x, y, r) or roi=[circ(x, y, r), rect(x, y, w, h, angle)].
     return model, _listify(roi)
 
-
-# TODO: Add axes=None?
 def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
-         roi=None, seed=0, offset=0):
+         continuous=False, roi=None, seed=0, offset=0):
     try:
         assert None not in (axes, start, stop, count)
     except AssertionError:
@@ -464,6 +462,7 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, snake=True,
                  'snake': snake,
                  'boundingBox': bbox,
                  'seed': seed,
+                 'continuous': continuous,
                  'offset': offset})
     
     return model, _listify(roi)
@@ -520,7 +519,7 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, delta=0.0, theta=
                  'continuous': continuous})
     return model, _listify(roi)
 
-def line(origin=None, length=None, angle=None, count=None, step=None, **kwargs):
+def line(origin=None, length=None, angle=None, count=None, step=None, continuous=False, **kwargs):
     """Define a line segment scan path to be passed to mscan().
 
     Required keyword arguments:
@@ -559,6 +558,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, **kwargs):
         model = _instantiate(
                     OneDStepModel,
                     {'step': step,
+                     'continuous': continuous,
                      'boundingLine': _instantiate(BoundingLine,
                                                   {'xStart': xStart,
                                                    'yStart': yStart,
@@ -569,6 +569,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, **kwargs):
         model = _instantiate(
                     OneDEqualSpacingModel,
                     {'points': count,
+                     'continuous': continuous,
                      'boundingLine': _instantiate(BoundingLine,
                                                   {'xStart': xStart,
                                                    'yStart': yStart,
