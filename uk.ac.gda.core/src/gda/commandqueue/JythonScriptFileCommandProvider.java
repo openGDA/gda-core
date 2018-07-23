@@ -19,9 +19,8 @@
 package gda.commandqueue;
 
 import java.io.File;
-import java.io.Serializable;
 
-public class JythonScriptFileCommandProvider implements CommandProvider, Serializable {
+public class JythonScriptFileCommandProvider implements CommandProvider {
 
 	protected String scriptFile;
 	protected String description;

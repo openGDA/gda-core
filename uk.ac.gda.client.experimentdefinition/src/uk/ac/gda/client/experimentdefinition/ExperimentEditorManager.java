@@ -161,7 +161,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	}
 
 	private void addSelectedProjectListener() {
-		ISelectionService service = (ISelectionService) PlatformUI.getWorkbench().getService(ISelectionService.class);
+		ISelectionService service = PlatformUI.getWorkbench().getService(ISelectionService.class);
 		if (service != null && selectionListener == null) {
 			this.selectionListener = new ISelectionListener() {
 				@Override

@@ -21,8 +21,6 @@ package gda.jython.accesscontrol;
 
 import gda.device.DeviceException;
 
-import java.io.Serializable;
-
 /**
  * Exception thrown by an gda.jython.accesscontrol.Interceptor class when a method call is rejected as the device being
  * operated has a greater protection level than the authorisation level of the user making that method call.
@@ -30,7 +28,7 @@ import java.io.Serializable;
  * This class extends DeviceException so that it will be caught by the try-catch blocks used around method calls to
  * Devices
  */
-public class AccessDeniedException extends DeviceException implements Serializable {
+public class AccessDeniedException extends DeviceException {
 
 	/**
 	 * Error message to use when a method call has been denied due to lack of baton

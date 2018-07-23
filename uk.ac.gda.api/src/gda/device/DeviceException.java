@@ -19,12 +19,10 @@
 
 package gda.device;
 
-import java.io.Serializable;
-
 /**
  * An Exception class specifically for {@link Device}s.
  */
-public class DeviceException extends Exception implements Serializable {
+public class DeviceException extends Exception {
 	
 	private String deviceName;
 	private transient Device device;

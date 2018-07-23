@@ -18,8 +18,6 @@
 
 package gda.commandqueue;
 
-import java.io.Serializable;
-
-public interface CommandDetailsPath extends CommandDetails, Serializable{
+public interface CommandDetailsPath extends CommandDetails{
 	String getPath();
 }

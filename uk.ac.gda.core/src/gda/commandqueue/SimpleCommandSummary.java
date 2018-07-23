@@ -18,9 +18,7 @@
 
 package gda.commandqueue;
 
-import java.io.Serializable;
-
-public class SimpleCommandSummary implements CommandSummary, Serializable{
+public class SimpleCommandSummary implements CommandSummary {
 
 	String description;
 

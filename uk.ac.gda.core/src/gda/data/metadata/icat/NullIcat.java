@@ -28,7 +28,7 @@ import gda.data.metadata.VisitEntry;
  * If no Icat configured, then this should be used as the singleton returned by IcatProvider to return meaningful error
  * messages and responses.
  */
-public class NullIcat extends IcatBase implements Icat {
+public class NullIcat extends IcatBase {
 
 	@Override
 	public boolean icatInUse() {

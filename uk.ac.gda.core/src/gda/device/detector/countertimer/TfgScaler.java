@@ -19,7 +19,6 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.Memory;
 import gda.device.timer.FrameSet;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * A distributed counter/timer class implemented using DA.Server at present on OS-9 systems using VME Time Frame
  * Generator and multichannel scaler.
  */
-public class TfgScaler extends TFGCounterTimer implements CounterTimer {
+public class TfgScaler extends TFGCounterTimer {
 
 	private class ScalerFrame {
 		double time;

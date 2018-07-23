@@ -19,7 +19,6 @@
 package gda.device.detector.countertimer;
 
 import gda.device.DeviceException;
-import gda.device.detector.DarkCurrentDetector;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -29,7 +28,7 @@ import org.apache.commons.lang.ArrayUtils;
  * For when the drain currents are being fed into the TFG Scaler rather than the ion chamber output. When using drain
  * current then only It/I0 is required. This class should be used in place of TFGScalerWithLogValues for counterTimer01.
  */
-public class TFGScalerWithRatio extends TfgScalerWithDarkCurrent implements DarkCurrentDetector {
+public class TFGScalerWithRatio extends TfgScalerWithDarkCurrent {
 
 	private boolean outputRatio = false; // add ln(I0/It) and ln(I0/Iref) to the output
 

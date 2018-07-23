@@ -35,7 +35,7 @@ import gda.jython.InterfaceProvider;
  * recognised, it is converted into 'real' jython so it may be passed to a Jython interpreter. Anything unrecognised, or
  * if an error occurs, then the string is returned untouched.
  */
-public class GeneralTranslator extends TranslatorBase implements Translator {
+public class GeneralTranslator extends TranslatorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeneralTranslator.class);
 

@@ -18,10 +18,7 @@
 
 package gda.commandqueue;
 
-import java.io.Serializable;
-
-
-public class SimpleCommandDetailsPath extends SimpleCommandDetails implements CommandDetailsPath, Serializable {
+public class SimpleCommandDetailsPath extends SimpleCommandDetails implements CommandDetailsPath {
 
 	String path;
 

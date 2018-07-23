@@ -24,14 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 import org.springframework.util.StringUtils;
 
 import gda.factory.Finder;
 import gda.jython.JythonServer;
 
-public class JythonCommandCommandProvider implements CommandProvider, Serializable{
+public class JythonCommandCommandProvider implements CommandProvider {
 
 	String commandToRun;
 	String description;

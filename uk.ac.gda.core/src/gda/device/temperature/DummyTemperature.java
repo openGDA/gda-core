@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Temperature;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
 import gda.util.PollerEvent;
@@ -32,7 +31,7 @@ import gda.util.PollerEvent;
  * Dummy temperature class designed to simulate the temperature interface and TemperatureBase, without threads, for unit
  * testing.
  */
-public class DummyTemperature extends TemperatureBase implements Temperature {
+public class DummyTemperature extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemperature.class);
 

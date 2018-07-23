@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
-import java.io.Serializable;
-
 import org.springframework.util.StringUtils;
 
 import gda.commandqueue.CommandDetails;
@@ -29,7 +27,7 @@ import gda.commandqueue.SimpleCommandDetailsPath;
 import gda.commandqueue.SimpleCommandSummary;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
-public class ExperimentCommand extends JythonScriptFileRunnerCommand implements Serializable {
+public class ExperimentCommand extends JythonScriptFileRunnerCommand {
 
 	// inherited object settingsFile not to be used - this class uses the scriptFile.
 

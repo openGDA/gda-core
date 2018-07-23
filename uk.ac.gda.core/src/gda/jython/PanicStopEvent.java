@@ -19,13 +19,12 @@
 
 package gda.jython;
 
-import java.io.Serializable;
 import java.util.EventObject;
 
 /**
  * This object is sent as an event when the panic stop button is pressed.
  */
-public class PanicStopEvent extends EventObject implements Serializable {
+public class PanicStopEvent extends EventObject {
 
 	public PanicStopEvent(Object source) {
 		super(source);

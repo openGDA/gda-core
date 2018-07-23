@@ -19,13 +19,10 @@
 
 package gda.jython.batoncontrol;
 
-
-import java.io.Serializable;
-
 /**
  * Public information about clients shared by this package 
  */
-public class ClientDetails extends ClientInfo implements Serializable {
+public class ClientDetails extends ClientInfo {
 	boolean hasBaton;
 
 	public ClientDetails(int index, String userID, String fullName, String hostname, int authorisationLevel, boolean hasBaton, String visitID) {
