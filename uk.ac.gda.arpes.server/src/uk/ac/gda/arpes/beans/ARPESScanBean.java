@@ -41,7 +41,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	boolean configureOnly = false;
 
 	public static ARPESScanBean createFromXML(String filename) throws Exception {
-		return (ARPESScanBean) XMLHelpers.createFromXML(mappingURL, ARPESScanBean.class, schemaURL, new File(filename));
+		return XMLHelpers.createFromXML(mappingURL, ARPESScanBean.class, schemaURL, new File(filename));
 	}
 
 	public static void writeToXML(ARPESScanBean bean, String filename) throws Exception {
