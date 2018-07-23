@@ -12,6 +12,7 @@ __version__ = "0.1"
 import os.path
 import re
 import sys
+import datetime
 import time
 import traceback
 import unittest
@@ -140,11 +141,12 @@ class _XMLTestResult(unittest.TestResult):
         """
         stream.write('<testsuite errors="%(e)d" failures="%(f)d" ' % \
             { "e": len(self.errors), "f": len(self.failures) })
-        stream.write('name="%(n)s" tests="%(t)d" time="%(time).3f">\n' % \
+        stream.write('name="%(n)s" tests="%(t)d" time="%(time).3f" timestamp="%(timestamp)s">\n' % \
             {
                 "n": self._test_name,
                 "t": self.testsRun,
                 "time": time_taken,
+                "timestamp": datetime.datetime.fromtimestamp(self._start_time).replace(microsecond=0).isoformat(),
             })
         for info in self._tests:
             info.print_report(stream)
