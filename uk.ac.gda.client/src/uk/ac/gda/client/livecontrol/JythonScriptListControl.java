@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.livecontrol;
 
+import static java.util.Collections.nCopies;
+import static java.util.stream.Collectors.joining;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,10 +31,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.swtdesigner.SWTResourceManager;
 
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.client.viewer.ThreeStateDisplay;
 
 /**
  * This LiveControl implementation allows a script to be selected from a configured list of scripts through a combo box
@@ -61,19 +66,23 @@ public class JythonScriptListControl implements LiveControl {
 	private String name;
 	private String group;
 	private String jobTitle;
+	private Combo scriptsCombo;
+	private ThreeStateDisplay colourState;
 
 	@Override
 	public void createControl(Composite composite) {
 		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		composite.setBackgroundMode(SWT.INHERIT_FORCE);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
 
-		Combo scriptsCombo = new Combo(composite, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
+		scriptsCombo = new Combo(composite, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
 		scriptsCombo.setItems(scripts.keySet().toArray(new String[0]));
 
 		Button runButton = new Button(composite, SWT.PUSH);
 		runButton.setText("Run");
 		runButton.setEnabled(false);
+
+		colourState = new ThreeStateDisplay(composite, "Ready", null, "Busy");
 
 		scriptsCombo.addListener(SWT.Selection,
 				event -> runButton.setEnabled(scriptsCombo.getSelectionIndex()>=0));
@@ -82,22 +91,61 @@ public class JythonScriptListControl implements LiveControl {
 			int index = scriptsCombo.getSelectionIndex();
 			String scriptName = scriptsCombo.getItem(index);
 			runScript(scriptName);
-
-			// let's reduce the probability of hitting the button,
-			// then wondering whether we have indeed hit it.
-			scriptsCombo.deselect(index);
 			runButton.setEnabled(false);
 		});
 	}
 
 	private void runScript(String name) {
-		Job apply = Job.create(getJobTitle(name), monitor -> {
+		String title = getJobTitle(name);
+		Job apply = Job.create(title, monitor -> {
+			InterfaceProvider.getTerminalPrinter().print(addAsciiBorder(title));
+			Display.getDefault().asyncExec(this::scriptStartedGUIActions);
+
 			// Using the blocking evaluateCommand so that this Job knows when the script has finished running
 			InterfaceProvider.getCommandRunner().evaluateCommand("run '" + scripts.get(name) + "'");
+
+			InterfaceProvider.getTerminalPrinter().print(addAsciiBorder("Completed '"+name+"'"));
+			Display.getDefault().asyncExec(this::scriptFinishedGUIActions);
 			return Status.OK_STATUS;
 		});
 
 		apply.schedule();
+	}
+
+
+	private void scriptStartedGUIActions() {
+		colourState.setRed();
+		scriptsCombo.setEnabled(false);
+	}
+
+	private void scriptFinishedGUIActions() {
+		colourState.setGreen();
+		scriptsCombo.setEnabled(true);
+	}
+
+	private static final String BORDER_SYMBOL = "*";
+	private static final char NEW_LINE = '\n';
+	private static final char SPACE = ' ';
+
+	private String addAsciiBorder(String message) {
+
+		final String horizontal = nCopies(message.length()+4, BORDER_SYMBOL).stream().collect(joining());
+
+		return new StringBuilder()
+					.append(NEW_LINE)
+					.append(horizontal)
+					.append(NEW_LINE)
+
+					.append(BORDER_SYMBOL)
+					.append(SPACE)
+					.append(message)
+					.append(SPACE)
+					.append(BORDER_SYMBOL)
+
+					.append(NEW_LINE)
+					.append(horizontal)
+					.append(NEW_LINE)
+					.toString();
 	}
 
 	@Override
