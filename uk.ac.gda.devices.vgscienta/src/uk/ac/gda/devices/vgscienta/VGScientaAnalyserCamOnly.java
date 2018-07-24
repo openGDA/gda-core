@@ -412,16 +412,26 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void setFixedMode(boolean fixed) throws Exception {
 		DetectorConfiguration regionConfiguration = fixedModeConfiguration;
 		if (fixed) {
+			// Before switching to Fixed mode, store the current mode state in a variable
+			boolean wasFixed = isFixedMode();
+			// Set Fixed mode
 			controller.setAcquisitionMode("Fixed");
+			if (wasFixed) {
+				// The previous mode was Fixed - set the slices in the configuration to the value from EPICS
+				regionConfiguration.setSlices(getSlices());
+			}
+			else {
+				// The previous mode was Swept - reset the slices in the configuration to the region Y size
+				regionConfiguration.setSlices(regionConfiguration.getSizeY());
+			}
 		} else {
+			// Swept mode - just use the number of slices already in the swept configuration (from Spring)
 			controller.setAcquisitionMode("Swept");
 			if (sweptModeConfiguration != null) {
 				regionConfiguration = sweptModeConfiguration;
 			}
 		}
-		// Set the number of slices to the currently set slices
-		regionConfiguration.setSlices(getSlices());
-
+		// Pass the appropriate detector configuration to the controller
 		controller.setDetectorConfiguration(regionConfiguration);
 
 		getAdBase().setImageMode(0);
