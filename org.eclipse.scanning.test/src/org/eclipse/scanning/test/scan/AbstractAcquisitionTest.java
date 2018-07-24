@@ -21,28 +21,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.IDeviceController;
-import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -55,90 +46,22 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
-import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
-import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.server.application.Activator;
-import org.eclipse.scanning.server.servlet.Services;
-import org.eclipse.scanning.test.ScanningTestClassRegistry;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 
 public abstract class AbstractAcquisitionTest {
 
-	protected static IRunnableDeviceService        sservice;
-	protected static IScannableDeviceService       connector;
-	protected static IPointGeneratorService        gservice;
-	protected static IEventService                 eservice;
-	protected static IWritableDetector<MockDetectorModel>       detector;
+	protected static IWritableDetector<MockDetectorModel> detector;
 
 	protected static void setupServices() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(
-				new MarshallerService(Arrays.asList(new ScanningAPIClassRegistry(),
-						new ScanningExampleClassRegistry(),
-						new ScanningTestClassRegistry()),
-						Arrays.asList(new PointsModelMarshaller())));
-		eservice  = new EventServiceImpl(activemqConnectorService);
-
-		connector = new MockScannableConnector(null);
-		sservice  = new RunnableDeviceServiceImpl(connector);
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)sservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		ServiceHolder.setRunnableDeviceService(sservice);
-
-		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
-		model.setName("mandelbrot");
-		model.setExposureTime(0.001);
-		impl.createRunnableDevice(model);
-
-		gservice  = new PointGeneratorService();
-
-		MockDetectorModel dmodel = new MockDetectorModel();
-		dmodel.setExposureTime(0.05);
-		dmodel.setName("detector");
-		detector = (IWritableDetector<MockDetectorModel>) sservice.createRunnableDevice(dmodel);
-
-		IDeviceWatchdogService wservice = new DeviceWatchdogService();
-		ServiceHolder.setWatchdogService(wservice);
-		Services.setWatchdogService(wservice);
-
-		// Provide lots of services that OSGi would normally.
-		Services.setEventService(eservice);
-		Services.setRunnableDeviceService(sservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		org.eclipse.scanning.example.Services.setPointGeneratorService(gservice);
-		org.eclipse.scanning.example.Services.setEventService(eservice);
-		org.eclipse.scanning.example.Services.setRunnableDeviceService(sservice);
-		org.eclipse.scanning.example.Services.setScannableDeviceService(connector);
-
-		ServiceHolder.setTestServices(new LoaderServiceMock(), new DefaultNexusBuilderFactory(), null, null, gservice);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-
+		detector = (IWritableDetector) ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("detector");
 	}
 
 	protected List<IPosition>            positions;
@@ -165,11 +88,11 @@ public abstract class AbstractAcquisitionTest {
 		detector.removeRunListener(runListener);
 	}
 
-	@AfterClass
-	public static void cleanup() throws Exception {
-		ServiceHolder.setRunnableDeviceService(null);
-		ServiceHolder.setWatchdogService(null);
-	}
+//	@AfterClass
+//	public static void cleanup() throws Exception {
+//		ServiceHolder.setRunnableDeviceService(null);
+//		ServiceHolder.setWatchdogService(null);
+//	}
 
 	protected IDeviceController createTestScanner(IScannable<?> monitor) throws Exception {
 		return createTestScanner(monitor, null, null, 2);
@@ -210,7 +133,7 @@ public abstract class AbstractAcquisitionTest {
 		gmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 		models.add(gmodel);
 
-		IPointGenerator<?> gen = gservice.createCompoundGenerator(new CompoundModel<>(models));
+		IPointGenerator<?> gen = ServiceTestHelper.getPointGeneratorService().createCompoundGenerator(new CompoundModel<>(models));
 
 		if (dmodel!=null) {
 			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
@@ -241,9 +164,8 @@ public abstract class AbstractAcquisitionTest {
 		smodel.setBean(new ScanBean());
 
 		// Create a scan and run it without publishing events
-		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = sservice.createRunnableDevice(smodel, null, false);
-		IDeviceController controller = ServiceHolder.getWatchdogService().create((IPausableDevice<?>)scanner, smodel.getBean());
+		IRunnableDevice<ScanModel> scanner = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(smodel, null, false);
+		IDeviceController controller = ServiceTestHelper.getDeviceWatchdogService().create((IPausableDevice<?>)scanner, smodel.getBean());
 		smodel.setAnnotationParticipants(controller.getObjects());
 		scanner.configure(smodel);
 

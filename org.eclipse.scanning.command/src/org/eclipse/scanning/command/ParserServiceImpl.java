@@ -172,7 +172,7 @@ public class ParserServiceImpl implements IParserService {
 		return pointGeneratorService;
 	}
 
-	public static void setPointGeneratorService(IPointGeneratorService pointGeneratorService) {
+	public void setPointGeneratorService(IPointGeneratorService pointGeneratorService) {
 		ParserServiceImpl.pointGeneratorService = pointGeneratorService;
 	}
 

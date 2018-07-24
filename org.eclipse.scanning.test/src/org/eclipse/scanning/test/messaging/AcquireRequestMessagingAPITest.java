@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
@@ -29,18 +27,13 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AcquireServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,38 +50,18 @@ import org.junit.Test;
  */
 public class AcquireRequestMessagingAPITest extends BrokerTest {
 
-
-	protected IEventService             	eservice;
-	protected MockScannableConnector 		connector;
-	protected IRunnableDeviceService		dservice;
-	protected IPointGeneratorService 		pointGenService;
-	protected IRequester<AcquireRequest> 	requester;
-	protected AcquireServlet acquireServlet;
+	private IEventService             	eservice;
+	private IRunnableDeviceService		dservice;
+	private IRequester<AcquireRequest> 	requester;
+	private AcquireServlet acquireServlet;
 
 	@Before
 	public void createServices() throws Exception {
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// If the publisher is not given, then the mock items are not created! Use null instead to avoid publishing.
-		connector = new MockScannableConnector(null);
-		dservice = new RunnableDeviceServiceImpl(connector);
-
-		pointGenService = new PointGeneratorService();
+		ServiceTestHelper.setupServices();
+		eservice = ServiceTestHelper.getEventService();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		setupRunnableDeviceService();
-
-		Services.setEventService(eservice);
-		Services.setConnector(connector);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(pointGenService);
-
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		(new org.eclipse.scanning.sequencer.ServiceHolder()).setFactory(new DefaultNexusBuilderFactory());
 
 		connect();
 	}

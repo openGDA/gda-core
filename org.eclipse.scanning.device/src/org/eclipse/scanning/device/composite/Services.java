@@ -47,7 +47,7 @@ public class Services {
 		return scannableDeviceService;
 	}
 
-	public static void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
+	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		Services.scannableDeviceService = scannableDeviceService;
 	}
 }

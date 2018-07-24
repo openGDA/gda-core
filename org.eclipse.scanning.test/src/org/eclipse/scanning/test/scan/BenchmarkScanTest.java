@@ -21,13 +21,9 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
@@ -44,20 +40,10 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -82,39 +68,19 @@ public class BenchmarkScanTest extends BrokerTest {
 	}
 
 	private IRunnableDeviceService      dservice;
-	private IScannableDeviceService     connector;
 	private IPointGeneratorService      gservice;
 	private IEventService               eservice;
 	private ILoaderService              lservice;
 
 	@Before
 	public void start() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		connector = new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC));
-		dservice  = new RunnableDeviceServiceImpl(connector);
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-
-		gservice  = new PointGeneratorService();
-		lservice  = new LoaderServiceMock();
-
-		// Provide lots of services that OSGi would normally.
-		Services.setEventService(eservice);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		ServiceHolder.setTestServices(lservice, new DefaultNexusBuilderFactory(), null);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		gservice = ServiceTestHelper.getPointGeneratorService();
+		eservice = ServiceTestHelper.getEventService();
+		lservice = ServiceTestHelper.getLoaderService();
 	}
 
 	/**

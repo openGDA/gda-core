@@ -38,11 +38,10 @@ import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.command.ParserServiceImpl;
 import org.eclipse.scanning.command.factory.PyExpressionFactory;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,7 +52,7 @@ public class PyExpresserTest {
 
 	@Before
 	public void services() {
-		ParserServiceImpl.setPointGeneratorService(new PointGeneratorService());
+		ServiceTestHelper.setupServices();
 		this.factory = new PyExpressionFactory();
 	}
 

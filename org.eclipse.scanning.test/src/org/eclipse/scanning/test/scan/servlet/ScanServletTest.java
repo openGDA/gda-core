@@ -74,10 +74,10 @@ public class ScanServletTest extends AbstractServletTest {
 				ScanRequest<?> req = scanBean.getScanRequest();
 
 				StepModel step = (StepModel)req.getCompoundModel().getModels().toArray()[0];
-				assertEquals("fred", step.getName());
+				assertEquals("xNex", step.getName());
 			}
 		} finally {
-		    System.setProperty("org.eclipse.scanning.api.preprocessor.name", "");
+		    System.clearProperty("org.eclipse.scanning.api.preprocessor.name");
 		}
 
 	}

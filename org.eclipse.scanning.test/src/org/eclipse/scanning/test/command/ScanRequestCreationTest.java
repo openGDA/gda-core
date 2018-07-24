@@ -37,20 +37,8 @@ import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.command.Services;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -66,29 +54,10 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 
 	@Before
 	public void before() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		service = new PointGeneratorService();
-
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createMarshaller());
-		Services.setEventService(new EventServiceImpl(activemqConnectorService));
-
-		RunnableDeviceServiceImpl impl = new RunnableDeviceServiceImpl(new MockScannableConnector(null));
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		impl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-
-		final MockDetectorModel dmodel = new MockDetectorModel();
-		dmodel.setName("detector");
-		dmodel.setExposureTime(0.1);
-		impl.createRunnableDevice(dmodel);
-
-		MandelbrotModel model = new MandelbrotModel();
-		model.setName("mandelbrot");
-		model.setExposureTime(0.00001);
-		impl.createRunnableDevice(model);
-		Services.setRunnableDeviceService(impl);
+		service = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@Test

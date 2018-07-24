@@ -11,14 +11,18 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan;
 
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.BeforeClass;
 
 public abstract class AbstractWatchdogTest extends AbstractAcquisitionTest {
 
+	protected static IScannableDeviceService connector;
+
 	@BeforeClass
 	public static void createServices() throws Exception {
 		setupServices();
+		connector = ServiceTestHelper.getScannableDeviceService();
 	}
-
 
 }

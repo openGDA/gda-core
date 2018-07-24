@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -39,10 +37,7 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.DarkImageDetector;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
@@ -50,15 +45,13 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -73,51 +66,27 @@ import org.junit.Test;
  */
 public class ScanBeanMessagingAPITest extends BrokerTest {
 
+	private IEventService eservice;
+	private MockScannableConnector connector;
+	private IRunnableDeviceService dservice;
+	private ISubmitter<ScanBean> submitter;
+	private ISubscriber<IBeanListener<StatusBean>> subscriber;
+	private ScanServlet scanServlet;
+	private DeviceServlet dservlet;
 
-	protected IEventService             				eservice;
-	protected MockScannableConnector 					connector;
-	protected IRunnableDeviceService					dservice;
-	protected IPointGeneratorService 					pointGenService;
-	protected ISubmitter<ScanBean>						submitter;
-	protected ISubscriber<IBeanListener<StatusBean>>	subscriber;
-	protected ScanServlet 								scanServlet;
-	protected DeviceServlet 							dservlet;
-	protected ValidatorService 							validator;
-
+	@Before
 	public void createServices() throws Exception {
+		ServiceTestHelper.setupServices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// If the publisher is not given, then the mock items are not created! Use null instead to avoid publishing.
-		connector = new MockScannableConnector(null);
-		dservice = new RunnableDeviceServiceImpl(connector);
-
-		pointGenService = new PointGeneratorService();
-
-		validator = new ValidatorService();
-		validator.setEventService(eservice);
-		validator.setPointGeneratorService(pointGenService);
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		eservice = ServiceTestHelper.getEventService();
 
 		setupRunnableDeviceService();
-
-		Services.setEventService(eservice);
-		Services.setConnector(connector);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(pointGenService);
-		Services.setValidatorService(validator);
-		Services.setWatchdogService(new DeviceWatchdogService());
-
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		(new org.eclipse.scanning.sequencer.ServiceHolder()).setFactory(new DefaultNexusBuilderFactory());
 
 		connect();
 	}
 
-	protected void setupScannableDeviceService() throws IOException, ScanningException {
+	protected void setupScannableDeviceService() {
 
 		registerScannableDevice(new MockScannable("drt_mock_scannable", 10d, 2, "µm"));
 
@@ -369,13 +338,6 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	@Test
 	public void testStartEndScanMarshalling() throws Exception {
 		// Let's just ensure that the 'start' and 'end' can be marshalled correctly.
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
 		String json = "{\"@type\":\"ScanBean\","
 				+ "\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\","
 				+ "\"status\":\"SUBMITTED\","

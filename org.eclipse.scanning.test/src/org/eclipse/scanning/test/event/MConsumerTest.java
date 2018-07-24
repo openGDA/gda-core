@@ -13,8 +13,7 @@ package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 
@@ -29,12 +28,8 @@ public class MConsumerTest extends AbstractMConsumerTest{
 
 	@Before
 	public void createServices() throws Exception {
-
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		ServiceTestHelper.setupServices();
+		eservice = ServiceTestHelper.getEventService();
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally

@@ -58,7 +58,7 @@ public class EventServiceImpl implements IEventService {
 		eventConnectorService = serviceToUse;
 	}
 
-	public static void setEventConnectorService(IEventConnectorService eventService) {
+	public void setEventConnectorService(IEventConnectorService eventService) {
 		logger.trace("setEventConnectorService({})", eventService);
 		EventServiceImpl.eventConnectorService = eventService;
 	}

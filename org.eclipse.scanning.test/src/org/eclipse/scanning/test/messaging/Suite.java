@@ -19,7 +19,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	DeviceRequestMessagingAPITest.class,
 	AcquireRequestMessagingAPITest.class,
 	PositionerRequestMessagingAPITest.class,
-	XcenMessagingAPITest.class,
 	ScanBeanMessagingAPITest.class,
 	TopicAndQueueNameTest.class,
 })

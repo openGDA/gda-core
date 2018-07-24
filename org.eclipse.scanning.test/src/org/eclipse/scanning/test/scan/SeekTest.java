@@ -34,6 +34,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,6 +64,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	}
 
 	@Test
+	@Ignore("DAQ-1484 This test is timing sensetive and therefore flaky")
 	public void seekFirst() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
@@ -70,7 +72,8 @@ public class SeekTest extends AbstractAcquisitionTest {
 
 		try {
 			scanner.start(null);
-		    scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
+			// FIXME This test is timing sensitive to the number here. For this reason its flaky
+		    scanner.latch(100, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 			scanner.pause();
 
 			IPosition first   = scanner.getModel().getPositionIterable().iterator().next();
@@ -101,7 +104,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	private void checkSeekDataset(int seekPosition)  throws Exception {
 
 		final String detectorName = "mandelbrot";
-		IDeviceController controller = createTestScanner(sservice.getRunnableDevice(detectorName),
+		IDeviceController controller = createTestScanner(ServiceTestHelper.getRunnableDeviceService().getRunnableDevice(detectorName),
 				                                         0.08,
 				                                         Arrays.asList("xNex", "yNex"),
 				                                         temp.getAbsolutePath());
@@ -217,9 +220,9 @@ public class SeekTest extends AbstractAcquisitionTest {
 
 		try {
 			scanner.start(null);
-			scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
+			scanner.latch(20, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 
-            assertTrue(Services.getRunnableDeviceService().getActiveScanner()!=null);
+            assertTrue(ServiceTestHelper.getRunnableDeviceService().getActiveScanner()!=null);
 			scanner.latch(10, TimeUnit.SECONDS);
 
 		} finally {

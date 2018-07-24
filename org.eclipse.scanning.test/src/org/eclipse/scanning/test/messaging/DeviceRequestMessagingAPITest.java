@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -25,19 +26,16 @@ import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.DarkImageDetector;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,31 +52,22 @@ import org.junit.Test;
  */
 public class DeviceRequestMessagingAPITest extends BrokerTest {
 
-	protected IEventService             eservice;
-	protected MockScannableConnector 	connector;
-	protected IRunnableDeviceService 	dservice;
-	protected IRequester<DeviceRequest> requester;
-	protected DeviceServlet dservlet;
+	private IEventService eservice;
+	private IScannableDeviceService connector;
+	private IRunnableDeviceService dservice;
+	private IRequester<DeviceRequest> requester;
+	private DeviceServlet dservlet;
 
 	@Before
 	public void createServices() throws Exception {
+		ServiceTestHelper.setupServices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// If the publisher is not given, then the mock items are not created! Use null instead to avoid publishing.
-		connector = new MockScannableConnector(null);
-		dservice = new RunnableDeviceServiceImpl(connector);
+		eservice = ServiceTestHelper.getEventService();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		connector = ServiceTestHelper.getScannableDeviceService();
 
 		setupScannableDeviceService();
 		setupRunnableDeviceService();
-
-		Services.setEventService(eservice);
-		Services.setConnector(connector);
-		Services.setRunnableDeviceService(dservice);
 
 		connect();
 	}
@@ -136,15 +125,15 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 		dservlet.setBroker(uri.toString());
 		dservlet.connect();
 
-		requester  = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
+		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC,
+				EventConstants.DEVICE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
 	@After
 	public void stop() throws EventException {
-
-	if (requester!=null) requester.disconnect();
-	if (dservlet!=null) dservlet.disconnect();
+		if (requester != null) requester.disconnect();
+		if (dservlet != null) dservlet.disconnect();
 	}
 
 	public String getMessageResponse(String sentJson) throws Exception {

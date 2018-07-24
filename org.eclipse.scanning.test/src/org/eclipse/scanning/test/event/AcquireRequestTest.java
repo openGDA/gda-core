@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -47,62 +46,34 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AcquireServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class AcquireRequestTest extends BrokerTest {
 
-	private IRunnableDeviceService runnableDeviceService;
-	private IEventService eventService;
-	private IPointGeneratorService pointGenService;
 	private IRequester<AcquireRequest> requester;
 	private AcquireServlet acquireServlet;
 
 	@Before
 	public void createServices() throws Exception {
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		runnableDeviceService = new RunnableDeviceServiceImpl(new MockScannableConnector());
-		MandelbrotDetector detector = new MandelbrotDetector();
-		((RunnableDeviceServiceImpl) runnableDeviceService)._register("mandelbrot", detector);
-
-		pointGenService = new PointGeneratorService();
-
-		Services.setRunnableDeviceService(runnableDeviceService);
-		Services.setGeneratorService(pointGenService);
-		Services.setEventService(eventService);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		(new org.eclipse.scanning.sequencer.ServiceHolder()).setFactory(new DefaultNexusBuilderFactory());
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
 		this.acquireServlet = new AcquireServlet();
 		acquireServlet.setBroker(uri.toString());
 		acquireServlet.connect();
 
-		requester = eventService.createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
+		requester = ServiceTestHelper.getEventService().createRequestor(uri, ACQUIRE_REQUEST_TOPIC, ACQUIRE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 

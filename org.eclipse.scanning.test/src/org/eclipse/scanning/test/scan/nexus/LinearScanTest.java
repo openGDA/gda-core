@@ -24,15 +24,10 @@ import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
-import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -47,30 +42,18 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LinearScanTest extends BrokerTest{
 
-	protected IRunnableDeviceService      dservice;
-	protected IScannableDeviceService     connector;
-	protected IPointGeneratorService      gservice;
-	protected IEventService               eservice;
-	protected ILoaderService              lservice;
+	private IRunnableDeviceService      dservice;
+	private IPointGeneratorService      gservice;
+	private ILoaderService              lservice;
 
 	private IPublisher<ScanBean>          publisher;
 	private ISubscriber<EventListener>    subscriber;
@@ -79,40 +62,18 @@ public class LinearScanTest extends BrokerTest{
 	@Before
 	public void setup() throws Exception {
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		this.lservice = new LoaderServiceMock();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		gservice = ServiceTestHelper.getPointGeneratorService();
+		lservice = ServiceTestHelper.getLoaderService();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		connector = new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC));
-
-		dservice  = new RunnableDeviceServiceImpl(connector);
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-
-		gservice  = new PointGeneratorService();
-
-		// TODO Perhaps put service setting in super class or utility
-		Services.setEventService(eservice);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
-		org.eclipse.scanning.sequencer.ServiceHolder.setTestServices(new LoaderServiceMock(), new DefaultNexusBuilderFactory(), null);
-
-		this.publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
-		this.subscriber = eservice.createSubscriber(uri, EventConstants.STATUS_TOPIC);
+		this.publisher = ServiceTestHelper.getEventService().createPublisher(uri, EventConstants.STATUS_TOPIC);
+		this.subscriber = ServiceTestHelper.getEventService().createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
 		tmp = File.createTempFile("testAScan_", ".nxs");
 		tmp.deleteOnExit();
-
 	}
 
 	@After

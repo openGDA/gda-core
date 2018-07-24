@@ -52,18 +52,11 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.EventTimingsHelper;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,38 +77,11 @@ public class DeviceRequestTest extends BrokerTest {
 
 	@Before
 	public void createServices() throws Exception {
+		ServiceTestHelper.setupServices();
+		ServiceTestHelper.registerTestDevices();
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-
-		// Set up stuff because we are not in OSGi with a test
-		// DO NOT COPY TESTING ONLY
-		dservice = new RunnableDeviceServiceImpl(new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC)));
-		MandelbrotDetector mandy = new MandelbrotDetector();
-		final DeviceInformation<MandelbrotModel> info = new DeviceInformation<MandelbrotModel>(); // This comes from extension point or spring in the real world.
-		info.setName("mandelbrot");
-		info.setLabel("Example Mandelbrot");
-		info.setDescription("Example mandelbrot device");
-		info.setId("org.eclipse.scanning.example.detector.mandelbrotDetector");
-		info.setIcon("org.eclipse.scanning.example/icon/mandelbrot.png");
-		mandy.setDeviceInformation(info);
-		((RunnableDeviceServiceImpl)dservice)._register("mandelbrot", mandy);
-
-		final DummyMalcolmDevice malc = new DummyMalcolmDevice();
-		final DeviceInformation<DummyMalcolmModel> malcInfo = new DeviceInformation<>();
-		malcInfo.setName("malcolm");
-		malcInfo.setLabel("Malcolm");
-		malcInfo.setDescription("Example malcolm device");
-		malcInfo.setId("org.eclipse.scanning.example.malcolm.dummyMalcolmDevice");
-		malc.setDeviceInformation(malcInfo);
-
-		((RunnableDeviceServiceImpl) dservice)._register("malcolm", malc);
-
-		Services.setRunnableDeviceService(dservice);
-		Services.setEventService(eservice);
+		eservice = ServiceTestHelper.getEventService();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		connect();
 	}

@@ -12,14 +12,7 @@
 package org.eclipse.scanning.test;
 
 import java.net.URI;
-import java.util.Arrays;
 
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
-import org.eclipse.scanning.example.xcen.classregistry.XcenBeanClassRegistry;
-import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
-import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -67,23 +60,6 @@ public abstract class BrokerTest extends TmpTest {
 			delegate.start();
 			uri      = delegate.getUri();
 		}
-	}
-
-	public final static  IMarshallerService createNonOSGIActivemqMarshaller() {
-		return new MarshallerService(
-				Arrays.asList(new ScanningAPIClassRegistry(),
-						new ScanningExampleClassRegistry(),
-						new XcenBeanClassRegistry()),
-				Arrays.asList(new PointsModelMarshaller()));
-	}
-
-	public final IMarshallerService createNonOSGIActivemqMarshaller(Class<?>... extras) {
-		return new MarshallerService(
-				Arrays.asList(new ScanningAPIClassRegistry(),
-						new ScanningExampleClassRegistry(),
-						new XcenBeanClassRegistry(),
-						new ScanningTestClassRegistry(extras)),
-				Arrays.asList(new PointsModelMarshaller()));
 	}
 
 	@AfterClass

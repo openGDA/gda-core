@@ -31,16 +31,14 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.remote.RemoteServiceFactory;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AbstractResponderServlet;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,27 +53,22 @@ import org.junit.Test;
  */
 public class GetDeviceInformationTest extends BrokerTest {
 
-	private static  IRunnableDeviceService    dservice;
-	private static  IEventService             eservice;
-	private static AbstractResponderServlet<?>  dservlet, pservlet;
-	private static FakeDevice dev1, dev2, dev3, dev4;
+	private IRunnableDeviceService dservice;
+	private IEventService eservice;
+	private AbstractResponderServlet<?> dservlet, pservlet;
+	private FakeDevice dev1, dev2, dev3, dev4;
 
-	private         IRunnableDeviceService    rservice;
+	private IRunnableDeviceService rservice;
 
 	@Before
 	public void createService() throws Exception {
+		ServiceTestHelper.setupServices();
 
-		System.out.println("Create Services");
 		RemoteServiceFactory.setTimeout(1, TimeUnit.MINUTES); // Make test easier to debug.
 
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		createNonOSGIActivemqMarshaller();
-		eservice = new EventServiceImpl(new ActivemqConnectorService()); // Do not copy this get the service from OSGi!
-
-		// Set up stuff because we are not in OSGi with a test
-		// DO NOT COPY TESTING ONLY
-		dservice = new RunnableDeviceServiceImpl(new MockScannableConnector(eservice.createPublisher(uri, EventConstants.POSITION_TOPIC)));
+		eservice = ServiceTestHelper.getEventService();
+		dservice = ServiceTestHelper.getRunnableDeviceService();
+		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
 
 		// First device - up and online
 		dev1 = new FakeDevice();
@@ -137,10 +130,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		dev4.setUp(false);
 		((RunnableDeviceServiceImpl)dservice)._register("dev4DownOn", dev4);
 
-		Services.setRunnableDeviceService(dservice);
-		Services.setEventService(eservice);
-		System.out.println("Set connectors");
-
+		// Setup Servlets
 		dservlet = new DeviceServlet();
 		dservlet.setBroker(uri.toString());
 		dservlet.setRequestTopic(EventConstants.DEVICE_REQUEST_TOPIC);
@@ -152,8 +142,6 @@ public class GetDeviceInformationTest extends BrokerTest {
 		pservlet.setRequestTopic(EventConstants.POSITIONER_REQUEST_TOPIC);
 		pservlet.setResponseTopic(EventConstants.POSITIONER_RESPONSE_TOPIC);
 		pservlet.connect();
-		System.out.println("Made Servlets");
-		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
 	}
 
 	@After

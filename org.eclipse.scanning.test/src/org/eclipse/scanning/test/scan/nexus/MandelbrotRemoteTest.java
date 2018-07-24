@@ -125,7 +125,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		});
 
 		dataService = new RemoteDatasetServiceImpl();
-		org.eclipse.dawnsci.remotedataset.ServiceHolder.setLoaderService(new LoaderServiceMock());
+		new org.eclipse.dawnsci.remotedataset.ServiceHolder().setLoaderService(new LoaderServiceMock());
 	}
 
 	@After

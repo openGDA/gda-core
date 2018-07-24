@@ -35,9 +35,8 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,12 +47,9 @@ public class PublisherSubscriberTest extends BrokerTest {
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
 
 	@Before
-	public void setUp() throws Exception {
-		// We wire things together without OSGi here
-		// DO NOT COPY THIS IN NON-TEST CODE!
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller());
-		IEventService eventService = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
+	public void setUp() {
+		ServiceTestHelper.setupServices();
+		IEventService eventService = ServiceTestHelper.getEventService();
 
 		publisher = eventService.createPublisher(uri, "test");
 		subscriber = eventService.createSubscriber(uri, "test");

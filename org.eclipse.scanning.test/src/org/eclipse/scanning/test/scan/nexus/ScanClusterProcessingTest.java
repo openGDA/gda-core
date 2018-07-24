@@ -21,7 +21,6 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -35,11 +34,9 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.ui.CommandConstants;
-import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
-import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -54,22 +51,10 @@ public class ScanClusterProcessingTest extends NexusTest {
 	public static void beforeClass() throws Exception {
 		// called after NexusTest.beforeClass()
 
-//		// We wire things together without OSGi here
-//		// DO NOT COPY THIS IN NON-TEST CODE!
-//		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-//		activemqConnectorService.setJsonMarshaller(createNonOSGIActivemqMarshaller(DummyOperationBean.class));
-//		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
-//
-//
-//
-//		BrokerTest.createNonOSGIActivemqMarshaller();
 		BrokerTest.startBroker();
 
-		IEventService eventService = new EventServiceImpl(new ActivemqConnectorService());
-		ServiceHolder.setEventService(eventService);
-
 		URI uri = URI.create(CommandConstants.getScanningBrokerUri());
-		consumer = eventService.createConsumer(uri, PROCESSING_QUEUE_NAME,
+		consumer = ServiceTestHelper.getEventService().createConsumer(uri, PROCESSING_QUEUE_NAME,
 				"scisoft.operation.STATUS_SET", "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
 		consumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));

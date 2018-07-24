@@ -40,7 +40,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.Test;
 
-public class AbstractMConsumerTest extends BrokerTest{
+public class AbstractMConsumerTest extends BrokerTest {
 
 	protected IEventService          eservice;
 	protected ISubmitter<StatusBean> submitter;

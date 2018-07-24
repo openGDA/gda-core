@@ -7,9 +7,8 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.scan.event.IPositioner;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,9 +20,9 @@ public class ToleranceTest {
 
 	@BeforeClass
 	public static void before() {
-		connector = new MockScannableConnector(null);
-		dservice  = new RunnableDeviceServiceImpl(connector);
-		org.eclipse.scanning.example.Services.setScannableDeviceService(connector);
+		ServiceTestHelper.setupServices();
+		connector = ServiceTestHelper.getScannableDeviceService();
+		dservice  = ServiceTestHelper.getRunnableDeviceService();
 	}
 
     @Before

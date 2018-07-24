@@ -53,7 +53,7 @@ public class Services {
 		return filePathService;
 	}
 
-	public static void setFilePathService(IFilePathService filePathService) {
+	public void setFilePathService(IFilePathService filePathService) {
 		Services.filePathService = filePathService;
 	}
 
@@ -61,7 +61,7 @@ public class Services {
 		return eventService;
 	}
 
-	public static void setEventService(IEventService eventService) {
+	public void setEventService(IEventService eventService) {
 		Services.eventService = eventService;
 	}
 
@@ -69,7 +69,7 @@ public class Services {
 		return generatorService;
 	}
 
-	public static void setGeneratorService(IPointGeneratorService generatorService) {
+	public void setGeneratorService(IPointGeneratorService generatorService) {
 		Services.generatorService = generatorService;
 	}
 
@@ -77,7 +77,7 @@ public class Services {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService deviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService deviceService) {
 		Services.runnableDeviceService = deviceService;
 	}
 
@@ -85,7 +85,7 @@ public class Services {
 		return connector;
 	}
 
-	public static void setConnector(IScannableDeviceService connector) {
+	public void setConnector(IScannableDeviceService connector) {
 		Services.connector = connector;
 	}
 
@@ -93,7 +93,7 @@ public class Services {
 		return scriptService;
 	}
 
-	public static void setScriptService(IScriptService scriptService) {
+	public void setScriptService(IScriptService scriptService) {
 		Services.scriptService = scriptService;
 	}
 
@@ -113,7 +113,7 @@ public class Services {
 		return messagingService;
 	}
 
-	public static void setMessagingService(IMessagingService messagingService) {
+	public void setMessagingService(IMessagingService messagingService) {
 		Services.messagingService = messagingService;
 	}
 
@@ -121,7 +121,7 @@ public class Services {
 		return validatorService;
 	}
 
-	public static void setValidatorService(IValidatorService validatorService) {
+	public void setValidatorService(IValidatorService validatorService) {
 		Services.validatorService = validatorService;
 	}
 
@@ -129,7 +129,7 @@ public class Services {
 		return watchdogService;
 	}
 
-	public static void setWatchdogService(IDeviceWatchdogService watchdogService) {
+	public void setWatchdogService(IDeviceWatchdogService watchdogService) {
 		Services.watchdogService = watchdogService;
 	}
 }

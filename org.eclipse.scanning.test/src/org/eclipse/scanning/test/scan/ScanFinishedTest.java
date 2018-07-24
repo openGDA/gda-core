@@ -23,13 +23,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.remotedataset.test.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -59,9 +57,8 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
@@ -105,12 +102,7 @@ public class ScanFinishedTest {
 		lservice = new LoaderServiceMock();
 
 		// Provide lots of services that OSGi would normally.
-		Services.setEventService(eservice);
-		Services.setRunnableDeviceService(dservice);
-		Services.setGeneratorService(gservice);
-		Services.setConnector(connector);
-		ServiceHolder.setTestServices(lservice, new DefaultNexusBuilderFactory(), null);
-		org.eclipse.dawnsci.nexus.ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		ServiceTestHelper.setupServices();
 	}
 
 	@Test

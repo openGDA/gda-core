@@ -44,7 +44,7 @@ public class Services {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
+	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		Services.runnableDeviceService = runnableDeviceService;
 	}
 
@@ -53,7 +53,7 @@ public class Services {
 		return eventService;
 	}
 
-	public static void setEventService(IEventService eventService) {
+	public void setEventService(IEventService eventService) {
 		Services.eventService = eventService;
 	}
 
@@ -62,7 +62,7 @@ public class Services {
 		return pointGeneratorService;
 	}
 
-	public static void setPointGeneratorService(IPointGeneratorService pointGeneratorService) {
+	public void setPointGeneratorService(IPointGeneratorService pointGeneratorService) {
 		Services.pointGeneratorService = pointGeneratorService;
 	}
 
@@ -71,7 +71,7 @@ public class Services {
 		return scannableDeviceService;
 	}
 
-	public static void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
+	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		Services.scannableDeviceService = scannableDeviceService;
 	}
 

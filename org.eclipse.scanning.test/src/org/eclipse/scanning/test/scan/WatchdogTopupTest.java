@@ -46,6 +46,7 @@ import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.messaging.FileUtils;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.junit.After;
@@ -177,7 +178,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	public void topupIn2DScanMalcolm() throws Exception {
 
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = sservice.createRunnableDevice(model, false);
+		IRunnableDevice<DummyMalcolmModel> malcolmDevice = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
 
 		topupInScan(malcolmDevice, model, 2, 0.05);
 	}
@@ -186,7 +187,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	public void topupIn3DScanMalcolm() throws Exception {
 
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = sservice.createRunnableDevice(model, false);
+		IRunnableDevice<DummyMalcolmModel> malcolmDevice = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
 
 		topupInScan(malcolmDevice, model, 3, 0.05);
 	}
@@ -195,7 +196,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	public void topupSeveralMalcolm() throws Exception {
 
 		DummyMalcolmModel model = createModel();
-		IRunnableDevice<DummyMalcolmModel> malcolmDevice = sservice.createRunnableDevice(model, false);
+		IRunnableDevice<DummyMalcolmModel> malcolmDevice = ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
 
 		topupInScan(malcolmDevice, model, 2, 0.05);
 

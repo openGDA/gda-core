@@ -14,35 +14,13 @@ package org.eclipse.scanning.test.validation;
 import java.io.File;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
-import org.eclipse.scanning.api.device.models.ProcessingModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.example.detector.ConstantVelocityDevice;
-import org.eclipse.scanning.example.detector.ConstantVelocityModel;
-import org.eclipse.scanning.example.detector.DarkImageDetector;
-import org.eclipse.scanning.example.detector.DarkImageModel;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
-import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredDetector;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
-import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
-import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
 import org.eclipse.scanning.server.application.PseudoSpringParser;
-import org.eclipse.scanning.server.servlet.Services;
-import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 
 public abstract class AbstractValidationTest {
@@ -51,35 +29,15 @@ public abstract class AbstractValidationTest {
 
 	@Before
 	public void before() throws Exception {
+		ServiceTestHelper.setupServices();
 
-		// Make a validator.
-		validator = new ValidatorService();
-
-		IPointGeneratorService pservice = new PointGeneratorService();
-		validator.setPointGeneratorService(pservice);
-
-		IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(new MockScannableConnector(null));
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		impl._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
-		impl._register(DarkImageModel.class, DarkImageDetector.class);
-		impl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
-		impl._register(ClusterProcessingModel.class, ClusterProcessingRunnableDevice.class);
-		impl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-		impl._register(DummyMalcolmTriggeredModel.class, DummyMalcolmTriggeredDetector.class);
-
-		validator.setRunnableDeviceService(dservice);
-		Services.setValidatorService(validator);
-		Services.setRunnableDeviceService(validator.getRunnableDeviceService());
-		org.eclipse.scanning.example.Services.setRunnableDeviceService(validator.getRunnableDeviceService());
+		validator = ServiceTestHelper.getValidatorService();
 
 		// Make a few detectors and models...
 		PseudoSpringParser parser = new PseudoSpringParser();
 		parser.parse(getClass().getResourceAsStream("test_detectors.xml"));
 
-		IRunnableDevice<DummyMalcolmModel> device = dservice.getRunnableDevice("malcolm");
+		IRunnableDevice<DummyMalcolmModel> device = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("malcolm");
 
 		// Just for testing we give it a dir.
 		File dir = File.createTempFile("fred", ".nxs").getParentFile();
@@ -90,9 +48,7 @@ public abstract class AbstractValidationTest {
 		GridModel gmodel = new GridModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
 		// Cannot set the generator from @PreConfigure in this unit test.
-	mdevice.setPointGenerator(pservice.createGenerator(gmodel));
-
-
+		mdevice.setPointGenerator(ServiceTestHelper.getPointGeneratorService().createGenerator(gmodel));
 	}
 
 }
