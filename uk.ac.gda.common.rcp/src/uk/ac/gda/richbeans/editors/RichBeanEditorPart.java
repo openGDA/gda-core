@@ -47,7 +47,6 @@ import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ServiceGrabber;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -313,7 +312,7 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 	}
 
 	private void updateOtherBeanFromUi(Object otherBean) throws Exception {
-		IBeanService service = ServiceGrabber.getBeanService();
+		final IBeanService service = PlatformUI.getWorkbench().getService(IBeanService.class);
 		if (service == null) {
 			throw new IllegalStateException("BeanService not available");
 		}
@@ -481,6 +480,7 @@ public abstract class RichBeanEditorPart extends EditorPart implements ValueList
 	 * @param otherBean
 	 */
 	protected void updateUiFromOtherBean(Object otherBean) throws Exception {
-		ServiceGrabber.getBeanService().createController(getEditorUI(), otherBean).beanToUI();
+		final IBeanService beanService = PlatformUI.getWorkbench().getService(IBeanService.class);
+		beanService.createController(getEditorUI(), otherBean).beanToUI();
 	}
 }
