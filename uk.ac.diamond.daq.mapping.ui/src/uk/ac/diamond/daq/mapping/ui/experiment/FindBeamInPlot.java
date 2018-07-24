@@ -39,11 +39,11 @@ public class FindBeamInPlot extends AbstractHandler {
 	private static MappingStageInfo mappingStageInfo;
 	private static PlottingController plotter;
 
-	public static void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
+	public void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
 		FindBeamInPlot.mappingStageInfo = mappingStageInfo;
 	}
 
-	public static void setPlottingController(PlottingController plotter) {
+	public void setPlottingController(PlottingController plotter) {
 		FindBeamInPlot.plotter = plotter;
 	}
 

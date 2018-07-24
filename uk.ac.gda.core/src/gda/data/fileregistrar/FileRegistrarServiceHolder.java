@@ -36,7 +36,7 @@ public class FileRegistrarServiceHolder {
 		return runnableDeviceService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService rs) {
+	public void setRunnableDeviceService(IRunnableDeviceService rs) {
 		runnableDeviceService = rs;
 	}
 
@@ -46,7 +46,7 @@ public class FileRegistrarServiceHolder {
 		return filePathService;
 	}
 
-	public static void setFilePathService(IFilePathService filePathService) {
+	public void setFilePathService(IFilePathService filePathService) {
 		FileRegistrarServiceHolder.filePathService = filePathService;
 	}
 

@@ -90,7 +90,7 @@ public class FileRegistrarUnitTest {
 		fileArrayCaptor = ArgumentCaptor.forClass(String[].class);
 
 		filePathService = mock(IFilePathService.class);
-		FileRegistrarServiceHolder.setFilePathService(filePathService);
+		new FileRegistrarServiceHolder().setFilePathService(filePathService);
 	}
 
 	@Before
@@ -264,7 +264,7 @@ public class FileRegistrarUnitTest {
 	@Test
 	public void testRegister() throws Exception {
 		final IScanService scanService = mock(IScanService.class);
-		FileRegistrarServiceHolder.setRunnableDeviceService(scanService);
+		new FileRegistrarServiceHolder().setRunnableDeviceService(scanService);
 		final ArgumentCaptor<FileRegistrar> fileRegistrarCaptor = ArgumentCaptor.forClass(FileRegistrar.class);
 
 		final FileRegistrar fileRegistrar = new FileRegistrar(icatXmlCreator);

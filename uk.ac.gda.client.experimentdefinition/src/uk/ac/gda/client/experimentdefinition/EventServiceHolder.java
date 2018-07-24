@@ -34,7 +34,7 @@ public class EventServiceHolder {
 	 * For use by OSGi DS
 	 * @param service
 	 */
-	public static void setEventService(IEventService service) {
+	public void setEventService(IEventService service) {
 		eventService = service;
 	}
 
