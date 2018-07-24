@@ -173,7 +173,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 			dispose();
 			initialise();
 		} else {
-			logger.warn("Unknown property change event received");
+			logger.warn("Unknown property change event received: {}", event);
 		}
 	}
 
