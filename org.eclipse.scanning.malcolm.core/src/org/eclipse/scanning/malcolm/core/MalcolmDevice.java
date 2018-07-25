@@ -224,11 +224,12 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	public void initialize() throws MalcolmDeviceException {
 		logger.debug("initialize() called");
 
-		setAlive(false);
-		final DeviceState currentState = getDeviceState();
-		logger.debug("Connecting to ''{}''. Current state: {}", getName(), currentState);
-
 		try {
+			logger.debug("Connecting to malcolm device ''{}''.", getName());
+			setAlive(false);
+			final DeviceState currentState = getDeviceState(); // throws exception if no connection
+			logger.debug("Current state of malcolm device ''{}'' is: {}", getName(), currentState);
+
 			stateSubscribeMessage = messageGenerator.createSubscribeMessage(STATE_ENDPOINT);
 			subscribe(stateSubscribeMessage, stateChangeListener);
 
