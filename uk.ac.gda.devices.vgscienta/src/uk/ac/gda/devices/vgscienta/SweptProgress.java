@@ -21,16 +21,37 @@ package uk.ac.gda.devices.vgscienta;
 import java.io.Serializable;
 
 public class SweptProgress implements Serializable {
-	public int current, max, pct;
+	private final int currentPoint;
+	private final int max;
+	private final int percent;
+	private final int currentIter;
 
-	public SweptProgress(int current, int max, int pct) {
-		this.current = current;
-		this.max = (max >= current) ? max : current;
-		this.pct = pct;
+	public SweptProgress(int currentPoint, int max, int percent, int currentIter) {
+		this.currentPoint = currentPoint;
+		this.max = (max >= currentPoint) ? max : currentPoint;
+		this.percent = percent;
+		this.currentIter = currentIter;
+	}
+
+	public int getCurrentPoint() {
+		return currentPoint;
+	}
+
+	public int getMax() {
+		return max;
+	}
+
+	public int getPercent() {
+		return percent;
+	}
+
+	public int getCurrentIter() {
+		return currentIter;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("sweep #%d of %d = %d%% complete", current, max, pct);
+		return String.format("SweptProgress with sweep #%d of %d = %d%% complete. Current Iteration number is %d.",
+				currentPoint, max, percent, currentIter);
 	}
 }

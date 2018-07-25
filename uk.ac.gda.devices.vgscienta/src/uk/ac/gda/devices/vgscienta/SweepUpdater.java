@@ -39,8 +39,15 @@ public class SweepUpdater extends DeviceBase {
 	private static final Logger logger = LoggerFactory.getLogger(SweepUpdater.class);
 
 	private EpicsController epicsController;
-	private String currentSweepPV, maxSweepPV, pctSweepPV;
-	private int oldNumber = -1, maxSweep = 0, percentage = 0;
+	private String currentPointPV;
+	private String maxSweepPV;
+	private String pctSweepPV;
+	private String currentIterationPV;
+
+	private int oldNumber = -1;
+	private int maxSweep = 0;
+	private int percentage = 0;
+	private int currentIteration;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -58,7 +65,7 @@ public class SweepUpdater extends DeviceBase {
 				}
 			});
 
-			epicsController.setMonitor(epicsController.createChannel(currentSweepPV),  new MonitorListener() {
+			epicsController.setMonitor(epicsController.createChannel(currentPointPV),  new MonitorListener() {
 				@Override
 				public void monitorChanged(MonitorEvent ev) {
 					try {
@@ -82,23 +89,35 @@ public class SweepUpdater extends DeviceBase {
 				}
 			});
 
+			epicsController.setMonitor(epicsController.createChannel(currentIterationPV),  new MonitorListener() {
+				@Override
+				public void monitorChanged(MonitorEvent ev) {
+					try {
+						currentIteration =((gov.aps.jca.dbr.INT) ev.getDBR().convert(DBRType.INT)).getIntValue()[0];
+						dispatch();
+					} catch (Exception e) {
+						logger.error("exception caught preparing swept updates", e);
+					}
+				}
+			});
+
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
 	}
 
 	public void dispatch() {
-		SweptProgress progress = new SweptProgress(oldNumber, maxSweep, percentage);
+		SweptProgress progress = new SweptProgress(oldNumber, maxSweep, percentage, currentIteration);
 		logger.debug("publishing {}",progress);
 		notifyIObservers(getName(), progress);
 	}
 
-	public String getCurrentSweepPV() {
-		return currentSweepPV;
+	public String getCurrentPointPV() {
+		return currentPointPV;
 	}
 
-	public void setCurrentSweepPV(String currentSweepPV) {
-		this.currentSweepPV = currentSweepPV;
+	public void setCurrentPointPV(String currentSweepPV) {
+		this.currentPointPV = currentSweepPV;
 	}
 
 	public String getMaxSweepPV() {
@@ -115,5 +134,13 @@ public class SweepUpdater extends DeviceBase {
 
 	public void setPercentagePV(String percentagePV) {
 		this.pctSweepPV = percentagePV;
+	}
+
+	public String getCurrentIterationPV() {
+		return currentIterationPV;
+	}
+
+	public void setCurrentIterationPV(String currentIterationPV) {
+		this.currentIterationPV = currentIterationPV;
 	}
 }
