@@ -20,12 +20,11 @@ package gda.device.epicsdevice;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.observable.IObservable;
 
 /**
  * IEpicsChannel interface
  */
-public interface IEpicsChannel extends IObservable, Scannable {
+public interface IEpicsChannel extends Scannable {
 	/**
 	 * @return value
 	 * @throws DeviceException

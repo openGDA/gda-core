@@ -20,12 +20,10 @@ package gda.device.epicsdevice;
 
 import gov.aps.jca.dbr.TIME;
 
-import java.io.Serializable;
-
 /**
  * EpicsTime Class
  */
-public class EpicsTime extends EpicsSTS implements Serializable {
+public class EpicsTime extends EpicsSTS {
 	// public final TimeStamp _stamp;
 	/**
 	 *

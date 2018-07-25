@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.NXDetector;
@@ -46,9 +45,9 @@ import gda.observable.IObserver;
 /**
  *
  */
-public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBase implements Scannable,
-		ConstantVelocityMoveController2, PositionCallableProvider<Double>, ContinuouslyScannableViaController {
-
+public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBase implements ConstantVelocityMoveController2,
+		PositionCallableProvider<Double>, ContinuouslyScannableViaController {
+	
 	private String name;
 	private ZebraConstantVelocityMoveController zebraController;
 	private IScannableMotor scannableMotorToMove;

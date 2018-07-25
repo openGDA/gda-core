@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
@@ -42,7 +41,7 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPositioner, InitializationListener {
+public class EpicsAirBearingControl extends EnumPositionerBase implements InitializationListener {
 
 	private static final Logger logger=LoggerFactory.getLogger(EpicsAirBearingControl.class);
 	private String setPV;

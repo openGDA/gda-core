@@ -23,8 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.CounterTimer;
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
 import gda.device.detector.countertimer.TFGCounterTimer;
@@ -37,7 +35,7 @@ import gov.aps.jca.CAException;
  * Represents a Tfg and XMap combination. Since the Tfg will generally also be part of a TfgScaler combination there is
  * a slave mode. In this mode methods which set things on the Tfg do nothing.
  */
-public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
+public class TfgXmap extends TFGCounterTimer {
 	private static final Logger logger = LoggerFactory.getLogger(TfgXmap.class);
 	private XmapDetector xmap = null;
 	private String xmapName;

@@ -21,12 +21,10 @@ package gda.device.epicsdevice;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.STS;
 
-import java.io.Serializable;
-
 /**
  * EpicsSTS Class
  */
-public class EpicsSTS extends EpicsDBR implements Serializable {
+public class EpicsSTS extends EpicsDBR {
 	@SuppressWarnings("hiding")
 	final static long serialVersionUID = 1;
 	/**

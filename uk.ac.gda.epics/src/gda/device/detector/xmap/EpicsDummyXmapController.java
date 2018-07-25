@@ -24,7 +24,7 @@ import gda.device.detector.xmap.edxd.IEDXDMappingController;
 /**
  * Should set in the XML this class to be always local. There is no corba implementation for it.
  */
-public class EpicsDummyXmapController extends DummyXmapController implements XmapController {
+public class EpicsDummyXmapController extends DummyXmapController {
 
 	protected IEDXDMappingController edxdController;
 

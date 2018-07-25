@@ -20,12 +20,10 @@ package gda.device.epicsdevice;
 
 import gov.aps.jca.dbr.CTRL;
 
-import java.io.Serializable;
-
 /**
  * EpicsCTRL Class
  */
-public class EpicsCTRL extends EpicsGR implements Serializable {
+public class EpicsCTRL extends EpicsGR {
 	@SuppressWarnings("hiding")
 	final static long serialVersionUID = 1;
 	/**

@@ -20,12 +20,10 @@ package gda.device.epicsdevice;
 
 import gov.aps.jca.dbr.DBR_CTRL_Enum;
 
-import java.io.Serializable;
-
 /**
  * EpicsCtrlEnum class
  */
-public class EpicsCtrlEnum extends EpicsLabelsEnum implements Serializable {
+public class EpicsCtrlEnum extends EpicsLabelsEnum {
 	@SuppressWarnings("hiding")
 	final static long serialVersionUID = 1;
 
