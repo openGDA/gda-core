@@ -82,7 +82,7 @@ public enum AreaScanpath implements IMScanElementEnum {
 	 * @return		The {@link #GRID} instance
 	 */
 	public static AreaScanpath defaultValue() {
-		return GRID;
+		return RASTER;
 	}
 
 	/**
