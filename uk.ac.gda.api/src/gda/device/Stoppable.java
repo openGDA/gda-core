@@ -18,11 +18,13 @@
 
 package gda.device;
 
+import gda.factory.Findable;
+
 /**
  * Interface to be implemented by objects that can be stopped.
  */
-public interface Stoppable {
-	
+public interface Stoppable extends Findable {
+
 	/**
 	 * Stops the current operation.
 	 */
