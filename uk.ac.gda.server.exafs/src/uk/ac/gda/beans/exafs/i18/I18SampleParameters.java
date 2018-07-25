@@ -18,7 +18,6 @@
 
 package uk.ac.gda.beans.exafs.i18;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +26,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
 
-public class I18SampleParameters implements Serializable, ISampleParameters {
+public class I18SampleParameters implements ISampleParameters {
 
 	static public final URL mappingURL = I18SampleParameters.class.getResource("I18SampleParametersMapping.xml");
 

@@ -18,7 +18,6 @@
 
 package uk.ac.gda.beans.exafs;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 /**
  * @author Matthew Gerring Matthew Gerring
  */
-public class XanesScanParameters implements Serializable, IScanParameters {
+public class XanesScanParameters implements IScanParameters {
 
 	private String scannableName;
 	private String element;

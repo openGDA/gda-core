@@ -30,7 +30,7 @@ import gda.factory.FactoryException;
  * This detector is driven by TTL inputs from the TFG, but is readout via a Struck scaler driven through an EPICS Scaler
  * template.
  */
-public class TFGStruck extends TFGCounterTimer implements Detector {
+public class TFGStruck extends TFGCounterTimer {
 
 	private Detector struck;
 
