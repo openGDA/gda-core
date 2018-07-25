@@ -226,8 +226,11 @@ public enum Finder {
 	 *
 	 * @param interfaceName
 	 * @return the list of Findable objects supporting the named interface.
+	 * @deprecated use {@link #getLocalFindablesOfType(Class)} instead.
 	 */
+	@Deprecated
 	public List<Findable> listAllLocalObjects(String interfaceName) {
+		logger.debug("Using deprecated method 'listAllLocalObjects'. Called with '{}'", interfaceName);
 		return listAllObjects(interfaceName,true);
 	}
 
@@ -238,11 +241,24 @@ public enum Finder {
 	 * @param interfaceName
 	 *            the required interface to search for.
 	 * @return the list of Findable objects supporting the named interface.
+	 * @deprecated use {@link #listFindablesOfType(Class)} instead.
 	 */
+	@Deprecated
 	public List<Findable> listAllObjects(String interfaceName) {
+		logger.debug("Using deprecated method 'listAllObjects'. Called with '{}'", interfaceName);
 		return listAllObjects(interfaceName, false);
 	}
 
+	/**
+	 *
+	 *
+	 * @param interfaceName
+	 *            the required interface to search for.
+	 * @param localObjectsOnly <code>true</code> to only search local factories
+	 * @return the list of Findable objects supporting the named interface.
+	 * @deprecated This should be removed once the deprecated public methods have been removed.
+	 */
+	@Deprecated
 	private List<Findable> listAllObjects(String interfaceName, boolean localObjectsOnly) {
 		// if no class name given, then supply all objects
 		if (interfaceName == null) {
