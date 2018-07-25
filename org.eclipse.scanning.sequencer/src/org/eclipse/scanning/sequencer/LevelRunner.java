@@ -287,11 +287,7 @@ abstract class LevelRunner<L extends ILevel> {
 	 * Abort the level runner.
 	 */
 	public void abort() {
-		if (eservice == null) {
-			return; // We are already finished
-		}
-		eservice.shutdownNow();
-		eservice = null;
+		abort("User requested abort", new ScanningException("User requested abort"));
 	}
 
 	/**
@@ -302,13 +298,13 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @param pos
 	 * @param ne
 	 */
-	protected void abortWithError(INameable device, Object value, IPosition pos, Throwable ne) {
+	protected void abortWithError(INameable device, Object value, IPosition pos, Exception ne) {
 		final String message = "Cannot run device named '" + device.getName() + "' value is '" + value + "' and position is '"
 				+ pos + "'\nMessage: " + ne.getMessage();
 		abort(message, ne);
 	}
 
-	protected void abortWithError(INameable device, IPosition pos, Throwable ne) {
+	protected void abortWithError(INameable device, IPosition pos, Exception ne) {
 		final String message = "Cannot run device named '" + device.getName() + "' position is '" + pos + "'\nMessage: "
 				+ ne.getMessage();
 		abort(message, ne);
