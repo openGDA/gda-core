@@ -121,7 +121,7 @@ public class ExampleMalcolmDeviceTest {
 
 		// Check the RPC calls were received correctly by the device
 		Map<String, PVStructure> rpcCalls = epicsv4Device.getReceivedRPCCalls();
-		assertEquals(4, rpcCalls.size());
+		assertEquals(5, rpcCalls.size()); // configure (which calls abort, reset and configure), run and seek (which calls pause)
 
 		// Check the 'configure' call is as expected
 		// first create the expected structure (it's quite large)

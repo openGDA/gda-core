@@ -255,7 +255,8 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
 		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
 
-		// create the expected reset and configure message and configure the mock connection to reply as expected
+		// create the expected abort, reset and configure message and configure the mock connection to reply as expected
+		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
 		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
 		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
 		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -263,6 +264,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 		// create the expected validate message and configure the mock connection to reply as expected
 		final MalcolmMessage expectedConfigureMessage = createExpectedCallMessage(id++, MalcolmMethod.CONFIGURE, expectedMalcolmModel);
+		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		when(malcolmConnection.send(malcolmDevice, expectedConfigureMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
@@ -274,6 +276,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		malcolmDevice.configure(malcolmModel);
 
 		// Assert
+		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
 		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 		verify(malcolmConnection).send(malcolmDevice, expectedConfigureMessage);
 		// test duration of pointGen's model has been set to exposure time of malcolm model
@@ -337,7 +340,31 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	@Test
 	public void testReset() throws Exception {
-		testCall(IMalcolmDevice::reset, MalcolmMethod.RESET, null);
+		// Arrange
+		MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
+		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+		MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+
+		// Act
+		malcolmDevice.reset();
+
+		// Assert
+		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
+		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
+
+		// Arrange again, this time with an error message from the call to abort.
+		expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
+		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmErrorReply("Could not abort"));
+		expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+
+		// Act
+		malcolmDevice.reset();
+
+		// Assert, the error message should be ignored (it is logged) and the call to reset is made nevertheless
+		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
+		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 	}
 
 	@Test
@@ -350,7 +377,6 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		testCall(IMalcolmDevice::resume, MalcolmMethod.RESUME, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testDispose() throws Exception {
 		initializeMalcolmDevice();

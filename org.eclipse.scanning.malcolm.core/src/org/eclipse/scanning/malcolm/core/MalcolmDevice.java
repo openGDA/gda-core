@@ -536,7 +536,15 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public void reset() throws MalcolmDeviceException {
 		logger.debug("reset() called");
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.RESET, Timeout.STANDARD.toMillis()));
+
+
+		// First call abort to abort any existing scan. This
+		MalcolmMessage reply = wrap(()->call(MalcolmMethod.ABORT, Timeout.STANDARD.toMillis()));
+		if (reply.getType() == Type.ERROR) {
+			logger.warn("Error aborting malcolm device ''{}''. This is normal depending on the current state", getName());
+		}
+
+		reply = wrap(()->call(MalcolmMethod.RESET, Timeout.STANDARD.toMillis()));
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
