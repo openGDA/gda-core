@@ -74,6 +74,8 @@ import uk.ac.gda.beamline.synoptics.utils.DataDirectoryMonitor;
  */
 class LatestFilenameComposite extends Composite {
 
+	private static final String ALL_DATA = "All Data";
+
 	private static final String AUTO_SKIP_TO_LATEST = "Auto skip to latest";
 
 	private static final String WAITING = "Waiting...";
@@ -354,10 +356,11 @@ class LatestFilenameComposite extends Composite {
 
 		detectorCombo = new Combo(group, SWT.DROP_DOWN | SWT.READ_ONLY);
 		detectorCombo.setToolTipText("Select a detector to filter");
-		detectors.put("All Data", a -> true);
+		detectorCombo.add(ALL_DATA);
 		for (String detector : getDetectors().keySet()) {
 			detectorCombo.add(detector);
 		}
+		detectors.put(ALL_DATA, a -> true);
 		detectorCombo.select(0); // default to no filtering of data
 		GridDataFactory.fillDefaults().grab(false, false).applyTo(plotTypes);
 		detectorCombo.addSelectionListener(new SelectionAdapter() {
