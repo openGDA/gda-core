@@ -57,6 +57,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.device.detectorfilemonitor.FileProcessor;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.beamline.synoptics.api.PlotConfigurable;
 import uk.ac.gda.beamline.synoptics.events.DirectoryChangeEvent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
@@ -129,6 +130,8 @@ class LatestFilenameComposite extends Composite {
 	private Map<String, Predicate<String>> detectors;
 
 	private Combo detectorCombo;
+
+	protected String selectedDetector = ALL_DATA;
 
 	public void setLabel(String label) {
 		this.label = label;
@@ -367,6 +370,7 @@ class LatestFilenameComposite extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				selectedDetector = detectorCombo.getText();
 				if (detectorCombo.getSelectionIndex() == 0 && !dirWatcher.getDataFilesCollected().isEmpty()) {
 					latestFoundIndex = dirWatcher.getDataFilesCollected().size() - 1;
 				} else {
@@ -420,19 +424,21 @@ class LatestFilenameComposite extends Composite {
 							setSelectedIndex(latestFoundIndex);
 					});
 				} else if (arg instanceof DirectoryChangeEvent) {
-					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-						List<Path> files = detectorFilteredFileList(detectorCombo.getText());
-						if (files.isEmpty()) {
-							latestFoundIndex = null;
-							textIndex.setText("");
-							fileNameText.setText(WAITING);
-						} else {
-							latestFoundIndex = files.size() - 1;
-							String lastFile = files.get(latestFoundIndex).toString();
-							fileNameText.setText(lastFile);
-							setSelectedIndex(latestFoundIndex);
-						}
-						enableBtns();
+					Async.execute(() -> {
+						List<Path> files = detectorFilteredFileList(selectedDetector);
+						PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+							if (files.isEmpty()) {
+								latestFoundIndex = null;
+								textIndex.setText("");
+								fileNameText.setText(WAITING);
+							} else {
+								latestFoundIndex = files.size() - 1;
+								String lastFile = files.get(latestFoundIndex).toString();
+								fileNameText.setText(lastFile);
+								setSelectedIndex(latestFoundIndex);
+							}
+							enableBtns();
+						});
 					});
 				}
 			}

@@ -18,6 +18,7 @@
 
 package uk.ac.gda.beamline.synoptics.utils;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -49,6 +50,7 @@ import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.beamline.synoptics.events.DirectoryChangeEvent;
 import uk.ac.gda.beamline.synoptics.events.LatestFilenameEvent;
 
@@ -97,27 +99,33 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (source instanceof MetadataEntry && ((MetadataEntry) source).getName().equals("visit")) {
-			updateDataDirectory();
-		} else if (arg instanceof String[]) {
-			String[] files = (String[])arg;
-			for (String file : files) {
-				if (file == null) continue; // Should never happen
-				Path newPath = Paths.get(file);
-				if (dataDirectory != null && !newPath.startsWith(dataDirectory)) {
-					// Ignore this file
-					logger.debug("Ignoring new file out side data directory ({} not in {})", newPath, dataDirectory);
-					return;
-				}
-				if (includeFile(newPath)) {
-					dataFiles.add(newPath);
-					obsComp.notifyIObservers(this, new LatestFilenameEvent(dataFiles.size() - 1, newPath.toString()));
-				} else {
-					logger.debug("Ignoring new file: {}", newPath);
-				}
+		Async.execute(() -> {
+			if (source instanceof MetadataEntry && ((MetadataEntry) source).getName().equals("visit")) {
+				updateDataDirectory();
+			} else if (arg instanceof String[]) {
+				String[] files = (String[])arg;
+				stream(files)
+					.filter(f -> f != null)
+					.forEach(this::addFile);
 			}
+		});
+	}
+
+	private void addFile(String file) {
+		Path newPath = Paths.get(file);
+		if (dataDirectory != null && !newPath.startsWith(dataDirectory)) {
+			// Ignore this file
+			logger.debug("Ignoring new file out side data directory ({} not in {})", newPath, dataDirectory);
+			return;
+		}
+		if (includeFile(newPath)) {
+			dataFiles.add(newPath);
+			obsComp.notifyIObservers(this, new LatestFilenameEvent(dataFiles.size() - 1, newPath.toString()));
+		} else {
+			logger.debug("Ignoring new file: {}", newPath);
 		}
 	}
+
 	public void setFileProviderName(String fileProvider) {
 		fileProviderName = fileProvider;
 	}

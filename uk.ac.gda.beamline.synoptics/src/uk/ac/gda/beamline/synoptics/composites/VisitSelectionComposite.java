@@ -122,8 +122,8 @@ public class VisitSelectionComposite extends Composite implements IObserver {
 
 	protected void updateSelection() {
 		if (!isDisposed()) {
+			String visit = getCurrentVisit();
 			Display.getDefault().asyncExec(() -> {
-				String visit = getCurrentVisit();
 				if (!list.contains(visit)) {
 					list.add(String.valueOf(visit));
 					viewer.add(visit);
