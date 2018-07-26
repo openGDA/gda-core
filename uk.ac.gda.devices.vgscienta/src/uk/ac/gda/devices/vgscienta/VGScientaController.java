@@ -990,6 +990,9 @@ public class VGScientaController extends ConfigurableBase {
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
 	public void setDetectorConfiguration(DetectorConfiguration configuration) throws Exception{
+		logger.debug("setDetectorConfiguration called with configuration {}", configuration);
+		logger.debug("Currently Sensor Size X is {} and Sensor Size Y is {}", sensorXSize, sensorYSize);
+
 		// Validate configuration
 		if (configuration.getSizeX() > sensorXSize) {
 			throw new IllegalArgumentException(String.format("Configuration error: ROI X size %d is bigger than detector X size %d",
