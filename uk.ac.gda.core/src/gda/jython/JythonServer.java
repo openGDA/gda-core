@@ -63,7 +63,6 @@ import gda.device.Scannable;
 import gda.device.Stoppable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.factory.Localizable;
 import gda.jython.authoriser.Authoriser;
@@ -869,17 +868,15 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			logger.info("Configured *not* to stop Scannables found in Jython namespace.");
 		}
 
-		List<Findable> stoppables = Finder.getInstance().listAllObjects(Stoppable.class.getSimpleName());
+		List<Stoppable> stoppables = Finder.getInstance().listFindablesOfType(Stoppable.class);
 		if (!stoppables.isEmpty()) {
 			InterfaceProvider.getTerminalPrinter().print("!!! Stopping stoppables");
-		}
-
-		for (Findable f : stoppables) {
-			try {
-				Stoppable s = (Stoppable) f;
-				s.stop();
-			} catch (Exception e) {
-				logger.warn("Failed to stop '{}'", f.getName(), e);
+			for (Stoppable s : stoppables) {
+				try {
+					s.stop();
+				} catch (Exception e) {
+					logger.warn("Failed to stop '{}'", s.getName(), e);
+				}
 			}
 		}
 
