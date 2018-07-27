@@ -96,4 +96,7 @@ Import-Package: org.aopalliance.intercept;version="1.0.0",
  org.springframework.beans.factory.support;version="3.0.4",
  org.springframework.beans.factory.xml;version="3.0.4",
  org.springframework.context;version="3.0.4",
+ org.springframework.expression;version="4.0.6.RELEASE",
+ org.springframework.expression.spel.standard;version="4.0.6.RELEASE",
+ org.springframework.expression.spel.support;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4"
