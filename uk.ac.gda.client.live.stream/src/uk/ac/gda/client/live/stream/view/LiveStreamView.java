@@ -80,6 +80,8 @@ import uk.ac.gda.client.live.stream.handlers.SnapshotData;
  * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
  * to be integrated into GDA, with minimal Spring configuration.
  * <p>
+ * Can be extended by overriding {@link  #createLivePlot(Composite, String)}.
+ * <p>
  * To setup this view in Spring create a {@link CameraConfiguration} in client Spring
  * <p>
  * For additional docs see <a href="http://confluence.diamond.ac.uk/x/1wWKAg">Setup Live Stream Camera View</a>
@@ -94,8 +96,8 @@ public class LiveStreamView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamView.class);
 
-	private IPlottingSystem<Composite> plottingSystem;
-	private IImageTrace iTrace;
+	protected IPlottingSystem<Composite> plottingSystem;
+	protected IImageTrace iTrace;
 	private CameraConfiguration camConfig;
 	private Composite parent;
 	private LiveStreamConnection liveStreamConnection;
@@ -251,13 +253,16 @@ public class LiveStreamView extends ViewPart {
 	 * This is the method that actually creates a MJPEG stream and sets up the plotting system.
 	 * <p>
 	 * To get here the secondary id of the view need to be set (hopefully to a valid camera id)
+	 * <p>
+	 * When extending this class it is necessary to call this method with the composite the plot
+	 * should be drawn on. This instantiates the {@link #plottingSystem} and {@link #iTrace}
 	 *
 	 * @param parent
 	 *            Composite to draw on
 	 * @param secondaryId
 	 *            The name of the camera to use and type of stream to display
 	 */
-	private void createLivePlot(final Composite parent, final String secondaryId) {
+	protected void createLivePlot(final Composite parent, final String secondaryId) {
 		logger.debug("Creating live stream plot with secondary ID: {}", secondaryId);
 		final String cameraId = cameraIdFromSecondaryId(secondaryId);
 		StreamType streamType = streamTypeFromSecondaryId(secondaryId);
