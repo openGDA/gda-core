@@ -49,6 +49,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
 
 /**
@@ -203,8 +204,8 @@ public class NudgePositionerComposite extends Composite {
 	}
 
 	/**
-	 * Moves the scannable to a new position by calling {@link Scannable} asynchronousMoveTo(position). Checks if the position is within limits and if the
-	 * scannable is busy before moving
+	 * Moves the scannable to a new position.<br>
+	 * Checks if the position is within limits and if the scannable is busy before moving
 	 *
 	 * @param position
 	 *            The demanded position
@@ -218,7 +219,7 @@ public class NudgePositionerComposite extends Composite {
 		} else if (checkLimits(position)) {
 			try {
 				if (!scannable.isBusy()) {
-					scannable.asynchronousMoveTo(position);
+					runMoveInThread(position);
 				}
 			} catch (DeviceException e) {
 				logger.error("Error while trying to move {}", scannableName, e);
@@ -231,6 +232,26 @@ public class NudgePositionerComposite extends Composite {
 					scannable.getName(), df.format(position), df.format(lowerLimit), df.format(upperLimit));
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error moving device", message);
 		}
+	}
+
+	/**
+	 * Move the scannable, ensuring that the GUI is not blocked during the move.
+	 * <p>
+	 * In theory, we could call {@link gda.device.scannable.ScannableMotionBase#asynchronousMoveTo(Object)}, but
+	 * creating our own thread here ensures that the GUI is not blocked if asynchronousmoveTo() is written in such a way
+	 * that it can block.
+	 *
+	 * @param position
+	 *            The demanded position
+	 */
+	private void runMoveInThread(double position) {
+		Async.execute(() -> {
+			try {
+				scannable.moveTo(position);
+			} catch (DeviceException e) {
+				logger.error("Error while trying to move {}", scannableName, e);
+			}
+		});
 	}
 
 	/**
