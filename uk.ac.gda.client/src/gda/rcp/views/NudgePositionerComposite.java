@@ -25,8 +25,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -62,7 +60,7 @@ import uk.ac.gda.client.UIHelper;
 public class NudgePositionerComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);
-	public static final double DEFAULT_INCREMENT = 1.0;
+	private static final double DEFAULT_INCREMENT = 1.0;
 	private static final int NUDGE_BUTTON_WIDTH = 28;
 	private static final int DEFAULT_INCREMENT_TEXT_WIDTH = 30;
 
@@ -103,7 +101,7 @@ public class NudgePositionerComposite extends Composite {
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
 		// Setup layout
-		GridLayout gridLayout = new GridLayout(3, false);
+		final GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.horizontalSpacing = 0;
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginHeight = 0;
@@ -210,9 +208,9 @@ public class NudgePositionerComposite extends Composite {
 	 *            The demanded position
 	 */
 	private void move(double position) {
-		boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
+		final boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
 		if (!batonHeld) {
-			MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
+			final MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
 					"You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
 			dialog.open();
 		} else if (checkLimits(position)) {
@@ -255,24 +253,21 @@ public class NudgePositionerComposite extends Composite {
 		// Format current position using output format
 		final String currentPositionString = String.format(scannable.getOutputFormat()[0], currentPosition).trim();
 		// Update the GUI in the UI thread
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				// Update the position
-				if (currentPositionString == null) {
-					positionText.setText("null");
-				} else if (userUnits == null || userUnits.equals("")) {
-					positionText.setText(currentPositionString);
-				} else {
-					positionText.setText(currentPositionString + " " + userUnits);
-				}
-				// Update the controls enabled/disabled
-				decrementButton.setEnabled(!moving);
-				incrementButton.setEnabled(!moving);
-				positionText.setEditable(!moving);
-				if (stopButton != null) {
-						stopButton.setEnabled(moving);
-				}
+		Display.getDefault().asyncExec(() -> {
+			// Update the position
+			if (currentPositionString == null) {
+				positionText.setText("null");
+			} else if (userUnits == null || userUnits.equals("")) {
+				positionText.setText(currentPositionString);
+			} else {
+				positionText.setText(currentPositionString + " " + userUnits);
+			}
+			// Update the controls enabled/disabled
+			decrementButton.setEnabled(!moving);
+			incrementButton.setEnabled(!moving);
+			positionText.setEditable(!moving);
+			if (stopButton != null) {
+				stopButton.setEnabled(moving);
 			}
 		});
 	}
@@ -288,10 +283,10 @@ public class NudgePositionerComposite extends Composite {
 		try {
 			final Object getPosition = scannable.getPosition();
 
-			if (getPosition.getClass().isArray())
+			if (getPosition.getClass().isArray()) {
 				// The scannable returns an array assume the relevant value is the first and its a double
 				currentPos = (Double) ((Object[]) getPosition)[0];
-			else if (getPosition instanceof Double) {
+			} else if (getPosition instanceof Double) {
 				currentPos = (Double) getPosition;
 			} else {
 				logger.error("Error while parsing currrent position of {}", scannableName);
@@ -307,7 +302,7 @@ public class NudgePositionerComposite extends Composite {
 	// Might need to try casting to something with the get limits methods. The problem is the remoting gives an
 	// adaptor class which doesn't have the get limits methods.
 	private void determineUserUnits() {
-		JythonServerFacade jythonServer = JythonServerFacade.getInstance();
+		final JythonServerFacade jythonServer = JythonServerFacade.getInstance();
 		String command = "\'" + scannableName + "\' in globals()";
 		String evaluateCommand = jythonServer.evaluateCommand(command);
 		if (evaluateCommand.equals("True")) {
@@ -334,7 +329,7 @@ public class NudgePositionerComposite extends Composite {
 	}
 
 	private void determineScannableLimits() {
-		JythonServerFacade jythonServer = JythonServerFacade.getInstance();
+		final JythonServerFacade jythonServer = JythonServerFacade.getInstance();
 		String command = "\'" + scannableName + "\' in globals()";
 		String evaluateCommand = jythonServer.evaluateCommand(command);
 		if (evaluateCommand.equals("True")) {
@@ -389,7 +384,9 @@ public class NudgePositionerComposite extends Composite {
 	}
 
 	private void setIncrement(String incrementText) {
-		if (incrementText.isEmpty()) return;
+		if (incrementText.isEmpty()) {
+			return;
+		}
 		incrementValue = Double.parseDouble(incrementText);
 	}
 
@@ -597,24 +594,14 @@ public class NudgePositionerComposite extends Composite {
 			}
 		};
 
-		// Add an observer to the scannable when an event occurs such as starting to move
-		// start the updateReadbackJob. If the job is already running a maximum of one extra will
-		// be scheduled.
-		final IObserver iObserver = new IObserver() {
-			@Override
-			public void update(final Object source, Object arg) {
-				// Start the updateReadbackJob
-				updateReadbackJob.schedule();
-			}
-		};
+		// Add an observer to the scannable to start the updateReadbackJob when an event occurs such as starting to move.
+		// If the job is already running a maximum of one extra will be scheduled.
+		final IObserver iObserver = (source, arg) -> updateReadbackJob.schedule();
 		scannable.addIObserver(iObserver);
 
-		this.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				scannable.deleteIObserver(iObserver);
-				updateReadbackJob.cancel();
-			}
+		this.addDisposeListener(e -> {
+			scannable.deleteIObserver(iObserver);
+			updateReadbackJob.cancel();
 		});
 
 		determineScannableLimits();
