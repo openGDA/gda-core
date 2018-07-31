@@ -18,6 +18,8 @@
 
 package gda.rcp.views;
 
+import java.text.DecimalFormat;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -221,6 +223,13 @@ public class NudgePositionerComposite extends Composite {
 			} catch (DeviceException e) {
 				logger.error("Error while trying to move {}", scannableName, e);
 			}
+		} else {
+			// Log positions to full accuracy: round to max. 4 decimal places to display to user
+			logger.error("Cannot move {} to {}: position is outside the allowed limits [{} : {}]", scannable.getName(), position, lowerLimit, upperLimit);
+			final DecimalFormat df = new DecimalFormat("0.####");
+			final String message = String.format("Cannot move %s to %s%nPosition is outside the allowed limits [%s : %s]",
+					scannable.getName(), df.format(position), df.format(lowerLimit), df.format(upperLimit));
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error moving device", message);
 		}
 	}
 
