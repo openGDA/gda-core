@@ -18,11 +18,11 @@
 
 package uk.ac.gda.client.scripting;
 
+import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.CHECK_CONSISTENT_ON_STARTUP;
+import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP;
+import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY;
+import static org.python.pydev.core.preferences.InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY;
 import static org.python.pydev.editor.PydevShowBrowserMessage.PYDEV_FUNDING_SHOW_AT_TIME;
-import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.CHECK_CONSISTENT_ON_STARTUP;
-import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_IP;
-import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_JY;
-import static org.python.pydev.ui.pythonpathconf.InterpreterGeneralPreferencesPage.NOTIFY_NO_INTERPRETER_PY;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -44,19 +44,21 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
-import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.ast.codecompletion.revisited.ModulesManagerWithBuild;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.JythonInterpreterManager;
+import org.python.pydev.ast.listing_utils.JavaVmLocationFinder;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.plugin.preferences.PydevRootPrefs;
-import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.JythonInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +110,7 @@ public class ScriptProjectCreator {
 		if (!(new File(executable)).exists())
 			throw new Exception("Jython jar not found  :" + executable);
 
-		final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
+		final File script = CorePlugin.getScriptWithinPySrc("interpreterInfo.py");
 		if (!script.exists()) {
 			throw new RuntimeException("The file specified does not exist: " + script);
 		}
@@ -165,7 +167,7 @@ public class ScriptProjectCreator {
 		info.restoreCompiledLibs(monitor);
 		info.setName(INTERPRETER_NAME);
 
-		final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
+		final JythonInterpreterManager man = (JythonInterpreterManager) InterpreterManagersAPI.getJythonInterpreterManager();
 		HashSet<String> set = new HashSet<>();
 		set.add(INTERPRETER_NAME);
 		man.setInfos(new IInterpreterInfo[] { info }, set, monitor);
@@ -266,7 +268,7 @@ public class ScriptProjectCreator {
 	 */
 	private static boolean isInterpreterCreationRequired() {
 		logger.debug("Checking for any existing Jython Interpreters in Pydev");
-		IInterpreterInfo[] infos = PydevPlugin.getJythonInterpreterManager().getInterpreterInfos();
+		IInterpreterInfo[] infos = InterpreterManagersAPI.getJythonInterpreterManager().getInterpreterInfos();
 		final boolean correctInterpreterVersionPresent = Arrays.stream(infos)
 				.anyMatch(info -> (info.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_JYTHON)
 						&& info.getVersion().equals(JYTHON_VERSION));
@@ -294,7 +296,7 @@ public class ScriptProjectCreator {
 		// Using both these preventions should ensure that it is never shown.
 		// Set the show time to be max long i.e. a long time in the future
 		System.setProperty("pydev.funding.hide", "true");
-		PydevPrefs.getPreferenceStore().setValue(PYDEV_FUNDING_SHOW_AT_TIME, Long.MAX_VALUE);
+		PyDevUiPrefs.getPreferenceStore().setValue(PYDEV_FUNDING_SHOW_AT_TIME, Long.MAX_VALUE);
 	}
 
 	/**
