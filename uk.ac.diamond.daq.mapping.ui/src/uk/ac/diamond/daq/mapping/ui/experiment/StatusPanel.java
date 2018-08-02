@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.util.Objects;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -71,6 +69,7 @@ class StatusPanel extends Composite {
 			firstLine = message;
 			secondLine = "";
 		} else {
+			if (pathInfo == null) return; // come back later
 			firstLine = getNumberOfPointsString() + getExposureString();
 			secondLine = getStepsString();
 		}
@@ -96,7 +95,6 @@ class StatusPanel extends Composite {
 	}
 
 	private String getStepsString() {
-		if (Objects.isNull(pathInfo)) return "";
 		return String.format("Smallest steps: X = %s;  Y = %s;  Absolute = %s",
 				pathInfo.getFormattedSmallestXStep(),
 				pathInfo.getFormattedSmallestYStep(),
@@ -134,12 +132,7 @@ class StatusPanel extends Composite {
 	}
 
 	private int get2DPoints() {
-		if (Objects.isNull(pathInfo)) {
-			logger.error("Path not set!");
-			return 0;
-		} else {
-			return pathInfo.pointCount;
-		}
+		return pathInfo.pointCount;
 	}
 
 	void setPathInfo(PathInfo pathInfo) {
