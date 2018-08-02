@@ -20,6 +20,7 @@ package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -576,7 +577,7 @@ public class ScansSetupUsingXmlTest {
 	public void testQExafsScanFromBeansXspress2TreeWriter() throws Exception {
 		setupForTest(ScansSetupUsingXmlTest.class, "testQExafsScanFromBeansXspress2TreeWriter");
 		qexafs_xspress.setUseNexusTreeWriter(true);
-		qexafs_xspress.setDetectorNexusFilename("/scratch/xspress2.nxs");
+		qexafs_xspress.setDetectorNexusFilename(Paths.get(testDir, "xspress2.nxs").toAbsolutePath().toString());
 		loadBeans("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml");
 		EnergyScan energyScan = xasScanFactory.createQexafsScan();
 		energyScan.configureCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
