@@ -261,7 +261,6 @@ public class AbstractConsumerTest extends BrokerTest {
 		IPublisher<KillBean> killer = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		KillBean kbean = new KillBean();
 		kbean.setConsumerId(consumer.getConsumerId());
-		kbean.setExitProcess(false); // Or tests would exit!
 		kbean.setDisconnect(false);  // Or we cannot ask for the list of what's left
 		killer.broadcast(kbean);
 

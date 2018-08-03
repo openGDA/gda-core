@@ -319,7 +319,6 @@ public class ConsumerView extends EventConnectionView {
 			return;
 
 		final KillBean killBean = new KillBean();
-		killBean.setExitProcess(false);
 		killBean.setMessage("Requesting a restart of " + bean.getConsumerName());
 		killBean.setConsumerId(bean.getConsumerId());
 		killBean.setRestart(true);

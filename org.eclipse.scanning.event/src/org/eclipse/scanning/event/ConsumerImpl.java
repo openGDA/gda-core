@@ -201,15 +201,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		} catch (EventException e) {
 			LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
 		}
-		if (kbean.isExitProcess()) {
-			try {
-				Thread.sleep(2500);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				LOGGER.error("Unable to pause before exit", e);
-			}
-			exit();
-		}
 		if (kbean.isRestart()) {
 			try {
 				if (kbean.isDisconnect()) {
@@ -226,7 +217,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		// TODO: We should almost certainly not be killing the VM. We need to investigate
 		// further why we would want to do this and what we should do instead.
 		// - when called from processException() maybe just return false
-		// - when called from terminate? possibly just set active to false
 		System.exit(0); // Normal orderly exit
 	}
 
