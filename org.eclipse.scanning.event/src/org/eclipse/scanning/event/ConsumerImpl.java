@@ -213,13 +213,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
-	public void exit() {
-		// TODO: We should almost certainly not be killing the VM. We need to investigate
-		// further why we would want to do this and what we should do instead.
-		// - when called from processException() maybe just return false
-		System.exit(0); // Normal orderly exit
-	}
-
 	/**
 	 * Updates the given bean on the queue to have the same status as the one given.
 	 * This is done by using a {@link QueueBrowser} to
@@ -562,7 +555,13 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 
 		waitTime += EventTimingsHelper.getNotificationInterval();
-		checkTime(waitTime); // Exits if wait time more than one day
+
+		// Exits if wait time more than one day
+		if (waitTime > ONE_DAY) {
+			LOGGER.warn("ActiveMQ permanently lost. {} will now exit", getName());
+			disconnect();
+			return false;
+		}
 
 		return true;
 	}
@@ -722,17 +721,6 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
-	/**
-	 * Exits the whole VM(!) if wait time has exceeded one day.
-	 * @param waitTime
-	 */
-	protected void checkTime(long waitTime) {
-		if (waitTime > ONE_DAY) {
-			setActive(false);
-			LOGGER.warn("ActiveMQ permanently lost. {} will now shutdown!", getName());
-			exit();
-		}
-	}
 
 	private Message getMessage(URI uri, String submitQName) throws JMSException {
 		if (this.messageConsumer == null) {
