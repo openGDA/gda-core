@@ -259,4 +259,12 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 	public ScalerOutputProcessor getScalerOutputProcessor() {
 		return scalerOutputProcessor;
 	}
+
+	public void setTimeChannelName(String name) {
+		scalerOutputProcessor.setTimeChannelName(name);
+	}
+
+	public String getTimeChannelName() {
+		return scalerOutputProcessor.getTimeChannelName();
+	}
 }
