@@ -323,7 +323,8 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * @since 25/1/2017
 	 */
 	public void clearMemoryFrames(int startFrame, int finalFrame) throws DeviceException {
-		int numFrames = finalFrame-startFrame+1;
+		/** numFrames needs be 1 less here than in {@link TfgScaler#readoutFrames(startFrame,finalFrame)}, otherwise 1 too many frames are cleared. */
+		int numFrames = finalFrame-startFrame;
 		scaler.clear(startFrame, 0, 0, numFrames, 1, 9);
 	}
 }
