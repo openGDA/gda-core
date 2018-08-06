@@ -343,8 +343,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		if ( !getScriptOrScanIsRunning() && !xmapDetector.isBusy() && !ionchambers.isBusy() ){
 			xmapDetector.collectData();
 			ionchambers.setCollectionTime(collectionTime);
-			ionchambers.collectData();
 			ionchambers.clearFrameSets();
+			ionchambers.collectData();
 			ionchambers.waitWhileBusy();
 			xmapDetector.stop();
 			xmapDetector.waitWhileBusy();
@@ -504,12 +504,22 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	 */
 	@Override
 	public void atScanEnd() {
-		collectionAllowed = true;
+		stop();
+	}
+
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		stop();
 	}
 
 	@Override
 	public boolean isBusy() {
 		return collectionInProgress;
+	}
+
+	@Override
+	public void stop() {
+		collectionAllowed = true;
 	}
 
 	/**
