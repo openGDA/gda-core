@@ -26,7 +26,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.PauseBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.slf4j.LoggerFactory;
 
@@ -69,14 +70,12 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 			throw new IllegalStateException("Event service not set - should be set by OSGi DS");
 		}
 
-		try (IPublisher<PauseBean> publisher = eventService.createPublisher(
+		try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(
 					new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.CMD_TOPIC)) {
 			publisher.setStatusSetName(EventConstants.CMD_SET);
 			publisher.setStatusSetAddRequired(true);
 
-			PauseBean bean = new PauseBean();
-			bean.setQueueName(EventConstants.SUBMISSION_QUEUE);
-			bean.setPause(false);
+			QueueCommandBean bean = new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.RESUME);
 			publisher.broadcast(bean);
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Cannot pause scan queue", e);
