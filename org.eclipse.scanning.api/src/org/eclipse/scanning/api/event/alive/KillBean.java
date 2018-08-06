@@ -17,7 +17,7 @@ package org.eclipse.scanning.api.event.alive;
  * @author Matthew Gerring
  *
  */
-public class KillBean extends ConsumerCommandBean {
+public class KillBean extends QueueCommandBean {
 
 	/**
 	 *

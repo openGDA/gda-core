@@ -38,7 +38,8 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.PauseBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueConnection;
 import org.eclipse.scanning.api.event.core.IQueueReader;
@@ -270,11 +271,11 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	 * @throws EventException
 	 */
 	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
-		final IPublisher<PauseBean> publisher = createPausePublisher();
+		final IPublisher<QueueCommandBean> publisher = createPausePublisher();
 
-		PauseBean pauseBean = null;
+		QueueCommandBean pauseBean = null;
 		if (!isQueuePaused(queueName)) {
-			pauseBean = new PauseBean(queueName);
+			pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
 			pauseBean.setMessage(pauseMessage);
 		}
 
@@ -295,8 +296,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
 			if (pauseBean != null) {
 				logger.info("Sending resume request for queue {}", queueName);
-				pauseBean.setPause(false);
-				publisher.broadcast(pauseBean);
+				QueueCommandBean resumeBean = new QueueCommandBean(queueName, Command.RESUME);
+				publisher.broadcast(resumeBean);
 			}
 			// disconnect the publisher
 			publisher.disconnect();
@@ -353,8 +354,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return true; // It was reordered
 	}
 
-	private IPublisher<PauseBean> createPausePublisher() {
-		IPublisher<PauseBean> publisher = eservice.createPublisher(getUri(), EventConstants.CMD_TOPIC);
+	private IPublisher<QueueCommandBean> createPausePublisher() {
+		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(getUri(), EventConstants.CMD_TOPIC);
 		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 		return publisher;
@@ -387,7 +388,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 					TextMessage textMsg = (TextMessage) message;
 
 					final U beanFromQueue = service.unmarshal(textMsg.getText(), null);
-					if (beanFromQueue != null && isSame(beanFromQueue, beanToRemove)) {
+					if (beanFromQueue != null && isForSameObject(beanFromQueue, beanToRemove)) {
 						jmsMessageId = textMsg.getJMSMessageID();
 					}
 				}
@@ -500,9 +501,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 	public boolean isQueuePaused(String submissionQueueName) {
-
-		PauseBean bean = getPauseBean(submissionQueueName);
-		return bean!=null ? bean.isPause() : false;
+		QueueCommandBean bean = getLastPauseResumeBean(submissionQueueName);
+		return bean != null && bean.getCommand() == Command.PAUSE;
 	}
 
 	/**
@@ -510,27 +510,27 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	 * @param submissionQueueName name of submission queue
 	 * @return pause bean
 	 */
-	protected PauseBean getPauseBean(String submissionQueueName) {
-
-		IQueueReader<PauseBean>   qr=null;
+	protected QueueCommandBean getLastPauseResumeBean(String submissionQueueName) {
+		IQueueReader<QueueCommandBean>   queueReader=null;
 		try {
-			qr = eservice.createQueueReader(getUri(), EventConstants.CMD_SET);
-			qr.setBeanClass(PauseBean.class);
-		    List<PauseBean> pausedList = qr.getQueue();
+			queueReader = eservice.createQueueReader(getUri(), EventConstants.CMD_SET);
+			queueReader.setBeanClass(QueueCommandBean.class);
+		    List<QueueCommandBean> commandQueue = queueReader.getQueue();
 
 		    // The most recent bean in the queue is the latest
-		    for (PauseBean pauseBean : pausedList) {
-				if (submissionQueueName.equals(pauseBean.getQueueName())) return pauseBean;
+		    for (QueueCommandBean commandBean : commandQueue) {
+		    	Command command = commandBean.getCommand();
+				if (submissionQueueName.equals(commandBean.getQueueName())
+						&& (command == Command.PAUSE || command == Command.RESUME)) {
+					return commandBean;
+				}
 			}
-
 		} catch (Exception ne) {
-			ne.printStackTrace();
 			logger.error("Cannot get queue "+EventConstants.CMD_SET, ne);
 			return null;
-
 		} finally {
 			try {
-				if (qr!=null) qr.disconnect();
+				if (queueReader!=null) queueReader.disconnect();
 			} catch (EventException e) {
 				logger.error("Cannot get disconnect "+EventConstants.CMD_SET, e);
 			}

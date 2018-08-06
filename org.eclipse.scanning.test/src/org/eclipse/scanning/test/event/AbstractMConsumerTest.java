@@ -26,7 +26,8 @@ import java.util.UUID;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.PauseBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -125,18 +126,17 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 			Thread.sleep(2000); // Let them do something
 
-			IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-			PauseBean pbean = new PauseBean();
-			pbean.setQueueName(consumer.getSubmitQueueName());
-			pauser.broadcast(pbean);
+			IPublisher<QueueCommandBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+			QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+			pauser.broadcast(pauseBean);
 
 			Thread.sleep(2000); // Let them pause
 
 			assertTrue(!consumer.isActive());
 			assertTrue(!consumer2.isActive());
 
-			pbean.setPause(false);
-			pauser.broadcast(pbean);
+			QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+			pauser.broadcast(resumeBean);
 
 			Thread.sleep(1000);
 
@@ -178,10 +178,9 @@ public class AbstractMConsumerTest extends BrokerTest {
 			}
 
 			Thread.sleep(100);
-			IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-			PauseBean pbean = new PauseBean();
-			pbean.setQueueName(consumer.getSubmitQueueName());
-			pauser.broadcast(pbean);
+			IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+			QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+			publisher.broadcast(pauseBean);
 
 			// Now we are paused. Read the submission queue
 			Thread.sleep(100);
@@ -207,8 +206,8 @@ public class AbstractMConsumerTest extends BrokerTest {
 			});
 
 			// Start the consumer again
-			pbean.setPause(false);
-			pauser.broadcast(pbean);
+			QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+			publisher.broadcast(resumeBean);
 
 			// Resubmit in new order 9-2
 			for (StatusBean statusBean : submitQ) submitter.submit(statusBean);
@@ -263,19 +262,17 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 			Thread.sleep(2000);
 
-			IPublisher<PauseBean> pauser = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-			PauseBean pbean = new PauseBean();
-			pbean.setQueueName(consumer.getSubmitQueueName());
-			pauser.broadcast(pbean);
-
+			IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+			QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+			publisher.broadcast(pauseBean);
 
 			Thread.sleep(2000); // Let them pause
 
 			assertTrue(!consumer.isActive());
 			for (IConsumer<StatusBean> cons : consumers) assertTrue(!cons.isActive());
 
-			pbean.setPause(false);
-			pauser.broadcast(pbean);
+			QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+			publisher.broadcast(resumeBean);
 
 			Thread.sleep(1000);
 

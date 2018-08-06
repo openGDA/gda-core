@@ -45,11 +45,11 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.ConsumerCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 import org.eclipse.scanning.api.event.alive.KillBean;
-import org.eclipse.scanning.api.event.alive.PauseBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -73,7 +73,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
 	private HeartbeatBroadcaster heartbeatBroadcaster;
 	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
-	private ISubscriber<IBeanListener<ConsumerCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
+	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
 
 	private boolean pauseOnStart = false;
@@ -158,28 +158,34 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		super.disconnect();
 	}
 
-	protected class CommandListener implements IBeanListener<ConsumerCommandBean> {
+	protected class CommandListener implements IBeanListener<QueueCommandBean> {
 		@Override
-		public void beanChangePerformed(BeanEvent<ConsumerCommandBean> evt) {
-			ConsumerCommandBean bean = evt.getBean();
-			if (isCommandForMe(bean)) {
-				if (bean instanceof KillBean) terminate((KillBean)bean);
-				if (bean instanceof PauseBean) processPause((PauseBean)bean);
+		public void beanChangePerformed(BeanEvent<QueueCommandBean> evt) {
+			final QueueCommandBean commandBean = evt.getBean();
+			if (isCommandForMe(commandBean)) {
+				if (commandBean instanceof KillBean) {
+					// TODO DAQ- get rid of KillBean and just use Command enum
+					terminate((KillBean)commandBean);
+				}
+				final Command command = commandBean.getCommand();
+				if (command == Command.PAUSE || command == Command.RESUME) {
+					processPauseResume(commandBean);
+				}
 			}
 		}
 
-		protected boolean isCommandForMe(ConsumerCommandBean bean) {
+		protected boolean isCommandForMe(QueueCommandBean bean) {
 			return bean.getConsumerId()!=null && bean.getConsumerId().equals(getConsumerId())
 					|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
 		}
 
 	}
 
-	protected void processPause(PauseBean bean) {
+	protected void processPauseResume(QueueCommandBean bean) {
 		try {
-			if (bean.isPause()) {
+			if (bean.getCommand() == Command.PAUSE) {
 				pause();
-			} else {
+			} else if (bean.getCommand() == Command.RESUME) {
 				resume();
 			}
 
@@ -481,8 +487,8 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 
 		// We process the paused state
-		PauseBean pbean = getPauseBean(getSubmitQueueName());
-		if (pbean!=null) processPause(pbean); // Might set the pause lock and block on checkPaused().
+		QueueCommandBean pauseResumeBean = getLastPauseResumeBean(getSubmitQueueName());
+		if (pauseResumeBean != null) processPauseResume(pauseResumeBean); // Might set the pause lock and block on checkPaused().
 
 		startProcessManager();
 		setActive(true);
@@ -582,14 +588,12 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			LOGGER.debug("Pausing consumer {} on start ", getName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
-			try (IPublisher<PauseBean> pauser = eservice.createPublisher(getUri(), getCommandTopicName())) {
-				pauser.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
-				pauser.setStatusSetAddRequired(true);
+			try (IPublisher<QueueCommandBean> publisher = eservice.createPublisher(getUri(), getCommandTopicName())) {
+				publisher.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
+				publisher.setStatusSetAddRequired(true);
 
-				PauseBean pbean = new PauseBean();
-				pbean.setQueueName(getSubmitQueueName()); // The queue we are pausing
-				pbean.setPause(true);
-				pauser.broadcast(pbean);
+				QueueCommandBean pauseBean = new QueueCommandBean(getSubmitQueueName(), Command.PAUSE);
+				publisher.broadcast(pauseBean);
 			}
 		}
 	}
