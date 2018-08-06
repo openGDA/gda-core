@@ -88,6 +88,11 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private EnumPositioner prelensValve;
 
 	/**
+	 * The positioner used to control the experimental shutter. Before the analyser starts it is checked to ensure it's open.
+	 */
+	private EnumPositioner experimentalShutter;
+
+	/**
 	 * The analyser work function in eV used for KE <-> BE conversions via: BE = hν - KE - Φ
 	 * <p>
 	 * This value will be used for the work function (Φ) term.
@@ -620,6 +625,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		logger.trace("startAcquiring called");
 		// Check that the prelens valve is open
 		checkPrelensValve();
+		checkExperimentalShutter();
 
 		logger.info("Starting single acquisition");
 		try {
@@ -655,6 +661,30 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			return prelensValvePosition;
 		} catch (DeviceException e) {
 			final String msg = "Error getting prelens position";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
+	}
+
+	private void checkExperimentalShutter() {
+		if (experimentalShutter == null) {
+			return; // No shutter is present.
+		}
+
+		final String experimentalShutterPosition = getExperimentalShutterPosition();
+		// Check if it's not open then throw
+		if (!"open".equalsIgnoreCase(experimentalShutterPosition)) {
+			throw new IllegalStateException("Experimental shutter is not open!");
+		}
+	}
+
+	private String getExperimentalShutterPosition() {
+		try {
+			final String experimentalShutterPosition = (String) experimentalShutter.getPosition();
+			logger.trace("Experimental position is: {}", experimentalShutterPosition);
+			return experimentalShutterPosition;
+		} catch (DeviceException e) {
+			final String msg = "Error getting experimental shutter position";
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
@@ -945,6 +975,14 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
+	}
+
+	public EnumPositioner getExperimentalShutter() {
+		return experimentalShutter;
+	}
+
+	public void setExperimentalShutter(EnumPositioner experimentalShutter) {
+		this.experimentalShutter = experimentalShutter;
 	}
 
 }
