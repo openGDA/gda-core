@@ -41,7 +41,8 @@ import org.eclipse.scanning.api.event.alive.ConsumerBean;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
-import org.eclipse.scanning.api.event.alive.KillBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -79,7 +80,7 @@ public class ConsumerView extends EventConnectionView {
 
 	private IEventService service;
 
-	private IPublisher<KillBean> commandTopicPublisher;
+	private IPublisher<QueueCommandBean> commandTopicPublisher;
 	private IPublisher<AdministratorMessage> adminTopicPublisher;
 
 	public ConsumerView() {
@@ -300,11 +301,10 @@ public class ConsumerView extends EventConnectionView {
 			}
 		}
 
-		final KillBean killBean = new KillBean();
-		killBean.setMessage("Requesting a termination of " + bean.getConsumerName());
-		killBean.setConsumerId(bean.getConsumerId());
+		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.STOP);
+		commandBean.setMessage("Requesting a termination of " + bean.getConsumerName());
 
-		sendKillBean(killBean, bean.getConsumerName());
+		sendCommandBean(commandBean, bean.getConsumerName());
 	}
 
 	private void restart() {
@@ -318,11 +318,10 @@ public class ConsumerView extends EventConnectionView {
 		if (!ok)
 			return;
 
-		final KillBean killBean = new KillBean();
-		killBean.setMessage("Requesting a restart of " + bean.getConsumerName());
-		killBean.setConsumerId(bean.getConsumerId());
-		killBean.setRestart(true);
-		sendKillBean(killBean, bean.getConsumerName());
+		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.RESTART);
+		commandBean.setMessage("Requesting a restart of " + bean.getConsumerName());
+		commandBean.setConsumerId(bean.getConsumerId());
+		sendCommandBean(commandBean, bean.getConsumerName());
 
 		consumers.clear();
 		viewer.refresh();
@@ -339,11 +338,11 @@ public class ConsumerView extends EventConnectionView {
 		return (HeartbeatBean)((IStructuredSelection)viewer.getSelection()).getFirstElement();
 	}
 
-	private void sendKillBean(KillBean kbean, String consumerName) {
+	private void sendCommandBean(QueueCommandBean commandBean, String consumerName) {
 		try {
-			commandTopicPublisher.broadcast(kbean);
+			commandTopicPublisher.broadcast(commandBean);
 		} catch (Exception e) {
-			logger.error("Cannot terminate consumer " + consumerName, e);
+			logger.error("Cannot send {} command to consumer {}", commandBean.getCommand(), consumerName);
 		}
 	}
 

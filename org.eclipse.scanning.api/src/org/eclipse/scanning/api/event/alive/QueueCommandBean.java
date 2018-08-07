@@ -41,7 +41,19 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to resume the consumer if it paused.
 		 */
-		RESUME
+		RESUME,
+
+		/**
+		 * A command to stop the consumer. It is not possible to restart a consumer
+		 * that has been stopped.
+		 */
+		STOP,
+
+		/**
+		 * A command to restart a running consumer.
+		 */
+		RESTART
+
 	}
 
 	/**

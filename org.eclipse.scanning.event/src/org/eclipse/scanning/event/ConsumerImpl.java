@@ -45,11 +45,10 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.KillBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -163,14 +162,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		public void beanChangePerformed(BeanEvent<QueueCommandBean> evt) {
 			final QueueCommandBean commandBean = evt.getBean();
 			if (isCommandForMe(commandBean)) {
-				if (commandBean instanceof KillBean) {
-					// TODO DAQ- get rid of KillBean and just use Command enum
-					terminate((KillBean)commandBean);
-				}
-				final Command command = commandBean.getCommand();
-				if (command == Command.PAUSE || command == Command.RESUME) {
-					processPauseResume(commandBean);
-				}
+				processQueueCommand(commandBean);
 			}
 		}
 
@@ -178,42 +170,53 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			return bean.getConsumerId()!=null && bean.getConsumerId().equals(getConsumerId())
 					|| bean.getQueueName()!=null && bean.getQueueName().equals(getSubmitQueueName());
 		}
-
 	}
 
-	protected void processPauseResume(QueueCommandBean bean) {
+	/**
+	 * Processes a command for this consumer from the command topic.
+	 * @param commandBean
+	 */
+	protected void processQueueCommand(QueueCommandBean commandBean) {
+		final Command command = commandBean.getCommand();
 		try {
-			if (bean.getCommand() == Command.PAUSE) {
-				pause();
-			} else if (bean.getCommand() == Command.RESUME) {
-				resume();
+			switch (command) {
+				case PAUSE:
+					pause();
+					break;
+				case RESUME:
+					resume();
+					break;
+				case STOP:
+					disconnect();
+					break;
+				case RESTART:
+					restart();
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}
-
-		} catch (Exception ne) {
-			LOGGER.error("Unable to process pause command on consumer '{}'. Consumer will stop.", getName(), ne);
-			try {
-				stop();
-				disconnect();
-			} catch (EventException e) {
-				LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
+		} catch (Exception e) {
+			if (command == Command.PAUSE || command == Command.RESUME) {
+				// for pause and resume commands, we stop and disconnect the consumer
+				LOGGER.error("Unable to process {} command on consumer for queue '{}'. Consumer will stop.",
+						commandBean.getCommand(), getSubmitQueueName(), e);
+				try {
+					stop();
+					disconnect();
+				} catch (EventException ee) {
+					LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
+				}
+			} else {
+				LOGGER.error("Unable to process {} command on consumer for queue '{}'.",
+						commandBean.getCommand(), getSubmitQueueName(), e);
 			}
 		}
 	}
 
-	protected void terminate(KillBean kbean) {
-		try {
-			disconnect();
-		} catch (EventException e) {
-			LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
-		}
-		if (kbean.isRestart()) {
-			try {
-				connect();
-				start();
-			} catch (EventException e) {
-				LOGGER.error("Unable to restart, please contact your support representative.", e);
-			}
-		}
+	protected void restart() throws EventException {
+		disconnect();
+		connect();
+		start();
 	}
 
 	/**
@@ -485,7 +488,9 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 		// We process the paused state
 		QueueCommandBean pauseResumeBean = getLastPauseResumeBean(getSubmitQueueName());
-		if (pauseResumeBean != null) processPauseResume(pauseResumeBean); // Might set the pause lock and block on checkPaused().
+		if (pauseResumeBean != null) {
+			processQueueCommand(pauseResumeBean); // Might set the pause lock and block on checkPaused().
+		}
 
 		startProcessManager();
 		setActive(true);

@@ -19,9 +19,8 @@ import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.GenericModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.KillBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
@@ -146,7 +145,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 
 		// event.alive
 		registerClass(tmp, HeartbeatBean.class);
-		registerClass(tmp, KillBean.class);
 		registerClass(tmp, QueueCommandBean.class);
 
 		// event.status
