@@ -42,6 +42,7 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	private ClientCloseOption selectedOption;
 	private String reason;
+	private String name;
 	private UserOptionsMenuOnClose menu;
 	UserSelectedActionOnClose closeAction = new UserSelectedActionOnClose();
 
@@ -84,15 +85,15 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (menu.selectedOption() == ClientCloseOption.RESTART_CLIENT){
-					closeAction.doCloseAction(selectedOption, reason);
+				if (selectedOption == ClientCloseOption.RESTART_CLIENT){
+					closeAction.doCloseAction(selectedOption, reason, name);
 					System.setProperty("requestedRestart", "true");
 					setReturnCode(RESTART);
-				} else if (menu.selectedOption() == ClientCloseOption.RESTART_CLIENT_AND_SERVER){
-					closeAction.doCloseAction(selectedOption, reason);
+				} else if (selectedOption == ClientCloseOption.RESTART_CLIENT_AND_SERVER){
+					closeAction.doCloseAction(selectedOption, reason, name);
 					setReturnCode(OK);
 				} else{
-					closeAction.doCloseAction(selectedOption, "");
+					closeAction.doCloseAction(selectedOption, "", "");
 					setReturnCode(OK);
 				}
 			}
@@ -111,7 +112,12 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	@Override
 	protected void okPressed() {
+		if (!menu.validate()) {
+			return;
+		}
+		
 		reason = menu.getRestartReason();
+		name = menu.getNameField();
 		selectedOption = menu.selectedOption();
 		super.okPressed();
 	}

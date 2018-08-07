@@ -3,10 +3,13 @@ package uk.ac.gda.client.closeactions;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.gda.client.closeactions.ClientCloseOption;
@@ -26,6 +29,8 @@ public class UserOptionsMenuOnClose extends Composite {
 	public final int niceWidth;
 
 	private Text feedback;
+	private Text name;
+	private Label nameError;
 	private ClientCloseOption selectedOption = ClientCloseOption.TEMP_ABSENCE;
 
 	public UserOptionsMenuOnClose(Composite parent, int style, int niceWidth) {
@@ -57,8 +62,34 @@ public class UserOptionsMenuOnClose extends Composite {
 		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
 
+		Composite nameGroup = new Composite(this, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(nameGroup);
+
+		Label nameLabel = new Label(nameGroup, SWT.WRAP);
+		nameLabel.setText("Please tell us who you are in case we need to contact you for more details. This will help us improve our software.");
+		GridDataFactory.swtDefaults().hint(niceWidth -25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(nameLabel);
+		
+		name = new Text(nameGroup, SWT.MULTI | SWT.BORDER);
+		GridDataFactory.swtDefaults().hint(niceWidth - 25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(name);
+
 		option1.setSelection(true);
 		feedback.setEnabled(false);
+		name.setEnabled(false);
+
+		nameError = new Label(this, SWT.NONE);
+		nameError.setText("Please fill in the name box if you're leaving feedback!");
+		nameError.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
+		nameError.setVisible(false);
+		
+		name.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (nameError.isVisible() && !name.getText().isEmpty()) {
+					nameError.setVisible(false);
+				}
+			}
+		});
 	}
 
 	private Button optionButton(Composite parent, String text, int width) {
@@ -74,6 +105,7 @@ public class UserOptionsMenuOnClose extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				selectedOption = option;
 				feedback.setEnabled(activateFeedback);
+				name.setEnabled(activateFeedback);
 				if (activateFeedback) {
 					feedback.setFocus();
 				}
@@ -81,8 +113,20 @@ public class UserOptionsMenuOnClose extends Composite {
 		};
 	}
 
+	public boolean validate() {
+		boolean isValid = feedback.isEnabled() ? !(getRestartReason().isEmpty() ^ getNameField().isEmpty()) : true;
+		if (!isValid) {
+			nameError.setVisible(true);
+		}
+		return isValid;
+	}
+
 	public String getRestartReason() {
 		return feedback.getText();
+	}
+
+	public String getNameField() {
+		return name.getText();
 	}
 
 	public ClientCloseOption selectedOption() {

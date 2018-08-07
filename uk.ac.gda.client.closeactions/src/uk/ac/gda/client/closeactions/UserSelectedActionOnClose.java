@@ -55,16 +55,16 @@ public class UserSelectedActionOnClose {
 		visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 	}
 
-	public void doCloseAction(ClientCloseOption selectedOption, String reason) {
+	public void doCloseAction(ClientCloseOption selectedOption, String reason, String name) {
 		optionChoice = selectedOption;
 		switch (selectedOption)
 		{
 		case RESTART_CLIENT:
-			trimAndEmail(reason);
+			trimAndEmail(reason, name);
 			logger.info("User felt the need to restart client. Could we be having client issues?");
 			break;
 		case RESTART_CLIENT_AND_SERVER:
-			trimAndEmail(reason);
+			trimAndEmail(reason, name);
 			logger.info("User felt the need to restart client and server. Could we be having server/control station issues?");
 			if (!LocalProperties.isDummyModeEnabled()){
 				ProcessBuilder pb = new ProcessBuilder("gdaservers_closemenurestart");
@@ -84,10 +84,12 @@ public class UserSelectedActionOnClose {
 		}
 	}
 
-	private void trimAndEmail(String reason) {
+	private void trimAndEmail(String reason, String name) {
 		if (!reason.trim().isEmpty()){
-			logToTextFile(reason);
-			sendEmail(reason, "GDA Restart Reasoning/Feedback");
+			String user = System.getProperty("user.name");
+			String text = String.format("%s\n%s%s%s%s", reason, "Sent by: ", name.trim(), "logged in as: ", user);
+			logToTextFile(text);
+			sendEmail(text, "GDA Restart Reasoning/Feedback");
 		}
 	}
 
