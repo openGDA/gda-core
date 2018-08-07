@@ -47,14 +47,18 @@ public class UserOptionsMenuOnClose extends Composite {
 		GridDataFactory.swtDefaults().hint(niceWidth, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(selectionGroup);
 
 		final Button option1 = optionButton(selectionGroup, "I'm finished for now - but I or a colleague will be back soon (no action)", niceWidth);
+		option1.addSelectionListener(createListener(ClientCloseOption.TEMP_ABSENCE, false));
 
 		final Button option2 = optionButton(selectionGroup, "I need to restart the client (Please tell us why)", niceWidth);
+		option2.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT, true));
 
 		final Button option3 = optionButton(selectionGroup, "I need to restart the client and the server (Please tell us why)", niceWidth);
+		option3.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT_AND_SERVER, true));
 
 		final Button option4 = optionButton(selectionGroup,
 				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
 				niceWidth);
+		option4.addSelectionListener(createListener(ClientCloseOption.FINISHED, false));
 
 		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
@@ -64,14 +68,6 @@ public class UserOptionsMenuOnClose extends Composite {
 				restartReason = ((Text) (e.getSource())).getText();
 			}
 		});
-
-		option1.addSelectionListener(createListener(ClientCloseOption.TEMP_ABSENCE, false));
-		
-		option2.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT, true));
-
-		option3.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT_AND_SERVER, true));
-
-		option4.addSelectionListener(createListener(ClientCloseOption.FINISHED, false));
 
 		option1.setSelection(true);
 		feedback.setEnabled(false);
