@@ -82,165 +82,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 	 */
 	private List<IScanModelWrapper<IScanPathModel>> scannablesToShow;
 
-	/**
-	 * Class to convert a path model to a string
-	 */
-	private static class ScanPathToStringConverter extends Converter {
-
-		public ScanPathToStringConverter() {
-			super(IScanPathModel.class, String.class);
-		}
-
-		@Override
-		public Object convert(Object fromObject) {
-			if (fromObject == null) {
-				return ""; // this is the case when the outer scannable is not specified
-			} else if (fromObject instanceof StepModel) {
-				return convertStepModel((StepModel) fromObject);
-			} else if (fromObject instanceof ArrayModel) {
-				return convertArrayModel((ArrayModel) fromObject);
-			} else if (fromObject instanceof MultiStepModel) {
-				return convertMultiStepModel((MultiStepModel) fromObject);
-			} else {
-				// We only expect path model types that can be created from this GUI
-				throw new IllegalArgumentException("Unknown model type: " + fromObject.getClass());
-			}
-		}
-
-		private String convertStepModel(StepModel stepModel) {
-			final StringBuilder stringBuilder = new StringBuilder();
-			appendStepModel(stepModel, stringBuilder);
-
-			return stringBuilder.toString();
-		}
-
-		private void appendStepModel(StepModel stepModel, StringBuilder stringBuilder) {
-			stringBuilder.append(doubleToString(stepModel.getStart()));
-			stringBuilder.append(' ');
-			stringBuilder.append(doubleToString(stepModel.getStop()));
-			stringBuilder.append(' ');
-			stringBuilder.append(doubleToString(stepModel.getStep()));
-			stringBuilder.append(' ');
-			stringBuilder.append(doubleToString(stepModel.getExposureTime()));
-		}
-
-		private String convertMultiStepModel(MultiStepModel multiStepModel) {
-			final Iterator<StepModel> iter = multiStepModel.getStepModels().iterator();
-
-			final StringBuilder stringBuilder = new StringBuilder();
-			while (iter.hasNext()) {
-				appendStepModel(iter.next(), stringBuilder);
-				if (iter.hasNext()) {
-					stringBuilder.append(";");
-				}
-			}
-
-			return stringBuilder.toString();
-		}
-
-		private String convertArrayModel(ArrayModel arrayModel) {
-			final double[] positions = arrayModel.getPositions();
-			final StringBuilder stringBuilder = new StringBuilder();
-			for (int i = 0; i < positions.length; i++) {
-				stringBuilder.append(doubleToString(positions[i]));
-				if (i < positions.length - 1) stringBuilder.append(",");
-			}
-			return stringBuilder.toString();
-		}
-
-		private String doubleToString(double doubleVal) {
-			final String stringVal = Double.toString(doubleVal);
-			if (stringVal.endsWith(".0")) {
-				return stringVal.substring(0, stringVal.length() - 2);
-			}
-			return stringVal;
-		}
-	}
-
-	/**
-	 * Converter for converting a string to a path model. The string specifies the path of the
-	 * outer scannable. It can be:
-	 * <ul>
-	 *   <li>A comma separated list of values, i.e. pos1,pos2,pos3,pos4,...</li>
-	 *   <li>A single step range with start stop and step values separated by spaces, i.e. start stop step</li>
-	 *   <li>Multiple step ranges with each step range separated by a semi-colon, i.e.
-	 *      start1 stop1 step1; start2 stop2 step2</li>
-	 * </ul>
-	 * <p>If the string contains a comma, it is interpreted a sequence of points, otherwise
-	 * as one or more ranges.
-	 */
-	private static final class StringToScanPathConverter extends Converter {
-		private final String scannableName;
-
-		private StringToScanPathConverter(String scannableName) {
-			super(String.class, IScanPathModel.class);
-			this.scannableName = scannableName;
-		}
-
-		@Override
-		public Object convert(Object fromObject) {
-			final String text = (String) fromObject;
-			if (text.isEmpty()) return null;
-			try {
-				if (text.contains(",")) {
-					return convertStringToArrayModel(text);
-				} else if (text.contains(";")) {
-					return convertStringToMultiStepModel(text);
-				} else {
-					return convertStringToStepModel(text);
-				}
-			} catch (Exception e) {
-				logger.error("Could not convert string to model",e);
-				return null;
-			}
-		}
-
-		private StepModel convertStringToStepModel(String text) {
-			final String[] startStopStep= text.split(" ");
-			if (startStopStep.length == 3 || startStopStep.length == 4) {
-				StepModel stepModel = new StepModel();
-				stepModel.setName(scannableName);
-				stepModel.setStart(Double.parseDouble(startStopStep[0]));
-				stepModel.setStop(Double.parseDouble(startStopStep[1]));
-				stepModel.setStep(Double.parseDouble(startStopStep[2]));
-				stepModel.setExposureTime( startStopStep.length == 4? Double.parseDouble(startStopStep[3]) : 0 );
-				return stepModel;
-			}
-			return null;
-		}
-
-		private MultiStepModel convertStringToMultiStepModel(String text) {
-			final MultiStepModel multiStepModel = new MultiStepModel();
-			multiStepModel.setName(scannableName);
-			final String[] stepModelStrs = text.split(";");
-			for (String stepModelStr : stepModelStrs) {
-				final StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
-				if (stepModel == null) {
-					return null;
-				}
-				multiStepModel.addRange(stepModel);
-			}
-
-			return multiStepModel;
-		}
-
-		private ArrayModel convertStringToArrayModel(String text) {
-			final String[] strings = text.split(",");
-			final double[] positions = new double[strings.length];
-			for (int index = 0; index < strings.length; index++) {
-				positions[index] = Double.parseDouble(strings[index]);
-			}
-			final ArrayModel arrayModel = new ArrayModel();
-			arrayModel.setName(scannableName);
-			arrayModel.setPositions(positions);
-			return arrayModel;
-		}
-	}
-
-	//--------------------------------------------------------------------------
-	// Main class: define the outer scannables section of the mapping view
-	//--------------------------------------------------------------------------
-
 	private Map<String, Binding> axisBindings;
 	private Map<String, Binding> checkBoxBindings;
 
@@ -312,7 +153,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 			multiStepButton.setToolTipText("Edit a multi-step scan");
 
 			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
-			multiStepButton.addListener(SWT.Selection, event-> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
+			multiStepButton.addListener(SWT.Selection, event -> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
 
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
 		}
@@ -327,9 +168,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 			scannablesToShow = dialog.getSelectedDevices();
 
 			// set any scannables not in the new selection to not be included in the scan
-			getOuterScannables().stream().
-				filter(w -> !scannablesToShow.contains(w)).
-				forEach(w -> w.setIncludeInScan(false));
+			getOuterScannables().stream()
+				.filter(w -> !scannablesToShow.contains(w))
+				.forEach(w -> w.setIncludeInScan(false));
 
 			createScannableControls();
 			relayoutMappingView();
@@ -349,8 +190,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 				multiStepModel.getStepModels().add((StepModel) oldModel);
 			} else if (oldModel instanceof ArrayModel) {
 				final double[] positions = ((ArrayModel) oldModel).getPositions();
-				for (int i=0; i<positions.length-1; i++) {
-					final StepModel stepModel = new StepModel(scannableName,positions[i], positions[i+1], positions[i+1]-positions[i]);
+				for (int i = 0; i < positions.length - 1; i++) {
+					final StepModel stepModel = new StepModel(scannableName, positions[i], positions[i + 1], positions[i + 1] - positions[i]);
 					multiStepModel.getStepModels().add(stepModel);
 				}
 			}
@@ -446,9 +287,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 	protected void saveState(Map<String, String> persistedState) {
 		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
-			final List<String> chosenScannableNames = scannablesToShow.stream().
-					map(IScanModelWrapper<IScanPathModel>::getName).
-					collect(toList());
+			final List<String> chosenScannableNames = scannablesToShow.stream()
+					.map(IScanModelWrapper<IScanPathModel>::getName)
+					.collect(toList());
 			persistedState.put(OUTER_SCANNABLES_SELECTION_KEY_JSON, marshaller.marshal(chosenScannableNames));
 		} catch (Exception e) {
 			logger.error("Error saving selection of outer scannables", e);
@@ -472,8 +313,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 			final Set<String> chosenScannableNames = marshaller.unmarshal(json, Set.class);
 
 			scannablesToShow = getOuterScannables().stream()
-				.filter(scannable -> chosenScannableNames.contains(scannable.getName()))
-				.collect(toList());
+					.filter(scannable -> chosenScannableNames.contains(scannable.getName()))
+					.collect(toList());
 		} catch (Exception e) {
 			logger.error("Error loading selection of outer scannables", e);
 		}
@@ -486,5 +327,165 @@ class OuterScannablesSection extends AbstractMappingSection {
 	 */
 	private List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
 		return getMappingBean().getScanDefinition().getOuterScannables();
+	}
+
+
+	/**
+	 * Class to convert a path model to a string
+	 */
+	private static class ScanPathToStringConverter extends Converter {
+
+		public ScanPathToStringConverter() {
+			super(IScanPathModel.class, String.class);
+		}
+
+		@Override
+		public Object convert(Object fromObject) {
+			if (fromObject == null) {
+				return ""; // this is the case when the outer scannable is not specified
+			} else if (fromObject instanceof StepModel) {
+				return convertStepModel((StepModel) fromObject);
+			} else if (fromObject instanceof ArrayModel) {
+				return convertArrayModel((ArrayModel) fromObject);
+			} else if (fromObject instanceof MultiStepModel) {
+				return convertMultiStepModel((MultiStepModel) fromObject);
+			} else {
+				// We only expect path model types that can be created from this GUI
+				throw new IllegalArgumentException("Unknown model type: " + fromObject.getClass());
+			}
+		}
+
+		private String convertStepModel(StepModel stepModel) {
+			final StringBuilder stringBuilder = new StringBuilder();
+			appendStepModel(stepModel, stringBuilder);
+
+			return stringBuilder.toString();
+		}
+
+		private void appendStepModel(StepModel stepModel, StringBuilder stringBuilder) {
+			stringBuilder.append(doubleToString(stepModel.getStart()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getStop()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getStep()));
+			stringBuilder.append(' ');
+			stringBuilder.append(doubleToString(stepModel.getExposureTime()));
+		}
+
+		private String convertMultiStepModel(MultiStepModel multiStepModel) {
+			final Iterator<StepModel> iter = multiStepModel.getStepModels().iterator();
+
+			final StringBuilder stringBuilder = new StringBuilder();
+			while (iter.hasNext()) {
+				appendStepModel(iter.next(), stringBuilder);
+				if (iter.hasNext()) {
+					stringBuilder.append(";");
+				}
+			}
+
+			return stringBuilder.toString();
+		}
+
+		private String convertArrayModel(ArrayModel arrayModel) {
+			final double[] positions = arrayModel.getPositions();
+			final StringBuilder stringBuilder = new StringBuilder();
+			for (int i = 0; i < positions.length; i++) {
+				stringBuilder.append(doubleToString(positions[i]));
+				if (i < positions.length - 1) {
+					stringBuilder.append(",");
+				}
+			}
+			return stringBuilder.toString();
+		}
+
+		private String doubleToString(double doubleVal) {
+			final String stringVal = Double.toString(doubleVal);
+			if (stringVal.endsWith(".0")) {
+				return stringVal.substring(0, stringVal.length() - 2);
+			}
+			return stringVal;
+		}
+	}
+
+	/**
+	 * Converter for converting a string to a path model.<br>
+	 * The string specifies the path of the outer scannable. It can be:
+	 * <ul>
+	 * <li>A comma separated list of values, i.e. pos1,pos2,pos3,pos4,...</li>
+	 * <li>A single step range with start stop and step values separated by spaces, i.e. start stop step</li>
+	 * <li>Multiple step ranges with each step range separated by a semi-colon, i.e. start1 stop1 step1; start2 stop2
+	 * step2</li>
+	 * </ul>
+	 * <p>
+	 * If the string contains a comma, it is interpreted a sequence of points, otherwise as one or more ranges.
+	 */
+	private static final class StringToScanPathConverter extends Converter {
+		private final String scannableName;
+
+		private StringToScanPathConverter(String scannableName) {
+			super(String.class, IScanPathModel.class);
+			this.scannableName = scannableName;
+		}
+
+		@Override
+		public Object convert(Object fromObject) {
+			final String text = (String) fromObject;
+			if (text.isEmpty()) {
+				return null;
+			}
+			try {
+				if (text.contains(",")) {
+					return convertStringToArrayModel(text);
+				} else if (text.contains(";")) {
+					return convertStringToMultiStepModel(text);
+				} else {
+					return convertStringToStepModel(text);
+				}
+			} catch (Exception e) {
+				logger.error("Could not convert string to model", e);
+				return null;
+			}
+		}
+
+		private StepModel convertStringToStepModel(String text) {
+			final String[] startStopStep = text.split(" ");
+			if (startStopStep.length == 3 || startStopStep.length == 4) {
+				StepModel stepModel = new StepModel();
+				stepModel.setName(scannableName);
+				stepModel.setStart(Double.parseDouble(startStopStep[0]));
+				stepModel.setStop(Double.parseDouble(startStopStep[1]));
+				stepModel.setStep(Double.parseDouble(startStopStep[2]));
+				stepModel.setExposureTime(startStopStep.length == 4 ? Double.parseDouble(startStopStep[3]) : 0);
+				return stepModel;
+			}
+			return null;
+		}
+
+		private MultiStepModel convertStringToMultiStepModel(String text) {
+			final MultiStepModel multiStepModel = new MultiStepModel();
+			multiStepModel.setName(scannableName);
+			final String[] stepModelStrs = text.split(";");
+			for (String stepModelStr : stepModelStrs) {
+				final StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
+				if (stepModel == null) {
+					return null;
+				}
+				multiStepModel.addRange(stepModel);
+			}
+
+			return multiStepModel;
+		}
+
+		private ArrayModel convertStringToArrayModel(String text) {
+			final String[] strings = text.split(",");
+			final double[] positions = new double[strings.length];
+			for (int index = 0; index < strings.length; index++) {
+				positions[index] = Double.parseDouble(strings[index]);
+			}
+			final ArrayModel arrayModel = new ArrayModel();
+			arrayModel.setName(scannableName);
+			arrayModel.setPositions(positions);
+			return arrayModel;
+		}
 	}
 }
