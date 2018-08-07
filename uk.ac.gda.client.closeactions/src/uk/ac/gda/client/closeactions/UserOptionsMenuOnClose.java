@@ -29,6 +29,7 @@ public class UserOptionsMenuOnClose extends Composite {
 
 	private String restartReason = "";
 	private ClientCloseOption selectedOption = ClientCloseOption.TEMP_ABSENCE;
+	private Text feedback;
 
 	public UserOptionsMenuOnClose(Composite parent, int style, int niceWidth) {
 		super(parent, style);
@@ -55,7 +56,7 @@ public class UserOptionsMenuOnClose extends Composite {
 				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
 				niceWidth);
 
-		final Text feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
+		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
 		feedback.addModifyListener(new ModifyListener() {
 			@Override
@@ -64,39 +65,13 @@ public class UserOptionsMenuOnClose extends Composite {
 			}
 		});
 
-		option1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.TEMP_ABSENCE;
-				feedback.setEnabled(false);
-			}
-		});
+		option1.addSelectionListener(createListener(ClientCloseOption.TEMP_ABSENCE, false));
+		
+		option2.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT, true));
 
-		option2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.RESTART_CLIENT;
-				feedback.setEnabled(true);
-				feedback.setFocus();
-			}
-		});
+		option3.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT_AND_SERVER, true));
 
-		option3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.RESTART_CLIENT_AND_SERVER;
-				feedback.setEnabled(true);
-				feedback.setFocus();
-			}
-		});
-
-		option4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.FINISHED;
-				feedback.setEnabled(false);
-			}
-		});
+		option4.addSelectionListener(createListener(ClientCloseOption.FINISHED, false));
 
 		option1.setSelection(true);
 		feedback.setEnabled(false);
@@ -107,6 +82,19 @@ public class UserOptionsMenuOnClose extends Composite {
 		GridDataFactory.swtDefaults().hint(width, SWT.DEFAULT).grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(button);
 		button.setText(text);
 		return button;
+	}
+
+	private SelectionAdapter createListener(final ClientCloseOption option, final boolean activateFeedback) {
+		return new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectedOption = option;
+				feedback.setEnabled(activateFeedback);
+				if (activateFeedback) {
+					feedback.setFocus();
+				}
+			}
+		};
 	}
 
 	public ClientCloseOption selectedOption() {
