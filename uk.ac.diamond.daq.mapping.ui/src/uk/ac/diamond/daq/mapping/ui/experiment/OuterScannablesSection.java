@@ -134,26 +134,27 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 		// Create a control for each scannable to be shown
 		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+			final String scannableName = scannableAxisParameters.getName();
 			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
-			checkBox.setText(scannableAxisParameters.getName());
-			final IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			checkBox.setText(scannableName);
+			final IObservableValue<?> checkBoxValue = WidgetProperties.selection().observe(checkBox);
+			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
 			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
+			checkBoxBindings.put(scannableName, checkBoxBinding);
 
 			final Text axisText = new Text(scannablesComposite, SWT.BORDER);
 			axisText.setToolTipText("A range <start stop step>\n"
 					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
 					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-			final IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+			final IObservableValue<?> axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 
 			final Button multiStepButton = new Button(scannablesComposite, 0);
 			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 			multiStepButton.setToolTipText("Edit a multi-step scan");
 
-			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
-			multiStepButton.addListener(SWT.Selection, event -> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
+			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableName);
+			multiStepButton.addListener(SWT.Selection, event -> editModelThroughDialog(dialog, scannableName, axisText));
 
 			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
 		}
@@ -209,9 +210,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 	}
 
-	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
+	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
-		final IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+		final IObservableValue<?> axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
 		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
@@ -260,17 +261,17 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 			// remove the old binding between the checkbox and the old model and create a new one
 			final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
-			final IObservableValue checkBoxValue = (IObservableValue) oldCheckBoxBinding.getTarget();
+			final IObservableValue<?> checkBoxValue = (IObservableValue<?>) oldCheckBoxBinding.getTarget();
 			dataBindingContext.removeBinding(oldCheckBoxBinding);
 			oldCheckBoxBinding.dispose();
 
-			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
 			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableName, newCheckBoxBinding);
 
 			// remove the binding between the text field and old model
 			final Binding oldTextFieldBinding = axisBindings.get(scannableName);
-			final IObservableValue axisTextValue = (IObservableValue) oldTextFieldBinding.getTarget();
+			final IObservableValue<?> axisTextValue = (IObservableValue<?>) oldTextFieldBinding.getTarget();
 			dataBindingContext.removeBinding(oldTextFieldBinding);
 			oldTextFieldBinding.dispose();
 
