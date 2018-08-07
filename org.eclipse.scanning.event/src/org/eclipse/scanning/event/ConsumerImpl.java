@@ -202,16 +202,13 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	protected void terminate(KillBean kbean) {
 		try {
-			stop();
-			if (kbean.isDisconnect()) disconnect();
+			disconnect();
 		} catch (EventException e) {
 			LOGGER.error("An internal error occurred trying to terminate the consumer "+getName()+" "+getConsumerId());
 		}
 		if (kbean.isRestart()) {
 			try {
-				if (kbean.isDisconnect()) {
-					connect();
-				}
+				connect();
 				start();
 			} catch (EventException e) {
 				LOGGER.error("Unable to restart, please contact your support representative.", e);

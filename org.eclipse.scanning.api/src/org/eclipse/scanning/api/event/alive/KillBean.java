@@ -25,13 +25,10 @@ public class KillBean extends QueueCommandBean {
 	private static final long serialVersionUID = -2504956804006283562L;
 
 	private boolean restart=false;
-	private boolean disconnect=true;
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (disconnect ? 1231 : 1237);
 		result = prime * result + (restart ? 1231 : 1237);
 		return result;
 	}
@@ -45,19 +42,9 @@ public class KillBean extends QueueCommandBean {
 		if (getClass() != obj.getClass())
 			return false;
 		KillBean other = (KillBean) obj;
-		if (disconnect != other.disconnect)
-			return false;
 		if (restart != other.restart)
 			return false;
 		return true;
-	}
-
-	public boolean isDisconnect() {
-		return disconnect;
-	}
-
-	public void setDisconnect(boolean disconnect) {
-		this.disconnect = disconnect;
 	}
 
 	public boolean isRestart() {
