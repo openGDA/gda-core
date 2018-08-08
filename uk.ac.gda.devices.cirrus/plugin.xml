@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.gda.devices.cirrus.ui.views.CirrusSetup"
+            id="uk.ac.gda.devices.cirrus.cirrussetup"
+            name="Cirrus Setup"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="uk.ac.gda.devices.cirrus.refreshview"
+            name="Refresh">
+      </command>
+      <command
+            id="uk.ac.gda.devices.cirrus.applySettings"
+            name="Apply">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.devices.cirrus.ui.handlers.RefreshView"
+            commandId="uk.ac.gda.devices.cirrus.refreshview">
+      </handler>
+      <handler
+            class="uk.ac.gda.devices.cirrus.ui.handlers.ApplySettingsToCirrus"
+            commandId="uk.ac.gda.devices.cirrus.applySettings">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.devices.cirrus.cirrussetup">
+         <command
+               commandId="uk.ac.gda.devices.cirrus.refreshview"
+               icon="icons/arrow_refresh.png"
+               label="Refresh"
+               style="push"
+               tooltip="Update the view with the current Cirrus settings">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.cirrus.applySettings"
+               icon="icons/cog_go.png"
+               label="Apply settings"
+               style="push"
+               tooltip="Apply the settings to Cirrus">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>
