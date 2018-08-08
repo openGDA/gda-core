@@ -14,7 +14,6 @@ import java.lang.management.ManagementFactory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * called by UserOptionsMenuOnClose
