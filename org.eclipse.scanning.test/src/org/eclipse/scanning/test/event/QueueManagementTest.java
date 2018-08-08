@@ -39,30 +39,28 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(value = Parameterized.class)
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1465")
+//@RunWith(value = Parameterized.class)
 public class QueueManagementTest extends BrokerTest {
 
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumer;
 
-	private final boolean startConsumer;
+	private final boolean startConsumer = false;
 
 	@Parameters(name="startConsumer={0}")
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(new Object[][] { { false }, { true } });
 	}
 
-	public QueueManagementTest(boolean startConsumer) {
-		this.startConsumer = startConsumer;
-	}
+	// TODO: this test is flakey when startConsumer = true, so for the moment it is
+	// only tested with this as false. Fix as part of DAQ-1465
+//	public QueueManagementTest(boolean startConsumer) {
+//		this.startConsumer = startConsumer;
+//	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -105,8 +103,8 @@ public class QueueManagementTest extends BrokerTest {
 		for (StatusBean bean : beans) {
 			submitter.submit(bean);
 		}
-		// check they've been submitted properly
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		// check they've been submitted properly (check names for easier to read error message)
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 		return beans;
 	}
 
@@ -145,7 +143,11 @@ public class QueueManagementTest extends BrokerTest {
 		submitter.replace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+	}
+
+	public List<String> getNames(List<StatusBean> beans) {
+		return beans.stream().map(StatusBean::getName).collect(toList());
 	}
 
 	@Test
@@ -163,7 +165,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -181,7 +183,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(3, beanThree);
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -201,7 +203,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Act: reorder the bean a second time
 		submitter.reorder(beanThree, 1);
@@ -209,7 +211,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Assert:
 		beans.remove(beanThree);
 		beans.add(0, beanThree);
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
@@ -226,7 +228,7 @@ public class QueueManagementTest extends BrokerTest {
 		submitter.replace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Arrange: change the name again
 		beanThree.setName("bar");
@@ -235,7 +237,7 @@ public class QueueManagementTest extends BrokerTest {
 		submitter.replace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
-		assertThat(consumer.getSubmissionQueue(), is(equalTo(beans)));
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
 	@Test
