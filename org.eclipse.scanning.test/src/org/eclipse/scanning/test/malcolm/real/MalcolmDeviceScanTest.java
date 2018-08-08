@@ -36,7 +36,6 @@ import static org.mockito.Mockito.when;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.device.IPausableDevice;
@@ -61,43 +60,14 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 /**
  * A test that uses a {@link MalcolmDevice} in a scan.
  */
 public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
-
-	public static class WaitingAnswer<T> implements Answer<T> {
-
-		private final T returnValue;
-
-		private final Semaphore semaphore = new Semaphore(1, true); // true to make semaphore fair, see javadoc
-
-		public WaitingAnswer(T returnValue) throws InterruptedException {
-			this.returnValue = returnValue;
-			semaphore.acquire();
-		}
-
-		@Override
-		public T answer(InvocationOnMock invocation) throws Throwable {
-			semaphore.release(); // Notify waiting thread
-			semaphore.acquire(); // Wait to be notified to continue, note this only works because the semaphore is fair
-			return returnValue;
-		}
-
-		public void waitUntilCalled() throws InterruptedException {
-			// wait for answer to be called. This required the semaphore to be fair, see javadoc
-			semaphore.acquire();
-		}
-
-		public void resume() {
-			semaphore.release();
-		}
-	}
 
 	@Mock
 	private IScannableDeviceService scannableDeviceService;

@@ -62,7 +62,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U> implements IConsumer<U> {
+public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U> implements IConsumer<U> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerImpl.class);
 	private static final long ONE_DAY = TimeUnit.DAYS.toMillis(1);
@@ -97,7 +97,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	private volatile boolean awaitPaused;
 	private final String heartbeatTopicName;
 
-	ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
+	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			String heartbeatTopicName, String commandTopicName, IEventConnectorService service,
 			IEventService eservice)
 			throws EventException {
@@ -213,7 +213,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		}
 	}
 
-	protected void restart() throws EventException {
+	public void restart() throws EventException {
 		disconnect();
 		connect();
 		start();
@@ -480,10 +480,10 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 		LOGGER.debug("Initializing consumer for queue {}", getSubmitQueueName());
 		this.waitTime = 0;
 
-		if (runner!=null) {
-			heartbeatBroadcaster.start();
-		} else {
+		if (runner == null) {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
+		} else if (heartbeatTopicName != null) {
+			heartbeatBroadcaster.start();
 		}
 
 		// We process the paused state
@@ -737,7 +737,7 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 
 	private MessageConsumer createMessageConsumer(URI uri, String submitQName) throws JMSException {
 
-		Session session = getSession();
+		Session session = getSession(); // TODO: should call getQueueSession after createQueue to get this?
 		Queue queue = createQueue(submitQName);
 
 		final MessageConsumer consumer = session.createConsumer(queue);
@@ -800,6 +800,11 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 	@Override
 	public void setPauseOnStart(boolean pauseOnStart) {
 		this.pauseOnStart = pauseOnStart;
+	}
+
+	@Override
+	public String getHeartbeatTopicName() {
+		return heartbeatTopicName;
 	}
 
 	/**
@@ -878,4 +883,5 @@ final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U
 			publisher.disconnect();
 		}
 	}
+
 }

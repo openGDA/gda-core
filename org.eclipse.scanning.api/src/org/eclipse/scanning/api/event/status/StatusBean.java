@@ -100,6 +100,9 @@ public class StatusBean extends IdBean {
 		this.name = name;
 	}
 
+	public StatusBean(StatusBean statusBean) {
+		this.merge(statusBean);
+	}
 
 	public Status getStatus() {
 		return status;

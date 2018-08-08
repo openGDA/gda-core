@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
+import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 
 /**
  *
@@ -104,6 +105,19 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void run() throws EventException;
 
 	/**
+	 * Pauses the consumer, it will not process any more jobs
+	 * until it resumes. Currently running jobs are not affected.
+	 * @throws EventException
+	 */
+	void pause() throws EventException;
+
+	/**
+	 * Resumes the consumer.
+	 * @throws EventException
+	 */
+	void resume() throws EventException;
+
+	/**
 	 *
 	 * @return the current active process which will run jobs
 	 */
@@ -116,9 +130,10 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	public String getCommandTopicName();
 
 	/**
-	 * The topic used  to run commands terminate the running process and get the consumer to stop.
+	 * If set, the name of the topic that the consumer publishes {@link HeartbeatBean}s to, to indicate that it is running.
+	 * @return the heartbeat topic name, may be <code>null</code>
 	 */
-	public void setCommandTopicName(String commandTName);
+	public String getHeartbeatTopicName();
 
     /**
      * The string UUID which denotes this consumer

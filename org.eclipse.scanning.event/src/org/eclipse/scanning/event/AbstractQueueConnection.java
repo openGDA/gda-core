@@ -83,22 +83,14 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public List<U> getQueue() throws EventException {
-		QueueReader<U> reader = new QueueReader<>(getConnectorService());
-		try {
-			return reader.getBeans(uri, getSubmitQueueName(), beanClass);
-		} catch (Exception e) {
-			throw new EventException("Cannot get the beans for queue " + getSubmitQueueName(), e);
-		}
+		return getQueue(getSubmitQueueName());
 	}
 
 	@Override
-	public List<U> getQueue(String qName) throws EventException {
-		QueueReader<U> reader = new QueueReader<>(service);
-		try {
-			return reader.getBeans(uri, qName, beanClass);
-		} catch (Exception e) {
-			throw new EventException("Cannot get the beans for queue " + qName, e);
-		}
+	public List<U> getQueue(String queueName) throws EventException {
+		IQueueReader<U> reader = eservice.createQueueReader(uri, queueName);
+		reader.setBeanClass(beanClass);
+		return reader.getQueue();
 	}
 
 	protected Map<String, U> getMap(String queueName) throws EventException {
@@ -491,14 +483,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return A_WEEK;
 	}
 
-
-	public void pause() throws EventException {
-		throw new EventException("Method 'pause' is not implemented!");
-	}
-
-	public void resume() throws EventException {
-		throw new EventException("Method 'pause' is not implemented!");
-	}
 
 	public boolean isQueuePaused(String submissionQueueName) {
 		QueueCommandBean bean = getLastPauseResumeBean(submissionQueueName);
