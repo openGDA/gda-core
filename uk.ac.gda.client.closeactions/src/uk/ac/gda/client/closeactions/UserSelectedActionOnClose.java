@@ -60,17 +60,11 @@ public class UserSelectedActionOnClose {
 		switch (selectedOption)
 		{
 		case RESTART_CLIENT:
-			if (!reason.trim().isEmpty()){
-				logToTextFile(reason);
-				sendEmail(reason, "GDA Restart Reasoning/Feedback");
-			}
+			trimAndEmail(reason);
 			logger.info("User felt the need to restart client. Could we be having client issues?");
 			break;
 		case RESTART_CLIENT_AND_SERVER:
-			if (!reason.trim().isEmpty()){
-				logToTextFile(reason);
-				sendEmail(reason, "GDA Restart Reasoning/Feedback");
-			}
+			trimAndEmail(reason);
 			logger.info("User felt the need to restart client and server. Could we be having server/control station issues?");
 			if (!LocalProperties.isDummyModeEnabled()){
 				ProcessBuilder pb = new ProcessBuilder("gdaservers_closemenurestart");
@@ -87,6 +81,13 @@ public class UserSelectedActionOnClose {
 		case FINISHED:
 			sendEmail("", "Current user is finished");
 			break;
+		}
+	}
+
+	private void trimAndEmail(String reason) {
+		if (!reason.trim().isEmpty()){
+			logToTextFile(reason);
+			sendEmail(reason, "GDA Restart Reasoning/Feedback");
 		}
 	}
 
