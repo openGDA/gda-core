@@ -24,6 +24,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -39,6 +41,8 @@ import org.eclipse.january.dataset.IDataset;
 public class MythenProcessedDataset {
 
 	private List<MythenProcessedData> lines;
+
+	private List<String> headerStrings = Collections.emptyList();
 
 	/**
 	 * Creates a new processed dataset containing the supplied data.
@@ -95,26 +99,36 @@ public class MythenProcessedDataset {
 	 * @param file the file to save the data to
 	 */
 	public void save(File file, boolean hasChannelInfo) {
-		try {
-			PrintWriter pw = new PrintWriter(file);
+		try(PrintWriter pw = new PrintWriter(file)) {
+			pw.printf("# Filename\t %s\n", file.getAbsolutePath());
+			addHeader(pw);
 			if (!hasChannelInfo) {
-				//pw.printf("Angle	Count	Error\n");
 				for (MythenProcessedData line : lines) {
 					pw.printf("%f %d %d\n", line.getAngle(), line.getCount(), line.getError());
 				}
-
 			} else {
-				pw.printf("%s\n", "&SRS");
-				pw.printf("%s\n", "&END");
-				pw.printf("Angle	Count	Error	Channel\n");
 				for (MythenProcessedData line : lines) {
 					pw.printf("%f	%d	%d	%d\n", line.getAngle(), line.getCount(), line.getError(), line.getChannel());
 				}
 			}
-			pw.close();
 		} catch (IOException ioe) {
 			throw new RuntimeException("Could not save data to " + file, ioe);
 		}
+	}
+
+	/**
+	 * Add header lines containing useful information to file.
+	 *
+	 * @param pw
+	 */
+	private void addHeader(PrintWriter pw) {
+		for (String headerString : headerStrings) {
+			pw.printf("# %s\n", headerString);
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyy , hh:mm:ss");
+		pw.printf("# Date\t %s\n", formatter.format(LocalDateTime.now()));
+		pw.printf("# Angle,	Count,	Error,	Channel\n");
 	}
 
 	/**
@@ -195,6 +209,15 @@ public class MythenProcessedDataset {
 		dataset.setName("counts");
 		return dataset;
 	}
+
+	public List<String> getHeaderStrings() {
+		return headerStrings;
+	}
+
+	public void setAdditionalHeaderStrings(List<String> headerStrings) {
+		this.headerStrings = headerStrings;
+	}
+
 	@Override
 	public String toString() {
 		final int numLines = lines.size();
