@@ -40,6 +40,8 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	private final int niceWidth = 480;
 
+	private ClientCloseOption selectedOption;
+	private String reason;
 	private UserOptionsMenuOnClose menu;
 	UserSelectedActionOnClose closeAction = new UserSelectedActionOnClose();
 
@@ -83,14 +85,14 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (menu.selectedOption() == ClientCloseOption.RESTART_CLIENT){
-					closeAction.doCloseAction(menu.selectedOption(), menu.restartReason());
+					closeAction.doCloseAction(selectedOption, reason);
 					System.setProperty("requestedRestart", "true");
 					setReturnCode(RESTART);
 				} else if (menu.selectedOption() == ClientCloseOption.RESTART_CLIENT_AND_SERVER){
-					closeAction.doCloseAction(menu.selectedOption(), menu.restartReason());
+					closeAction.doCloseAction(selectedOption, reason);
 					setReturnCode(OK);
 				} else{
-					closeAction.doCloseAction(menu.selectedOption(), "");
+					closeAction.doCloseAction(selectedOption, "");
 					setReturnCode(OK);
 				}
 			}
@@ -105,6 +107,13 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 				System.setProperty("requestedRestart", "false");
 			}
 		});
+	}
+
+	@Override
+	protected void okPressed() {
+		reason = menu.getRestartReason();
+		selectedOption = menu.selectedOption();
+		super.okPressed();
 	}
 
 	public static void main(String[] args) {

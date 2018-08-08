@@ -3,8 +3,6 @@ package uk.ac.gda.client.closeactions;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
@@ -27,18 +25,14 @@ public class UserOptionsMenuOnClose extends Composite {
 
 	public final int niceWidth;
 
-	private String restartReason = "";
-	private ClientCloseOption selectedOption = ClientCloseOption.TEMP_ABSENCE;
 	private Text feedback;
+	private ClientCloseOption selectedOption = ClientCloseOption.TEMP_ABSENCE;
 
 	public UserOptionsMenuOnClose(Composite parent, int style, int niceWidth) {
 		super(parent, style);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		this.niceWidth = niceWidth;
-		createContents();
-	}
 
-	private void createContents() {
 		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(this);
 
 		// radial button group
@@ -62,12 +56,6 @@ public class UserOptionsMenuOnClose extends Composite {
 
 		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
-		feedback.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				restartReason = ((Text) (e.getSource())).getText();
-			}
-		});
 
 		option1.setSelection(true);
 		feedback.setEnabled(false);
@@ -93,12 +81,11 @@ public class UserOptionsMenuOnClose extends Composite {
 		};
 	}
 
+	public String getRestartReason() {
+		return feedback.getText();
+	}
+
 	public ClientCloseOption selectedOption() {
 		return selectedOption;
 	}
-
-	public String restartReason() {
-		return restartReason;
-	}
-
 }
