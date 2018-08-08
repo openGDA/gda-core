@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.ui.views">
+         <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.client.pixium.category"
+            class="uk.ac.gda.epics.client.pixium.viewfactories.StatusViewFactory:pixiumStatusViewHolder"
+            icon="images/status.png"
+            id="uk.ac.gda.epics.client.pixium.status.view"
+            name="Pixium Status"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            category="uk.ac.gda.epics.client.pixium.category"
+            class="uk.ac.gda.epics.client.pixium.viewfactories.CamViewFactory:pixiumCameraViewHolder"
+            icon="images/videocam.png"
+            id="uk.ac.gda.epics.client.pixium.camera.view"
+            name="Pixium Preview"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.gda.epics.client.pixium.category"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="images/chart_curve.png"
+            id="uk.ac.gda.beamline.client.pixiumplotview"
+            name="PixiumPlot"
+            restorable="true">
+      </view>
+      <category
+            id="uk.ac.gda.epics.client.pixium.category"
+            name="Pixium">
+      </category>
+    <view
+          category="uk.ac.gda.epics.client.pixium.category"
+          class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+          icon="images/chart_curve.png"
+          id="uk.ac.gda.beamline.client.pixiumsubsampleplot"
+          name="Pixium Subsample"
+          restorable="true">
+    </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.gda.epics.client.pixium.perspective.PixiumPerspective"
+            fixed="true"
+            icon="images/pixium_small.jpg"
+            id="uk.ac.gda.epics.client.pixium.perspective"
+            name="Pixium">
+      </perspective>
+   </extension>
+</plugin>

@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pixium
+Bundle-SymbolicName: uk.ac.gda.devices.pixium;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.gda.core;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.0.0",
+ org.eclipse.january;bundle-version="1.0.0",
+ uk.ac.gda.libs;bundle-version="1.0.0",
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.nexus,
+ uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.slf4j,
+ org.springframework.beans.factory;version="3.0.4",
+ org.springframework.util;version="3.0.4"
+Export-Package: gda.device.detector.pixium,
+ gda.device.detector.pixium.events,
+ uk.ac.gda.devices.pixium
+Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
+ uk.ac.diamond.org.jacorb, uk.ac.gda.api,
+ uk.ac.diamond.org.springframework,
+ uk.ac.gda.core
+Eclipse-BuddyPolicy: registered
