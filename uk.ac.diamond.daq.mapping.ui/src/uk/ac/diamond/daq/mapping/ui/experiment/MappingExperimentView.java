@@ -313,10 +313,10 @@ public class MappingExperimentView implements IAdaptable {
 			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) mappingBean);
 			updateControls();
 		} catch (Exception e) {
-			String errorMessage = MessageFormat.format(
+			logger.error("Error merging scan request into mapping bean.", e);
+			final String errorMessage = MessageFormat.format(
 					"Could not open scan {0}. Could not recreate the mapping view from the queued scan. See the error log for more details.", scanName);
 			MessageDialog.openError(shell, "Open Results", errorMessage);
-			logger.error("Error merging scan request into mapping bean.", e);
 		}
 	}
 
@@ -326,7 +326,11 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	public void updateControls() {
-		sections.values().forEach(AbstractMappingSection::updateControls);
+		for (AbstractMappingSection section : sections.values()) {
+			if (section.shouldShow()) {
+				section.updateControls();
+			}
+		}
 		relayout();
 	}
 
