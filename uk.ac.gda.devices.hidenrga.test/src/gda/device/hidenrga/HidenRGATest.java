@@ -1,4 +1,4 @@
-package gda.device;
+package gda.device.hidenrga;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -17,6 +17,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.hidenrga.HidenRGAController;
+import gda.device.hidenrga.HidenRGAScannable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -55,7 +58,7 @@ public class HidenRGATest {
 		InterfaceProvider.setTerminalPrinterForTesting(jythonserverfacade);
 
 		masses = new int[] { 16, 32, 48 };
-		massesSet = new LinkedHashSet<Integer>();
+		massesSet = new LinkedHashSet<>();
 		massesSet.add(16);
 		massesSet.add(32);
 		massesSet.add(48);

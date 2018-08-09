@@ -48,6 +48,8 @@ import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commands.GeneralCommands;
@@ -294,10 +296,17 @@ public abstract class XasScanBase implements XasScan {
 			log("** Paused scan after repetition "
 					+ currentRepetition
 					+ ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.");
-			LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
-			ScriptBase.setPaused(true);
-			// will now wait here indefinitely until the Command Queue is resumed or aborted
-			ScriptBase.checkForPauses();
+
+			try {
+				LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
+				ScriptBase.setPaused(true);
+				// will now wait here indefinitely until the Command Queue is resumed or aborted
+				ScriptBase.checkForPauses();
+			} catch (InterruptedException e) {
+				//Set script status back to running, to avoid getting left in idle state and hanging the command queue.
+				JythonServerFacade.getInstance().setScriptStatus(JythonStatus.RUNNING);
+				throw new InterruptedException("Abort or Stop task button pressed while paused at end of repetition "+currentRepetition);
+			}
 		}
 	}
 

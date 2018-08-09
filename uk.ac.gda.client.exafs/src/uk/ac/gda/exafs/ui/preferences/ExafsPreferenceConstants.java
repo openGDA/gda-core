@@ -139,6 +139,9 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String DETECTOR_SHOW_DTC_ENERGY = "exafs.editor.showDtcEnergy.preference";
 
+	/** Width of scaler/ROI window to use when doing 'set window from line' in fluorescence detector view */
+	public static final String DETECTOR_WINDOW_HALFWIDTH = "exafs.editor.detectorWindow.halfWidth";
+
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
 
 	/**
@@ -150,4 +153,5 @@ public class ExafsPreferenceConstants {
 	 * When true, XANES scans are the default scan type and new scans are always XANES when first created
 	 */
 	public static final String XANES_IS_DEFAULT_SCAN_TYPE = "exafs.editor.xanesdefaultscan.preference";
+
 }

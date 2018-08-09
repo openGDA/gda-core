@@ -18,8 +18,14 @@
 
 package gda.device.detector.xspress;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.util.Pair;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.january.DatasetException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +52,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	private int triggerSwitch = 0;
 	protected DAServer daserver;
 	// frames before this causes a problem 80000 = 2 frames of 9-element reading full mca
+
+	protected boolean useNexusTreeWriter = false;
+	protected transient NexusTreeWriter nexusTreeWriter = null;
+	private transient List< Pair<Integer,Integer> > readFrameList = new ArrayList<>();
+	protected String detectorNexusFilename = "";
 
 	public int getTriggerSwitch() {
 		return triggerSwitch;
@@ -99,7 +110,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		if (!isContinuousMode)
 			return 0;
 		String[] cmds = new String[] { "status show-armed", "progress", "status", "full", "lap", "frame" };
-		HashMap<String, String> currentVals = new HashMap<String, String>();
+		HashMap<String, String> currentVals = new HashMap<>();
 		for (String cmd : cmds) {
 			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
 			if (cmd.equals("frame")){
@@ -157,8 +168,70 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		Object[] readData = readNexusTrees(startFrame, finalFrame);
+
+		// Write the detector data
+		if (useNexusTreeWriter) {
+			writeDetectorData((NexusTreeProvider[]) readData, startFrame, finalFrame);
+		}
 		framesRead = readData;
 		return readData;
+	}
+
+	@Override
+	public void atScanStart() {
+		if (useNexusTreeWriter) {
+			nexusTreeWriter = new NexusTreeWriter();
+			readFrameList.clear();
+			nexusTreeWriter.setFullpathToNexusFile(detectorNexusFilename);
+			nexusTreeWriter.atScanStart();
+		}
+	}
+
+	@Override
+	public void stop() {
+		atScanEnd();
+	}
+
+	@Override
+	public void atScanEnd() {
+		if (useNexusTreeWriter && nexusTreeWriter!=null) {
+			readFrameList.clear();
+			nexusTreeWriter.atScanEnd();
+			nexusTreeWriter = null;
+		}
+	}
+
+	public void writeDetectorData(NexusTreeProvider[] nexusTreeArray, int startFrame, int finalFrame) {
+		if (nexusTreeWriter==null) {
+			logger.info("Nexus tree writer has not been set");
+			return;
+		}
+
+		// Check we are not writing same range of frames again.
+		Pair<Integer, Integer> frameRange = Pair.create(startFrame,  finalFrame);
+		if (readFrameList.contains(frameRange)) {
+			return;
+		}
+		readFrameList.add(frameRange);
+
+		// Store the frames of data in the writer
+		nexusTreeWriter.addData(nexusTreeArray);
+
+		//update the nexus tree array to remove the stored nodes
+		nexusTreeWriter.removeNodesFromNexusTree(nexusTreeArray);
+
+		// Try to get name of nexus file written by NexusDataWriter
+		String scanNexusFilename = getFilenameForXspress();
+		if (StringUtils.isEmpty(scanNexusFilename)) {
+			return;
+		}
+
+		try {
+			nexusTreeWriter.setFullpathToNexusFile(scanNexusFilename);
+			nexusTreeWriter.writeNexusData();
+		} catch (NexusException | DatasetException e) {
+			logger.error("Problem adding Xspress2 data to nexus file", e);
+		}
 	}
 
 	private NexusTreeProvider[] readNexusTrees(int startFrame, int finalFrame) throws DeviceException {
@@ -245,6 +318,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
+		maxNumberOfInts = 750000*10;
 		int numElements = xspress2system.getNumberOfDetectors();
 		if (xspress2system.getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY))
 			return maxNumberOfInts / (numElements * 4);
@@ -287,5 +361,34 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	public void setDaserver(DAServer daserver) {
 		this.daserver = daserver;
+	}
+
+	public boolean getUseNexusTreeWriter() {
+		return useNexusTreeWriter;
+	}
+
+	public void setUseNexusTreeWriter(boolean useTreeWriter) {
+		this.useNexusTreeWriter = useTreeWriter;
+	}
+
+	public String getDetectorNexusFilename() {
+		return detectorNexusFilename;
+	}
+
+	public void setDetectorNexusFilename(String detectorNexusFilename) {
+		this.detectorNexusFilename = detectorNexusFilename;
+	}
+
+	/**
+	 * Name of Nexus file to write detector data to, either :
+	 * <li> Returns value of {@link #getDetectorNexusFilename} if this has been set, or
+	 * <li> Path to GDA scan nexus file.
+	 * @return Name of nexus file to write detector data to.
+	 */
+	private String getFilenameForXspress() {
+		if (StringUtils.isEmpty(detectorNexusFilename)) {
+			return nexusTreeWriter.getScanNexusFilename();
+		}
+		return detectorNexusFilename;
 	}
 }

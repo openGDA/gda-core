@@ -108,7 +108,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private boolean updatingRoiUIFromPlot;
 	private volatile boolean scanIsRunning = false;
 
-	// Magic strings
+	/** Default width of scaler window to use when setting window from line energy. See {@link #setWindowFromLine()}. */
+	private final int defaultWindowHalfWidth = 10;
+
+	// Magic string
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
 
 	/**
@@ -322,6 +325,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		});
 
+		fluorescenceDetectorComposite.addSetWindowFromLineListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setWindowFromLine();
+			}
+		});
+
 		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 
 		// setup the default dragging behaviour
@@ -466,6 +476,79 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			calculateAndDisplayCountTotals();
 		}
 	}
+
+	/**
+	 * 	Update the scaler window range for all detector element based on currently selected line in the
+	 * 'element name and line selection' part of GUI.
+	 * The window width set is using preference {@link ExafsPreferenceConstants#DETECTOR_WINDOW_HALFWIDTH},
+	 * (default value of {@link #defaultWindowHalfWidth}).
+	 * @see {@link #setWindowFromLine(int)}
+	 */
+	private void setWindowFromLine() {
+		int halfWidth = ExafsActivator.getDefault().getPreferenceStore().getInt(ExafsPreferenceConstants.DETECTOR_WINDOW_HALFWIDTH);
+		if (halfWidth==0) {
+			halfWidth = defaultWindowHalfWidth;
+		}
+		setWindowFromLine(halfWidth);
+	}
+
+	/**
+	 * Update the scaler window range for all detector element based on currently selected line in the
+	 * 'element name and line selection' part of GUI. The MCA channel corresponding to energy of currently
+	 * selected line is used for centre of window. <br>
+	 * Window range = centre-halfWidth, ... centre+halfWidth (inclusive)
+	 *
+	 * @param halfWidth
+	 */
+	private void setWindowFromLine(int halfWidth) {
+		int windowCentre = (int) fluorescenceDetectorComposite.getSelectedLineMcaChannel();
+		int windowStart = windowCentre - halfWidth;
+		int windowEnd = windowCentre + halfWidth;
+		logger.debug("Setting scaler windows from line : line centre channel = {}, window half width = {}", windowCentre, halfWidth);
+
+		// Set ROI start/end if using 'regions of interest' readout mode
+		boolean setRoi = fluorescenceDetectorComposite.getReadoutModeIsRoi();
+		boolean windowChanged = false;
+
+		for (DetectorElement element : detectorParameters.getDetectorList()) {
+			int oldWindowStart = element.getWindowStart();
+			int oldWindowEnd = element.getWindowEnd();
+
+			if (setRoi && element.getRegionList() != null && !element.getRegionList().isEmpty()) {
+				DetectorROI detRoi = element.getRegionList().get(0);
+				oldWindowStart = detRoi.getRoiStart();
+				oldWindowEnd = detRoi.getRoiEnd();
+				detRoi.setRoiStart(windowStart);
+				detRoi.setRoiEnd(windowEnd);
+			} else {
+				element.setWindow(windowStart, windowEnd);
+			}
+
+			if (oldWindowStart != windowStart || oldWindowEnd != windowEnd) {
+				windowChanged = true;
+			}
+		}
+
+		// Update the gui to reflect the new window values
+		if (windowChanged) {
+			try {
+				dataBindingController.switchState(true);
+				dataBindingController.beanToUI();
+			} catch (Exception e) {
+				logger.error("Error trying to update UI from bean", e);
+			}
+		}
+
+		calculateAndDisplayCountTotals();
+
+		// Update the plot with the new region, but check that this event has not originally been caused by an update
+		// of the ROI UI from the plot to avoid a recursive loop of events.
+		if (!updatingRoiUIFromPlot) {
+			updatePlottedRegion();
+		}
+	}
+
+
 
 	private int getCurrentlySelectedElementNumber() {
 		return fluorescenceDetectorComposite.getSelectedDetectorElementIndex();

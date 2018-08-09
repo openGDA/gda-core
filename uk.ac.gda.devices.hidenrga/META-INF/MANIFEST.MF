@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hidenrga
 Bundle-SymbolicName: uk.ac.gda.devices.hidenrga;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.core,
  uk.ac.gda.common,
@@ -12,7 +13,9 @@ Require-Bundle: uk.ac.gda.epics,
  org.eclipse.core.runtime;bundle-version="3.8.0",
  org.eclipse.ui.workbench;bundle-version="3.8.2",
  org.eclipse.ui.views;bundle-version="3.6.100",
- org.eclipse.ui
-Export-Package: gda.device,
+ org.eclipse.ui,
+ org.eclipse.january,
+ org.eclipse.dawnsci.plotting.api
+Export-Package: gda.device.hidenrga,
  uk.ac.gda.devices.hidenrga.ui.handlers,
  uk.ac.gda.devices.hidenrga.ui.views

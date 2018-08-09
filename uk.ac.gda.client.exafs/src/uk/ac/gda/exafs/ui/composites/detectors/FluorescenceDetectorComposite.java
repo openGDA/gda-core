@@ -213,6 +213,10 @@ public class FluorescenceDetectorComposite extends Composite {
 		dtcEnergyComposite.getUpdateDtcEnergyButton().addSelectionListener(listener);
 	}
 
+	public void addSetWindowFromLineListener(SelectionListener listener) {
+		elementEdgeComposite.addSetWindowFromLineListener(listener);
+	}
+
 	/**
 	 * Update the deadtime correction energy value using the currently set value of line energy
 	 * (in 'element name and line selection' composite)
@@ -673,11 +677,11 @@ public class FluorescenceDetectorComposite extends Composite {
 				yMax = Math.max(yMax, dataset.max(true).doubleValue());
 			}
 
-			// Get MCA channel corresponding to edge
-			double edgePosition = elementEdgeComposite.getEdgeMcaChannel();
+			// Get MCA channel corresponding to currently selected line
+			double linePosition = getSelectedLineMcaChannel();
 
 			// Create datasets, create the plot
-			IDataset xval = DatasetFactory.createFromList(Arrays.asList(edgePosition, edgePosition));
+			IDataset xval = DatasetFactory.createFromList(Arrays.asList(linePosition, linePosition));
 			IDataset yval = DatasetFactory.createFromList(Arrays.asList(yMin, yMax));
 			String plotName = elementEdgeComposite.getSelectedElementName() + " " + elementEdgeComposite.getSelectedLineName() + " edge";
 			yval.setName(plotName);
@@ -802,4 +806,9 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void setAcquireButtonEnabled(boolean enabled) {
 		acquireComposite.getAcquireButton().setEnabled(enabled);
 	}
+
+	public double getSelectedLineMcaChannel() {
+		return elementEdgeComposite.getLineMcaChannel();
+	}
+
 }
