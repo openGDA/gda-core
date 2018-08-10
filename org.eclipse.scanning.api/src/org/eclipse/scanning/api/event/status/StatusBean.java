@@ -25,9 +25,6 @@ import org.eclipse.scanning.api.event.IdBean;
  */
 public class StatusBean extends IdBean {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 7753482435874684328L;
 
 	public static final StatusBean EMPTY = new StatusBean(Status.NONE,"", "", Double.NaN, "", "EMPTY", System.currentTimeMillis());
@@ -73,20 +70,22 @@ public class StatusBean extends IdBean {
 	 *
 	 * @param with
 	 */
-	public void merge(StatusBean with) {
+	@Override
+	public <T extends IdBean> void merge(T with) {
 		super.merge(with);
-		this.previousStatus  = with.previousStatus;
-		this.status          = with.status;
-		this.name            = with.name;
-		this.percentComplete = with.percentComplete;
-		this.userName = with.userName;
-		this.hostName = with.hostName;
-		this.submissionTime = with.submissionTime;
-		this.message = with.message;
-		this.runDirectory = with.runDirectory;
-		this.properties = with.properties;
-		this.startTime = with.startTime;
-		this.estimatedTime = with.estimatedTime;
+		final StatusBean other = (StatusBean) with;
+		this.previousStatus  = other.previousStatus;
+		this.status          = other.status;
+		this.name            = other.name;
+		this.percentComplete = other.percentComplete;
+		this.userName = other.userName;
+		this.hostName = other.hostName;
+		this.submissionTime = other.submissionTime;
+		this.message = other.message;
+		this.runDirectory = other.runDirectory;
+		this.properties = other.properties;
+		this.startTime = other.startTime;
+		this.estimatedTime = other.estimatedTime;
 	}
 
 

@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 
+import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.IPosition;
@@ -142,8 +143,10 @@ public final class ScanBean extends StatusBean {
 		merge(scanBean);
 	}
 
-	public void merge(ScanBean scanBean) {
-		super.merge(scanBean);
+	@Override
+	public <T extends IdBean> void merge(T with) {
+		super.merge(with);
+		final ScanBean scanBean = (ScanBean) with;
 		this.scanRequest = scanBean.scanRequest;
 		this.deviceName = scanBean.deviceName;
 		this.beamline = scanBean.beamline;

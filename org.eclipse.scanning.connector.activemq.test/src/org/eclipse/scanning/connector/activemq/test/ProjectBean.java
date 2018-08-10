@@ -11,6 +11,7 @@ package org.eclipse.scanning.connector.activemq.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 /**
@@ -55,7 +56,7 @@ public class ProjectBean extends StatusBean {
 	}
 
 	@Override
-	public void merge(StatusBean with) {
+	public <T extends IdBean> void merge(T with) {
         super.merge(with);
         ProjectBean db = (ProjectBean)with;
         this.projectName  = db.projectName;
