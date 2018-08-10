@@ -655,7 +655,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		window.getShell().getDisplay().asyncExec(() -> {
 			status.setText(text);
 			status.setImage(image);
-			man.update(true); // makes new widgets
+			man.update(false); // makes new widgets
 		});
 	}
 
