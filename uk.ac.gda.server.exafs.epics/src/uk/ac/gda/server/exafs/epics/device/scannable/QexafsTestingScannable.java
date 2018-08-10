@@ -28,60 +28,52 @@ import gda.device.scannable.ScannableMotor;
 
 
 /**
- * For testing the QEXAFS on B18 with the signals from the Bragg encoder replaced by a pulse generator.
- * <p>
- * This should be point to the actual Bragg motor like a ScannableMotor object
- * <p>
- * To use this class in QEXAFS scans, run the scan over this object and once the scan has started run the pulse
- * generator. Once the pulse generator has stopped, call the pulseSequenceFinished method in this class to finish off
- * the scan.
- * <p>
- * This otherwise is a simulation of energy so should point to a ScannableMotor object for real movement.
+ * This class is a simple ScannableMotor for use in a Continuous scan. The underlying motor can be either a real or dummy motor.
+ * <li> The motor will move from start to end position at constant velocity in the time specified by the {@link ContinuousParameters}.
+ * <li> A rampDistance either end of the start and end positions can be used to help ensure the motor
+ * is moving at a uniform speed within the scan range.
+ * <li> The motor move to the initial position is carried out at the maxMotorSpeed.
+ * <li> The initial motor speed before the scan is restored after the move is complete.
  */
-@Deprecated
-public class QexafsTestingScannable extends ScannableMotor implements ContinuouslyScannable, IQexafsScannableState{
+public class QexafsTestingScannable extends ScannableMotor implements ContinuouslyScannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(QexafsTestingScannable.class);
 
 	private ContinuousParameters continuousParameters;
 
-	private String state = "idle";
-
+	private double rampDistance = 0.0; //Distance either side of ContinuousParameters start and end positions the motor will actually move between
+	private double maxMotorSpeed = 1000.0;
+	private double speedBeforeScan = 1.0;
 
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
-		state = "preparing";
-		notifyIObservers(this, state);
 		try {
-			super.setSpeed(1000);
+			speedBeforeScan = getSpeed();
+			super.setSpeed(maxMotorSpeed);
 		} catch (DeviceException e) {
-			logger.error("Could not set speed to 1000", e);
+			logger.error("Could not set speed to {} before move to start position", maxMotorSpeed, e);
 		}
-		super.moveTo(continuousParameters.getStartPosition()-1);
+		super.moveTo(continuousParameters.getStartPosition()-getRampInScanDirection());
 	}
 
 	@Override
 	public void performContinuousMove() throws DeviceException {
-		state = "running";
-		notifyIObservers(this, state);
-		logger.info(getName() + " - move not passed to real motor - you need to start the pulse generator now. Once the pulse generator has finished, call the pulseSequenceFinished on this object");
 		double start = continuousParameters.getStartPosition();
 		double end = continuousParameters.getEndPosition();
 		double speed = (end-start) / continuousParameters.getTotalTime();
 		super.setSpeed(speed);
-		super.asynchronousMoveTo(continuousParameters.getEndPosition());
+		super.asynchronousMoveTo(continuousParameters.getEndPosition()+getRampInScanDirection());
 	}
 
 	@Override
 	public void continuousMoveComplete(){
-		state = "idle";
 		try {
-			super.setSpeed(1000);
+			super.stop();
+			super.setSpeed(speedBeforeScan);
 		} catch (DeviceException e) {
-			logger.error("Could not set speed to 1000", e);
+			logger.error("Could not set speed back to {} at end of move", speedBeforeScan, e);
 		}
-		notifyIObservers(this, state);
-		logger.info(getName() + " - continuous move completed - ");
+		logger.info("Continuous move completed.");
 	}
 
 	@Override
@@ -104,12 +96,31 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 	}
 
 	@Override
-	public String getState() {
-		return state;
-	}
-
-	@Override
 	public int getNumberOfDataPoints() {
 		return continuousParameters.getNumberDataPoints();
+	}
+
+	private double getRampInScanDirection() {
+		if (continuousParameters.getStartPosition() < continuousParameters.getEndPosition()) {
+			return rampDistance;
+		} else {
+			return -1.0 * rampDistance;
+		}
+	}
+
+	public double getRampDistance() {
+		return rampDistance;
+	}
+
+	public void setRampDistance(double rampDistance) {
+		this.rampDistance = rampDistance;
+	}
+
+	public double getMaxMotorSpeed() {
+		return maxMotorSpeed;
+	}
+
+	public void setMaxMotorSpeed(double maxMotorSpeed) {
+		this.maxMotorSpeed = maxMotorSpeed;
 	}
 }
