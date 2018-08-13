@@ -7,6 +7,8 @@ from uk.ac.gda.devices.hplc.beans import HplcSessionBean
 from gda.commandqueue import JythonScriptProgressProvider
 from gdascripts.pd.epics_pds import DisplayEpicsPVClass, SingleEpicsPositionerClass
 from gda.data.metadata import GDAMetadataProvider
+from gda.jython.commands.GeneralCommands import pause
+from gda.jython import JythonServerFacade
 from gda.scan import StaticScan
 from tfgsetup import fs
 from time import sleep
@@ -16,7 +18,7 @@ import sys
 from cStringIO import StringIO
 from math import ceil
 from datetime import datetime
-
+import subprocess
 
 class HPLC(object):
     """Handles collection of HPLC SAXS data in GDA/Jython
@@ -34,11 +36,14 @@ class HPLC(object):
         finder = gda.factory.Finder.getInstance()
         find = finder.find
         self.shutter = find('shutter')
+        self.bsdiode = find('bsdiode')
         self.sample_type = find('sample_type')
         self.sampleName = find("samplename")
         self.environment = find("sample_environment")
         self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
         self.ncddetectors = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
+        self.jsf = JythonServerFacade.getInstance()
+        self.readout_time = 0.1
         #CREATE A LOGGER
         self.logger = logging.getLogger('HPLC')
         self.logger.setLevel(logging.INFO)
@@ -49,11 +54,11 @@ class HPLC(object):
             self.logger.addHandler(streamhandler)
         self.logger.info('HPLC class version '+self.__version__+' was instantiated')
         
-    def setupTfg(self, frames, readout_time, tpf):
+    def setupTfg(self, frames, tpf):
         self.tfg.clearFrameSets()
-        self.tfg.addFrameSet(frames, readout_time * 1000, tpf * 1000, int('00000100', 2), int('11111111', 2), 0, 0)#note, byte order is reversed!
+        self.tfg.addFrameSet(frames, self.readout_time * 1000, tpf * 1000, int('00000100', 2), int('11111111', 2), 0, 0)#note, byte order is reversed!
         self.tfg.loadFrameSets()
-        return frames * (tpf + readout_time)
+        return frames * (tpf + self.readout_time)
     
     def setTitle(self, title):
         GDAMetadataProvider.getInstance().setMetadataValue("title", title)
@@ -78,7 +83,32 @@ class HPLC(object):
         if not fv1.getPosition() == 3.0:
             fv1(3.0)
 
+    def sendSms(self, message=""):
+        fedids = {'Nathan': 'xaf46449', 'Nikul': 'rvv47355', 'Rob': 'xos81802', 'Katsuaki': 'vdf31527'}
+        for key in fedids.keys():
+            subprocess.call(['/dls_sw/prod/tools/RHEL6-x86_64/defaults/bin/dls-sendsms.py', fedids[key], message])
 
+    def killHplc(self, state=False):
+        try:
+            kill_hplc.getPosition()
+        except:
+            kill_hplc = SingleEpicsPositionerClass('kill_hplc', 'BL21B-EA-HPLC-01:MOD1:SHUTDOWN', 'BL21B-EA-HPLC-01:MOD1:SHUTDOWN', 'BL21B-EA-HPLC-01:MOD1:SHUTDOWN', 'BL21B-EA-HPLC-01:MOD1:SHUTDOWN', 'mm', '%d')
+
+        if state:
+            kill_hplc(1)
+        else:
+            kill_hplc(0)
+
+    def getMachineStatus(self):
+        try:
+            machine_status.getPosition()
+        except:
+            machine_status=DisplayEpicsPVClass('beam_status', 'FE21B-PS-SHTR-01:STA', 'units', '%d')
+        if machine_status.getPosition() == 1.0:
+            return True
+        else:
+            return False
+        
     def getSearchStatus(self):
         try:
             eh_search_status.getPosition()
@@ -136,8 +166,8 @@ class HPLC(object):
             self.logger.error('setFastValve function requires either Close or Open as input')
 
     def getInjectSignal(self):
-        cutoff = 3.0
-        signal = 3.05
+        cutoff = 2.5
+        signal = 2.75
         try:
             signal = inject_signal.getPosition()
         except:
@@ -149,7 +179,42 @@ class HPLC(object):
         else:
             return False
             
-        
+    def NumberOfImages(self, duration_mins=32.0, exposure_time_secs=3.0):
+        run_list = []
+        number_of_images = int(ceil(duration_mins * 60.0 / ( self.readout_time + exposure_time_secs)))
+        while number_of_images > 1000:
+            run_list.append( (1000,exposure_time_secs) )
+            number_of_images -= 1000
+        if number_of_images > 0:
+            run_list.append( (number_of_images,exposure_time_secs) )
+        self.logger.info('Will collect: '+str(sum([x[0] for x in run_list]))+' images across '+str(len(run_list))+' nxs file')
+        return run_list
+
+    def testForBeam(self):
+        self.setFastShutter('Open')
+        sleep(1)
+        beamstop_diode_reading = self.bsdiode.getPosition()
+        self.setFastShutter('Close')
+        if beamstop_diode_reading > 10E6:
+            return True
+        else:
+            return False
+
+    def preRunCheck(self):
+        status = False
+        message = "HPLC run aborted due to: "
+        if not self.getMachineStatus():
+            message += 'Machine is down'
+        elif not self.getSafetyShutter():
+            message += 'Safety shutter is closed'
+        elif not self.getHplcValve():
+            message += 'HPLC valve is closed'
+        elif not self.testForBeam():
+            message += 'no beam on the beamstop diode'
+        else:
+            status = True
+            message = 'Pre-run check passed successfully'
+        return (status, message)
 
     def run(self, processing=True):
         try:
@@ -171,23 +236,34 @@ class HPLC(object):
                 
             self.setEnvironment('HPLC')
             self.setSampleType('sample+buffer')
-
+            
+            self.isError = False
             for i, b in enumerate(self.bean.measurements):
-                self.logger.info('---- STARTING RUN '+str(i)+' of '+str(len(self.bean.measurements))+': SAMPLE: '+b.getSampleName()+' ----')
-                readout_time = 0.1
+                pause()
+                my_check = self.preRunCheck()
+                if not my_check[0]:
+                    self.sendSms(my_check[1])
+                    self.logger.error(my_check[1])
+                    self.killHplc(True)
+                    self.isError = True
+                    break
+                else:
+                    self.logger.info(my_check[1])
+                
+                self.logger.info('---- STARTING RUN '+str(i+1)+' of '+str(len(self.bean.measurements))+': SAMPLE: '+b.getSampleName()+' ----')
                 exposure_time = b.getTimePerFrame()
                 pre_run_delay = 120
                 
                 #GET THE RUN TIME
                 try:
-                    runtime = int(b.getComment())
+                    runtime = int(b.getTotalDuration())
                 except:
-                    self.logger.error('The run time of the experiment is set in the comment box, must be an integer and is in minutes, using 30 mins as a default')
-                    runtime = 30
-                number_of_images = int(ceil(runtime * 60.0 / ( readout_time + exposure_time)))
+                    self.logger.error('The run time of the experiment must be an integer and is in minutes, using 30 mins as a default')
+                    runtime = 32
+                number_of_images = self.NumberOfImages(runtime, exposure_time)
+                
                 
                 #Set up run parameters
-                self.setupTfg(number_of_images, readout_time, exposure_time)
                 self.setTitle(b.getSampleName())
                 
                 #Get the inject signal
@@ -205,13 +281,19 @@ class HPLC(object):
                     sleep(0.1)
                 if not found_signal:
                     self.logger.info('Did not find the inject signal, will proceed anyway.')
-                    
+                
                 #Start the data collection
-                self.logger.info('Starting collection of '+str(number_of_images)+'x'+str(exposure_time)+' second exposures')
-                StaticScan([self.ncddetectors]).run()
+                self.logger.info('Starting data collection')
+                for index,run in enumerate(number_of_images):
+                    self.setupTfg(run[0], run[1])
+                    self.logger.info('NXS file '+str(index+1)+' of '+str(len(number_of_images))+' for '+b.getSampleName())
+                    StaticScan([self.ncddetectors]).run()
                 self.logger.info('Finished collecting '+b.getSampleName())
             self.setSafetyShutter('Close')
-            self.logger.info('SCRIPT FINISHED NORMALLY')
+            if self.isError:
+                self.logger.error('SCRIPT WAS TERMINATED PREMATURELY')
+            else:
+                self.logger.info('SCRIPT FINISHED NORMALLY')
             #namespace:
             #b.getLocation().getRow()
             #b.getLocation().getColumn()
