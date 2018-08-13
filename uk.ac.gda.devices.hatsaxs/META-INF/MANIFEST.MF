@@ -11,20 +11,13 @@ Import-Package: gda.configuration.properties,
 Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.common,
  org.eclipse.core.runtime;bundle-version="3.8.0"
-Export-Package: org.apache.poi.openxml4j.exceptions,
- org.apache.poi.ss.usermodel,
- org.embl,
+Export-Package: org.embl,
  org.embl.ctrl,
  org.embl.data,
  org.embl.net,
  uk.ac.gda.devices.hatsaxs,
  uk.ac.gda.devices.hatsaxs.beans;uses:="uk.ac.gda.beans,gda.factory"
 Bundle-ClassPath: .,
- jars/JLib.jar,
- jars/poi-3.9-20121203.jar,
- jars/poi-examples-3.9-20121203.jar,
- jars/poi-excelant-3.9-20121203.jar,
- jars/poi-ooxml-3.9-20121203.jar,
- jars/poi-ooxml-schemas-3.9-20121203.jar,
- jars/poi-scratchpad-3.9-20121203.jar
+ jars/JLib.jar
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Bundle-Vendor: Diamond Light Source

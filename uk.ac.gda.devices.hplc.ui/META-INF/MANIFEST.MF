@@ -13,7 +13,10 @@ Require-Bundle: uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0",
  org.eclipse.ui.ide,
  org.eclipse.jface,
  uk.ac.gda.core,
- uk.ac.gda.devices.hatsaxs.ui
+ uk.ac.gda.devices.hatsaxs.ui,
+ org.apache.poi;bundle-version="3.9.0",
+ org.apache.poi.ooxml;bundle-version="3.9.0",
+ org.apache.poi.ooxml.schemas;bundle-version="3.9.0"
 Import-Package: gda.configuration.properties,
  gda.rcp,
  org.apache.commons.beanutils;version="1.9.1",
@@ -39,3 +42,4 @@ Import-Package: gda.configuration.properties,
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core,
  uk.ac.diamond.org.springframework
+Bundle-Vendor: Diamond Light Source

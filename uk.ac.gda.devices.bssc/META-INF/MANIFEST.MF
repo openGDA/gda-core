@@ -12,14 +12,13 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.common,
  org.eclipse.core.databinding;bundle-version="1.4.1",
  uk.ac.diamond.org.springframework;bundle-version="4.0.6",
- uk.ac.diamond.jython;bundle-version="2.7.1"
+ uk.ac.diamond.jython;bundle-version="2.7.1",
+ org.apache.poi;bundle-version="3.9.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb
-Import-Package: org.apache.poi.openxml4j.exceptions,
- org.apache.poi.ss.usermodel,
- org.embl,
+Import-Package: org.embl,
  org.embl.ctrl,
  org.embl.data,
  org.embl.net,
