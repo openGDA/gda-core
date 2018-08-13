@@ -146,7 +146,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		pm.remove("org.eclipse.help.ui.browsersPreferencePage");//Remove help preference page
 		pm.remove("org.eclipse.update.internal.ui.preferences.MainPreferencePage");//Remove Install/Update preference page
 		pm.remove("org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage");//Remove another Install/Update preference page
-		pm.remove("net.sf.py4j.defaultserver.preferences.DefaultServerPreferencePage");//Remove Py4J preference page
+		pm.remove("org.py4j.defaultserver.preferences.DefaultServerPreferencePage");//Remove Py4J preference page
 	}
 
 	@Override
