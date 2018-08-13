@@ -6,6 +6,7 @@ from uk.ac.gda.devices.bssc.beans import BSSCSessionBean
 from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.jython import InterfaceProvider
+from gda.jython import JythonServerFacade
 from gda.commandqueue import JythonScriptProgressProvider
 from gda.jython.commands.GeneralCommands import pause
 from tfgsetup import fs
@@ -14,12 +15,13 @@ from gdascripts.pd.epics_pds import DisplayEpicsPVClass, SingleEpicsPositionerCl
 import gdaserver
 import uuid
 import json
+import subprocess
 
 SAMPLE_HOLD = True
 
 class BSSCRun:
     def __init__(self, beanFile):
-        self.__version__ = '1.01'
+        self.__version__ = '1.02'
         finder = gda.factory.Finder.getInstance()
         find = finder.find
         self.simulate = False
@@ -29,6 +31,7 @@ class BSSCRun:
         self.bean = BSSCSessionBean.createFromXML(beanFile)
         self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
         self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
+        self.jsf = JythonServerFacade.getInstance()
         self.detector = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
         self.shutter = find("shutter")
         self.bsscscannable = find("bsscscannable")
@@ -59,6 +62,15 @@ class BSSCRun:
         currentVisit = GDAMetadataProvider.getInstance().getMetadataValue("visit")
         self.totalSteps = self.overheadsteps + self.bean.getMeasurements().size() * self.stepspersample
 
+    def setGdaStatus(self, status='BSSC'):
+        statuses = {'Idle': 0, 'HPLC': 1, 'BSSC': 2, 'Manual': 3, 'Other': 4}
+        try:
+            gdaStatus.getPosition()
+        except:
+            gdaStatus = SingleEpicsPositionerClass('fv1', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-VA-FVALV-01:CON', 'BL21B-VA-FVALV-01:CON', 'mm', '%d')
+        if status in statuses.keys():
+            gdaStatus(statuses[status])
+        
     def getFastShutter(self):
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
@@ -87,6 +99,20 @@ class BSSCRun:
         if not fv1.getPosition() == 3.0:
             fv1(3.0)
 
+    def sendSms(self, message=""):
+        fedids = {'Nathan': 'xaf46449', 'Nikul': 'rvv47355', 'Rob': 'xos81802', 'Katsuaki': 'vdf31527'}
+        for key in fedids.keys():
+            subprocess.call(['/dls_sw/prod/tools/RHEL6-x86_64/defaults/bin/dls-sendsms.py', fedids[key], message])
+
+    def getMachineStatus(self):
+        try:
+            machine_status.getPosition()
+        except:
+            machine_status=DisplayEpicsPVClass('beam_status', 'FE21B-PS-SHTR-01:STA', 'units', '%d')
+        if machine_status.getPosition() == 1.0:
+            return True
+        else:
+            return False
 
     def setHoldSample(self, holdsample):
         if type(holdsample) == type(True):
@@ -187,7 +213,6 @@ class BSSCRun:
         if not self.simulate:
             if titration != None:
                 self.reportProgress("Cleaning before Sample")
-                pause()
                 self.clean()
                 self.reportProgress("Sucking in Sample")
                 self.loadWell(titration.getLocation())
@@ -278,11 +303,11 @@ class BSSCRun:
 
     def setSampleVolume(self, volume):
         try:
-            if 10 < float(volume) < 100:
+            if 10 < float(volume) <= 250:
                 self.samplevolume = float(volume)
             else:
                 self.samplevolume = 35
-                print 'ERROR: sample volume should be between 10 and 100 ul, set to 35.'
+                print 'ERROR: sample volume should be between 10 and 250 ul, set to 35.'
         except:
             self.samplevolume = 35
             print 'ERROR: sample volume must be a number, set to 35 ul'
@@ -310,6 +335,13 @@ class BSSCRun:
             
             experiment_id = str(uuid.uuid4())
             for index, titration in enumerate(self.bean.getMeasurements()):
+                self.setGdaStatus('BSSC')
+                if not self.getMachineStatus():
+                    self.sendSms("BSSC script stopped due to beam dump")
+                    self.logger.error('Paused script due to beam dump. Hit play to resume')
+                    self.jsf.pauseCurrentScript()
+                    self.setGdaStatus('Idle')
+                pause()
                 self.setSampleVolume(titration.getSampleVolume())
                 self.experiment_definition( [ self.jsonStringFromMeasurements(self.bean.getMeasurements()), str(index), experiment_id ] )
                 self.meta.setMetadataValue('visit', titration.getVisit())
@@ -334,6 +366,7 @@ class BSSCRun:
             self.sample_type('sample')
         finally:
             self.addExperimentDefinitionToNxs(False)
+            self.setGdaStatus('Idle')
             print 'BSSC SCRIPT FINISHED NORMALLY'
 
     def exportFinalBeans(self):
