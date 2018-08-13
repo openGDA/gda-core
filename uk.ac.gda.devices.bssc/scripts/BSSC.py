@@ -164,11 +164,12 @@ class BSSCRun:
         return scan.getDataWriter().getCurrentFileName()
 
     def expose(self, duration, move=False):
+        
         if move:
             print "Moving the sample during collection"
             speed = 1
-            push_volume = self.samplevolume-10
-            taskid = self.bssc.push(self.samplevolume-10, 1)
+            push_volume = self.samplevolume-7
+            taskid = self.bssc.push(push_volume, 1)
             filename = self.doTheScan(self.scannables)
             self.monitorAsynchronousMethod(taskid)
         else:
@@ -202,7 +203,7 @@ class BSSCRun:
 
                 self.sampleName.setValue(titration.getSampleName())
                 self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
-                if titration.getKey() == "move":
+                if titration.getMove():
                     move = True
                 else:
                     move = False
@@ -267,11 +268,24 @@ class BSSCRun:
         output_dict['frames'] = titration.getFrames()
         output_dict['exposureTemperature'] = titration.getExposureTemperature()
         output_dict['mode'] = titration.getMode()
+        output_dict['move'] = titration.getMove()
+        output_dict['sampleVolume'] = titration.getSampleVolume()
         output_dict['key'] = titration.getKey()
         output_dict['visit'] = titration.getVisit()
         output_dict['username'] = titration.getUsername()
         output_dict['datafilename'] = titration.getDatafilename()
         return output_dict
+
+    def setSampleVolume(self, volume):
+        try:
+            if 10 < float(volume) < 100:
+                self.samplevolume = float(volume)
+            else:
+                self.samplevolume = 35
+                print 'ERROR: sample volume should be between 10 and 100 ul, set to 35.'
+        except:
+            self.samplevolume = 35
+            print 'ERROR: sample volume must be a number, set to 35 ul'
 
     def jsonStringFromMeasurements(self, measurements):
         output_array = []
@@ -296,6 +310,7 @@ class BSSCRun:
             
             experiment_id = str(uuid.uuid4())
             for index, titration in enumerate(self.bean.getMeasurements()):
+                self.setSampleVolume(titration.getSampleVolume())
                 self.experiment_definition( [ self.jsonStringFromMeasurements(self.bean.getMeasurements()), str(index), experiment_id ] )
                 self.meta.setMetadataValue('visit', titration.getVisit())
                 print  "\n== Running Titration " + titration.getSampleName() + " =="
