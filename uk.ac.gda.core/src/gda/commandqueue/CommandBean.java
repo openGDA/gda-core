@@ -18,6 +18,7 @@
 
 package gda.commandqueue;
 
+import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 /**
@@ -36,7 +37,7 @@ public class CommandBean extends StatusBean {
 	}
 
 	@Override
-	public void merge(StatusBean with) {
+	public <T extends IdBean> void merge(T with) {
 		super.merge(with);
 		// other bean must be a command bean
 		this.command = ((CommandBean) with).command;
