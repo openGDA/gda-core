@@ -44,6 +44,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private Boolean returnCountRates = false;
 	private double[][] framesRead;
 	private int numCycles = 1;
+	private boolean useInternalTriggeredFrames = false;
 
 	public BufferedScaler(){
 		try {
@@ -109,10 +110,38 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.continuousMode = on;
 		if (on) {
-			setTimeFrames();
+			if (useInternalTriggeredFrames) {
+				setTimeFramesInternal();
+			} else {
+				setTimeFrames();
+			}
 		} else {
 			switchOffExtTrigger();
+			// set to false, to avoid potential problems with subsequent scans that rely on external
+			// triggering but don't set this (new) flag to false
+			useInternalTriggeredFrames = false;
 		}
+	}
+
+	/**
+	 * Setup Tfg to generate sequence of time frames (internal trigger, starting immediately)
+	 *
+	 * @throws DeviceException
+	 */
+	private void setTimeFramesInternal() throws DeviceException {
+		if (parameters == null) {
+			throw new DeviceException(getName() + " could not set time frames for continuous scans as parameters not supplied!");
+		}
+		double timePerPoint = parameters.getTotalTime() / parameters.getNumberDataPoints();
+		logger.debug("Setting da.server to generate {} time frames with {} sec per point", parameters.getNumberDataPoints(), timePerPoint);
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("tfg setup-groups cycles 1\n");
+		buffer.append(parameters.getNumberDataPoints() + " 0.000001 " + timePerPoint + " 0 0 0 0\n");
+		buffer.append("-1 0 0 0 0 0 0");
+
+		daserver.sendCommand(buffer.toString());
+		daserver.sendCommand("tfg start");
 	}
 
 	private void setTimeFrames() throws DeviceException {
@@ -327,4 +356,19 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		int numFrames = finalFrame-startFrame;
 		scaler.clear(startFrame, 0, 0, numFrames, 1, 9);
 	}
+
+	public boolean getUseInternalTriggeredFrames() {
+		return useInternalTriggeredFrames;
+	}
+
+	/**
+	 * Set to 'true' to make the Tfg to generate time frames without waiting for external triggers. <p>
+	 * N.B. This flag gets reset to false at end of each scan, to avoid potential problems with subsequent
+	 * scans that rely on external triggering but don't set this (new) flag to false.
+	 * @param useInternalTriggeredFrames
+	 */
+	public void setUseInternalTriggeredFrames(boolean useInternalTriggeredFrames) {
+		this.useInternalTriggeredFrames = useInternalTriggeredFrames;
+	}
 }
+
