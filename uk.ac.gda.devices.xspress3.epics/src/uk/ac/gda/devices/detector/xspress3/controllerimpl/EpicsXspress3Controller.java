@@ -947,20 +947,33 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 	}
 
 	@Override
-	public void setHDFExtraDims(int[] scanDimensions) throws IOException {
-		if (scanDimensions!=null) {
-			pvProvider.pvExtraDimensions.putWait(scanDimensions.length-1);
+	public void configureHDFDimensions(int[] scanDimensions) throws DeviceException {
+		try {
+			if (scanDimensions!=null) {
+				setHDFExtraDimensions(scanDimensions.length-1);
 
-			//For 2d, 3d scans, set the extra dimensions to match the scan shape
-			if (scanDimensions.length>1 && scanDimensions.length<4) {
-				pvProvider.pvExtraDimN.putWait(scanDimensions[0]);
-				pvProvider.pvExtraDimX.putWait(scanDimensions[1]);
-				if (scanDimensions.length==3) {
-					pvProvider.pvExtraDimY.putWait(scanDimensions[2]);
+				//For 2d, 3d scans, set the extra dimensions to match the scan shape
+				if (scanDimensions.length>1 && scanDimensions.length<4) {
+					pvProvider.pvExtraDimN.putWait(scanDimensions[0]);
+					pvProvider.pvExtraDimX.putWait(scanDimensions[1]);
+					if (scanDimensions.length==3) {
+						pvProvider.pvExtraDimY.putWait(scanDimensions[2]);
+					}
+				} else {
+					logger.warn("Attempting to set HDF extra dimensions using scan dimensions with shape {}. Only up to 3 dimensional shapes allowed", Arrays.toString(scanDimensions));
 				}
-			} else {
-				logger.warn("Attempting to set HDF extra dimensions using scan dimensions with shape {}. Only up to 3 dimensional shapes allowed", Arrays.toString(scanDimensions));
 			}
+		} catch (IOException e) {
+			throw new DeviceException(e);
+		}
+	}
+
+	@Override
+	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException {
+		try {
+			pvProvider.pvExtraDimensions.putWait(extraDimensions);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting HDF extra dimensions", e);
 		}
 	}
 

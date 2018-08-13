@@ -288,7 +288,9 @@ public interface Xspress3Controller extends Findable {
 	 * The number of extra dimensions is set to 0 for a 1-dimensional scan.
 	 * @param scanDimensions - number of points in each dimension of the scan
 	 */
-	public void setHDFExtraDims(int[] scanDimensions) throws IOException;
+	public void configureHDFDimensions(int[] scanDimensions) throws DeviceException;
+
+	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException;
 
 	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException;
 

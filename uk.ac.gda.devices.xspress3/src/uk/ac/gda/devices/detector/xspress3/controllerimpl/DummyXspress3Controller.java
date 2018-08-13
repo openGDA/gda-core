@@ -598,8 +598,13 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	}
 
 	@Override
-	public void setHDFExtraDims(int[] scanDimensions) throws IOException {
+	public void configureHDFDimensions(int[] scanDimensions) throws DeviceException {
 		logger.debug("Called DummyXspress3Controller.setHDFExtraDims({})", scanDimensions);
+	}
+
+	@Override
+	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setHDFExtraDimensions({})", extraDimensions);
 	}
 
 	@Override
