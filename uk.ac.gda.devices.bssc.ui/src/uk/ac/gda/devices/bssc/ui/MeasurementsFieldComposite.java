@@ -27,19 +27,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.eclipse.gef.dnd.SimpleObjectTransfer;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.jface.viewers.ViewerRow;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.swt.SWT;
@@ -53,11 +47,8 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -67,10 +58,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
@@ -85,11 +73,10 @@ import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.Plate;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
 import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnHelper;
+import uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class MeasurementsFieldComposite extends FieldComposite {
-
-	private static final String UPDATE_METHOD = "update";
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementsFieldComposite.class);
 
@@ -148,37 +135,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		table.setLayoutData(layoutData);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		Menu menu = new Menu(table);
-		table.setMenu(menu);
-		table.addMenuDetectListener(e -> {
-				TableItem[] selection = table.getSelection();
-				Point rel = table.toControl(e.x, e.y);
-				if (selection == null || selection.length <= 1 || tableViewer.getCell(rel) == null) {
-					e.doit = false;
-				}
-				menu.setData(rel);
-		});
-
-		MenuItem copyToRange = new MenuItem(menu, SWT.NONE);
-		copyToRange.setText("Copy to selection");
-
-		copyToRange.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				TableItem[] selection = table.getSelection();
-				Point rel = (Point) menu.getData();
-				ViewerCell cell = tableViewer.getCell(rel);
-
-				int index = cell.getColumnIndex();
-				ViewerRow row = cell.getViewerRow();
-				TableColumn column = table.getColumn(index);
-				@SuppressWarnings("unchecked")
-				BiConsumer<TitrationBean, TitrationBean> update = (BiConsumer<TitrationBean, TitrationBean>) column.getData(UPDATE_METHOD);
-				TitrationBean src = (TitrationBean) row.getItem().getData();
-				Arrays.stream(selection).forEach(s -> update.accept(src, (TitrationBean) s.getData()));
-				tableViewer.refresh();
-			}
-		});
+		new HatsaxsMenu<TitrationBean>(tableViewer);
 		table.addListener(SWT.EraseItem, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -505,23 +462,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			});
 		}
 
-		for (Entry<String, Column<TitrationBean,?>> definition : columns.entrySet()) {
-			Column<TitrationBean,? extends Object> column = definition.getValue();
-
-			TableViewerColumn columnViewer = new TableViewerColumn(tableViewer, SWT.CENTER);
-			TableColumn tableColumn = columnViewer.getColumn();
-
-			int width = column.getWidth();
-			tableColumn.setText(definition.getKey());
-			tableColumn.setWidth(width);
-			tableColumn.setResizable(true);
-			tableColumn.setMoveable(true);
-			BiConsumer<TitrationBean, TitrationBean> update = (src, tgt) -> column.setNewValue(tgt, column.getRealValue(src));
-			tableColumn.setData(UPDATE_METHOD, update);
-			layout.setColumnData(tableColumn, new ColumnWeightData(width, width));
-			columnViewer.setLabelProvider(column.getLabelProvider());
-			columnViewer.setEditingSupport(column.getEditor());
-		}
+		columns.forEach((name, column) -> column.addToTable(name, tableViewer));
 		DragSource source = new DragSource(table, DND.DROP_MOVE | DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { TRANSFER, TextTransfer.getInstance() });
 

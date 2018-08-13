@@ -27,16 +27,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.eclipse.gef.dnd.SimpleObjectTransfer;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.widgets.FieldComposite;
 import org.eclipse.swt.SWT;
@@ -71,6 +68,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
+import uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
 import uk.ac.gda.devices.hplc.beans.HplcSessionBean;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -128,6 +126,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 		tableViewer = new TableViewer(comp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
 		ColumnViewerToolTipSupport.enableFor(tableViewer);
+		new HatsaxsMenu<HplcBean>(tableViewer);
 		table = tableViewer.getTable();
 		table.setLayoutData(layoutData);
 		table.setHeaderVisible(true);
@@ -306,17 +305,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			});
 		}
 
-		for (Entry<String, Column<HplcBean,?>> column : columns.entrySet()) {
-			TableViewerColumn col = new TableViewerColumn(tableViewer, SWT.CENTER);
-			int width = column.getValue().getWidth();
-			col.getColumn().setWidth(width);
-			col.getColumn().setText(column.getKey());
-			col.getColumn().setResizable(true);
-			col.getColumn().setMoveable(true);
-			layout.setColumnData(col.getColumn(), new ColumnWeightData(width, width));
-			col.setLabelProvider(column.getValue().getLabelProvider());
-			col.setEditingSupport(column.getValue().getEditor());
-		}
+		columns.forEach((name, column) -> column.addToTable(name, tableViewer));
 
 		DragSource source = new DragSource(table, DND.DROP_MOVE | DND.DROP_COPY);
 		source.setTransfer(new Transfer[] { TRANSFER, TextTransfer.getInstance() });

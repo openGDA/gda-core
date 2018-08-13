@@ -18,21 +18,30 @@
 
 package uk.ac.gda.devices.hatsaxs.ui;
 
+import static uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu.UPDATE_METHOD;
+
+import java.util.function.BiConsumer;
+
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.richbeans.api.event.ValueEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -292,5 +301,21 @@ public abstract class Column<T,V> {
 		if (cellEditor instanceof EditableComboBox<?>) {
 			((EditableComboBox<?>) cellEditor).setInput(options);
 		}
+	}
+	public BiConsumer<T, T> getUpdateMethod() {
+		return (src, tgt) -> setNewValue(tgt, getRealValue(src));
+	}
+	public void addToTable(String name, TableViewer viewer) {
+		TableViewerColumn columnViewer = new TableViewerColumn(viewer, SWT.CENTER);
+		TableColumn tableColumn = columnViewer.getColumn();
+
+		tableColumn.setWidth(width);
+		tableColumn.setText(name);
+		tableColumn.setResizable(true);
+		tableColumn.setMoveable(true);
+		((TableColumnLayout) viewer.getTable().getParent().getLayout()).setColumnData(tableColumn, new ColumnWeightData(width, width));
+		tableColumn.setData(UPDATE_METHOD, getUpdateMethod());
+		columnViewer.setLabelProvider(labelProvider);
+		columnViewer.setEditingSupport(support);
 	}
 }
