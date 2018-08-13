@@ -70,10 +70,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
-import uk.ac.gda.devices.hatsaxs.beans.Plate;
 import uk.ac.gda.devices.hatsaxs.ui.Column;
-import uk.ac.gda.devices.hatsaxs.ui.Column.ColumnHelper;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
 import uk.ac.gda.devices.hplc.beans.HplcSessionBean;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -497,118 +494,5 @@ public class HplcSampleFieldComposite extends FieldComposite {
 		sampleCount.setText(String.valueOf(getList().size()));
 		tableViewer.refresh();
 		rbeditor.valueChangePerformed(new ValueEvent("", ""));
-	}
-
-	private Map<String,Column<HplcBean,?>> getLocationColumns(final String prefix, final ColumnHelper<HplcBean, LocationBean> helper) {
-		Map<String,Column<HplcBean,?>> columns = new LinkedHashMap<>();
-		if (HplcSessionBean.HPLC_PLATES.getPlates().size() != 1) {
-			Column<HplcBean, String> plateColumn = new Column<HplcBean, String>(40, tableViewer, rbeditor, Column.ColumnType.CHOICE) {
-				private ColumnHelper<HplcBean, LocationBean> help = helper;
-				@Override
-				public String getRealValue(HplcBean element) {
-					LocationBean loc = help.getValue(element);
-					return loc == null ? "--" : LocationBean.getPlateText(loc.getPlate());
-				}
-				@Override
-				public void setNewValue(HplcBean element, String value) {
-					LocationBean loc = helper.getValue(element);
-					if (loc == null) {
-						loc = new LocationBean(HplcSessionBean.HPLC_PLATES);
-						helper.setValue(element,loc);
-					}
-					loc.setPlate(value);
-				}
-				@Override
-				protected String getStringValue(Object element) {
-					String value = getRealValue((HplcBean)element);
-					return value;
-				}
-				@Override
-				protected Color getColour(HplcBean tb) {
-					return helper.bGColor(tb);
-				}
-				@Override
-				protected String getToolTip(HplcBean tb) {
-					return helper.toolTip(tb);
-				}
-			};
-			String[] plateArray = HplcSessionBean.HPLC_PLATES.getAvailablePlates();
-			plateColumn.setInput(plateArray);
-			columns.put(prefix + "Plate", plateColumn);
-		}
-		columns.put(prefix + "Row", new Column<HplcBean,Character>(30, tableViewer, rbeditor, Column.ColumnType.CHOICE ) {
-			@Override
-			public Character getRealValue(HplcBean element) {
-				LocationBean loc = helper.getValue(element);
-				if (loc == null) {
-					return null;
-				}
-				short currentPlate = loc.getPlate();
-				Plate plate = HplcSessionBean.HPLC_PLATES.getPlate(currentPlate);
-				setInput(plate.getRows());
-				return loc.getRow();
-			}
-			@Override
-			public void setNewValue(HplcBean element, String value) {
-				LocationBean loc = helper.getValue(element);
-				if (loc == null) {
-					loc = new LocationBean(HplcSessionBean.HPLC_PLATES);
-					helper.setValue(element, loc);
-				}
-				if (value.length() == 1) {
-					loc.setRow(value.charAt(0));
-				}
-			}
-			@Override
-			protected String getStringValue(Object element) {
-				Character row = getRealValue((HplcBean)element);
-				return row == null ? "--" : String.valueOf(row);
-			}
-			@Override
-			protected Color getColour(HplcBean tb) {
-				return helper.bGColor(tb);
-			}
-			@Override
-			protected String getToolTip(HplcBean tb) {
-				return helper.toolTip(tb);
-			}
-		});
-		columns.put(prefix + "Column", new Column<HplcBean,Integer>(50,tableViewer, rbeditor, Column.ColumnType.CHOICE) {
-			@Override
-			public Integer getRealValue(HplcBean element) {
-				LocationBean loc = helper.getValue(element);
-				if (loc == null) {
-					return null;
-				}
-				short currentPlate = loc.getPlate();
-				Plate plate = HplcSessionBean.HPLC_PLATES.getPlate(currentPlate);
-				setInput(plate.getColumns());
-				return (int) loc.getColumn();
-			}
-			@Override
-			public void setNewValue(HplcBean element, String value) {
-				LocationBean loc = helper.getValue(element);
-				if (loc == null) {
-					loc = new LocationBean(HplcSessionBean.HPLC_PLATES);
-					helper.setValue(element,loc);
-				}
-				short col = Short.valueOf(value);
-				loc.setColumn(col);
-			}
-			@Override
-			protected String getStringValue(Object element) {
-				Integer plate = getRealValue((HplcBean)element);
-				return plate == null ? "--" : String.valueOf(plate);
-			}
-			@Override
-			protected Color getColour(HplcBean tb) {
-				return helper.bGColor(tb);
-			}
-			@Override
-			protected String getToolTip(HplcBean tb) {
-				return helper.toolTip(tb);
-			}
-		});
-		return columns;
 	}
 }
