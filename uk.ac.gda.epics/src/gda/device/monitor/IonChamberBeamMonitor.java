@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
+import gda.device.CurrentAmplifier.Status;
 import gda.device.DeviceException;
 import gda.device.IBeamMonitor;
-import gda.device.currentamplifier.EpicsCurrAmpSingle;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
@@ -257,19 +257,17 @@ public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBe
 	 */
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		if (theObserved instanceof EpicsCurrAmpSingle.CurrentMonitorListener) {
+		if (changeCode instanceof Double) {
 			currentValue = ((Double) changeCode).doubleValue();
-		} else if (theObserved instanceof EpicsCurrAmpSingle.OverloadMonitorListener) {
-			CurrentAmplifier.Status status = (CurrentAmplifier.Status) changeCode;
+		} else if (changeCode instanceof Status) {
+			Status status = (Status) changeCode;
 			if (status == CurrentAmplifier.Status.OVERLOAD) {
 				logger.warn("Amplifier {} status becomes {}", getName(), status);
 			} else {
 				logger.info("Amplifier {} status is back to {}", getName(), status);
 			}
-		} else if (theObserved instanceof EpicsCurrAmpSingle.ModeMonitorListener) {
-			logger.info("Amplifier {} Mode is changed to {}", getName(), changeCode);
-		} else if (theObserved instanceof EpicsCurrAmpSingle.GainMonitorListener) {
-			logger.info("Amplifier {} Gain is changed to {}", getName(), changeCode);
+		} else if (changeCode instanceof String) {
+			logger.info("Update from {}: {}", getName(), changeCode);
 		}
 	}
 

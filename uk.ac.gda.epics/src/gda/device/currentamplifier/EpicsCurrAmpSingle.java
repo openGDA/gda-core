@@ -70,9 +70,9 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	private Object lock = new Object();
 
-	private CurrentMonitorListener iMonitor;
-	private GainMonitorListener gainMonitor;
-	private ModeMonitorListener modeMonitor;
+	private MonitorListener iMonitor;
+	private MonitorListener gainMonitor;
+	private MonitorListener modeMonitor;
 	private boolean enableValueMonitoring = true;
 	private boolean poll=false;
 	private boolean acdcAvailable=true; // keep the original default behaviour if not set in Spring bean definition
@@ -83,12 +83,11 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	 * Constructor
 	 */
 	public EpicsCurrAmpSingle() {
-
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
-		iMonitor = new CurrentMonitorListener();
-		gainMonitor = new GainMonitorListener();
-		modeMonitor = new ModeMonitorListener();
+		iMonitor = this::currentChanged;
+		gainMonitor = this::gainUpdated;
+		modeMonitor = this::modeChanged;
 
 	}
 
@@ -123,6 +122,9 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 			// scannable name
 			this.inputNames[0] = getName();
 			this.outputFormat[0] = "%5.4f";
+			if (enableValueMonitoring) {
+				enableValueMonitoring();
+			}
 			setConfigured(true);
 		}// end of if (!configured)
 	}
@@ -328,78 +330,49 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	}
 
 	/**
-	 * Current monitor
+	 * Current monitor handler
 	 */
-	public class CurrentMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isDOUBLE()) {
-				current = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
-				notifyIObservers(this, new Double(current));
-			} else {
-				logger.error("Current should return DOUBLE type value.");
-			}
+	private void currentChanged(MonitorEvent mev) {
+		DBR dbr = mev.getDBR();
+		if (dbr.isDOUBLE()) {
+			current = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+			notifyIObservers(this, new Double(current));
+		} else {
+			logger.error("Current should return DOUBLE type value.");
 		}
 	}
 
 	/**
-	 * Overload status monitor.
-	 *
-	 * @author fy65
+	 * AC or DC mode monitor handler
 	 */
-	public class OverloadMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			short value = -1;
-			DBR dbr = mev.getDBR();
-			if (dbr.isENUM()) {
-				value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-				if (value == 0) {
-					synchronized (lock) {
-						status = Status.NORMAL;
-					}
-				} else if (value == 1) {
-					synchronized (lock) {
-						status = Status.OVERLOAD;
-					}
-				}
-				notifyIObservers(this, status);
-			} else {
-				logger.error("Overload status does not return Enum type.");
+	private void modeChanged(MonitorEvent mev) {
+		DBR dbr = mev.getDBR();
+		if (dbr.isENUM()) {
+			int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
+			if (value >= modePositions.size()) {
+				logger.warn("Unexpected mode position: {}", value);
+				return;
 			}
+			notifyIObservers(this, mode=modePositions.get(value));
+		} else {
+			logger.error("Mode does not return Enum type.");
 		}
 	}
 
 	/**
-	 * AC or DC mode monitor.
+	 * Gain monitor handler
 	 */
-	public class ModeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isENUM()) {
-				int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-				notifyIObservers(this, mode=modePositions.get(value));
-			} else {
-				logger.error("Mode does not return Enum type.");
+	private void gainUpdated(MonitorEvent mev) {
+		DBR dbr = mev.getDBR();
+		if (dbr.isENUM()) {
+			int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
+			if (value >= gainPositions.size()) {
+				logger.warn("Unexpected gain position: {}", value);
+				return;
 			}
-		}
-	}
-
-	/**
-	 * Gain monitor.
-	 */
-	public class GainMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			DBR dbr = mev.getDBR();
-			if (dbr.isENUM()) {
-				int value = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-				notifyIObservers(this, gain=gainPositions.get(value));
-			} else {
-				logger.error("Gain does not return Enum type.");
-			}
+			notifyIObservers(this, gain=gainPositions.get(value));
+		} else {
+			logger.error("Gain does not return Enum type.");
 		}
 	}
 
@@ -424,7 +397,11 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	public void enableValueMonitoring() {
 		if (Ic != null && iMonitor != null) {
 			try {
+				if (monitor != null) {
+					monitor.removeMonitorListener(iMonitor);
+				}
 				monitor = Ic.addMonitor(DBRType.CTRL_DOUBLE, 0, Monitor.VALUE, iMonitor);
+				monitor.getContext().flushIO();
 				setEnableValueMonitoring(true);
 				setPoll(false);
 			} catch (IllegalStateException e) {
