@@ -24,54 +24,10 @@ public class SampleStageParameters implements Serializable {
 	private Double x;
 	private Double y;
 	private Double z;
-	private Boolean disable = false;
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SampleStageParameters other = (SampleStageParameters) obj;
-		if (x == null) {
-			if (other.x != null) {
-				return false;
-			}
-		} else if (!x.equals(other.x)) {
-			return false;
-		}
-		if (y == null) {
-			if (other.y != null) {
-				return false;
-			}
-		} else if (!y.equals(other.y)) {
-			return false;
-		}
-		if (z == null) {
-			if (other.z != null) {
-				return false;
-			}
-		} else if (!z.equals(other.z)) {
-			return false;
-		}
-		return true;
-	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-		+ ((x == null) ? 0 : x.hashCode());
-		result = prime * result
-		+ ((y == null) ? 0 : y.hashCode());
-		result = prime * result
-		+ ((z == null) ? 0 : z.hashCode());
-		return result;
-	}
+	private String xName;
+	private String yName;
+	private String zName;
+
 	public void setX(Double x) {
 		this.x = x;
 	}
@@ -90,11 +46,76 @@ public class SampleStageParameters implements Serializable {
 	public Double getZ() {
 		return z;
 	}
-	public Boolean getDisable() {
-		return disable;
+	public String getXName() {
+		return xName;
 	}
-	public void setDisable(Boolean disable) {
-		this.disable = disable;
+	public void setXName(String xName) {
+		this.xName = xName;
+	}
+	public String getYName() {
+		return yName;
+	}
+	public void setYName(String yName) {
+		this.yName = yName;
+	}
+	public String getZName() {
+		return zName;
+	}
+	public void setZName(String zName) {
+		this.zName = zName;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((x == null) ? 0 : x.hashCode());
+		result = prime * result + ((xName == null) ? 0 : xName.hashCode());
+		result = prime * result + ((y == null) ? 0 : y.hashCode());
+		result = prime * result + ((yName == null) ? 0 : yName.hashCode());
+		result = prime * result + ((z == null) ? 0 : z.hashCode());
+		result = prime * result + ((zName == null) ? 0 : zName.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SampleStageParameters other = (SampleStageParameters) obj;
+		if (x == null) {
+			if (other.x != null)
+				return false;
+		} else if (!x.equals(other.x))
+			return false;
+		if (xName == null) {
+			if (other.xName != null)
+				return false;
+		} else if (!xName.equals(other.xName))
+			return false;
+		if (y == null) {
+			if (other.y != null)
+				return false;
+		} else if (!y.equals(other.y))
+			return false;
+		if (yName == null) {
+			if (other.yName != null)
+				return false;
+		} else if (!yName.equals(other.yName))
+			return false;
+		if (z == null) {
+			if (other.z != null)
+				return false;
+		} else if (!z.equals(other.z))
+			return false;
+		if (zName == null) {
+			if (other.zName != null)
+				return false;
+		} else if (!zName.equals(other.zName))
+			return false;
+		return true;
 	}
 
 }
