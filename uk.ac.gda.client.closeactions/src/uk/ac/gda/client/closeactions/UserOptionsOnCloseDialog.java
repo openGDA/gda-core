@@ -31,14 +31,10 @@ import uk.ac.gda.client.closeactions.UserOptionsMenuOnClose;
  */
 public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
-	public final static int RESTART = -1;
-	public final static int OK = 0;
-	public final static int CANCEL = 1;
-
+	public static final int RESTART = -1;
 	private static final String TITLE = "Close Actions";
 	private static final String BLURB = "Please tell us why you're closing the client, so we can take appropriate action.";
-
-	private final int niceWidth = 480;
+	private static final int NICE_WIDTH = 480;
 
 	private UserOptionsMenuOnClose menu;
 	UserSelectedActionOnClose closeAction = new UserSelectedActionOnClose();
@@ -59,7 +55,7 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		menu = new UserOptionsMenuOnClose(parent, SWT.NONE, niceWidth);
+		menu = new UserOptionsMenuOnClose(parent, SWT.NONE, NICE_WIDTH);
 		return menu;
 	}
 
@@ -72,7 +68,7 @@ public class UserOptionsOnCloseDialog extends TitleAreaDialog {
 	@Override
 	protected Point getInitialSize() {
 		final Point original = super.getInitialSize();
-		return new Point(niceWidth + 20, original.y);
+		return new Point(NICE_WIDTH + 20, original.y);
 	}
 
 	@Override
