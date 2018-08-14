@@ -22,11 +22,15 @@ import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -38,6 +42,7 @@ import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -53,10 +58,18 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ScannableMotion;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 
 /**
  * A section for configuring the outer scannables of a scan, e.g. temperature.
+ * <p>
+ * If the mapping bean contains has a list of "defaultOuterScannables" configured, these will be shown by default, and
+ * the user will be restricted to displaying one or more of these.<br>
+ * If no default scannables are configured, the section will be empty by default and the user will be able to display
+ * and configure any available scannable that implements ScannableMotion or a derived interface such as IScannableMotor.
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
@@ -77,10 +90,333 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	/**
 	 * The outer scannables to show in the view<br>
-	 * Initially, this will be all the configured scannables, but the user may choose to filter the list.<br>
+	 * Initially, this will be all the configured scannables, but the user may choose to add/delete scannables to/from
+	 * the list.<br>
 	 * The choice will be saved when the client is closed and restored when opened, unless the client is reset.
 	 */
 	private List<IScanModelWrapper<IScanPathModel>> scannablesToShow;
+
+	/**
+	 * Names of the default outer scannables (if any) configured for this beamline
+	 * <p>
+	 * These are the scannables that will be shown when the client is reset.
+	 */
+	private List<String> defaultScannables;
+
+	/**
+	 * Names of the scannables that the user can choose
+	 * <p>
+	 * This list will be either:<br>
+	 * <li>the {@link #defaultOuterScannables} configured</li>
+	 * or, if no default scannables are configured:
+	 * <li>all scannables configured for the beamline</li>
+	 */
+	private List<String> availableScannables;
+
+	/**
+	 * For each scannable displayed in this section, the binding between the scan path in the model and the text box in
+	 * which it is displayed.
+	 */
+	private Map<String, Binding> axisBindings;
+
+	/**
+	 * For each scannable displayed in this section, the binding between the "includeInScan" flag in the model and the
+	 * corresponding check box
+	 */
+	private Map<String, Binding> checkBoxBindings;
+
+
+	@Override
+	protected void initialize(MappingExperimentView mappingView) {
+		super.initialize(mappingView);
+		defaultScannables = getMappingBean().getScanDefinition().getDefaultOuterScannables();
+		if (defaultScannables == null || defaultScannables.isEmpty()) {
+			try {
+				availableScannables = new ArrayList<>(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
+			} catch (Exception e) {
+				logger.error("Exception getting list of scannables", e);
+				availableScannables = Collections.emptyList();
+			}
+		} else {
+			availableScannables = new ArrayList<>(defaultScannables);
+		}
+	}
+
+	@Override
+	public void createControls(Composite parent) {
+		sectionComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
+
+		final Label otherScanAxesLabel = new Label(sectionComposite, SWT.NONE);
+		otherScanAxesLabel.setText("Other Scan Axes");
+		GridDataFactory.fillDefaults().applyTo(otherScanAxesLabel);
+
+		// button to add a new scannable
+		final Button btnAdd = new Button(sectionComposite, SWT.PUSH);
+		btnAdd.setImage(MappingExperimentUtils.getImage("icons/plus.png"));
+		btnAdd.setToolTipText("Add scannables");
+		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnAdd);
+		btnAdd.addListener(SWT.Selection, event -> addScannables());
+
+		// If no list of "scannables to show" has been restored, show default devices (if any)
+		if (scannablesToShow == null) {
+			scannablesToShow = new ArrayList<>(defaultScannables.size());
+			for (String scannableName : defaultScannables) {
+				scannablesToShow.add(new ScanPathModelWrapper(scannableName, null, false));
+			}
+		}
+		createScannableControls();
+	}
+
+	/**
+	 * Create a control (checkbox + scan path specification) for each scannable chosen to be displayed
+	 */
+	private void createScannableControls() {
+		removeOldBindings();
+
+		// Ensure scannables are shown in alphabetical order (case insensitive)
+		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPathModel>::getName, CASE_INSENSITIVE_ORDER));
+
+		if (scannablesComposite != null) {
+			scannablesComposite.dispose();
+		}
+		dataBindingContext = new DataBindingContext();
+		axisBindings = new HashMap<>();
+		checkBoxBindings = new HashMap<>();
+
+		scannablesComposite = new Composite(sectionComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(scannablesComposite);
+		GridLayoutFactory.swtDefaults().numColumns(4).margins(0, 0).applyTo(scannablesComposite);
+
+		// Create a control for each scannable to be shown
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+			final String scannableName = scannableAxisParameters.getName();
+
+			// Create checkbox and bind to "includeInScan" in the model
+			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
+			checkBox.setText(scannableName);
+			final IObservableValue<?> checkBoxValue = WidgetProperties.selection().observe(checkBox);
+			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			checkBoxBindings.put(scannableName, checkBoxBinding);
+
+			// Create text box to display/edit scan path definition
+			final Text axisText = new Text(scannablesComposite, SWT.BORDER);
+			axisText.setToolTipText("A range <start stop step>\n"
+					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
+					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
+			final IObservableValue<?> axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+
+			final Button multiStepButton = new Button(scannablesComposite, 0);
+			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
+			multiStepButton.setToolTipText("Edit a multi-step scan");
+
+			// Button to display a MultiStepEditorDialog as an alternative way of editing the scan path definition
+			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableName);
+			multiStepButton.addListener(SWT.Selection, event -> editModelThroughDialog(dialog, scannableName, axisText));
+
+			// Bind scan path text box to the model
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
+
+			// Button to delete scannable
+			final Button deleteScannableButton = new Button(scannablesComposite, SWT.NONE);
+			deleteScannableButton.setImage(MappingExperimentUtils.getImage("icons/cross.png"));
+			deleteScannableButton.setToolTipText("Delete scannable");
+			deleteScannableButton.addListener(SWT.Selection, event -> deleteScannable(scannableAxisParameters));
+		}
+
+		// Keep the mapping bean in sync with the GUI
+		getMappingBean().getScanDefinition().setOuterScannables(scannablesToShow);
+	}
+
+	private void deleteScannable(IScanModelWrapper<IScanPathModel> scannable) {
+		if (MessageDialog.openQuestion(getShell(), "Confirm deletion", String.format("Do you want to delete %s?", scannable.getName()))) {
+			scannablesToShow.remove(scannable);
+			updateLayout();
+		}
+	}
+
+	private void addScannables() {
+		// Get the scannables to show in the dialog: exclude the scannables that are already shown.
+		final List<String> scannablesShown = extractScannableNames(scannablesToShow);
+		final List<String> scannablesToChoose = availableScannables.stream()
+				.filter(scannable -> !scannablesShown.contains(scannable))
+				.collect(Collectors.toList());
+
+		if (scannablesToChoose.isEmpty()) {
+			MessageDialog.openError(getShell(), "No scannables to add",	"There are no more scannables available to add");
+			return;
+		}
+
+		final String titleText = "Select scannable(s) to add";
+		final String headerText = "Select one or more scannables";
+		final MultiSelectDialog dialog = new MultiSelectDialog(getShell(), titleText, headerText, scannablesToChoose);
+		if (dialog.open() == Window.OK) {
+			final List<String> scannablesSelected = dialog.getSelected();
+			if (!scannablesSelected.isEmpty()) {
+				for (String scannable : scannablesSelected) {
+					scannablesToShow.add(new ScanPathModelWrapper(scannable, null, false));
+				}
+				updateLayout();
+			}
+		}
+	}
+
+	private static List<String> extractScannableNames(Collection<IScanModelWrapper<IScanPathModel>> scannables) {
+		return scannables.stream()
+				.map(IScanModelWrapper<IScanPathModel>::getName)
+				.collect(Collectors.toList());
+	}
+
+	private void updateLayout() {
+		createScannableControls();
+		relayoutMappingView();
+		updateStatusLabel();
+	}
+
+	private void editModelThroughDialog(MultiStepEditorDialog dialog, String scannableName, Text axisText) {
+		MultiStepModel multiStepModel = new MultiStepModel();
+
+		if (!axisText.getText().isEmpty()) {
+			final Object oldModel = (new StringToScanPathConverter(scannableName)).convert(axisText.getText());
+
+			if (oldModel instanceof MultiStepModel) {
+				multiStepModel = (MultiStepModel) oldModel;
+			} else if (oldModel instanceof StepModel) {
+				multiStepModel.getStepModels().add((StepModel) oldModel);
+			} else if (oldModel instanceof ArrayModel) {
+				final double[] positions = ((ArrayModel) oldModel).getPositions();
+				for (int i = 0; i < positions.length - 1; i++) {
+					final StepModel stepModel = new StepModel(scannableName, positions[i], positions[i + 1], positions[i + 1] - positions[i]);
+					multiStepModel.getStepModels().add(stepModel);
+				}
+			}
+		}
+
+		multiStepModel.setName(scannableName);
+		dialog.setModel(multiStepModel);
+		if (dialog.open() == Window.OK) {
+			try {
+				axisText.setText((String) new ScanPathToStringConverter().convert(dialog.getEditor().getModel()));
+				updateStatusLabel();
+			} catch (Exception e) {
+				logger.error("Cannot retrieve MultiStepModel from dialog", e);
+			}
+		}
+	}
+
+	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue, Binding checkBoxBinding) {
+		final String scannableName = scannableAxisParameters.getName();
+		final IObservableValue<?> axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
+
+		// create an update strategy from text to model with a converter and a validator
+		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
+		axisTextToModelStrategy.setBeforeSetValidator(value -> {
+			// the value created by the converter will be an IScanPathModel if the text value is valid, or null if not
+			if (value instanceof IScanPathModel) {
+				return ValidationStatus.ok();
+			}
+			final boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
+			final String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
+			if (scannableAxisParameters.isIncludeInScan()) {
+				return ValidationStatus.error(message);
+			} else {
+				// empty value is ok if this scannable is not included in the scan
+				return isEmpty ? ValidationStatus.ok() : ValidationStatus.warning(message);
+			}
+		});
+
+		// create an update strategy from model back to text
+		final UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
+		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
+
+		// create the binding from the values and the two update strategies
+		final Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
+				axisTextToModelStrategy, modelToAxisTextStrategy);
+		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
+		axisBindings.put(scannableName, axisBinding);
+
+		// Update Mapping status label after model is modified from text widget
+		axisBinding.getModel().addChangeListener(evt -> updateStatusLabel());
+
+		// when the include in scan checkbox is changed we need to revalidate the model
+		// as this determines the severity of the validation status.
+		checkBoxBinding.getModel().addChangeListener(evt -> {
+			axisBinding.validateTargetToModel();
+			updateStatusLabel();
+		});
+	}
+
+	@Override
+	public void updateControls() {
+		// update the bindings between the model and the GUI widgets, as we may have new models
+		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+			final String scannableName = scannableAxisParameters.getName();
+
+			// remove the old binding between the checkbox and the old model and create a new one
+			final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
+			final IObservableValue<?> checkBoxValue = (IObservableValue<?>) oldCheckBoxBinding.getTarget();
+			dataBindingContext.removeBinding(oldCheckBoxBinding);
+			oldCheckBoxBinding.dispose();
+
+			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+			checkBoxBindings.put(scannableName, newCheckBoxBinding);
+
+			// remove the binding between the text field and old model
+			final Binding oldTextFieldBinding = axisBindings.get(scannableName);
+			final IObservableValue<?> axisTextValue = (IObservableValue<?>) oldTextFieldBinding.getTarget();
+			dataBindingContext.removeBinding(oldTextFieldBinding);
+			oldTextFieldBinding.dispose();
+
+			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
+		}
+
+		dataBindingContext.updateTargets();
+	}
+
+	/**
+	 * Persist a list of the names of the scannables currently visible
+	 */
+	@Override
+	protected void saveState(Map<String, String> persistedState) {
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			final List<String> chosenScannableNames = scannablesToShow.stream()
+					.map(IScanModelWrapper<IScanPathModel>::getName)
+					.collect(toList());
+			persistedState.put(OUTER_SCANNABLES_SELECTION_KEY_JSON, marshaller.marshal(chosenScannableNames));
+		} catch (Exception e) {
+			logger.error("Error saving selection of outer scannables", e);
+		}
+	}
+
+	/**
+	 * Read back the list of scannable names to be shown and return the corresponding IScanModelWrapper objects
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void loadState(Map<String, String> persistedState) {
+		final String json = persistedState.get(OUTER_SCANNABLES_SELECTION_KEY_JSON);
+		if (json == null || json.isEmpty()) {
+			// This happens when client is reset or no outer scannables are configured.
+			return;
+		}
+
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		try {
+			final Set<String> chosenScannableNames = marshaller.unmarshal(json, Set.class);
+			scannablesToShow = new ArrayList<>(chosenScannableNames.size());
+			for (String scannableName : chosenScannableNames) {
+				scannablesToShow.add(new ScanPathModelWrapper(scannableName, null, false));
+			}
+		} catch (Exception e) {
+			logger.error("Error loading selection of outer scannables", e);
+		}
+	}
 
 	/**
 	 * Class to convert a path model to a string
@@ -143,7 +479,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 			final StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < positions.length; i++) {
 				stringBuilder.append(doubleToString(positions[i]));
-				if (i < positions.length - 1) stringBuilder.append(",");
+				if (i < positions.length - 1) {
+					stringBuilder.append(",");
+				}
 			}
 			return stringBuilder.toString();
 		}
@@ -158,16 +496,16 @@ class OuterScannablesSection extends AbstractMappingSection {
 	}
 
 	/**
-	 * Converter for converting a string to a path model. The string specifies the path of the
-	 * outer scannable. It can be:
+	 * Converter for converting a string to a path model.<br>
+	 * The string specifies the path of the outer scannable. It can be:
 	 * <ul>
-	 *   <li>A comma separated list of values, i.e. pos1,pos2,pos3,pos4,...</li>
-	 *   <li>A single step range with start stop and step values separated by spaces, i.e. start stop step</li>
-	 *   <li>Multiple step ranges with each step range separated by a semi-colon, i.e.
-	 *      start1 stop1 step1; start2 stop2 step2</li>
+	 * <li>A comma separated list of values, i.e. pos1,pos2,pos3,pos4,...</li>
+	 * <li>A single step range with start stop and step values separated by spaces, i.e. start stop step</li>
+	 * <li>Multiple step ranges with each step range separated by a semi-colon, i.e. start1 stop1 step1; start2 stop2
+	 * step2</li>
 	 * </ul>
-	 * <p>If the string contains a comma, it is interpreted a sequence of points, otherwise
-	 * as one or more ranges.
+	 * <p>
+	 * If the string contains a comma, it is interpreted a sequence of points, otherwise as one or more ranges.
 	 */
 	private static final class StringToScanPathConverter extends Converter {
 		private final String scannableName;
@@ -180,7 +518,9 @@ class OuterScannablesSection extends AbstractMappingSection {
 		@Override
 		public Object convert(Object fromObject) {
 			final String text = (String) fromObject;
-			if (text.isEmpty()) return null;
+			if (text.isEmpty()) {
+				return null;
+			}
 			try {
 				if (text.contains(",")) {
 					return convertStringToArrayModel(text);
@@ -190,20 +530,20 @@ class OuterScannablesSection extends AbstractMappingSection {
 					return convertStringToStepModel(text);
 				}
 			} catch (Exception e) {
-				logger.error("Could not convert string to model",e);
+				logger.error("Could not convert string to model", e);
 				return null;
 			}
 		}
 
 		private StepModel convertStringToStepModel(String text) {
-			final String[] startStopStep= text.split(" ");
+			final String[] startStopStep = text.split(" ");
 			if (startStopStep.length == 3 || startStopStep.length == 4) {
 				StepModel stepModel = new StepModel();
 				stepModel.setName(scannableName);
 				stepModel.setStart(Double.parseDouble(startStopStep[0]));
 				stepModel.setStop(Double.parseDouble(startStopStep[1]));
 				stepModel.setStep(Double.parseDouble(startStopStep[2]));
-				stepModel.setExposureTime( startStopStep.length == 4? Double.parseDouble(startStopStep[3]) : 0 );
+				stepModel.setExposureTime(startStopStep.length == 4 ? Double.parseDouble(startStopStep[3]) : 0);
 				return stepModel;
 			}
 			return null;
@@ -235,256 +575,5 @@ class OuterScannablesSection extends AbstractMappingSection {
 			arrayModel.setPositions(positions);
 			return arrayModel;
 		}
-	}
-
-	//--------------------------------------------------------------------------
-	// Main class: define the outer scannables section of the mapping view
-	//--------------------------------------------------------------------------
-
-	private Map<String, Binding> axisBindings;
-	private Map<String, Binding> checkBoxBindings;
-
-	@Override
-	public boolean shouldShow() {
-		final List<IScanModelWrapper<IScanPathModel>> outerScannables = getOuterScannables();
-		return outerScannables != null && !outerScannables.isEmpty();
-	}
-
-	@Override
-	public void createControls(Composite parent) {
-		sectionComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
-
-		final Label otherScanAxesLabel = new Label(sectionComposite, SWT.NONE);
-		otherScanAxesLabel.setText("Other Scan Axes");
-		GridDataFactory.fillDefaults().applyTo(otherScanAxesLabel);
-
-		// button to open the scannable chooser dialog
-		final Button btnConfigure = new Button(sectionComposite, SWT.PUSH);
-		btnConfigure.setImage(MappingExperimentUtils.getImage("icons/gear.png"));
-		btnConfigure.setToolTipText("Select scannables to show");
-		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnConfigure);
-		btnConfigure.addListener(SWT.Selection, event -> chooseScannables());
-
-		// If no list of "scannables to show" has been restored, show all available devices
-		if (scannablesToShow == null) {
-			scannablesToShow = getOuterScannables();
-		}
-		createScannableControls();
-	}
-
-	private void createScannableControls() {
-		removeOldBindings();
-
-		// Ensure scannables are shown in alphabetical order (case insensitive)
-		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPathModel>::getName, CASE_INSENSITIVE_ORDER));
-
-		if (scannablesComposite != null) {
-			scannablesComposite.dispose();
-		}
-		dataBindingContext = new DataBindingContext();
-		axisBindings = new HashMap<>();
-		checkBoxBindings = new HashMap<>();
-
-		scannablesComposite = new Composite(sectionComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(scannablesComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).margins(0, 0).applyTo(scannablesComposite);
-
-		// Create a control for each scannable to be shown
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
-			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
-			checkBox.setText(scannableAxisParameters.getName());
-			final IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-			checkBoxBindings.put(scannableAxisParameters.getName(), checkBoxBinding);
-
-			final Text axisText = new Text(scannablesComposite, SWT.BORDER);
-			axisText.setToolTipText("A range <start stop step>\n"
-					+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
-					+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(axisText);
-			final IObservableValue axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
-
-			final Button multiStepButton = new Button(scannablesComposite, 0);
-			multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
-			multiStepButton.setToolTipText("Edit a multi-step scan");
-
-			final MultiStepEditorDialog dialog = new MultiStepEditorDialog(getShell(), scannableAxisParameters.getName());
-			multiStepButton.addListener(SWT.Selection, event-> editModelThroughDialog(dialog, scannableAxisParameters.getName(), axisText));
-
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, checkBoxBinding);
-		}
-	}
-
-	private void chooseScannables() {
-		final ChooseDevicesDialog<IScanPathModel> dialog = new ChooseDevicesDialog<>(getShell(),
-				getOuterScannables(), scannablesToShow);
-		dialog.setTitle("Choose scannables to show");
-
-		if (dialog.open() == Window.OK) {
-			scannablesToShow = dialog.getSelectedDevices();
-
-			// set any scannables not in the new selection to not be included in the scan
-			getOuterScannables().stream().
-				filter(w -> !scannablesToShow.contains(w)).
-				forEach(w -> w.setIncludeInScan(false));
-
-			createScannableControls();
-			relayoutMappingView();
-			updateStatusLabel();
-		}
-	}
-
-	private void editModelThroughDialog(MultiStepEditorDialog dialog, String scannableName, Text axisText) {
-		MultiStepModel multiStepModel = new MultiStepModel();
-
-		if (!axisText.getText().isEmpty()) {
-			final Object oldModel = (new StringToScanPathConverter(scannableName)).convert(axisText.getText());
-
-			if (oldModel instanceof MultiStepModel) {
-				multiStepModel = (MultiStepModel) oldModel;
-			} else if (oldModel instanceof StepModel) {
-				multiStepModel.getStepModels().add((StepModel) oldModel);
-			} else if (oldModel instanceof ArrayModel) {
-				final double[] positions = ((ArrayModel) oldModel).getPositions();
-				for (int i=0; i<positions.length-1; i++) {
-					final StepModel stepModel = new StepModel(scannableName,positions[i], positions[i+1], positions[i+1]-positions[i]);
-					multiStepModel.getStepModels().add(stepModel);
-				}
-			}
-		}
-
-		multiStepModel.setName(scannableName);
-		dialog.setModel(multiStepModel);
-		if (dialog.open() == Window.OK) {
-			try {
-				axisText.setText((String) new ScanPathToStringConverter().convert(dialog.getEditor().getModel()));
-				updateStatusLabel();
-			} catch (Exception e) {
-				logger.error("Cannot retrieve MultiStepModel from dialog", e);
-			}
-		}
-	}
-
-	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue axisTextValue, Binding checkBoxBinding) {
-		final String scannableName = scannableAxisParameters.getName();
-		final IObservableValue axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
-
-		// create an update strategy from text to model with a converter and a validator
-		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
-		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
-		axisTextToModelStrategy.setBeforeSetValidator(value -> {
-			// the value created by the converter will be an IScanPathModel if the text value is valid, or null if not
-			if (value instanceof IScanPathModel) {
-				return ValidationStatus.ok();
-			}
-			final boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
-			final String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
-			if (scannableAxisParameters.isIncludeInScan()) {
-				return ValidationStatus.error(message);
-			} else {
-				// empty value is ok if this scannable is not included in the scan
-				return isEmpty ? ValidationStatus.ok() : ValidationStatus.warning(message);
-			}
-		});
-
-		// create an update strategy from model back to text
-		final UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
-		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
-
-		// create the binding from the values and the two update strategies
-		final Binding axisBinding = dataBindingContext.bindValue(axisTextValue, axisValue,
-				axisTextToModelStrategy, modelToAxisTextStrategy);
-		ControlDecorationSupport.create(axisBinding, SWT.LEFT | SWT.TOP);
-		axisBindings.put(scannableName, axisBinding);
-
-		// Update Mapping status label after model is modified from text widget
-		axisBinding.getModel().addChangeListener(evt -> updateStatusLabel());
-
-		// when the include in scan checkbox is changed we need to revalidate the model
-		// as this determines the severity of the validation status.
-		checkBoxBinding.getModel().addChangeListener(evt -> {
-			axisBinding.validateTargetToModel();
-			updateStatusLabel();
-		});
-	}
-
-	@Override
-	public void updateControls() {
-		// update the bindings for exposure time as we may have new models
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
-			final String scannableName = scannableAxisParameters.getName();
-
-			// remove the old binding between the checkbox and the old model and create a new one
-			final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
-			final IObservableValue checkBoxValue = (IObservableValue) oldCheckBoxBinding.getTarget();
-			dataBindingContext.removeBinding(oldCheckBoxBinding);
-			oldCheckBoxBinding.dispose();
-
-			final IObservableValue activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-			checkBoxBindings.put(scannableName, newCheckBoxBinding);
-
-			// remove the binding between the text field and old model
-			final Binding oldTextFieldBinding = axisBindings.get(scannableName);
-			final IObservableValue axisTextValue = (IObservableValue) oldTextFieldBinding.getTarget();
-			dataBindingContext.removeBinding(oldTextFieldBinding);
-			oldTextFieldBinding.dispose();
-
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
-		}
-
-		dataBindingContext.updateTargets();
-	}
-
-	/**
-	 * Persist a list of the names of the scannables currently visible
-	 */
-	@Override
-	protected void saveState(Map<String, String> persistedState) {
-		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
-		try {
-			final List<String> chosenScannableNames = scannablesToShow.stream().
-					map(IScanModelWrapper<IScanPathModel>::getName).
-					collect(toList());
-			persistedState.put(OUTER_SCANNABLES_SELECTION_KEY_JSON, marshaller.marshal(chosenScannableNames));
-		} catch (Exception e) {
-			logger.error("Error saving selection of outer scannables", e);
-		}
-	}
-
-	/**
-	 * Read back the list of scannable names to be shown and return the corresponding IScanModelWrapper objects
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void loadState(Map<String, String> persistedState) {
-		final String json = persistedState.get(OUTER_SCANNABLES_SELECTION_KEY_JSON);
-		if (json == null || json.isEmpty()) {
-			// This happens when client is reset or no outer scannables are configured.
-			return;
-		}
-
-		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
-		try {
-			final Set<String> chosenScannableNames = marshaller.unmarshal(json, Set.class);
-
-			scannablesToShow = getOuterScannables().stream()
-				.filter(scannable -> chosenScannableNames.contains(scannable.getName()))
-				.collect(toList());
-		} catch (Exception e) {
-			logger.error("Error loading selection of outer scannables", e);
-		}
-	}
-
-	/**
-	 * Get all outer scannables
-	 *
-	 * @return a list of all available outer scannables
-	 */
-	private List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
-		return getMappingBean().getScanDefinition().getOuterScannables();
 	}
 }
