@@ -373,7 +373,7 @@ public class MonitorTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		MonitorTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 }

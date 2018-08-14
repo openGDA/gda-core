@@ -48,6 +48,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -939,7 +940,7 @@ public class StatusQueueView extends EventConnectionView {
 				PropertiesDialog dialog = new PropertiesDialog(getSite().getShell(), idProperties);
 
 				int ok = dialog.open();
-				if (ok == PropertiesDialog.OK) {
+				if (ok == Window.OK) {
 					idProperties.clear();
 					idProperties.putAll(dialog.getProps());
 					reconnect();

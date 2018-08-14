@@ -330,7 +330,7 @@ public class PerScanMonitorTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		PerScanMonitorTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 }

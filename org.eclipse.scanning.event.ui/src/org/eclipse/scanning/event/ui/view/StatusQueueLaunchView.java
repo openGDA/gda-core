@@ -13,6 +13,7 @@ package org.eclipse.scanning.event.ui.view;
 
 import java.io.UnsupportedEncodingException;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -133,7 +134,7 @@ public class StatusQueueLaunchView extends ViewPart {
 			Util.getPage().showView(StatusQueueView.ID, queueViewId, IWorkbenchPage.VIEW_VISIBLE);
 		} catch (PartInitException e) {
 			ErrorDialog.openError(Display.getDefault().getActiveShell(), "Cannot open view", "Cannot open view "+queueViewId,
-					new Status(Status.ERROR, "org.eclipse.scanning.event.ui", e.getMessage()));
+					new Status(IStatus.ERROR, "org.eclipse.scanning.event.ui", e.getMessage()));
 			logger.error("Cannot open view", e);
 		}
 	}

@@ -279,7 +279,7 @@ public class BasicScanTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		BasicScanTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 }

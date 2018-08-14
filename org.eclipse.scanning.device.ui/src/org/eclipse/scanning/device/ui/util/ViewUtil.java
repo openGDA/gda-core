@@ -16,6 +16,7 @@ import java.awt.PointerInfo;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionManager;
@@ -97,7 +98,7 @@ public class ViewUtil {
 			PageUtil.getPage().showView(QueueViews.getQueueViewID(), queueViewId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			ErrorDialog.openError(Display.getDefault().getActiveShell(), "Cannot open view", "Cannot open view "+queueViewId,
-					new Status(Status.ERROR, "org.eclipse.scanning.event.ui", e.getMessage()));
+					new Status(IStatus.ERROR, "org.eclipse.scanning.event.ui", e.getMessage()));
 			throw e;
 		}
 	}
