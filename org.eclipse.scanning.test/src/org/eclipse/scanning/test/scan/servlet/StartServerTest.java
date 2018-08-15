@@ -51,7 +51,7 @@ public class StartServerTest extends AbstractServletTest {
 		servlet.getConsumer().awaitStart();
 
 		assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
-		servlet.getConsumer().clearQueue(servlet.getSubmitQueue());
+		servlet.getConsumer().clearQueue();
 		servlet.getConsumer().clearQueue(servlet.getStatusSet());
 		servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
 		servlet.disconnect();

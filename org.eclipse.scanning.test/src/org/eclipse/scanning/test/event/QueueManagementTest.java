@@ -87,7 +87,7 @@ public class QueueManagementTest extends BrokerTest {
 		commandPublisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer");
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 
 		if (startConsumer) {
@@ -97,7 +97,7 @@ public class QueueManagementTest extends BrokerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 	}
 
@@ -112,7 +112,7 @@ public class QueueManagementTest extends BrokerTest {
 	@After
 	public void dispose() throws Exception {
 		submitter.disconnect();
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 		consumer.disconnect();
 	}

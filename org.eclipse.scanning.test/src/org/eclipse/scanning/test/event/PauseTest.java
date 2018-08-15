@@ -32,7 +32,7 @@ public class PauseTest extends AbstractPauseTest {
 		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
 		consumer.setName("Test Consumer");
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 	}
 }

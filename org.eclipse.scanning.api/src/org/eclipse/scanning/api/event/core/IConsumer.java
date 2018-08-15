@@ -118,6 +118,12 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void resume() throws EventException;
 
 	/**
+	 * Removes all pending jobs from the consumer's submission queue.
+	 * @throws EventException
+	 */
+	void clearQueue() throws EventException;
+
+	/**
 	 *
 	 * @return the current active process which will run jobs
 	 */

@@ -52,7 +52,7 @@ public class AbstractPauseTest extends BrokerTest {
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 		consumer.clearQueue(EventConstants.CMD_SET);
 		consumer.disconnect();
@@ -154,7 +154,7 @@ public class AbstractPauseTest extends BrokerTest {
 		assertTrue(submitQ.size()>=4);
 
 		// Right then we will reorder it.
-		consumer.clearQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.clearQueue(consumer.getStatusSetName());
 
 		// Reverse sort

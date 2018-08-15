@@ -666,6 +666,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
+	public void clearQueue() throws EventException {
+		super.clearQueue(getSubmitQueueName());
+	}
+
+	@Override
 	public ConsumerStatus getConsumerStatus() {
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
 	}

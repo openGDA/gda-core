@@ -79,7 +79,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void stop() throws Exception {
 		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
-		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue();
 		consumer.clearQueue(EventConstants.STATUS_SET);
 		consumer.clearQueue(EventConstants.CMD_SET);
 		consumer.disconnect();
@@ -158,7 +158,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 			dynamicBean(bean, fconsumer, 1);
 		} finally {
-			fconsumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+			fconsumer.clearQueue();
 			fconsumer.clearQueue(EventConstants.STATUS_SET);
 			fconsumer.disconnect();
 		}
@@ -183,7 +183,7 @@ public class AbstractConsumerTest extends BrokerTest {
 			dynamicBean(bill, fconsumer, 2);
 
 		} finally {
-			fconsumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+			fconsumer.clearQueue();
 			fconsumer.clearQueue(EventConstants.STATUS_SET);
 			fconsumer.disconnect();
 		}

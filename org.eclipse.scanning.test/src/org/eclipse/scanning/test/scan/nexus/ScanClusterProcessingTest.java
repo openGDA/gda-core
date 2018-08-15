@@ -64,7 +64,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 	@AfterClass
 	public static void afterClass() throws Exception {
 		consumer.cleanQueue(consumer.getSubmitQueueName());
-		consumer.clearQueue(consumer.getStatusSetName());
+		consumer.clearQueue();
 		consumer.disconnect();
 		BrokerTest.stopBroker();
 	}
