@@ -456,8 +456,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 			stringBuilder.append(doubleToString(stepModel.getStop()));
 			stringBuilder.append(' ');
 			stringBuilder.append(doubleToString(stepModel.getStep()));
-			stringBuilder.append(' ');
-			stringBuilder.append(doubleToString(stepModel.getExposureTime()));
 		}
 
 		private String convertMultiStepModel(MultiStepModel multiStepModel) {
@@ -537,13 +535,12 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 		private StepModel convertStringToStepModel(String text) {
 			final String[] startStopStep = text.split(" ");
-			if (startStopStep.length == 3 || startStopStep.length == 4) {
+			if (startStopStep.length == 3) {
 				StepModel stepModel = new StepModel();
 				stepModel.setName(scannableName);
 				stepModel.setStart(Double.parseDouble(startStopStep[0]));
 				stepModel.setStop(Double.parseDouble(startStopStep[1]));
 				stepModel.setStep(Double.parseDouble(startStopStep[2]));
-				stepModel.setExposureTime(startStopStep.length == 4 ? Double.parseDouble(startStopStep[3]) : 0);
 				return stepModel;
 			}
 			return null;
