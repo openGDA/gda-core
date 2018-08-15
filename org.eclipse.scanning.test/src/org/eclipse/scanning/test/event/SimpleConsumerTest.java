@@ -186,7 +186,4 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		processes.forEach(wrap(process -> verify(process).start()));
 	}
 
-
-
-
 }

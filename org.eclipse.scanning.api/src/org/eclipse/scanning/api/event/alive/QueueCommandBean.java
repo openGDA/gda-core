@@ -52,7 +52,12 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to restart a running consumer.
 		 */
-		RESTART
+		RESTART,
+
+		/**
+		 * A command to clear the queue
+		 */
+		CLEAR;
 
 	}
 

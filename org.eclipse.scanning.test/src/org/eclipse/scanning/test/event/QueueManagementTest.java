@@ -30,7 +30,10 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
@@ -40,27 +43,37 @@ import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-//@RunWith(value = Parameterized.class)
+@RunWith(value = Parameterized.class)
 public class QueueManagementTest extends BrokerTest {
 
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumer;
+	private IPublisher<QueueCommandBean> commandPublisher;
 
-	private final boolean startConsumer = false;
+	private final boolean useQueueCommandBean;
+	private final boolean startConsumer;
 
-	@Parameters(name="startConsumer={0}")
+	@Parameters(name="useQueueCommandBean = {0}, startConsumer = {1}")
 	public static Iterable<Object[]> data() {
-		return Arrays.asList(new Object[][] { { false }, { true } });
+		return Arrays.asList(new Object[][] {
+			{ false, false },
+//			{ false, true},
+			{ true, false },
+//			{ true, true}
+		});
 	}
 
 	// TODO: this test is flakey when startConsumer = true, so for the moment it is
 	// only tested with this as false. Fix as part of DAQ-1465
-//	public QueueManagementTest(boolean startConsumer) {
-//		this.startConsumer = startConsumer;
-//	}
+	public QueueManagementTest(boolean useQueueCommandBean, boolean startConsumer) {
+		this.useQueueCommandBean = useQueueCommandBean;
+		this.startConsumer = startConsumer;
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -71,6 +84,7 @@ public class QueueManagementTest extends BrokerTest {
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
 		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		commandPublisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
@@ -79,6 +93,12 @@ public class QueueManagementTest extends BrokerTest {
 		if (startConsumer) {
 			startConsumer();
 		}
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		consumer.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		consumer.clearQueue(EventConstants.STATUS_SET);
 	}
 
 	private void startConsumer() throws EventException, InterruptedException {
@@ -115,6 +135,10 @@ public class QueueManagementTest extends BrokerTest {
 		return bean;
 	}
 
+	private void doRemove(StatusBean bean) throws Exception {
+		submitter.remove(bean);
+	}
+
 	@Test
 	public void testRemove() throws Exception {
 		// Arrange: submit some beans
@@ -123,11 +147,15 @@ public class QueueManagementTest extends BrokerTest {
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
-		submitter.remove(beanThree);
+		doRemove(beanThree);
 
 		// Assert, check the bean has been remove from the submission queue
 		assertThat(consumer.getSubmissionQueue(), is(equalTo(
 				beans.stream().filter(bean -> !bean.getName().equals("three")).collect(toList()))));
+	}
+
+	private void doReplace(StatusBean bean) throws Exception {
+		submitter.replace(bean);
 	}
 
 	@Test
@@ -140,7 +168,7 @@ public class QueueManagementTest extends BrokerTest {
 		beanThree.setName("foo");
 
 		// Act: replace the bean on the queue with the updated bean
-		submitter.replace(beanThree);
+		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
@@ -148,6 +176,10 @@ public class QueueManagementTest extends BrokerTest {
 
 	public List<String> getNames(List<StatusBean> beans) {
 		return beans.stream().map(StatusBean::getName).collect(toList());
+	}
+
+	private void doReorderUp(StatusBean bean) throws Exception {
+		submitter.reorder(bean, 1);
 	}
 
 	@Test
@@ -160,12 +192,16 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		submitter.reorder(beanThree, 1);
+		doReorderUp(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+	}
+
+	private void doReorderDown(StatusBean bean) throws Exception {
+		submitter.reorder(bean, -1);
 	}
 
 	@Test
@@ -178,7 +214,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		submitter.reorder(beanThree, -1);
+		doReorderDown(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -198,7 +234,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean the first time
-		submitter.reorder(beanThree, 1);
+		doReorderUp(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -206,7 +242,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Act: reorder the bean a second time
-		submitter.reorder(beanThree, 1);
+		doReorderUp(beanThree);
 
 		// Assert:
 		beans.remove(beanThree);
@@ -225,7 +261,7 @@ public class QueueManagementTest extends BrokerTest {
 		beanThree.setName("foo");
 
 		// Act: replace the bean on the queue with the updated bean
-		submitter.replace(beanThree);
+		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
@@ -234,17 +270,28 @@ public class QueueManagementTest extends BrokerTest {
 		beanThree.setName("bar");
 
 		// Act: replace the bean on the queue with the updated bean
-		submitter.replace(beanThree);
+		doReplace(beanThree);
 
 		// Assert: check that the bean has bean updated in the submission queue (as it has in the beans list)
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+	}
+
+	private void doClearQueue() throws Exception {
+		if (useQueueCommandBean) {
+			QueueCommandBean commandBean = new QueueCommandBean(
+					submitter.getSubmitQueueName(), Command.CLEAR);
+			commandPublisher.broadcast(commandBean);
+			Thread.sleep(1000); // TODO: how to avoid a Thread.sleep here?
+		} else {
+			submitter.clearQueue(submitter.getSubmitQueueName());
+		}
 	}
 
 	@Test
 	public void testClearQueue() throws Exception {
 		createAndSubmitBeans();
 
-		submitter.clearQueue(submitter.getSubmitQueueName());
+		doClearQueue();
 
 		assertThat(submitter.getQueue(), is(empty()));
 	}

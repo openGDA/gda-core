@@ -43,4 +43,9 @@ public class ConsumerControlTest extends AbstractConsumerControlTest {
 		((ConsumerImpl<StatusBean>) consumer).restart();
 	}
 
+	@Override
+	protected void doClearQueue() throws Exception {
+		consumer.clearQueue(consumer.getSubmitQueueName());
+	}
+
 }

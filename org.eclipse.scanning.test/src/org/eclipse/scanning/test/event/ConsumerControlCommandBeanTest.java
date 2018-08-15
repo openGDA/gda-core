@@ -70,4 +70,9 @@ public class ConsumerControlCommandBeanTest extends AbstractConsumerControlTest 
 		sendCommandBean(Command.RESTART);
 	}
 
+	@Override
+	protected void doClearQueue() throws Exception {
+		sendCommandBean(Command.CLEAR);
+	}
+
 }

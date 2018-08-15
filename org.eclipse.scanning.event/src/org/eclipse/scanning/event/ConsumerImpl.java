@@ -192,6 +192,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				case RESTART:
 					restart();
 					break;
+				case CLEAR:
+					clearQueue(submitQueueName);
+					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}
