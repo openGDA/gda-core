@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.detectors;
 
-import gda.factory.Finder;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +40,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
@@ -62,6 +61,9 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
 	private FluorescenceDetectorCompositeController controller;
 
+	/** This will be set if view is being opened by {@link FluorescenceDetectorViewFactory} */
+	private String detectorName = "";
+
 	public FluorescenceDetectorConfigurationView() {
 		super();
 	}
@@ -69,6 +71,10 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		String secondaryId = getViewSite().getSecondaryId();
+		if (!detectorName.isEmpty()) {
+			secondaryId = detectorName;
+		}
+
 		if (secondaryId == null) {
 			// No secondary ID - view is probably being opened from the Show View menu
 			// Find a detector, then close this view and reopen with a secondary ID to specify the chosen detector
@@ -270,5 +276,13 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 		} else {
 			logger.warn("Controller does not exist, cannot fetch detector configuration");
 		}
+	}
+
+	public String getDetectorName() {
+		return detectorName;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
 	}
 }
