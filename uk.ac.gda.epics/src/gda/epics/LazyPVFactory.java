@@ -567,14 +567,14 @@ public class LazyPVFactory {
 
 			if (shouldMonitor && valueMonitorListener == null) {
 				// start monitoring
-				logger.info("Configuring constant monitoring of pv '{}'", pvName);
+				logger.debug("Configuring constant monitoring of pv '{}'", pvName);
 				valueMonitorListener = new ValueMonitorListener();
 				addMonitorListener(valueMonitorListener);
 			}
 
 			else if (!shouldMonitor && valueMonitorListener != null) {
 				// stop monitoring
-				logger.info("Disabling constant monitoring of pv '{}'", pvName);
+				logger.debug("Disabling constant monitoring of pv '{}'", pvName);
 				removeMonitorListener(valueMonitorListener);
 				valueMonitorListener = null;
 				lastMonitoredValue = null;
@@ -590,7 +590,7 @@ public class LazyPVFactory {
 		@Override
 		public void addMonitorListener(MonitorListener listener) throws IOException {
 
-			logger.info("Adding MonitorListener '{}' to pv '{}' ", listener.getClass().getName(), pvName);
+			logger.debug("Adding MonitorListener '{}' to pv '{}' ", listener.getClass().getName(), pvName);
 			Monitor monitor;
 			try {
 				monitor = controller.setMonitor(getChannel(), dbrType, Monitor.VALUE, listener);
@@ -602,7 +602,7 @@ public class LazyPVFactory {
 
 		@Override
 		public void removeMonitorListener(MonitorListener listener) {
-			logger.info("Removing MonitorListener '{}' from pv '{}' ", listener.getClass().getName(), pvName);
+			logger.debug("Removing MonitorListener '{}' from pv '{}' ", listener.getClass().getName(), pvName);
 			Monitor monitor = monitors.remove(listener);
 			//protect against invalid listener
 			if( monitor != null)
@@ -806,7 +806,7 @@ public class LazyPVFactory {
 		@Override
 		public void putAsyncCancel() {
 			if (putAsyncIsWaiting()) {
-				logger.info("Cancelling pending callback on the pv " + getPvName());
+				logger.debug("Cancelling pending callback on the pv " + getPvName());
 			}
 			putCallbackListener.cancelPendingCallback();
 		}
