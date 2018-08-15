@@ -29,6 +29,7 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Scannable which holds two scannables, and uses one or the other depending on
@@ -36,6 +37,7 @@ import gov.aps.jca.TimeoutException;
  * Should be used to switch between energy controllers during a Run vs during a
  * Shutdown.
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class GapControlCheckingEnergyController extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(GapControlCheckingEnergyController.class);
