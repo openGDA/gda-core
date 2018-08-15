@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Label;
 
 public class StepModelComposite extends Composite {
 
-	private final ScaleBox    start,stop,step,exposureTime;
+	private final ScaleBox start, stop, step;
 
 	public StepModelComposite(Composite parent, int style) {
 		super(parent, style);
@@ -59,24 +59,6 @@ public class StepModelComposite extends Composite {
 		step.setMaximum(Integer.getInteger("org.eclipse.scanning.device.ui.composites.stepMax", 10000).doubleValue());
 		step.setDecimalPlaces(4);
 
-		label = new Label(this, SWT.HORIZONTAL|SWT.SEPARATOR);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-		label = new Label(this, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		label.setText("Exposure overrides the detector configuration");
-		label.setToolTipText("Exposure overrides the detector configuration.\nIt should be set only if you are sure that the exposure of\nthis part of the scan should be different to usual.\n\nNOTE: If set for one region, all regions set an exposure.");
-
-		label = new Label(this, SWT.NONE);
-		label.setText("Exposure");
-
-		exposureTime = new ScaleBox(this, SWT.NONE);
-		exposureTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		exposureTime.setDecimalPlaces(3);
-		exposureTime.setUnit("s");
-		exposureTime.setMinimum(0);
-		exposureTime.setMaximum(600);
-
 	}
 
 	public ScaleBox getStart() {
@@ -89,10 +71,6 @@ public class StepModelComposite extends Composite {
 
 	public ScaleBox getStep() {
 		return step;
-	}
-
-	public ScaleBox getExposureTime() {
-		return exposureTime;
 	}
 
 	public void setScannable(IScannable<Number> scannable) {

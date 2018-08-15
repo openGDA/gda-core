@@ -236,25 +236,25 @@ public class StepTest {
 
 	@Test
 	public void testSequenceExposureTime() throws Exception {
-		StepModel model = new StepModel("Temperature", 290,300,1,0.1);
+		StepModel model = new StepModel("Temperature", 290,300,1);
 		IPointGenerator<StepModel> gen = service.createGenerator(model);
-		GeneratorUtil.testGeneratorPoints(gen, 0.1, 11);
+		GeneratorUtil.testGeneratorPoints(gen, 11);
 
-		model = new StepModel("Temperature", 0,3, 0.6, 0.2);
+		model = new StepModel("Temperature", 0, 3, 0.6);
 		gen.setModel(model);
-		GeneratorUtil.testGeneratorPoints(gen, 0.2, 6);
+		GeneratorUtil.testGeneratorPoints(gen, 6);
 
-		model = new StepModel("Temperature", 1, 4, 0.6, 0.3);
+		model = new StepModel("Temperature", 1, 4, 0.6);
 		gen.setModel(model);
-		GeneratorUtil.testGeneratorPoints(gen, 0.3, 6);
+		GeneratorUtil.testGeneratorPoints(gen, 6);
 
-		model = new StepModel("Temperature", 11, 14, 0.6, 0.4);
+		model = new StepModel("Temperature", 11, 14, 0.6);
 		gen.setModel(model);
-		GeneratorUtil.testGeneratorPoints(gen, 0.4, 6);
+		GeneratorUtil.testGeneratorPoints(gen, 6);
 
-		model = new StepModel("Temperature", 1,4, 0.5, 0.5);
+		model = new StepModel("Temperature", 1,4, 0.5);
 		gen.setModel(model);
-		GeneratorUtil.testGeneratorPoints(gen, 0.5, 7);
+		GeneratorUtil.testGeneratorPoints(gen, 7);
 	}
 
 	@Test

@@ -86,11 +86,8 @@ public class ScanTimeoutTest  extends NexusTest {
 		long time  = after-before;
 		assertTrue("The time to run the scan must be less than 2000 but it was "+time+"ms", time<2000);
 
-		assertEquals(4, linedetector.getCount("configure"));
+		assertEquals(1, linedetector.getCount("configure"));
 		assertEquals(0.001,  ((RandomLineModel)linedetector.getValue("configure", 0)).getExposureTime(), 0.000001);
-		assertEquals(0.0015, ((RandomLineModel)linedetector.getValue("configure", 1)).getExposureTime(), 0.000001);
-		assertEquals(0.002,  ((RandomLineModel)linedetector.getValue("configure", 2)).getExposureTime(), 0.000001);
-		assertEquals(0.003,  ((RandomLineModel)linedetector.getValue("configure", 3)).getExposureTime(), 0.000001);
 
 		assertEquals(21, linedetector.getCount("run"));
 		assertEquals(21, linedetector.getCount("write"));
@@ -107,9 +104,9 @@ public class ScanTimeoutTest  extends NexusTest {
 
 		MultiStepModel model = new MultiStepModel();
 		model.setName("x");
-		model.addRange(10, 20, 2,    0.0015); // Te = 0.0015
-		model.addRange(25, 50, 5,    0.002);  // Te = 0.002
-		model.addRange(100, 500, 50, 0.003);  // Te = 0.003
+		model.addRange(10, 20, 2); // Te = 0.0015
+		model.addRange(25, 50, 5);  // Te = 0.002
+		model.addRange(100, 500, 50);  // Te = 0.003
 
 		IPointGenerator<?> gen = gservice.createGenerator(model);
 		assertEquals(21, gen.size());

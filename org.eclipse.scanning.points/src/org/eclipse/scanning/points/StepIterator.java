@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.StepModel;
 
@@ -32,18 +31,6 @@ class StepIterator extends SpgIterator {
 
 	protected StepModel getModel() {
 		return model;
-	}
-
-	@Override
-	public IPosition next() {
-		final IPosition next = super.next();
-
-		// set the exposure time and index
-		if (next != null) {
-			next.setExposureTime(model.getExposureTime()); // Usually 0
-		}
-
-		return next;
 	}
 
 }

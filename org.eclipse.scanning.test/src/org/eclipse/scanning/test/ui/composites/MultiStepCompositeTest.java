@@ -85,7 +85,6 @@ public class MultiStepCompositeTest extends ShellTest{
 			assertEquals("10000.00 eV", bot.styledText(0).getText());
 			assertEquals("20000.00 eV", bot.styledText(1).getText());
 			assertEquals("1000.0000 eV",  bot.styledText(2).getText());
-			assertEquals("0.000 s",  bot.styledText(3).getText());
 		} finally {
 			model.clear();
 		}
@@ -94,14 +93,13 @@ public class MultiStepCompositeTest extends ShellTest{
 	@Test
 	public void addStep2() throws Exception {
 		try {
-			model.addRange(10.1, 20.2, 1.4, 1.0);
+			model.addRange(10.1, 20.2, 1.4);
 			synchExec(()->controller.beanToUI());
 
 			assertEquals(1, bot.table(0).rowCount());
 			assertEquals("10.10 eV", bot.styledText(0).getText());
 			assertEquals("20.20 eV", bot.styledText(1).getText());
 			assertEquals("1.4000 eV",  bot.styledText(2).getText());
-			assertEquals("1.000 s",  bot.styledText(3).getText());
 		} finally {
 			model.clear();
 		}
@@ -114,14 +112,13 @@ public class MultiStepCompositeTest extends ShellTest{
 	@Test(expected=IllegalArgumentException.class)
 	public void negativeStep() throws Exception {
 		try {
-			model.addRange(20.2, 10.1, -1.4, 1.0);
+			model.addRange(20.2, 10.1, -1.4);
 			synchExec(()->controller.beanToUI());
 
 			assertEquals(1, bot.table(0).rowCount());
 			assertEquals("20.20 eV", bot.styledText(0).getText());
 			assertEquals("10.10 eV", bot.styledText(1).getText());
 			assertEquals("-1.4000 eV", bot.styledText(2).getText());
-			assertEquals("1.000 s",  bot.styledText(3).getText());
 
 			Color red = new Color(bot.getDisplay(), 255, 0, 0, 255);
 			if (bot.styledText(2).foregroundColor().equals(red)) {
@@ -132,29 +129,13 @@ public class MultiStepCompositeTest extends ShellTest{
 			model.clear();
 		}
 	}
-	/**
-	 * The UI only allows forwards steps.
-	 * @throws Exception
-	 */
-	@Test
-	public void negativeTime() throws Exception {
-		try {
-			model.addRange(20.2, 10.1, -1.4, -1.0);
-			synchExec(()->controller.beanToUI());
 
-			Color red = new Color(bot.getDisplay(), 255, 0, 0, 255);
-			assertTrue(bot.styledText(3).foregroundColor().equals(red));
-
-		} finally {
-			model.clear();
-		}
-	}
 
 	@Test
 	public void nineSteps() throws Exception {
 		try {
 			for (int i = 0; i < 9; i++) {
-				model.addRange(20+(i*1), 50+(i*1), 5, i);
+				model.addRange(20+(i*1), 50+(i*1), 5);
 			}
 			synchExec(()->controller.beanToUI());
 
@@ -170,7 +151,7 @@ public class MultiStepCompositeTest extends ShellTest{
 	public void tenSteps() throws Exception {
 		try {
 			for (int i = 0; i < 10; i++) {
-				model.addRange(20+(i*1), 50+(i*1), 5, i);
+				model.addRange(20+(i*1), 50+(i*1), 5);
 			}
 			synchExec(()->controller.beanToUI());
 
@@ -186,7 +167,7 @@ public class MultiStepCompositeTest extends ShellTest{
 	public void elevenSteps() throws Exception {
 		try {
 			for (int i = 0; i < 11; i++) {
-				model.addRange(20+(i*1), 50+(i*1), 5, i);
+				model.addRange(20+(i*1), 50+(i*1), 5);
 			}
 			synchExec(()->controller.beanToUI());
 

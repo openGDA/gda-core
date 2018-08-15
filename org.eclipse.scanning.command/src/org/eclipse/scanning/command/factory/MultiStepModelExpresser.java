@@ -47,12 +47,6 @@ class MultiStepModelExpresser extends PyModelExpresser<MultiStepModel> {
 		ret.append(model.getStart()+", ");
 		ret.append(model.getStop()+", ");
 		ret.append(model.getStep());
-
-		if (model.getExposureTime()>0d) {
-			ret.append(", ");
-			ret.append(model.getExposureTime());
-		}
-
 		ret.append(")");
 		return ret.toString();
 	}

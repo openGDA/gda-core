@@ -62,17 +62,14 @@ public class MultiStepModel extends AbstractPointsModel {
 	 * Must implement clear() method on beans being used with BeanUI.
 	 */
 	public void clear() {
-		List<StepModel> oldModels = new ArrayList<StepModel>(stepModels);
+		List<StepModel> oldModels = new ArrayList<>(stepModels);
 		stepModels.clear();
 		firePropertyChange(FIELD_NAME, oldModels, stepModels);
 	}
 
 	public void addRange(double start, double stop, double step) {
-		addRange(start, stop, step, 0d);
-	}
-	public void addRange(double start, double stop, double step, double exposure) {
-		List<StepModel> oldModels = new ArrayList<StepModel>(stepModels);
-		stepModels.add(new StepModel(getName(), start, stop, step, exposure));
+		List<StepModel> oldModels = new ArrayList<>(stepModels);
+		stepModels.add(new StepModel(getName(), start, stop, step));
 		firePropertyChange(FIELD_NAME, oldModels, stepModels);
 	}
 
@@ -141,10 +138,6 @@ public class MultiStepModel extends AbstractPointsModel {
 			sb.append(stepModel.getStop());
 			sb.append(", step=");
 			sb.append(stepModel.getStep());
-			if (stepModel.getExposureTime()>0) {
-				sb.append(", exp=");
-				sb.append(stepModel.getExposureTime());
-			}
 			sb.append("; ");
 		}
 

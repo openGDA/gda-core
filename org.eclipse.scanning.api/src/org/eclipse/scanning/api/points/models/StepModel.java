@@ -13,7 +13,6 @@ package org.eclipse.scanning.api.points.models;
 
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.annotation.ui.FieldRole;
 
 /**
  * A model for a scan along one axis with start and stop positions and a step size.
@@ -35,30 +34,16 @@ public class StepModel extends AbstractPointsModel {
 	@FieldDescriptor(label="Step", scannable="name", hint="This is the step during the scan", fieldPosition=3) // The scannable lookup gets the units
 	private double step;
 
-	@FieldDescriptor(label="Exposure Time",
-			         hint="If you set this field the exposure times for all\ndetectors in the scan will be changed when the first\npoint of the step is moved.",
-			         unit="s",
-			         minimum=0.001,
-			         fieldPosition=4,
-			         role=FieldRole.EXPERT,
-			         visible=false)
-	private double exposureTime;
-
 	public StepModel() {
 
 	}
 
 	public StepModel(String name, double start, double stop, double step) {
-		this(name, start, stop, step, 0d);
-	}
-
-	public StepModel(String name, double start, double stop, double step, double exposureTime) {
 		super();
 		this.name = name;
 		this.start = start;
 		this.stop = stop;
 		this.step = step;
-		this.exposureTime = exposureTime;
 	}
 
 	@Override
@@ -88,15 +73,15 @@ public class StepModel extends AbstractPointsModel {
 		this.step = step;
 	}
 
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		long temp;
-		temp = Double.doubleToLongBits(exposureTime);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		long temp;
 		temp = Double.doubleToLongBits(start);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(step);
@@ -115,8 +100,6 @@ public class StepModel extends AbstractPointsModel {
 		if (getClass() != obj.getClass())
 			return false;
 		StepModel other = (StepModel) obj;
-		if (Double.doubleToLongBits(exposureTime) != Double.doubleToLongBits(other.exposureTime))
-			return false;
 		if (label == null) {
 			if (other.label != null)
 				return false;
@@ -134,20 +117,6 @@ public class StepModel extends AbstractPointsModel {
 		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "StepModel [name=" + name + ", label=" + label + ", start=" + start + ", stop=" + stop + ", step=" + step
-				+ ", exposureTime=" + exposureTime + "]";
-	}
-
-	public double getExposureTime() {
-		return exposureTime;
-	}
-
-	public void setExposureTime(double exposureTime) {
-		this.exposureTime = exposureTime;
 	}
 
 	public int size() {

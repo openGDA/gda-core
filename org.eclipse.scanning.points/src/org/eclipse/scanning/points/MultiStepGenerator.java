@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.scanning.api.ModelValidationException;
@@ -78,20 +77,15 @@ class MultiStepGenerator extends AbstractGenerator<MultiStepModel> {
 		}
 
 		final double[] points = new double[totalSize];
-		final double[] times = new double[totalSize];
 
-		int pos        = 0;
-		int sindex     = 0;
+		int pos = 0;
 		for (double[] positions : positionArrays) {
 			System.arraycopy(positions, 0, points, pos, positions.length);
-			double time = model.getStepModels().get(sindex).getExposureTime();
-			Arrays.fill(times, pos, pos+positions.length, time);
 			pos += positions.length;
-			sindex+=1;
 		}
 
 		final ScanPointIterator pyIterator = arrayGeneratorFactory.createObject(model.getName(), "mm", points);
-		return new MultiStepIterator(pyIterator, times);
+		return new SpgIterator(pyIterator);
 	}
 
 	@Override

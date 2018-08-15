@@ -12,7 +12,6 @@
 package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,17 +35,6 @@ class GeneratorUtil {
 	 * @throws Exception
 	 */
 	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) throws Exception {
-		testGeneratorPoints(gen, 0, expectedShape);
-	}
-
-	/**
-	 * Checks the points list vs the iterator
-	 * @param gen
-	 * @param exposureTime
-	 * @param expectedShape
-	 * @throws Exception
-	 */
-	public static void testGeneratorPoints(IPointGenerator<?> gen, double exposureTime, int... expectedShape) throws Exception {
 
 		final List<IPosition> points = gen.createPoints();
 		final List<IPosition> its   = new ArrayList<>(gen.size());
@@ -55,10 +43,6 @@ class GeneratorUtil {
 
 		IPosition[] pnts1 = array(points);
 		IPosition[] pnts2 = array(its);
-
-		if (exposureTime>0) for (IPosition iPosition : its) {
-			assertEquals(exposureTime, iPosition.getExposureTime(), 0.0001);
-		}
 
 		if (pnts2.length!=pnts1.length) throw new Exception("Not the same size! Iterator size is "+its.size()+" full list size is "+points.size());
         for (int i = 0; i < pnts1.length; i++) {
