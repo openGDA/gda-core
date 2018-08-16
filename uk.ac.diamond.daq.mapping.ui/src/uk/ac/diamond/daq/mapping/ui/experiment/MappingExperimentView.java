@@ -41,6 +41,7 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
@@ -151,6 +152,7 @@ public class MappingExperimentView implements IAdaptable {
 
 		GridLayoutFactory.fillDefaults().applyTo(parent);
 		GridDataFactory.fillDefaults().applyTo(parent);
+		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
 		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
