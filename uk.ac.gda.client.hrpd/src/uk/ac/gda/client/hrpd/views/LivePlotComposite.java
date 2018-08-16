@@ -90,7 +90,9 @@ import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
  */
 public class LivePlotComposite extends Composite implements IObserver {
 	private Logger logger = LoggerFactory.getLogger(LivePlotComposite.class);
-	private String PLOT_TITLE = "Live Detector Data";
+	private static final String PLOT_TITLE_TEMPLATE = "Live Detector Data%s";
+
+	private String PLOT_TITLE = String.format(PLOT_TITLE_TEMPLATE, "");
 	private String plotName = "DetectorData";
 	private double xAxisMin = 0.000;
 	private double xAxisMax = 150.000;
@@ -240,7 +242,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 					}
 					try {
 						long scanNumber=new NumTracker("i11").getCurrentFileNumber();
-						PLOT_TITLE=PLOT_TITLE+" ("+scanNumber+")";
+						PLOT_TITLE = String.format(PLOT_TITLE_TEMPLATE, " ("+scanNumber+")");
 					} catch (IOException e) {
 						logger.warn("Failed to create Number tracker object", e);
 					}
