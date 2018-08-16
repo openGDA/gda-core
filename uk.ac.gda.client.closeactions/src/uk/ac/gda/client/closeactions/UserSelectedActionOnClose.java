@@ -14,7 +14,6 @@ import java.lang.management.ManagementFactory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * called by UserOptionsMenuOnClose
@@ -55,22 +53,16 @@ public class UserSelectedActionOnClose {
 		visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 	}
 
-	public void doCloseAction(ClientCloseOption selectedOption, String reason) {
+	public void doCloseAction(ClientCloseOption selectedOption, String reason, String name) {
 		optionChoice = selectedOption;
 		switch (selectedOption)
 		{
 		case RESTART_CLIENT:
-			if (!reason.trim().isEmpty()){
-				logToTextFile(reason);
-				sendEmail(reason, "GDA Restart Reasoning/Feedback");
-			}
+			trimAndEmail(reason, name);
 			logger.info("User felt the need to restart client. Could we be having client issues?");
 			break;
 		case RESTART_CLIENT_AND_SERVER:
-			if (!reason.trim().isEmpty()){
-				logToTextFile(reason);
-				sendEmail(reason, "GDA Restart Reasoning/Feedback");
-			}
+			trimAndEmail(reason, name);
 			logger.info("User felt the need to restart client and server. Could we be having server/control station issues?");
 			if (!LocalProperties.isDummyModeEnabled()){
 				ProcessBuilder pb = new ProcessBuilder("gdaservers_closemenurestart");
@@ -87,6 +79,15 @@ public class UserSelectedActionOnClose {
 		case FINISHED:
 			sendEmail("", "Current user is finished");
 			break;
+		}
+	}
+
+	private void trimAndEmail(String reason, String name) {
+		if (!reason.trim().isEmpty()){
+			String user = System.getProperty("user.name");
+			String text = String.format("%s\n%s%s%s%s", reason, "Sent by: ", name.trim(), "logged in as: ", user);
+			logToTextFile(text);
+			sendEmail(text, "GDA Restart Reasoning/Feedback");
 		}
 	}
 

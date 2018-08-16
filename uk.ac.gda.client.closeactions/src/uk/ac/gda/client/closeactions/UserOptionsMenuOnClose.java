@@ -9,6 +9,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.gda.client.closeactions.ClientCloseOption;
@@ -27,17 +28,16 @@ public class UserOptionsMenuOnClose extends Composite {
 
 	public final int niceWidth;
 
-	private String restartReason = "";
+	private Text feedback;
+	private Text name;
+	private Label nameError;
 	private ClientCloseOption selectedOption = ClientCloseOption.TEMP_ABSENCE;
 
 	public UserOptionsMenuOnClose(Composite parent, int style, int niceWidth) {
 		super(parent, style);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		this.niceWidth = niceWidth;
-		createContents();
-	}
 
-	private void createContents() {
 		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(this);
 
 		// radial button group
@@ -46,60 +46,50 @@ public class UserOptionsMenuOnClose extends Composite {
 		GridDataFactory.swtDefaults().hint(niceWidth, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(selectionGroup);
 
 		final Button option1 = optionButton(selectionGroup, "I'm finished for now - but I or a colleague will be back soon (no action)", niceWidth);
+		option1.addSelectionListener(createListener(ClientCloseOption.TEMP_ABSENCE, false));
 
 		final Button option2 = optionButton(selectionGroup, "I need to restart the client (Please tell us why)", niceWidth);
+		option2.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT, true));
 
 		final Button option3 = optionButton(selectionGroup, "I need to restart the client and the server (Please tell us why)", niceWidth);
+		option3.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT_AND_SERVER, true));
 
 		final Button option4 = optionButton(selectionGroup,
 				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
 				niceWidth);
+		option4.addSelectionListener(createListener(ClientCloseOption.FINISHED, false));
 
-		final Text feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
+		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
-		feedback.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				restartReason = ((Text) (e.getSource())).getText();
-			}
-		});
 
-		option1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.TEMP_ABSENCE;
-				feedback.setEnabled(false);
-			}
-		});
+		Composite nameGroup = new Composite(this, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(nameGroup);
 
-		option2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.RESTART_CLIENT;
-				feedback.setEnabled(true);
-				feedback.setFocus();
-			}
-		});
-
-		option3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.RESTART_CLIENT_AND_SERVER;
-				feedback.setEnabled(true);
-				feedback.setFocus();
-			}
-		});
-
-		option4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				selectedOption = ClientCloseOption.FINISHED;
-				feedback.setEnabled(false);
-			}
-		});
+		Label nameLabel = new Label(nameGroup, SWT.WRAP);
+		nameLabel.setText("Please tell us who you are in case we need to contact you for more details. This will help us improve our software.");
+		GridDataFactory.swtDefaults().hint(niceWidth -25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(nameLabel);
+		
+		name = new Text(nameGroup, SWT.MULTI | SWT.BORDER);
+		GridDataFactory.swtDefaults().hint(niceWidth - 25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(name);
 
 		option1.setSelection(true);
 		feedback.setEnabled(false);
+		name.setEnabled(false);
+
+		nameError = new Label(this, SWT.NONE);
+		nameError.setText("Please fill in the name box if you're leaving feedback!");
+		nameError.setForeground(getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
+		nameError.setVisible(false);
+		
+		name.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (nameError.isVisible() && !name.getText().isEmpty()) {
+					nameError.setVisible(false);
+				}
+			}
+		});
 	}
 
 	private Button optionButton(Composite parent, String text, int width) {
@@ -109,12 +99,37 @@ public class UserOptionsMenuOnClose extends Composite {
 		return button;
 	}
 
+	private SelectionAdapter createListener(final ClientCloseOption option, final boolean activateFeedback) {
+		return new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectedOption = option;
+				feedback.setEnabled(activateFeedback);
+				name.setEnabled(activateFeedback);
+				if (activateFeedback) {
+					feedback.setFocus();
+				}
+			}
+		};
+	}
+
+	public boolean validate() {
+		boolean isValid = feedback.isEnabled() ? !(getRestartReason().isEmpty() ^ getNameField().isEmpty()) : true;
+		if (!isValid) {
+			nameError.setVisible(true);
+		}
+		return isValid;
+	}
+
+	public String getRestartReason() {
+		return feedback.getText();
+	}
+
+	public String getNameField() {
+		return name.getText();
+	}
+
 	public ClientCloseOption selectedOption() {
 		return selectedOption;
 	}
-
-	public String restartReason() {
-		return restartReason;
-	}
-
 }

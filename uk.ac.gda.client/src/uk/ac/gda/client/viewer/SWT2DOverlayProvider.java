@@ -52,6 +52,7 @@ import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
@@ -68,7 +69,8 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 	private boolean overlayInOperation = false;
 	private int primKeyID = 0;
 	private Cursor defaultCursor;
-	Map<Color, org.eclipse.swt.graphics.Color> colorToSwtColorMap = new HashMap<Color, org.eclipse.swt.graphics.Color>();
+	private Map<Color, org.eclipse.swt.graphics.Color> colorToSwtColorMap = new HashMap<Color, org.eclipse.swt.graphics.Color>();
+	private Map<Font, org.eclipse.swt.graphics.Font> awtFontToSwtFontMap = new HashMap<>();
 
 	public SWT2DOverlayProvider(IFigure topFigure) {
 		figures = new TreeMap<Integer, IFigure>(new Comparator<Integer>() {
@@ -88,6 +90,9 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 		Collection<org.eclipse.swt.graphics.Color> swtColours = colorToSwtColorMap.values();
 		for (org.eclipse.swt.graphics.Color colour : swtColours) {
 			colour.dispose();
+		}
+		for (org.eclipse.swt.graphics.Font font : awtFontToSwtFontMap.values()) {
+			font.dispose();
 		}
 	}
 
@@ -320,7 +325,32 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 
 	@Override
 	public boolean setLabelFont(int primID, Font font) {
-		throw new UnsupportedOperationException("Unsupported/implemented for SWT 2D Provider, please implement if needed");
+		if (overlayInOperation){
+			IFigure figure = figures.get(primID);
+			if (figure instanceof Label) {
+				Label label = (Label) figure;
+
+				org.eclipse.swt.graphics.Font swtFont;
+				if (awtFontToSwtFontMap.containsKey(font)) {
+					swtFont = awtFontToSwtFontMap.get(font);
+				} else {
+					String name = font.getName();
+					int style = font.getStyle();
+					int size = font.getSize();
+
+					Device disp =  Display.getCurrent();
+					swtFont = new org.eclipse.swt.graphics.Font(disp, name, size, style);
+					awtFontToSwtFontMap.put(font, swtFont);
+				}
+
+				label.setFont(swtFont);
+				Dimension preferredSize = label.getPreferredSize();
+				Rectangle bounds = label.getBounds();
+				label.setBounds(new Rectangle(bounds.x - preferredSize.width / 2, bounds.y - preferredSize.height / 2, preferredSize.width, preferredSize.height));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
