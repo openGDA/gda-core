@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -61,7 +63,7 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
  *
  * @author Matthew Gerring, Matthew Dickie
  */
-public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N> {
+public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N>, IMultipleNexusDevice {
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
@@ -227,6 +229,15 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		}
 
 		return nexusDelegate;
+	}
+
+	@Override
+	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		final Scannable scannable = getScannable();
+		if (scannable instanceof IMultipleNexusDevice) {
+			return ((IMultipleNexusDevice)scannable).getNexusProviders(info);
+		}
+		return Collections.<NexusObjectProvider<?>>emptyList();
 	}
 
 	private boolean hasLocationMapEntry() {
@@ -735,5 +746,4 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	public String toString() {
 		return "ScannableNexusWrapper [scannable=" + scannable + "]";
 	}
-
 }
