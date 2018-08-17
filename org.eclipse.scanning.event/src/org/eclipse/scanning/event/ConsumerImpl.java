@@ -723,6 +723,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		super.clearQueue(getStatusSetName());
 	}
 
+	public void clearCommandSet() throws EventException {
+		super.clearQueue(EventConstants.CMD_SET);
+	}
+
 	@Override
 	public ConsumerStatus getConsumerStatus() {
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;

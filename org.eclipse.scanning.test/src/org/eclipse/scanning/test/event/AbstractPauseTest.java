@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Ignore;
@@ -54,7 +55,7 @@ public class AbstractPauseTest extends BrokerTest {
 		submitter.disconnect();
 		consumer.clearQueue();
 		consumer.clearCompleted();
-		consumer.clearQueue(EventConstants.CMD_SET);
+		((ConsumerImpl<?>) consumer).clearCommandSet();
 		consumer.disconnect();
 	}
 
