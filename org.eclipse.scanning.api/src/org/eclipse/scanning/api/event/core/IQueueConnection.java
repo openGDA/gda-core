@@ -57,12 +57,6 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	public void clearQueue(String queueName) throws EventException;
 
 	/**
-	 * Used to massage the status queue when a consumer starts up for instance.
-	 * It removes very old runs or those which are in a final failed state.
-	 */
-	public void cleanQueue(String queueName) throws EventException;
-
-	/**
 	 * Tries to reorder the bean in the submission queue if it is
 	 * still there. If the bean has been moved to the status set,
 	 * it will not be moved

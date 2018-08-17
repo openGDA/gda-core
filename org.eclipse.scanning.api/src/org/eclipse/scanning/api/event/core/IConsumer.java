@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.status.Status;
 
 /**
  *
@@ -128,6 +129,24 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 * @throws EventException
 	 */
 	void clearCompleted() throws EventException;
+
+	/**
+	 * Cleans up the status set by removing certain old jobs.
+	 * Specifically, the jobs that are removed are those that meet one of the following criteria:
+	 * <ul>
+	 *   <li>jobs that have the status {@link Status#FAILED} or {@link Status#NONE};</li>
+	 *   <li>jobs that are running (i.e. {@link Status#isRunning()} is <code>true</code>) and are older
+	 *      than the maximum running age (by default, two days);<li>
+	 *   <li>jobs that are final (i.e. {@link Status#isFinal()} is <code>true</code>) and are older than
+	 *      the maximum complete age (by default, one week);</li>
+	 *   <li>Additionally jobs that are not started or paused will have their status set to {@link Status#FAILED};</li>
+	 * </ul>
+	 * 
+	 * This method is intended to be called on starting the consumer.
+	 *
+	 * @throws EventException
+	 */
+	void cleanUpCompleted() throws EventException;
 
 	/**
 	 *

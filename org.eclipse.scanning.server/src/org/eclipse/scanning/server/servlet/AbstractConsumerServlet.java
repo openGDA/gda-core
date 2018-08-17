@@ -102,7 +102,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		// another one starts, it might purge the old one.
 		// Use setPurgeQueue(false) to stop it.
 		if (isPurgeQueue())
-			consumer.cleanQueue(getStatusSet());
+			consumer.cleanUpCompleted();
 
 		consumer.start();
 		isConnected = true;
