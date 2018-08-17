@@ -79,8 +79,8 @@ public class SubmissionTest extends AbstractJythonTest {
 
 	@After
 	public void stop() throws EventException {
-		consumer.cleanQueue(consumer.getSubmitQueueName());
-		consumer.cleanQueue(consumer.getStatusSetName());
+		consumer.clearQueue();
+		consumer.clearCompleted();
 	}
 
 	@AfterClass

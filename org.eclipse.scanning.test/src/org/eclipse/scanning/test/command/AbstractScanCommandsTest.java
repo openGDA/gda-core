@@ -1,6 +1,5 @@
 package org.eclipse.scanning.test.command;
 
-import static org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice.PROCESSING_QUEUE_NAME;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -96,8 +95,8 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	@AfterClass
 	public static void disconnect()  throws Exception {
 		try {
-			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+			servlet.getConsumer().clearQueue();
+			servlet.getConsumer().clearCompleted();
 		} catch (Exception ignored) {
 			// Not fatal if cannot clean them
 		}
@@ -120,12 +119,12 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 			path = output.getAbsolutePath().replace("\\\\", "\\").replace('\\', '/');
 		}
 
-		servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-		servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+		servlet.getConsumer().clearQueue();
+		servlet.getConsumer().clearCompleted();
 
 		if (pconsumer!=null) {
-			pconsumer.cleanQueue(PROCESSING_QUEUE_NAME);
-			pconsumer.cleanQueue("scisoft.operation.STATUS_SET");
+			pconsumer.clearQueue();
+			pconsumer.clearCompleted();
 		}
 	}
 

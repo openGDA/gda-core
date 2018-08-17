@@ -24,7 +24,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -38,6 +37,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.Services;
@@ -72,18 +72,18 @@ public abstract class AbstractServletTest extends BrokerTest {
 	public void before() throws Exception {
 		servlet = createServlet();
 		if (servlet!=null) {
-			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
-			servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
+			servlet.getConsumer().clearQueue();
+			servlet.getConsumer().clearCompleted();
+			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 		}
 	}
 
 	@After
 	public void disconnect()  throws Exception {
 		if (servlet!=null) {
-			servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-			servlet.getConsumer().cleanQueue(servlet.getStatusSet());
-			servlet.getConsumer().cleanQueue(EventConstants.CMD_SET);
+			servlet.getConsumer().clearQueue();
+			servlet.getConsumer().clearCompleted();
+			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 			servlet.disconnect();
 		}
 	}

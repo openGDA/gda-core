@@ -43,11 +43,11 @@ public class ScanRequestWithProcessingTest extends AbstractScanCommandsTest {
 
 	@AfterClass
 	public static void disconnect()  throws Exception {
-		pconsumer.cleanQueue(pconsumer.getSubmitQueueName());
-		pconsumer.cleanQueue(pconsumer.getStatusSetName());
+		pconsumer.clearQueue();
+		pconsumer.clearCompleted();
 		pconsumer.disconnect();
-		servlet.getConsumer().cleanQueue(servlet.getSubmitQueue());
-		servlet.getConsumer().cleanQueue(servlet.getStatusSet());
+		servlet.getConsumer().clearQueue();
+		servlet.getConsumer().clearCompleted();
 		servlet.disconnect();
 	}
 

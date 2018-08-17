@@ -193,7 +193,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 			assertEquals(8, submitQ.size()); // It really has paused has it?
 
 			// Right then we will reorder it.
-			consumer.cleanQueue(consumer.getSubmitQueueName());
+			consumer.clearQueue();
 
 			// Reverse sort
 			Collections.sort(submitQ, new Comparator<StatusBean>() {

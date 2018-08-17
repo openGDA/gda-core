@@ -123,7 +123,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testSimpleConsumer() throws Exception {
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -151,7 +151,7 @@ public class AbstractConsumerTest extends BrokerTest {
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
-			fconsumer.cleanQueue(consumer.getSubmitQueueName());
+			fconsumer.clearQueue();
 			fconsumer.start(); // No bean!
 
 			FredStatusBean bean = new FredStatusBean();
@@ -172,7 +172,7 @@ public class AbstractConsumerTest extends BrokerTest {
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
-			fconsumer.cleanQueue(consumer.getSubmitQueueName());
+			fconsumer.clearQueue();
 			fconsumer.start();// It's going now, we can submit
 
 			FredStatusBean fred = new FredStatusBean();
@@ -237,7 +237,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	private void testStop(IProcessCreator<StatusBean> dryRunCreator) throws Exception {
 		consumer.setRunner(dryRunCreator);
 
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -253,7 +253,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testKillingAConsumer() throws Exception {
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 1, 100L, true));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -272,7 +272,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testAbortingAJobRemotely() throws Exception {
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -291,7 +291,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testAbortingAJobRemotelyNoBeanClass() throws Exception {
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		StatusBean bean = doSubmit();
@@ -361,7 +361,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		subscriber.addListener(listener);
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearCompleted();
 		Instant broadcastStartTime = Instant.now();
 		consumer.start();
 		listener.awaitBeats();
@@ -382,7 +382,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		ISubscriber<IHeartbeatListener> subscriber = null;
 		try {
 			consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-			consumer.cleanQueue(consumer.getSubmitQueueName());
+			consumer.clearQueue();
 			consumer.start();
 
 			subscriber = eservice.createSubscriber(consumer.getUri(), EventConstants.HEARTBEAT_TOPIC);
@@ -435,7 +435,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testMultipleSubmissions() throws Exception {
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 100L, false));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		List<StatusBean> submissions = new ArrayList<StatusBean>(10);
@@ -478,7 +478,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void testMultipleSubmissionsUsingThreads() throws Exception {
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, false));
-		consumer.cleanQueue(consumer.getSubmitQueueName());
+		consumer.clearQueue();
 		consumer.start();
 
 		final List<StatusBean> submissions = new ArrayList<StatusBean>(10);
