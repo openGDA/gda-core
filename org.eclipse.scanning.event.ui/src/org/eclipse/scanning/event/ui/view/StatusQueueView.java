@@ -699,8 +699,19 @@ public class StatusQueueView extends EventConnectionView {
 			getSubmissionQueueName()+"?\n\nThis could abort or disconnect runs of other users.");
 		if (!ok) return;
 
-		queueConnection.clearQueue(getQueueName());
-		queueConnection.clearQueue(getSubmissionQueueName());
+		commandTopicPublisher.broadcast(new QueueCommandBean(getSubmissionQueueName(), Command.CLEAR));
+		commandTopicPublisher.broadcast(new QueueCommandBean(getSubmissionQueueName(), Command.CLEAR_COMPLETED));
+
+		// TODO: this temporarily introduces a new race condition, as the consumer doesn't notify us when this
+		// is completed. A subsequent change fixes this by introducing an acknowledgement topic
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			logger.error("Thread interrupted", e);
+			Thread.currentThread().interrupt();
+			throw new EventException(e);
+		}
+
 		reconnect();
 	}
 
