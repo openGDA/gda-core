@@ -185,8 +185,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	@Override
-	public boolean reorder(U bean, String queueName, int amount) throws EventException {
+	protected boolean reorder(U bean, String queueName, int amount) throws EventException {
 		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
 
 		final String pauseMessage = "Pause to reorder '" + bean.getName() + "' " + amount;
@@ -242,8 +241,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return publisher;
 	}
 
-	@Override
-	public boolean remove(U bean, String queueName) throws EventException {
+	protected boolean remove(U bean, String queueName) throws EventException {
 		final String pauseMessage = "Pause to remove '"+bean.getName()+"' ";
 		return doWhilePaused(queueName, pauseMessage, () -> doRemove(bean, queueName));
 	}
@@ -308,8 +306,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	@Override
-	public boolean replace(U bean, String queueName) throws EventException {
+	protected boolean replace(U bean, String queueName) throws EventException {
 		final String pauseMessage = "Pause to replace '"+bean.getName()+"' ";
 		return doWhilePaused(queueName, pauseMessage, () -> doReplace(bean, queueName));
 	}

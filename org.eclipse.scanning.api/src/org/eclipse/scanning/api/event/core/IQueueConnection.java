@@ -65,12 +65,10 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	 * is removed.
 	 *
 	 * @param bean
-	 * @param queueName
-	 * @param amount
 	 * @return
 	 * @throws EventException
 	 */
-	boolean reorder(T bean, String queueName, int amount) throws EventException;
+	boolean reorder(T bean, int amount) throws EventException;
 
 	/**
 	 * Tries to remove the bean from the submission queue if it is
@@ -82,26 +80,23 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	 * is removed.
 	 *
 	 * @param bean
-	 * @param queueName
 	 * @return
 	 * @throws EventException
 	 */
-	boolean remove(T bean, String queueName) throws EventException;
-
+	boolean remove(T bean) throws EventException;
 
 	/**
 	 * Tries to replace the bean from the submission queue if it is
 	 * still there. If the bean has been moved to the status set,
-	 * it will not be replaced.
+	 * it will not be removed
 	 *
 	 * A pause will automatically be done while the bean
-	 * is replaced.
+	 * is replace.
 	 *
 	 * @param bean
-	 * @param queueName
 	 * @return
 	 * @throws EventException
 	 */
-	boolean replace(T bean, String queueName) throws EventException;
+	boolean replace(T bean) throws EventException;
 
 }

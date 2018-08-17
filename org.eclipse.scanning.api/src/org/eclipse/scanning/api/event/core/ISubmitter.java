@@ -79,49 +79,6 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	boolean isQueuePaused(String submissionQueueName);
 
 	/**
-	 * Tries to reorder the bean in the submission queue if it is
-	 * still there. If the bean has been moved to the status set,
-	 * it will not be moved
-	 *
-	 * A pause will automatically be done while the bean
-	 * is removed.
-	 *
-	 * @param bean
-	 * @return
-	 * @throws EventException
-	 */
-	boolean reorder(T bean, int amount) throws EventException;
-
-	/**
-	 * Tries to remove the bean from the submission queue if it is
-	 * still there. If the bean has been moved to the status set,
-	 * it will not be removed
-	 *
-	 * NOTE This method can end up reordering the items.
-	 * A pause will automatically be done while the bean
-	 * is removed.
-	 *
-	 * @param bean
-	 * @return
-	 * @throws EventException
-	 */
-	boolean remove(T bean) throws EventException;
-
-	/**
-	 * Tries to replace the bean from the submission queue if it is
-	 * still there. If the bean has been moved to the status set,
-	 * it will not be removed
-	 *
-	 * A pause will automatically be done while the bean
-	 * is replace.
-	 *
-	 * @param bean
-	 * @return
-	 * @throws EventException
-	 */
-	boolean replace(T bean) throws EventException;
-
-	/**
 	 * @return the priority of messages submitted by this submitter.
 	 */
 	int getPriority();

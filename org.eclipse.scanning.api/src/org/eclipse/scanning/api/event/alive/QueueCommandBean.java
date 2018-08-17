@@ -62,7 +62,17 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to clear the set of completed jobs.
 		 */
-		CLEAR_COMPLETED;
+		CLEAR_COMPLETED,
+
+		/**
+		 * A command to move a bean up the submission queue.
+		 */
+		MOVE_UP,
+
+		/**
+		 * A command to move a bean down the submission queue
+		 */
+		MOVE_DOWN;
 
 	}
 
@@ -87,6 +97,12 @@ public class QueueCommandBean  extends IdBean {
 	 * The command to perform, e.g. pause/resume
 	 */
 	private Command command;
+
+	/**
+	 * The unique id of the bean that the command relates to. Only specified if
+	 * the {@link #command} is {@link Command#MOVE_UP} or {@link Command#MOVE_DOWN}.
+	 */
+	private String beanUniqueId;
 
 	public QueueCommandBean() {
 		// no-arg constructor for json deserialization
@@ -134,6 +150,14 @@ public class QueueCommandBean  extends IdBean {
 		this.command = command;
 	}
 
+	public String getBeanUniqueId() {
+		return beanUniqueId;
+	}
+
+	public void setBeanUniqueId(String beanUniqueId) {
+		this.beanUniqueId = beanUniqueId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -142,6 +166,7 @@ public class QueueCommandBean  extends IdBean {
 		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+		result = prime * result + ((beanUniqueId == null) ? 0 : beanUniqueId.hashCode());
 		return result;
 	}
 
@@ -170,6 +195,11 @@ public class QueueCommandBean  extends IdBean {
 			if (other.queueName != null)
 				return false;
 		} else if (!queueName.equals(other.queueName))
+			return false;
+		if (beanUniqueId == null) {
+			if  (other.beanUniqueId != null)
+				return false;
+		} else if (!beanUniqueId.equals(other.beanUniqueId))
 			return false;
 		return true;
 	}

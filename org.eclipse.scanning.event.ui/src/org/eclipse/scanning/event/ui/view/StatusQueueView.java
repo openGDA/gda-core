@@ -620,7 +620,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				// It is submitted and not running. We can probably delete it.
 				try {
-					queueConnection.remove(bean, queueName);
+					queueConnection.remove(bean);
 					refresh();
 				} catch (EventException e) {
 					ErrorDialog.openError(getViewSite().getShell(), "Cannot delete "+bean.getName(),

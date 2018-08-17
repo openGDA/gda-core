@@ -835,6 +835,21 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
+	public boolean reorder(U bean, int amount) throws EventException {
+		return super.reorder(bean, getSubmitQueueName(), amount);
+	}
+
+	@Override
+	public boolean remove(U bean) throws EventException {
+		return super.remove(bean, getSubmitQueueName());
+	}
+
+	@Override
+	public boolean replace(U bean) throws EventException {
+		return super.replace(bean, getSubmitQueueName());
+	}
+
+	@Override
 	public ConsumerStatus getConsumerStatus() {
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
 	}
