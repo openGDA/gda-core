@@ -53,7 +53,7 @@ public class AbstractPauseTest extends BrokerTest {
 	public void dispose() throws EventException {
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearCompleted();
 		consumer.clearQueue(EventConstants.CMD_SET);
 		consumer.disconnect();
 	}
@@ -155,7 +155,7 @@ public class AbstractPauseTest extends BrokerTest {
 
 		// Right then we will reorder it.
 		consumer.clearQueue();
-		consumer.clearQueue(consumer.getStatusSetName());
+		consumer.clearQueue();
 
 		// Reverse sort
 		Collections.sort(submitQ, new Comparator<StatusBean>() {

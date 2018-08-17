@@ -77,7 +77,7 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 
 	protected abstract void doRestartConsumer() throws Exception;
 
-	protected abstract void doClearQueue() throws Exception;
+	protected abstract void doClearQueue(boolean clearCompleted) throws Exception;
 
 	@Test
 	public void testPauseResume() throws Exception {
@@ -174,7 +174,22 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 
 	@Test
 	public void testClearQueue() throws Exception {
+		testClearQueue(false);
+	}
+
+	@Test
+	public void testClearCompleted() throws Exception {
+		testClearQueue(true);
+	}
+
+	private void testClearQueue(boolean clearCompleted) throws Exception {
+		final String queueName = clearCompleted ? consumer.getStatusSetName() : consumer.getSubmitQueueName();
+
 		// Set up mocks for publishing the pause bean
+		// TODO: mattd 2018-08-15: Note it's not necessary to send a pause bean when cleaning the status set,
+		// but the existing implementation does so anyway. It's ignored by the consumer as the queue name is
+		// not that of its submission queue. I intend to fix this in subsequent commit as part of bringing the
+		// queue in memory
 		IPublisher<QueueCommandBean> pauseBeanPublisher = mock(IPublisher.class);
 		when(eventService.createPublisher(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) pauseBeanPublisher); // TODO why do we need a double cast?
@@ -187,7 +202,7 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		QueueSession session = mock(QueueSession.class);
 		when(connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
 		Queue queue = mock(Queue.class);
-		when(session.createQueue(consumer.getSubmitQueueName())).thenReturn(queue);
+		when(session.createQueue(queueName)).thenReturn(queue);
 		QueueBrowser queueBrowser = mock(QueueBrowser.class);
 		when(session.createBrowser(queue)).thenReturn(queueBrowser);
 
@@ -207,16 +222,15 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		}
 		when(queueBrowser.getEnumeration()).thenReturn(new Vector<>(messages).elements());
 
-		doClearQueue();
+		doClearQueue(clearCompleted);
 
 		List<Object> mocksToVerifyInOrder = new ArrayList<>(Arrays.asList(pauseBeanPublisher, connection, session));
 		mocksToVerifyInOrder.addAll(msgConsumers);
 		InOrder inOrder = inOrder(mocksToVerifyInOrder.toArray());
 
 		// verify the pause bean was sent
-		final String submitQueueName = consumer.getSubmitQueueName();
-		QueueCommandBean pauseBean = new QueueCommandBean(submitQueueName, Command.PAUSE);
-		pauseBean.setMessage("Pause to clear queue '" + submitQueueName + "' ");
+		QueueCommandBean pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
+		pauseBean.setMessage("Pause to clear queue '" + queueName + "' ");
 		inOrder.verify(pauseBeanPublisher).broadcast(pauseBean);
 
 		// verify the messages were consumed from the queue
@@ -225,7 +239,7 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 			inOrder.verify(session).createConsumer(queue, "JMSMessageID = 'msg" + (i + 1) + "'");
 			inOrder.verify(msgConsumers.get(i)).receive(receiveTimeout);
 		}
-		inOrder.verify(pauseBeanPublisher).broadcast(new QueueCommandBean(submitQueueName, Command.RESUME));
+		inOrder.verify(pauseBeanPublisher).broadcast(new QueueCommandBean(queueName, Command.RESUME));
 	}
 
 }

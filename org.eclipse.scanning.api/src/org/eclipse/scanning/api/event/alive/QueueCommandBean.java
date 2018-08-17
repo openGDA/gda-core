@@ -55,9 +55,14 @@ public class QueueCommandBean  extends IdBean {
 		RESTART,
 
 		/**
-		 * A command to clear the queue
+		 * A command to clear the queue of submitted jobs waiting to be run.
 		 */
-		CLEAR;
+		CLEAR,
+
+		/**
+		 * A command to clear the set of completed jobs.
+		 */
+		CLEAR_COMPLETED;
 
 	}
 

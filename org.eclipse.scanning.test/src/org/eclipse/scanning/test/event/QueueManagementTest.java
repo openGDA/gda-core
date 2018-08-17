@@ -20,22 +20,27 @@ package org.eclipse.scanning.test.event;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
+import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
-import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
+import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
@@ -50,6 +55,43 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value = Parameterized.class)
 public class QueueManagementTest extends BrokerTest {
 
+	private class InitialProcess extends AbstractLockingPausableProcess<StatusBean> {
+
+		protected InitialProcess(StatusBean bean, IPublisher<StatusBean> publisher) {
+			super(bean, publisher);
+		}
+
+		@Override
+		public void execute() throws EventException, InterruptedException {
+			// release the semaphore. This releases the main thread which should be waiting to
+			// acquire the semaphore at this point.
+			semaphore.release();
+			// try to acquire the semaphore again. Since the main thread was waiting first and
+			// the semaphore is fair, we have to wait until the main thread releases the semaphore
+			// at which point this method can exit
+			semaphore.acquire();
+			getBean().setStatus(Status.COMPLETE);
+			getPublisher().broadcast(getBean());
+		}
+	}
+
+	private class TestProcessCreator implements IProcessCreator<StatusBean> {
+
+		@Override
+		public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
+				throws EventException {
+			if (bean.getName().equals("initial")) {
+				// return the initial process that waits to be told to resume
+				return new InitialProcess(bean, publisher);
+			}
+
+			// return a short job that runs in just 10ms
+			return new DryRunProcess<StatusBean>(bean, publisher, true, 0, 1, 1, 10);
+		}
+
+	}
+
+
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumer;
@@ -62,18 +104,18 @@ public class QueueManagementTest extends BrokerTest {
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(new Object[][] {
 			{ false, false },
-//			{ false, true},
+			{ false, true },
 			{ true, false },
-//			{ true, true}
+			{ true, true }
 		});
 	}
 
-	// TODO: this test is flakey when startConsumer = true, so for the moment it is
-	// only tested with this as false. Fix as part of DAQ-1465
 	public QueueManagementTest(boolean useQueueCommandBean, boolean startConsumer) {
 		this.useQueueCommandBean = useQueueCommandBean;
 		this.startConsumer = startConsumer;
 	}
+
+	private Semaphore semaphore = null;
 
 	@Before
 	public void setUp() throws Exception {
@@ -88,7 +130,7 @@ public class QueueManagementTest extends BrokerTest {
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
-		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearCompleted();
 
 		if (startConsumer) {
 			startConsumer();
@@ -98,23 +140,42 @@ public class QueueManagementTest extends BrokerTest {
 	@After
 	public void tearDown() throws Exception {
 		consumer.clearQueue();
-		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearCompleted();
 	}
 
 	private void startConsumer() throws EventException, InterruptedException {
 		// starts the consumer and sets it going with an initial task
-		consumer.setRunner(new DryRunProcessCreator<>(0, 100, 1, 100l, true));
+
+		// Create and acquire the semaphore and create and set the runner
+		semaphore = new Semaphore(1, true);
+		semaphore.acquire();
+		consumer.setRunner(new TestProcessCreator());
+
+		// start the consumer and wait until its fully started
 		consumer.start();
 		consumer.awaitStart();
+
+		// submit the initial bean and try to acquire the semaphore. This is released by the process
+		// for this
 		submitter.submit(createBean("initial"));
+		// try to acquire the semaphore again, this will block until the process for the
+		// initial bean releases it
+		semaphore.acquire();
+
+		// now we know that the initial bean has been removed from the queue and is blocked,
+		// so we can add other beans to the queue and r
 	}
 
 	@After
 	public void dispose() throws Exception {
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearCompleted();
 		consumer.disconnect();
+		if (semaphore != null) {
+			semaphore.release();
+			semaphore = null;
+		}
 	}
 
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
@@ -276,14 +337,18 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
+	private void sendCommandBean(Command command) throws Exception {
+		QueueCommandBean commandBean = new QueueCommandBean(
+				submitter.getSubmitQueueName(), command);
+		commandPublisher.broadcast(commandBean);
+		Thread.sleep(1000); // TODO: how to avoid a Thread.sleep here?
+	}
+
 	private void doClearQueue() throws Exception {
 		if (useQueueCommandBean) {
-			QueueCommandBean commandBean = new QueueCommandBean(
-					submitter.getSubmitQueueName(), Command.CLEAR);
-			commandPublisher.broadcast(commandBean);
-			Thread.sleep(1000); // TODO: how to avoid a Thread.sleep here?
+			sendCommandBean(Command.CLEAR);
 		} else {
-			submitter.clearQueue(submitter.getSubmitQueueName());
+			consumer.clearQueue();
 		}
 	}
 
@@ -293,7 +358,46 @@ public class QueueManagementTest extends BrokerTest {
 
 		doClearQueue();
 
-		assertThat(submitter.getQueue(), is(empty()));
+		assertThat(consumer.getQueue(), is(empty()));
+	}
+
+	private void doClearCompleted() throws Exception {
+		if (useQueueCommandBean) {
+			sendCommandBean(Command.CLEAR_COMPLETED);
+		} else {
+			consumer.clearCompleted();
+		}
+	}
+
+	@Test
+	public void testClearCompleted() throws Exception {
+		// this test only makes sense with the consumer running as we need to get beans onto the status set
+		if (!startConsumer) return;
+
+		List<StatusBean> beans = createAndSubmitBeans();
+
+		// release the semaphore so that the initial job completes
+		semaphore.release();
+
+		// wait for all the jobs to be completed
+		final int expectedSize = beans.size() + 1; // extra bean is the initial bean
+		List<StatusBean> statusSet;
+		boolean allCompleted;
+		do {
+			statusSet = consumer.getStatusSet();
+			allCompleted = statusSet.stream().map(StatusBean::getStatus).allMatch(st -> st == Status.COMPLETE);
+			Thread.sleep(20);
+		} while (!(statusSet.size() == expectedSize && allCompleted));
+
+		// check all the beans are present
+		List<String> names = getNames(consumer.getStatusSet());
+		names.remove("initial");
+		assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
+
+		// TODO replace with doClearCompleted
+		doClearCompleted();
+
+		assertThat(consumer.getStatusSet(), is(empty()));
 	}
 
 }

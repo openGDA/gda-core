@@ -71,8 +71,9 @@ public class ConsumerControlCommandBeanTest extends AbstractConsumerControlTest 
 	}
 
 	@Override
-	protected void doClearQueue() throws Exception {
-		sendCommandBean(Command.CLEAR);
+	protected void doClearQueue(boolean clearCompleted) throws Exception {
+		Command command = clearCompleted ? Command.CLEAR_COMPLETED : Command.CLEAR;
+		sendCommandBean(command);
 	}
 
 }

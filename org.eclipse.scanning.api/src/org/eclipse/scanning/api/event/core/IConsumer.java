@@ -124,6 +124,12 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void clearQueue() throws EventException;
 
 	/**
+	 * Removes all completed jobs from the consumer's status set.
+	 * @throws EventException
+	 */
+	void clearCompleted() throws EventException;
+
+	/**
 	 *
 	 * @return the current active process which will run jobs
 	 */

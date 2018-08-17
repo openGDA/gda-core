@@ -41,7 +41,7 @@ public class ConsumerPluginTest extends AbstractConsumerTest {
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
-		consumer.clearQueue(EventConstants.STATUS_SET);
+		consumer.clearCompleted();
 	}
 
 }
