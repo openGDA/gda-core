@@ -18,13 +18,6 @@
 
 package uk.ac.gda.example.mvcexample.impl;
 
-import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
-import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.device.scannable.ScannableStatus;
-import gda.device.scannable.ScannableUtils;
-import gda.observable.IObserver;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.device.scannable.ScannableStatus;
+import gda.device.scannable.ScannableUtils;
+import gda.observable.IObserver;
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.example.mvcexample.MvcExampleItem;
@@ -105,7 +104,6 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 								MyMvcExampleItem item = (MyMvcExampleItem) items.get(i);
 								double value = item.getValue();
 								if( value > 15) {
-									;
 								}else {
 									item.setValue(value+1);
 								}
