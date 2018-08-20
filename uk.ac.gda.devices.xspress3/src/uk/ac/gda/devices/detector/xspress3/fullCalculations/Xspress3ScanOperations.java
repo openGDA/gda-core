@@ -131,7 +131,20 @@ public class Xspress3ScanOperations {
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
 		controller.setArrayCounter(0);
+		setHDFPVs();
 		controller.doStart();
+	}
+
+	private void setHDFPVs() throws DeviceException  {
+		controller.setHDFNDArrayPort("XSP3");
+		controller.setFileTemplate("%sxsp3.hdf5");
+		controller.setHDFXML("");
+		controller.setHDFExtraDimensions(0);
+		controller.setHDFNumFramesToAcquire(0);
+		controller.setHDFNumFramesChunks(10);
+		controller.setHDFNDAttributeChunk(10);
+		controller.setHDFPositionMode(false);
+		controller.setHDFNumFramesToAcquire(controller.getNumFramesToAcquire());
 	}
 
 	private void savingHDFFiles() throws DeviceException {
