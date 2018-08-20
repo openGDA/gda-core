@@ -11,7 +11,6 @@ import org.eclipse.ui.IWorkbench;
 import uk.ac.gda.devices.hplc.beans.HplcSessionBean;
 import uk.ac.gda.devices.hplc.beans.HplcBean;
 import uk.ac.gda.devices.hatsaxs.HatsaxsUtils;
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.wizards.HatsaxsWizard;
 import uk.ac.gda.devices.hatsaxs.wizards.HatsaxsWizardPage;
 

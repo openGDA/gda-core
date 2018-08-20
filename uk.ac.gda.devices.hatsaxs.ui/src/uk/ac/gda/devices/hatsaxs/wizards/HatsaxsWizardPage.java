@@ -25,8 +25,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-import uk.ac.gda.devices.hatsaxs.HatsaxsUtils;
-
 public class HatsaxsWizardPage extends WizardPage {
 	
 	private ISelection selection;

@@ -21,7 +21,6 @@ package uk.ac.gda.devices.hplc.beans;
 import java.net.URL;
 import java.util.List;
 
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;

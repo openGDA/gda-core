@@ -4,7 +4,6 @@ import java.util.Map;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class HplcBean implements XMLRichBean {
