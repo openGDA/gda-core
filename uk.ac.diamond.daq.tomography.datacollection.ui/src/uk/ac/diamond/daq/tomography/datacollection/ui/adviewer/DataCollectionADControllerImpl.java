@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.EnumPositioner;
-import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.displayscaleprovider.DisplayScaleProvider;
 import gda.jython.InterfaceProvider;
