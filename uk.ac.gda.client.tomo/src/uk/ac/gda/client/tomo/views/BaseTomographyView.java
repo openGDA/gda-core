@@ -96,7 +96,7 @@ public abstract class BaseTomographyView extends ViewPart {
 			// Do nothing
 		}
 
-	};
+	}
 
 	private CheckIOCStatusJob createCheckIOCStatusJob() {
 		if (checkIocStatusJob == null) {
