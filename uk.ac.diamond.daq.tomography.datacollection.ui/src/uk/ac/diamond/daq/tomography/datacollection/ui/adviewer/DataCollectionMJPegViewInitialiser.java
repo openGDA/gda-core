@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import gda.device.displayscaleprovider.DisplayScaleProvider;
 import gda.device.scannable.ScannableUtils;
