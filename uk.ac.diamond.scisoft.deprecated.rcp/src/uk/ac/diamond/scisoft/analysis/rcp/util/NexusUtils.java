@@ -21,7 +21,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
 
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
