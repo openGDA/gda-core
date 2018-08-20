@@ -151,11 +151,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	protected void startRunningXspress3FrameSet() throws DeviceException {
-		// if (writeHDF5Files) {
-		// do not do this if writeHDF5Files is false as may cause errors in
-		// epics
 		controller.setSavingFiles(writeHDF5Files);
-		// }
 		controller.doErase();
 		controller.doStart();
 

@@ -20,6 +20,7 @@ package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -151,11 +152,15 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 		try {
 			if (saveFiles) {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
+				pvProvider.pvIsFileWriting.waitForValue(value-> value==CAPTURE_CTRL_RBV.Capture, TIMEOUTS_MONITORING);
 			} else {
+				pvProvider.pvIsFileWriting.waitForValue(value-> value==CAPTURE_CTRL_RBV.Done, TIMEOUTS_MONITORING);
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting save files flag", e);
+		} catch (InterruptedException|TimeoutException e) {
+			throw new DeviceException("Problem waiting for capture readback to update", e.getMessage(), e);
 		}
 	}
 

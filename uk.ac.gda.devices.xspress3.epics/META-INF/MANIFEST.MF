@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Epics
 Bundle-SymbolicName: uk.ac.gda.devices.xspress3.epics
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
