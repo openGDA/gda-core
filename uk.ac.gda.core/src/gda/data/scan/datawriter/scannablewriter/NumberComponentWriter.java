@@ -18,9 +18,6 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.scan.datawriter.SelfCreatingLink;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -38,6 +35,7 @@ import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 public class NumberComponentWriter extends DefaultComponentWriter {

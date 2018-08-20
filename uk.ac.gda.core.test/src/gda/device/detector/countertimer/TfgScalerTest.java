@@ -27,16 +27,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.TestHelpers;
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.detector.DummyDAServer;
 import gda.device.detector.countertimer.ScalerOutputProcessor.OutputConfig;
 import gda.device.memory.Scaler;
-import gda.device.scannable.DummyScannable;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
-import gda.scan.ConcurrentScan;
 
 public class TfgScalerTest {
 

@@ -1,12 +1,6 @@
 package uk.ac.gda.example.mvcexample;
 
-import gda.device.motor.DummyMotor;
-import gda.device.scannable.ScannableMotor;
-import gda.rcp.util.OSGIServiceRegister;
-
 import java.util.ArrayList;
-
-import junit.framework.Assert;
 
 import org.eclipse.core.databinding.observable.list.ObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
@@ -21,6 +15,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.device.motor.DummyMotor;
+import gda.device.scannable.ScannableMotor;
+import gda.rcp.util.OSGIServiceRegister;
+import junit.framework.Assert;
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 
@@ -219,7 +217,7 @@ class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 
 
 
-};
+}
 
 
 
