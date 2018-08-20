@@ -15,7 +15,6 @@ import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_REQUEST_T
 import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_RESPONSE_TOPIC;
 
 import org.eclipse.scanning.api.device.PositionerRequestHandler;
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;

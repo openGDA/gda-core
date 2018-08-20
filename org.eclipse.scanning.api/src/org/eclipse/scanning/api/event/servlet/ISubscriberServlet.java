@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.servlet;
 
-import java.net.URISyntaxException;
-
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 

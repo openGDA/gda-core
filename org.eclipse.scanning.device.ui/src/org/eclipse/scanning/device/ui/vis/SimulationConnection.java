@@ -15,7 +15,6 @@ import java.net.URL;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.dialogs.MessageDialog;

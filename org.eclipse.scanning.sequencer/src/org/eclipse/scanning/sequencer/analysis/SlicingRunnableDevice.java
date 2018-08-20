@@ -1,7 +1,5 @@
 package org.eclipse.scanning.sequencer.analysis;
 
-import java.util.Arrays;
-
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.january.IMonitor;

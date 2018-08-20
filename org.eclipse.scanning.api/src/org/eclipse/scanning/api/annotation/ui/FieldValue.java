@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
 
-import org.eclipse.scanning.api.IModelProvider;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 /**
