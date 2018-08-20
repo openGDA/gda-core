@@ -104,7 +104,6 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 								MyMvcExampleItem item = items.get(i);
 								double value = item.getValue();
 								if( value > 15) {
-								}else {
 									item.setValue(value+1);
 								}
 							}
@@ -118,9 +117,7 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		if( scannable == null)
-			throw new Exception("scannable == null");
+	public void afterPropertiesSet() {
 		scannable.addIObserver(new IObserver() {
 
 			@Override
@@ -164,8 +161,9 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 
 
 	public void setValue(double newVal){
-		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,
-				this.value, this.value = newVal);
+		double oldVal = this.value;
+		this.value = newVal;
+		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME, oldVal, newVal);
 	}
 
 	String name;
