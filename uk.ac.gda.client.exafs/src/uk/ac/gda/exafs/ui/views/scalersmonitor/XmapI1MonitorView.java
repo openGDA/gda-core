@@ -48,7 +48,7 @@ public class XmapI1MonitorView extends XmapMonitorView  {
 		displayData.setTitles(titles);
 		displayData.setFormats(formats);
 		displayData.createControls();
-	};
+	}
 
 	@Override
 	protected void updateDisplayedData(Double[] xmapStats, Double[] ionchamberValues) {

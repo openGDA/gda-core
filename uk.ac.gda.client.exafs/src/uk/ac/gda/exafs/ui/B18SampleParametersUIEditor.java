@@ -689,7 +689,7 @@ public final class B18SampleParametersUIEditor extends RichBeanEditorPart {
 		public void setTypeString(String typeString) {
 			this.typeString = typeString;
 		}
-	};
+	}
 
 	private void updateStageType() {
 		switch (stage.getSelectionIndex()) {

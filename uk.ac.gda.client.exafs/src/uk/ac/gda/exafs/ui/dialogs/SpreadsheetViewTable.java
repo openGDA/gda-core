@@ -312,7 +312,7 @@ public class SpreadsheetViewTable {
 			ParametersForScan param = (ParametersForScan) element;
 			return getDataForColumn(param, typeIndex, paramIndex).toString();
 		}
-	};
+	}
 
 	/**
 	 *  Editing support for entering parameter value as text string
