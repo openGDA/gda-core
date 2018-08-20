@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
 
