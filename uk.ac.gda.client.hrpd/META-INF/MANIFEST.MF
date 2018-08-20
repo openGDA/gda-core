@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.artenum.jyconsole,
  com.google.common.base;version="15.0.0",
@@ -55,3 +55,4 @@ Export-Package: org.javatuples,
  org.javatuples.valueintf,
  uk.ac.gda.client.hrpd.epicsdatamonitor,
  uk.ac.gda.client.hrpd.typedpvscannables
+Automatic-Module-Name: uk.ac.gda.client.hrpd
