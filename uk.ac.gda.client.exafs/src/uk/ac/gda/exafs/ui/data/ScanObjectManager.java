@@ -47,7 +47,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
-	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");;
+	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");
 
 	public ScanObjectManager() {
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
