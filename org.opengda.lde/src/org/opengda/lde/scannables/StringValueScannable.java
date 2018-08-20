@@ -38,7 +38,7 @@ public class StringValueScannable extends ScannableBase {
 			setOutputFormat(new String[] { "%s" });
 			setConfigured(true);
 		}
-	};
+	}
 	@Override
 	public Object getPosition() throws DeviceException {
 		return value;
