@@ -17,6 +17,12 @@
             name="Snapshot"
             restorable="true">
       </view>
+      <view
+            class="uk.ac.gda.client.live.stream.view.LiveStreamViewWithHistogram"
+            id="uk.ac.gda.client.live.stream.view.LiveStreamViewWithHistogram"
+            name="Live Stream With Histogram"
+            restorable="true">
+      </view>
    </extension>
    <extension point="org.eclipse.ui.menus">
       <menuContribution
@@ -47,6 +53,17 @@
          		label="Create Live Map"
          		style="push"
          		tooltip="Create live map from live stream">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.live.stream.view.LiveStreamViewWithHistogram">
+         <command
+               commandId="uk.ac.gda.client.live.stream.snapshotcommand"
+               icon="icons/camera.png"
+               label="Snapshot"
+               style="push"
+               tooltip="Take a snapshot of the live image">
          </command>
       </menuContribution>
    </extension>

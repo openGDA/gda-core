@@ -47,6 +47,7 @@ public class CameraConfiguration extends FindableBase {
 	private RemoteRectangularROIsProvider roiProvider;
 	/** If set, adds axes to the camera and allows the image to be set in the Map view. */
 	private CameraCalibration cameraCalibration;
+	private boolean withHistogram = false;
 
 	public String getDisplayName() {
 		return displayName;
@@ -118,6 +119,7 @@ public class CameraConfiguration extends FindableBase {
 		result = prime * result + ((cameraCalibration == null) ? 0 : cameraCalibration.hashCode());
 		result = prime * result + (int) (sleepTime ^ (sleepTime >>> 32));
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + (withHistogram ? 1231 : 1237);
 		return result;
 	}
 
@@ -166,7 +168,17 @@ public class CameraConfiguration extends FindableBase {
 				return false;
 		} else if (!url.equals(other.url))
 			return false;
+		if (withHistogram != other.withHistogram)
+			return false;
 		return true;
+	}
+
+	public boolean isWithHistogram() {
+		return withHistogram;
+	}
+
+	public void setWithHistogram(boolean withHistogram) {
+		this.withHistogram = withHistogram;
 	}
 
 }

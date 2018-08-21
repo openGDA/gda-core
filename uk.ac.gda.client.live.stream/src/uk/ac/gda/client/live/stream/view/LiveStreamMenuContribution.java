@@ -136,9 +136,14 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 			@Override
 			public void run() {
 				logger.debug("Opening {} {} stream", cameraConfig.getKey(), streamType.displayName);
+				String viewId=LiveStreamView.ID;
+				if (cameraConfig.getValue().isWithHistogram()) {
+					viewId=LiveStreamViewWithHistogram.ID;
+				}
+
 				try {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
-							LiveStreamView.ID,
+							viewId,
 							cameraConfig.getValue().getName() + streamType.secondaryIdSuffix(),
 							IWorkbenchPage.VIEW_ACTIVATE);
 				} catch (PartInitException e) {
