@@ -18,13 +18,13 @@
 
 package gda.epics.interfaceSpec;
 
-import gda.configuration.epics.Configurator;
-import gda.configuration.properties.LocalProperties;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
-import java.io.IOException;
+
+import gda.configuration.epics.Configurator;
+import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.common.util.EclipseUtils;
 
 /**
  * GDAEpicsInterfaceReader Class
