@@ -26,11 +26,9 @@ import java.util.Random;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.runtime.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
@@ -269,13 +267,6 @@ public abstract class ExperimentObject implements IExperimentObject {
 			throw new RuntimeException("Run name cannot contain a space.");
 		this.runName = runName;
 //		notifyListeners("RunName");
-	}
-
-	protected String getDuplicatedFile(final String fileName) throws CoreException {
-		final IFile file = getFolder().getFile(fileName);
-		final IFile nf = EclipseUtils.getUniqueFile(file, "xml");
-		file.copy(nf.getFullPath(), true, null);
-		return nf.getName();
 	}
 
 	@Override
