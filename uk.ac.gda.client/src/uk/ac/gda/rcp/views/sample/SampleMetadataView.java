@@ -24,6 +24,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -51,7 +52,7 @@ public class SampleMetadataView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		// Increase vertical spacing to 10px
 		GridLayoutFactory.swtDefaults().numColumns(5).spacing(5, 10).equalWidth(true).applyTo(parent);
-
+		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		// Status Row
 		scanStatus = createStatusSection(parent, "Scan Status", "Cycle: Running, [Paused], Completed", "UNKNOWN");
 		scanNumber = createStatusSection(parent, "Running Scan Number", "Before Scan: Number of the next file to be written; During scan: number of file being written", "UNKNOWN");
