@@ -744,6 +744,14 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			for (DetectorROI region : regions){
 				thisElement.addRegion(region);
 			}
+
+			// Also set the 'excluded' state for the element
+			try {
+				thisElement.setExcluded(!controller.isChannelEnabled(i));
+			} catch (DeviceException e) {
+				logger.error("Problem setting excluded property from controller for element {}", i, e);
+			}
+
 			detectorList.add(thisElement);
 		}
 
