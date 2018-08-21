@@ -244,7 +244,7 @@ public class StatusQueueView extends EventConnectionView {
 		pauseActionUpdate(anyRunning, anyPaused, anySelectedInSubmittedList);
 
 		openResultsActionUpdate(anyFinalSelectedInRunList);
-		openActionUpdate(anySelectedInSubmittedList);
+		openActionUpdate(selection);
 		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
 
 		// Some sanity checks
@@ -763,8 +763,9 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	private void openActionUpdate(boolean anySelectedInSubmittedList) {
-		openAction.setEnabled(anySelectedInSubmittedList);
+	private void openActionUpdate(List<StatusBean> selection) {
+		// Enable only if only one job is selected (we don't care about this job's status)
+		openAction.setEnabled(selection.size() == 1);
 	}
 
 	private Action openActionCreate() {
@@ -782,10 +783,6 @@ public class StatusQueueView extends EventConnectionView {
 	private void openActionRun() {
 
 		final List<StatusBean> beans = getSelection();
-		if (beans.isEmpty()) {
-			MessageDialog.openInformation(getViewSite().getShell(), "Please select a run", "Please select a run to open.");
-			return;
-		}
 
 		// TODO FIXME Change to IScanBuilderService not selections so that it works with e4.
 		// We fire a special object into the selection mechanism with the data for this run.
