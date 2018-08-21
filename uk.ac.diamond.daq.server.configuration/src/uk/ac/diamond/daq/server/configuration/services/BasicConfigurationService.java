@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.server.configuration.services;
 
 import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.*;
-import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
+import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.osgi.service.component.ComponentContext;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
 import uk.ac.diamond.daq.server.configuration.commands.SubProcessCommand;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
+import uk.ac.gda.common.util.EclipseUtils;
 
 
 public class BasicConfigurationService implements IGDAConfigurationService {
