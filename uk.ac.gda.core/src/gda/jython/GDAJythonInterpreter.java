@@ -22,8 +22,8 @@ package gda.jython;
 import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
-import static uk.ac.gda.common.rcp.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
-import static uk.ac.gda.common.rcp.util.EclipseUtils.URI_SEPARATOR;
+import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
+import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -67,7 +67,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.translator.Translator;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
+import uk.ac.gda.common.util.EclipseUtils;
 
 /**
  * <p>
