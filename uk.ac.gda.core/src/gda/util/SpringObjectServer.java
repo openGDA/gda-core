@@ -104,10 +104,16 @@ public class SpringObjectServer extends ObjectServer {
 	private static void setApplicationContextActiveProfiles(ApplicationContext applicationContext) {
 		final String gdaPropertyName = String.format("gda.%s", AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
 		if (LocalProperties.contains(gdaPropertyName)) {
-			final String[] activeProfiles = LocalProperties.getStringArray(gdaPropertyName);
-			final ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
-			logger.info("\"{}\" property is set, so setting active profiles to {}", gdaPropertyName, Arrays.toString(activeProfiles));
-			environment.setActiveProfiles(activeProfiles);
+			final String[] activeProfiles = Arrays.stream(LocalProperties.getStringArray(gdaPropertyName))
+					.filter(s -> !s.isEmpty())
+					.toArray(String[]::new);
+			if (activeProfiles.length != 0) {
+				logger.info("'{}' property is set, so setting active profiles to {}", gdaPropertyName, Arrays.toString(activeProfiles));
+				final ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
+				environment.setActiveProfiles(activeProfiles);
+			} else {
+				logger.info("'{}' is set to empty list - not using any profiles", gdaPropertyName);
+			}
 		}
 	}
 
