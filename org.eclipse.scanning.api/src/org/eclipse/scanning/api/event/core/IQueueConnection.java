@@ -51,10 +51,16 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	public List<T> getQueue(String queueName) throws EventException;
 
 	/**
-	 * This method will purge the queue
-	 * USE WITH CAUTION
+	 * Removes all pending jobs from the consumer's submission queue.
+	 * @throws EventException
 	 */
-	public void clearQueue(String queueName) throws EventException;
+	void clearQueue() throws EventException;
+
+	/**
+	 * Removes all completed jobs from the consumer's status set.
+	 * @throws EventException
+	 */
+	void clearCompleted() throws EventException;
 
 	/**
 	 * Tries to reorder the bean in the submission queue if it is

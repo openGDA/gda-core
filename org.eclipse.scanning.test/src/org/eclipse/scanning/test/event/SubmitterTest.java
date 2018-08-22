@@ -54,7 +54,7 @@ public class SubmitterTest extends BrokerTest {
 		// In production we would normally
 		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		submitter.setStatusTopicName(null);
-		submitter.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		submitter.clearQueue();
 
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
@@ -66,7 +66,7 @@ public class SubmitterTest extends BrokerTest {
 	public void stop() throws Exception {
 		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
-		submitter.clearQueue(EventConstants.SUBMISSION_QUEUE);
+		submitter.clearQueue();
 		submitter.disconnect();
 
 		subscriber.disconnect();

@@ -224,4 +224,16 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 		this.lifeTime = lifeTime;
 	}
 
+	// TODO: added temporarily as part of DAQ-1464, prior to using a client-side proxy IQueueConnection
+	@Override
+	public void clearQueue() throws EventException {
+		super.clearQueue(getSubmitQueueName());
+	}
+
+	@Override
+	public void clearCompleted() throws EventException {
+		super.clearQueue(getStatusSetName());
+	}
+
+
 }

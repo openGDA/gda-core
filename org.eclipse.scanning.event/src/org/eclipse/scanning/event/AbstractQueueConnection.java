@@ -94,7 +94,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return id;
 	}
 
-	@Override
 	public void clearQueue(String queueName) throws EventException {
 		logger.info("Clearing queue {}", queueName);
 		final String pauseMessage = "Pause to clear queue '" + queueName + "' ";

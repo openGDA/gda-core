@@ -119,18 +119,6 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void resume() throws EventException;
 
 	/**
-	 * Removes all pending jobs from the consumer's submission queue.
-	 * @throws EventException
-	 */
-	void clearQueue() throws EventException;
-
-	/**
-	 * Removes all completed jobs from the consumer's status set.
-	 * @throws EventException
-	 */
-	void clearCompleted() throws EventException;
-
-	/**
 	 * Cleans up the status set by removing certain old jobs.
 	 * Specifically, the jobs that are removed are those that meet one of the following criteria:
 	 * <ul>
@@ -141,7 +129,7 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 *      the maximum complete age (by default, one week);</li>
 	 *   <li>Additionally jobs that are not started or paused will have their status set to {@link Status#FAILED};</li>
 	 * </ul>
-	 * 
+	 *
 	 * This method is intended to be called on starting the consumer.
 	 *
 	 * @throws EventException
