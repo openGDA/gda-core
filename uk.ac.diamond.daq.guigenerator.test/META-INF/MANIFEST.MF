@@ -7,3 +7,5 @@ Fragment-Host: uk.ac.diamond.daq.guigenerator;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit;bundle-version="4.12.0"
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: uk.ac.diamond.daq.guigenerator.test
+Bundle-ActivationPolicy: lazy

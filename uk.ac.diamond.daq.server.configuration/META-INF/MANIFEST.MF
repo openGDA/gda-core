@@ -22,3 +22,4 @@ Import-Package: com.google.common.base;version="16.0.1",
  org.osgi.service.component;version="1.2.0",
  org.slf4j;version="1.7.22",
  org.springframework.util;version="4.0.6.RELEASE"
+Automatic-Module-Name: uk.ac.diamond.daq.server.configuration
