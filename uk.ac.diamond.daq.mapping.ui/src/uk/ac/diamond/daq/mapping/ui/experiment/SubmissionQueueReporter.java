@@ -50,11 +50,11 @@ public class SubmissionQueueReporter {
 		try {
 			final ISubmitter<StatusBean> queueConnection = getQueueConnection();
 			// first check whether there are submitted scans which haven't been run yet
-			final boolean noSubmittedScans = queueConnection.getQueue(EventConstants.SUBMISSION_QUEUE).isEmpty();
+			final boolean noSubmittedScans = queueConnection.getQueue().isEmpty();
 			boolean queueClear = noSubmittedScans;
 			if (noSubmittedScans) {
 				// if not check whether any scans that have been run are complete (or some other final state)
-				List<StatusBean> runningOrCompletedScans = queueConnection.getQueue(EventConstants.STATUS_SET);
+				List<StatusBean> runningOrCompletedScans = queueConnection.getRunningAndCompleted();
 				queueClear = runningOrCompletedScans.stream().map(StatusBean::getStatus).allMatch(Status::isFinal);
 			}
 			return queueClear;
