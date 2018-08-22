@@ -14,3 +14,4 @@ Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.scanning.device.composite
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j
+Automatic-Module-Name: org.eclipse.scanning.device

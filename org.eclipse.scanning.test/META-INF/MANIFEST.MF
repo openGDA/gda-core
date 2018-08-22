@@ -64,3 +64,4 @@ Export-Package: org.eclipse.scanning.test,
  org.eclipse.scanning.test.scan.mock,
  org.eclipse.scanning.test.scan.nexus,
  org.eclipse.scanning.test.scan.real
+Automatic-Module-Name: org.eclipse.scanning.test

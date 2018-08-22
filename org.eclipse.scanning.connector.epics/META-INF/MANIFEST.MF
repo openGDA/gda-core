@@ -34,3 +34,4 @@ Export-Package: org.eclipse.scanning.connector.epics,
  org.epics.pvmarshaller.marshaller,
  org.epics.pvmarshaller.marshaller.api
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.scanning.connector.epics

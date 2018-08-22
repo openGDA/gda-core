@@ -17,3 +17,4 @@ Import-Package: javax.jms,
 Export-Package: org.eclipse.scanning.event,
  org.eclipse.scanning.event.remote,
  org.eclipse.scanning.event.util
+Automatic-Module-Name: org.eclipse.scanning.event

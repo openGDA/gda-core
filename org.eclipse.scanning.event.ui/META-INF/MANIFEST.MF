@@ -20,3 +20,4 @@ Export-Package: org.eclipse.scanning.event.ui,
  org.eclipse.scanning.event.ui.dialog,
  org.eclipse.scanning.event.ui.preference,
  org.eclipse.scanning.event.ui.view
+Automatic-Module-Name: org.eclipse.scanning.event.ui

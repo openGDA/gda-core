@@ -31,3 +31,4 @@ Import-Package: Jama;version="1.0.3",
  org.python.util;version="[2.7.1,3.0.0)",
  org.slf4j;version="1.7.2"
 Bundle-Activator: org.eclipse.scanning.points.PointsActivator
+Automatic-Module-Name: org.eclipse.scanning.points

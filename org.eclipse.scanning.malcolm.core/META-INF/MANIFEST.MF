@@ -16,3 +16,4 @@ Export-Package: org.eclipse.scanning.malcolm.core
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.scanning.malcolm.core

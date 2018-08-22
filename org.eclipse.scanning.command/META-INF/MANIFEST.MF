@@ -14,3 +14,4 @@ Bundle-ClassPath: .
 Import-Package: org.eclipse.dawnsci.analysis.api.roi,
  org.python.core;version="[2.7.1,3.0.0)"
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: org.eclipse.scanning.command
