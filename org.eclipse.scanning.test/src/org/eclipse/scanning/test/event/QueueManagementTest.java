@@ -18,15 +18,22 @@
 
 package org.eclipse.scanning.test.event;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.eclipse.scanning.event.EventTimingsHelper.DEFAULT_MAXIMUM_COMPLETE_AGE;
+import static org.eclipse.scanning.event.EventTimingsHelper.DEFAULT_MAXIMUM_RUNNING_AGE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import org.eclipse.scanning.api.event.EventConstants;
@@ -77,9 +84,14 @@ public class QueueManagementTest extends BrokerTest {
 
 	private class TestProcessCreator implements IProcessCreator<StatusBean> {
 
+		private IPublisher<StatusBean> publisher;
+
 		@Override
 		public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
 				throws EventException {
+			if (this.publisher == null) {
+				this.publisher = publisher;
+			}
 			if (bean.getName().equals("initial")) {
 				// return the initial process that waits to be told to resume
 				return new InitialProcess(bean, publisher);
@@ -90,7 +102,6 @@ public class QueueManagementTest extends BrokerTest {
 		}
 
 	}
-
 
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
@@ -179,13 +190,18 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
+		final List<StatusBean> beans = createAndSubmitBeans(submitter);
+		// check they've been submitted properly (check names for easier to read error message)
+		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
+		return beans;
+	}
+
+	private List<StatusBean> createAndSubmitBeans(ISubmitter<StatusBean> submitter) throws EventException {
 		List<String> beanNames = Arrays.asList(new String[] { "one", "two", "three", "four", "five" });
 		List<StatusBean> beans = beanNames.stream().map(this::createBean).collect(toList());
 		for (StatusBean bean : beans) {
 			submitter.submit(bean);
 		}
-		// check they've been submitted properly (check names for easier to read error message)
-		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 		return beans;
 	}
 
@@ -371,33 +387,61 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Test
 	public void testClearCompleted() throws Exception {
-		// this test only makes sense with the consumer running as we need to get beans onto the status set
-		if (!startConsumer) return;
+		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
+			final List<StatusBean> beans = createAndSubmitBeans(submitter);
+			// check they've been submitted properly (check names for easier to read error message)
+			final List<String> names = getNames(consumer.getStatusSet());
+			names.remove("initial");
+			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
+		}
 
-		List<StatusBean> beans = createAndSubmitBeans();
-
-		// release the semaphore so that the initial job completes
-		semaphore.release();
-
-		// wait for all the jobs to be completed
-		final int expectedSize = beans.size() + 1; // extra bean is the initial bean
-		List<StatusBean> statusSet;
-		boolean allCompleted;
-		do {
-			statusSet = consumer.getStatusSet();
-			allCompleted = statusSet.stream().map(StatusBean::getStatus).allMatch(st -> st == Status.COMPLETE);
-			Thread.sleep(20);
-		} while (!(statusSet.size() == expectedSize && allCompleted));
-
-		// check all the beans are present
-		List<String> names = getNames(consumer.getStatusSet());
-		names.remove("initial");
-		assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
-
-		// TODO replace with doClearCompleted
 		doClearCompleted();
 
 		assertThat(consumer.getStatusSet(), is(empty()));
+	}
+
+	private StatusBean createBean(String name, Status status, Duration age) {
+		final StatusBean statusBean = new StatusBean(name);
+		statusBean.setStatus(status);
+		statusBean.setSubmissionTime(System.currentTimeMillis() - age.toMillis());
+		return statusBean;
+	}
+
+	@Test
+	public void testCleanUpCompleted() throws Exception {
+		if (useQueueCommandBean) return; // there's no command bean for cleaning up the queue, it only needs to be done on the server side
+
+		List<StatusBean> beans = new ArrayList<>();
+		beans.add(createBean("failed", Status.FAILED, Duration.ofHours(2)));
+		beans.add(createBean("none", Status.NONE, Duration.ofHours(3)));
+		beans.add(createBean("newRunning", Status.RUNNING, Duration.ofMinutes(10)));
+		beans.add(createBean("oldRunning", Status.RUNNING, DEFAULT_MAXIMUM_RUNNING_AGE.plusSeconds(10)));
+		beans.add(createBean("newCompleted", Status.COMPLETE, Duration.ofHours(1)));
+		beans.add(createBean("oldCompleted", Status.COMPLETE, DEFAULT_MAXIMUM_COMPLETE_AGE.plusMinutes(10)));
+		beans.add(createBean("notStarted", Status.SUBMITTED, Duration.ofHours(5)));
+		beans.add(createBean("paused", Status.PAUSED, Duration.ofMinutes(20)));
+
+		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
+			for (StatusBean bean : beans) {
+				submitter.submit(bean);
+			}
+
+			// check they've been submitted properly (check names for easier to read error message)
+			final List<String> names = getNames(consumer.getStatusSet());
+			names.remove("initial");
+			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
+		}
+
+		consumer.cleanUpCompleted();
+
+		final Map<String, StatusBean> beanMap = consumer.getStatusSet().stream().collect(
+				toMap(StatusBean::getName, identity()));
+		beanMap.remove("initial");
+
+		assertThat(beanMap.keySet(), containsInAnyOrder("newRunning", "newCompleted", "notStarted", "paused"));
+		// check that paused and not-started beans have had their status set to FAILED
+		assertThat(beanMap.get("paused").getStatus(), is(Status.FAILED));
+		assertThat(beanMap.get("notStarted").getStatus(), is(Status.FAILED));
 	}
 
 }

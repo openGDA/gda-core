@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConnection<U> implements IConsumer<U> {
 
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerImpl.class);
 	private static final long ONE_DAY = TimeUnit.DAYS.toMillis(1);
 
@@ -783,7 +784,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 							if (qbean.getStatus().isRunning()) {
 								final long submitted = qbean.getSubmissionTime();
 								final long current   = System.currentTimeMillis();
-								if (current-submitted > getMaximumRunningAge()) {
+								if (current-submitted > EventTimingsHelper.getMaximumRunningAgeMs()) {
 									removeIds.add(t.getJMSMessageID());
 									continue;
 								}
@@ -792,7 +793,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 							if (qbean.getStatus().isFinal()) {
 								final long submitted = qbean.getSubmissionTime();
 								final long current   = System.currentTimeMillis();
-								if (current-submitted > getMaximumCompleteAge()) {
+								if (current-submitted > EventTimingsHelper.getMaximumCompleteAgeMs()) {
 									removeIds.add(t.getJMSMessageID());
 								}
 							}

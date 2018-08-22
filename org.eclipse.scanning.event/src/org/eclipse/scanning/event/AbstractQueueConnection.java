@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -46,9 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractQueueConnection<U extends StatusBean> extends AbstractConnection implements IQueueConnection<U>{
-
-	protected static final long TWO_DAYS = TimeUnit.DAYS.toMillis(2); // ms
-	protected static final long A_WEEK = TimeUnit.DAYS.toMillis(7); // ms
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractQueueConnection.class);
 
@@ -344,36 +340,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 			}
 		}
 		return true; // It was reordered
-	}
-
-	/**
-	 * Defines the time in ms that a job may be in the running state
-	 * before the consumer might consider it for deletion. If a consumer
-	 * is restarted it will normally delete old running jobs older than
-	 * this age.
-	 *
-	 * @return
-	 */
-	public long getMaximumRunningAge() {
-		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge")!=null) {
-			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge"));
-		}
-		return TWO_DAYS;
-	}
-
-	/**
-	 * Defines the time in ms that a job may be in the complete (or other final) state
-	 * before the consumer might consider it for deletion. If a consumer
-	 * is restarted it will normally delete old complete jobs older than
-	 * this age.
-	 *
-	 * @return
-	 */
-	public long getMaximumCompleteAge() {
-		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge")!=null) {
-			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge"));
-		}
-		return A_WEEK;
 	}
 
 

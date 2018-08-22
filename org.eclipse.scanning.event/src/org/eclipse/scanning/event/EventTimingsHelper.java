@@ -11,12 +11,17 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
+import java.time.Duration;
+
 import org.eclipse.scanning.api.event.core.IConsumer;
 
 /**
  * A helper class for getting interval and timeout preferences for the queueing and events system.
  */
 public final class EventTimingsHelper {
+
+	public static final Duration DEFAULT_MAXIMUM_RUNNING_AGE = Duration.ofDays(2);
+	public static final Duration DEFAULT_MAXIMUM_COMPLETE_AGE = Duration.ofDays(7);
 
 	private EventTimingsHelper() {
 		// private constructor to prevent instantiation
@@ -46,6 +51,36 @@ public final class EventTimingsHelper {
 
 	public static void setReceiveTimeout(int timeout) {
 		System.setProperty("org.eclipse.scanning.event.receive.timeout", String.valueOf(timeout));
+	}
+
+	/**
+	 * Defines the time in ms that a job may be in the running state
+	 * before the consumer might consider it for deletion. If a consumer
+	 * is restarted it will normally delete old running jobs older than
+	 * this age.
+	 *
+	 * @return
+	 */
+	public static long getMaximumRunningAgeMs() {
+		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge")!=null) {
+			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumRunningAge"));
+		}
+		return DEFAULT_MAXIMUM_RUNNING_AGE.toMillis();
+	}
+
+	/**
+	 * Defines the time in ms that a job may be in the complete (or other final) state
+	 * before the consumer might consider it for deletion. If a consumer
+	 * is restarted it will normally delete old complete jobs older than
+	 * this age.
+	 *
+	 * @return
+	 */
+	public static long getMaximumCompleteAgeMs() {
+		if (System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge")!=null) {
+			return Long.parseLong(System.getProperty("org.eclipse.scanning.event.consumer.maximumCompleteAge"));
+		}
+		return DEFAULT_MAXIMUM_COMPLETE_AGE.toMillis();
 	}
 
 }
