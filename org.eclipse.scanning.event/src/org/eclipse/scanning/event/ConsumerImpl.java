@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -204,6 +205,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					break;
 				case CLEAR_COMPLETED:
 					clearRunningAndCompleted();
+					break;
+				case MOVE_UP:
+					doMoveBean(1, commandBean.getBeanUniqueId());
+					break;
+				case MOVE_DOWN:
+					doMoveBean(-1, commandBean.getBeanUniqueId());
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -821,6 +828,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			}
 		} catch (Exception ne) {
 			throw new EventException("Problem connecting to "+statusQueueName+" in order to clean it!", ne);
+		}
+	}
+
+	protected void doMoveBean(int amount, String beanUniqueId) throws EventException {
+		final Optional<U> optBean = getSubmissionQueue().stream()
+				.filter(bean -> bean.getUniqueId().equals(beanUniqueId))
+				.findFirst();
+		if (optBean.isPresent()) {
+			reorder(optBean.get(), amount);
+		} else {
+			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", beanUniqueId);
 		}
 	}
 

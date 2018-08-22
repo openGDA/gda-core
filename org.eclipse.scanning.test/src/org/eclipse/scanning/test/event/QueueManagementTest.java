@@ -256,7 +256,11 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void doReorderUp(StatusBean bean) throws Exception {
-		submitter.reorder(bean, 1);
+		if (useQueueCommandBean) {
+			sendCommandBean(Command.MOVE_UP, bean);
+		} else {
+			submitter.reorder(bean, 1);
+		}
 	}
 
 	@Test
@@ -278,7 +282,11 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void doReorderDown(StatusBean bean) throws Exception {
-		submitter.reorder(bean, -1);
+		if (useQueueCommandBean) {
+			sendCommandBean(Command.MOVE_DOWN, bean);
+		} else {
+			submitter.reorder(bean, -1);
+		}
 	}
 
 	@Test
@@ -354,10 +362,17 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void sendCommandBean(Command command) throws Exception {
+		sendCommandBean(command, null);
+	}
+
+	private void sendCommandBean(Command command, StatusBean statusBean) throws Exception {
 		QueueCommandBean commandBean = new QueueCommandBean(
 				submitter.getSubmitQueueName(), command);
+		if (statusBean != null) {
+			commandBean.setBeanUniqueId(statusBean.getUniqueId());
+		}
 		commandPublisher.broadcast(commandBean);
-		Thread.sleep(1000); // TODO: how to avoid a Thread.sleep here?
+		Thread.sleep(1000); // TODO: avoid a Thread.sleep here by using an acknowledgement topic?
 	}
 
 	private void doClearQueue() throws Exception {
