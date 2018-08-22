@@ -154,7 +154,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
 		IPublisher<QueueCommandBean> publisher = createPausePublisher();
 		QueueCommandBean pauseBean = null;
-		if (!isQueuePaused(queueName)) {
+		if (getSubmitQueueName().equals(queueName) && !isQueuePaused()) { // can only pause our submission queue
 			pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
 			pauseBean.setMessage(pauseMessage);
 		}
@@ -339,8 +339,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 
-	public boolean isQueuePaused(String submissionQueueName) {
-		QueueCommandBean bean = getLastPauseResumeBean(submissionQueueName);
+	@Override
+	public boolean isQueuePaused() {
+		QueueCommandBean bean = getLastPauseResumeBean(getSubmitQueueName());
 		return bean != null && bean.getCommand() == Command.PAUSE;
 	}
 

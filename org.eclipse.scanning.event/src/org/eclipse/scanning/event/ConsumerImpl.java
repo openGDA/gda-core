@@ -641,11 +641,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
-	public boolean isQueuePaused(String submissionQueueName) {
-		if (getSubmitQueueName().equals(submissionQueueName)) {
-			return awaitPaused;
-		}
-		return super.isQueuePaused(submissionQueueName);
+	public boolean isQueuePaused() {
+		return awaitPaused;
 	}
 
 	/**
@@ -660,7 +657,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			return super.doWhilePaused(queueName, pauseMessage, task);
 		}
 
-		final boolean requiresPause = !isQueuePaused(getSubmitQueueName());
+		final boolean requiresPause = !isQueuePaused();
 
 		// create a pause bean
 		try {

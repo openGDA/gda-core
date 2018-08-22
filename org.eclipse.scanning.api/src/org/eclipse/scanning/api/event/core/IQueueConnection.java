@@ -105,4 +105,12 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	 */
 	boolean replace(T bean) throws EventException;
 
+	/**
+	 * Looks a the command queue to find out if a given queue with
+	 * the same submission queue as this submitter is paused.
+	 *
+	 * @return
+	 */
+	boolean isQueuePaused();
+
 }
