@@ -367,7 +367,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		MandelbrotRemoteTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 	public static int getFreePort(final int startPort) {

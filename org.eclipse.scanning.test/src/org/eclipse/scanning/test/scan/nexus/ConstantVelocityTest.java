@@ -248,7 +248,7 @@ public class ConstantVelocityTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		ConstantVelocityTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 }

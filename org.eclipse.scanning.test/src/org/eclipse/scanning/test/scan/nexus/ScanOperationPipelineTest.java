@@ -232,7 +232,7 @@ public class ScanOperationPipelineTest extends NexusTest {
 	}
 
 	public static void setFileFactory(INexusFileFactory fileFactory) {
-		ScanOperationPipelineTest.fileFactory = fileFactory;
+		NexusTest.fileFactory = fileFactory;
 	}
 
 }
