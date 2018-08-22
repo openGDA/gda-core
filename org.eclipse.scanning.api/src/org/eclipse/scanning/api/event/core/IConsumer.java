@@ -46,15 +46,6 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	public List<T> getSubmissionQueue() throws EventException ;
 
 	/**
-	 * Get a copy of the current status queue as a list of beans, type T
-	 * The list is ordered by submission time, not necessarily the ordering
-	 * of the JMS queue.
-	 *
-	 * @return
-	 */
-	public List<T> getStatusSet() throws EventException ;
-
-	/**
 	 * The string to define the queue for storing status of scans.
 	 *
 	 * @return

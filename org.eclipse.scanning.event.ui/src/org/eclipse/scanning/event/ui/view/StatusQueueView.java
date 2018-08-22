@@ -1081,10 +1081,10 @@ public class StatusQueueView extends EventConnectionView {
 					queueConnection.setBeanClass(getBeanClass());
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					runList = queueConnection.getQueue(getQueueName());
+					runList = queueConnection.getRunningAndCompleted();
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					submittedList = queueConnection.getQueue(getSubmissionQueueName());
+					submittedList = queueConnection.getQueue();
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end

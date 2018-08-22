@@ -78,11 +78,19 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return getQueue(getSubmitQueueName());
 	}
 
-	@Override
 	public List<U> getQueue(String queueName) throws EventException {
 		IQueueReader<U> reader = eservice.createQueueReader(uri, queueName);
 		reader.setBeanClass(beanClass);
 		return reader.getQueue();
+	}
+
+	@Override
+	public List<U> getRunningAndCompleted() throws EventException {
+		// TODO: DAQ-1464 this method moved up from ConsumerImpl temporarily until Submitter no longer
+		// implements IQueueConnection
+		final List<U> statusSet = getQueue(getStatusSetName());
+		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
+		return statusSet;
 	}
 
 	protected Map<String, U> getMap(String queueName) throws EventException {

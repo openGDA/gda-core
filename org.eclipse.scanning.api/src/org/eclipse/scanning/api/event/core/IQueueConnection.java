@@ -45,10 +45,13 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	public void setSubmitQueueName(String queueName) throws EventException;
 
 	/**
-	 * Read the beans from the queue with the given name into a list.
-	 * @param queueName name of queue to get
+	 * Return a list of beans whose jobs are either running or completed.
+	 * The list is ordered by submission time, not necessarily the ordering
+	 * of the JMS queue.
+	 *
+	 * @return running and completed beans
 	 */
-	public List<T> getQueue(String queueName) throws EventException;
+	public List<T> getRunningAndCompleted() throws EventException ;
 
 	/**
 	 * Removes all pending jobs from the consumer's submission queue.
@@ -60,7 +63,7 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	 * Removes all completed jobs from the consumer's status set.
 	 * @throws EventException
 	 */
-	void clearCompleted() throws EventException;
+	void clearRunningAndCompleted() throws EventException;
 
 	/**
 	 * Tries to reorder the bean in the submission queue if it is

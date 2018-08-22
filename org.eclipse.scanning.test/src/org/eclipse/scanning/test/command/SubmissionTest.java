@@ -80,7 +80,7 @@ public class SubmissionTest extends AbstractJythonTest {
 	@After
 	public void stop() throws EventException {
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 	}
 
 	@AfterClass

@@ -203,7 +203,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					clearQueue();
 					break;
 				case CLEAR_COMPLETED:
-					clearCompleted();
+					clearRunningAndCompleted();
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -309,13 +309,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
 		return getQueue(getSubmitQueueName());
-	}
-
-	@Override
-	public List<U> getStatusSet() throws EventException {
-		final List<U> statusSet = getQueue(getStatusSetName());
-		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
-		return statusSet;
 	}
 
 	@Override
@@ -722,7 +715,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
-	public void clearCompleted() throws EventException {
+	public void clearRunningAndCompleted() throws EventException {
 		super.clearQueue(getStatusSetName());
 	}
 

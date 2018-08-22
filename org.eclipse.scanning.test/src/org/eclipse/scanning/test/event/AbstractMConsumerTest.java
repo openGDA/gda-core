@@ -57,7 +57,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.setRunner(new DryRunCreator<StatusBean>(false));
 			consumer2.start();
 
@@ -66,7 +66,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		} finally {
 
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.disconnect();
 		}
     }
@@ -81,7 +81,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.setRunner(new DryRunCreator<StatusBean>(false));
 			consumer2.start();
 
@@ -98,7 +98,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 		} finally {
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.disconnect();
 		}
     }
@@ -113,7 +113,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.setRunner(new DryRunCreator<StatusBean>(false));
 			consumer2.start();
 
@@ -148,7 +148,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 		} finally {
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.disconnect();
 		}
     }
@@ -247,7 +247,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.setRunner(new DryRunCreator<StatusBean>(false));
 				c.start();
 				consumers.add(c);
@@ -286,7 +286,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		} finally {
 			for (IConsumer<StatusBean> c : consumers) {
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.disconnect();
 			}
 		}
@@ -303,7 +303,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.setRunner(new DryRunCreator<StatusBean>(false));
 			consumer2.start();
 
@@ -334,7 +334,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 		} finally {
 			consumer2.clearQueue();
-			consumer2.clearCompleted();
+			consumer2.clearRunningAndCompleted();
 			consumer2.disconnect();
 		}
     }
@@ -353,7 +353,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.setRunner(new DryRunCreator<StatusBean>(false));
 				c.start();
 				consumers.add(c);
@@ -373,7 +373,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		} finally {
 			for (IConsumer<StatusBean> c : consumers) {
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.disconnect();
 			}
 		}
@@ -393,7 +393,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.setRunner(new DryRunCreator<StatusBean>(false));
 				c.start();
 				consumers.add(c);
@@ -427,7 +427,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		} finally {
 			for (IConsumer<StatusBean> c : consumers) {
 				c.clearQueue();
-				c.clearCompleted();
+				c.clearRunningAndCompleted();
 				c.disconnect();
 			}
 		}
@@ -436,7 +436,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 
     private void checkStatus(List<StatusBean> submissions) throws Exception {
 
-	List<StatusBean> stati = consumer.getStatusSet();
+	List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size()!=10) throw new Exception("Unexpected status size in queue! Should be 10 size is "+stati.size());
 
 		for (int i = 0; i < 10; i++) {
@@ -467,7 +467,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 
 		Thread.sleep(14000); // 10000 to do the loop, 4000 for luck
 
-		List<StatusBean> stati = consumer.getStatusSet();
+		List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size()!=1) throw new Exception("Unexpected status size in queue! size = "+stati.size());
 
 		StatusBean complete = stati.get(0);

@@ -81,7 +81,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 		((ConsumerImpl<?>) consumer).clearCommandSet();
 		consumer.disconnect();
 	}
@@ -130,7 +130,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(2500);
 
-		List<StatusBean> stati = consumer.getStatusSet();
+		List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size()!=1) throw new Exception("Unexpected status size in queue! Might not have status or have forgotten to clear at end of test!");
 
 		StatusBean complete = stati.get(0);
@@ -160,7 +160,7 @@ public class AbstractConsumerTest extends BrokerTest {
 			dynamicBean(bean, fconsumer, 1);
 		} finally {
 			fconsumer.clearQueue();
-			fconsumer.clearCompleted();
+			fconsumer.clearRunningAndCompleted();
 			fconsumer.disconnect();
 		}
 	}
@@ -185,7 +185,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		} finally {
 			fconsumer.clearQueue();
-			fconsumer.clearCompleted();
+			fconsumer.clearRunningAndCompleted();
 			fconsumer.disconnect();
 		}
 	}
@@ -207,7 +207,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 		Thread.sleep(500);
 
-		List<StatusBean> statusBeans = fconsumer.getStatusSet();
+		List<StatusBean> statusBeans = fconsumer.getRunningAndCompleted();
 		assertEquals("Unexpected status size in queue! Size "+statusBeans.size()+" expected "+statusSize+". Might not have status or have forgotten to clear at end of test!",
 				statusSize, statusBeans.size());
 
@@ -307,7 +307,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	}
 
 	private void checkTerminatedProcess(StatusBean bean) throws Exception {
-		List<StatusBean> stati = consumer.getStatusSet();
+		List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size() != 1)
 			throw new Exception("Unexpected status size (" + stati.size()
 					+ ") in queue!  Might not have status or have forgotten to clear at end of test!");
@@ -361,7 +361,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		subscriber.addListener(listener);
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 		Instant broadcastStartTime = Instant.now();
 		consumer.start();
 		listener.awaitBeats();
@@ -451,7 +451,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	}
 
 	private void checkStatus(List<StatusBean> submissions) throws Exception {
-	List<StatusBean> stati = consumer.getStatusSet();
+	List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size()!=10) throw new Exception("Unexpected status size in queue! Should be 10 size is "+stati.size());
 
 		for (int i = 0; i < 10; i++) {
