@@ -296,6 +296,7 @@ public class SpringObjectServer extends ObjectServer {
 		configureAllConfigurablesInApplicationContext(applicationContext);
 		if (!LocalProperties.isCorbaDisabled()) {
 			startOrbRunThread();
+			logger.warn("Server is using Corba. This is deprecated and will be removed in a future release (DAQ-1168)");
 		}
 	}
 
