@@ -22,6 +22,9 @@ package gda.scan;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 
@@ -30,6 +33,8 @@ import gda.device.DeviceException;
  * a ScanDataPoint and creates a token that is passed to the client which then reproduces the original ScanDataPoint.
  */
 public class ScanDataPointServer extends DeviceBase implements IScanDataPointServer {
+	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointServer.class);
+
 	HashMap<String, ScanData> store = new HashMap<String, ScanData>();
 	Vector<String> storeOrder = new Vector<String>();
 
@@ -40,6 +45,7 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 	}
 
 	private ScanDataPointServer() {
+		logger.info("Created new ScanDataPointServer");
 		setName(getClass().getSimpleName());
 	}
 
