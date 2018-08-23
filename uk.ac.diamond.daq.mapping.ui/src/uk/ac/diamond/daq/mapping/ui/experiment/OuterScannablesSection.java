@@ -338,31 +338,37 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	@Override
 	public void updateControls() {
-		// update the bindings between the model and the GUI widgets, as we may have new models
-		for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
-			final String scannableName = scannableAxisParameters.getName();
+		// We may have to recreate some UI parts...
+		boolean canUpdate = getMappingBean().getScanDefinition().getOuterScannables().stream().allMatch(scannablesToShow::contains);
 
-			// remove the old binding between the checkbox and the old model and create a new one
-			final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
-			final IObservableValue<?> checkBoxValue = (IObservableValue<?>) oldCheckBoxBinding.getTarget();
-			dataBindingContext.removeBinding(oldCheckBoxBinding);
-			oldCheckBoxBinding.dispose();
+		if (canUpdate) {
+			// update the bindings between the model and the GUI widgets, as we may have new models
+			for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
+				final String scannableName = scannableAxisParameters.getName();
 
-			@SuppressWarnings("unchecked")
-			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-			checkBoxBindings.put(scannableName, newCheckBoxBinding);
+				// remove the old binding between the checkbox and the old model and create a new one
+				final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
+				final IObservableValue<?> checkBoxValue = (IObservableValue<?>) oldCheckBoxBinding.getTarget();
+				dataBindingContext.removeBinding(oldCheckBoxBinding);
+				oldCheckBoxBinding.dispose();
 
-			// remove the binding between the text field and old model
-			final Binding oldTextFieldBinding = axisBindings.get(scannableName);
-			final IObservableValue<?> axisTextValue = (IObservableValue<?>) oldTextFieldBinding.getTarget();
-			dataBindingContext.removeBinding(oldTextFieldBinding);
-			oldTextFieldBinding.dispose();
+				@SuppressWarnings("unchecked")
+				final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+				final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
+				checkBoxBindings.put(scannableName, newCheckBoxBinding);
 
-			bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
+				// remove the binding between the text field and old model
+				final Binding oldTextFieldBinding = axisBindings.get(scannableName);
+				final IObservableValue<?> axisTextValue = (IObservableValue<?>) oldTextFieldBinding.getTarget();
+				dataBindingContext.removeBinding(oldTextFieldBinding);
+				oldTextFieldBinding.dispose();
+
+				bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
+			}
+			dataBindingContext.updateTargets();
+		} else {
+			updateLayout(); // this redraws the UI
 		}
-
-		dataBindingContext.updateTargets();
 	}
 
 	/**

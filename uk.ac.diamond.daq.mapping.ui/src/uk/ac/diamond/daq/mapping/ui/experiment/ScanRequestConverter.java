@@ -367,9 +367,12 @@ public class ScanRequestConverter {
 			}
 		}
 
-		// We didn't find a wrapper for this model
+		// We didn't find a wrapper for this model; let's create one
 		if (currentModel != null) {
-			throw new IllegalArgumentException("No IScanModelWrapper<IScanPathModel> found for model " + currentModel.getName());
+			IScanModelWrapper<IScanPathModel> wrapper = new ScanPathModelWrapper(currentModel.getName(), currentModel, true);
+			List<IScanModelWrapper<IScanPathModel>> updatedOuterScannables = new ArrayList<>(outerScannables);
+			updatedOuterScannables.add(wrapper);
+			mappingBean.getScanDefinition().setOuterScannables(updatedOuterScannables);
 		}
 	}
 
