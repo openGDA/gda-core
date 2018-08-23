@@ -26,14 +26,59 @@ import org.eclipse.scanning.api.event.IdBean;
  * @author Matthew Gerring
  *
  */
-public class ConsumerCommandBean  extends IdBean {
+public class QueueCommandBean  extends IdBean {
 
 	/**
-	 * Tells you the unique id of the thing that is alive. May be null.
+	 * An enumeration of the commands that a queue consumer can perform.
 	 */
-	private UUID    consumerId;
-	private String  message;
-	private String  queueName;
+	public enum Command {
+
+		/**
+		 * A command to pause the consumer if it is running.
+		 */
+		PAUSE,
+
+		/**
+		 * A command to resume the consumer if it paused.
+		 */
+		RESUME
+	}
+
+	/**
+	 * The unique id of the consumer the message is intended for.
+	 * May be <code>null</code> if {@link #queueName} is set.
+	 */
+	private UUID consumerId;
+
+	/**
+	 * The name of the submission queue of the consumer the message is intended for.
+	 * May be set instead of {@link #consumerId}
+	 */
+	private String queueName;
+
+	/**
+	 * The message of the consumer
+	 */
+	private String message;
+
+	/**
+	 * The command to perform, e.g. pause/resume
+	 */
+	private Command command;
+
+	public QueueCommandBean() {
+		// no-arg constructor for json deserialization
+	}
+
+	public QueueCommandBean(UUID consumerId, Command command) {
+		this.consumerId = consumerId;
+		this.command = command;
+	}
+
+	public QueueCommandBean(String queueName, Command command) {
+		this.queueName = queueName;
+		this.command = command;
+	}
 
 	public UUID getConsumerId() {
 		return consumerId;
@@ -41,43 +86,6 @@ public class ConsumerCommandBean  extends IdBean {
 
 	public void setConsumerId(UUID consumerId) {
 		this.consumerId = consumerId;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
-		result = prime * result + ((message == null) ? 0 : message.hashCode());
-		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConsumerCommandBean other = (ConsumerCommandBean) obj;
-		if (consumerId == null) {
-			if (other.consumerId != null)
-				return false;
-		} else if (!consumerId.equals(other.consumerId))
-			return false;
-		if (message == null) {
-			if (other.message != null)
-				return false;
-		} else if (!message.equals(other.message))
-			return false;
-		if (queueName == null) {
-			if (other.queueName != null)
-				return false;
-		} else if (!queueName.equals(other.queueName))
-			return false;
-		return true;
 	}
 
 	public String getMessage() {
@@ -94,6 +102,54 @@ public class ConsumerCommandBean  extends IdBean {
 
 	public void setQueueName(String queueName) {
 		this.queueName = queueName;
+	}
+
+	public Command getCommand() {
+		return command;
+	}
+
+	public void setCommand(Command command) {
+		this.command = command;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((command == null) ? 0 : command.hashCode());
+		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
+		result = prime * result + ((message == null) ? 0 : message.hashCode());
+		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		QueueCommandBean other = (QueueCommandBean) obj;
+		if (command != other.command)
+			return false;
+		if (consumerId == null) {
+			if (other.consumerId != null)
+				return false;
+		} else if (!consumerId.equals(other.consumerId))
+			return false;
+		if (message == null) {
+			if (other.message != null)
+				return false;
+		} else if (!message.equals(other.message))
+			return false;
+		if (queueName == null) {
+			if (other.queueName != null)
+				return false;
+		} else if (!queueName.equals(other.queueName))
+			return false;
+		return true;
 	}
 
 }

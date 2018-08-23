@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.alive;
 
-public class HeartbeatBean extends ConsumerCommandBean {
+public class HeartbeatBean extends QueueCommandBean {
 
 	public static final HeartbeatBean EMPTY = new HeartbeatBean();
 

@@ -52,7 +52,8 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.PauseBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -139,7 +140,7 @@ public class StatusQueueView extends EventConnectionView {
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminMonitor;
 	private ISubmitter<StatusBean> queueConnection;
 	private IPublisher<StatusBean> statusTopicPublisher;
-	private IPublisher<PauseBean> commandTopicPublisher;
+	private IPublisher<QueueCommandBean> commandTopicPublisher;
 
 	private Action openResultsAction;
 	private Action rerunAction;
@@ -390,7 +391,7 @@ public class StatusQueueView extends EventConnectionView {
 		final Action pauseConsumerAction = pauseConsumerActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, pauseConsumerAction);
 
-		ISubscriber<IBeanListener<PauseBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
+		ISubscriber<IBeanListener<QueueCommandBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
 		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(queueConnection.isQueuePaused(getSubmissionQueueName())));
 
 		removeAction = removeActionCreate();
@@ -520,10 +521,10 @@ public class StatusQueueView extends EventConnectionView {
 		try {
 			pauseConsumer.setChecked(!currentState); // We are toggling it.
 
-			PauseBean pauseBean = new PauseBean();
-			pauseBean.setQueueName(getSubmissionQueueName()); // The queue we are pausing
-			pauseBean.setPause(pauseConsumer.isChecked());
-			commandTopicPublisher.broadcast(pauseBean);
+			QueueCommandBean pauseResumeBean = new QueueCommandBean();
+			pauseResumeBean.setQueueName(getSubmissionQueueName()); // The queue we are pausing
+			pauseResumeBean.setCommand(pauseConsumer.isChecked() ? Command.PAUSE : Command.RESUME);
+			commandTopicPublisher.broadcast(pauseResumeBean);
 
 		} catch (Exception e) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot pause queue "+getSubmissionQueueName(),

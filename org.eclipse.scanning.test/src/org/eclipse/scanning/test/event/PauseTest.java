@@ -21,7 +21,7 @@ import org.junit.Before;
  * @author Matthew Gerring
  *
  */
-public class PauseTest extends AbstractPauseTest{
+public class PauseTest extends AbstractPauseTest {
 
 
 	@Before

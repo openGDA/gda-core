@@ -179,7 +179,7 @@ abstract class AbstractConnection implements IURIConnection {
 	 * @return <code>true</code> if the two beans represent the same object,
 	 *   <code>false</code> otherwise
 	 */
-	protected boolean isSame(Object qbean, Object bean) {
+	protected boolean isForSameObject(Object qbean, Object bean) {
 		Object id1 = getUniqueId(qbean);
 		if (id1==null) return qbean.equals(bean); // Probably it won't because we are updating it but they might have transient fields.
 
