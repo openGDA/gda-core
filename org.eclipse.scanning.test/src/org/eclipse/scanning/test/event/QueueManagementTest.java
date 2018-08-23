@@ -308,7 +308,7 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	@Test
-	public void testReorderTwiceWithSubmitter() throws Exception {
+	public void testReorderDownTwice() throws Exception {
 		// A regression test for DAQ-1406 the submitter's MessageProducer was closed without being nullified
 
 		// Arrange: submit some beans and get the beans to reorder

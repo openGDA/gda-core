@@ -453,7 +453,7 @@ public class StatusQueueView extends EventConnectionView {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							queueConnection.reorder(bean, -1);
+							doReorderBean(bean, Command.MOVE_UP);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -465,9 +465,23 @@ public class StatusQueueView extends EventConnectionView {
 				}
 				refresh();
 			}
+
 		};
 		action.setEnabled(false);
 		return action;
+	}
+
+	private void doReorderBean(StatusBean bean, Command command) throws EventException {
+		// command should be one of MOVE_UP or MOVE_DOWN
+		QueueCommandBean commandBean = new QueueCommandBean(getSubmissionQueueName(), command);
+		commandBean.setBeanUniqueId(bean.getUniqueId());
+		commandTopicPublisher.broadcast(commandBean);
+		try { // TODO: this introduction of a race condition is temporary, a future change
+			// will introduce a wait on an acknowledgement topic
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// ignore
+		}
 	}
 
 	private void downActionUpdate(boolean anySelectedInSubmittedList) {
@@ -485,7 +499,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							queueConnection.reorder(bean, +1);
+							doReorderBean(bean, Command.MOVE_DOWN);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
