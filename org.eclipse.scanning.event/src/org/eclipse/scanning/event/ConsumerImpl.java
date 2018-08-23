@@ -207,10 +207,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					clearRunningAndCompleted();
 					break;
 				case MOVE_UP:
-					doMoveBean(1, commandBean.getBeanUniqueId());
+					findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, 1));
 					break;
 				case MOVE_DOWN:
-					doMoveBean(-1, commandBean.getBeanUniqueId());
+					findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, -1));
+					break;
+				case REMOVE:
+					findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -831,12 +834,18 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		}
 	}
 
-	protected void doMoveBean(int amount, String beanUniqueId) throws EventException {
+	public interface BeanAction<T> {
+
+		void performAction(T bean) throws EventException;
+
+	}
+
+	protected void findBeanAndPerformAction(String beanUniqueId, BeanAction<U> action) throws EventException {
 		final Optional<U> optBean = getSubmissionQueue().stream()
 				.filter(bean -> bean.getUniqueId().equals(beanUniqueId))
 				.findFirst();
 		if (optBean.isPresent()) {
-			reorder(optBean.get(), amount);
+			action.performAction(optBean.get());
 		} else {
 			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", beanUniqueId);
 		}

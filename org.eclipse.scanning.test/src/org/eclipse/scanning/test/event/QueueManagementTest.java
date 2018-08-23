@@ -213,7 +213,11 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void doRemove(StatusBean bean) throws Exception {
-		submitter.remove(bean);
+		if (useQueueCommandBean) {
+			sendCommandBean(Command.REMOVE, bean);
+		} else {
+			submitter.remove(bean);
+		}
 	}
 
 	@Test

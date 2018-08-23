@@ -70,9 +70,15 @@ public class QueueCommandBean  extends IdBean {
 		MOVE_UP,
 
 		/**
-		 * A command to move a bean down the submission queue
+		 * A command to move a bean down the submission queue.
 		 */
-		MOVE_DOWN;
+		MOVE_DOWN,
+
+		/**
+		 * A command to remove a bean from the submission queue.
+		 * TODO: use the same command to remove it from the status set? (DO NOT COMMIT THIS COMMENT)
+		 */
+		REMOVE;
 
 	}
 
