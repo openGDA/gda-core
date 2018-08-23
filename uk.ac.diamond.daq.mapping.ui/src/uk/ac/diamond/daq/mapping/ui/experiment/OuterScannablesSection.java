@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.Binding;
@@ -39,7 +37,6 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -61,21 +58,21 @@ import org.slf4j.LoggerFactory;
 import gda.device.ScannableMotion;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.impl.MappingScanDefinition;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 
 /**
  * A section for configuring the outer scannables of a scan, e.g. temperature.
  * <p>
- * If the mapping bean contains has a list of "defaultOuterScannables" configured, these will be shown by default, and
- * the user will be restricted to displaying one or more of these.<br>
- * If no default scannables are configured, the section will be empty by default and the user will be able to display
- * and configure any available scannable that implements ScannableMotion or a derived interface such as IScannableMotor.
+ * When only a subset of the configured scannables could be used as the outer axis in a scan,
+ * they should be given as the {@code defaultOuterScannables} in the {@link MappingScanDefinition}.
+ * <br>
+ * If this list is not configured, then the user will be able to display and
+ * configure any available scannable that implements {@link ScannableMotion} or a derived interface.
  */
 class OuterScannablesSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(OuterScannablesSection.class);
-
-	private static final String OUTER_SCANNABLES_SELECTION_KEY_JSON = "outerScannablesSelection.json";
 
 	/**
 	 * Overall composite for section
@@ -89,27 +86,19 @@ class OuterScannablesSection extends AbstractMappingSection {
 	private Composite scannablesComposite;
 
 	/**
-	 * The outer scannables to show in the view<br>
-	 * Initially, this will be all the configured scannables, but the user may choose to add/delete scannables to/from
-	 * the list.<br>
+	 * The outer scannables to show in the view.<br>
+	 * Initially empty, the user can add and remove scannables to/from the list.<br>
 	 * The choice will be saved when the client is closed and restored when opened, unless the client is reset.
 	 */
 	private List<IScanModelWrapper<IScanPathModel>> scannablesToShow;
 
 	/**
-	 * Names of the default outer scannables (if any) configured for this beamline
-	 * <p>
-	 * These are the scannables that will be shown when the client is reset.
-	 */
-	private List<String> defaultScannables;
-
-	/**
 	 * Names of the scannables that the user can choose
 	 * <p>
 	 * This list will be either:<br>
-	 * <li>the {@link #defaultOuterScannables} configured</li>
+	 * <li>the {@code defaultOuterScannables} configured</li>
 	 * or, if no default scannables are configured:
-	 * <li>all scannables configured for the beamline</li>
+	 * <li>all {@link ScannableMotion} configured for the beamline</li>
 	 */
 	private List<String> availableScannables;
 
@@ -129,7 +118,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	@Override
 	protected void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
-		defaultScannables = getMappingBean().getScanDefinition().getDefaultOuterScannables();
+		List<String> defaultScannables = getMappingBean().getScanDefinition().getDefaultOuterScannables();
 		if (defaultScannables == null || defaultScannables.isEmpty()) {
 			try {
 				availableScannables = new ArrayList<>(Finder.getInstance().getFindablesOfType(ScannableMotion.class).keySet());
@@ -159,13 +148,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(btnAdd);
 		btnAdd.addListener(SWT.Selection, event -> addScannables());
 
-		// If no list of "scannables to show" has been restored, show default devices (if any)
-		if (scannablesToShow == null) {
-			scannablesToShow = new ArrayList<>(defaultScannables.size());
-			for (String scannableName : defaultScannables) {
-				scannablesToShow.add(new ScanPathModelWrapper(scannableName, null, false));
-			}
-		}
 		createScannableControls();
 	}
 
@@ -174,6 +156,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 	 */
 	private void createScannableControls() {
 		removeOldBindings();
+
+		scannablesToShow = new ArrayList<>(getMappingBean().getScanDefinition().getOuterScannables());
 
 		// Ensure scannables are shown in alphabetical order (case insensitive)
 		scannablesToShow.sort(comparing(IScanModelWrapper<IScanPathModel>::getName, CASE_INSENSITIVE_ORDER));
@@ -197,6 +181,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
 			checkBox.setText(scannableName);
 			final IObservableValue<?> checkBoxValue = WidgetProperties.selection().observe(checkBox);
+			@SuppressWarnings("unchecked")
 			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
 			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableName, checkBoxBinding);
@@ -309,6 +294,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPathModel> scannableAxisParameters, IObservableValue<?> axisTextValue, Binding checkBoxBinding) {
 		final String scannableName = scannableAxisParameters.getName();
+		@SuppressWarnings("unchecked")
 		final IObservableValue<?> axisValue = PojoProperties.value("model").observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
@@ -362,6 +348,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 			dataBindingContext.removeBinding(oldCheckBoxBinding);
 			oldCheckBoxBinding.dispose();
 
+			@SuppressWarnings("unchecked")
 			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
 			final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableName, newCheckBoxBinding);
@@ -376,46 +363,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 
 		dataBindingContext.updateTargets();
-	}
-
-	/**
-	 * Persist a list of the names of the scannables currently visible
-	 */
-	@Override
-	protected void saveState(Map<String, String> persistedState) {
-		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
-		try {
-			final List<String> chosenScannableNames = scannablesToShow.stream()
-					.map(IScanModelWrapper<IScanPathModel>::getName)
-					.collect(toList());
-			persistedState.put(OUTER_SCANNABLES_SELECTION_KEY_JSON, marshaller.marshal(chosenScannableNames));
-		} catch (Exception e) {
-			logger.error("Error saving selection of outer scannables", e);
-		}
-	}
-
-	/**
-	 * Read back the list of scannable names to be shown and return the corresponding IScanModelWrapper objects
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void loadState(Map<String, String> persistedState) {
-		final String json = persistedState.get(OUTER_SCANNABLES_SELECTION_KEY_JSON);
-		if (json == null || json.isEmpty()) {
-			// This happens when client is reset or no outer scannables are configured.
-			return;
-		}
-
-		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
-		try {
-			final Set<String> chosenScannableNames = marshaller.unmarshal(json, Set.class);
-			scannablesToShow = new ArrayList<>(chosenScannableNames.size());
-			for (String scannableName : chosenScannableNames) {
-				scannablesToShow.add(new ScanPathModelWrapper(scannableName, null, false));
-			}
-		} catch (Exception e) {
-			logger.error("Error loading selection of outer scannables", e);
-		}
 	}
 
 	/**
