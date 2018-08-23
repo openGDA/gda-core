@@ -237,7 +237,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 	@Override
 	protected boolean isForSameObject(Object qbean, Object bean) {
 		// first check special case of beans to pause a queue, where they are considered the same
-		if (isPauseResumeBean(qbean) || isPauseResumeBean(bean)) {
+		if (isPauseResumeBean(qbean) && isPauseResumeBean(bean)) {
 			QueueCommandBean q = (QueueCommandBean) qbean;
 			QueueCommandBean b = (QueueCommandBean) bean;
 
