@@ -31,7 +31,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="16.0.1",
  uk.ac.gda.devices.vgscienta
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  gda.configuration.properties,
@@ -49,3 +49,4 @@ Export-Package: org.opengda.detector.electronanalyser.client,
  org.opengda.detector.electronanalyser.client.viewfactories,
  org.opengda.detector.electronanalyser.client.views,
  org.opengda.detector.electronanalyser.utils
+Automatic-Module-Name: org.opengda.detector.electronanalyser.client

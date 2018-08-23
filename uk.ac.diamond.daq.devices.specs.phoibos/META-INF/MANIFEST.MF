@@ -17,3 +17,4 @@ Import-Package: org.python.core,
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: uk.ac.diamond.daq.devices.specs.phoibos
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Automatic-Module-Name: uk.ac.diamond.daq.devices.specs.phoibos

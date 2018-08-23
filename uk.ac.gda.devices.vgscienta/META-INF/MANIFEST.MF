@@ -36,3 +36,4 @@ Export-Package: uk.ac.gda.devices.vgscienta;
    gda.device.detector.areadetector.v17,
    gda.observable,
    org.slf4j"
+Automatic-Module-Name: uk.ac.gda.devices.vgscienta

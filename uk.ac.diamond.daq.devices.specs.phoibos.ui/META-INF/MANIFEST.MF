@@ -35,3 +35,4 @@ Import-Package: javax.annotation;version="1.0.0";resolution:=optional,
  org.slf4j;version="1.7.6"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
+Automatic-Module-Name: uk.ac.diamond.daq.devices.specs.phoibos.ui

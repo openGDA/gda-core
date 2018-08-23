@@ -7,9 +7,10 @@ Bundle-ClassPath: .
 Bundle-Activator: org.opengda.detector.electronanalyser.model.regiondefinition.provider.RegiondefinitionEditPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.opengda.detector.electronanalyser.model.regiondefinition.provider
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.detector.electronanalyser.model;visibility:=reexport,
  org.eclipse.emf.edit;visibility:=reexport
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.opengda.detector.electronanalyser.model.edit

@@ -30,3 +30,4 @@ Export-Package: uk.ac.gda.arpes.perspectives,
  uk.ac.gda.arpes.ui.views,
  uk.ac.gda.arpes.widgets,
  uk.ac.gda.arpes.wizards
+Automatic-Module-Name: uk.ac.gda.arpes

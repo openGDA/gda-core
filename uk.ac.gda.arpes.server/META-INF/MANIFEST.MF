@@ -29,3 +29,4 @@ Export-Package: uk.ac.gda.arpes.beans,
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
  uk.ac.gda.api,
  uk.ac.gda.core
+Automatic-Module-Name: uk.ac.gda.arpes.server
