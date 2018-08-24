@@ -42,6 +42,7 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
@@ -427,7 +428,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	private boolean CloseMenu() {
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		UserOptionsOnCloseDialog close = new UserOptionsOnCloseDialog(shell);
-		if (close.open() == UserOptionsOnCloseDialog.CANCEL) {
+		if (close.open() == Window.CANCEL) {
 			return false; // veto the shutdown
 		}
 		return true;
