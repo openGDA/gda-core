@@ -49,7 +49,7 @@ public class ScanPluginTest extends AbstractScanTest {
 		assertNotNull(eventService);
 
 		if (dservice instanceof RunnableDeviceServiceImpl) {
-			((RunnableDeviceServiceImpl)dservice).setDeviceConnectorService(connector);
+			RunnableDeviceServiceImpl.setDeviceConnectorService(connector);
 		}
 	}
 

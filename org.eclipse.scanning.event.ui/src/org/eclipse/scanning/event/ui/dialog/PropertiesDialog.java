@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class PropertiesDialog extends Dialog {
 
@@ -58,7 +59,7 @@ public class PropertiesDialog extends Dialog {
 
 		final CLabel warning = new CLabel(composite, SWT.LEFT);
 		warning.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		warning.setImage(Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/error.png").createImage());
+		warning.setImage(Activator.getImageDescriptor("icons/error.png").createImage());
 		warning.setText("Expert queue configuration parameters, please use with caution.");
 
 		TableViewer viewer   = new TableViewer(composite, SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
