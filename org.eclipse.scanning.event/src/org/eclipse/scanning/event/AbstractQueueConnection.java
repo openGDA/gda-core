@@ -254,6 +254,11 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return doWhilePaused(queueName, pauseMessage, () -> doRemove(bean, queueName));
 	}
 
+	@Override
+	public void removeCompleted(U bean) throws EventException {
+		doRemove(bean, getStatusSetName());
+	}
+
 	private boolean doRemove(U beanToRemove, String queueName) throws EventException {
 		QueueConnection connection = null;
 		QueueSession session = null;

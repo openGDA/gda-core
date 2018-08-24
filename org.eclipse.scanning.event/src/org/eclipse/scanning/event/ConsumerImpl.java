@@ -215,6 +215,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				case REMOVE:
 					findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
 					break;
+				case REMOVE_COMPLETED:
+					removeCompleted(commandBean.getBeanUniqueId());
+					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}
@@ -841,14 +844,25 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	protected void findBeanAndPerformAction(String beanUniqueId, BeanAction<U> action) throws EventException {
-		final Optional<U> optBean = getSubmissionQueue().stream()
-				.filter(bean -> bean.getUniqueId().equals(beanUniqueId))
-				.findFirst();
+		final Optional<U> optBean = findBeanWithId(getSubmissionQueue(), beanUniqueId);
 		if (optBean.isPresent()) {
 			action.performAction(optBean.get());
 		} else {
 			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", beanUniqueId);
 		}
+	}
+
+	protected void removeCompleted(String beanUniqueId) throws EventException {
+		final Optional<U> optBean = findBeanWithId(getRunningAndCompleted(), beanUniqueId);
+		if (optBean.isPresent()) {
+			removeCompleted(optBean.get());
+		} else {
+			LOGGER.error("Cannot find bean with id ''{}'' in status set");
+		}
+	}
+
+	private Optional<U> findBeanWithId(List<U> beans, String beanUniqueId) {
+		return beans.stream().filter(bean -> bean.getUniqueId().equals(beanUniqueId)).findFirst();
 	}
 
 	@Override

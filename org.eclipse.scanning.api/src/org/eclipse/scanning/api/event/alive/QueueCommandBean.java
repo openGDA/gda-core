@@ -76,9 +76,13 @@ public class QueueCommandBean  extends IdBean {
 
 		/**
 		 * A command to remove a bean from the submission queue.
-		 * TODO: use the same command to remove it from the status set? (DO NOT COMMIT THIS COMMENT)
 		 */
-		REMOVE;
+		REMOVE,
+
+		/**
+		 * A command to remove a bean from the set of completed jobs.
+		 */
+		REMOVE_COMPLETED;
 
 	}
 

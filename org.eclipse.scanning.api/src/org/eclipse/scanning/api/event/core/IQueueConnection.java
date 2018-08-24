@@ -95,6 +95,14 @@ public interface IQueueConnection<T> extends IQueueReader<T> {
 	boolean remove(T bean) throws EventException;
 
 	/**
+	 * Remove the given bean from the set of beans corresponding to running
+	 * and completed jobs (the status set).
+	 *
+	 * @param bean bean to remove
+	 */
+	public void removeCompleted(T bean) throws EventException;
+
+	/**
 	 * Tries to replace the bean from the submission queue if it is
 	 * still there. If the bean has been moved to the status set,
 	 * it will not be removed

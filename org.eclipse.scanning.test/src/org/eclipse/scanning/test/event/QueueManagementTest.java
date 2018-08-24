@@ -196,6 +196,17 @@ public class QueueManagementTest extends BrokerTest {
 		return beans;
 	}
 
+	private List<StatusBean> createAndSubmitBeansToStatusSet() throws EventException {
+		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
+			final List<StatusBean> beans = createAndSubmitBeans(submitter);
+			// check they've been submitted properly (check names for easier to read error message)
+			final List<String> names = getNames(consumer.getRunningAndCompleted());
+			names.remove("initial");
+			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
+			return beans;
+		}
+	}
+
 	private List<StatusBean> createAndSubmitBeans(ISubmitter<StatusBean> submitter) throws EventException {
 		List<String> beanNames = Arrays.asList(new String[] { "one", "two", "three", "four", "five" });
 		List<StatusBean> beans = beanNames.stream().map(this::createBean).collect(toList());
@@ -406,13 +417,7 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Test
 	public void testClearCompleted() throws Exception {
-		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
-			final List<StatusBean> beans = createAndSubmitBeans(submitter);
-			// check they've been submitted properly (check names for easier to read error message)
-			final List<String> names = getNames(consumer.getRunningAndCompleted());
-			names.remove("initial");
-			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
-		}
+		createAndSubmitBeansToStatusSet();
 
 		doClearCompleted();
 
@@ -461,6 +466,33 @@ public class QueueManagementTest extends BrokerTest {
 		// check that paused and not-started beans have had their status set to FAILED
 		assertThat(beanMap.get("paused").getStatus(), is(Status.FAILED));
 		assertThat(beanMap.get("notStarted").getStatus(), is(Status.FAILED));
+	}
+
+	private void doRemoveCompleted(StatusBean bean) throws Exception {
+		if (useQueueCommandBean) {
+			sendCommandBean(Command.REMOVE_COMPLETED, bean);
+		} else {
+			consumer.removeCompleted(bean);
+		}
+	}
+
+	@Test
+	public void testRemoveCompleted() throws Exception {
+		// Arrange: submit some beans directly to the status set
+		List<StatusBean> beans = createAndSubmitBeansToStatusSet();
+
+		// Act: remove the third bean
+		StatusBean beanThree = beans.get(2);
+		assertThat(beanThree.getName(), is(equalTo("three")));
+		doRemoveCompleted(beanThree);
+
+		List<String> expectedNames = getNames(beans);
+		expectedNames.remove("three");
+		List<String> actualNames = getNames(consumer.getRunningAndCompleted());
+		actualNames.remove("initial");
+
+		// Assert: check the bean has been removed from the status set
+		assertThat(expectedNames, containsInAnyOrder(expectedNames.toArray()));
 	}
 
 }
