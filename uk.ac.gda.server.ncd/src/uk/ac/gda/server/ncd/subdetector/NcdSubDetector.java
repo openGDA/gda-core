@@ -113,7 +113,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		this.detector = detector;
 	}
 
-	public String getTreeName() throws DeviceException {
+	public String getTreeName() {
 		if (NcdDetectorSystem.SAXS_DETECTOR.equals(getDetectorType())) {
 			return "detector";
 		}
