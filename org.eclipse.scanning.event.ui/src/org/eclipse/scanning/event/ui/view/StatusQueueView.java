@@ -615,26 +615,20 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private void removeActionRun() {
-
 		for(StatusBean bean : getSelection()) {
-
 			if (!bean.getStatus().isActive()) {
-
-				String queueName = null;
-
-				if (bean.getStatus()!=org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-					queueName = getQueueName();
-					boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Remove '"+bean.getName()+"'",
-						"Are you sure you would like to remove '"+bean.getName()+"'?");
-					if (!ok) continue;
-				} else {
-					// Submitted delete it right away without asking or the consumer will run it!
-					queueName = getSubmissionQueueName();
-				}
-
-				// It is submitted and not running. We can probably delete it.
 				try {
-					queueConnection.remove(bean);
+					if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
+						// It is submitted and not running. We can probably delete it.
+						queueConnection.remove(bean);
+					} else {
+						// only ask the user to confirm is the queue is in the status set not the submit queue
+						boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Remove '"+bean.getName()+"'",
+							"Are you sure you would like to remove '"+bean.getName()+"'?");
+						if (ok) {
+							queueConnection.removeCompleted(bean);
+						}
+					}
 					refresh();
 				} catch (EventException e) {
 					ErrorDialog.openError(getViewSite().getShell(), "Cannot delete "+bean.getName(),
