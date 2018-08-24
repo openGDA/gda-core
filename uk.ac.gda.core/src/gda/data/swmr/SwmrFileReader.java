@@ -34,7 +34,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.DeviceException;
 import hdf.hdf5lib.H5;
 
 /**
@@ -84,11 +83,9 @@ public class SwmrFileReader {
 	 * Get current shape of dataset in hdf file. This also updates dataset information via. a call to {@link H5#H5Drefresh(long)}.
 	 * @param node
 	 * @return shape of dataset
-	 * @throws DeviceException
-	 * @throws ScanFileHolderException
 	 * @throws NexusException
 	 */
-	public int[] getCurrentShape(String node) throws DeviceException, ScanFileHolderException, NexusException {
+	public int[] getCurrentShape(String node) throws NexusException {
 		int[][] currentAndMaxshape = HDF5Utils.readDatasetShape(hdfFile, node);
 		logger.debug("Shape of dataset {} : {}", node, ArrayUtils.toString(currentAndMaxshape[0]));
 		return currentAndMaxshape[0];
@@ -131,10 +128,9 @@ public class SwmrFileReader {
 	 * See {@link #getCurrentShape(String)}
 	 * @return number of frames available
 	 * @throws NexusException
-	 * @throws DeviceException
-	 * @throws ScanFileHolderException
+
 	 */
-	public int getNumAvailableFrames() throws NexusException, DeviceException, ScanFileHolderException {
+	public int getNumAvailableFrames() throws NexusException {
 		List<Integer> vals = new ArrayList<Integer>();
 		for(String datasetName : dataToRead.values() ) {
 			vals.add(getCurrentShape(datasetName)[0]);
