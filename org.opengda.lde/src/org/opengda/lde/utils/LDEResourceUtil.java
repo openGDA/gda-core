@@ -35,25 +35,25 @@ public class LDEResourceUtil {
 	String defaultFilename = "newsamples.lde";
 
 	/**
-	 * returns the default filename. 
-	 * 
+	 * returns the default filename.
+	 *
 	 * @return
 	 */
 	public String getDefaultFilename() {
 		return defaultFilename;
 	}
 	/**
-	 * return the default file directory. 
-	 * 
+	 * return the default file directory.
+	 *
 	 * This directory must have permission for GDA client to write to.
 	 *
 	 * At DLS beamlines it is always the 'xml' directory under the directory defined by
-	 * the java property {@code gda.data.scan.datawriter.datadir}. 
-	 * 
+	 * the java property {@code gda.data.scan.datawriter.datadir}.
+	 *
 	 * In other case, such as on developer's PC, or if this property is not set, it will use system
 	 * {@code use.home} property to store the file.
-	 * 
-	 * 
+	 *
+	 *
 	 * @return
 	 */
 	public String getDefaultDirectory() {
@@ -87,7 +87,7 @@ public class LDEResourceUtil {
 		}
 		return dir;
 	}
-	
+
 	private String fileName;
 
 	public String getFileName() {
@@ -97,7 +97,7 @@ public class LDEResourceUtil {
 	/**
 	 * enable file name to be set in Spring object configuration. If the file name dosn't contain full path,
 	 * the default XML data directory defined in java property <code>gda.data.scan.datawriter.datadir</code> is used.
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
@@ -116,11 +116,11 @@ public class LDEResourceUtil {
 	}
 
 	/**
-	 * return the resource. The filename for this resource can be set in Spring object configuration property. 
+	 * return the resource. The filename for this resource can be set in Spring object configuration property.
 	 * If not set in Spring configuration, it is built using GDA property {@code gda.data.scan.datawriter.datadir}
 	 * and the default file name {@code newsamples.lde}. If this property is not set this sequence file will
 	 * be created at {@code user.home}
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -139,7 +139,7 @@ public class LDEResourceUtil {
 		return resourceSet.getResource(fileURI, true);
 	}
 
-	private ResourceSet getResourceSet() throws Exception {
+	private ResourceSet getResourceSet() {
 		EditingDomain editingDomain = SampleGroupEditingDomain.INSTANCE.getEditingDomain();
 		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = editingDomain.getResourceSet();
@@ -203,7 +203,7 @@ public class LDEResourceUtil {
 		return Collections.emptyList();
 	}
 
-	public Resource getResource(String fileName) throws Exception {
+	public Resource getResource(String fileName) {
 		ResourceSet resourceSet = getResourceSet();
 		File ldeFile = new File(fileName);
 		if (ldeFile.exists()) {
@@ -213,7 +213,7 @@ public class LDEResourceUtil {
 		return null;
 	}
 
-	public List<Experiment> getExperiments(Resource res) throws Exception {
+	public List<Experiment> getExperiments(Resource res) {
 		if (res != null) {
 			List<EObject> contents = res.getContents();
 			EObject eobj = contents.get(0);
@@ -224,25 +224,25 @@ public class LDEResourceUtil {
 		}
 		return Collections.emptyList();
 	}
-	public List<Stage> getStages(Experiment experiment) throws Exception {
+	public List<Stage> getStages(Experiment experiment) {
 		if (experiment != null) {
 			return experiment.getStage();
 		}
 		return Collections.emptyList();
 	}
-	public List<Cell> getCells(Stage stage) throws Exception {
+	public List<Cell> getCells(Stage stage) {
 		if (stage != null) {
 			return stage.getCell();
 		}
 		return Collections.emptyList();
 	}
-	public List<Sample> getSamples(Cell cell) throws Exception {
+	public List<Sample> getSamples(Cell cell) {
 		if (cell != null) {
 			return cell.getSample();
 		}
 		return Collections.emptyList();
 	}
-	
+
 
 	public void save(Resource res) throws IOException {
 		res.save(null);
@@ -261,9 +261,9 @@ public class LDEResourceUtil {
 	public EditingDomain getEditingDomain() {
 		return Activator.getDefault().getSampleGroupEditingDomain();
 	}
-	
+
 	public Map<String, Sample> getSamples(String filename) throws Exception {
-		Map<String, Sample> samples=new HashMap<String, Sample>();
+		Map<String, Sample> samples=new HashMap<>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
 			for (Stage stage :experiment.getStage()) {
@@ -276,9 +276,9 @@ public class LDEResourceUtil {
 		}
 		return Collections.unmodifiableMap(samples);
 	}
-	
+
 	public Map<String, Stage> getStages(String filename) throws Exception {
-		Map<String, Stage> stages=new HashMap<String, Stage>();
+		Map<String, Stage> stages=new HashMap<>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
 			for (Stage stage : experiment.getStage()) {
@@ -287,9 +287,9 @@ public class LDEResourceUtil {
 		}
 		return Collections.unmodifiableMap(stages);
 	}
-	
+
 	public Map<String, Cell> getCells(String filename) throws Exception {
-		Map<String, Cell> cells=new HashMap<String, Cell>();
+		Map<String, Cell> cells=new HashMap<>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
 			for (Stage stage : experiment.getStage()) {
@@ -300,23 +300,23 @@ public class LDEResourceUtil {
 		}
 		return Collections.unmodifiableMap(cells);
 	}
-	
+
 	public List<Sample>  getSamples() throws Exception {
-		List<Sample> samples=new ArrayList<Sample>();
+		List<Sample> samples=new ArrayList<>();
 		for (Sample sample : getSamples(getFileName()).values()) {
 			samples.add(sample);
 		}
 		return samples;
 	}
 	public List<Stage> getStages() throws Exception {
-		List<Stage> stages=new ArrayList<Stage>();
+		List<Stage> stages=new ArrayList<>();
 		for (Stage stage : getStages(getFileName()).values()) {
 			stages.add(stage);
 		}
 		return stages;
 	}
 	public List<Cell> getCells() throws Exception {
-		List<Cell> cells=new ArrayList<Cell>();
+		List<Cell> cells=new ArrayList<>();
 		for (Cell cell : getCells(getFileName()).values()) {
 			cells.add(cell);
 		}
