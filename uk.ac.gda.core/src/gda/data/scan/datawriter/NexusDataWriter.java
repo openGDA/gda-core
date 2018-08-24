@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -125,6 +127,9 @@ public class NexusDataWriter extends DataWriterBase {
 	/** Default SRS writing */
 	private static final boolean CREATE_SRS_FILE_BY_DEFAULT = true;
 
+	/** Property that if enabled writes a measurement group that contains the data printed to the console during the scan */
+	private static final String GDA_NEXUS_CREATE_MEASUREMENT_GROUP = "gda.nexus.writeMeasurementGroup";
+
 	/** Are we going to write an SRS file as well? */
 	private boolean createSrsFile = CREATE_SRS_FILE_BY_DEFAULT;
 
@@ -164,6 +169,8 @@ public class NexusDataWriter extends DataWriterBase {
 	protected Collection<SelfCreatingLink> scannableID;
 
 	boolean firstData = true;
+
+	private boolean writingMeasurementGroup = false;
 
 	protected int scanPointNumber = -1;
 
@@ -426,7 +433,6 @@ public class NexusDataWriter extends DataWriterBase {
 				if (file instanceof NexusFileHDF5 && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
 					((NexusFileHDF5) file).activateSwmrMode();
 				}
-				firstData = false;
 			}
 		} finally {
 			firstData = false;
@@ -454,6 +460,10 @@ public class NexusDataWriter extends DataWriterBase {
 				writeDetector(detector);
 			}
 
+			if (writingMeasurementGroup) {
+				writeMeasurementGroup();
+			}
+
 			file.flush();
 
 		} catch (Exception ex) {
@@ -470,6 +480,33 @@ public class NexusDataWriter extends DataWriterBase {
 		// Finished addData do performance instrumentations
 		long finishTime = System.nanoTime();
 		totalWritingTime += finishTime - startTime;
+	}
+
+	private void writeMeasurementGroup() {
+		try {
+			Set<String> headers = getHeaders(); // May throw if the header contains duplicated names
+
+			List<Double> data = Arrays.asList(thisPoint.getAllValuesAsDoubles());
+			Iterator<Double> dataIterator = data.iterator();
+
+			final GroupNode measurementGroup = getMeasurementGroup();
+
+			int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
+			int[] stop = generateDataStop(startPos, null);
+
+			for (String header : headers) {
+				try {
+					DataNode dataNode = file.getData(measurementGroup, header);
+					ILazyWriteableDataset lazy = dataNode.getWriteableDataset();
+					lazy.setSlice(null, DatasetFactory.createFromObject(dataIterator.next()), SliceND.createSlice(lazy, startPos, stop));
+				} catch (DatasetException | NexusException e) {
+					logger.error("Error writing measurement group entry: {}", header, e);
+				}
+			}
+		}
+		catch (IllegalStateException | NexusException e) {
+			logger.error("Not writing measurement data group", e);
+		}
 	}
 
 	/*
@@ -880,6 +917,7 @@ public class NexusDataWriter extends DataWriterBase {
 	 */
 	@Override
 	public void completeCollection() throws Exception {
+		logger.debug("completeCollection() called with file={}, entryName={}", file, entryName);
 		GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 		NexusUtils.write(file, g, "end_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
 		releaseFile();
@@ -928,6 +966,62 @@ public class NexusDataWriter extends DataWriterBase {
 		makeMetadata();
 		makeScannablesAndMonitors();
 		makeDetectors();
+		if (LocalProperties.check(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, false)) {
+			makeMeasurementGroup();
+		}
+	}
+
+	/** Make a measurement group and data set then add it to the nexus file.
+	 *
+	 * @throws NexusException
+	 */
+	private void makeMeasurementGroup() throws NexusException {
+		logger.debug("Making 'measurement' group");
+		try {
+			final Set<String> headers = getHeaders();
+			final GroupNode measurementGroup = getMeasurementGroup();
+
+			final int[] dataDimensions = generateDataDim(true, scanDimensions, null);
+			final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
+
+			for (String header : headers) {
+				ILazyWriteableDataset lazyWriteableDataset = NexusUtils.createLazyWriteableDataset(header, Dataset.FLOAT64, dataDimensions, null, chunking);
+				lazyWriteableDataset.setFillValue(getFillValue(Dataset.FLOAT64));
+				file.createData(measurementGroup, lazyWriteableDataset); // Makes the dataset
+			}
+			writingMeasurementGroup = true; // Set to true if creating the group succeeds
+		} catch (IllegalStateException e) {
+			logger.error("Not writing measurement data group", e);
+		}
+	}
+
+	/**
+	 * @return An NXCollection group node to hold the measurement
+	 *
+	 * @throws NexusException
+	 */
+	private GroupNode getMeasurementGroup() throws NexusException {
+		final StringBuilder groupPath = new StringBuilder();
+		NexusUtils.addToAugmentPath(groupPath, entryName, NexusExtractor.NXEntryClassName); // /entry1/
+		NexusUtils.addToAugmentPath(groupPath, "measurement", NexusExtractor.NXCollectionClassName);// /entry1/measurement/
+		return file.getGroup(groupPath.toString(), true); // Makes the group if it doesn't exist
+	}
+
+	/**
+	 * @return A set of combined position and detector headers
+	 */
+	private Set<String> getHeaders() {
+		final List<String> positionHeaders = thisPoint.getPositionHeader();
+		final List<String> detectorHeaders = thisPoint.getDetectorHeader();
+
+		Set<String> headers = new LinkedHashSet<>();
+		headers.addAll(positionHeaders);
+		headers.addAll(detectorHeaders);
+		if(headers.size() != positionHeaders.size() + detectorHeaders.size()) {
+			logger.error("Duplicates in position and detector headers: {} & {}", positionHeaders, detectorHeaders);
+			throw new IllegalStateException("Duplicates in position and detector headers");
+		}
+		return headers;
 	}
 
 	private void makeMetadata() {
