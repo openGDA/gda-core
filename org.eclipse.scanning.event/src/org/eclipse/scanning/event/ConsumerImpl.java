@@ -17,11 +17,9 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,9 +40,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -658,11 +653,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	 * @throws EventException wrapping any exception thrown by the given task
 	 */
 	@Override
-	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
-		if (!getSubmitQueueName().equals(queueName)) {
-			return super.doWhilePaused(queueName, pauseMessage, task);
-		}
-
+	protected <T> T doWhilePaused(String pauseMessage, Callable<T> task) throws EventException {
 		final boolean requiresPause = !isQueuePaused();
 
 		// create a pause bean
@@ -684,8 +675,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			}
 		}
 	}
-
-
 
 	@Override
 	public void pause() throws EventException {
@@ -722,121 +711,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		}
 	}
 
-	@Override
-	public void clearQueue() throws EventException {
-		super.clearQueue(getSubmitQueueName());
-	}
-
-	@Override
-	public void clearRunningAndCompleted() throws EventException {
-		super.clearQueue(getStatusSetName());
-	}
-
-	public void clearCommandSet() throws EventException {
-		super.clearQueue(EventConstants.CMD_SET);
-	}
-
-	@Override
-	public void cleanUpCompleted() throws EventException {
-		try {
-			QueueConnection qCon = null;
-
-			try {
-				QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-				qCon  = connectionFactory.createQueueConnection();
-				QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-				Queue queue   = qSes.createQueue(getStatusSetName());
-				qCon.start();
-
-				QueueBrowser qb = qSes.createBrowser(queue);
-
-				@SuppressWarnings("rawtypes")
-				Enumeration  e  = qb.getEnumeration();
-
-				Map<String, StatusBean> failIds = new LinkedHashMap<>();
-				List<String>          removeIds = new ArrayList<>();
-				while(e.hasMoreElements()) {
-					Message m = (Message)e.nextElement();
-					if (m==null) continue;
-					if (m instanceof TextMessage) {
-						TextMessage t = (TextMessage)m;
-
-						try {
-							final String     json  = t.getText();
-							@SuppressWarnings("unchecked")
-							final Class<U> statusBeanClass = (Class<U>) StatusBean.class;
-							final StatusBean qbean = service.unmarshal(json, getBeanClass() != null ? getBeanClass() : statusBeanClass);
-							if (qbean==null)               continue;
-							if (qbean.getStatus()==null)   continue;
-							if (!qbean.getStatus().isStarted() || qbean.getStatus()==Status.PAUSED) {
-								failIds.put(t.getJMSMessageID(), qbean);
-								continue;
-							}
-
-							// If it has failed, we clear it up
-							if (qbean.getStatus()==Status.FAILED) {
-								removeIds.add(t.getJMSMessageID());
-								continue;
-							}
-							if (qbean.getStatus()==Status.NONE) {
-								removeIds.add(t.getJMSMessageID());
-								continue;
-							}
-
-							// If it is running and older than a certain time, we clear it up
-							if (qbean.getStatus().isRunning()) {
-								final long submitted = qbean.getSubmissionTime();
-								final long current   = System.currentTimeMillis();
-								if (current-submitted > EventTimingsHelper.getMaximumRunningAgeMs()) {
-									removeIds.add(t.getJMSMessageID());
-									continue;
-								}
-							}
-
-							if (qbean.getStatus().isFinal()) {
-								final long submitted = qbean.getSubmissionTime();
-								final long current   = System.currentTimeMillis();
-								if (current-submitted > EventTimingsHelper.getMaximumCompleteAgeMs()) {
-									removeIds.add(t.getJMSMessageID());
-								}
-							}
-
-						} catch (Exception ne) {
-							LOGGER.warn("Message "+t.getText()+" is not legal and will be removed.", ne);
-							removeIds.add(t.getJMSMessageID());
-						}
-					}
-				}
-
-				// We fail the non-started jobs now - otherwise we could
-				// actually start them late. TODO check this
-				final List<String> ids = new ArrayList<>();
-				ids.addAll(failIds.keySet());
-				ids.addAll(removeIds);
-
-				for (String jMSMessageID : ids) {
-					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-					Message m = consumer.receive(EventTimingsHelper.getReceiveTimeout());
-					consumer.close();
-					if (removeIds.contains(jMSMessageID)) continue; // We are done
-
-					if (m!=null && m instanceof TextMessage) {
-						MessageProducer producer = qSes.createProducer(queue);
-						final StatusBean    bean = failIds.get(jMSMessageID);
-						bean.setStatus(Status.FAILED);
-						producer.send(qSes.createTextMessage(service.marshal(bean)));
-
-						LOGGER.warn("Failed job {} messageid({})", bean.getName(), jMSMessageID);
-					}
-				}
-			} finally {
-				if (qCon!=null) qCon.close();
-			}
-		} catch (Exception ne) {
-			throw new EventException("Problem connecting to "+statusQueueName+" in order to clean it!", ne);
-		}
-	}
-
 	public interface BeanAction<T> {
 
 		void performAction(T bean) throws EventException;
@@ -863,21 +737,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	private Optional<U> findBeanWithId(List<U> beans, String beanUniqueId) {
 		return beans.stream().filter(bean -> bean.getUniqueId().equals(beanUniqueId)).findFirst();
-	}
-
-	@Override
-	public boolean reorder(U bean, int amount) throws EventException {
-		return super.reorder(bean, getSubmitQueueName(), amount);
-	}
-
-	@Override
-	public boolean remove(U bean) throws EventException {
-		return super.remove(bean, getSubmitQueueName());
-	}
-
-	@Override
-	public boolean replace(U bean) throws EventException {
-		return super.replace(bean, getSubmitQueueName());
 	}
 
 	@Override

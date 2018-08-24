@@ -12,9 +12,11 @@
 package org.eclipse.scanning.event;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -22,6 +24,7 @@ import java.util.concurrent.Callable;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
@@ -39,6 +42,7 @@ import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueConnection;
 import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,13 +69,25 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return id;
 	}
 
-	public void clearQueue(String queueName) throws EventException {
-		logger.info("Clearing queue {}", queueName);
+	@Override
+	public void clearQueue() throws EventException {
+		// we need to pause the consumer before we clear the submission queue
+		final String queueName = getSubmitQueueName();
 		final String pauseMessage = "Pause to clear queue '" + queueName + "' ";
-		doWhilePaused(queueName, pauseMessage, () -> doClearQueue(queueName));
+		doWhilePaused(pauseMessage, () -> doClearQueue(queueName));
+	}
+
+	@Override
+	public void clearRunningAndCompleted() throws EventException {
+		doClearQueue(getStatusSetName());
+	}
+
+	public void clearCommandSet() throws EventException {
+		doClearQueue(EventConstants.CMD_SET);
 	}
 
 	private boolean doClearQueue(String queueName) throws EventException {
+		logger.info("Clearing queue {}", queueName);
 		QueueConnection qCon = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
@@ -116,13 +132,13 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	 * and then immediately perform the task without waiting for confirmation of any kind.
 	 * This will most likely be performed before the queue is actually paused on the consuemer as the
 	 * bean has to be sent over ActiveMQ (involving serializing and deserializing it) before the queue is actually paused.
-	 * @param queueName
 	 * @param pauseMessage
 	 * @param task
 	 * @return
 	 * @throws EventException
 	 */
-	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
+	protected <T> T doWhilePaused(String pauseMessage, Callable<T> task) throws EventException {
+		final String queueName = getSubmitQueueName();
 		IPublisher<QueueCommandBean> commandPublisher = null; // only used if we need to pause
 		QueueCommandBean pauseBean = null;
 
@@ -156,16 +172,17 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	protected boolean reorder(U bean, String queueName, int amount) throws EventException {
+	@Override
+	public boolean reorder(U bean, int amount) throws EventException {
 		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
 
 		final String pauseMessage = "Pause to reorder '" + bean.getName() + "' " + amount;
-		return doWhilePaused(queueName, pauseMessage, () -> doReorder(bean, queueName, amount));
+		return doWhilePaused(pauseMessage, () -> doReorder(bean, amount));
 	}
 
-	private boolean doReorder(U bean, String queueName, int amount) throws EventException {
+	private boolean doReorder(U bean, int amount) throws EventException {
 		// We are paused, read the queue
-		List<U> submitted = getQueue(queueName);
+		List<U> submitted = getQueue();
 		if (submitted==null || submitted.isEmpty())
 			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
@@ -184,7 +201,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		if (index<1 && amount<0) throw new EventException("'"+bean.getName()+"' is already at the tail of the submission queue.");
 		if (index+amount>submitted.size()-1) throw new EventException("'"+bean.getName()+"' is already at the head of the submission queue.");
 
-		clearQueue(queueName);
+		clearQueue();
 
 		U existing = submitted.get(index);
 		if (amount>0) {
@@ -197,7 +214,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
-		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
 			for (U u : submitted)
 				submitter.submit(u);
 		}
@@ -212,9 +229,10 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return publisher;
 	}
 
-	protected boolean remove(U bean, String queueName) throws EventException {
+	@Override
+	public boolean remove(U bean) throws EventException {
 		final String pauseMessage = "Pause to remove '"+bean.getName()+"' ";
-		return doWhilePaused(queueName, pauseMessage, () -> doRemove(bean, queueName));
+		return doWhilePaused(pauseMessage, () -> doRemove(bean, getSubmitQueueName()));
 	}
 
 	@Override
@@ -282,14 +300,15 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	protected boolean replace(U bean, String queueName) throws EventException {
+	@Override
+	public boolean replace(U bean) throws EventException {
 		final String pauseMessage = "Pause to replace '"+bean.getName()+"' ";
-		return doWhilePaused(queueName, pauseMessage, () -> doReplace(bean, queueName));
+		return doWhilePaused(pauseMessage, () -> doReplace(bean));
 	}
 
-	private boolean doReplace(U bean, String queueName) throws EventException {
+	private boolean doReplace(U bean) throws EventException {
 		// We are paused, read the queue
-		List<U> submitted = getQueue(queueName);
+		List<U> submitted = getQueue();
 		if (submitted == null || submitted.isEmpty())
 			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
@@ -305,15 +324,116 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		if (!found)
 			throw new EventException("Cannot find bean '" + bean.getName() + "' in submission queue!\nIt might be running now.");
 
-		clearQueue(queueName);
+		clearQueue();
 
-		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
 			for (U u : submitted) {
 				submitter.submit(u);
 			}
 		}
 		return true; // It was reordered
 	}
+
+	public void cleanUpCompleted() throws EventException {
+		try {
+			QueueConnection qCon = null;
+
+			try {
+				QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
+				qCon  = connectionFactory.createQueueConnection();
+				QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+				Queue queue   = qSes.createQueue(getStatusSetName());
+				qCon.start();
+
+				QueueBrowser qb = qSes.createBrowser(queue);
+
+				@SuppressWarnings("rawtypes")
+				Enumeration  e  = qb.getEnumeration();
+
+				Map<String, StatusBean> failIds = new LinkedHashMap<>();
+				List<String>          removeIds = new ArrayList<>();
+				while(e.hasMoreElements()) {
+					Message m = (Message)e.nextElement();
+					if (m==null) continue;
+					if (m instanceof TextMessage) {
+						TextMessage t = (TextMessage)m;
+
+						try {
+							final String     json  = t.getText();
+							@SuppressWarnings("unchecked")
+							final Class<U> statusBeanClass = (Class<U>) StatusBean.class;
+							final StatusBean qbean = service.unmarshal(json, getBeanClass() != null ? getBeanClass() : statusBeanClass);
+							if (qbean==null)               continue;
+							if (qbean.getStatus()==null)   continue;
+							if (!qbean.getStatus().isStarted() || qbean.getStatus()==Status.PAUSED) {
+								failIds.put(t.getJMSMessageID(), qbean);
+								continue;
+							}
+
+							// If it has failed, we clear it up
+							if (qbean.getStatus()==Status.FAILED) {
+								removeIds.add(t.getJMSMessageID());
+								continue;
+							}
+							if (qbean.getStatus()==Status.NONE) {
+								removeIds.add(t.getJMSMessageID());
+								continue;
+							}
+
+							// If it is running and older than a certain time, we clear it up
+							if (qbean.getStatus().isRunning()) {
+								final long submitted = qbean.getSubmissionTime();
+								final long current   = System.currentTimeMillis();
+								if (current-submitted > EventTimingsHelper.getMaximumRunningAgeMs()) {
+									removeIds.add(t.getJMSMessageID());
+									continue;
+								}
+							}
+
+							if (qbean.getStatus().isFinal()) {
+								final long submitted = qbean.getSubmissionTime();
+								final long current   = System.currentTimeMillis();
+								if (current-submitted > EventTimingsHelper.getMaximumCompleteAgeMs()) {
+									removeIds.add(t.getJMSMessageID());
+								}
+							}
+
+						} catch (Exception ne) {
+							logger.warn("Message "+t.getText()+" is not legal and will be removed.", ne);
+							removeIds.add(t.getJMSMessageID());
+						}
+					}
+				}
+
+				// We fail the non-started jobs now - otherwise we could
+				// actually start them late. TODO check this
+				final List<String> ids = new ArrayList<>();
+				ids.addAll(failIds.keySet());
+				ids.addAll(removeIds);
+
+				for (String jMSMessageID : ids) {
+					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
+					Message m = consumer.receive(EventTimingsHelper.getReceiveTimeout());
+					consumer.close();
+					if (removeIds.contains(jMSMessageID)) continue; // We are done
+
+					if (m!=null && m instanceof TextMessage) {
+						MessageProducer producer = qSes.createProducer(queue);
+						final StatusBean    bean = failIds.get(jMSMessageID);
+						bean.setStatus(Status.FAILED);
+						producer.send(qSes.createTextMessage(service.marshal(bean)));
+
+						logger.warn("Failed job {} messageid({})", bean.getName(), jMSMessageID);
+					}
+				}
+			} finally {
+				if (qCon!=null) qCon.close();
+			}
+		} catch (Exception ne) {
+			throw new EventException("Problem connecting to "+statusQueueName+" in order to clean it!", ne);
+		}
+	}
+
 
 
 }
