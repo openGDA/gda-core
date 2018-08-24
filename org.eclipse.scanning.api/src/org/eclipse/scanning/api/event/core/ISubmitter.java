@@ -20,7 +20,7 @@ import org.eclipse.scanning.api.event.EventException;
  *
  * @param <T> Bean type which will be submitted.
  */
-public interface ISubmitter<T> extends IQueueConnection<T> {
+public interface ISubmitter<T> extends IReadOnlyQueueConnection<T> {
 
 	/**
 	 * Send a submission on to the queue.

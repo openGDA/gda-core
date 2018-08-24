@@ -29,6 +29,7 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -44,6 +45,7 @@ public class SubmitterTest extends BrokerTest {
 	private IEventService eventService;
 	private ISubmitter<StatusBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
+	private IConsumer<StatusBean> consumer;
 
 	@Before
 	public void start() throws Exception {
@@ -54,7 +56,9 @@ public class SubmitterTest extends BrokerTest {
 		// In production we would normally
 		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		submitter.setStatusTopicName(null);
-		submitter.clearQueue();
+		consumer = eventService.createConsumer(uri, EventConstants.SUBMISSION_QUEUE,
+				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
+		consumer.clearQueue();
 
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
@@ -66,7 +70,7 @@ public class SubmitterTest extends BrokerTest {
 	public void stop() throws Exception {
 		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
 		submitter.disconnect();
-		submitter.clearQueue();
+		consumer.clearQueue();
 		submitter.disconnect();
 
 		subscriber.disconnect();

@@ -453,7 +453,7 @@ public class StatusQueueView extends EventConnectionView {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							doReorderBean(bean, Command.MOVE_UP);
+							sendQueueCommand(Command.MOVE_UP, bean);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -471,8 +471,7 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private void doReorderBean(StatusBean bean, Command command) throws EventException {
-		// command should be one of MOVE_UP or MOVE_DOWN
+	private void sendQueueCommand(Command command, StatusBean bean) throws EventException {
 		QueueCommandBean commandBean = new QueueCommandBean(getSubmissionQueueName(), command);
 		commandBean.setBeanUniqueId(bean.getUniqueId());
 		commandTopicPublisher.broadcast(commandBean);
@@ -499,7 +498,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							doReorderBean(bean, Command.MOVE_DOWN);
+							sendQueueCommand(Command.MOVE_DOWN, bean);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -620,13 +619,13 @@ public class StatusQueueView extends EventConnectionView {
 				try {
 					if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
 						// It is submitted and not running. We can probably delete it.
-						queueConnection.remove(bean);
+						sendQueueCommand(Command.REMOVE, bean);
 					} else {
 						// only ask the user to confirm is the queue is in the status set not the submit queue
 						boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Remove '"+bean.getName()+"'",
 							"Are you sure you would like to remove '"+bean.getName()+"'?");
 						if (ok) {
-							queueConnection.removeCompleted(bean);
+							sendQueueCommand(Command.REMOVE_COMPLETED, bean);
 						}
 					}
 					refresh();

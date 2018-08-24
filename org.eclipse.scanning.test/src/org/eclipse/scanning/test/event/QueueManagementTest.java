@@ -227,7 +227,7 @@ public class QueueManagementTest extends BrokerTest {
 		if (useQueueCommandBean) {
 			sendCommandBean(Command.REMOVE, bean);
 		} else {
-			submitter.remove(bean);
+			consumer.remove(bean);
 		}
 	}
 
@@ -247,7 +247,7 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private void doReplace(StatusBean bean) throws Exception {
-		submitter.replace(bean);
+		consumer.replace(bean);
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class QueueManagementTest extends BrokerTest {
 		if (useQueueCommandBean) {
 			sendCommandBean(Command.MOVE_UP, bean);
 		} else {
-			submitter.reorder(bean, 1);
+			consumer.reorder(bean, 1);
 		}
 	}
 
@@ -300,7 +300,7 @@ public class QueueManagementTest extends BrokerTest {
 		if (useQueueCommandBean) {
 			sendCommandBean(Command.MOVE_DOWN, bean);
 		} else {
-			submitter.reorder(bean, -1);
+			consumer.reorder(bean, -1);
 		}
 	}
 
