@@ -19,9 +19,6 @@
 
 package gda.hrpd.data;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,8 +30,12 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 
 /**
  * class that provides access to sample information in a Excel spreadsheet. The default file name of the spreadsheet is
@@ -98,7 +99,7 @@ public class SampleExperimentSummary {
 
 	/**
 	 * gets sample information for specified sample from spreadsheet 0
-	 * 
+	 *
 	 * @param sampleNo
 	 */
 	public void loadExperimentInfo(int sampleNo) {
@@ -122,42 +123,42 @@ public class SampleExperimentSummary {
 		HSSFCell cell = row.getCell((short) 1);
 		if (cell == null)
 			cell = row.createCell((short) 1);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(runNumber));
 		cell = row.getCell((short) 2);
 		if (cell == null)
 			cell = row.createCell((short) 2);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(date));
 		cell = row.getCell((short) 3);
 		if (cell == null)
 			cell = row.createCell((short) 3);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(time));
 		cell = row.getCell((short) 4);
 		if (cell == null)
 			cell = row.createCell((short) 4);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(beamline));
 		cell = row.getCell((short) 5);
 		if (cell == null)
 			cell = row.createCell((short) 5);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(project));
 		cell = row.getCell((short) 6);
 		if (cell == null)
 			cell = row.createCell((short) 6);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(experiment));
 		cell = row.getCell((short) 7);
 		if (cell == null)
 			cell = row.createCell((short) 7);
-		cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		cell.setCellValue(new HSSFRichTextString(accumulationTime));
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void close() {
 		try {

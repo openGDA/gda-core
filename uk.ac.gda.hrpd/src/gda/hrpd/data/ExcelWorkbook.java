@@ -19,8 +19,6 @@
 
 package gda.hrpd.data;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,8 +34,11 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.jython.JythonServerFacade;
 
 /**
  * This class provides access to a user specified Excel file and methods to access the contents of the workbook, such as
@@ -56,7 +57,7 @@ public class ExcelWorkbook {
 
 
 	/**
-	 * 
+	 *
 	 */
 	public ExcelWorkbook() {
 
@@ -65,7 +66,7 @@ public class ExcelWorkbook {
 	/**
 	 * Constructor - opens a file input stream object, creates a workbook for accessing to the content of the Excel
 	 * file.
-	 * 
+	 *
 	 * @param filename
 	 * @throws InstantiationException
 	 */
@@ -86,14 +87,14 @@ public class ExcelWorkbook {
 
 		// check file permission
 		File file = new File(this.filename);
-		
+
 		readable = file.canRead();
 		if (readable) {
 			logger.info("GDA can read from the file: {}", this.filename);
 		} else {
 			logger.warn("GDA cannot read from the file: {}. Please make sure file permission is correct for GDA to read.", this.filename);
 		}
-		
+
 		writeable = file.canWrite();
 		if (writeable) {
 			logger.info("GDA can write to the file: {}", this.filename);
@@ -123,7 +124,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * gets a spreadsheet at the specified index (the index starts from 0)
-	 * 
+	 *
 	 * @param index
 	 * @return HSSFSheet
 	 */
@@ -133,7 +134,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * gets the spreadsheet for the specified name
-	 * 
+	 *
 	 * @param name
 	 * @return HSSFSheet
 	 */
@@ -143,7 +144,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * add a new spreadsheet to the workbook
-	 * 
+	 *
 	 * @return HSSFSheet
 	 * @throws IOException
 	 */
@@ -157,7 +158,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * creates a new sheet with specified name in the workbook
-	 * 
+	 *
 	 * @param name
 	 * @return HSSFSheet
 	 * @throws IOException
@@ -172,7 +173,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * returns the specified row from the specified sheet
-	 * 
+	 *
 	 * @param sheet
 	 * @param rownum
 	 * @return HSSFRow
@@ -183,7 +184,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * creates the specified row in the specified sheet.
-	 * 
+	 *
 	 * @param sheet
 	 * @param rownum
 	 * @return HSSFRow
@@ -199,7 +200,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * returns the specified cell from the specified row.
-	 * 
+	 *
 	 * @param row
 	 * @param cellnum
 	 * @return HSSFCell
@@ -210,7 +211,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * creates the specified cell in the specified row.
-	 * 
+	 *
 	 * @param row
 	 * @param cellnum
 	 * @return HSSFCell
@@ -226,7 +227,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * gets value from the specified cell and return it as String.
-	 * 
+	 *
 	 * @param cell
 	 * @return value from cell as a String
 	 */
@@ -235,19 +236,19 @@ public class ExcelWorkbook {
 		if (cell == null) {
 			return "";
 		}
-		
+
 		String value = null;
-		if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+		if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 			value = cell.getRichStringCellValue().toString();
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+		} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 			value = String.valueOf(cell.getNumericCellValue());
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+		} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
 			value = "        ";
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_BOOLEAN) {
+		} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
 			value = String.valueOf(cell.getBooleanCellValue());
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_ERROR) {
+		} else if (cell.getCellType() == Cell.CELL_TYPE_ERROR) {
 			value = String.valueOf(cell.getErrorCellValue());
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
+		} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
 			value = cell.getCellFormula();
 		}
 		return value;
@@ -256,7 +257,7 @@ public class ExcelWorkbook {
 	/**
 	 * modify if exist, or create if not exist, a cell in the specified row at specified position with the specified
 	 * value.
-	 * 
+	 *
 	 * @param row
 	 * @param column
 	 * @param value
@@ -278,11 +279,11 @@ public class ExcelWorkbook {
 	/**
 	 * modify if exist, or create if not exist, a cell in the specified row at specified position with the specified
 	 * value.
-	 * 
+	 *
 	 * @param row
 	 * @param column
 	 * @param value
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void setCellValue(HSSFRow row, int column, double value) throws IOException {
 		HSSFCell cell = row.getCell(column);
@@ -300,7 +301,7 @@ public class ExcelWorkbook {
 	/**
 	 * modify if exist, or create if not exist, a cell in the specified row at specified position with the specified
 	 * value.
-	 * 
+	 *
 	 * @param row
 	 * @param column
 	 * @param value
@@ -322,7 +323,7 @@ public class ExcelWorkbook {
 	/**
 	 * modify if exist, or create if not exist, a cell in the specified row at specified position with the specified
 	 * value.
-	 * 
+	 *
 	 * @param row
 	 * @param column
 	 * @param date
@@ -352,7 +353,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * writes the workbook data back to the Excel file
-	 * 
+	 *
 	 * @param filename
 	 * @throws IOException
 	 */
@@ -393,7 +394,7 @@ public class ExcelWorkbook {
 
 	/**
 	 * gets the workbook
-	 * 
+	 *
 	 * @return HSSFWorkbook
 	 */
 	public HSSFWorkbook getWorkbook() {
