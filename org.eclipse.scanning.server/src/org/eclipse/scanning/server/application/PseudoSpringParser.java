@@ -416,7 +416,7 @@ public class PseudoSpringParser implements ISpringParser {
 	}
 
 	public void start(ComponentContext context) {
-		this.context = context;
+		PseudoSpringParser.context = context;
 	}
 
 }
