@@ -831,7 +831,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 		loadAndInitializeDetectors(getConfigFileName());
 	}
 
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+	public DetectorROI[] getRegionsOfInterest() {
 		List<DetectorROI> rois = settings.getParameters().getDetectorList().get(0).getRegionList();
 		return rois.toArray(new DetectorROI[rois.size()]);
 	}

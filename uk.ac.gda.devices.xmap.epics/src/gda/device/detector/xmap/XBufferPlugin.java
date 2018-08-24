@@ -77,7 +77,7 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 	}
 
 
-	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
+	public Channel createChannel(String fullPvName) throws TimeoutException {
 	 	Channel channel = null;
 
 	 	try {

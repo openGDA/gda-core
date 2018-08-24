@@ -50,7 +50,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
 	}
 
-	public AsciiDataWriter(AsciiDataWriterConfiguration configuration) throws InstantiationException{
+	public AsciiDataWriter(AsciiDataWriterConfiguration configuration) {
 		this.configuration = configuration;
 	}
 

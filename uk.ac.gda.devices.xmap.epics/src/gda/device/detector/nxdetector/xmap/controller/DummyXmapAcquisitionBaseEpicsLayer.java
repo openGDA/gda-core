@@ -18,11 +18,10 @@
 
 package gda.device.detector.nxdetector.xmap.controller;
 
+import java.util.Random;
+
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
-
-import java.io.IOException;
-import java.util.Random;
 
 public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEpicsLayer {
 
@@ -35,7 +34,7 @@ public class DummyXmapAcquisitionBaseEpicsLayer implements XmapAcquisitionBaseEp
 
 	// Map <AcqControlPVname,PV<Boolean>> acqControlPV = new EnumMap<AcqControlPVname,PV<Boolean>>(AcqControlPVname.class);
 
-	public DummyXmapAcquisitionBaseEpicsLayer(String basePVname, CollectionMode collectMode) throws IOException {
+	public DummyXmapAcquisitionBaseEpicsLayer(String basePVname, CollectionMode collectMode) {
 		this.basePVName = basePVname;
 		this.collectionMode = collectMode;
 		if (basePVName == null) {

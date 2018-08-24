@@ -2,7 +2,6 @@ package gda.device.hidenrga;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -18,8 +17,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
-import gda.device.hidenrga.HidenRGAController;
-import gda.device.hidenrga.HidenRGAScannable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -118,7 +115,7 @@ public class HidenRGATest {
 	}
 
 	@Test
-	public void testHidenStartedCorrectlyWhenRecordingStarted() throws IOException, DeviceException {
+	public void testHidenStartedCorrectlyWhenRecordingStarted() throws IOException {
 		rga.setMasses(masses);
 		rga.startRecording();
 		Mockito.verify(mockedController).setMasses(massesSet);
@@ -135,7 +132,7 @@ public class HidenRGATest {
 	}
 
 	@Test
-	public void testHidenStoppedCorrectlyWhenRecordingFinished() throws DeviceException, IOException, InterruptedException {
+	public void testHidenStoppedCorrectlyWhenRecordingFinished() throws IOException, InterruptedException {
 		rga.setMasses(masses);
 		rga.startRecording();
 		Thread.sleep(1000); // give it a chance to run for a bit!
@@ -144,17 +141,11 @@ public class HidenRGATest {
 		Mockito.verify(mockedController).stopScan();
 	}
 
-	@Test
+	@Test(expected = DeviceException.class) //Should throw a DeviceException when calling atScanStart after startRecording
 	public void testHidenThrowsErrorIfRecordingAtScanStart() throws IOException, DeviceException {
 		rga.setMasses(masses);
 		rga.startRecording();
-
-		try {
-			rga.atScanStart();
-			fail("Should have thrown a DeviceException when calling atScanStart after startRecording");
-		} catch (Exception e) {
-			// want to see an exception
-		}
+		rga.atScanStart();
 	}
 
 	@Test
