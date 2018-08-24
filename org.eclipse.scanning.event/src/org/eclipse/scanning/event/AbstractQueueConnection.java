@@ -38,59 +38,22 @@ import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueConnection;
-import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractQueueConnection<U extends StatusBean> extends AbstractConnection implements IQueueConnection<U>{
+public abstract class AbstractQueueConnection<U extends StatusBean> extends AbstractReadOnlyQueueConnection<U> implements IQueueConnection<U> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractQueueConnection.class);
 
-	protected IEventService eservice;
-
-	private Class<U> beanClass;
-
 	AbstractQueueConnection(URI uri, String topic, IEventConnectorService service, IEventService eservice) {
-		super(uri, topic, service);
-		this.eservice = eservice;
+		super(uri, topic, service, eservice);
 	}
 
 	AbstractQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			String commandTopicName, IEventConnectorService service, IEventService eservice) {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service);
-		this.eservice = eservice;
-	}
-
-	@Override
-	public Class<U> getBeanClass() {
-		return beanClass;
-	}
-
-	@Override
-	public void setBeanClass(Class<U> beanClass) {
-		this.beanClass = beanClass;
-	}
-
-	@Override
-	public List<U> getQueue() throws EventException {
-		return getQueue(getSubmitQueueName());
-	}
-
-	public List<U> getQueue(String queueName) throws EventException {
-		IQueueReader<U> reader = eservice.createQueueReader(uri, queueName);
-		reader.setBeanClass(beanClass);
-		return reader.getQueue();
-	}
-
-	@Override
-	public List<U> getRunningAndCompleted() throws EventException {
-		// TODO: DAQ-1464 this method moved up from ConsumerImpl temporarily until Submitter no longer
-		// implements IQueueConnection
-		final List<U> statusSet = getQueue(getStatusSetName());
-		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
-		return statusSet;
+		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
 	}
 
 	protected Map<String, U> getMap(String queueName) throws EventException {
@@ -234,7 +197,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
-		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted)
 				submitter.submit(u);
 		}
@@ -243,7 +206,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 	private IPublisher<QueueCommandBean> createPausePublisher() {
-		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(getUri(), EventConstants.CMD_TOPIC);
+		IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), EventConstants.CMD_TOPIC);
 		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 		return publisher;
@@ -344,7 +307,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 		clearQueue(queueName);
 
-		try (ISubmitter<U> submitter = eservice.createSubmitter(getUri(), queueName)) {
+		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), queueName)) {
 			for (U u : submitted) {
 				submitter.submit(u);
 			}
@@ -352,44 +315,5 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return true; // It was reordered
 	}
 
-
-	@Override
-	public boolean isQueuePaused() {
-		QueueCommandBean bean = getLastPauseResumeBean(getSubmitQueueName());
-		return bean != null && bean.getCommand() == Command.PAUSE;
-	}
-
-	/**
-	 * Finds and returns the most recent pause bean sent to the command queue.
-	 * @param submissionQueueName name of submission queue
-	 * @return pause bean
-	 */
-	protected QueueCommandBean getLastPauseResumeBean(String submissionQueueName) {
-		IQueueReader<QueueCommandBean>   queueReader=null;
-		try {
-			queueReader = eservice.createQueueReader(getUri(), EventConstants.CMD_SET);
-			queueReader.setBeanClass(QueueCommandBean.class);
-		    List<QueueCommandBean> commandQueue = queueReader.getQueue();
-
-		    // The most recent bean in the queue is the latest
-		    for (QueueCommandBean commandBean : commandQueue) {
-		    	Command command = commandBean.getCommand();
-				if (submissionQueueName.equals(commandBean.getQueueName())
-						&& (command == Command.PAUSE || command == Command.RESUME)) {
-					return commandBean;
-				}
-			}
-		} catch (Exception ne) {
-			logger.error("Cannot get queue "+EventConstants.CMD_SET, ne);
-			return null;
-		} finally {
-			try {
-				if (queueReader!=null) queueReader.disconnect();
-			} catch (EventException e) {
-				logger.error("Cannot get disconnect "+EventConstants.CMD_SET, e);
-			}
-		}
-		return null;
-	}
 
 }

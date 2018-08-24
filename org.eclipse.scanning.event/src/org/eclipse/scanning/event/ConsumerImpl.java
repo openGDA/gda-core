@@ -106,10 +106,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private final String heartbeatTopicName;
 
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String heartbeatTopicName, String commandTopicName, IEventConnectorService service,
-			IEventService eservice)
+			String heartbeatTopicName, String commandTopicName, IEventConnectorService connectorService,
+			IEventService eventService)
 			throws EventException {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
+		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, connectorService, eventService);
 
 		this.awaitPaused = false;
 		this.consumerStateChangeLock = new ReentrantLock();
@@ -124,8 +124,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	private void connect() throws EventException {
-		statusSetSubmitter  = eservice.createSubmitter(uri, getStatusSetName());
-		statusTopicPublisher = eservice.createPublisher(uri, getStatusTopicName());
+		statusSetSubmitter  = eventService.createSubmitter(uri, getStatusSetName());
+		statusTopicPublisher = eventService.createPublisher(uri, getStatusTopicName());
 		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (heartbeatTopicName!=null) {
@@ -133,7 +133,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		}
 
 		if (getCommandTopicName()!=null) {
-			commandTopicSubscriber = eservice.createSubscriber(uri, getCommandTopicName());
+			commandTopicSubscriber = eventService.createSubscriber(uri, getCommandTopicName());
 			commandTopicSubscriber.addListener(new CommandListener());
 		}
 	}
@@ -358,7 +358,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	private void startProcessManager() throws EventException {
 		if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
-		statusTopicSubscriber = eservice.createSubscriber(uri, getStatusTopicName());
+		statusTopicSubscriber = eventService.createSubscriber(uri, getStatusTopicName());
 		statusTopicSubscriber.addListener(new ProcessManager());
 	}
 
@@ -609,7 +609,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			LOGGER.debug("Pausing consumer {} on start ", getName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
-			try (IPublisher<QueueCommandBean> publisher = eservice.createPublisher(getUri(), getCommandTopicName())) {
+			try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
 				publisher.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
 				publisher.setStatusSetAddRequired(true);
 
@@ -1044,7 +1044,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 		public HeartbeatBroadcaster(URI uri, String heartbeatTopicName, IConsumer<?> consumer) {
 			this.consumer = Objects.requireNonNull(consumer);
-			publisher = eservice.createPublisher(uri, heartbeatTopicName);
+			publisher = eventService.createPublisher(uri, heartbeatTopicName);
 		}
 
 		/**

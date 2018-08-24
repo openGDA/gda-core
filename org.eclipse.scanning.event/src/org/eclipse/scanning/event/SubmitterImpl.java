@@ -36,7 +36,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> implements ISubmitter<T> {
+class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnection<T> implements ISubmitter<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitterImpl.class);
 
@@ -153,7 +153,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 
 		// We will listen for an event whose UID matches this bean
 		// and which signals the scan is complete.
-		ISubscriber<IScanListener> subscriber = eservice.createSubscriber(getUri(), topic);
+		ISubscriber<IScanListener> subscriber = eventService.createSubscriber(getUri(), topic);
 		final String UID = bean.getUniqueId();
 		final CountDownLatch latch = new CountDownLatch(1);
 
@@ -185,21 +185,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 	}
 
 	@Override
-	public boolean reorder(T bean, int amount) throws EventException {
-		return reorder(bean, getSubmitQueueName(), amount);
-	}
-
-	@Override
-	public boolean remove(T bean) throws EventException {
-		return remove(bean, getSubmitQueueName());
-	}
-
-	@Override
-	public boolean replace(T bean) throws EventException {
-		return replace(bean, getSubmitQueueName());
-	}
-
-	@Override
 	public int getPriority() {
 		return priority;
 	}
@@ -222,17 +207,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 	public void setLifeTime(long lifeTime) {
 		if (lifeTime < 0) throw new IllegalArgumentException("Time to live must be at least 0ms");
 		this.lifeTime = lifeTime;
-	}
-
-	// TODO: added temporarily as part of DAQ-1464, prior to using a client-side proxy IQueueConnection
-	@Override
-	public void clearQueue() throws EventException {
-		super.clearQueue(getSubmitQueueName());
-	}
-
-	@Override
-	public void clearRunningAndCompleted() throws EventException {
-		super.clearQueue(getStatusSetName());
 	}
 
 
