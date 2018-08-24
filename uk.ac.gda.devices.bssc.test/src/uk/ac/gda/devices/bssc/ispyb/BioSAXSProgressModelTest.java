@@ -29,7 +29,7 @@ public class BioSAXSProgressModelTest {
 	private List<ISAXSDataCollection> iSpyBSAXSDataCollections;
 
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() {
 		bioSAXSISPyB = new MockBioSAXSISPyB();
 		controller = new BioSAXSProgressController();
 
@@ -189,11 +189,11 @@ public class BioSAXSProgressModelTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 	}
 }
 

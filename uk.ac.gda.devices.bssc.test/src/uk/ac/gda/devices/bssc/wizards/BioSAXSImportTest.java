@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
-import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
 public class BioSAXSImportTest {
 	private static final Logger logger = LoggerFactory
@@ -47,19 +47,19 @@ public class BioSAXSImportTest {
 //	private float sampleStorageTemperature = 15;
 
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() {
 	}
 
 	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
+	public static void tearDownAfterClass() {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 	}
 
 	private short parsePlateCell(Cell cell) {
@@ -116,7 +116,7 @@ public class BioSAXSImportTest {
 		Sheet sheet = wb.getSheetAt(0);
 
 		BSSCSessionBean sessionBean = new BSSCSessionBean();
-		List<TitrationBean> measurements = new ArrayList<TitrationBean>();
+		List<TitrationBean> measurements = new ArrayList<>();
 
 		int rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();
 
