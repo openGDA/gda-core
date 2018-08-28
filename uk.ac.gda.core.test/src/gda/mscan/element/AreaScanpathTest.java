@@ -183,7 +183,7 @@ public class AreaScanpathTest {
 
 	@Test
 	public void createModelCreatesCorrectModelForRaster() throws Exception {
-		pathParams = Arrays.asList(5.0, 6.0);
+		pathParams = Arrays.asList(0.5, 6.5);
 		IScanPathModel model = RASTER.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(RasterModel.class)));
 		RasterModel rModel = (RasterModel)model;
@@ -192,8 +192,8 @@ public class AreaScanpathTest {
 		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
 		assertThat(rModel.getBoundingBox().getFastAxisLength(), is(3.0));
 		assertThat(rModel.getBoundingBox().getSlowAxisLength(), is(4.0));
-		assertThat(rModel.getFastAxisStep(), is(5.0));
-		assertThat(rModel.getSlowAxisStep(), is(6.0));
+		assertThat(rModel.getFastAxisStep(), is(0.5));
+		assertThat(rModel.getSlowAxisStep(), is(6.5));
 		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
 		assertThat(rModel.isSnake(), is(false));
 	}
