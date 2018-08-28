@@ -1,15 +1,15 @@
 package gda.device.detector.nxdetector.xmap.controller;
 
+import java.io.IOException;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.CollectionModeEnum;
 import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
-
-import java.io.IOException;
-
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Communication layer between
@@ -64,7 +64,7 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 	private PV<Double> presetValuePV;
 	private ReadOnlyPV<Integer[]> latestMCA; // [channel]
 
-	public XmapAcquisitionBaseEpicsLayerImpl(String basePVname,CollectionMode collectMode) throws IOException{
+	public XmapAcquisitionBaseEpicsLayerImpl(String basePVname,CollectionMode collectMode) {
 		this.basePVName= basePVname;
 		this.collectionMode = collectMode;
 		if (basePVName == null) {
@@ -89,7 +89,7 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 	}
 
 
-	private void createAcquisitionControlLazyPVs() throws IOException {
+	private void createAcquisitionControlLazyPVs() {
 		/* Create PVs corresponding to the EPICs Acquisition Control panel, all buttons in the panel do not have any returned value
 		(StartAll, StopAll, EraseAll, Erase), only the Acquiring field will return the status of the acquisition.
 		*/
@@ -105,11 +105,11 @@ public class XmapAcquisitionBaseEpicsLayerImpl implements XmapAcquisitionBaseEpi
 
 	}
 
-	private void createAcquisitionConfigurationLazyPVs() throws IOException {
-		collectModePVPair = new PVWithSeparateReadback<CollectionModeEnum>(
+	private void createAcquisitionConfigurationLazyPVs() {
+		collectModePVPair = new PVWithSeparateReadback<>(
 				LazyPVFactory.newEnumPV(fullPVname(AcqConfigPVname.CollectMode.name()), CollectionModeEnum.class),
 				LazyPVFactory.newReadOnlyEnumPV(fullPVname(AcqConfigPVname.CollectMode.name()), CollectionModeEnum.class));
-		nbinsPVPair = new PVWithSeparateReadback<Integer>(
+		nbinsPVPair = new PVWithSeparateReadback<>(
 				LazyPVFactory.newIntegerPV(fullPVname(AcqConfigPVname.NBINS.toString())),
 				LazyPVFactory.newReadOnlyIntegerPV(fullPVname(AcqConfigPVname.NBINS_RBV.toString())));
 		presetModePV = LazyPVFactory.newEnumPV(fullPVname(AcqConfigPVname.PresetMode.name()), PresetMode.class);

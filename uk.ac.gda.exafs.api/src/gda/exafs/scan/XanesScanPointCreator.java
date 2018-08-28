@@ -58,7 +58,7 @@ public class XanesScanPointCreator {
 		return creator.getEnergies();
 	}
 
-	private static void setupScanPointCreator(XanesScanParameters parameters,XanesScanPointCreator creator ) throws Exception
+	private static void setupScanPointCreator(XanesScanParameters parameters,XanesScanPointCreator creator )
 	{
 		List<Region> regions = parameters.getRegions();
 		double[][] newregions = new double[regions.size()][3];
@@ -95,7 +95,7 @@ public class XanesScanPointCreator {
 	}
 
 	private double[][] calculateValues() {
-		scanTimes= new ArrayList<ExafsScanRegionTime> ();
+		scanTimes= new ArrayList<> ();
 		double[][] allEnergies = new double[0][];
 		for (int i = 0; i < regions.length -1 ; i++){
 			double[][] thisRegion = ExafsScanPointCreator.createStepArray(regions[i][0], regions[i+1][0], regions[i][1], regions[i][2], false, numberDetectors);

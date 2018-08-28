@@ -44,7 +44,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	private ArrayList<DetectorElement> detectorElements;
 
 	public XmapReadbackHdf5NXPlugin(EDXDMappingController xmap,
-			NDHDF5PVProvider ndHDF5PVProvider,List<Double> eventProcessingTimes) throws DeviceException {
+			NDHDF5PVProvider ndHDF5PVProvider,List<Double> eventProcessingTimes) {
 		this.xmap = xmap;
 		this.ndHDF5PVProvider = ndHDF5PVProvider;
 		this.numberElements = eventProcessingTimes.size();
@@ -101,7 +101,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	@Override
 	public List<String> getInputStreamNames() {
 		// work this our from ROIs
-		List<String> extraNames = new ArrayList<String>();
+		List<String> extraNames = new ArrayList<>();
 		for (DetectorElement element : detectorElements) {
 			extraNames.add(element.getName());
 			for (DetectorROI roi : rois) {
@@ -115,7 +115,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	@Override
 	public List<String> getInputStreamFormats() {
 		List<String> extraNames = getInputStreamNames();
-		List<String> formats = new ArrayList<String>();
+		List<String> formats = new ArrayList<>();
 		for (int i = 0; i < extraNames.size(); i++) {
 			formats.add("%.3f");
 		}
@@ -142,7 +142,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 			throw new DeviceException("Exception reading raw Xmap HDF5 file", e);
 		}
 
-		ArrayList<NXDetectorDataAppender> output = new ArrayList<NXDetectorDataAppender>();
+		ArrayList<NXDetectorDataAppender> output = new ArrayList<>();
 
 		for (int i = 0; i < scanInfo.getDimensions()[1]; i++) {
 
@@ -162,7 +162,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 					getInputStreamNames(), Arrays.asList(nexusData
 							.getDoubleVals()));
 
-			ArrayList<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
+			ArrayList<NXDetectorDataAppender> appenders = new ArrayList<>();
 			appenders.add(roiAppender);
 			appenders.add(nexusAppender);
 
@@ -215,7 +215,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	public void setRois(DetectorROI[] rois) {
 		this.rois = rois;
 
-		detectorElements = new ArrayList<DetectorElement>();
+		detectorElements = new ArrayList<>();
 
 		for (int i = 0; i < numberElements; i++) {
 			DetectorElement newElement = new DetectorElement();

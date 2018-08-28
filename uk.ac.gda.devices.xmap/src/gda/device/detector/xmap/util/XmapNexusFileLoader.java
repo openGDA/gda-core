@@ -18,8 +18,6 @@
 
 package gda.device.detector.xmap.util;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,7 +237,7 @@ public class XmapNexusFileLoader implements XmapFileLoader {
 			return spectrum;
 		}
 
-		void read(short[] in, int startIndex) throws IOException {
+		void read(short[] in, int startIndex) {
 
 			tagWord0 = in[startIndex++];
 			tagWord1 = in[startIndex++];

@@ -1,11 +1,7 @@
 package gda.device.hidenrga;
 
-import java.io.IOException;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
-import gda.device.hidenrga.HidenRGAController;
-import gda.device.hidenrga.HidenRGAScannable;
 
 /**
  * Not a unit test, but connects to Hiden RGA for testing against the
@@ -16,7 +12,7 @@ import gda.device.hidenrga.HidenRGAScannable;
  */
 public class HidenRGASimulation {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		try {
 			LocalProperties.set("gov.aps.jca.JCALibrary.properties",
 					HidenRGASimulation.class.getResource("JCALibrary.properties").getFile());

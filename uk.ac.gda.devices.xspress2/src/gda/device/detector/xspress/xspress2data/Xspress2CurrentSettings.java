@@ -3,7 +3,6 @@ package gda.device.detector.xspress.xspress2data;
 import java.util.ArrayList;
 import java.util.List;
 
-import gda.device.DeviceException;
 import gda.device.detector.xspress.Xspress2Detector;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -38,7 +37,7 @@ public class Xspress2CurrentSettings {
 	}
 
 	public ArrayList<String> getChannelLabels() {
-		ArrayList<String> channelLabels = new ArrayList<String>();
+		ArrayList<String> channelLabels = new ArrayList<>();
 		if (getParameters().isOnlyShowFF())
 			channelLabels.add("FF");
 		else
@@ -122,7 +121,7 @@ public class Xspress2CurrentSettings {
 	 * for only when all res grades being displayed separately in ascii output
 	 */
 	private String[] getAllResGradesInAsciiOutputFormat() {
-		ArrayList<String> format = new ArrayList<String>();
+		ArrayList<String> format = new ArrayList<>();
 		for (int i = 0; i < 16; i++)
 			format.add("%.4g");
 		// for best8 grades for each element
@@ -215,7 +214,7 @@ public class Xspress2CurrentSettings {
 		return 1 << fullMCABits;
 	}
 
-	public void setFullMCABits(int fullMCABits) throws DeviceException {
+	public void setFullMCABits(int fullMCABits) {
 		this.fullMCABits = fullMCABits;
 	}
 
