@@ -37,9 +37,6 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IQueueConnection;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.status.Status;
@@ -73,8 +70,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	public void clearQueue() throws EventException {
 		// we need to pause the consumer before we clear the submission queue
 		final String queueName = getSubmitQueueName();
-		final String pauseMessage = "Pause to clear queue '" + queueName + "' ";
-		doWhilePaused(pauseMessage, () -> doClearQueue(queueName));
+		doWhilePaused(() -> doClearQueue(queueName));
 	}
 
 	@Override
@@ -126,58 +122,12 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		}
 	}
 
-	/**
-	 * Performs a task while the queue is paused.
-	 * TODO: <em>This method is massively flawed. It sends a {@link PauseBean} to pause the queue
-	 * and then immediately perform the task without waiting for confirmation of any kind.
-	 * This will most likely be performed before the queue is actually paused on the consuemer as the
-	 * bean has to be sent over ActiveMQ (involving serializing and deserializing it) before the queue is actually paused.
-	 * @param pauseMessage
-	 * @param task
-	 * @return
-	 * @throws EventException
-	 */
-	protected <T> T doWhilePaused(String pauseMessage, Callable<T> task) throws EventException {
-		final String queueName = getSubmitQueueName();
-		IPublisher<QueueCommandBean> commandPublisher = null; // only used if we need to pause
-		QueueCommandBean pauseBean = null;
-
-		if (getSubmitQueueName().equals(queueName) && !isQueuePaused()) { // can only pause our submission queue
-			commandPublisher = createPausePublisher();
-			pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
-			pauseBean.setMessage(pauseMessage);
-		}
-
-		// create a pause bean
-		try {
-			// send the pause bean if we're not already paused, to signal the queue consumer to pause
-			if (pauseBean != null) {
-				logger.info("Sending pause request for queue {}", queueName);
-				commandPublisher.broadcast(pauseBean);
-			}
-
-			return task.call();
-		} catch (EventException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new EventException(e);
-		} finally {
-			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
-			if (pauseBean != null) {
-				logger.info("Sending resume request for queue {}", queueName);
-				QueueCommandBean resumeBean = new QueueCommandBean(queueName, Command.RESUME);
-				commandPublisher.broadcast(resumeBean);
-				commandPublisher.disconnect();
-			}
-		}
-	}
+	protected abstract <T> T doWhilePaused(Callable<T> task) throws EventException;
 
 	@Override
 	public boolean reorder(U bean, int amount) throws EventException {
 		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
-
-		final String pauseMessage = "Pause to reorder '" + bean.getName() + "' " + amount;
-		return doWhilePaused(pauseMessage, () -> doReorder(bean, amount));
+		return doWhilePaused(() -> doReorder(bean, amount));
 	}
 
 	private boolean doReorder(U bean, int amount) throws EventException {
@@ -222,17 +172,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return true; // It was reordered
 	}
 
-	private IPublisher<QueueCommandBean> createPausePublisher() {
-		IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), EventConstants.CMD_TOPIC);
-		publisher.setStatusSetName(EventConstants.CMD_SET);
-		publisher.setStatusSetAddRequired(true);
-		return publisher;
-	}
-
 	@Override
 	public boolean remove(U bean) throws EventException {
-		final String pauseMessage = "Pause to remove '"+bean.getName()+"' ";
-		return doWhilePaused(pauseMessage, () -> doRemove(bean, getSubmitQueueName()));
+		return doWhilePaused(() -> doRemove(bean, getSubmitQueueName()));
 	}
 
 	@Override
@@ -302,8 +244,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	@Override
 	public boolean replace(U bean) throws EventException {
-		final String pauseMessage = "Pause to replace '"+bean.getName()+"' ";
-		return doWhilePaused(pauseMessage, () -> doReplace(bean));
+		return doWhilePaused(() -> doReplace(bean));
 	}
 
 	private boolean doReplace(U bean) throws EventException {

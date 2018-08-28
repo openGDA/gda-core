@@ -680,12 +680,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	 * @throws EventException wrapping any exception thrown by the given task
 	 */
 	@Override
-	protected <T> T doWhilePaused(String pauseMessage, Callable<T> task) throws EventException {
+	protected <T> T doWhilePaused(Callable<T> task) throws EventException {
 		final boolean requiresPause = !isQueuePaused();
 
-		// create a pause bean
 		try {
-			// send the pause bean if we're not already paused, to signal the queue consumer to pause
 			if (requiresPause) {
 				pause();
 			}
@@ -696,7 +694,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		} catch (Exception e) {
 			throw new EventException(e);
 		} finally {
-			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
 			if (requiresPause) {
 				resume();
 			}
