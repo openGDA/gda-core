@@ -26,7 +26,7 @@ public class UnixToWindowsFilePathConverterTest {
 
 
 	@Test
-	public void testConverttoInternal() throws Exception {
+	public void testConverttoInternal() {
 		UnixToWindowsFilePathConverter converter = new UnixToWindowsFilePathConverter();
 		converter.setUnixSubString("/dls/i13-1/data");
 		converter.setWindowsSubString("z:\\data");
@@ -36,7 +36,7 @@ public class UnixToWindowsFilePathConverterTest {
 	}
 
 	@Test
-	public void testConverttoExternal() throws Exception {
+	public void testConverttoExternal() {
 		UnixToWindowsFilePathConverter converter = new UnixToWindowsFilePathConverter();
 		converter.setUnixSubString("/dls/i13-1/data");
 		converter.setWindowsSubString("z:\\data");

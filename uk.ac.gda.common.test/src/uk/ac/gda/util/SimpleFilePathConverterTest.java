@@ -25,7 +25,7 @@ import org.junit.Test;
 public class SimpleFilePathConverterTest {
 
 	@Test
-	public void testConverttoInternal() throws Exception {
+	public void testConverttoInternal() {
 		SimpleFilePathConverter converter = new SimpleFilePathConverter();
 		converter.setUserSubString("/dls/i13-1/data");
 		converter.setInternalSubString("/internalmount/test");
@@ -34,7 +34,7 @@ public class SimpleFilePathConverterTest {
 	}
 
 	@Test
-	public void testConverttoExternal() throws Exception {
+	public void testConverttoExternal() {
 		SimpleFilePathConverter converter = new SimpleFilePathConverter();
 		converter.setUserSubString("/dls/i13-1/data");
 		converter.setInternalSubString("/internalmount/test");
