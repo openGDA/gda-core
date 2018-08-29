@@ -84,12 +84,12 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 		}
 		return wrapper;
 	}
-	WritableList items;
+	WritableList<MyMvcExampleItem> items;
 	@Override
-	public WritableList getItems() {
+	public WritableList<MyMvcExampleItem> getItems() {
 		if( items == null) {
-			ArrayList<MyMvcExampleItem> list = new ArrayList<MyMvcExampleItem>();
-			items = new WritableList(list, MvcExampleItem.class);
+			ArrayList<MyMvcExampleItem> list = new ArrayList<>();
+			items = new WritableList<>(list, MvcExampleItem.class);
 			Timer timer = new Timer();
 			TimerTask task = new TimerTask() {
 				@Override
@@ -101,7 +101,7 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 							if(items.size()< 20)
 								items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
 							for( int i=0; i < items.size(); i++) {
-								MyMvcExampleItem item = (MyMvcExampleItem) items.get(i);
+								MyMvcExampleItem item = items.get(i);
 								double value = item.getValue();
 								if( value > 15) {
 								}else {

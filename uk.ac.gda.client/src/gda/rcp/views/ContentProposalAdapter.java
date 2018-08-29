@@ -1166,12 +1166,12 @@ public class ContentProposalAdapter {
 	/*
 	 * The list of IContentProposalListener listeners.
 	 */
-	private ListenerList proposalListeners = new ListenerList();
+	private ListenerList<IContentProposalListener> proposalListeners = new ListenerList<>();
 
 	/*
 	 * The list of IContentProposalListener2 listeners.
 	 */
-	private ListenerList proposalListeners2 = new ListenerList();
+	private ListenerList<IContentProposalListener2> proposalListeners2 = new ListenerList<>();
 
 	/*
 	 * Flag that indicates whether the adapter is enabled. In some cases, adapters may be installed but depend upon
