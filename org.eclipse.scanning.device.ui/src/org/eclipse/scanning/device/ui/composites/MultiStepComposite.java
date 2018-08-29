@@ -141,6 +141,11 @@ public class MultiStepComposite extends Composite {
 		return steps;
 	}
 
+	//This method doesn't override a package private method but is called by reflection.
+	//Shouldn't change base method name as it is in an Eclipse package.
+	//Shouldn't change this method name as the reflective code will break.
+	//Suppress the warning (had to suppress all as there isn't a more specific flag).
+	@SuppressWarnings("all")
 	public ComboWrapper getName() {
 		return name;
 	}
