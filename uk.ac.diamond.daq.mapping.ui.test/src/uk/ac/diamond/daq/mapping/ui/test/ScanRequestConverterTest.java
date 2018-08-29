@@ -19,13 +19,14 @@
 package uk.ac.diamond.daq.mapping.ui.test;
 
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -392,8 +393,8 @@ public class ScanRequestConverterTest {
 		assertThat(newOuterScannables.get(1).isIncludeInScan(), is(false));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testOuterScannableNotFound() throws Exception {
+	@Test
+	public void testOuterScannableAddedToMappingBeanIfNotThereAlready() {
 		// Arrange
 		final IScanPathModel outerModel = new StepModel(Z_AXIS_NAME, -3, 2, 0.5);
 		final List<IScanModelWrapper<IScanPathModel>> outerScannables = Arrays.asList(new ScanPathModelWrapper(
@@ -404,8 +405,9 @@ public class ScanRequestConverterTest {
 		// Act - convert mapping bean to scan request
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		// Throws an exception as there is no wrapper for the outer scannable in the new mapping bean
+		// Creates a new wrapper for the outer scannable in newMappingBean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+		assertThat(newMappingBean.getScanDefinition().getOuterScannables(), contains(outerScannables.toArray()));
 	}
 
 	@Test
