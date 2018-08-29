@@ -8,8 +8,7 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.presentation
-Require-Bundle: org.eclipse.emf.edit.ui;visibility:=reexport,
- uk.ac.gda.core;bundle-version="8.26.0",
+Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
  uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.ui,
  org.eclipse.core.runtime,
