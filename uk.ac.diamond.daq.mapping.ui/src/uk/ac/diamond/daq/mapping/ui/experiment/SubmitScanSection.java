@@ -178,6 +178,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		dialog.setFilterExtensions(FILE_FILTER_EXTENSIONS);
 		final String visitConfigDir = getService(IFilePathService.class).getVisitConfigDir();
 		dialog.setFilterPath(visitConfigDir);
+		dialog.setOverwrite(true);
 
 		return dialog.open();
 	}
