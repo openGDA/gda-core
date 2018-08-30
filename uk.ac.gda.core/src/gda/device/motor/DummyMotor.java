@@ -138,7 +138,7 @@ public class DummyMotor extends MotorBase {
 			}
 		}
 
-		// if limits not set, then set them to something useable during testing
+		// if limits not set, then set them to something usable during testing
 		if (Double.isNaN(minPosition)) {
 			this.minPosition = -Double.MAX_VALUE;
 		}
@@ -558,7 +558,7 @@ public class DummyMotor extends MotorBase {
 	}
 
 	/**
-	 * Gets the value of the trigger level for randomly produced expections.
+	 * Gets the value of the trigger level for randomly produced exceptions.
 	 *
 	 * @return the trigger level
 	 */
@@ -590,7 +590,7 @@ public class DummyMotor extends MotorBase {
 	 * Sets the trigger level for randomly produced limits. The random number generator is used to generate a Gaussian
 	 * distribution with centre 0.0 and sigma 1.0. A random limit is triggered if abs(random number) is greater than
 	 * trigger level. This means a value of 1.0 will trigger roughly 40% of the time, 2.0 roughly 5% and 3.0 roughly
-	 * 0.3%. The default value of 10.0 has a negligable chance of triggering an event.
+	 * 0.3%. The default value of 10.0 has a negligible chance of triggering an event.
 	 *
 	 * @param randomLimitTriggerLevel
 	 */
@@ -601,7 +601,7 @@ public class DummyMotor extends MotorBase {
 	/**
 	 * Gets the value of the randomlyProduceLimits flag. Stupid name because of conventions.
 	 *
-	 * @return true if motor produces ramndom limits
+	 * @return true if motor produces random limits
 	 */
 	public boolean isRandomlyProduceLimits() {
 		return randomlyProduceLimits;
