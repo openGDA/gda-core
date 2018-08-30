@@ -40,7 +40,6 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
@@ -100,7 +99,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Button to copy a scan to the clipboard
 		final Button copyScanCommandButton = new Button(composite, SWT.PUSH);
 		copyScanCommandButton.setImage(MappingExperimentUtils.getImage("icons/copy.png"));
-//		copyScanCommandButton.setText("Copy Scan");
 		copyScanCommandButton.setToolTipText("Copy the scan command to the system clipboard");
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(copyScanCommandButton);
 		copyScanCommandButton.addSelectionListener(new SelectionAdapter() {
@@ -113,7 +111,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Button to load a scan from disk
 		final Button loadButton = new Button(composite, SWT.PUSH);
 		loadButton.setImage(MappingExperimentUtils.getImage("icons/open.png"));
-//		loadButton.setText("Load Scan");
 		loadButton.setToolTipText("Load a scan from the file system");
 		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.addSelectionListener(new SelectionAdapter() {
@@ -125,7 +122,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 		// Button to save a scan to disk
 		Button saveButton = new Button(composite, SWT.PUSH);
-//		saveButton.setText("Save Scan");
 		saveButton.setImage(MappingExperimentUtils.getImage("icons/save.png"));
 		saveButton.setToolTipText("Save a scan to the file system");
 		GridDataFactory.swtDefaults().applyTo(saveButton);
@@ -186,7 +182,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		return dialog.open();
 	}
 
-	private ScanBean createScanBean() throws ScanningException {
+	private ScanBean createScanBean() {
 		IMappingExperimentBean mappingBean = getMappingBean();
 		addMonitors(mappingBean);
 
