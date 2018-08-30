@@ -28,14 +28,15 @@ public final class EventTimingsHelper {
 	}
 
 	/**
-	 * The interval in ms at which HeartbeatBeans are send by an {@link IConsumer} in ms, default 2000.
+	 * The interval at which HeartbeatBeans are send by an {@link IConsumer} in ms, default 2 seconds (i.e. 2000ms)
 	 * Set org.eclipse.scanning.event.heartbeat.interval system property to change this time.
 	 */
-	private static long notificationInterval = 2000;
+	private static long notificationInterval = Duration.ofSeconds(2).toMillis();
 
 	public static long getNotificationInterval() {
 		return Long.getLong("org.eclipse.scanning.event.heartbeat.interval", notificationInterval);
 	}
+
 	public static void setNotificationInterval(long interval) {
 		notificationInterval = interval;
 		System.setProperty("org.eclipse.scanning.event.heartbeat.interval", String.valueOf(interval));

@@ -12,6 +12,7 @@ import java.net.URI;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,9 +63,19 @@ import org.slf4j.LoggerFactory;
  */
 public class ConsumerView extends EventConnectionView {
 
+	private static final Logger logger = LoggerFactory.getLogger(ConsumerView.class);
+
 	public static final String ID = "org.eclipse.scanning.event.ui.consumerView";
 
-	private static final Logger logger = LoggerFactory.getLogger(ConsumerView.class);
+	/**
+	 * The notification interval of the consumer. Note that this duplicates a constant in
+	 * org.eclipse.scanning.event.EventTimingsHelper
+	 */
+	private static final long NOTIFICATION_INTERVAL_MS =
+		Long.getLong("org.eclipse.scanning.event.heartbeat.interval", Duration.ofSeconds(2).toMillis());
+
+
+	private static final long HOUR_IN_MS = Duration.ofHours(1).toMillis();
 
 	// UI
 	private TableViewer                       viewer;
@@ -344,8 +355,6 @@ public class ConsumerView extends EventConnectionView {
 		};
 	}
 
-	private final static long HOUR_IN_MS = 60*60*1000;
-
 	protected void createColumns() {
 
 		final TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);
@@ -367,14 +376,11 @@ public class ConsumerView extends EventConnectionView {
 				final HeartbeatBean cbean = (HeartbeatBean)element;
 				ConsumerStatus status = cbean.getConsumerStatus();
 
-				if (status==ConsumerStatus.ALIVE) {
-					if (cbean.getLastAlive()>(System.currentTimeMillis()-UIConstants.NOTIFICATION_FREQUENCY*10) &&
-						cbean.getLastAlive()<(System.currentTimeMillis()-UIConstants.NOTIFICATION_FREQUENCY*2)) {
-						status = ConsumerStatus.STOPPING;
-
-					} else if (cbean.getLastAlive()<(System.currentTimeMillis()-UIConstants.NOTIFICATION_FREQUENCY*10)) {
-						status = ConsumerStatus.STOPPED;
-					}
+				if (status==ConsumerStatus.RUNNING &&
+						cbean.getLastAlive() > System.currentTimeMillis() - NOTIFICATION_INTERVAL_MS * 2) {
+					// No heartbeat bean is > 2 * notification frequency, despite receiving no STOPPED bean
+					// note: its not clear when this will be shown as we we don't continually update the UI.
+					status = ConsumerStatus.STOPPED;
 				}
 				return status.toString();
 			}
