@@ -37,14 +37,11 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.ConsumerBean;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.bean.BeanEvent;
-import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.AdministratorMessage;
@@ -76,7 +73,6 @@ public class ConsumerView extends EventConnectionView {
 	private Map<String, HeartbeatBean>        consumers;
 
 	private ISubscriber<IHeartbeatListener>          heartMonitor;
-	private ISubscriber<IBeanListener<ConsumerBean>> oldBeat;
 
 	private IEventService service;
 
@@ -148,26 +144,6 @@ public class ConsumerView extends EventConnectionView {
 						}
 					);
 
-					// This subscriber should be removed around DAWN 2.2 please. There will not be
-					// any more old consumers doing this then.
-					oldBeat = service.createSubscriber(uri, "scisoft.commandserver.core.ALIVE_TOPIC");
-					oldBeat.addListener(new IBeanListener<ConsumerBean>() {
-						// Old heartbeat
-						@Override
-						public void beanChangePerformed(BeanEvent<ConsumerBean> evt) {
-
-							ConsumerBean cbean = evt.getBean();
-							HeartbeatBean bean = cbean.toHeartbeat();
-							bean.setLastAlive(System.currentTimeMillis());
-							sync(bean);
-						}
-
-						@Override
-						public Class<ConsumerBean> getBeanClass() {
-							return ConsumerBean.class;
-						}
-					});
-
 					return Status.OK_STATUS;
 
 				} catch (Exception ne) {
@@ -206,11 +182,6 @@ public class ConsumerView extends EventConnectionView {
 			if (heartMonitor!=null) heartMonitor.disconnect();
 		} catch (Exception ne) {
 			logger.warn("Problem stopping topic listening for "+heartMonitor.getTopicName(), ne);
-		}
-		try {
-			if (oldBeat!=null) oldBeat.disconnect();
-		} catch (Exception ne) {
-			logger.warn("Problem stopping topic listening for "+oldBeat.getTopicName(), ne);
 		}
 		try {
 			if (commandTopicPublisher != null) commandTopicPublisher.disconnect();
