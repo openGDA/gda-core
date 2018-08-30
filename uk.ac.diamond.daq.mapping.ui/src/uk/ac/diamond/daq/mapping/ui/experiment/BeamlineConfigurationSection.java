@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -127,19 +128,19 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	private void updateConfiguredScannableSummary() {
 		Map<String, Object> configured = getMappingBean().getBeamlineConfiguration();
-		if (configured == null) {
-			return; // Will be null on startup in a new workspace
-		}
+		List<String> txt = Collections.emptyList();
 
-		List<String> txt = configured.entrySet().stream()
-				.map(this::formatScannablePosition)
-				.collect(Collectors.toList());
+		if (configured != null) {
+			txt = configured.entrySet().stream()
+					.map(this::formatScannablePosition)
+					.collect(Collectors.toList());
 
-		summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
+			summaryText.setToolTipText(txt.stream().collect(Collectors.joining("\n")));
 
-		if (txt.size() > MAX_TXT_LINES) {
-			txt = txt.subList(0, MAX_TXT_LINES);
-			txt.set(MAX_TXT_LINES - 1, txt.get(MAX_TXT_LINES - 1)+" ...");
+			if (txt.size() > MAX_TXT_LINES) {
+				txt = txt.subList(0, MAX_TXT_LINES);
+				txt.set(MAX_TXT_LINES - 1, txt.get(MAX_TXT_LINES - 1)+" ...");
+			}
 		}
 
 		summaryText.setText(txt.stream().collect(Collectors.joining("\n")));
