@@ -149,6 +149,15 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.ncd.plot.twoedge"
+            name="Two Edge Plot"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
             id="uk.ac.gda.client.ncd.plot.peak"
             name="Peak Fit Plot"
             restorable="true">
@@ -212,11 +221,13 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="uk.ac.gda.client.scripting.JythonPerspective">
-          <view id="gda.rcp.ncd.views.NCDStatus"
-               minimized="false"
-               relationship="bottom"
-               ratio="0.4"
-               relative="org.eclipse.ui.views.ContentOutline" />
+          <view
+                id="gda.rcp.ncd.views.NCDStatus"
+                minimized="false"
+                ratio="0.05"
+                relationship="bottom"
+                relative="org.eclipse.ui.views.ContentOutline"
+                visible="true"/>
          <view
                id="uk.ac.gda.client.liveplotview"
                minimized="false"

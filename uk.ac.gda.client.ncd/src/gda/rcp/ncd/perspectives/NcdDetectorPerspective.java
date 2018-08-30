@@ -20,10 +20,9 @@ package gda.rcp.ncd.perspectives;
 
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IFolderLayout;
 
 /**
- * 
+ *
  */
 public class NcdDetectorPerspective implements IPerspectiveFactory {
 
@@ -32,14 +31,10 @@ public class NcdDetectorPerspective implements IPerspectiveFactory {
 //		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
-		layout.addView("uk.ac.gda.client.ncd.NcdTfgConfigure", IPageLayout.TOP, 0.95f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.LEFT, 0.26f, "uk.ac.gda.client.ncd.NcdTfgConfigure");
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.8f, "uk.ac.gda.client.ncd.NcdTfgConfigure");
-			folderLayout.addView("gda.rcp.views.baton.BatonView");
-			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
-		}
-		layout.addView("gda.rcp.ncd.views.NcdDetectorView", IPageLayout.BOTTOM, 0.5f, "gda.rcp.ncd.views.NCDStatus");
-		layout.addView("uk.ac.gda.client.ncd.calibconf", IPageLayout.BOTTOM, 0.5f, "gda.rcp.ncd.views.NcdDetectorView");
+		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.TOP, 1f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.client.ncd.NcdTfgConfigure", IPageLayout.RIGHT, 0.3f, "gda.rcp.ncd.views.NCDStatus");
+		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM, 0.5f, "uk.ac.gda.client.ncd.NcdTfgConfigure");
+		layout.addView("gda.rcp.ncd.views.NcdDetectorView", IPageLayout.BOTTOM, 0.87f, "gda.rcp.ncd.views.NCDStatus");
+		layout.addView("uk.ac.gda.client.ncd.calibconf", IPageLayout.RIGHT, 0.5f, "gda.rcp.ncd.views.NcdDetectorView");
 	}
 }

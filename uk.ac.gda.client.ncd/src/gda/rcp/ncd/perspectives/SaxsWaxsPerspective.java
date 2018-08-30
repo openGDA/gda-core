@@ -31,30 +31,20 @@ public class SaxsWaxsPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		// String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
+		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.TOP, 1f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("uk.ac.gda.client.ncd.saxsview", IPageLayout.RIGHT, 0.3f, "gda.rcp.ncd.views.NCDStatus");
+		layout.addView("uk.ac.gda.client.ncd.waxsview", IPageLayout.RIGHT, 0.33f, "uk.ac.gda.client.ncd.saxsview");
+		layout.addView("gda.rcp.jythonterminalview", IPageLayout.RIGHT, 0.5f, "uk.ac.gda.client.ncd.waxsview");
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.RIGHT, 0.95f,
-					IPageLayout.ID_EDITOR_AREA);
-			folderLayout.addView("uk.ac.gda.client.ncd.saxsview");
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.LEFT, 0.2f, "folder");
-			folderLayout.addView("gda.rcp.ncd.views.NCDStatus");
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f,
-					"gda.rcp.ncd.views.NCDStatus");
-			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceSaxs");
-			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceWaxs");
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_3", IPageLayout.BOTTOM, 0.85f, "folder");
-			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
+			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.87f, "gda.rcp.ncd.views.NCDStatus");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
 			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.5f, "folder");
-			folderLayout.addView("uk.ac.gda.client.ncd.waxsview");
+			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.5f,
+					"gda.rcp.jythonterminalview");
+			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceSaxs");
+			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceWaxs");
 		}
 	}
 }

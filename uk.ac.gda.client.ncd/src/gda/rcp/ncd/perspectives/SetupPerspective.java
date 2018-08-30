@@ -18,9 +18,9 @@
 
 package gda.rcp.ncd.perspectives;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IFolderLayout;
 
 public class SetupPerspective implements IPerspectiveFactory {
 
@@ -28,19 +28,16 @@ public class SetupPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
 
-		layout.addView("uk.ac.gda.client.liveplotview", IPageLayout.TOP, 0.95f, IPageLayout.ID_EDITOR_AREA);
-		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.LEFT, 0.31f, "uk.ac.gda.client.liveplotview");
+		layout.addView("uk.ac.gda.client.liveplotview", IPageLayout.RIGHT, 0.3f, IPageLayout.ID_EDITOR_AREA);
+		layout.addView("gda.rcp.ncd.views.NCDStatus", IPageLayout.LEFT, 0.31f, IPageLayout.ID_EDITOR_AREA);
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.87f, "uk.ac.gda.client.liveplotview");
-			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
+			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.87f, "gda.rcp.ncd.views.NCDStatus");
 			folderLayout.addView("gda.rcp.views.baton.BatonView");
-		}
-		layout.addView("uk.ac.gda.client.ncd.plot.peak", IPageLayout.TOP, 0.43f, "uk.ac.gda.client.liveplotview");
-		layout.addView("uk.ac.gda.client.ncd.plot.edge", IPageLayout.RIGHT, 0.5f, "uk.ac.gda.client.ncd.plot.peak");
-		layout.addView("gda.rcp.jythonterminalview", IPageLayout.BOTTOM, 0.42f, "gda.rcp.ncd.views.NCDStatus");
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.67f, "gda.rcp.jythonterminalview");
 			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
 		}
+		layout.addView("uk.ac.gda.client.ncd.plot.peak", IPageLayout.TOP, 0.6f, "uk.ac.gda.client.liveplotview");
+		layout.addView("uk.ac.gda.client.ncd.plot.edge", IPageLayout.RIGHT, 0.33f, "uk.ac.gda.client.ncd.plot.peak");
+		layout.addView("uk.ac.gda.client.ncd.plot.twoedge", IPageLayout.RIGHT, 0.5f, "uk.ac.gda.client.ncd.plot.edge");
+		layout.addView("gda.rcp.jythonterminalview", IPageLayout.RIGHT, 0.66f, "uk.ac.gda.client.liveplotview");
 	}
 }
