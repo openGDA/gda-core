@@ -11,7 +11,26 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.alive;
 
+import org.eclipse.scanning.api.event.core.IConsumer;
+
+/**
+ * An enumeration of the possible states of an {@link IConsumer}.
+ */
 public enum ConsumerStatus {
 
-	RUNNING/** Just here for old consumers */, ALIVE, STOPPING, STOPPED, PAUSED;
+	/**
+	 * A constant to indicate that the consumer is running.
+	 */
+	RUNNING,
+
+	/**
+	 * A constant to indicate that the consumer is paused.
+	 */
+	PAUSED,
+
+	/**
+	 * A constant to indicate that the consumer is either stopped, or has not yet been started.
+	 */
+	STOPPED
+
 }
