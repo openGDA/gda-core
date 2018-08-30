@@ -99,4 +99,9 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		return new File(path).getName();
 	}
 
+	@Override
+	protected void updateControls() {
+		updateSummaryText();
+	}
+
 }
