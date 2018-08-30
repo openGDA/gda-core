@@ -152,7 +152,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		} catch (Exception e) {
 			final String errorMessage = "Could not load a mapping scan from file: " + fileName;
 			logger.error(errorMessage, e);
-			ErrorDialog.openError(getShell(), "Save Scan", errorMessage,
+			ErrorDialog.openError(getShell(), "Load Scan", errorMessage,
 					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
 		}
 	}
