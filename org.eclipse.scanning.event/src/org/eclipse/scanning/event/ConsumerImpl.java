@@ -98,6 +98,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private ReentrantLock consumerStateChangeLock;
 	private Condition shouldResumeCondition;
 	private volatile boolean awaitPaused;
+	private volatile boolean stopped = false; // a boolean to indicate if the main event loop is running (irrespective of whether it is paused)
 	private final String heartbeatTopicName;
 
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
@@ -417,6 +418,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					terminateProcess(wr.get());
 				}
 			}
+			stopped = true;
 		} finally {
 			processMap.clear();
 		}
@@ -516,7 +518,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		// pause before they start.
 		checkStartPaused();
 
-		// It is possible to call start() and then awaitStart().
+		// We're now fully initialized and about to start running the main event loop,
+		// so set the stopped flag to false and notify any threads that called awaitStart()
+		stopped = false;
 		if (latchStart!=null) latchStart.countDown();
 	}
 
@@ -741,6 +745,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	@Override
 	public ConsumerStatus getConsumerStatus() {
+		if (stopped || !isConnected()) return ConsumerStatus.STOPPED;
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
 	}
 
