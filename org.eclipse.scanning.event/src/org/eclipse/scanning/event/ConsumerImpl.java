@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,6 +103,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private volatile boolean stopped = false; // a boolean to indicate if the main event loop is running (irrespective of whether it is paused)
 	private final String heartbeatTopicName;
 
+	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
+
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			String heartbeatTopicName, String commandTopicName, IEventConnectorService connectorService,
 			IEventService eventService)
@@ -117,6 +121,23 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		this.processMap = Collections.synchronizedMap(new HashMap<>());
 		this.heartbeatTopicName = heartbeatTopicName;
 		connect();
+	}
+
+	@Override
+	public void addConsumerStatusListener(IConsumerStatusListener listener) {
+		statusListeners.add(listener);
+	}
+
+	@Override
+	public void removeConsumerStatusListener(IConsumerStatusListener listener) {
+		statusListeners.remove(listener);
+	}
+
+	private void fireStatusChangeListeners() {
+		final ConsumerStatus status = getConsumerStatus();
+		for (IConsumerStatusListener listener : statusListeners) {
+			listener.consumerStatusChanged(status);
+		}
 	}
 
 	private void connect() throws EventException {
@@ -419,6 +440,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				}
 			}
 			stopped = true;
+			fireStatusChangeListeners();
 		} finally {
 			processMap.clear();
 		}
@@ -521,6 +543,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		// We're now fully initialized and about to start running the main event loop,
 		// so set the stopped flag to false and notify any threads that called awaitStart()
 		stopped = false;
+		fireStatusChangeListeners();
 		if (latchStart!=null) latchStart.countDown();
 	}
 
@@ -685,6 +708,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		awaitPaused = true;
 		closeMessageConsumer(); // required so that remove(), reorder, etc. work as expected. See DAQ-1453.
 		LOGGER.info("Consumer signalled to pause {}", getName());
+		fireStatusChangeListeners();
 	}
 
 	private void closeMessageConsumer() throws EventException {
@@ -708,6 +732,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			awaitPaused = false;
 			shouldResumeCondition.signalAll();
 			LOGGER.info("Consumer signalled to resume {}", getName());
+			fireStatusChangeListeners();
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {

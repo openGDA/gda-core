@@ -35,6 +35,11 @@ import org.eclipse.scanning.api.event.status.Status;
  */
 public interface IConsumer<T> extends IQueueConnection<T> {
 
+	public interface IConsumerStatusListener {
+
+		public void consumerStatusChanged(ConsumerStatus newStatus);
+
+	}
 
 	/**
 	 * Get a copy of the current submission queue as a list of beans, type T
@@ -156,6 +161,10 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 * @return the current status of the consumer.
 	 */
 	public ConsumerStatus getConsumerStatus();
+
+	public void addConsumerStatusListener(IConsumerStatusListener listener);
+
+	public void removeConsumerStatusListener(IConsumerStatusListener listener);
 
 	public String getName();
 	public void setName(String name);
