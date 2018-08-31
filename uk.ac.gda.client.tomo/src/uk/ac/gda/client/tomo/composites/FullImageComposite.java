@@ -59,7 +59,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	protected Polyline crossWireHorizontal2;
 	protected Polyline crossWireVertical2;
 
-	private ListenerList listenerList = new ListenerList();
+	private ListenerList<IRoiPointsListener> listenerList = new ListenerList<>();
 
 	public void addRoiPointsListener(IRoiPointsListener roiPointsListener) {
 		listenerList.add(roiPointsListener);
