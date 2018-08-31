@@ -483,9 +483,9 @@ public final class XMLHelpers {
 			} else if (fa[i].getName().equalsIgnoreCase("schemaurl")) {
 				schema = (URL)fa[i].get(null);
 			}
-			if (mapping == null || schema == null) {
-				logger.warn("Mapping/schema URLs not found in class {}", beanClass.getName());
-			}
+		}
+		if (mapping == null || schema == null) {
+			logger.warn("Mapping/schema URLs not found in class {}", beanClass.getName());
 		}
 		return createFromXML(mapping, beanClass, schema, beanFile);
 	}
