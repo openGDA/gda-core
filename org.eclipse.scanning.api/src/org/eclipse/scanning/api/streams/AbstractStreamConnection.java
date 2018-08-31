@@ -56,7 +56,7 @@ public abstract class AbstractStreamConnection<T> implements IStreamConnection<T
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractStreamConnection other = (AbstractStreamConnection) obj;
+		AbstractStreamConnection<T> other = (AbstractStreamConnection<T>) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
