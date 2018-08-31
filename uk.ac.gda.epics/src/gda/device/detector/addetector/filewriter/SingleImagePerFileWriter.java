@@ -18,6 +18,16 @@
 
 package gda.device.detector.addetector.filewriter;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile.FileWriteMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
@@ -28,16 +38,6 @@ import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Write each image to a separate file.
@@ -108,6 +108,8 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	private String fileTemplateForReadout = null;
 	private boolean alreadyPrepared=false; //use to allow the same fileWriter to be used in the same multiscan
+	private boolean alwaysPrepare=false; // Set to true to disable alreadyPrepared mechanism
+
 	private Double xPixelSize=null;
 
 	private Double yPixelSize=null;
@@ -202,8 +204,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 		if (!isEnabled())
 			return;
-		if( alreadyPrepared)
+
+		/* The alreadyPrepared optimisation prevents SwitchableHardwareTriggerableProcessingDetectorWrapper from
+		 * reconfiguring the detector when switching between hardware_triggered_detector and detector_for_snaps
+		 * detectors, so the alwaysPrepare property enables this mechanism to be disabled on a per detector basis.
+		 */
+		if (alreadyPrepared && !alwaysPrepare) {
 			return;
+		}
 		// Create filePath directory if required
 
 		if (!isFilePathInaccessibleFromServer()) {
@@ -515,11 +523,17 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	public void setyPixelSizeUnit(String yPixelSizeUnit) {
 		this.yPixelSizeUnit=yPixelSizeUnit;
-
 	}
 
 	public String getyPixelSizeUnit() {
 		return yPixelSizeUnit;
 	}
 
+	public boolean isAlwaysPrepare() {
+		return alwaysPrepare;
+	}
+
+	public void setAlwaysPrepare(boolean alwaysPrepare) {
+		this.alwaysPrepare = alwaysPrepare;
+	}
 }
