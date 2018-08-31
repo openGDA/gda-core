@@ -18,10 +18,8 @@
 
 package org.eclipse.scanning.test.event;
 
-import static org.eclipse.scanning.test.util.LambdaUtils.wrap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -30,10 +28,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -45,9 +45,9 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -56,6 +56,7 @@ import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 /**
  * Abstract superclass for controlling the consumer. The consumer can be
@@ -78,6 +79,32 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 	protected abstract void doRestartConsumer() throws Exception;
 
 	protected abstract void doClearQueue(boolean clearCompleted) throws Exception;
+
+	private void verifyJobsBefore(InOrder inOrder, List<StatusBean> beans, List<IConsumerProcess<StatusBean>> processes,
+			final int waitingProcessNum) throws EventException, InterruptedException {
+		for (int i = 0; i < beans.size(); i++) {
+			if (i <= waitingProcessNum) {
+				inOrder.verify(runner).createProcess(beans.get(i), statusTopicPublisher);
+				inOrder.verify(processes.get(i)).start();
+			} else {
+				verifyZeroInteractions(processes.get(i));
+			}
+		}
+	}
+
+	private void verifyJobsAfter(InOrder inOrder, List<StatusBean> beans,
+			List<IConsumerProcess<StatusBean>> processes, final int waitingProcessNum) throws EventException, InterruptedException {
+		for (int i = waitingProcessNum + 1; i < beans.size(); i++) {
+			if (i <= waitingProcessNum) {
+				verifyNoMoreInteractions(processes.get(i));
+			} else {
+				inOrder.verify(runner).createProcess(beans.get(i), statusTopicPublisher);
+				inOrder.verify(processes.get(i)).start();
+				verifyNoMoreInteractions(processes.get(i));
+			}
+		}
+		verifyNoMoreInteractions(runner);
+	}
 
 	@Test
 	public void testPauseResume() throws Exception {
@@ -103,25 +130,19 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		Thread.sleep(MOCK_PROCESS_TIME_MS * (processes.size() + 1 - waitingProcessNum));
 		assertThat(consumer.isActive(), is(false));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED));
-		for (int i = 0; i < beans.size(); i++) {
-			if (i <= waitingProcessNum) {
-				verify(runner).createProcess(beans.get(i), statusTopicPublisher);
-				verify(processes.get(i)).start();
-			} else {
-				verifyZeroInteractions(processes.get(i));
-			}
-		}
-		verifyNoMoreInteractions(runner);
+
+		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.PAUSED);
+		verifyNoMoreInteractions(runner, consumerStatusListener);
 
 		doResumeConsumer();
 
 		boolean processesCompleted = latch.await(MOCK_PROCESS_TIME_MS * 20, TimeUnit.MILLISECONDS); // wait for the processes to finish
 		assertThat(processesCompleted, is(true));
-
-		for (int i = waitingProcessNum + 1; i < beans.size(); i++) {
-			verify(runner).createProcess(beans.get(i), statusTopicPublisher);
-			verify(processes.get(i)).start();
-		}
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		verifyJobsAfter(inOrder, beans, processes, waitingProcessNum);
 	}
 
 	@Test
@@ -145,9 +166,12 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 
 		boolean processCompleted = latch.await(MOCK_PROCESS_TIME_MS * (processes.size() - waitingProcessNum), TimeUnit.MILLISECONDS);
 		assertThat(processCompleted, is(false)); // we shouldn't have run the last couple of processes
-		for (int i = waitingProcessNum + 1; i < processes.size(); i++) {
-			verifyZeroInteractions(processes.get(i));
-		}
+
+		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
+		verifyNoMoreInteractions(runner, consumerStatusListener);
 	}
 
 	@Test
@@ -163,13 +187,20 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		// the waiting answer of the third job will be blocked at this point, waiting to resume
 		// this allows us to pause the consumer without a race condition
 		waitingAnswer.waitUntilCalled();
-		doRestartConsumer(); // restart the consumer
 
-		verify(processes.get(waitingProcessNum)).terminate();
+		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
+		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
+
+		doRestartConsumer(); // restart the consumer
+		inOrder.verify(processes.get(waitingProcessNum)).terminate();
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
+		Thread.sleep(250); // unfortunately, can't use Mockito.timeout as it doesn't work with InOrder
+		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		boolean processesCompleted = latch.await(MOCK_PROCESS_TIME_MS * 20, TimeUnit.MILLISECONDS); // wait for the processes to finish
 		assertThat(processesCompleted, is(true));
-		beans.forEach(wrap(bean -> verify(runner).createProcess(bean, statusTopicPublisher)));
-		processes.forEach(wrap(process -> verify(process).start()));
+		verifyJobsAfter(inOrder, beans, processes, waitingProcessNum);
+		verifyNoMoreInteractions(runner, consumerStatusListener);
 	}
 
 	@Test
@@ -180,6 +211,11 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 	@Test
 	public void testClearCompleted() throws Exception {
 		testClearQueue(true);
+	}
+
+	private InOrder inOrder(Object... objs) {
+		return Mockito.inOrder(Arrays.stream(objs).flatMap(
+				obj -> (obj instanceof Collection ? ((Collection<?>) obj).stream() : Stream.of(obj))).toArray());
 	}
 
 	private void testClearQueue(boolean clearCompleted) throws Exception {
@@ -224,15 +260,11 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 
 		doClearQueue(clearCompleted);
 
-		List<Object> mocksToVerifyInOrder = new ArrayList<>(Arrays.asList(pauseBeanPublisher, connection, session));
-		mocksToVerifyInOrder.addAll(msgConsumers);
-		InOrder inOrder = inOrder(mocksToVerifyInOrder.toArray());
+		InOrder inOrder = inOrder(consumerStatusListener, connection, session, msgConsumers);
 
 		// verify the pause bean was sent if we're clearing the submission queue
 		if (!clearCompleted) {
-			QueueCommandBean pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
-			pauseBean.setMessage("Pause to clear queue '" + queueName + "' ");
-			inOrder.verify(pauseBeanPublisher).broadcast(pauseBean);
+			inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.PAUSED);
 		}
 
 		// verify the messages were consumed from the queue
@@ -243,7 +275,7 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		}
 
 		if (!clearCompleted) {
-			inOrder.verify(pauseBeanPublisher).broadcast(new QueueCommandBean(queueName, Command.RESUME));
+			inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		}
 	}
 

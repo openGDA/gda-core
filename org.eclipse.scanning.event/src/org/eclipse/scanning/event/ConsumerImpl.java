@@ -153,6 +153,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			commandTopicSubscriber = eventService.createSubscriber(uri, getCommandTopicName());
 			commandTopicSubscriber.addListener(new CommandListener());
 		}
+		setConnected(true);
 	}
 
 	@Override

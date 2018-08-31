@@ -216,7 +216,7 @@ abstract class AbstractConnection implements IURIConnection {
 		return connected;
 	}
 
-	private void setConnected(boolean connected) {
+	protected void setConnected(boolean connected) {
 		this.connected = connected;
 	}
 

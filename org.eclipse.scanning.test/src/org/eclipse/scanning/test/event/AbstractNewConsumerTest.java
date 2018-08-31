@@ -48,6 +48,7 @@ import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IConsumer.IConsumerStatusListener;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -98,6 +99,9 @@ public abstract class AbstractNewConsumerTest {
 	@Mock
 	protected ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber;
 
+	@Mock
+	protected IConsumerStatusListener consumerStatusListener;
+
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
@@ -117,6 +121,7 @@ public abstract class AbstractNewConsumerTest {
 				EventConstants.CMD_TOPIC, eventConnectorService, eventService);
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);
+		consumer.addConsumerStatusListener(consumerStatusListener);
 
 		// verify the methods
 
