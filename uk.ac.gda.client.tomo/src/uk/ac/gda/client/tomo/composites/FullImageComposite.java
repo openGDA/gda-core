@@ -42,8 +42,7 @@ import uk.ac.gda.client.tomo.composites.OverlayImageFigure.OverlayImgFigureListe
  * also features for Cross Hair, Zoom Rectangle, profiling across with draggable slider.
  */
 public class FullImageComposite extends FixedImageViewerComposite {
-	private final static Logger logger = LoggerFactory.getLogger(FullImageComposite.class);
-	// private RectangleFigure rectFigure;
+	private static final Logger logger = LoggerFactory.getLogger(FullImageComposite.class);
 	private Polyline horizontalTop;
 	private Polyline horizontalBottom;
 	private Polyline verticalLeft;
@@ -72,7 +71,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 	public interface IRoiPointsListener {
 		/**
 		 * Invokes the listeners that the roi boundaries have changed
-		 * 
+		 *
 		 * @param directionChanged
 		 * @param x1
 		 * @param y1
@@ -153,9 +152,6 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		verticalRight.setLineWidth(2);
 		verticalRight.setForegroundColor(ColorConstants.darkGreen);
 
-		// rectFigure = new RectangleFigure();
-		// feedbackFigure.add(rectFigure, new Rectangle(20, 20, 200, 200));
-
 		leftTopPoint = new Ellipse();
 		leftTopPoint.setSize(5, 5);
 		leftTopPoint.setForegroundColor(ColorConstants.red);
@@ -224,7 +220,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		crossWireVertical2.setForegroundColor(ColorConstants.orange);
 		crossWireVertical2.setVisible(false);
 		feedbackFigure.add(crossWireVertical2);
-		//
+
 		crossWireVertical1 = new Polyline();
 		crossWireVertical1.setLineWidth(1);
 		crossWireVertical1.setForegroundColor(ColorConstants.white);
@@ -255,8 +251,8 @@ public class FullImageComposite extends FixedImageViewerComposite {
 							.getDifference(getImageBounds().getLocation());
 					Dimension horizontalBottomLastPoint = horizontalBottom.getPoints().getLastPoint()
 							.getDifference(getImageBounds().getLocation());
-					logger.debug("x1: " + horizontalTopFirstPoint.width + "  y1:" + horizontalTopFirstPoint.height
-							+ "  x2:" + horizontalBottomLastPoint.width + "  y2:" + horizontalBottomLastPoint.height);
+					logger.debug("x1: %d  y1: %d  x2: %d  y2: %d", horizontalTopFirstPoint.width, horizontalTopFirstPoint.height,
+							horizontalBottomLastPoint.width, horizontalBottomLastPoint.height);
 					Object source = me.getSource();
 
 					int direction = SWT.LEFT;
@@ -273,7 +269,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 
 		@Override
 		public void mouseDoubleClicked(MouseEvent me) {
-
+			//No implementation.
 		}
 
 		@Override
@@ -501,7 +497,7 @@ public class FullImageComposite extends FixedImageViewerComposite {
 
 		@Override
 		public void mouseEntered(MouseEvent me) {
-
+			//No implementation.
 		}
 
 		@Override
@@ -511,40 +507,19 @@ public class FullImageComposite extends FixedImageViewerComposite {
 
 		@Override
 		public void mouseHover(MouseEvent me) {
-
+			//No implementation.
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent me) {
-
+			//No implementation.
 		}
 
 	}
 
-	@Override
-	public org.eclipse.swt.graphics.Point computeSize(int wHint, int hHint) {
-		org.eclipse.swt.graphics.Point computedSize = super.computeSize(wHint, hHint);
-		// logger.info("computeSize1->widthHint:" + wHint + ":hHint:" + hHint + ":ComputedSize:" + computedSize);
-		return computedSize;
-	}
-
-	@Override
-	public org.eclipse.swt.graphics.Point computeSize(int wHint, int hHint, boolean changed) {
-		org.eclipse.swt.graphics.Point computedSize = super.computeSize(wHint, hHint, changed);
-		// logger.info("computeSize2->widthHint:" + wHint + ":H:" + hHint + ":c:" + changed + ":cs:" + computedSize);
-		// logger.info("canvas size->" + getCanvas().getBounds().height + ":width:" + getCanvas().getBounds().width);
-		return computedSize;
-	}
-
-	@Override
-	public org.eclipse.swt.graphics.Rectangle computeTrim(int x, int y, int width, int height) {
-		// TODO Auto-generated method stub
-		return super.computeTrim(x, y, width, height);
-	}
-
 	/**
 	 * Adds listener to the overlayImageFigure drag motion
-	 * 
+	 *
 	 * @param listener
 	 */
 	public void addOverlayImageFigureListener(OverlayImgFigureListener listener) {
@@ -671,9 +646,6 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		verticalLeft.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEWE));
 		verticalRight.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEWE));
 		horizontalTop.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZENS));
-
-		// rectFigure.setBounds(new Rectangle(20, 20, 200, 200));
-		// rectFigure.setVisible(true);
 	}
 
 	public void disableRoiWidget() {
@@ -704,8 +676,8 @@ public class FullImageComposite extends FixedImageViewerComposite {
 		Dimension d = new Dimension(getImageBounds().x, getImageBounds().y);
 		Point firstPoint = validPoints.getFirstPoint().translate(d);
 		Point lastPoint = validPoints.getLastPoint().translate(d);
-		logger.debug(String.format("x1 :%d  y1:%d    x2:%d    y2:%d", firstPoint.x, firstPoint.y, lastPoint.x,
-				lastPoint.y));
+		logger.debug("x1 :%d  y1:%d    x2:%d    y2:%d", firstPoint.x, firstPoint.y, lastPoint.x,
+				lastPoint.y);
 
 		horizontalTop.setPoints(new PointList(new int[] { firstPoint.x, firstPoint.y, lastPoint.x, firstPoint.y }));
 
@@ -724,10 +696,10 @@ public class FullImageComposite extends FixedImageViewerComposite {
 
 	public int[] getRoiPoints() {
 		if (horizontalTop.getPoints().size() < 1) {
-			return null;
+			return new int[] {};
 		}
 		if (horizontalBottom.getPoints().size() < 2) {
-			return null;
+			return new int[] {};
 		}
 		Dimension firstPoint = horizontalTop.getPoints().getFirstPoint().getDifference(getImageBounds().getLocation());
 		Dimension lastPoint = horizontalBottom.getPoints().getLastPoint().getDifference(getImageBounds().getLocation());
