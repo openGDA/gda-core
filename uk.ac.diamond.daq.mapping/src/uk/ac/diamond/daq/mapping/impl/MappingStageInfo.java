@@ -105,4 +105,44 @@ public class MappingStageInfo implements IStageScanConfiguration {
 				+ activeSlowScanAxis + ", associatedAxis=" + associatedAxis + ", beamSize=" + beamSize + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((activeFastScanAxis == null) ? 0 : activeFastScanAxis.hashCode());
+		result = prime * result + ((activeSlowScanAxis == null) ? 0 : activeSlowScanAxis.hashCode());
+		result = prime * result + ((associatedAxis == null) ? 0 : associatedAxis.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(beamSize);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MappingStageInfo other = (MappingStageInfo) obj;
+		if (activeFastScanAxis == null) {
+			if (other.activeFastScanAxis != null)
+				return false;
+		} else if (!activeFastScanAxis.equals(other.activeFastScanAxis))
+			return false;
+		if (activeSlowScanAxis == null) {
+			if (other.activeSlowScanAxis != null)
+				return false;
+		} else if (!activeSlowScanAxis.equals(other.activeSlowScanAxis))
+			return false;
+		if (associatedAxis == null) {
+			if (other.associatedAxis != null)
+				return false;
+		} else if (!associatedAxis.equals(other.associatedAxis))
+			return false;
+		return Double.doubleToLongBits(beamSize) == Double.doubleToLongBits(other.beamSize);
+	}
+
 }

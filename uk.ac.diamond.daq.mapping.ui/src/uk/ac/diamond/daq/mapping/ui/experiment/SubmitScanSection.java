@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
@@ -144,6 +145,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 			final IMarshallerService marshaller = getService(IMarshallerService.class);
 			IMappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
 			getMappingView().setMappingBean(mappingBean);
+			loadStageInfoSnapshot();
 			getMappingView().updateControls();
 		} catch (Exception e) {
 			final String errorMessage = "Could not load a mapping scan from file: " + fileName;
@@ -157,6 +159,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		final String fileName = chooseFileName(SWT.SAVE);
 		if (fileName == null) return;
 
+		captureStageInfoSnapshot();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 		final IMarshallerService marshaller = getService(IMarshallerService.class);
 		try {
@@ -215,6 +218,20 @@ public class SubmitScanSection extends AbstractMappingSection {
 		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
 		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
 		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
+	}
+
+	private void loadStageInfoSnapshot() {
+		// push the saved stage info in the mapping bean to the OSGi component
+		IMappingExperimentBean bean = getMappingBean();
+		MappingStageInfo stage = getService(MappingStageInfo.class);
+		stage.merge((MappingStageInfo) bean.getStageInfoSnapshot());
+	}
+
+	private void captureStageInfoSnapshot() {
+		// capture the current MappingStageInfo in the mapping bean
+		IMappingExperimentBean bean = getMappingBean();
+		MappingStageInfo stage = getService(MappingStageInfo.class);
+		((MappingStageInfo) bean.getStageInfoSnapshot()).merge(stage);
 	}
 
 	private void copyScanToClipboard() {

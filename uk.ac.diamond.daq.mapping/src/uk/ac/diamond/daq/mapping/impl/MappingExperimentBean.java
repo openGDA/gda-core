@@ -7,6 +7,7 @@ import java.util.Set;
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
@@ -24,6 +25,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private IScriptFiles scriptFiles = null;
 	private Set<String> perScanMonitorNames = null;
 	private Set<String> perPointMonitorNames = null;
+	private MappingStageInfo stageInfoSnapshot;
 
 	public MappingExperimentBean() {
 		sampleMetadata = new SimpleSampleMetadata();
@@ -122,6 +124,14 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
+	public IStageScanConfiguration getStageInfoSnapshot() {
+		if (stageInfoSnapshot == null) {
+			stageInfoSnapshot = new MappingStageInfo();
+		}
+		return stageInfoSnapshot;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -134,58 +144,85 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		result = prime * result + ((sampleMetadata == null) ? 0 : sampleMetadata.hashCode());
 		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
 		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
+		result = prime * result + ((stageInfoSnapshot == null) ? 0 : stageInfoSnapshot.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		MappingExperimentBean other = (MappingExperimentBean) obj;
 		if (beamlineConfiguration == null) {
-			if (other.beamlineConfiguration != null)
+			if (other.beamlineConfiguration != null) {
 				return false;
-		} else if (!beamlineConfiguration.equals(other.beamlineConfiguration))
+			}
+		} else if (!beamlineConfiguration.equals(other.beamlineConfiguration)) {
 			return false;
+		}
 		if (clusterProcessingConfiguration == null) {
-			if (other.clusterProcessingConfiguration != null)
+			if (other.clusterProcessingConfiguration != null) {
 				return false;
-		} else if (!clusterProcessingConfiguration.equals(other.clusterProcessingConfiguration))
+			}
+		} else if (!clusterProcessingConfiguration.equals(other.clusterProcessingConfiguration)) {
 			return false;
+		}
 		if (detectorParameters == null) {
-			if (other.detectorParameters != null)
+			if (other.detectorParameters != null) {
 				return false;
-		} else if (!detectorParameters.equals(other.detectorParameters))
+			}
+		} else if (!detectorParameters.equals(other.detectorParameters)) {
 			return false;
+		}
 		if (perPointMonitorNames == null) {
-			if (other.perPointMonitorNames != null)
+			if (other.perPointMonitorNames != null) {
 				return false;
-		} else if (!perPointMonitorNames.equals(other.perPointMonitorNames))
+			}
+		} else if (!perPointMonitorNames.equals(other.perPointMonitorNames)) {
 			return false;
+		}
 		if (perScanMonitorNames == null) {
-			if (other.perScanMonitorNames != null)
+			if (other.perScanMonitorNames != null) {
 				return false;
-		} else if (!perScanMonitorNames.equals(other.perScanMonitorNames))
+			}
+		} else if (!perScanMonitorNames.equals(other.perScanMonitorNames)) {
 			return false;
+		}
 		if (sampleMetadata == null) {
-			if (other.sampleMetadata != null)
+			if (other.sampleMetadata != null) {
 				return false;
-		} else if (!sampleMetadata.equals(other.sampleMetadata))
+			}
+		} else if (!sampleMetadata.equals(other.sampleMetadata)) {
 			return false;
+		}
 		if (scanDefinition == null) {
-			if (other.scanDefinition != null)
+			if (other.scanDefinition != null) {
 				return false;
-		} else if (!scanDefinition.equals(other.scanDefinition))
+			}
+		} else if (!scanDefinition.equals(other.scanDefinition)) {
 			return false;
+		}
 		if (scriptFiles == null) {
-			if (other.scriptFiles != null)
+			if (other.scriptFiles != null) {
 				return false;
-		} else if (!scriptFiles.equals(other.scriptFiles))
+			}
+		} else if (!scriptFiles.equals(other.scriptFiles)) {
 			return false;
+		}
+		if (stageInfoSnapshot == null) {
+			if (other.stageInfoSnapshot != null) {
+				return false;
+			}
+		} else if (!stageInfoSnapshot.equals(other.stageInfoSnapshot)) {
+			return false;
+		}
 		return true;
 	}
 

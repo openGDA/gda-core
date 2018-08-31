@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.dawnsci.analysis.api.processing.model.IOperationModel;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
 /**
  * This interface should be implemented by any class which can represent a mapping type experiment
@@ -149,5 +150,11 @@ public interface IMappingExperimentBean {
 	 */
 	public void setScriptFiles(IScriptFiles scriptFiles);
 
+	/**
+	 * This is a copy of the IStageScanConfiguration at a particular point.
+	 * It allows recreation of the entire scan configuration when saving/loading.
+	 * @return a snapshot of the stage axes selection taken at the point the bean was saved
+	 */
+	IStageScanConfiguration getStageInfoSnapshot();
 
 }

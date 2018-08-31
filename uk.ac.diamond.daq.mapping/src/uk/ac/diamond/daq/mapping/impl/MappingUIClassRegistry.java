@@ -53,6 +53,7 @@ public class MappingUIClassRegistry implements IClassRegistry {
 		registerClass(tmp, CentredRectangleMappingRegion.class);
 		registerClass(tmp, SimpleSampleMetadata.class);
 		registerClass(tmp, ScriptFiles.class);
+		registerClass(tmp, MappingStageInfo.class);
 
 		idToClassMap = Collections.unmodifiableMap(tmp);
 	}
