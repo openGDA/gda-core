@@ -114,16 +114,25 @@ public class QueueCommandBean  extends IdBean {
 	 */
 	private String beanUniqueId;
 
+	/**
+	 * The error message from the consumer. Set by the consumer when executing the command
+	 * specified by the bean. If <code>null</code> then the command was executed successfully.
+	 */
+	private String errorMessage;
+
 	public QueueCommandBean() {
+		super(); // make sure a unique id is set
 		// no-arg constructor for json deserialization
 	}
 
 	public QueueCommandBean(UUID consumerId, Command command) {
+		super(); // make sure a unique id is set
 		this.consumerId = consumerId;
 		this.command = command;
 	}
 
 	public QueueCommandBean(String queueName, Command command) {
+		super(); // make sure a unique id is set
 		this.queueName = queueName;
 		this.command = command;
 	}
@@ -168,15 +177,24 @@ public class QueueCommandBean  extends IdBean {
 		this.beanUniqueId = beanUniqueId;
 	}
 
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + ((beanUniqueId == null) ? 0 : beanUniqueId.hashCode());
 		result = prime * result + ((command == null) ? 0 : command.hashCode());
 		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
+		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-		result = prime * result + ((beanUniqueId == null) ? 0 : beanUniqueId.hashCode());
 		return result;
 	}
 
@@ -189,12 +207,22 @@ public class QueueCommandBean  extends IdBean {
 		if (getClass() != obj.getClass())
 			return false;
 		QueueCommandBean other = (QueueCommandBean) obj;
+		if (beanUniqueId == null) {
+			if (other.beanUniqueId != null)
+				return false;
+		} else if (!beanUniqueId.equals(other.beanUniqueId))
+			return false;
 		if (command != other.command)
 			return false;
 		if (consumerId == null) {
 			if (other.consumerId != null)
 				return false;
 		} else if (!consumerId.equals(other.consumerId))
+			return false;
+		if (errorMessage == null) {
+			if (other.errorMessage != null)
+				return false;
+		} else if (!errorMessage.equals(other.errorMessage))
 			return false;
 		if (message == null) {
 			if (other.message != null)
@@ -206,12 +234,13 @@ public class QueueCommandBean  extends IdBean {
 				return false;
 		} else if (!queueName.equals(other.queueName))
 			return false;
-		if (beanUniqueId == null) {
-			if  (other.beanUniqueId != null)
-				return false;
-		} else if (!beanUniqueId.equals(other.beanUniqueId))
-			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "QueueCommandBean [consumerId=" + consumerId + ", queueName=" + queueName + ", message=" + message
+				+ ", command=" + command + ", beanUniqueId=" + beanUniqueId + ", errorMessage=" + errorMessage + "]";
 	}
 
 }

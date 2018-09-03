@@ -42,9 +42,16 @@ public class EventConstants {
 	public static final String HEARTBEAT_TOPIC = "org.eclipse.scanning.alive.topic";
 
 	/**
-	 * The default topic used for pause and terminate events. This topic is generally used internally.
+	 * The default topic used for to send command to a consumer, e.g. pause/terminate
+	 * or to reorder or remove beans from the queue. This topic is generally used internally.
 	 */
 	public static final String CMD_TOPIC = "org.eclipse.scanning.command.topic";
+
+	/**
+	 * The default topic used for acknowledgements from the consumer to commands sent on the
+	 * command topic. This topic is generally used internally.
+	 */
+	public static final String ACK_TOPIC = "org.eclipse.scanning.ack.topic";
 
 	/**
 	 * The default set used for recent instructions to command the consumer. This queue is generally used internally.

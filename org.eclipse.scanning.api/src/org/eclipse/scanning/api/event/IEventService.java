@@ -123,7 +123,6 @@ public interface IEventService {
 	/**
 	 * Create a consumer with the default, status topic, submission queue, status queue and termination topic.
 	 * @param uri
-	 * @param service
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException;
@@ -135,8 +134,6 @@ public interface IEventService {
 	 * @param submissionQueueName
 	 * @param statusQueueName
 	 * @param statusTopicName
-	 * @param terminateTName
-	 * @param service, may be null, should be null in the OSGi case
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
@@ -146,19 +143,20 @@ public interface IEventService {
 	/**
 	 * Create a consumer with the submission queue, status queue, status topic and termination topic passed in.
 	 *
-	 * @param uri
+	 * @param uri the uri of the message
 	 * @param submissionQName
 	 * @param statusQueueName
 	 * @param statusTopicName
 	 * @param commandTopicName
-	 * @param service, may be null, should be null in the OSGi case
+	 * @param commandAckTopicName
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName,
 						                                        String statusQueueName,
 						                                        String statusTopicName,
 						                                        String heartbeatTopicName,
-						                                        String commandTopicName) throws EventException;
+						                                        String commandTopicName,
+						                                        String commandAckTopicName) throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of

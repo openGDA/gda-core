@@ -148,7 +148,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testBeanClass() throws Exception {
 		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.clearQueue();
@@ -169,7 +169,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testBeanClass2Beans() throws Exception {
 		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.clearQueue();

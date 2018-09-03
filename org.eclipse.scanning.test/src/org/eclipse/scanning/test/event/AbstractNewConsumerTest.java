@@ -102,29 +102,31 @@ public abstract class AbstractNewConsumerTest {
 	@Mock
 	protected IConsumerStatusListener consumerStatusListener;
 
+	@Mock
+	protected IPublisher<QueueCommandBean> commandAckTopicPublisher;
+
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
 		uri = new URI("http://fakeUri"); // Not used as we mock the connection layer
 
 		when(eventService.createSubmitter(uri, EventConstants.STATUS_SET)).thenReturn(statusSetSubmitter);
-
 		when(eventService.createPublisher(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher); // TODO why do we need the double cast?
-
 		when(eventService.createSubscriber(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) commandTopicSubscriber);
+		when(eventService.createPublisher(uri, EventConstants.ACK_TOPIC)).thenReturn(
+				(IPublisher<Object>) (IPublisher<?>) commandAckTopicPublisher);
 
 		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
 				/* EventConstants.HEARTBEAT_TOPIC */ null, // not worth testing and would need powermock to mock out the constructor for new HeartbeatBroadcaster
-				EventConstants.CMD_TOPIC, eventConnectorService, eventService);
+				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);
 		consumer.addConsumerStatusListener(consumerStatusListener);
 
 		// verify the methods
-
 		runner = mock(IProcessCreator.class);
 		consumer.setRunner(runner);
 		assertThat(consumer.getRunner(), is(runner));
@@ -199,7 +201,5 @@ public abstract class AbstractNewConsumerTest {
 
 		return mockProcesses;
 	}
-
-
 
 }

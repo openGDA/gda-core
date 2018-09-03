@@ -71,6 +71,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	// Recommended not to change these because easier for UI to inspect consumer created
 	protected String heartbeatTopic = EventConstants.HEARTBEAT_TOPIC;
 	protected String commandTopic   = EventConstants.CMD_TOPIC;
+	protected String commandAckTopic = EventConstants.ACK_TOPIC;
 
 	protected IConsumer<T> consumer;
 	private boolean isConnected;
@@ -90,7 +91,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	@PostConstruct // Requires spring 3 or better
 	public void connect() throws EventException, URISyntaxException {
 		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusSet(), getStatusTopic(),
-				getHeartbeatTopic(), getCommandTopic());
+				getHeartbeatTopic(), getCommandTopic(), getCommandAckTopic());
 		consumer.setName(getName());
 		consumer.setDurable(isDurable());
 		consumer.setRunner(AbstractConsumerServlet.this::createProcess);
@@ -170,6 +171,12 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	public void setCommandTopic(String commandTopic) {
 		this.commandTopic = commandTopic;
 	}
+
+	public String getCommandAckTopic() {
+		return commandAckTopic;
+	}
+
+
 
 	public boolean isBlocking() {
 		return blocking;

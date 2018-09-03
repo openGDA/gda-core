@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -78,6 +79,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private HeartbeatBroadcaster heartbeatBroadcaster;
 	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
+	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
 
 	private boolean pauseOnStart = false;
@@ -112,13 +114,14 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private volatile boolean consumerThreadRunning = false;
 
 	private final String commandTopicName;
+	private final String commandAckTopicName;
 	private final String heartbeatTopicName;
 
 	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
 
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String heartbeatTopicName, String commandTopicName, IEventConnectorService connectorService,
-			IEventService eventService)
+			String heartbeatTopicName, String commandTopicName, String commandAckTopicName,
+			IEventConnectorService connectorService, IEventService eventService)
 			throws EventException {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService, eventService);
 
@@ -131,7 +134,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
 		this.processMap = Collections.synchronizedMap(new HashMap<>());
 		this.commandTopicName = commandTopicName;
+		this.commandAckTopicName = commandAckTopicName;
 		this.heartbeatTopicName = heartbeatTopicName;
+
 		connect();
 	}
 
@@ -164,7 +169,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		if (getCommandTopicName()!=null) {
 			commandTopicSubscriber = eventService.createSubscriber(uri, getCommandTopicName());
 			commandTopicSubscriber.addListener(new CommandListener());
+			commandAckTopicPublisher = eventService.createPublisher(uri, commandAckTopicName);
 		}
+
 		setConnected(true);
 	}
 
@@ -215,6 +222,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	 * @param commandBean
 	 */
 	protected void processQueueCommand(QueueCommandBean commandBean) {
+		LOGGER.info("Consumer for queue {} received command bean {}", getSubmitQueueName(), commandBean);
 		final Command command = commandBean.getCommand();
 		try {
 			switch (command) {
@@ -252,6 +260,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}
 		} catch (Exception e) {
+			commandBean.setErrorMessage(MessageFormat.format("Could not process {0} command for queue {1}: {2}",
+					command, getSubmitQueueName(), e.getMessage()));
 			if (command == Command.PAUSE || command == Command.RESUME) {
 				// for pause and resume commands, we stop and disconnect the consumer
 				LOGGER.error("Unable to process {} command on consumer for queue '{}'. Consumer will stop.",
@@ -265,6 +275,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			} else {
 				LOGGER.error("Unable to process {} command on consumer for queue '{}'.",
 						commandBean.getCommand(), getSubmitQueueName(), e);
+			}
+		} finally {
+			try {
+				commandAckTopicPublisher.broadcast(commandBean);
+			} catch (EventException e) {
+				LOGGER.error("Could not publish acknowledgement for command bean {}", commandBean);
 			}
 		}
 	}
@@ -928,6 +944,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	public String getCommandTopicName() {
 		return commandTopicName;
 	}
+
 
 	/**
 	 * Class responsible for updating and broadcasting {@code HeartbeatBean}s. Essentially a wrapper for an {@code IPublisher<HeartbeatBean>}

@@ -38,7 +38,7 @@ public class MConsumerPluginTest extends AbstractMConsumerTest {
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
 		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
-		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		consumer.setName("Test Consumer 1");
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();

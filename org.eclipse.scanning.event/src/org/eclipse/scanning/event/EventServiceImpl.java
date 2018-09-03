@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
+import static org.eclipse.scanning.api.event.EventConstants.ACK_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.CMD_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.HEARTBEAT_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_SET;
@@ -86,22 +87,23 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException {
-		return createConsumer(uri, SUBMISSION_QUEUE, STATUS_SET, STATUS_TOPIC, HEARTBEAT_TOPIC, CMD_TOPIC);
+		return createConsumer(uri, SUBMISSION_QUEUE, STATUS_SET, STATUS_TOPIC, HEARTBEAT_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
 			String statusQueueName, String statusTopicName) throws EventException {
-		return createConsumer(uri, submissionQueueName, statusQueueName, statusTopicName, HEARTBEAT_TOPIC, CMD_TOPIC);
+		return createConsumer(uri, submissionQueueName, statusQueueName, statusTopicName, HEARTBEAT_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName, String statusQueueName,
-			String statusTopicName, String heartbeatTopicName, String commandTopicName) throws EventException {
-		logger.trace("createConsumer({}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName, commandTopicName, eventConnectorService, this);
+			String statusTopicName, String heartbeatTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
+		logger.trace("createConsumer({}, {}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusQueueName, statusTopicName,
+				heartbeatTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
 		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName,
-				commandTopicName, eventConnectorService, this);
+				commandTopicName, commandAckTopicName, eventConnectorService, this);
 	}
 
 	@Override

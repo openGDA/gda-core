@@ -18,8 +18,10 @@
 
 package org.eclipse.scanning.test.event;
 
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -38,16 +40,16 @@ public class ConsumerControlCommandBeanTest extends AbstractConsumerControlTest 
 	public void setUp() throws Exception {
 		super.setUp();
 
-		ArgumentCaptor<IBeanListener<QueueCommandBean>> captor =
+		ArgumentCaptor<IBeanListener<QueueCommandBean>> commandTopicSubscriberCaptor =
 				(ArgumentCaptor<IBeanListener<QueueCommandBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
-		verify(commandTopicSubscriber).addListener(captor.capture());
-		commandTopicListener = captor.getValue();
+		verify(commandTopicSubscriber).addListener(commandTopicSubscriberCaptor.capture());
+		commandTopicListener = commandTopicSubscriberCaptor.getValue();
 	}
 
-	private void sendCommandBean(Command command) {
-		final QueueCommandBean commandBean = new QueueCommandBean(
-				consumer.getSubmitQueueName(), command);
+	private void sendCommandBean(Command command) throws EventException {
+		final QueueCommandBean commandBean = new QueueCommandBean(consumer.getSubmitQueueName(), command);
 		commandTopicListener.beanChangePerformed(new BeanEvent<>(commandBean));
+		verify(commandAckTopicPublisher, timeout(250)).broadcast(commandBean);
 	}
 
 	@Override

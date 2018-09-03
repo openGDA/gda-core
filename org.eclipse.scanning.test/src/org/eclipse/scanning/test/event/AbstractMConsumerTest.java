@@ -53,7 +53,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		consumer.setRunner(new DryRunCreator<StatusBean>(false));
 		consumer.start();
 
-		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		IConsumer<StatusBean> consumer2 = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
@@ -77,7 +77,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		consumer.setRunner(new DryRunCreator<StatusBean>(false));
 		consumer.start();
 
-		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
@@ -109,7 +109,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		consumer.setRunner(new DryRunCreator<StatusBean>(false));
 		consumer.start();
 
-		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
@@ -159,7 +159,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100, true));
 		consumer.start();
 
-		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), consumer.getSubmitQueueName(), consumer.getStatusSetName(), consumer.getStatusTopicName(), EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), consumer.getSubmitQueueName(), consumer.getStatusSetName(), consumer.getStatusTopicName(), EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.setRunner(new DryRunProcessCreator<StatusBean>(100, true));
@@ -244,7 +244,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		List<IConsumer<StatusBean>> consumers   = new ArrayList<>(9);
 		try {
 			for (int i = 2; i < 11; i++) {
-				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
 				c.clearRunningAndCompleted();
@@ -299,7 +299,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		consumer.setRunner(new DryRunCreator<StatusBean>(false));
 		consumer.start();
 
-		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+		IConsumer<StatusBean> consumer2   = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			consumer2.setName("Test Consumer "+2);
 			consumer2.clearQueue();
@@ -350,7 +350,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		List<IConsumer<StatusBean>> consumers   = new ArrayList<>(9);
 		try {
 			for (int i = 2; i < 11; i++) {
-				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
 				c.clearRunningAndCompleted();
@@ -390,7 +390,7 @@ public class AbstractMConsumerTest extends BrokerTest {
 		List<IConsumer<StatusBean>> consumers   = new ArrayList<>(9);
 		try {
 			for (int i = 2; i < 11; i++) {
-				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
+				IConsumer<StatusBean> c = eservice.createConsumer(consumer.getUri(), EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 				c.setName("Test Consumer "+i);
 				c.clearQueue();
 				c.clearRunningAndCompleted();
