@@ -101,6 +101,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	private Condition shouldResumeCondition;
 	private volatile boolean awaitPaused;
 	private volatile boolean stopped = false; // a boolean to indicate if the main event loop is running (irrespective of whether it is paused)
+	private final String commandTopicName;
 	private final String heartbeatTopicName;
 
 	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
@@ -109,7 +110,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			String heartbeatTopicName, String commandTopicName, IEventConnectorService connectorService,
 			IEventService eventService)
 			throws EventException {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, connectorService, eventService);
+		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService, eventService);
 
 		this.awaitPaused = false;
 		this.consumerStateChangeLock = new ReentrantLock();
@@ -119,6 +120,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		consumerId = UUID.randomUUID();
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
 		this.processMap = Collections.synchronizedMap(new HashMap<>());
+		this.commandTopicName = commandTopicName;
 		this.heartbeatTopicName = heartbeatTopicName;
 		connect();
 	}
@@ -910,6 +912,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	@Override
 	public String getHeartbeatTopicName() {
 		return heartbeatTopicName;
+	}
+
+	@Override
+	public String getCommandTopicName() {
+		return commandTopicName;
 	}
 
 	/**

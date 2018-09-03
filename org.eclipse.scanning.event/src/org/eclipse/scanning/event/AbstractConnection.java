@@ -40,7 +40,6 @@ abstract class AbstractConnection implements IURIConnection {
 	protected String submitQueueName  = EventConstants.SUBMISSION_QUEUE;
 	protected String statusQueueName  = EventConstants.STATUS_SET;
 	protected String statusTopicName  = EventConstants.STATUS_TOPIC;
-	protected String commandTopicName = EventConstants.CMD_TOPIC;
 
 	protected IEventConnectorService service;
 
@@ -56,12 +55,11 @@ abstract class AbstractConnection implements IURIConnection {
 	}
 
 	AbstractConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String commandTopicName, IEventConnectorService service) {
+			IEventConnectorService service) {
 		this.uri = uri;
 		this.submitQueueName = submitQueueName;
 		this.statusQueueName = statusQueueName;
 		this.statusTopicName = statusTopicName;
-		this.commandTopicName = commandTopicName;
 		this.service = service;
 	}
 
@@ -160,14 +158,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	public void setStatusTopicName(String statusTopicName) {
 		this.statusTopicName = statusTopicName;
-	}
-
-	public String getCommandTopicName() {
-		return commandTopicName;
-	}
-
-	public void setCommandTopicName(String commandTopicName) {
-		this.commandTopicName = commandTopicName;
 	}
 
 	/**

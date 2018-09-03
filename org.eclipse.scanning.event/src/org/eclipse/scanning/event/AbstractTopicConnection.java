@@ -37,7 +37,7 @@ public abstract class AbstractTopicConnection extends AbstractConnection impleme
 
 	AbstractTopicConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			String commandTopicName, IEventConnectorService service) {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service);
+		super(uri, submitQueueName, statusQueueName, statusTopicName, service);
 	}
 
 	/**

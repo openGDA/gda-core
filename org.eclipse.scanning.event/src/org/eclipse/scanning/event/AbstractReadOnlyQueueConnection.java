@@ -47,8 +47,8 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 	}
 
 	AbstractReadOnlyQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String commandTopicName, IEventConnectorService connectorService, IEventService eventService) {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, connectorService);
+			IEventConnectorService connectorService, IEventService eventService) {
+		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService);
 		this.eventService = eventService;
 
 	}

@@ -53,8 +53,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 	AbstractQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String commandTopicName, IEventConnectorService service, IEventService eservice) {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, commandTopicName, service, eservice);
+			IEventConnectorService service, IEventService eservice) {
+		super(uri, submitQueueName, statusQueueName, statusTopicName, service, eservice);
 	}
 
 	protected Map<String, U> getMap(String queueName) throws EventException {
