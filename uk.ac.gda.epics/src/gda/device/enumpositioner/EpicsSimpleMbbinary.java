@@ -331,10 +331,10 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 		return readOnly;
 	}
 
-	public void setReadOnly(boolean readOnly) throws DeviceException {
+	public void setReadOnly(boolean readOnly) {
 		if (recordName == null) {
 			// readOnly is set by createChannelAccess
-			throw new DeviceException("readOnly may only be set when recordName is used to configure device: " + deviceName);
+			throw new IllegalStateException("readOnly may only be set when recordName is used to configure device: " + deviceName);
 		}
 		this.readOnly = readOnly;
 	}
