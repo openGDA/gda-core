@@ -40,10 +40,12 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * The Class EpicsControlPoint.
  */
+@ServiceInterface(ControlPoint.class)
 public class EpicsControlPoint extends ScannableMotionBase implements ControlPoint, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsControlPoint.class);
