@@ -18,6 +18,10 @@
 
 package uk.ac.gda.core.virtualaxis;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -27,11 +31,7 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.api.virtualaxis.IVirtualAxisCombinedCalculator;
 
 /**
@@ -39,6 +39,7 @@ import uk.ac.gda.api.virtualaxis.IVirtualAxisCombinedCalculator;
  */
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class CombinedManipulator extends ScannableBase implements IObserver {
 
 	private List<Scannable> scannables = new Vector<Scannable>();

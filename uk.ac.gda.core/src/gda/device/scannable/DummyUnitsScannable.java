@@ -22,10 +22,13 @@ package gda.device.scannable;
 import java.util.Arrays;
 
 import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A dummy scannable for testing / simulations which uses units.
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 
 	private double currentPosition = 0;
