@@ -21,6 +21,7 @@ package uk.ac.gda.devices.vgscienta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Device;
 import gda.device.DeviceBase;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
@@ -32,9 +33,11 @@ import gov.aps.jca.CAStatusException;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(Device.class)
 public class SweepUpdater extends DeviceBase {
 	private static final Logger logger = LoggerFactory.getLogger(SweepUpdater.class);
 

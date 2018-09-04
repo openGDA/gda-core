@@ -27,6 +27,7 @@ import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This is a simple scannable to allow the PGM and ID to be moved to a new energy, (specified in eV) together, as is the
@@ -38,6 +39,7 @@ import gda.factory.corba.util.CorbaImplClass;
  */
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class EnergyScannable extends ScannableBase {
 
 	private Scannable pgm;
