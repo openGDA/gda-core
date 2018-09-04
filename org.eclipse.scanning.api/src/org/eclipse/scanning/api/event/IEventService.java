@@ -159,6 +159,20 @@ public interface IEventService {
 						                                        String commandAckTopicName) throws EventException;
 
 	/**
+	 * Create a proxy for the consumer for the given submission queue. The given command queue
+	 * to communicate with the consumer.
+	 *
+	 * @param uri
+	 * @param submissionQueueName
+	 * @param commandTopicName
+	 * @param commandAckTopicName
+	 * @return a proxy to the consumer for the given queue name
+	 * @throws EventException
+	 */
+	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
+			String commandTopicName, String commandAckTopicName) throws EventException;
+
+	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of
 	 * detectors on the server. This is the same as creating a broadcaster, sending an object
 	 * then subscribing to the reply.

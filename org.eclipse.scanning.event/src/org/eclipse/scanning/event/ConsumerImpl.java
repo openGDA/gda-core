@@ -224,6 +224,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	protected void processQueueCommand(QueueCommandBean commandBean) {
 		LOGGER.info("Consumer for queue {} received command bean {}", getSubmitQueueName(), commandBean);
 		final Command command = commandBean.getCommand();
+		Object result = null;
 		try {
 			switch (command) {
 				case PAUSE:
@@ -245,13 +246,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					clearRunningAndCompleted();
 					break;
 				case MOVE_UP:
-					findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, 1));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, 1));
 					break;
 				case MOVE_DOWN:
-					findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, -1));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, -1));
 					break;
 				case REMOVE:
-					findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
 					break;
 				case REMOVE_COMPLETED:
 					removeCompleted(commandBean.getBeanUniqueId());
@@ -278,6 +279,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			}
 		} finally {
 			try {
+				commandBean.setResult(result);
 				commandAckTopicPublisher.broadcast(commandBean);
 			} catch (EventException e) {
 				LOGGER.error("Could not publish acknowledgement for command bean {}", commandBean);
@@ -285,6 +287,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		}
 	}
 
+	@Override
 	public void restart() throws EventException {
 		disconnect();
 		connect();
@@ -768,16 +771,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	public interface BeanAction<T> {
 
-		void performAction(T bean) throws EventException;
+		Object performAction(T bean) throws EventException;
 
 	}
 
-	protected void findBeanAndPerformAction(String beanUniqueId, BeanAction<U> action) throws EventException {
+	protected Object findBeanAndPerformAction(String beanUniqueId, BeanAction<U> action) throws EventException {
 		final Optional<U> optBean = findBeanWithId(getSubmissionQueue(), beanUniqueId);
 		if (optBean.isPresent()) {
-			action.performAction(optBean.get());
+			return action.performAction(optBean.get());
 		} else {
 			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", beanUniqueId);
+			return null;
 		}
 	}
 
@@ -945,6 +949,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		return commandTopicName;
 	}
 
+	@Override
+	public String getCommandAckTopicName() {
+		return commandAckTopicName;
+	}
 
 	/**
 	 * Class responsible for updating and broadcasting {@code HeartbeatBean}s. Essentially a wrapper for an {@code IPublisher<HeartbeatBean>}

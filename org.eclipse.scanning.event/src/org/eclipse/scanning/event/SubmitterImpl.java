@@ -45,7 +45,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnectio
 	private long lifeTime = TimeUnit.DAYS.toMillis(7); // default message time to live of 7 days
 
 	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eservice) {
-		super(uri, null, service, eservice);
+		super(uri, service, eservice);
 		setSubmitQueueName(submitQueue);
 	}
 

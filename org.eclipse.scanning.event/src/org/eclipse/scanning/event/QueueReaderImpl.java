@@ -23,7 +23,7 @@ public class QueueReaderImpl<T> extends AbstractConnection implements IQueueRead
 	private Class<T> beanClass;
 
 	QueueReaderImpl(URI uri, String qName, IEventService service) {
-		super(uri, null, service.getEventConnectorService());
+		super(uri, service.getEventConnectorService());
 		setSubmitQueueName(qName);
 	}
 

@@ -120,6 +120,8 @@ public class QueueCommandBean  extends IdBean {
 	 */
 	private String errorMessage;
 
+	private Object result;
+
 	public QueueCommandBean() {
 		super(); // make sure a unique id is set
 		// no-arg constructor for json deserialization
@@ -185,6 +187,14 @@ public class QueueCommandBean  extends IdBean {
 		this.errorMessage = errorMessage;
 	}
 
+	public Object getResult() {
+		return result;
+	}
+
+	public void setResult(Object result) {
+		this.result = result;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -195,6 +205,7 @@ public class QueueCommandBean  extends IdBean {
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
 		return result;
 	}
 
@@ -234,13 +245,19 @@ public class QueueCommandBean  extends IdBean {
 				return false;
 		} else if (!queueName.equals(other.queueName))
 			return false;
+		if (result == null) {
+			if (other.result != null)
+				return false;
+		} else if (!result.equals(other.result))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "QueueCommandBean [consumerId=" + consumerId + ", queueName=" + queueName + ", message=" + message
-				+ ", command=" + command + ", beanUniqueId=" + beanUniqueId + ", errorMessage=" + errorMessage + "]";
+				+ ", command=" + command + ", beanUniqueId=" + beanUniqueId + ", errorMessage=" + errorMessage
+				+ ", result=" + result + "]";
 	}
 
 }

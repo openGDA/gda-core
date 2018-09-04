@@ -65,7 +65,7 @@ import org.mockito.Mockito;
  * VM by sending {@link QueueCommandBean}s on the command topic.
  * This class contains the tests, but with abstract methods to control the
  * consumer. {@link ConsumerControlTest} overrides these methods to control
- * the consumer directly, {@link ConsumerControlCommandBeanTest} overrides to
+ * the consumer directly, {@link ConsumerProxyControlTest} overrides to
  * control the consumer using {@link QueueCommandBean}s.
  */
 public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTest {

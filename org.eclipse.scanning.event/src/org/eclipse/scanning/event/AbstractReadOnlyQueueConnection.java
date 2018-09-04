@@ -41,8 +41,8 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 
 	protected Class<U> beanClass;
 
-	AbstractReadOnlyQueueConnection(URI uri, String topic, IEventConnectorService connectorService, IEventService eventService) {
-		super(uri, topic, connectorService);
+	AbstractReadOnlyQueueConnection(URI uri, IEventConnectorService connectorService, IEventService eventService) {
+		super(uri, connectorService);
 		this.eventService = eventService;
 	}
 
@@ -50,7 +50,6 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 			IEventConnectorService connectorService, IEventService eventService) {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService);
 		this.eventService = eventService;
-
 	}
 
 	@Override

@@ -107,6 +107,14 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
+	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
+			String commandTopicName, String commandAckTopicName) throws EventException {
+		logger.trace("createConsumerProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,
+				commandTopicName, commandAckTopicName, eventConnectorService, this);
+		return new ConsumerProxy<>(uri, submissionQueueName, commandTopicName, commandAckTopicName, eventConnectorService, this);
+	}
+
+	@Override
 	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException {
 		logger.trace("checkHeartbeat({}, {}, {}) using {} and {}", uri, patientName, listenTime, eventConnectorService, this);
 		HeartbeatChecker checker = new HeartbeatChecker(this, uri, patientName, listenTime);

@@ -48,10 +48,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractQueueConnection.class);
 
-	AbstractQueueConnection(URI uri, String topic, IEventConnectorService service, IEventService eservice) {
-		super(uri, topic, service, eservice);
-	}
-
 	AbstractQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			IEventConnectorService service, IEventService eservice) {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, service, eservice);
@@ -70,7 +66,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	public void clearQueue() throws EventException {
 		// we need to pause the consumer before we clear the submission queue
 		final String queueName = getSubmitQueueName();
-		doWhilePaused(() -> doClearQueue(queueName));
+		doWhilePaused(() -> { doClearQueue(queueName); return null; });
 	}
 
 	@Override
@@ -82,7 +78,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		doClearQueue(EventConstants.CMD_SET);
 	}
 
-	private boolean doClearQueue(String queueName) throws EventException {
+	private void doClearQueue(String queueName) throws EventException {
 		logger.info("Clearing queue {}", queueName);
 		QueueConnection qCon = null;
 		try {
@@ -107,10 +103,8 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 				}
 				consumer.close();
 			}
-			return true;
 		} catch (Exception ne) {
 			throw new EventException(ne);
-
 		} finally {
 			if (qCon!=null) {
 				try {

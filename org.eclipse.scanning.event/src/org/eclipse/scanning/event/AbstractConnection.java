@@ -48,19 +48,22 @@ abstract class AbstractConnection implements IURIConnection {
 	private QueueSession queueSession;
 	private boolean connected = true;
 
-	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
+	AbstractConnection(URI uri, IEventConnectorService service) {
 		this.uri = uri;
-		this.topicName = topic;
 		this.service = service;
+	}
+
+	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
+		this(uri, service);
+		this.topicName = topic;
 	}
 
 	AbstractConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			IEventConnectorService service) {
-		this.uri = uri;
+		this(uri, service);
 		this.submitQueueName = submitQueueName;
 		this.statusQueueName = statusQueueName;
 		this.statusTopicName = statusTopicName;
-		this.service = service;
 	}
 
 	@Override

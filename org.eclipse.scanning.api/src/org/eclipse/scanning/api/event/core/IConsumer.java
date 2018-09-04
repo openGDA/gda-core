@@ -71,7 +71,6 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 */
 	void setRunner(IProcessCreator<T> process) throws EventException ;
 
-
 	/**
 	 * Starts the consumer in new thread and return. Similar to Thread.start()
 	 * You must set the runner before calling this method
@@ -84,6 +83,12 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 * @throws EventException
 	 */
 	void stop() throws EventException;
+
+	/**
+	 * Restarts a running consumer.
+	 * @throws EventException
+	 */
+	void restart() throws EventException;
 
 	/**
 	 * Awaits the start of the consumer. There are occasions
@@ -143,6 +148,12 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	 * @return topic name
 	 */
 	public String getCommandTopicName();
+
+	/**
+	 * The topic used by the consumer to send acknowledgements for commands received on the command topic.
+	 * @return command acknowledgement topic name
+	 */
+	public String getCommandAckTopicName();
 
 	/**
 	 * If set, the name of the topic that the consumer publishes {@link HeartbeatBean}s to, to indicate that it is running.
