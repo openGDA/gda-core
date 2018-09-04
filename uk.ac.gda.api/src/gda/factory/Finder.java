@@ -139,7 +139,7 @@ public enum Finder {
 			}
 			try {
 				if ((findable = factory.getFindable(name)) != null) {
-					logger.debug("Found '{}' using factory '{}' (local={})", name, factory, local);
+					logger.trace("Found '{}' using factory '{}' (local={})", name, factory, local);
 					break;
 				}
 			} catch (FactoryException e) {
