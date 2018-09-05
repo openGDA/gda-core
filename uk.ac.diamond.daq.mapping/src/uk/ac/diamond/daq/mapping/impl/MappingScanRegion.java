@@ -79,4 +79,9 @@ public class MappingScanRegion implements IMappingScanRegion {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "MappingScanRegion [region=" + region + ", scanPath=" + scanPath + "]";
+	}
+
 }

@@ -103,4 +103,9 @@ public class MappingScanDefinition implements IScanDefinition {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "MappingScanDefinition [mappingScanRegion=" + mappingScanRegion + ", outerScannables=" + outerScannables
+				+ ", defaultOuterScannables=" + defaultOuterScannables + "]";
+	}
 }

@@ -80,4 +80,9 @@ public class ScriptFiles implements IScriptFiles {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ScriptFiles [beforeScanScript=" + beforeScanScript + ", afterScanScript=" + afterScanScript + "]";
+	}
+
 }
