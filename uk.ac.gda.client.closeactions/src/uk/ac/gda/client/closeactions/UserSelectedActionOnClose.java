@@ -85,7 +85,7 @@ public class UserSelectedActionOnClose {
 	private void trimAndEmail(String reason, String name) {
 		if (!reason.trim().isEmpty()){
 			String user = System.getProperty("user.name");
-			String text = String.format("%s\n%s%s%s%s", reason, "Sent by: ", name.trim(), "logged in as: ", user);
+			String text = String.format("%s%n%nSent by: %s%nLogged in as: %s", reason, name.trim(), user);
 			logToTextFile(text);
 			sendEmail(text, "GDA Restart Reasoning/Feedback");
 		}
