@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
 import gda.jython.GDAJythonClassLoader;
+import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
@@ -176,8 +177,12 @@ public class GDAServerApplication implements IApplication {
 	 */
 	public void stop() {
 		logger.info("GDA application stopping");
-		// Notify via Jython console this is useful as dead clients will display the message
-		InterfaceProvider.getTerminalPrinter().print("GDA server is shutting down");
+		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
+		// If server startup failed, this may not have been created
+		if (printer != null) {
+			// Notify via Jython console this is useful as dead clients will display the message
+			printer.print("GDA server is shutting down");
+		}
 
 		closeStatusPort();
 
