@@ -173,27 +173,32 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 
 	@Override
 	public List<Findable> getFindables() {
-		if(!isConfigured()) {
-			throw new IllegalStateException("RmiProxyFactory is not yet configured");
-		}
+		checkConfigured();
 		return new ArrayList<>(nameToFindable.values());
 	}
 
 	@Override
 	public List<String> getFindableNames() {
-		if(!isConfigured()) {
-			throw new IllegalStateException("RmiProxyFactory is not yet configured");
-		}
+		checkConfigured();
 		return new ArrayList<>(nameToFindable.keySet());
 	}
 
 	@SuppressWarnings("unchecked") // We don't know what type the caller is expecting so this might throw!
 	@Override
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
+		checkConfigured();
+		return (T) nameToFindable.get(name);
+	}
+
+	/**
+	 * Ensures this is configured and throws an exception if not
+	 *
+	 * @throws IllegalStateException if not configured
+	 */
+	private void checkConfigured() {
 		if(!isConfigured()) {
 			throw new IllegalStateException("RmiProxyFactory is not yet configured");
 		}
-		return (T) nameToFindable.get(name);
 	}
 
 	@Override
