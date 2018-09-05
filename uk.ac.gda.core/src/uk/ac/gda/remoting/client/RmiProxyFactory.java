@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting.client;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.AUTO_EXPORT_RMI_PREFIX;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.remoting.rmi.RmiInvocationHandler;
 import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
+
+import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableBase;
@@ -97,6 +100,8 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 			return; // Already configured so do nothing
 		}
 		logger.info("Configuring RmiProxyFactory...");
+		// Time how long doing the importing takes
+		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		// Get the available objects from the server RMI registry
 		final List<String> availableRmiObjectsUrls;
@@ -152,6 +157,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 		// Register as a factory with the finder
 		Finder.getInstance().addFactory(this);
 		logger.info("Finished importing. {} RMI objects have been imported", nameToFindable.size());
+		logger.debug("Importing all objects took {} ms", stopwatch.elapsed(MILLISECONDS));
 		setConfigured(true);
 	}
 
