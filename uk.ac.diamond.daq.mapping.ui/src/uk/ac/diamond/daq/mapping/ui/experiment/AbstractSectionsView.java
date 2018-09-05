@@ -91,8 +91,6 @@ public abstract class AbstractSectionsView implements IAdaptable {
 
 	private IMappingExperimentBeanProvider mappingBeanProvider = null;
 
-	private IMappingExperimentBean mappingBean = null;
-
 	private StatusPanel statusPanel;
 
 	@Inject
@@ -117,7 +115,6 @@ public abstract class AbstractSectionsView implements IAdaptable {
 			throw new NullPointerException("beanProvider must not be null");
 		} else {
 			mappingBeanProvider = beanProvider;
-			this.mappingBean = beanProvider.getMappingExperimentBean();
 		}
 	}
 
@@ -176,7 +173,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		// Make the status bar label
 		createStatusPanel(alwaysVisible);
 
-		if (mappingBean == null) {
+		if (mappingBeanProvider.getMappingExperimentBean() == null) {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
@@ -200,14 +197,17 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	protected abstract List<Class<? extends AbstractMappingSection>> getUnscrolledSectionClasses();
 
 	private void loadPreviousState(MPart part) {
-		String json = part.getPersistedState().get(STATE_KEY_MAPPING_BEAN_JSON);
-		if (json != null) {
-			logger.trace("Restoring the previous state of the mapping view.");
-			IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
-			try {
-				setMappingBean(marshaller.unmarshal(json, MappingExperimentBean.class));
-			} catch (Exception e) {
-				logger.error("Failed to restore the previous state of the mapping view", e);
+		// Restore mapping bean unless it has been set by another view
+		if (!mappingBeanProvider.isSetByView()) {
+			final String json = part.getPersistedState().get(STATE_KEY_MAPPING_BEAN_JSON);
+			if (json != null) {
+				logger.trace("Restoring the previous state of the mapping view.");
+				final IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+				try {
+					setMappingBean(marshaller.unmarshal(json, MappingExperimentBean.class));
+				} catch (Exception e) {
+					logger.error("Failed to restore the previous state of the mapping view", e);
+				}
 			}
 		}
 	}
@@ -215,10 +215,10 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	@PersistState
 	public void saveState(MPart part) {
 		// serialize the json bean and save it in the preferences
-		IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+		final IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
 		try {
 			logger.trace("Saving the current state of the mapping view.");
-			String json = marshaller.marshal(mappingBean);
+			final String json = marshaller.marshal(mappingBeanProvider.getMappingExperimentBean());
 			part.getPersistedState().put(STATE_KEY_MAPPING_BEAN_JSON, json);
 		} catch (Exception e) {
 			logger.error("Could not save current the state of the mapping view.", e);
@@ -261,6 +261,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	}
 
 	private void createStatusPanel(final Composite mainComposite) {
+		final IMappingExperimentBean mappingBean = mappingBeanProvider.getMappingExperimentBean();
 		statusPanel = new StatusPanel(mainComposite, SWT.NONE, mappingBean);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
@@ -319,7 +320,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		@SuppressWarnings("unchecked")
 		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
 		try {
-			scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
+			scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBeanProvider.getMappingExperimentBean());
 			updateControls();
 		} catch (Exception e) {
 			logger.error("Error merging scan request into mapping bean.", e);
@@ -331,7 +332,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 
 	public void setMappingBean(IMappingExperimentBean bean) {
 		mappingBeanProvider.setMappingExperimentBean(bean);
-		mappingBean = bean;
+		mappingBeanProvider.setSetByView(true);
 	}
 
 	public void updateControls() {
@@ -343,6 +344,10 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		relayout();
 	}
 
+	public AbstractMappingSection getSection(Class<? extends AbstractMappingSection> sectionClass) {
+		return sections.get(sectionClass);
+	}
+
 	public IEclipseContext getEclipseContext() {
 		return injectionContext;
 	}
@@ -352,7 +357,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	}
 
 	protected IMappingExperimentBean getBean() {
-		return mappingBean;
+		return mappingBeanProvider.getMappingExperimentBean();
 	}
 
 	protected StatusPanel getStatusPanel() {
@@ -371,7 +376,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter == ScanRequest.class) {
-			return (T) scanRequestConverter.convertToScanRequest(mappingBean);
+			return (T) scanRequestConverter.convertToScanRequest(mappingBeanProvider.getMappingExperimentBean());
 		}
 
 		return null;

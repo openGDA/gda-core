@@ -30,6 +30,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 public class MappingExperimentBeanProvider implements IMappingExperimentBeanProvider {
 
 	private IMappingExperimentBean mappingExperimentBean;
+	private boolean setByView = false;
 
 	@Override
 	public IMappingExperimentBean getMappingExperimentBean() {
@@ -39,5 +40,15 @@ public class MappingExperimentBeanProvider implements IMappingExperimentBeanProv
 	@Override
 	public void setMappingExperimentBean(IMappingExperimentBean bean) {
 		this.mappingExperimentBean = bean;
+	}
+
+	@Override
+	public boolean isSetByView() {
+		return setByView;
+	}
+
+	@Override
+	public void setSetByView(boolean setByView) {
+		this.setByView = setByView;
 	}
 }
