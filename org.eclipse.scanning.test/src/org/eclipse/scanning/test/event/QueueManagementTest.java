@@ -39,8 +39,6 @@ import java.util.concurrent.Semaphore;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
@@ -106,12 +104,12 @@ public class QueueManagementTest extends BrokerTest {
 	private IEventService eservice;
 	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumer;
-	private IPublisher<QueueCommandBean> commandPublisher;
+	private IConsumer<StatusBean> consumerProxy;
 
-	private final boolean useQueueCommandBean;
+	private final boolean useProxy;
 	private final boolean startConsumer;
 
-	@Parameters(name="useQueueCommandBean = {0}, startConsumer = {1}")
+	@Parameters(name="useProxy = {0}, startConsumer = {1}")
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(new Object[][] {
 			{ false, false },
@@ -121,8 +119,8 @@ public class QueueManagementTest extends BrokerTest {
 		});
 	}
 
-	public QueueManagementTest(boolean useQueueCommandBean, boolean startConsumer) {
-		this.useQueueCommandBean = useQueueCommandBean;
+	public QueueManagementTest(boolean useProxy, boolean startConsumer) {
+		this.useProxy = useProxy;
 		this.startConsumer = startConsumer;
 	}
 
@@ -136,13 +134,15 @@ public class QueueManagementTest extends BrokerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
-		commandPublisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
-		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		submitter = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
 
+		if (useProxy) {
+			consumerProxy = eservice.createConsumerProxy(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		}
 		if (startConsumer) {
 			startConsumer();
 		}
@@ -189,6 +189,13 @@ public class QueueManagementTest extends BrokerTest {
 		}
 	}
 
+	private IConsumer<StatusBean> getConsumer() {
+		if (useProxy) {
+			return consumerProxy;
+		}
+		return consumer;
+	}
+
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
 		final List<StatusBean> beans = createAndSubmitBeans(submitter);
 		// check they've been submitted properly (check names for easier to read error message)
@@ -223,14 +230,6 @@ public class QueueManagementTest extends BrokerTest {
 		return bean;
 	}
 
-	private void doRemove(StatusBean bean) throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.REMOVE, bean);
-		} else {
-			consumer.remove(bean);
-		}
-	}
-
 	@Test
 	public void testRemove() throws Exception {
 		// Arrange: submit some beans
@@ -239,7 +238,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
-		doRemove(beanThree);
+		getConsumer().remove(beanThree);
 
 		// Assert, check the bean has been remove from the submission queue
 		assertThat(consumer.getSubmissionQueue(), is(equalTo(
@@ -270,14 +269,6 @@ public class QueueManagementTest extends BrokerTest {
 		return beans.stream().map(StatusBean::getName).collect(toList());
 	}
 
-	private void doReorderUp(StatusBean bean) throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.MOVE_UP, bean);
-		} else {
-			consumer.reorder(bean, 1);
-		}
-	}
-
 	@Test
 	public void testReorderUp() throws Exception {
 		// Arrange: submit some beans
@@ -288,20 +279,12 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		doReorderUp(beanThree);
+		getConsumer().reorder(beanThree, 1);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
 		beans.add(1, beanThree);
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
-	}
-
-	private void doReorderDown(StatusBean bean) throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.MOVE_DOWN, bean);
-		} else {
-			consumer.reorder(bean, -1);
-		}
 	}
 
 	@Test
@@ -314,7 +297,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		doReorderDown(beanThree);
+		getConsumer().reorder(beanThree, -1);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -334,7 +317,8 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean the first time
-		doReorderUp(beanThree);
+//		doReorderUp(beanThree);
+		getConsumer().reorder(beanThree, 1);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -342,7 +326,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Act: reorder the bean a second time
-		doReorderUp(beanThree);
+		getConsumer().reorder(beanThree, 1);
 
 		// Assert:
 		beans.remove(beanThree);
@@ -376,50 +360,20 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 	}
 
-	private void sendCommandBean(Command command) throws Exception {
-		sendCommandBean(command, null);
-	}
-
-	private void sendCommandBean(Command command, StatusBean statusBean) throws Exception {
-		QueueCommandBean commandBean = new QueueCommandBean(
-				submitter.getSubmitQueueName(), command);
-		if (statusBean != null) {
-			commandBean.setBeanUniqueId(statusBean.getUniqueId());
-		}
-		commandPublisher.broadcast(commandBean);
-		Thread.sleep(1000); // TODO: avoid a Thread.sleep here by using an acknowledgement topic?
-	}
-
-	private void doClearQueue() throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.CLEAR);
-		} else {
-			consumer.clearQueue();
-		}
-	}
-
 	@Test
 	public void testClearQueue() throws Exception {
 		createAndSubmitBeans();
 
-		doClearQueue();
+		getConsumer().clearQueue();
 
 		assertThat(consumer.getQueue(), is(empty()));
-	}
-
-	private void doClearCompleted() throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.CLEAR_COMPLETED);
-		} else {
-			consumer.clearRunningAndCompleted();
-		}
 	}
 
 	@Test
 	public void testClearCompleted() throws Exception {
 		createAndSubmitBeansToStatusSet();
 
-		doClearCompleted();
+		getConsumer().clearRunningAndCompleted();
 
 		assertThat(consumer.getRunningAndCompleted(), is(empty()));
 	}
@@ -433,7 +387,7 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Test
 	public void testCleanUpCompleted() throws Exception {
-		if (useQueueCommandBean) return; // there's no command bean for cleaning up the queue, it only needs to be done on the server side
+		if (useProxy) return; // there's no command bean for cleaning up the queue, it only needs to be done on the server side
 
 		List<StatusBean> beans = new ArrayList<>();
 		beans.add(createBean("failed", Status.FAILED, Duration.ofHours(2)));
@@ -468,14 +422,6 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanMap.get("notStarted").getStatus(), is(Status.FAILED));
 	}
 
-	private void doRemoveCompleted(StatusBean bean) throws Exception {
-		if (useQueueCommandBean) {
-			sendCommandBean(Command.REMOVE_COMPLETED, bean);
-		} else {
-			consumer.removeCompleted(bean);
-		}
-	}
-
 	@Test
 	public void testRemoveCompleted() throws Exception {
 		// Arrange: submit some beans directly to the status set
@@ -484,7 +430,7 @@ public class QueueManagementTest extends BrokerTest {
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
-		doRemoveCompleted(beanThree);
+		getConsumer().removeCompleted(beanThree);
 
 		List<String> expectedNames = getNames(beans);
 		expectedNames.remove("three");
