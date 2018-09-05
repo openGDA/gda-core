@@ -21,7 +21,7 @@ for word in "$@"; do
             ;;
         --springprofiles=*)
             export SPRING_PROFILES="${word:17}"
-            GDA_ARGS+="--springprofiles "
+            GDA_ARGS+="${word} "
             ;;
         --force)
             options_text+="\n\e[33mWARNING: The --force option is no longer necessary or supported; please remove it from your startup scripts\e[0m"
