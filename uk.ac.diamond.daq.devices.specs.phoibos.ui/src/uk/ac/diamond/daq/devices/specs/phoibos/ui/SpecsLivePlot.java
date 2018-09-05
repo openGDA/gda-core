@@ -40,15 +40,14 @@ public abstract class SpecsLivePlot extends ViewPart implements IObserver {
 
 	protected ISpecsPhoibosAnalyser analyser;
 	protected IPlottingSystem<Composite> plottingSystem;
-	protected static IPlottingService plottingService;
+	protected final IPlottingService plottingService;
 	protected boolean displayInBindingEnergy;
 	protected SpecsPhoibosLiveDataUpdate lastUpdate;
 
 	protected IActionBars actionBars;
 
-	public static synchronized void setPlottingService(IPlottingService plottingService) {
-		SpecsLivePlot.plottingService = plottingService;
-		logger.trace("IPlottingService injected: {}", plottingService);
+	public SpecsLivePlot() {
+		plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
 	}
 
 	@Override
