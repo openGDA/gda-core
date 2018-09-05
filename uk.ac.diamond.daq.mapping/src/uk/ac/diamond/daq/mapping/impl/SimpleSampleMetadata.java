@@ -84,5 +84,8 @@ public class SimpleSampleMetadata implements ISampleMetadata {
 		return true;
 	}
 
-
+	@Override
+	public String toString() {
+		return "SimpleSampleMetadata [sampleName=" + sampleName + ", description=" + description + "]";
+	}
 }

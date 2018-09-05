@@ -189,5 +189,12 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		return true;
 	}
 
-
+	@Override
+	public String toString() {
+		return "MappingExperimentBean [sampleMetadata=" + sampleMetadata + ", detectorParameters=" + detectorParameters
+				+ ", clusterProcessingConfiguration=" + clusterProcessingConfiguration + ", beamlineConfiguration="
+				+ beamlineConfiguration + ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles
+				+ ", perScanMonitorNames=" + perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames
+				+ "]";
+	}
 }
