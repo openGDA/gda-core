@@ -21,3 +21,4 @@ Import-Package: ch.qos.logback.classic;version="[1.1.6,2.0.0)",
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: uk.ac.diamond.daq.server.GDAServerActivator
+Automatic-Module-Name: uk.ac.diamond.daq.server

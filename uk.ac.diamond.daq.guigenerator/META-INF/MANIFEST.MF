@@ -31,3 +31,4 @@ Bundle-ClassPath: .,
  lib/metawidget-core-4.1.jar,
  lib/metawidget-jexl-4.1.jar,
  lib/metawidget-swt-4.1.jar
+Automatic-Module-Name: uk.ac.diamond.daq.guigenerator

@@ -24,3 +24,4 @@ Import-Package: org.eclipse.draw2d,
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: uk.ac.diamond.daq.tomography.datacollection.ui
