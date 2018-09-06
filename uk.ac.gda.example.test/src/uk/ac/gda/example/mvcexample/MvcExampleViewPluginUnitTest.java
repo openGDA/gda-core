@@ -208,10 +208,10 @@ class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 		return wrapper;
 	}
 
-	WritableList items = new WritableList(new ArrayList<MvcExampleItem>(), MvcExampleItem.class);
+	WritableList<MvcExampleItem> items = new WritableList<>(new ArrayList<MvcExampleItem>(), MvcExampleItem.class);
 
 	@Override
-	public WritableList getItems() {
+	public WritableList<MvcExampleItem> getItems() {
 		return items;
 	}
 

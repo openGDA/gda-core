@@ -36,8 +36,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionEvent;
@@ -114,29 +112,26 @@ public class ContentProposalAdapter {
 					 * controls, or a scrollbar. Do this in an async since the focus is not actually switched when this
 					 * event is received.
 					 */
-					e.display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if (isValid()) {
-								if (scrollbarClicked || hasFocus()) {
-									return;
-								}
-								// Workaround a problem on X and Mac, whereby at
-								// this point, the focus control is not known.
-								// This can happen, for example, when resizing
-								// the popup shell on the Mac.
-								// Check the active shell.
-								Shell activeShell = e.display.getActiveShell();
-								if (activeShell == getShell()
-										|| (infoPopup != null && infoPopup.getShell() == activeShell)) {
-									return;
-								}
-								/*
-								 * System.out.println(e); System.out.println(e.display.getFocusControl());
-								 * System.out.println(e.display.getActiveShell());
-								 */
-								close();
+					e.display.asyncExec(() -> {
+						if (isValid()) {
+							if (scrollbarClicked || hasFocus()) {
+								return;
 							}
+							// Workaround a problem on X and Mac, whereby at
+							// this point, the focus control is not known.
+							// This can happen, for example, when resizing
+							// the popup shell on the Mac.
+							// Check the active shell.
+							Shell activeShell = e.display.getActiveShell();
+							if (activeShell == getShell()
+									|| (infoPopup != null && infoPopup.getShell() == activeShell)) {
+								return;
+							}
+							/*
+							 * System.out.println(e); System.out.println(e.display.getFocusControl());
+							 * System.out.println(e.display.getActiveShell());
+							 */
+							close();
 						}
 					});
 					return;
@@ -630,12 +625,7 @@ public class ContentProposalAdapter {
 			if (USE_VIRTUAL) {
 				proposalTable = new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL);
 
-				Listener listener = new Listener() {
-					@Override
-					public void handleEvent(Event event) {
-						handleSetData(event);
-					}
-				};
+				Listener listener = this::handleSetData;
 				proposalTable.addListener(SWT.SetData, listener);
 			} else {
 				proposalTable = new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL);
@@ -710,13 +700,10 @@ public class ContentProposalAdapter {
 				getShell().setBounds(initialX, initialY, popupSize.x, popupSize.y);
 
 			// Now set up a listener to monitor any changes in size.
-			getShell().addListener(SWT.Resize, new Listener() {
-				@Override
-				public void handleEvent(Event e) {
-					popupSize = getShell().getSize();
-					if (infoPopupRequired && infoPopup != null) {
-						infoPopup.adjustBounds();
-					}
+			getShell().addListener(SWT.Resize, e -> {
+				popupSize = getShell().getSize();
+				if (infoPopupRequired && infoPopup != null) {
+					infoPopup.adjustBounds();
 				}
 			});
 		}
@@ -988,12 +975,9 @@ public class ContentProposalAdapter {
 		 */
 		private void asyncRecomputeProposals(final String filterText) {
 			if (isValid()) {
-				control.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						recordCursorPosition();
-						recomputeProposals(filterText);
-					}
+				control.getDisplay().asyncExec(() -> {
+					recordCursorPosition();
+					recomputeProposals(filterText);
 				});
 			} else {
 				recomputeProposals(filterText);
@@ -1166,12 +1150,12 @@ public class ContentProposalAdapter {
 	/*
 	 * The list of IContentProposalListener listeners.
 	 */
-	private ListenerList proposalListeners = new ListenerList();
+	private ListenerList<IContentProposalListener> proposalListeners = new ListenerList<>();
 
 	/*
 	 * The list of IContentProposalListener2 listeners.
 	 */
-	private ListenerList proposalListeners2 = new ListenerList();
+	private ListenerList<IContentProposalListener2> proposalListeners2 = new ListenerList<>();
 
 	/*
 	 * Flag that indicates whether the adapter is enabled. In some cases, adapters may be installed but depend upon
@@ -1756,12 +1740,7 @@ public class ContentProposalAdapter {
 					if (proposals.length > 1) {
 						popup = new ContentProposalPopup(null, proposals);
 						popup.open();
-						popup.getShell().addDisposeListener(new DisposeListener() {
-							@Override
-							public void widgetDisposed(DisposeEvent event) {
-								popup = null;
-							}
-						});
+						popup.getShell().addDisposeListener(event -> popup = null);
 						internalPopupOpened();
 						notifyPopupOpened();
 					} else {
@@ -1899,24 +1878,16 @@ public class ContentProposalAdapter {
 	 */
 	private void autoActivate() {
 		if (autoActivationDelay > 0) {
-			Runnable runnable = new Runnable() {
-				@Override
-				public void run() {
-					receivedKeyDown = false;
-					try {
-						Thread.sleep(autoActivationDelay);
-					} catch (InterruptedException e) {
-					}
-					if (!isValid() || receivedKeyDown) {
-						return;
-					}
-					getControl().getDisplay().syncExec(new Runnable() {
-						@Override
-						public void run() {
-							openProposalPopup(true);
-						}
-					});
+			Runnable runnable = () -> {
+				receivedKeyDown = false;
+				try {
+					Thread.sleep(autoActivationDelay);
+				} catch (InterruptedException e) {
 				}
+				if (!isValid() || receivedKeyDown) {
+					return;
+				}
+				getControl().getDisplay().syncExec(() -> openProposalPopup(true));
 			};
 			Async.execute(runnable);
 		} else {
@@ -1926,12 +1897,9 @@ public class ContentProposalAdapter {
 			// some event that will cause the cursor position or
 			// other important info to change as a result of this
 			// event occurring.
-			getControl().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (isValid()) {
-						openProposalPopup(true);
-					}
+			getControl().getDisplay().asyncExec(() -> {
+				if (isValid()) {
+					openProposalPopup(true);
 				}
 			});
 		}

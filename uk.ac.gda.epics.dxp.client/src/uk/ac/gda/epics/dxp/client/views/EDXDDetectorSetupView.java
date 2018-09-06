@@ -246,7 +246,7 @@ public class EDXDDetectorSetupView extends ViewPart implements ISelectionProvide
 		return "Edxd Detector Setup";
 	}
 
-	private ListenerList listeners = new ListenerList();
+	private ListenerList<ISelectionChangedListener> listeners = new ListenerList<>();
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
