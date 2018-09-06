@@ -27,8 +27,6 @@ import javax.jms.Topic;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
@@ -213,11 +211,9 @@ class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnectio
 
 	@Override
 	public boolean isQueuePaused() {
-		// TODO: this method won't work if the pause command was sent via a ConsumerProxy
-		// as this does not add the command bean to the command set.
+		// Now that the StatusQueueView uses the proxy, this method as previously implemented will no longer work with an ISubmitter.
 		// This method will be soon be removed by a subsequent commit, and ISubmitter will no longer implement IReadOnlyQueueConnection
-		QueueCommandBean bean = getLastPauseResumeBean(getSubmitQueueName());
-		return bean != null && bean.getCommand() == Command.PAUSE;
+		throw new UnsupportedOperationException();
 	}
 
 }

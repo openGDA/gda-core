@@ -53,9 +53,9 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -138,9 +138,9 @@ public class StatusQueueView extends EventConnectionView {
 
 	private ISubscriber<IBeanListener<StatusBean>> topicMonitor;
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminMonitor;
-	private ISubmitter<StatusBean> queueConnection;
+	private ISubmitter<StatusBean> submitter;
 	private IPublisher<StatusBean> statusTopicPublisher;
-	private IPublisher<QueueCommandBean> commandTopicPublisher;
+	private IConsumer<StatusBean> consumerProxy;
 
 	private Action openResultsAction;
 	private Action rerunAction;
@@ -178,8 +178,14 @@ public class StatusQueueView extends EventConnectionView {
 		viewer.setContentProvider(createContentProvider());
 
 		try {
-			queueConnection = service.createSubmitter(getUri(), getSubmissionQueueName());
-			queueConnection.setStatusTopicName(getTopicName());
+			consumerProxy = service.createConsumerProxy(getUri(), getSubmissionQueueName(), EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		} catch (Exception e) {
+			logger.error("Cannot create proxy to queue {}", getSubmissionQueueName(), e);
+		}
+
+		try {
+			submitter = service.createSubmitter(getUri(), getSubmissionQueueName());
+			submitter.setStatusTopicName(getTopicName());
 			updateQueue();
 
 			String name = getSecondaryIdAttribute("partName");
@@ -200,13 +206,6 @@ public class StatusQueueView extends EventConnectionView {
 			logger.error("Cannot create publisher to status topic", e);
 		}
 
-		try {
-			commandTopicPublisher = service.createPublisher(getUri(), EventConstants.CMD_TOPIC);
-			commandTopicPublisher.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
-			commandTopicPublisher.setStatusSetAddRequired(true);
-		} catch (Exception e) {
-			logger.error("Cannot create publisher to command topic", e);
-		}
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
 		getViewSite().setSelectionProvider(selectionProvider);
@@ -323,13 +322,13 @@ public class StatusQueueView extends EventConnectionView {
 			logger.warn("Problem disconnecting publisher from status topic", e);
 		}
 		try {
-			if (commandTopicPublisher != null) commandTopicPublisher.disconnect();
+			if (consumerProxy != null) consumerProxy.disconnect();
 		} catch (Exception e) {
 			logger.warn("Problem disconnecting publisher from command topic", e);
 		}
 
 		try {
-			if (queueConnection != null) queueConnection.disconnect();
+			if (submitter != null) submitter.disconnect();
 		} catch (EventException e) {
 			logger.warn("Problem disconnecting from queue connection", e);
 		}
@@ -392,7 +391,7 @@ public class StatusQueueView extends EventConnectionView {
 		addActionTo(toolMan, menuMan, dropDown, pauseConsumerAction);
 
 		ISubscriber<IBeanListener<QueueCommandBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
-		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(queueConnection.isQueuePaused()));
+		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(consumerProxy.isQueuePaused()));
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -453,7 +452,7 @@ public class StatusQueueView extends EventConnectionView {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							sendQueueCommand(Command.MOVE_UP, bean);
+							consumerProxy.reorder(bean, 1);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -471,18 +470,6 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	private void sendQueueCommand(Command command, StatusBean bean) throws EventException {
-		QueueCommandBean commandBean = new QueueCommandBean(getSubmissionQueueName(), command);
-		commandBean.setBeanUniqueId(bean.getUniqueId());
-		commandTopicPublisher.broadcast(commandBean);
-		try { // TODO: this introduction of a race condition is temporary, a future change
-			// will introduce a wait on an acknowledgement topic
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// ignore
-		}
-	}
-
 	private void downActionUpdate(boolean anySelectedInSubmittedList) {
 		downAction.setEnabled(anySelectedInSubmittedList);
 	}
@@ -498,7 +485,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							sendQueueCommand(Command.MOVE_DOWN, bean);
+							consumerProxy.reorder(bean, -1);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -523,28 +510,27 @@ public class StatusQueueView extends EventConnectionView {
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
-		action.setChecked(queueConnection.isQueuePaused());
+		action.setChecked(consumerProxy.isQueuePaused());
 		return action;
 	}
 
 	private void pauseConsumerActionRun(IAction pauseConsumer) {
 
 		// The button can get out of sync if two clients are used.
-		final boolean currentState = queueConnection.isQueuePaused();
+		final boolean queuePaused = consumerProxy.isQueuePaused();
 		try {
-			pauseConsumer.setChecked(!currentState); // We are toggling it.
-
-			QueueCommandBean pauseResumeBean = new QueueCommandBean();
-			pauseResumeBean.setQueueName(getSubmissionQueueName()); // The queue we are pausing
-			pauseResumeBean.setCommand(pauseConsumer.isChecked() ? Command.PAUSE : Command.RESUME);
-			commandTopicPublisher.broadcast(pauseResumeBean);
-
+			pauseConsumer.setChecked(!queuePaused); // We are toggling it.
+			if (queuePaused) {
+				consumerProxy.resume();
+			} else {
+				consumerProxy.pause();
+			}
 		} catch (Exception e) {
 			ErrorDialog.openError(getViewSite().getShell(), "Cannot pause queue "+getSubmissionQueueName(),
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		pauseConsumer.setChecked(queueConnection.isQueuePaused());
+		pauseConsumer.setChecked(consumerProxy.isQueuePaused());
 	}
 
 	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {
@@ -619,13 +605,13 @@ public class StatusQueueView extends EventConnectionView {
 				try {
 					if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
 						// It is submitted and not running. We can probably delete it.
-						sendQueueCommand(Command.REMOVE, bean);
+						consumerProxy.remove(bean);
 					} else {
 						// only ask the user to confirm is the queue is in the status set not the submit queue
 						boolean ok = MessageDialog.openQuestion(getSite().getShell(), "Confirm Remove '"+bean.getName()+"'",
 							"Are you sure you would like to remove '"+bean.getName()+"'?");
 						if (ok) {
-							sendQueueCommand(Command.REMOVE_COMPLETED, bean);
+							consumerProxy.removeCompleted(bean);
 						}
 					}
 					refresh();
@@ -706,8 +692,8 @@ public class StatusQueueView extends EventConnectionView {
 			getSubmissionQueueName()+"?\n\nThis could abort or disconnect runs of other users.");
 		if (!ok) return;
 
-		commandTopicPublisher.broadcast(new QueueCommandBean(getSubmissionQueueName(), Command.CLEAR));
-		commandTopicPublisher.broadcast(new QueueCommandBean(getSubmissionQueueName(), Command.CLEAR_COMPLETED));
+		consumerProxy.clearQueue();
+		consumerProxy.clearRunningAndCompleted();
 
 		// TODO: this temporarily introduces a new race condition, as the consumer doesn't notify us when this
 		// is completed. A subsequent change fixes this by introducing an acknowledgement topic
@@ -954,7 +940,7 @@ public class StatusQueueView extends EventConnectionView {
 			copy.setPercentComplete(0.0);
 			copy.setSubmissionTime(System.currentTimeMillis());
 
-			queueConnection.submit(copy);
+			submitter.submit(copy);
 
 			reconnect();
 
@@ -1085,13 +1071,13 @@ public class StatusQueueView extends EventConnectionView {
 					final Instant jobStartTime = Instant.now();
 					monitor.beginTask("Connect to command server", 10);
 
-					queueConnection.setBeanClass(getBeanClass());
+					consumerProxy.setBeanClass(getBeanClass());
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					runList = queueConnection.getRunningAndCompleted();
+					runList = consumerProxy.getRunningAndCompleted();
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					submittedList = queueConnection.getQueue();
+					submittedList = consumerProxy.getQueue();
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end
