@@ -34,9 +34,6 @@ import gda.epics.PV;
  * Epics controller for Trajectory scan.
  * Contains getters, setters for accessing PVs for time, position, velocity mode, user mode arrays, etc. needed
  * for setting up, building and executing a trajectory scan and monitoring its progress. <p>
- * For convenience, it can also be used by first building up the set of position, time, velocity mode values to be used for the trajectory (in memory)
- * by using the functions {@link #addPointsToTrajectory}, {@link #addPointToTrajectory(Double, Double, Integer)}, before sending the values
- * to Epics using {@link #sendProfileValues}.
  * @since 3/7/2017
  */
 public final class EpicsTrajectoryScanController extends TrajectoryScanControllerBase implements InitializingBean{

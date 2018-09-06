@@ -19,9 +19,15 @@
 package gda.device.trajectoryscancontroller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * 'Dummy mode' implementation of TrajectoryScan controller.
@@ -30,87 +36,136 @@ import org.slf4j.LoggerFactory;
 public class DummyTrajectoryScanController extends TrajectoryScanControllerBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTrajectoryScanController.class);
+	private static final int MAX_AXES = 128; // some "large enough" number
 
-	private Thread trajectoryExecutionThread;
-	private volatile boolean trajectoryScanInProgress;
-	private int percentComplete;
-	private volatile ExecuteStatus executeStatus;
+	private volatile Status buildStatus = Status.UNDEFINED;
+	private volatile Status appendStatus = Status.UNDEFINED;
+	private volatile ExecuteStatus executeStatus = ExecuteStatus.UNDEFINED;
 
-	// These arrays store the values passed by calls to set*TimeArray functions
-	// which would be passed to PVs in live mode.
-	private Double[] trajectoryPositionsPv;
-	private Double[] trajectoryTimesPv;
-	private Integer[] userModePv;
-	private Integer[] trajectoryVelocityModesPv;
+	private volatile State buildState = State.DONE;
+	private volatile State appendState = State.DONE;
+	private volatile ExecuteState executeState = ExecuteState.DONE;
+
+	private int percentComplete = 0;
+	private int driveBufferAIndex = 0;
+	private int numberOfPoints = 0;
+	private int numberOfPointsToBuild = 0;
+
+	private List<Double> axisResolutions = new ArrayList<>(Collections.nCopies(MAX_AXES, 0.));
+	private List<Double> axisOffsets = new ArrayList<>(Collections.nCopies(MAX_AXES, 0.));
+	private List<String> motorPorts = new ArrayList<>(Collections.nCopies(MAX_AXES, ""));
+	private List<String> csAssignments = new ArrayList<>(Collections.nCopies(MAX_AXES, ""));
+	private List<Boolean> useAxes = new ArrayList<>(Collections.nCopies(MAX_AXES, false));
+
+	private Double[] intermediateAxisPositions;
+	private Double[] intermediateTimeProfile;
+	private Integer[] intermediateVelocityProfile;
+	private Integer[] intermediateUserMode;
+
+	private List<Double> axisPositions = new ArrayList<>();
+	private List<Double> timeProfile = new ArrayList<>();
+	private List<Integer> velocityProfile = new ArrayList<>();
 
 	public DummyTrajectoryScanController() {
-		setName("DummyTrajectoryScanController");
-		trajectoryScanInProgress = false;
+		// Empty
 	}
-
-	private int driveBufferAIndex;
 
 	@Override
 	public void setBuildProfile() throws Exception {
-		driveBufferAIndex = trajectoryPositions.size();
+		buildState = State.BUSY;
+		axisPositions.clear();
+		timeProfile.clear();
+		velocityProfile.clear();
+		if (numberOfPointsToBuild > numberOfPoints) {
+			logger.error("Specified %d points to build, but total size specified was %d", numberOfPointsToBuild, numberOfPoints);
+			buildStatus = Status.FAILURE;
+			buildState = State.DONE;
+			return;
+		}
+		if (intermediateAxisPositions.length < numberOfPointsToBuild
+				|| intermediateTimeProfile.length < numberOfPointsToBuild
+				|| intermediateVelocityProfile.length < numberOfPointsToBuild) {
+			logger.error("Provided arrays not large enough to build profile");
+			buildStatus = Status.FAILURE;
+			buildState = State.DONE;
+			return;
+		}
+		axisPositions.addAll(Arrays.asList(intermediateAxisPositions).subList(0, numberOfPointsToBuild));
+		timeProfile.addAll(Arrays.asList(intermediateTimeProfile).subList(0, numberOfPointsToBuild));
+		velocityProfile.addAll(Arrays.asList(intermediateVelocityProfile).subList(0, numberOfPointsToBuild));
+		buildStatus = Status.SUCCESS;
+		buildState = State.DONE;
 	}
 
 	@Override
 	public void setAppendProfile() throws Exception {
+		appendState = State.BUSY;
+		if (numberOfPointsToBuild + axisPositions.size() > numberOfPoints) {
+			logger.error("Not enough space to append positions");
+			appendStatus = Status.FAILURE;
+			appendState = State.DONE;
+			return;
+		}
+		if (intermediateAxisPositions.length < numberOfPointsToBuild
+				|| intermediateTimeProfile.length < numberOfPointsToBuild
+				|| intermediateVelocityProfile.length < numberOfPointsToBuild) {
+			logger.error("Provided arrays not large enough to append profile");
+			appendStatus = Status.FAILURE;
+			appendState = State.DONE;
+			return;
+		}
+		axisPositions.addAll(Arrays.asList(intermediateAxisPositions).subList(0, numberOfPointsToBuild));
+		timeProfile.addAll(Arrays.asList(intermediateTimeProfile).subList(0, numberOfPointsToBuild));
+		velocityProfile.addAll(Arrays.asList(intermediateVelocityProfile).subList(0, numberOfPointsToBuild));
+		appendStatus = Status.SUCCESS;
+		appendState = State.DONE;
 	}
 
-	private void runTrajectoryScan() {
-		logger.info("Trajectory scan run thread started");
-		trajectoryScanInProgress = true;
-		percentComplete = 0;
-		int numPoints = trajectoryTimes.size();
-		int lastPointProcessed = 0;
-		for(int i=0; i<numPoints && (executeStatus!=ExecuteStatus.ABORT && executeStatus!=ExecuteStatus.FAILURE); i++) {
-			logger.info("Point {} of {} : Position = {}, time = {}, velocityMode = {}", i+1, numPoints, trajectoryPositions.get(i), trajectoryTimes.get(i), trajectoryVelocityModes.get(i));
-			percentComplete = 100*i/(numPoints-1);
-			try {
-				long pauseTimeMillis = (long) (1000.0 * trajectoryTimes.get(i));
-				logger.info("Wait for {} ms...", pauseTimeMillis);
-				Thread.sleep(pauseTimeMillis);
-				lastPointProcessed = i;
-			} catch (InterruptedException e) {
-				logger.error("Trajectory scan interrupted", e);
-				break; // exit loop over points
-			}
-		}
-		// Set execute status if scan completed successfully.
-		if (lastPointProcessed==numPoints-1) {
-			executeStatus = ExecuteStatus.SUCCESS;
-		}
-		trajectoryScanInProgress = false;
-		logger.info("Trajectory scan run thread finished. ExecuteStatus = {}", executeStatus);
-	}
 
 	@Override
 	public void setExecuteProfile() throws Exception {
-		// This should 'execute' the profile in a thread, update the scan percent counter and execute state as necessary.
-		logger.info("Execute profile called");
-		if (trajectoryScanInProgress) {
-			// What happens in Epics if execute while scan is running?
-			logger.warn("Trajectory scan already running");
+		if (executeState != ExecuteState.DONE) {
+			logger.error("Already executing profile");
+			setAbortProfile();
+			executeStatus = ExecuteStatus.FAILURE;
 			return;
 		}
-		trajectoryScanInProgress = true;
-		percentComplete = 0;
-		executeStatus = ExecuteStatus.SUCCESS;
-		trajectoryExecutionThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				runTrajectoryScan();
+		if (buildState != State.DONE || appendState != State.DONE) {
+			logger.error("Profile still building");
+			executeStatus = ExecuteStatus.FAILURE;
+			executeState = ExecuteState.DONE;
+			return;
+		}
+		if (buildStatus != Status.SUCCESS) {
+			// we don't check append status since that may never have been called
+			logger.error("Cannot execute profile that failed to build");
+			executeStatus = ExecuteStatus.FAILURE;
+			executeState = ExecuteState.DONE;
+			return;
+		}
+		executeStatus = ExecuteStatus.UNDEFINED;
+		executeState = ExecuteState.EXECUTING;
+		Async.execute(() -> {
+			// don't bother emulating the provided times, just take some time and incrementally update percentage complete
+			for (int i = 0; i < 500; i++) {
+				if (executeState == ExecuteState.DONE) return;
+				percentComplete = (int) ((i / 500.) * 100);
+				try {
+					Thread.sleep(10);
+				} catch (Exception e) {
+					executeStatus = ExecuteStatus.FAILURE;
+					executeState = ExecuteState.DONE;
+				}
 			}
+			executeStatus = ExecuteStatus.SUCCESS;
+			executeState = ExecuteState.DONE;
 		});
-		trajectoryExecutionThread.start();
 	}
 
 	@Override
 	public void setAbortProfile() throws IOException {
-		// This should stop the execute profile thread if its running and update execute state if necessary.
 		executeStatus = ExecuteStatus.ABORT;
+		executeState = ExecuteState.DONE;
 	}
 
 	@Override
@@ -120,17 +175,17 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 
 	@Override
 	public State getBuildState() throws IOException {
-		return State.DONE;
+		return buildState;
 	}
 
 	@Override
 	public State getAppendState() throws IOException {
-		return State.DONE;
+		return appendState;
 	}
 
 	@Override
 	public ExecuteState getExecuteState() throws IOException {
-		return trajectoryScanInProgress ? ExecuteState.EXECUTING : ExecuteState.DONE;
+		return executeState;
 	}
 
 	@Override
@@ -144,12 +199,12 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 
 	@Override
 	public Status getAppendStatus() throws IOException {
-		return Status.SUCCESS;
+		return appendStatus;
 	}
 
 	@Override
 	public Status getBuildStatus() throws IOException {
-		return Status.SUCCESS;
+		return buildStatus;
 	}
 
 	@Override
@@ -166,38 +221,32 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 
 	@Override
 	public void setUseAxis(int axis, boolean useAxis) throws IOException, Exception {
-		// TODO Auto-generated method stub
-
+		useAxes.set(axis, useAxis);
 	}
 
 	@Override
 	public boolean getUseAxis(int axis) throws IOException, Exception {
-		// TODO Auto-generated method stub
-		return false;
+		return useAxes.get(axis);
 	}
 
 	@Override
 	public void setOffsetForAxis(int axis, double offset) throws IOException, Exception {
-		// TODO Auto-generated method stub
-
+		axisOffsets.set(axis, offset);
 	}
 
 	@Override
 	public double getOffsetForAxis(int axis) throws IOException, Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return axisOffsets.get(axis);
 	}
 
 	@Override
 	public void setResolutionForAxis(int axis, double resolution) throws IOException, Exception {
-		// TODO Auto-generated method stub
-
+		axisResolutions.set(axis, resolution);
 	}
 
 	@Override
 	public double getResolutionForAxis(int axis) throws IOException, Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		return axisResolutions.get(axis);
 	}
 
 	@Override
@@ -207,65 +256,65 @@ public class DummyTrajectoryScanController extends TrajectoryScanControllerBase 
 
 	@Override
 	public void setProfileNumPoints(int numPoints) throws Exception {
-		// TODO Auto-generated method stub
+		numberOfPoints = numPoints;
 	}
 
-	private int profileNumPointsToBuild;
 	@Override
 	public void setProfileNumPointsToBuild(int numPoints) throws Exception {
-		profileNumPointsToBuild = numPoints;
+		numberOfPointsToBuild = numPoints;
 	}
 
 	@Override
 	public int getProfileNumPointsToBuild() throws Exception {
-		return profileNumPointsToBuild;
+		return numberOfPointsToBuild;
 	}
 
 	@Override
 	public void setProfileVelocityModeArray(Integer[] vals) throws IOException {
-		trajectoryVelocityModesPv = vals;
+		intermediateVelocityProfile = vals;
 	}
 	@Override
 	public Integer[] getProfileVelocityModeArray() throws IOException {
-		return trajectoryVelocityModesPv;
+		return intermediateVelocityProfile;
 	}
 
 	@Override
 	public void setProfileTimeArray(Double[] vals) throws IOException {
-		trajectoryTimesPv = vals;
+		intermediateTimeProfile = vals;
 	}
 
 	@Override
 	public Double[] getProfileTimeArray() throws IOException {
-		return trajectoryTimesPv;
+		return intermediateTimeProfile;
 	}
 
 	@Override
 	public void setAxisPoints(int axis, Double[] points) throws IOException, Exception {
-		trajectoryPositionsPv = points;
+		intermediateAxisPositions = points;
 	}
 
 	@Override
 	public Double[] getAxisPoints(int axis) {
-		return trajectoryPositionsPv;
+		return intermediateAxisPositions;
 	}
 
 	@Override
 	public void setProfileUserArray(Integer[] vals) throws IOException {
-		userModePv = vals;
+		intermediateUserMode = vals;
 	}
+
 	@Override
 	public Integer[] getProfileUserArray() throws IOException {
-		return userModePv;
+		return intermediateUserMode;
 	}
 
 	@Override
 	public void setCSPort(int motor, String port) throws IOException, Exception {
-		// TODO Auto-generated method stub
+		motorPorts.set(motor, port);
 	}
 
 	@Override
 	public void setCSAssignment(int motor, String port) throws IOException, Exception {
-		// TODO Auto-generated method stub
+		csAssignments.set(motor, port);
 	}
 }

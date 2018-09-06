@@ -35,38 +35,11 @@ public interface TrajectoryScanController {
 	/** State enum values for 'Profile Execution' */
 	public enum ExecuteState {DONE, MOVE_START, EXECUTING, FLYBACK}
 
-	// Methods to setup, clear list of values making up the trajectory (in memory)
+	int getTimeConversionFromSecondsToDeviceUnits();
 
-	void clearTrajectoryLists();
-
-	void addPointToTrajectory(Double position, Double time, Integer velocityMode);
-
-	void addPointsToTrajectory(Double[] positions, Double[] times, Integer[] velocityMode);
-
-	void setTrajectoryPositionList(List<Double> positionProfileValues);
-
-	void setTrajectoryTimesList(List<Double> timeProfileValues);
-
-	void setTrajectoryVelocityModesList(List<Integer> velocityModeProfileValues);
-
-	List<Double> getTrajectoryTimesList();
-
-	List<Integer> getTrajectoryVelocityModesList();
-
-	List<Double> getTrajectoryPositionsList();
+	int getMaxPointsPerProfileBuild();
 
 	// Methods used to talk to Epics
-
-	/**
-	 * Send currently stored trajectory scan list values to Epics.
-	 * (i.e. convert from List to array and send to appropriate PVs)
-	 * @throws Exception
-	 */
-	void sendProfileValues() throws Exception;
-
-	void sendProfileValues(int startIndex, int endIndex) throws Exception;
-
-	void sendAppendProfileValues() throws Exception;
 
 	void setBuildProfile() throws Exception;
 
