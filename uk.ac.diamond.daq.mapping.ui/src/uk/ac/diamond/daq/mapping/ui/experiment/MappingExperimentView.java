@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,36 +63,6 @@ import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 public class MappingExperimentView implements IAdaptable {
 
 	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
-
-	/**
-	 * These classes will be created on a scrollable composite (not always visible)
-	 */
-	@SuppressWarnings("unchecked")
-	private static final Class<? extends AbstractMappingSection>[] SCROLLED_SECTION_CLASSES = new Class[] {
-			// a section for configuring scannables to be moved to a particular position at the start of a scan
-			BeamlineConfigurationSection.class,
-			// a section for configuring scripts to be run before and after a scan
-			ScriptFilesSection.class,
-			// a section for configuring outer scannables (i.e. in addition to the inner map)
-			OuterScannablesSection.class,
-			// a section for choosing the detectors (or malcolm device) to include in the scan
-			DetectorsSection.class,
-			// a section for configuring the path of the mapping scan
-			RegionAndPathSection.class,
-			// a section for configuring metadata to add to the scan
-			ScanMetadataSection.class,
-			// a section for configuring live processing to run
-			ProcessingSection.class
-	};
-
-	/**
-	 * These classes are always visible
-	 */
-	@SuppressWarnings("unchecked")
-	private static final Class<? extends AbstractMappingSection>[] UNSCROLLED_SECTION_CLASSES = new Class[] {
-			// a section for submitting the scan to the queue
-			SubmitScanSection.class
-	};
 
 	private static final Logger logger = LoggerFactory.getLogger(MappingExperimentView.class);
 
@@ -183,13 +154,43 @@ public class MappingExperimentView implements IAdaptable {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
-			createSections(mainComposite, SCROLLED_SECTION_CLASSES, part.getPersistedState());
-			createSections(alwaysVisible, UNSCROLLED_SECTION_CLASSES, part.getPersistedState());
+			createSections(mainComposite, getScrolledSectionClasses(), part.getPersistedState());
+			createSections(alwaysVisible, getUnscrolledSectionClasses(), part.getPersistedState());
 			recalculateMinimumSize();
 		}
 
 		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
+	}
+
+	/**
+	 * These classes will be created on a scrollable composite (not always visible)
+	 */
+	protected List<Class<? extends AbstractMappingSection>> getScrolledSectionClasses() {
+		return Arrays.asList(
+			// a section for configuring scannables to be moved to a particular position at the start of a scan
+			BeamlineConfigurationSection.class,
+			// a section for configuring scripts to be run before and after a scan
+			ScriptFilesSection.class,
+			// a section for configuring outer scannables (i.e. in addition to the inner map)
+			OuterScannablesSection.class,
+			// a section for choosing the detectors (or malcolm device) to include in the scan
+			DetectorsSection.class,
+			// a section for configuring the path of the mapping scan
+			RegionAndPathSection.class,
+			// a section for configuring metadata to add to the scan
+			ScanMetadataSection.class,
+			// a section for configuring live processing to run
+			ProcessingSection.class);
+	}
+
+	/**
+	 * These classes are always visible
+	 */
+	protected List<Class<? extends AbstractMappingSection>> getUnscrolledSectionClasses() {
+		return Arrays.asList(
+			// a section for submitting the scan to the queue
+			SubmitScanSection.class);
 	}
 
 	private void loadPreviousState(MPart part) {
@@ -223,7 +224,7 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
-	private void createSections(Composite parent, Class<? extends AbstractMappingSection>[] classes, Map<String, String> persistedState) {
+	private void createSections(Composite parent, List<Class<? extends AbstractMappingSection>> classes, Map<String, String> persistedState) {
 		if (sections==null) sections = new HashMap<>();
 		for (Class<? extends AbstractMappingSection> sectionClass : classes) {
 			AbstractMappingSection section;
