@@ -34,7 +34,9 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
 	public void loadConfigurationFromFile() throws Exception;
 
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException;
+	/** Return ROIs for a channel (detector element). **/
+	public DetectorROI[] getRegionsOfInterest(int channel) throws DeviceException;
 
+	/** Set ROIs for all channels (i.e. same ROIs for all detector elements) */
 	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException;
 }

@@ -396,20 +396,12 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector.readoutFF();
 	}
 
-	/**
-	 * @deprecated Use getConfigurationParameters() instead
-	 */
 	@Override
-	@Deprecated
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
-		return xspress3Detector.getRegionsOfInterest();
+	public DetectorROI[] getRegionsOfInterest(int channel) throws DeviceException {
+		return xspress3Detector.getRegionsOfInterest(channel);
 	}
 
-	/**
-	 * @deprecated Use applyConfigurationParameters() instead
-	 */
 	@Override
-	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
 		xspress3Detector.setRegionsOfInterest(regionList);
