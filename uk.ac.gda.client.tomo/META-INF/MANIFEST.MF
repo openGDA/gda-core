@@ -4,7 +4,7 @@ Bundle-Name: Tomo Plug-in
 Bundle-SymbolicName: uk.ac.gda.client.tomo; singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: javax.jms,
  org.eclipse.core.runtime,
@@ -61,3 +61,4 @@ Export-Package: org.diamond.tomo.highrestomo.beans,
  uk.ac.gda.client.tomo.handlers
 Bundle-Activator: uk.ac.gda.client.tomo.TomoClientActivator
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: uk.ac.gda.client.tomo
