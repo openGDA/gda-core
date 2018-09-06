@@ -257,6 +257,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				case REMOVE_COMPLETED:
 					removeCompleted(commandBean.getBeanUniqueId());
 					break;
+				case GET_INFO:
+					result = getConsumerInfo();
+					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
 			}
@@ -359,6 +362,15 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				throw new EventException("Cannot close session!", e);
 			}
 		}
+	}
+
+	private ConsumerInfo getConsumerInfo() {
+		ConsumerInfo info = new ConsumerInfo();
+		info.setConsumerId(getConsumerId());
+		info.setName(getName());
+		info.setStatus(getConsumerStatus());
+
+		return info;
 	}
 
 	private void addBeanOverride(U bean) {

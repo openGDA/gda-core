@@ -48,8 +48,16 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 
 	}
 
-	private void sendCommand(Command command) throws EventException {
-		sendCommandBean(new QueueCommandBean(getSubmitQueueName(), command));
+	private ConsumerInfo getConsumerInfo() {
+		try {
+			return (ConsumerInfo) sendCommand(Command.GET_INFO);
+		} catch (EventException e) {
+			throw new RuntimeException("Could not get consumer info", e);
+		}
+	}
+
+	private Object sendCommand(Command command) throws EventException {
+		return sendCommandBean(new QueueCommandBean(getSubmitQueueName(), command));
 	}
 
 	private Object sendCommand(Command command, U bean) throws EventException {
@@ -169,6 +177,17 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 	}
 
 	@Override
+	public boolean isQueuePaused() {
+		return getConsumerStatus() == ConsumerStatus.PAUSED;
+	}
+
+	@Override
+	public void setDurable(boolean durable) {
+		// This property is not visible on the proxy
+		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+	}
+
+	@Override
 	public void cleanUpCompleted() throws EventException {
 		// The queue cannot be cleaned up via a proxy, clearCompleted is available however
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
@@ -198,14 +217,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 
 	@Override
 	public UUID getConsumerId() {
-		// The proxy doesn't know the consumer's unique id
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		return getConsumerInfo().getConsumerId();
 	}
 
 	@Override
 	public ConsumerStatus getConsumerStatus() {
-		// Can't get the consumer status on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		return getConsumerInfo().getStatus();
 	}
 
 	@Override
@@ -222,30 +239,21 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 
 	@Override
 	public String getName() {
-		// This property is not visible on the proxy: TODO should we have a way to fix this?
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		return getConsumerInfo().getName();
 	}
 
 	@Override
 	public void setName(String name) {
-		// This property is not visible on the proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}
 
 	@Override
 	public boolean isActive() {
-		// This property is not visible on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		return getConsumerStatus() != ConsumerStatus.STOPPED;
 	}
 
 	@Override
 	public boolean isDurable() {
-		// This property is not visible on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
-	}
-
-	@Override
-	public void setDurable(boolean durable) {
 		// This property is not visible on the proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}

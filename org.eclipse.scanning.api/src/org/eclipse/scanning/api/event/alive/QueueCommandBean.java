@@ -82,7 +82,12 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to remove a bean from the set of completed jobs.
 		 */
-		REMOVE_COMPLETED;
+		REMOVE_COMPLETED,
+
+		/**
+		 * A command to get the current state of the consumer.
+		 */
+		GET_INFO;
 
 	}
 

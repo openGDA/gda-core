@@ -80,12 +80,6 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 		return statusSet;
 	}
 
-	@Override
-	public boolean isQueuePaused() {
-		QueueCommandBean bean = getLastPauseResumeBean(getSubmitQueueName());
-		return bean != null && bean.getCommand() == Command.PAUSE;
-	}
-
 	/**
 	 * Finds and returns the most recent pause bean sent to the command queue.
 	 * @param submissionQueueName name of submission queue
