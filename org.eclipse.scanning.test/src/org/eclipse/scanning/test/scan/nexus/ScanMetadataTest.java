@@ -99,7 +99,6 @@ public class ScanMetadataTest extends NexusTest {
 		ScanMetadata entryMetadata = new ScanMetadata(MetadataType.ENTRY);
 		entryMetadata.addField(NXentry.NX_TITLE, "Scan Metadata Test Entry");
 		entryMetadata.addField(NXentry.NX_EXPERIMENT_IDENTIFIER, "i05-1");
-		entryMetadata.addField(NXentry.NX_START_TIME, "2016-03-21T16:41:27Z");
 		scanMetadata.add(entryMetadata);
 
 		ScanMetadata instrumentMetadata = new ScanMetadata(MetadataType.INSTRUMENT);
