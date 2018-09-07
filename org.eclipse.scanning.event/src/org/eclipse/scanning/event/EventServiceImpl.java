@@ -33,7 +33,6 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
 import org.eclipse.scanning.api.event.core.ISubmitter;
@@ -142,12 +141,6 @@ public class EventServiceImpl implements IEventService {
 	@Override
 	public IEventConnectorService getEventConnectorService() {
 		return eventConnectorService;
-	}
-
-	@Override
-	public <T> IQueueReader<T> createQueueReader(URI uri, String queueName) {
-		logger.trace("createQueueReader({}, {}) using {} and {}", uri, queueName, eventConnectorService, this);
-		return new QueueReaderImpl<>(uri, queueName, this);
 	}
 
 	private Map<String, SoftReference<?>> cachedServices;

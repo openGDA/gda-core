@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +49,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	AbstractQueueConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			IEventConnectorService service, IEventService eservice) {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, service, eservice);
-	}
-
-	protected Map<String, U> getMap(String queueName) throws EventException {
-
-		final List<U> queue = getQueue(queueName);
-		if (queue==null || queue.isEmpty()) return null;
-		final HashMap<String, U> id = new HashMap<>(queue.size());
-		for (U u : queue) id.put(u.getUniqueId(), u);
-		return id;
 	}
 
 	@Override

@@ -387,7 +387,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
-		return getQueue(getSubmitQueueName());
+		return getQueue(getSubmitQueueName(), beanClass);
 	}
 
 	@Override

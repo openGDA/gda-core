@@ -21,13 +21,9 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 import java.util.List;
 
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
-import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.core.IReadOnlyQueueConnection;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
@@ -64,21 +60,23 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 
 	@Override
 	public List<U> getQueue() throws EventException {
-		return getQueue(getSubmitQueueName());
+		return getQueue(getSubmitQueueName(), beanClass);
 	}
 
-	public List<U> getQueue(String queueName) throws EventException {
-		IQueueReader<U> reader = eventService.createQueueReader(uri, queueName);
-		reader.setBeanClass(beanClass);
-		return reader.getQueue();
+	protected <T> List<T> getQueue(String queueName, Class<T> beanClass) throws EventException {
+		QueueReader<T> reader = new QueueReader<>(getConnectorService());
+		try {
+			return reader.getBeans(uri, queueName, beanClass);
+		} catch (Exception e) {
+			throw new EventException("Cannot get the beans for queue " + getSubmitQueueName(), e);
+		}
 	}
 
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
-		final List<U> statusSet = getQueue(getStatusSetName());
+		final List<U> statusSet = getQueue(getStatusSetName(), beanClass);
 		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
 		return statusSet;
 	}
-
 
 }
