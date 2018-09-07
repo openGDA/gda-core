@@ -63,13 +63,13 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		GridLayout gl_parent = new GridLayout(4, false);
-		gl_parent.verticalSpacing = 15;
-		gl_parent.marginTop = 5;
-		gl_parent.marginRight = 5;
-		gl_parent.marginLeft = 5;
-		gl_parent.marginBottom = 5;
-		parent.setLayout(gl_parent);
+		GridLayout parentGridLayout = new GridLayout(4, false);
+		parentGridLayout.verticalSpacing = 15;
+		parentGridLayout.marginTop = 5;
+		parentGridLayout.marginRight = 5;
+		parentGridLayout.marginLeft = 5;
+		parentGridLayout.marginBottom = 5;
+		parent.setLayout(parentGridLayout);
 
 		progressBar = new ProgressBarWithText(parent, SWT.FILL);
 		progressBar.setSelection(1000);
@@ -87,9 +87,9 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		completedIterTxt.setLayoutData(new GridData(40, SWT.DEFAULT));
 
 		Label lblNewMaximum = new Label(parent, SWT.NONE);
-		GridData gd_lblNewMaximum = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
-		gd_lblNewMaximum.horizontalIndent = 15;
-		lblNewMaximum.setLayoutData(gd_lblNewMaximum);
+		GridData lblNewMaximumGD = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+		lblNewMaximumGD.horizontalIndent = 15;
+		lblNewMaximum.setLayoutData(lblNewMaximumGD);
 		lblNewMaximum.setText("Scheduled Iterations:");
 
 		scheduledIterTxt = new Text(parent, SWT.BORDER | SWT.RIGHT);
@@ -143,7 +143,7 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			}
 		});
 
-		sweepUpdater = (Device) Finder.getInstance().find("sweepupdater");
+		sweepUpdater = Finder.getInstance().find("sweepupdater");
 		if (sweepUpdater != null) {
 			sweepUpdater.addIObserver(this);
 		}
@@ -167,48 +167,47 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 	public void update(Object source, Object arg) {
 		if (arg instanceof MotorStatus) {
 			running = MotorStatus.BUSY.equals(arg);
-			try {
-				scheduledIterations = analyser.getIterations();
-				completedIterations = analyser.getCompletedIterations();
-			} catch (Exception e) {
-				logger.warn("Could not get iterations from analyser.", e);
-			}
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (running) {
-						progressBar.setText("RUNNING");
-						progressBar.setSelection(progressBar.getMinimum());
-						progressBar.setForeground(preColor);
-						scheduledIterTxt.setText(String.valueOf(scheduledIterations));
-					}
-					else {
-						progressBar.setText("IDLE");
-						progressBar.setSelection(progressBar.getMaximum());
-						progressBar.setMinimum(0);
-						progressBar.setBackground(idleColor);
-						completedIterTxt.setText(String.valueOf(completedIterations));
-					}
+			if (running) {
+				try {
+					scheduledIterations = analyser.getIterations();
+				} catch (Exception e) {
+					logger.error("Could not get iterations from analyser.", e);
 				}
-			});
-			return;
+
+				Display.getDefault().asyncExec(() -> {
+					progressBar.setText("RUNNING");
+					progressBar.setSelection(progressBar.getMinimum());
+					progressBar.setForeground(preColor);
+					scheduledIterTxt.setText(String.valueOf(scheduledIterations));
+				});
+			}
+			else {
+				try {
+					completedIterations = analyser.getCompletedIterations();
+				} catch (Exception e) {
+					logger.error("Could not get completed iterations from analyser.", e);
+				}
+				Display.getDefault().asyncExec(() -> {
+					progressBar.setText("IDLE");
+					progressBar.setSelection(progressBar.getMaximum());
+					progressBar.setMinimum(0);
+					progressBar.setBackground(idleColor);
+					completedIterTxt.setText(String.valueOf(completedIterations));
+				});
+			}
 		}
 		if (arg instanceof SweptProgress) {
-			logger.trace("updated with " + arg.toString());
+			logger.trace("updated with {}", arg);
 			final SweptProgress sp = (SweptProgress) arg;
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					progressBar.setText(running ? String.format("Running: %d%% completed", sp.getPercent()) : "IDLE");
-					progressBar.setSelection(sp.getPercent());
-					completedIterTxt.setText(String.valueOf(sp.getCurrentIter()));
-					if (sp.getCurrentPoint() > 0)
-						progressBar.setBackground(postColor);
-					else
-						progressBar.setBackground(idleColor);
-				}
+			Display.getDefault().asyncExec(() -> {
+				progressBar.setText(running ? String.format("Running: %d%% completed", sp.getPercent()) : "IDLE");
+				progressBar.setSelection(sp.getPercent());
+				completedIterTxt.setText(String.valueOf(sp.getCurrentIter()));
+				if (sp.getCurrentPoint() > 0)
+					progressBar.setBackground(postColor);
+				else
+					progressBar.setBackground(idleColor);
 			});
-			return;
 		}
 	}
 
