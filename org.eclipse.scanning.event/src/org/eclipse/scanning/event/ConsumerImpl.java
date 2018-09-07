@@ -260,6 +260,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				case GET_QUEUE:
 					result = getQueue();
 					break;
+				case GET_RUNNING_AND_COMPLETED:
+					result = getRunningAndCompleted();
+					break;
 				case GET_INFO:
 					result = getConsumerInfo();
 					break;

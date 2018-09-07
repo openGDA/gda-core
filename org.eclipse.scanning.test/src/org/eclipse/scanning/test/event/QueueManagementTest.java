@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.time.Duration;
@@ -368,14 +367,19 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Test
 	public void testGetQueue() throws Exception {
-		if (!useProxy) return; // this test only makes sense when using a proxy
-
-		createAndSubmitBeans();
+		List<StatusBean> beans = createAndSubmitBeans();
 
 		// check that getting the queue works when using a consumer proxy
-		List<StatusBean> submissionQueue = getConsumer().getQueue();
-		assertThat(submissionQueue, hasSize(5)); // sanity check
-		assertThat(submissionQueue, is(equalTo(consumer.getQueue())));
+		assertThat(getConsumer().getQueue(), is(equalTo(beans)));
+	}
+
+	@Test
+	public void testGetRunningAndCompleted() throws Exception {
+		List<StatusBean> beans = createAndSubmitBeansToStatusSet();
+
+		List<StatusBean> completed = getConsumer().getRunningAndCompleted();
+		completed.removeIf(b -> b.getName().equals("initial"));
+		assertThat(completed, containsInAnyOrder(beans.toArray()));
 	}
 
 	@Test

@@ -90,6 +90,11 @@ public class QueueCommandBean  extends IdBean {
 		GET_QUEUE,
 
 		/**
+		 * A command to get the beans for running and completed jobs.
+		 */
+		GET_RUNNING_AND_COMPLETED,
+
+		/**
 		 * A command to get the current state of the consumer.
 		 */
 		GET_INFO;

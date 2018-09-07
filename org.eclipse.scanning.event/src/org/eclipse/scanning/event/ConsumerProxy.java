@@ -92,6 +92,11 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 	}
 
 	@Override
+	public List<U> getRunningAndCompleted() throws EventException {
+		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED);
+	}
+
+	@Override
 	public void clearQueue() throws EventException {
 		sendCommand(Command.CLEAR);
 	}
