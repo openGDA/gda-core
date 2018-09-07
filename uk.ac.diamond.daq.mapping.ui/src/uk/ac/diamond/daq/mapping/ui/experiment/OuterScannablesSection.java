@@ -108,13 +108,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 	 */
 	private Map<String, Binding> axisBindings;
 
-	/**
-	 * For each scannable displayed in this section, the binding between the "includeInScan" flag in the model and the
-	 * corresponding check box
-	 */
-	private Map<String, Binding> checkBoxBindings;
-
-
 	@Override
 	protected void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
@@ -167,7 +160,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 		}
 		dataBindingContext = new DataBindingContext();
 		axisBindings = new HashMap<>();
-		checkBoxBindings = new HashMap<>();
+		Map<String, Binding> checkBoxBindings = new HashMap<>();
 
 		scannablesComposite = new Composite(sectionComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(scannablesComposite);
@@ -219,7 +212,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	private void deleteScannable(IScanModelWrapper<IScanPathModel> scannable) {
 		if (MessageDialog.openQuestion(getShell(), "Confirm deletion", String.format("Do you want to delete %s?", scannable.getName()))) {
 			scannablesToShow.remove(scannable);
-			updateLayout();
+			updateControls();
 		}
 	}
 
@@ -244,7 +237,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 				for (String scannable : scannablesSelected) {
 					scannablesToShow.add(new ScanPathModelWrapper(scannable, null, false));
 				}
-				updateLayout();
+				updateControls();
 			}
 		}
 	}
@@ -255,7 +248,8 @@ class OuterScannablesSection extends AbstractMappingSection {
 				.collect(Collectors.toList());
 	}
 
-	private void updateLayout() {
+	@Override
+	public void updateControls() {
 		createScannableControls();
 		relayoutMappingView();
 		updateStatusLabel();
@@ -334,41 +328,6 @@ class OuterScannablesSection extends AbstractMappingSection {
 			axisBinding.validateTargetToModel();
 			updateStatusLabel();
 		});
-	}
-
-	@Override
-	public void updateControls() {
-		// We may have to recreate some UI parts...
-		boolean canUpdate = getMappingBean().getScanDefinition().getOuterScannables().stream().allMatch(scannablesToShow::contains);
-
-		if (canUpdate) {
-			// update the bindings between the model and the GUI widgets, as we may have new models
-			for (IScanModelWrapper<IScanPathModel> scannableAxisParameters : scannablesToShow) {
-				final String scannableName = scannableAxisParameters.getName();
-
-				// remove the old binding between the checkbox and the old model and create a new one
-				final Binding oldCheckBoxBinding = checkBoxBindings.get(scannableName);
-				final IObservableValue<?> checkBoxValue = (IObservableValue<?>) oldCheckBoxBinding.getTarget();
-				dataBindingContext.removeBinding(oldCheckBoxBinding);
-				oldCheckBoxBinding.dispose();
-
-				@SuppressWarnings("unchecked")
-				final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
-				final Binding newCheckBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
-				checkBoxBindings.put(scannableName, newCheckBoxBinding);
-
-				// remove the binding between the text field and old model
-				final Binding oldTextFieldBinding = axisBindings.get(scannableName);
-				final IObservableValue<?> axisTextValue = (IObservableValue<?>) oldTextFieldBinding.getTarget();
-				dataBindingContext.removeBinding(oldTextFieldBinding);
-				oldTextFieldBinding.dispose();
-
-				bindScanPathModelToTextField(scannableAxisParameters, axisTextValue, newCheckBoxBinding);
-			}
-			dataBindingContext.updateTargets();
-		} else {
-			updateLayout(); // this redraws the UI
-		}
 	}
 
 	/**
