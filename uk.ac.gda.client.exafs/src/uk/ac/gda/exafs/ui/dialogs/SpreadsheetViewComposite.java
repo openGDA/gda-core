@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -48,12 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Findable;
 import gda.factory.Finder;
-import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.beans.exafs.OutputParameters;
-import uk.ac.gda.beans.exafs.QEXAFSParameters;
-import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class SpreadsheetViewComposite {
@@ -80,12 +77,16 @@ public class SpreadsheetViewComposite {
 	}
 
 	private void setConfigFromSpring() {
-		List<Findable> findables = Finder.getInstance().listAllLocalObjects(Findable.class.getSimpleName());
-		for(Findable findable : findables) {
-			if (findable instanceof SpreadsheetViewConfig) {
-				this.viewConfig = (SpreadsheetViewConfig) findable;
-				break;
+		Map<String, SpreadsheetViewConfig> spreadSheetConfigs = Finder.getInstance().getLocalFindablesOfType(SpreadsheetViewConfig.class);
+		if (spreadSheetConfigs.isEmpty()) {
+			logger.warn("No spreadsheet configurations found.");
+		} else {
+			if (spreadSheetConfigs.size()>1) {
+				logger.warn("More than 1 spreadsheet configuration found.");
 			}
+			Entry<String, SpreadsheetViewConfig> config = spreadSheetConfigs.entrySet().iterator().next();
+			logger.info("Using spreadsheet configuration called '{}'.", config.getKey());
+			viewConfig = config.getValue();
 		}
 		viewConfigForSampleParameterMotors = new SpreadsheetViewConfig();
 	}
@@ -118,11 +119,9 @@ public class SpreadsheetViewComposite {
 	}
 
 	private ParametersForScan getInitialParametersForTableColumns() {
-		Class<?>[] classes = new Class<?>[] { QEXAFSParameters.class, DetectorParameters.class, B18SampleParameters.class, OutputParameters.class };
 		ParametersForScan tempParams = new ParametersForScan();
-		for(Class<?> clazz : classes) {
-			String className = clazz.getName();
-			tempParams.addValuesForScanBean("", className);
+		for(String parameterClassName : viewConfig.getParameterTypes()) {
+			tempParams.addValuesForScanBean("", parameterClassName);
 		}
 		return tempParams.getParametersForTableColumns();
 	}
@@ -147,6 +146,13 @@ public class SpreadsheetViewComposite {
 	public void createTableAndControls() {
 
 		parent.setLayout(new FillLayout());
+
+		// Bail out early and inform user if no configuration has been set
+		if (viewConfig == null) {
+			MessageDialog.openWarning(parent.getShell(), "Problem creating Spreadsheet view", "Cannot create Spreadsheet view - no configuration settings found.");
+			logger.warn("Cannot create Spreadsheet view - no configuration settings found.");
+			return;
+		}
 
 		final Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, false));
@@ -493,7 +499,7 @@ public class SpreadsheetViewComposite {
 				} else if (outputDirExists){
 					boolean proceed = MessageDialog.openQuestion(parent.getShell(), "Generate scan files", "Scan files will be written to directory "+outputDirectoryName+".\nDo you want to continue?");
 					if (proceed) {
-						message = SpreadsheetViewHelperClasses.checkRequiredXmlsExist(parameterValuesForScanFiles);
+						message = ParametersForScan.checkRequiredXmlsExist(parameterValuesForScanFiles);
 						if (message.length()==0) {
 							SpreadsheetViewHelperClasses.generateNewScans(parent, parameterValuesForScanFiles, outputDirectoryNameText.getText());
 						} else {
@@ -527,7 +533,7 @@ public class SpreadsheetViewComposite {
 	 */
 	private void displayMeasurementConditionsDialog(Composite parent, int typeIndex) {
 		// Store current width of each column in table (so can restore later)...
-		HashMap<String, Integer> columnWidths = new HashMap<String,Integer>();
+		HashMap<String, Integer> columnWidths = new HashMap<>();
 		for(TableColumn t : spreadsheetTable.getTableViewer().getTable().getColumns() ) {
 			columnWidths.put(t.getText(), t.getWidth()); // store current width of column
 		}

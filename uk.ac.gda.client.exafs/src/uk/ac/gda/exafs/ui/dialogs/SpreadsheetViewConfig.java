@@ -26,9 +26,11 @@ import gda.factory.FindableBase;
 public class SpreadsheetViewConfig extends FindableBase {
 
 	private List<ParameterConfig> paramConfigList;
+	private List<String> parameterTypes;
 
 	public SpreadsheetViewConfig() {
 		paramConfigList = new ArrayList<>();
+		parameterTypes = new ArrayList<>();
 		setName("");
 	}
 
@@ -46,6 +48,14 @@ public class SpreadsheetViewConfig extends FindableBase {
 
 	public void clearParameters() {
 		paramConfigList.clear();
+	}
+
+	public List<String> getParameterTypes() {
+		return parameterTypes;
+	}
+
+	public void setParameterTypes(List<String> parameterTypes) {
+		this.parameterTypes = parameterTypes;
 	}
 
 	public ParameterConfig getParameter(String beanType, String fullPathToGetter) {

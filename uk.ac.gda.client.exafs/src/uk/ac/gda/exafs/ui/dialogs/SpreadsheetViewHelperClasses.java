@@ -24,15 +24,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +68,9 @@ import uk.ac.gda.util.io.FileUtils;
 public class SpreadsheetViewHelperClasses {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewHelperClasses.class);
 
+	private SpreadsheetViewHelperClasses() {
+	}
+
 	/**
 	 * Setup BeansFactory so that {@link XMLHelpers} functions can be used marshall, unmarshall objects to/from xml files.
 	 */
@@ -80,139 +83,6 @@ public class SpreadsheetViewHelperClasses {
 			Class<?>[] classes = new Class<?>[]{B18SampleParameters.class, QEXAFSParameters.class, DetectorParameters.class,
 				OutputParameters.class, XspressParameters.class, Xspress3Parameters.class};
 			BeansFactory.setClasses(classes);
-		}
-	}
-
-	/**
-	 * Return method with given name from class object; returns null if method was not found.
-	 * Alternative to using clazz.getMethod(methodName) to avoid throwing exceptions.
-	 * @param clazz
-	 * @param methodName
-	 * @return method object matching methodName; null if no matching method was found.
-	 */
-	public static Method getMethodWithName(Class<?> clazz, String methodName) {
-		for(Method meth : clazz.getMethods()) {
-			if (meth.getName().equals(methodName)) {
-				return meth;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Create new Integer, Double, Boolean, List<String> or String from supplied object depending on its contents.
-	 *
-	 * @param value
-	 * @return New instance of object
-	 */
-	public static Object createNumberOrString(Object value, Class<?> requiredType) {
-		String stringValue = value.toString().trim();
-
-		if (requiredType == Integer.class || requiredType == int.class) {
-			int decimalPlaceIndex = stringValue.indexOf(".");
-			int lastPos = decimalPlaceIndex > 0 ? decimalPlaceIndex : stringValue.length();
-			return Integer.parseInt(stringValue.substring(0, lastPos));
-		} else if (requiredType == Double.class || requiredType == double.class) {
-			return Double.parseDouble(stringValue);
-		} else if (requiredType == Boolean.class || requiredType == boolean.class) {
-			return Boolean.parseBoolean(stringValue);
-		} else if (requiredType == List.class) {
-			// list of strings from space separated values
-			return Arrays.asList(stringValue.split("[ ]"));
-		} else {
-			// Not a number, assume it's a string
-			return stringValue;
-		}
-	}
-
-	/**
-	 * Invoke named method on the supplied object. The method name can chain together several method calls by separating the
-	 * parts by dots. (i.e. as would be typed on Jython console to invoke method)
-	 * <p>
-	 * If given, {@code valueToSet}, will be used to create a new Integer, Double or String object to pass to the final method
-	 * invoked. e.g. for a {@link DetectorParameters} object with {@code pathToMethod} = getSoftXRaysParameters.setConfigFileName,
-	 * the 'getSoftXRaysParameters()' method will be invoked first, followed by setConfigName(valueToSet) on the returned object.
-	 * <p>
-	 * The {@code pathToMethod} name may also contain a value in brackets e.g. getSampleParameterMotor(motor1).getDoMove
-	 * In this case, the value in brackets ('motor1') will be passed as parameter to the 'getSampleParameterMotor' method when
-	 * invoking it (as a string), before invoking the 'getDoMove' method on the returned object.
-	 *
-	 * @param obj
-	 * @param pathToMethod
-	 * @param valueToSet (null if not needed)
-	 * @return Final return value of called method
-	 * @throws NoSuchMethodException
-	 * @throws InvocationTargetException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 */
-	public static Object invokeMethodFromName(Object obj, String pathToMethod, Object valueToSet) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		String[] splitPath = pathToMethod.split("[.]");
-		Object parentObject = obj;
-		for(String pathPart : splitPath) {
-
-			String methodName = pathPart;
-
-			// Extract method name and parameter from string if path part contains brackets : e.g. someMethod(someValue)
-			String paramValueFromPath = "";
-			if (pathPart.contains("(")) {
-				String[] splitMethodCall = pathPart.split("[()]");
-				methodName = splitMethodCall[0];
-				paramValueFromPath = splitMethodCall[1];
-			}
-
-			Method methodObj = getMethodWithName(parentObject.getClass(), methodName);
-			if (methodObj!=null) {
-				if (methodObj.getParameterCount()==1) {
-					//Method expects a parameter...
-					Object valueForMethod = null;
-					if (paramValueFromPath.length()>0) {
-						// Value extracted from brackets of part part
-						valueForMethod = paramValueFromPath;
-					} else if (valueToSet!=null) {
-						// Value passed in function call
-						valueForMethod = createNumberOrString(valueToSet, methodObj.getParameterTypes()[0]);
-					}
-					if (valueForMethod == null) {
-						logger.warn("Invoking {} with null parameter", pathPart);
-					}
-					parentObject = methodObj.invoke(parentObject, valueForMethod);
-				}
-				else {
-					parentObject = methodObj.invoke(parentObject);
-				}
-			} else {
-				logger.warn("Unable to invoke {} ", pathPart);
-			}
-		}
-		return parentObject;
-	}
-
-	/**
-	 * Update bean object with values from override parameters
-	 *
-	 * @param beanObject
-	 * @param overrides
-	 */
-	public static void updateBeanWIthOverrides(Object beanObject, ParameterValuesForBean overrides) {
-		for (ParameterValue paramOverride : overrides.getParameterValues()) {
-			String fullPathToGetter = paramOverride.getFullPathToGetter();
-
-			String fullPathToSetter;
-			if (fullPathToGetter.contains(".is")) {
-				fullPathToSetter = fullPathToGetter.replaceFirst(".is", ".set");
-			} else if (fullPathToGetter.contains(".get")) {
-				fullPathToSetter = fullPathToGetter.replaceFirst(".get", ".set");
-			} else {
-				fullPathToSetter = fullPathToGetter.replaceFirst("get", "set");
-			}
-
-			try {
-				logger.debug("Calling method {} with value {}",  fullPathToGetter, paramOverride.getNewValue());
-				invokeMethodFromName(beanObject, fullPathToSetter, paramOverride.getNewValue());
-			} catch (Exception e) {
-				logger.error("Problem calling method {} with value {}",  fullPathToSetter, paramOverride.getNewValue(), e);
-			}
 		}
 	}
 
@@ -247,7 +117,7 @@ public class SpreadsheetViewHelperClasses {
 		if (!folder.exists()) {
 			logger.warn("Unable to find directory {}",dirPath);
 		}
-		List<String> fileNames = new ArrayList<String>();
+		List<String> fileNames = new ArrayList<>();
 		File[] listOfFiles = folder.listFiles();
 		if (listOfFiles!=null) {
 			for (File file : listOfFiles) {
@@ -267,16 +137,25 @@ public class SpreadsheetViewHelperClasses {
 	 * @return classType string list of files with bean matching specified type
 	 */
 	public static List<String> getListOfFilesMatchingType(List<String> fileNames, String classType) {
-		List<String> filesOfCorrectType = new ArrayList<String>();
+		return getListOfFilesMatchingTypes(fileNames, Arrays.asList(classType));
+	}
+
+	public static List<String> getListOfFilesMatchingTypes(List<String> fileNames, List<String> classTypes) {
+		List<String> filesOfCorrectType = new ArrayList<>();
 		if (fileNames != null) {
 			for (String fileName : fileNames) {
 				try {
 					String classTypeFromFile = getFirstXmlElementNameFromFile(fileName);
-					if (classType.endsWith(classTypeFromFile)) {
+					Optional<String> result = classTypes
+							.stream()
+							.filter(classType -> classType.endsWith(classTypeFromFile))
+							.findFirst();
+
+					if (result.isPresent()) {
 						filesOfCorrectType.add(fileName);
 					}
 				} catch (Exception e) {
-					logger.warn("Problem getting list of files for type {}", classType, e);
+					logger.warn("Problem getting list of files for types {}", Arrays.asList(classTypes), e);
 				}
 			}
 		}
@@ -303,25 +182,29 @@ public class SpreadsheetViewHelperClasses {
 		}
 
 		if (!StringUtils.isEmpty(filename)) {
-			File sourceFile = new File(FilenameUtils.normalize(sourceDir+"/"+filename));
-			File destFile = new File(FilenameUtils.normalize(destDir+"/"+filename));
+			File sourceFile = Paths.get(sourceDir, filename).toFile();
+			File destFile = Paths.get(destDir, filename).toFile();
 			// Avoid overwriting source file if paths are the same...
 			if (!sourceFile.getAbsolutePath().equals(destFile.getAbsolutePath())) {
+				logger.info("Copying detector file from {} to {}", sourceFile, destFile);
 				FileUtils.copy(sourceFile, destFile);
+			}else {
+				logger.info("Not copying detector file - source and destination directories ({}) are the same.", sourceFile, destFile);
 			}
 		}
 	}
 
 	/**
 	 * Return integer counter used when generating next set of xml scan files.
-	 * Examines files in output directory with following format convention : xml name_%d_%d.xml <p>
-	 *  Where 1st number = number of scan in spreadsheet table, 2nd number = integer 'counter' for each set of xmls files generated from spreadsheet view <p>
-	 * and determines next integer identifier to use.
-	 * @param parametersForAllScans
+	 * Examines files in output directory named according to format convention :
+	 * <p> xml name_%d_%d.xml <p>
+	 * (Where 1st number = number of scan in spreadsheet table, 2nd number = integer 'counter' for each set of xmls files generated from spreadsheet view)
+	 * to find the largest counter (2nd number).
+	 * Value returned is largest counter value parsed from filenames + 1.
 	 * @param outputDirectory
 	 * @return integer
 	 */
-	public static int getXmlScanIdentifier(List<ParametersForScan> parametersForAllScans, String outputDirectory) {
+	public static int getXmlScanIdentifier(String outputDirectory) {
 		// Find maximum index of files in output directory
 		//scanxmlfile_%d_%d.xml :  1st number = number of scan in spreadsheet table, 2nd number = counter to identify each set of xmls files generated
 		List<String> allXmlFiles = getListOfFilesMatchingExtension(outputDirectory, ".xml");
@@ -356,7 +239,7 @@ public class SpreadsheetViewHelperClasses {
 	 * sets of scan xml files in the output directory.  This makes it possible to output to the same directory location many
 	 * times and not overwrite any files.
 	 * A new 'multi' scan file is also generated - this is a list of scans and their xml files for the set of scans. The experiment explorer tree view
-	 * is also refreshed, so that the newly generated multi scan scan appears in the gui.
+	 * is also refreshed, so that the newly generated scans appear in the gui.
 	 * @param parent
 	 * @param parametersForAllScans
 	 * @param outputDirectory
@@ -367,85 +250,56 @@ public class SpreadsheetViewHelperClasses {
 		boolean forceReplaceExistingFiles = false;
 		boolean useSampleNameForMultiscan = true; // include sample name in scan name (might want to set this from the GUI)
 
-		String multiScanFileContents = "";
-
-		List<ScanObject> scanObjects = new ArrayList<>();
 		try {
 			ExperimentFactory.getExperimentEditorManager().getCurrentProject().refreshLocal(IResource.DEPTH_ONE, null);
 		} catch (CoreException e2) {
 			logger.error("Problem updating project resources", e2);
 		}
 
-		String projectFolder = ExperimentFactory.getExperimentEditorManager().getProjectFolder().toString();
-		String folderInProject = outputDirectory.replace(projectFolder, "");
-		IFolder folder = ExperimentFactory.getExperimentEditorManager().getIFolder(folderInProject);
+		int counter = getXmlScanIdentifier(outputDirectory);
+		List<ScanObject> scanObjects = new ArrayList<>();
+		for(int scanNumberIndex=0; scanNumberIndex<parametersForAllScans.size(); scanNumberIndex++) {
 
-		// MultiScan file format :
-		// <scan name> <sampleFileName> <scanFileName> <detFileName> <outputFileName> <numRepetitions>
-		int counter = getXmlScanIdentifier(parametersForAllScans, outputDirectory);
+			ParametersForScan parametersForScan  = parametersForAllScans.get(scanNumberIndex);
 
-		for(int scanIndex=0; scanIndex<parametersForAllScans.size(); scanIndex++) {
-
-			ParametersForScan parametersForScan  = parametersForAllScans.get(scanIndex);
-
-			String sampleFileName = "", scanFileName="", detFileName="", outputFileName="";
 			String sampleName = "";
+			Map<String, Object> scanBeans = new HashMap<>();
 
-			//Loop over each parameter file for the scan
+			// Make new xml files using modified parameters
 			for(ParameterValuesForBean parameterForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
 				try {
-					// Try to load xml bean from file
-					String fullXmlPath = parameterForScanBean.getBeanFileName();
-					logger.info("Reading base xml file : {}", fullXmlPath);
-					Object beanObject = parameterForScanBean.getBeanObject();
-					if (beanObject.getClass().getName().equals(parameterForScanBean.getBeanType())) {
-						logger.debug("File matches expected type {}. Setting new values.",	parameterForScanBean.getBeanType());
-						// replace values in bean with user specified values
-						SpreadsheetViewHelperClasses.updateBeanWIthOverrides(beanObject, parameterForScanBean);
-					}
-					// Get sample name, so we can use it in the scan name in the multi-scan file
-					if (useSampleNameForMultiscan && beanObject instanceof ISampleParameters) {
-						sampleName = "_"+((ISampleParameters)beanObject).getName();
-					}
-					String baseName = FilenameUtils.getBaseName(fullXmlPath);
-					String extension = FilenameUtils.getExtension(fullXmlPath);
-					String fileName = String.format("%s_%d_%d.%s", baseName, scanIndex+1, counter, extension);
-					String fullPathToNewXmlFile = String.format("%s/%s", outputDirectory, fileName);
+					// Full path to source xml bean file
+					String fullPathToSourceXmlFile = parameterForScanBean.getBeanFileName();
 
+					// Make full path to new xml file
+					String baseName = FilenameUtils.getBaseName(fullPathToSourceXmlFile);
+					String extension = FilenameUtils.getExtension(fullPathToSourceXmlFile);
+					String fileName = String.format("%s_%d_%d.%s", baseName, scanNumberIndex+1, counter, extension);
+					String fullPathToNewXmlFile = Paths.get(outputDirectory, fileName).toString();
+
+					// Check if xml file already exists at output location
 					boolean writeFile = true;
-					File newFile = new File(fullPathToNewXmlFile);
-					if (newFile.exists() && !forceReplaceExistingFiles) {
-						// customised MessageDialog with configured buttons
-						if (parent!=null) {
-							MessageDialog dialog = new MessageDialog(parent.getShell(), "Warning file exists", null,
-									"File "+fullPathToNewXmlFile+" already exists. Replace it?", MessageDialog.QUESTION,
-									new String[] { "Yes", "Yes to all", "No" }, 1);
-							int result = dialog.open();
-							if (result == 1) {
-								forceReplaceExistingFiles = true;
-							} else if (result == 2) {
-								writeFile = false;
-							}
-						}
+					int result = forceReplaceExistingFiles ? 0 : fileExistsDialog(fullPathToNewXmlFile, parent);
+					if (result == 0 ) {
+						writeFile = true;
+					} else if (result == 1) {
+						forceReplaceExistingFiles = true;
+					} else if (result == 2) {
+						writeFile = false;
 					}
 
 					if (writeFile) {
-						logger.info("Saving modified xml file : {}", fullPathToNewXmlFile);
-						XMLHelpers.saveBean(newFile, beanObject);
+						logger.info("Reading base xml file from {} and setting new values", fullPathToSourceXmlFile);
+						Object beanObject = parameterForScanBean.getModifiedBeanObject();
 
+						logger.info("Saving modified xml file to {}", fullPathToNewXmlFile);
+						XMLHelpers.saveBean(new File(fullPathToNewXmlFile), beanObject);
+
+						// Copy the detector config. file to the new directory if necessary
 						if (beanObject instanceof IDetectorParameters) {
-							copyDetectorXmlFile((IDetectorParameters)beanObject, FilenameUtils.getFullPath(fullXmlPath), outputDirectory);
+							copyDetectorXmlFile((IDetectorParameters)beanObject, FilenameUtils.getFullPath(fullPathToSourceXmlFile), outputDirectory);
 						}
-					}
-
-					if (beanObject instanceof ISampleParameters) {
-						sampleFileName = fileName;
-					} else if (beanObject instanceof IDetectorParameters) {
-						detFileName = fileName;
-					} else if (beanObject instanceof IScanParameters) {
-						scanFileName = fileName;
-					} else if (beanObject instanceof IOutputParameters) {
-						outputFileName = fileName;
+						scanBeans.put(fileName, beanObject);
 					}
 
 				} catch (Exception e1) {
@@ -453,35 +307,119 @@ public class SpreadsheetViewHelperClasses {
 				}
 			}
 
-			// Save line for writing to multi scan file. MultiScan file format :
-			// <scan name> <sampleFileName> <scanFileName> <detFileName> <outputFileName> <numRepetitions>
-			if (sampleFileName.isEmpty() || detFileName.isEmpty() || scanFileName.isEmpty() || outputFileName.isEmpty()) {
-				logger.warn("Problem setting up multiscan for Scan_{} - parameter filename is empty!", scanIndex+1);
+			// Create and store a ScanObject for the scan : used for creating command used in multi scan file, and validating parameters
+			ScanObject scanObject = createScanObject(scanBeans);
+			// Set sample name, so we can use it in the scan name in the multi-scan file
+			if (useSampleNameForMultiscan) {
+				ISampleParameters sampleParameters = (ISampleParameters) scanBeans.get(scanObject.getSampleFileName());
+				if (sampleParameters != null) {
+					sampleName = "_"+sampleParameters.getName();
+				}
 			}
-			multiScanFileContents += String.format("Scan_%d%s %s %s %s %s %d\n", scanIndex+1, sampleName, sampleFileName, scanFileName, detFileName, outputFileName, parametersForScan.getNumberOfRepetitions());
-
-			// Create and store a ScanObject for the scan, so parameters can be validated
-			ScanObject scanObject = new ScanObject();
-			scanObject.setDetectorFileName(detFileName);
-			scanObject.setSampleFileName(sampleFileName);
-			scanObject.setScanFileName(scanFileName);
-			scanObject.setOutputFileName(outputFileName);
-			scanObject.setNumberRepetitions(1);
-			scanObject.setFolder(folder);
+			scanObject.setRunName(String.format("Scan_%d%s", scanNumberIndex + 1, sampleName));
+			scanObject.setNumberRepetitions(parametersForScan.getNumberOfRepetitions());
 			scanObjects.add(scanObject);
 		}
 
 		//Write multiscan file
 		String multiscanFilePath = String.format("%s/%s_%d.scan", outputDirectory, "MultipleScan_spreadsheet", counter);
+		createMultiScanFile(scanObjects, multiscanFilePath);
+
+		// Validate the scan parameters
+		String messages = SpreadsheetViewHelperClasses.validateScanBeans(scanObjects, outputDirectory);
+		if (!messages.isEmpty()) {
+			MessageDialog.openInformation(parent.getShell(), "Error(s) found in XML file(s)", messages);
+		}
+
+		// Refresh experiment explorer view to show the newly created files
+		try {
+			// Clear everything out before starting, otherwise refresh for folders already in the view are not consistent with disk & file contents.
+			ExperimentFactory.emptyManagers();
+			RefreshProjectCommandHandler refreshCommand = new RefreshProjectCommandHandler();
+			refreshCommand.execute(null);
+		} catch (ExecutionException e) {
+			logger.error("Problem refreshing experiment view", e);
+		}
+		ExperimentFactory.getExperimentEditorManager().refreshViewers();
+	}
+
+	private static void createMultiScanFile(List<ScanObject> scanObjects, String multiscanFilePath) {
 		try (BufferedWriter bufWriter = new BufferedWriter(new FileWriter(multiscanFilePath))) {
-			bufWriter.write(multiScanFileContents);
-			bufWriter.close();
+			for (ScanObject scanObject : scanObjects) {
+				String scanString = scanObject.toPersistenceString() + "\n";
+				if (scanString.split(" ").length != 6) {
+					logger.warn("Possible problem adding scan {}. Incorrect number of parameters ({})",	scanObject.getRunName(), scanString);
+				}
+				bufWriter.write(scanString);
+			}
 		} catch (IOException e) {
 			logger.error("Problem writing multi-scan file {}", multiscanFilePath, e);
 		}
+	}
+
+	/**
+	 * Populate fields of ScanBean object. Uses 'instanceof' to determine
+	 * which filename to set for each bean object.
+	 * @param scanBeans key = bean object, value = name of xml file
+	 * @return ScanBean
+	 */
+	private static ScanObject createScanObject(Map<String, Object> scanBeans) {
+		ScanObject scanObject = new ScanObject();
+
+		for(Entry<String, Object> e : scanBeans.entrySet()) {
+			String fileName = e.getKey();
+			Object beanObject = e.getValue();
+			// Set xml filename for each type of bean
+			if (beanObject instanceof ISampleParameters) {
+				scanObject.setSampleFileName(fileName);
+			} else if (beanObject instanceof IDetectorParameters) {
+				scanObject.setDetectorFileName(fileName);
+			} else if (beanObject instanceof IScanParameters) {
+				scanObject.setScanFileName(fileName);
+			} else if (beanObject instanceof IOutputParameters) {
+				scanObject.setOutputFileName(fileName);
+			}
+		}
+		return scanObject;
+	}
+
+	/**
+	 * Open MessageDialog to ask user what to do if named file already exists on filesystem
+	 * @param fullPathToNewXmlFile
+	 * @param parent
+	 * @return 0 = write file, 1 = write all files, 2 = don't write
+	 */
+	private static int fileExistsDialog(String fullPathToNewXmlFile, Composite parent) {
+		File newFile = new File(fullPathToNewXmlFile);
+		if (newFile.exists() && parent != null) {
+			// customised MessageDialog with configured buttons
+			MessageDialog dialog = new MessageDialog(parent.getShell(), "Warning file exists", null,
+					"File "+fullPathToNewXmlFile+" already exists. Replace it?", MessageDialog.QUESTION,
+					new String[] { "Yes", "Yes to all", "No" }, 1);
+			return dialog.open();
+		} else {
+			return 0;
+		}
+	}
+	/**
+	 * Validate the scan objects (i.e. performs same checks on scan beans as when adding scan to command queue)
+	 * @param scanObjects
+	 * @return
+	 */
+	private static String validateScanBeans(List<ScanObject> scanObjects, String outputFolder) {
+		if (scanObjects.isEmpty()) {
+			return "";
+		}
 
 		AbstractValidator validator = ExperimentFactory.getValidator();
-		// folder might not view viewable to eclipse if it was created outside of resource path.
+		StringBuilder messages = new StringBuilder();
+
+		// Get the IFolder object of directory containing the scan beans - required for running 'validate' method
+		String projectFolder = ExperimentFactory.getExperimentEditorManager().getProjectFolder().toString();
+		String folderInProject = outputFolder.replace(projectFolder, ""); // relative path to output directory
+		IFolder folder = ExperimentFactory.getExperimentEditorManager().getIFolder(folderInProject);
+
+		// Folder might not view viewable to eclipse if it was created outside of resource path.
 		// In this case the validator won't be able to see the xml files...
 		if (validator != null && folder.exists()) {
 
@@ -492,30 +430,18 @@ public class SpreadsheetViewHelperClasses {
 				logger.error("Problem updating project resources", e1);
 			}
 
-			String messages = "";
 			int scanNumber = 0;
 			for(ScanObject scnObject : scanObjects) {
 				scanNumber++;
 				try {
+					scnObject.setFolder(folder);
 					validator.validate(scnObject);
 				} catch (InvalidBeanException e) {
-					messages += "Scan "+scanNumber+":"+e.getMessage()+"\n";
+					messages.append("Scan "+scanNumber+":"+e.getMessage()+"\n");
 				}
 			}
-			if (messages.length()>0) {
-				MessageDialog.openInformation(parent.getShell(), "Error(s) in XML file(s)", messages);
-			}
 		}
-
-		try {
-			// Clear everything out before starting, otherwise refresh for folders already in the view are not consistent with disk & file contents.
-			ExperimentFactory.emptyManagers();
-			RefreshProjectCommandHandler refreshCommand = new RefreshProjectCommandHandler();
-			refreshCommand.execute(null);
-		} catch (ExecutionException e) {
-			logger.error("Problem refreshing experiment view", e);
-		}
-		ExperimentFactory.getExperimentEditorManager().refreshViewers();
+		return messages.toString();
 	}
 
 	/**
@@ -532,120 +458,137 @@ public class SpreadsheetViewHelperClasses {
 	/**
 	 * Determine which sample stages to be moved based on selected parameters.
 	 * e.g. Axis2 means that userstage sample stage should be added to list of selected sample stages.
+	 * (Only for B18SampleParameters).
 	 * @param selectedParams
 	 * @return
 	 */
 	private static ParameterValue getSampleStageListOverride(ParameterValuesForBean selectedParams) {
-		if (selectedParams.getBeanType().equals(B18SampleParameters.class.getName())) {
-			ParameterValue selectedSampleStageParam = new ParameterValue("getSelectedSampleStages", "");
-			selectedSampleStageParam.setEditable(false);
-			String selectedSampleStages = "";
-			for(ParameterValue val : selectedParams.getParameterValues()) {
-				String stage = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(), B18SampleParameters.STAGE);
-				if (!selectedSampleStages.contains(stage)) {
-					selectedSampleStages +=" "+stage;
-				}
-			}
-			if (!selectedSampleStages.isEmpty()) {
-				selectedSampleStageParam.setNewValue(selectedSampleStages.trim());
-			}
-			return selectedSampleStageParam;
+		if (!selectedParams.getBeanType().equals(B18SampleParameters.class.getName())) {
+			return new ParameterValue();
 		}
-		return null;
+
+		ParameterValue selectedSampleStageParam = new ParameterValue("getSelectedSampleStages", "");
+		selectedSampleStageParam.setEditable(false);
+		String selectedSampleStages = "";
+		for(ParameterValue val : selectedParams.getParameterValues()) {
+			String stage = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(), B18SampleParameters.STAGE);
+			if (!selectedSampleStages.contains(stage)) {
+				selectedSampleStages +=" "+stage;
+			}
+		}
+		if (!selectedSampleStages.isEmpty()) {
+			selectedSampleStageParam.setNewValue(selectedSampleStages.trim());
+		}
+		return selectedSampleStageParam;
 	}
 
 	/**
 	 * Set temperature controller to be used for scan by looking which temperature control parameters have been selected.
-	 *
+	 * (Only for B18SampleParameters)
 	 * @param paramValuesForScans
 	 * @return
 	 */
 	private static ParameterValue getTemperatureControlOverride(ParameterValuesForBean paramValuesForScans) {
-		if (paramValuesForScans.getBeanType().equals(B18SampleParameters.class.getName())) {
-			ParameterValue selectedSampleStageParam = new ParameterValue("getTemperatureControl", "");
-			selectedSampleStageParam.setEditable(false);
-			for(ParameterValue val : paramValuesForScans.getParameterValues()) {
-				String control = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(), B18SampleParameters.TEMP_CONTROL);
-				if (!control.isEmpty()) {
-					selectedSampleStageParam.setNewValue(control.trim());
-					break;
-				}
-			}
-			return selectedSampleStageParam;
+		if (!paramValuesForScans.getBeanType().equals(B18SampleParameters.class.getName())) {
+			return new ParameterValue();
 		}
-		return null;
+
+		ParameterValue selectedSampleStageParam = new ParameterValue("getTemperatureControl", "");
+		selectedSampleStageParam.setEditable(false);
+		for (ParameterValue val : paramValuesForScans.getParameterValues()) {
+			String control = SpreadsheetViewHelperClasses.containsIgnoreCase(val.getFullPathToGetter(),	B18SampleParameters.TEMP_CONTROL);
+			if (!control.isEmpty()) {
+				selectedSampleStageParam.setNewValue(control.trim());
+				break;
+			}
+		}
+		return selectedSampleStageParam;
 	}
+
 
 	public static void addRemoveParameters(List<ParametersForScan> parametersForAllScans, List<ParameterValuesForBean> newSelectedParameters) {
 		for(ParametersForScan paramForScan : parametersForAllScans) {
-			addRemoveParmeters(paramForScan, newSelectedParameters);
+			addRemoveParameters(paramForScan, newSelectedParameters);
 		}
 	}
 
 	/**
-	 * Add/remove
-	 * @param parametersForScan
-	 * @param newSelectedParameters
+	 * Add/remove current ParameterValues for beans in each scan based on list in 'newParametersForScan'
+	 * Remove parameters not in newParametersForScan and add any new ones.
+	 * @param currentParametersForScan
+	 * @param newParametersForScan
 	 */
-	public static void addRemoveParmeters(ParametersForScan parametersForScan, List<ParameterValuesForBean> newSelectedParameters) {
-		if (newSelectedParameters.size() == 0) {
-			for(ParameterValuesForBean selectedParam : parametersForScan.getParameterValuesForScanBeans()) {
-				selectedParam.getParameterValues().clear();
-			}
-		} else {
-			for (ParameterValuesForBean selectedParam : newSelectedParameters) {
-				for(ParameterValuesForBean paramForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
-					addRemoveParameters(paramForScanBean, selectedParam);
-				}
+	public static void addRemoveParameters(ParametersForScan currentParametersForScan, List<ParameterValuesForBean> newParametersForScan) {
+		for (ParameterValuesForBean currentBeanParams : currentParametersForScan.getParameterValuesForScanBeans()) {
+
+			// Find scan bean settings object with type matching new selected parameter
+			Optional<ParameterValuesForBean> result = newParametersForScan
+					.stream()
+					.filter( currentParamForBean -> currentBeanParams.getBeanType().equalsIgnoreCase(currentParamForBean.getBeanType()))
+					.findFirst();
+
+			if (result.isPresent()) {
+				logger.debug("addRemoveParameters : Adding parameters of type {} to current setting.", currentBeanParams.getBeanType());
+				addRemoveParameters(currentBeanParams, result.get());
+			} else {
+				// clear parameters if no new parameters specified for this bean type
+				logger.debug("addRemoveParameters : No new parameters of type {} given - clearing parameters from current setting.", currentBeanParams.getBeanType());
+				currentBeanParams.getParameterValues().clear();
 			}
 		}
 	}
 
-	public static void addRemoveParameters(ParameterValuesForBean paramsForScanBean, ParameterValuesForBean newSelectedParameters) {
+	public static void addRemoveParameters(ParameterValuesForBean currentParametersForBean, ParameterValuesForBean newParametersForBean) {
 
-		// only update matching type of bean
-		if (paramsForScanBean.getBeanType().equals(newSelectedParameters.getBeanType())) {
-
-			Map<String, Object> beanValues = new HashMap<>();
-			try {
-				Object beanObject = paramsForScanBean.getBeanObject();
-				beanValues = newSelectedParameters.getValuesFromBean(beanObject);
-			} catch (Exception e) {
-				logger.warn("Problem getting values from {} in updateTableParameters", paramsForScanBean.getBeanFileName(), e);
-			}
-
-			// Remove any *bean parameters* not in *selected parameter* list
-			Iterator<ParameterValue> iteratorForBean = paramsForScanBean.getParameterValues().iterator();
-			while(iteratorForBean.hasNext()) {
-				ParameterValue p = iteratorForBean.next();
-				if (newSelectedParameters.getParameterValue(p.getFullPathToGetter())==null) {
-					iteratorForBean.remove();
-				}
-			}
-			// Add new parameter to bean, (i.e. for selected parameter not already in bean)
-			for(ParameterValue selectedParam : newSelectedParameters.getParameterValues()) {
-				if( paramsForScanBean.getParameterValue(selectedParam.getFullPathToGetter()) == null ) {
-					ParameterValue newParam = new ParameterValue(selectedParam);
-					Object valueFromBean = beanValues.get(selectedParam.getFullPathToGetter());
-					if (valueFromBean != null) {
-						newParam.setNewValue(valueFromBean);
-					}
-					logger.debug("updateTableParameters on {} bean : parameter = {}, value = {}", paramsForScanBean.getBeanType(),selectedParam.getFullPathToGetter(), valueFromBean);
-					paramsForScanBean.addParameterValue(newParam);
-				}
-			}
-			addSampleStageTemperatureParams(paramsForScanBean, newSelectedParameters);
+		// Return early if bean types do not match
+		if (!currentParametersForBean.getBeanType().equals(newParametersForBean.getBeanType())) {
+			logger.warn("Cannot adjust list of parameters for bean. Bean type {} does not match type supplied parameter type {}",
+					currentParametersForBean.getBeanType(), newParametersForBean.getBeanType());
+			return;
 		}
+
+		// Get default values of new parameters to be set (i.e. values from bean)
+		Map<String, Object> currentBeanValues = new HashMap<>(); //key = path to getter, value = value from bean
+		try {
+			Object beanObject = currentParametersForBean.getBeanObject();
+			currentBeanValues = newParametersForBean.getValuesFromBean(beanObject);
+		} catch (Exception e) {
+			logger.warn("Problem getting values from {} in updateTableParameters", currentParametersForBean.getBeanFileName(), e);
+		}
+
+		// Remove any parameter not present in the new ParameterValues list
+		currentParametersForBean.getParameterValues()
+			.removeIf(paramValue -> newParametersForBean.getParameterValue(paramValue)==null);
+
+		// Add new parameter if not already present.
+		final Map<String, Object> beanValues = currentBeanValues;
+		newParametersForBean.getParameterValues()
+				.stream()
+				.filter(newParam -> currentParametersForBean.getParameterValue(newParam) == null)
+				.forEach(newParam -> {
+					ParameterValue newParamToBeAdded = new ParameterValue(newParam);
+					// Set the value of parameter using current value from bean.
+					Object defaultValue = beanValues.get(newParam.getFullPathToGetter());
+					if (defaultValue != null) {
+						newParamToBeAdded.setNewValue(defaultValue);
+					}
+					logger.debug("updateTableParameters on {} bean : parameter = {}, value = {}",
+							currentParametersForBean.getBeanType(), newParamToBeAdded.getFullPathToGetter(), newParamToBeAdded.getNewValue());
+					currentParametersForBean.addParameterValue(newParamToBeAdded);
+			});
+		addSampleStageTemperatureParams(currentParametersForBean, newParametersForBean);
 	}
 
 	/**
 	 * Add parameters with string with list of selected sample stages, name of temperature controller
+	 * (Currently only for B18SampleParameters)
 	 * @param parametersForScan
 	 * @param newSelectedParameters
 	 */
-	public static void addSampleStageTemperatureParams(ParameterValuesForBean parametersForScan, ParameterValuesForBean newSelectedParameters){
+	private static void addSampleStageTemperatureParams(ParameterValuesForBean parametersForScan, ParameterValuesForBean newSelectedParameters){
 
-		if (!parametersForScan.getBeanType().equals(B18SampleParameters.class.getName())) {
+		if (!parametersForScan.getBeanType().equals(B18SampleParameters.class.getName()) ||
+			!parametersForScan.getBeanType().equals(newSelectedParameters.getBeanType())) {
 			return;
 		}
 
@@ -653,15 +596,13 @@ public class SpreadsheetViewHelperClasses {
 		ParameterValue temperatureControl = getTemperatureControlOverride(newSelectedParameters);
 
 		// remove any current samplestage list(s)
-		Iterator<ParameterValue> iterator =  parametersForScan.getParameterValues().iterator();
-		while (iterator.hasNext()) {
-			ParameterValue p = iterator.next();
-			String getter = p.getFullPathToGetter();
-			if (getter.equals(sampleStageList.getFullPathToGetter()) ||
-				getter.equals(temperatureControl.getFullPathToGetter()) ) {
-				iterator.remove();
-			}
-		}
+		parametersForScan.getParameterValues()
+			.removeIf( paramValue -> {
+				String getter = paramValue.getFullPathToGetter();
+				return getter.equals(sampleStageList.getFullPathToGetter()) ||
+					   getter.equals(temperatureControl.getFullPathToGetter());
+		});
+
 		// set the new value (empty string means no sample stages selected, don't override anything)
 		if (!sampleStageList.getNewValue().equals("")) {
 			parametersForScan.addParameterValue(sampleStageList);
@@ -676,7 +617,7 @@ public class SpreadsheetViewHelperClasses {
 	 * @param searchStrs array of strings to find
 	 * @return matching string from searchStrs array found by repeatedly applying {@link StringUtils#containsIgnoreCase(String, String)}.
 	 */
-	public static String containsIgnoreCase(String str, String[] searchStrs) {
+	private static String containsIgnoreCase(String str, String[] searchStrs) {
 		for(int i=0; i<searchStrs.length; i++) {
 			if (StringUtils.containsIgnoreCase(str, searchStrs[i])) {
 				return searchStrs[i];
@@ -685,83 +626,63 @@ public class SpreadsheetViewHelperClasses {
 		return "";
 	}
 
-	public static String endsWith(String str, String[] searchStrs) {
-		for(int i=0; i<searchStrs.length; i++) {
-			if (searchStrs[i].endsWith(str)) {
-				return searchStrs[i];
-			}
-		}
-		return "";
-	}
-
 	/**
-	 * Scan all required xml files for the scans and make sure they exist
-	 * @param parametersForAllScans
-	 * @return Warning message if required files are missing, empty string otherwise
-	 */
-	public static String checkRequiredXmlsExist(List<ParametersForScan> parametersForAllScans) {
-		String warningMessage = "";
-		for(int scanIndex=0; scanIndex<parametersForAllScans.size(); scanIndex++) {
-			ParametersForScan parametersForScan  = parametersForAllScans.get(scanIndex);
-			//Loop over each parameter file for the scan
-			for(ParameterValuesForBean parameterForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
-				String fullXmlPath = parameterForScanBean.getBeanFileName();
-				File xmlFile = new File(fullXmlPath);
-				if ( !xmlFile.exists() || !xmlFile.isFile() ) {
-					warningMessage += "Scan "+scanIndex+" : file '"+fullXmlPath+"' cannot be read\n";
-				}
-			}
-		}
-		return warningMessage;
-	}
-
-	/**
-	 * Get a list of ParameterConfigs for generic motor positions in the B18 sample parameter bean.
-	 * Adds 'demand position' and 'do move' parameter for each one.
+	 * Get a list of ParameterConfigs for generic scannable positions (i.e. List<{@link SampleParameterMotorPosition}>) in the B18 sample parameter bean.
+	 * Makes list of ParameterConfig objects with 'demand position' and 'do move' parameter for each one.
 	 * @param paramsForScan
-	 * @return list of ParameterConfigs for generic motors.
+	 * @return list of ParameterConfigs
 	 */
 	public static List<ParameterConfig> getSampleParameterMotorConfig(ParametersForScan paramsForScan) {
 		String beanTypeString = B18SampleParameters.class.getName();
-		for(ParameterValuesForBean paramValues : paramsForScan.getParameterValuesForScanBeans()) {
-			if (paramValues.getBeanType().equals(beanTypeString)) {
-				B18SampleParameters sampleParams;
-				try {
-					sampleParams = (B18SampleParameters)paramValues.getBeanObject();
-				} catch (Exception e) {
-					logger.error("Problem reading {} bean from xml file", beanTypeString, e);
-					continue;
-				}
 
-				String positionGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"(%s)."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
-				String activeGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"(%s)."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+		// Find the ParameterValuesForBean to be applied B18SampleParameters
+		Optional<ParameterValuesForBean> result = paramsForScan.getParameterValuesForScanBeans()
+				.stream()
+				.filter(paramsForBean -> paramsForBean.getBeanType().equals(beanTypeString))
+				.findFirst();
 
-				List<SampleParameterMotorPosition> motorPositions = sampleParams.getSampleParameterMotorPositions();
-				List<ParameterConfig> paramConfigs = new ArrayList<>();
-				for(SampleParameterMotorPosition motorPos : motorPositions) {
-					// Parameter with demandPosition
-					ParameterConfig paramConfig = new ParameterConfig();
-					paramConfig.setFullPathToGetter(String.format(positionGetterFormat, motorPos.getScannableName()));
-					paramConfig.setBeanType(beanTypeString);
-					paramConfig.setDescription(motorPos.getDescription());
-					paramConfigs.add(paramConfig);
-
-					// Parameter for moveTo (true/false) flag
-					// This is not shown in measurement conditions dialog - it is added to table if corresponding
-					// demandPosition has been selected by user.
-					paramConfig = new ParameterConfig();
-					paramConfig.setFullPathToGetter(String.format(activeGetterFormat, motorPos.getScannableName()));
-					paramConfig.setBeanType(beanTypeString);
-					paramConfig.setDescription("Move "+motorPos.getDescription());
-					paramConfig.setAllowedValuesFromBoolean(true);
-					paramConfig.setShowInParameterSelectionDialog(false);
-					paramConfigs.add(paramConfig);
-				}
-				return paramConfigs;
-			}
+		if (!result.isPresent()) {
+			logger.warn("getSampleParameterMotorConfig found no parameter values for {}", beanTypeString);
+			return Collections.emptyList();
 		}
-		return null;
+
+		// Try to load sample parameters bean from xml file :
+		B18SampleParameters sampleParams;
+		try {
+			sampleParams = (B18SampleParameters) result.get().getBeanObject();
+		} catch (Exception e) {
+			logger.error("Problem reading {} bean from xml file", beanTypeString, e);
+			return Collections.emptyList();
+		}
+
+		String positionGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
+		String activeGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+
+		// Make list of new ParameterConfigs from sample parameter motor positions.
+		// Add two ParameterConfigs per motor : one to control demand position another to control 'doMove' flag
+		List<ParameterConfig> paramConfigs = new ArrayList<>();
+		for (SampleParameterMotorPosition motorPos : sampleParams.getSampleParameterMotorPositions()) {
+			// Parameter with demandPosition
+			ParameterConfig paramConfig = new ParameterConfig();
+			paramConfig.setFullPathToGetter(String.format(positionGetterFormat, motorPos.getScannableName()));
+			paramConfig.setBeanType(beanTypeString);
+			paramConfig.setDescription(motorPos.getDescription());
+			paramConfigs.add(paramConfig);
+
+			// Parameter for moveTo (true/false) flag
+			// This is not shown in measurement conditions dialog - it is added to table if corresponding
+			// demandPosition has been selected by user.
+			paramConfig = new ParameterConfig();
+			paramConfig.setFullPathToGetter(String.format(activeGetterFormat, motorPos.getScannableName()));
+			paramConfig.setBeanType(beanTypeString);
+			paramConfig.setDescription("Move " + motorPos.getDescription());
+			paramConfig.setAllowedValuesFromBoolean(true);
+			paramConfig.setShowInParameterSelectionDialog(false);
+			paramConfigs.add(paramConfig);
+		}
+		return paramConfigs;
 	}
+
 	/**
 	 * Add 'do move' ParameterValue for sample parameter motor positions (true = move at scan start, false = don't move)
 	 * for selected SampleParameterMotors. <p>
@@ -773,34 +694,38 @@ public class SpreadsheetViewHelperClasses {
 	 */
 	public static void addSampleParameterMotorMoveFlag(List<ParameterValuesForBean> paramValuesForBeans) {
 
-		// Positions in original paramValuesForBeans list where motor move true/false parameters should be inserted
-		Map<Integer, ParameterValue> motorMoveFlagForSampleParams = new HashMap<Integer, ParameterValue>();
+		// Find the ParameterValuesForBean to be applied B18SampleParameters
+		String sampleParametersClassName = B18SampleParameters.class.getName();
+		Optional<ParameterValuesForBean> result = paramValuesForBeans
+				.stream().filter(paramsForBean -> paramsForBean.getBeanType().equals(sampleParametersClassName))
+				.findFirst();
 
-		ParameterValuesForBean sampleParams = null;
-		for (ParameterValuesForBean paramsForBean : paramValuesForBeans) {
-			int index = 0;
-			if (paramsForBean.getBeanType().equals(B18SampleParameters.class.getName())) {
-				sampleParams = paramsForBean;
-
-				for (ParameterValue paramValue : paramsForBean.getParameterValues()) {
-					String pathToGetter = paramValue.getFullPathToGetter();
-					// Create new ParameterValue with getter for 'do move' function:
-					if (pathToGetter.startsWith(B18SampleParameters.MOTOR_POSITION_GETTER_NAME)) {
-						String[] splitStr = pathToGetter.split("[.]");
-						String pathToTfGetter = splitStr[0] + "."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
-						motorMoveFlagForSampleParams.put(index, new ParameterValue(pathToTfGetter, "true"));
-					}
-					index++;
-				}
-			}
+		if (!result.isPresent()) {
+			logger.warn("addSampleParameterMotorMoveFlag found no parameter values for {}", sampleParametersClassName);
+			return;
 		}
 
-		if (sampleParams != null) {
-			int offset = 1;
-			for (Integer i : motorMoveFlagForSampleParams.keySet()) {
-				sampleParams.getParameterValues().add(i + offset, motorMoveFlagForSampleParams.get(i));
-				offset++;
+		ParameterValuesForBean sampleParams = result.get();
+
+		// Make new ParmeterValues to set doMove to true for each motor.
+		// key = position in parameter list of where to insert new doMove ParameterValue, value = new ParameterValue to set doMove to true for selected motor
+		Map<Integer, ParameterValue> motorMoveFlagForSampleParams = new HashMap<>();
+		int index = 0;
+		for (ParameterValue paramValue : sampleParams.getParameterValues()) {
+			String pathToGetter = paramValue.getFullPathToGetter();
+			// Create new ParameterValue with getter for 'do move' function:
+			if (pathToGetter.startsWith(B18SampleParameters.MOTOR_POSITION_GETTER_NAME)) {
+				String[] splitStr = pathToGetter.split("[.]");
+				String pathToDoMove = splitStr[0] + "." + SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+				motorMoveFlagForSampleParams.put(index, new ParameterValue(pathToDoMove, "true"));
 			}
+			index++;
+		}
+
+		int offset = 1;
+		for(Entry<Integer, ParameterValue> entryValue : motorMoveFlagForSampleParams.entrySet()) {
+			sampleParams.getParameterValues().add(entryValue.getKey() + offset, entryValue.getValue());
+			offset++;
 		}
 	}
 }
