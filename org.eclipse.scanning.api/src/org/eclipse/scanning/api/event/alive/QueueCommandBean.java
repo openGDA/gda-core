@@ -85,6 +85,11 @@ public class QueueCommandBean  extends IdBean {
 		REMOVE_COMPLETED,
 
 		/**
+		 * A command to get the submission queue.
+		 */
+		GET_QUEUE,
+
+		/**
 		 * A command to get the current state of the consumer.
 		 */
 		GET_INFO;

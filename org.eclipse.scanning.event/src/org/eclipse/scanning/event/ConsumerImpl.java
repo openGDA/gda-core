@@ -257,6 +257,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				case REMOVE_COMPLETED:
 					removeCompleted(commandBean.getBeanUniqueId());
 					break;
+				case GET_QUEUE:
+					result = getQueue();
+					break;
 				case GET_INFO:
 					result = getConsumerInfo();
 					break;

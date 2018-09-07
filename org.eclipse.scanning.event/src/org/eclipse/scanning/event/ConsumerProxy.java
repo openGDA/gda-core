@@ -85,6 +85,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<U> getQueue() throws EventException {
+		return (List<U>) sendCommand(Command.GET_QUEUE);
+	}
+
 	@Override
 	public void clearQueue() throws EventException {
 		sendCommand(Command.CLEAR);
