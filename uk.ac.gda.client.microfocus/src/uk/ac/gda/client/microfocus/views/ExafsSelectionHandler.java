@@ -21,6 +21,7 @@ package uk.ac.gda.client.microfocus.views;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.NexusConstants.POSITIONER;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -77,10 +78,21 @@ public class ExafsSelectionHandler implements EventHandler {
 	private void updateExafsSelectionView(Double xLocation, Double yLocation, Double zLocation) {
 		final Double[] locationArray = new Double[] { xLocation, yLocation, zLocation };
 
-		ExafsSelectionView exafsSelectionView = (ExafsSelectionView) EclipseUtils.getActivePage()
-				.findView(ExafsSelectionView.ID);
-		if (exafsSelectionView != null) {
-			exafsSelectionView.setSelectedPoint(locationArray);
+		final String sampleStagePrefix = stageConfigurationService.getActiveFastScanAxis().substring(0, 2);
+		boolean validPrefix = Arrays.asList(stageConfigurationService.getActiveFastScanAxis(),
+											stageConfigurationService.getActiveSlowScanAxis(),
+											stageConfigurationService.getAssociatedAxis()).stream()
+											.allMatch(axis -> axis.startsWith(sampleStagePrefix));
+
+		ExafsSelectionView exafsSelectionView = (ExafsSelectionView) EclipseUtils.getActivePage().findView(ExafsSelectionView.ID);
+		if (exafsSelectionView == null) return;
+
+		exafsSelectionView.setSelectedPoint(locationArray);
+		if (validPrefix) {
+			exafsSelectionView.setSampleStagePrefix(sampleStagePrefix);
+		} else {
+			logger.warn("Inconsistent axes selected");
+			exafsSelectionView.setSampleStagePrefix(null);
 		}
 	}
 

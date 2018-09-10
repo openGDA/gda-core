@@ -44,7 +44,8 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class UpdateExafsScanCommandHandler extends AbstractHandler implements IHandler {
 
-	private final static Logger logger = LoggerFactory.getLogger(UpdateExafsScanCommandHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(UpdateExafsScanCommandHandler.class);
+	private static final String SAME_EXPERIMENT_MESSAGE = "All selected scans must be from the same experiment";
 	protected final IExperimentEditorManager controller = ExperimentFactory.getExperimentEditorManager();
 
 	@Override
@@ -55,7 +56,7 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 
 			if (isValid(selectedScans)) {
 				File project = controller.getProjectFolder();
-				String folder = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1,
+				String folder = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
 						selectedScans[0].indexOf(File.separator));
 				IExperimentObjectManager newScanManager = null;
 				try {
@@ -72,36 +73,39 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 				}
 
 				// create a new multiscan
-				for (String sScan : selectedScans) {// TODO need to change it to more eclipse way add a seperate class
+				for (String selectedScan : selectedScans) {
 					// to provide the content
-					String xyz = sScan.substring(sScan.indexOf("(") + 1, sScan.indexOf(")"));
-					sScan = sScan.substring(sScan.indexOf(")") + 1);
-					File scanFile = new File(project.getAbsolutePath() + File.separator + sScan);
+					String xyz = selectedScan.substring(selectedScan.indexOf('(') + 1, selectedScan.indexOf(')'));
+					selectedScan = selectedScan.substring(selectedScan.indexOf(')') + 1);
+					File scanFile = new File(project.getAbsolutePath() + File.separator + selectedScan);
 					try {
 						IExperimentObjectManager scManager = ExperimentFactory
 								.getManager(controller.getIFile(scanFile));
 						List<IExperimentObject> scanList = scManager.getExperimentList();
 						for (IExperimentObject exptScan : scanList) {
 							ScanObject scan = (ScanObject) exptScan;
-							I18SampleParameters samPam = (I18SampleParameters) scan.getSampleParameters();
-							SampleStageParameters sstagePam = samPam.getSampleStageParameters();
+							I18SampleParameters sampleParameters = (I18SampleParameters) scan.getSampleParameters();
+							SampleStageParameters sampleStageParameters = sampleParameters.getSampleStageParameters();
 							StringTokenizer tokens = new StringTokenizer(xyz, ",");
-							double sampleParams[] = new double[tokens.countTokens()];
+							double[] stageCoordinates = new double[tokens.countTokens()];
 							int tokenCount = 0;
 							while (tokens.hasMoreTokens()) {
-								sampleParams[tokenCount] = Double.valueOf(tokens.nextToken());
+								stageCoordinates[tokenCount] = Double.valueOf(tokens.nextToken());
 								tokenCount++;
 							}
-							sstagePam.setX(sampleParams[0]);
-							sstagePam.setY(sampleParams[1]);
-							sstagePam.setZ(sampleParams[2]);
+							sampleStageParameters.setX(stageCoordinates[0]);
+							sampleStageParameters.setY(stageCoordinates[1]);
+							sampleStageParameters.setZ(stageCoordinates[2]);
+
+							setSampleStageName(sampleStageParameters, exafsView.getSampleStagePrefix());
+
 							String newSampleFileName = scan.getSampleFileName().substring(0,
 									scan.getSampleFileName().indexOf(".xml"))
-									+ sampleParams[0] + "_" + sampleParams[1] + "_" + sampleParams[2];
+									+ stageCoordinates[0] + "_" + stageCoordinates[1] + "_" + stageCoordinates[2];
 							newSampleFileName = newSampleFileName.replace('.', '-') + ".xml";
 							String newSampleFile = project.getAbsolutePath() + File.separator + folder + File.separator
 									+ newSampleFileName;
-							XMLHelpers.writeToXML(I18SampleParameters.mappingURL, samPam, newSampleFile);
+							XMLHelpers.writeToXML(I18SampleParameters.mappingURL, sampleParameters, newSampleFile);
 							ScanObject newScan = (ScanObject) scManager.createCopyOfExperiment(scan);
 							newScan.setSampleFileName(newSampleFileName);
 							newScan.setRunName(scan.getRunName() + "[" + xyz + "]");
@@ -115,8 +119,8 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 				}
 				controller.refreshViewers();
 			} else {
-				logger.info("All selected scans must be from the same experiment");
-				DisplayMessages.showErrorMessage("All selected scans must be from the same experiment");
+				logger.info(SAME_EXPERIMENT_MESSAGE);
+				DisplayMessages.showErrorMessage(SAME_EXPERIMENT_MESSAGE);
 				return null;
 			}
 		}
@@ -125,14 +129,19 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 	}
 
 	private boolean isValid(String[] selectedScans) {
-		String toMatch = selectedScans[0].substring(selectedScans[0].indexOf(")") + 1,
+		String toMatch = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
 				selectedScans[0].indexOf(File.separator));
 		for (String selection : selectedScans) {
-			if (!selection.substring(selection.indexOf(")") + 1, selection.indexOf(File.separator)).equals(toMatch))
+			if (!selection.substring(selection.indexOf(')') + 1, selection.indexOf(File.separator)).equals(toMatch))
 				return false;
 		}
 		return true;
+	}
 
+	private void setSampleStageName(SampleStageParameters stageParameters, String sampleStagePrefix) {
+		stageParameters.setXName(sampleStagePrefix + "x");
+		stageParameters.setYName(sampleStagePrefix + "y");
+		stageParameters.setZName(sampleStagePrefix + "z");
 	}
 
 }
