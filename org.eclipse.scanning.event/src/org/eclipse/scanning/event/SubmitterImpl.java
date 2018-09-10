@@ -144,7 +144,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException {
 		logger.trace("blockingSubmit(...)"); // Call to submit details the bean so no need to duplicate here
 
-		String topic = getTopicName();
+		String topic = getStatusTopicName();
 		if (topic == null) {
 			// We can't block if we don't know what topic to listen to.
 			throw new IllegalStateException(
