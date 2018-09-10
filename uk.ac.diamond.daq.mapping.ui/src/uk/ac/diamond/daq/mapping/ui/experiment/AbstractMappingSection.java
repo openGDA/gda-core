@@ -49,11 +49,11 @@ public abstract class AbstractMappingSection {
 
 	private static FontMetrics fontMetrics = null;
 
-	private MappingExperimentView mappingView;
+	private AbstractSectionsView mappingView;
 
 	protected DataBindingContext dataBindingContext;
 
-	protected void initialize(MappingExperimentView mappingView) {
+	protected void initialize(AbstractSectionsView mappingView) {
 		this.mappingView = mappingView;
 	}
 
@@ -73,7 +73,7 @@ public abstract class AbstractMappingSection {
 		return mappingView.getBean();
 	}
 
-	protected MappingExperimentView getMappingView() {
+	protected AbstractSectionsView getMappingView() {
 		return mappingView;
 	}
 

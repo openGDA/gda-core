@@ -143,7 +143,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
 
 	@Override
-	protected void initialize(MappingExperimentView mappingView) {
+	protected void initialize(AbstractSectionsView mappingView) {
 		super.initialize(mappingView);
 		plotter = getService(PlottingController.class);
 		mappingRegionManager = getService(IMappingRegionManager.class);
