@@ -171,7 +171,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 			try {
 				this.previousPosition = scannable.getPosition();
 			} catch (DeviceException e) {
-				logger.error("Could not get position of scananble ''{}''", scannable.getName(), e);
+				logger.error("Could not get position of scannable ''{}''", scannable.getName(), e);
 			}
 			this.scannable.addIObserver(this::update);
 		}
