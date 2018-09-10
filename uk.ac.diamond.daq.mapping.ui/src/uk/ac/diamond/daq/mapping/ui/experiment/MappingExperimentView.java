@@ -312,7 +312,7 @@ public class MappingExperimentView implements IAdaptable {
 		@SuppressWarnings("unchecked")
 		ScanRequest<IROI> scanRequest = (ScanRequest<IROI>) scanBean.getScanRequest();
 		try {
-			scanRequestConverter.mergeIntoMappingBean(scanRequest, (MappingExperimentBean) mappingBean);
+			scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
 			updateControls();
 		} catch (Exception e) {
 			logger.error("Error merging scan request into mapping bean.", e);

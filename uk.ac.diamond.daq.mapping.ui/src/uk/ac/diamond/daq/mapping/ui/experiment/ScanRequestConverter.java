@@ -65,7 +65,6 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
-import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.ScriptFiles;
@@ -252,7 +251,7 @@ public class ScanRequestConverter {
 	 * @param scanRequest the {@link ScanRequest}
 	 * @param mappingBean the {@link IMappingExperimentBean} to merge into
 	 */
-	public void mergeIntoMappingBean(ScanRequest<IROI> scanRequest, MappingExperimentBean mappingBean) {
+	public void mergeIntoMappingBean(ScanRequest<IROI> scanRequest, IMappingExperimentBean mappingBean) {
 		final CompoundModel<IROI> compoundModel = scanRequest.getCompoundModel();
 		final Collection<ScanRegion<IROI>> regions = compoundModel.getRegions();
 		if (regions.size() != 1) {
@@ -339,7 +338,7 @@ public class ScanRequestConverter {
 		return regionShape;
 	}
 
-	private void mergeOuterScannables(CompoundModel<IROI> compoundModel, MappingExperimentBean mappingBean) {
+	private void mergeOuterScannables(CompoundModel<IROI> compoundModel, IMappingExperimentBean mappingBean) {
 		final List<IScanModelWrapper<IScanPathModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
 		final List<Object> models = compoundModel.getModels();
 		final List<Object> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
@@ -376,7 +375,7 @@ public class ScanRequestConverter {
 		}
 	}
 
-	private void mergeDetectorAndProcessing(ScanRequest<?> scanRequest, MappingExperimentBean mappingBean) {
+	private void mergeDetectorAndProcessing(ScanRequest<?> scanRequest, IMappingExperimentBean mappingBean) {
 		// disable all the existing detectors in the mapping bean, also create a map of them by
 		// detector name (note: the name in the IDetectorModel, not the name in the wrapper)
 		final Map<String, IScanModelWrapper<IDetectorModel>> detectorModelWrappers;
