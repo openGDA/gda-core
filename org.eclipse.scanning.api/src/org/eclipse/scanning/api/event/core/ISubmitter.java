@@ -32,7 +32,7 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	 * Send a submission on to the queue. Blocks until bean is
 	 * updated with "final" status.
 	 *
-	 * This method depends on this.setTopicName() already having
+	 * This method depends on this.setStatusTopicName() already having
 	 * been called with the appropriate status queue name by the
 	 * user of this ISubmitter, because this method's implementation
 	 * listens to the said status topic to determine when to return.
@@ -40,7 +40,7 @@ public interface ISubmitter<T> extends IQueueConnection<T> {
 	 * @param bean
 	 * @throws EventException
 	 * @throws InterruptedException
-	 * @throws IllegalStateException if this.getTopicName() returns null.
+	 * @throws IllegalStateException if this.getStatusTopicName() returns null.
 	 */
 	void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException;
 
