@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.epicsdevice.EpicsDBR;
 import gda.epics.PVProvider;
 import gda.epics.connection.EpicsController;
@@ -50,6 +51,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * EpicsScannable is a ScannableMotionUnits implementation giving access to a PV.
@@ -62,6 +64,7 @@ import gov.aps.jca.event.PutListener;
  * <p>
  * The monitor is only set on the channel if the class is being observed.
  */
+@ServiceInterface(Scannable.class)
 public class EpicsScannable extends ScannableMotionUnitsBase implements InitializingBean{
 	public boolean isHasUnits() {
 		return hasUnits;
