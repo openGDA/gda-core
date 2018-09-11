@@ -19,10 +19,13 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Dummy object extending ScannableMotion which represents a single number.
  */
+@ServiceInterface(Scannable.class)
 public class DummyScannable extends ScannableMotionBase {
 
 	protected double currentPosition = 0;
