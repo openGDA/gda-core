@@ -122,14 +122,16 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		try {
 			currentPositionInEV = (Double) this.rawGetPosition();
 		} catch (DeviceException e1) {
-			logger.error("TCould not read scannable position", e1);
+			logger.error("Could not read scannable position", e1);
 		}
 
 		double demandDegrees = energyToDegrees(positionInEV);
 		double currentDegrees = energyToDegrees(currentPositionInEV);
-
-		if (Math.abs(currentDegrees - demandDegrees) > 0.00011) {
+		logger.debug("checkDeadbandAndMove : demand angle = {} deg, current angle = {} deg.", demandDegrees, currentDegrees);
+		// Use tolerance (in degrees) of underlying scannable to determine whether to move
+		if ( Math.abs(currentDegrees - demandDegrees) > getDemandPositionTolerance() ) {
 			try {
+				logger.debug("checkDeadbandAndMove : moving to {} deg", demandDegrees);
 				asynchronousMoveTo(positionInEV);
 			} catch (DeviceException e) {
 				logger.error("Could not move scannable", e);
