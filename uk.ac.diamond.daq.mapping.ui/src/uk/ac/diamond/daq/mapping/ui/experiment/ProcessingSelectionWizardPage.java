@@ -73,6 +73,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -569,7 +570,15 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 			try {
 				((IOperationModelWizard) getWizard()).setTemplateFile(templateFile);
 			} catch (Exception e) {
-				logger.error("Error setting template file on wizard. Could not create operations pages.", e);
+				final String exceptionMessage = "Error setting template file on wizard. Could not create operations pages.";
+				final String userMessage = "Could not open template file, please contact beamline representative";
+				logger.error(exceptionMessage, e);
+
+				final MessageBox messageBox = new MessageBox(getShell(), SWT.ERROR);
+				messageBox.setMessage(userMessage);
+				messageBox.open();
+
+				throw new RuntimeException(exceptionMessage, e);
 			}
 		}
 	}
