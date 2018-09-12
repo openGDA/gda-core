@@ -88,6 +88,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 	private Text imageHigh;
 
 	private Font vSmallFont;
+	private ICustomWidget customWidget = null;
 
 	private static final MathContext PRECISION = new MathContext(6, RoundingMode.HALF_UP);
 
@@ -102,9 +103,12 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 	 *
 	 * @param parent
 	 */
-	@SuppressWarnings("unused")
 	protected void addCustomWidgets(Composite parent) {
-		//do nothing for this class
+		if (customWidget != null) {
+			customWidget.createWidget(parent);
+		} else {
+			logger.info("No custom widgets are added.");
+		}
 	}
 
 	@Override
@@ -120,7 +124,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 		addCustomWidgets(parent);
 
-		buildImageRangeGroup(parent,boxWidthHint,v);
+		buildImageRangeGroup(parent, boxWidthHint, v);
 
 		SashForm sash = new SashForm(parent, SWT.VERTICAL);
 		sash.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
@@ -141,7 +145,6 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		plottingSystem.setShowIntensity(false);
 		plottingSystem.addTraceListener(traceListener);
 
-
 		Composite after = new Composite(sash, SWT.NONE);
 		sash.setWeights(new int[] { 70, 30 });
 		after.setLayout(new FillLayout());
@@ -150,7 +153,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		try {
 			histogramViewer = new HistogramViewer(after, "Test", null, (IActionBars) null, true);
 		} catch (Exception e) {
-			logger.error("Could not create histogram viewer",e);
+			logger.error("Could not create histogram viewer", e);
 			return;
 		}
 
@@ -211,13 +214,13 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		xAxis.setTitleFont(vSmallFont);
 		yAxis.setTitleFont(vSmallFont);
 
-		buildHistoGroup(parent, boxWidthHint,v);
+		buildHistoGroup(parent, boxWidthHint, v);
 
 		xAxis.addAxisListener(new IAxisListener() {
 
 			@Override
 			public void revalidated(AxisEvent evt) {
-				//do nothing
+				// do nothing
 			}
 
 			@Override
@@ -242,7 +245,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		Label l = new Label(histoGroup, SWT.NONE);
 		l.setText("X Range:");
 
-		low = makeTextForDouble(histoGroup,boxWidthHint,"Set x-axis low value",v);
+		low = makeTextForDouble(histoGroup, boxWidthHint, "Set x-axis low value", v);
 
 		final IAxis xAxis = histogramViewer.getHistogramPlot().getSelectedXAxis();
 
@@ -260,27 +263,25 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 				}
 				xAxis.setRange(l, u);
 
-
 			}
 
 			@Override
 			public void focusGained(FocusEvent e) {
-				//nothing
+				// nothing
 
 			}
 		});
 
-		low.addTraverseListener(e-> {
+		low.addTraverseListener(e -> {
 			if (e.detail == SWT.TRAVERSE_RETURN) {
 				high.setFocus();
 			}
 		});
 
-
 		l = new Label(histoGroup, SWT.NONE);
 		l.setText("-");
 
-		high = makeTextForDouble(histoGroup,boxWidthHint,"Set x-axis high value",v);
+		high = makeTextForDouble(histoGroup, boxWidthHint, "Set x-axis high value", v);
 
 		high.addFocusListener(new FocusListener() {
 
@@ -299,12 +300,12 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void focusGained(FocusEvent e) {
-				//nothing
+				// nothing
 
 			}
 		});
 
-		high.addTraverseListener(e-> {
+		high.addTraverseListener(e -> {
 			if (e.detail == SWT.TRAVERSE_RETURN) {
 				low.setFocus();
 			}
@@ -314,7 +315,8 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		bu.setLayoutData(GridDataFactory.swtDefaults().create());
 		bu.setText("Use Default");
 
-		HistoDefaultRange[] defaults = new HistoDefaultRange[] {new HistoDefaultRange(0,1600),new HistoDefaultRange(0,16000)};
+		HistoDefaultRange[] defaults = new HistoDefaultRange[] { new HistoDefaultRange(0, 1600),
+				new HistoDefaultRange(0, 16000) };
 
 		ComboViewer defaultViewer = new ComboViewer(histoGroup);
 		defaultViewer.setContentProvider(new ArrayContentProvider());
@@ -326,9 +328,11 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (defaultViewer.getSelection() instanceof StructuredSelection &&
-						((StructuredSelection)defaultViewer.getSelection()).getFirstElement() instanceof HistoDefaultRange) {
-					HistoDefaultRange r = (HistoDefaultRange)((StructuredSelection)defaultViewer.getSelection()).getFirstElement();
+				if (defaultViewer.getSelection() instanceof StructuredSelection
+						&& ((StructuredSelection) defaultViewer.getSelection())
+								.getFirstElement() instanceof HistoDefaultRange) {
+					HistoDefaultRange r = (HistoDefaultRange) ((StructuredSelection) defaultViewer.getSelection())
+							.getFirstElement();
 					histogramViewer.getHistogramPlot().getSelectedXAxis().setRange(r.getLower(), r.getUpper());
 				}
 			}
@@ -352,7 +356,8 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 	@Override
 	public void dispose() {
 		super.dispose();
-		if (vSmallFont != null) vSmallFont.dispose();
+		if (vSmallFont != null)
+			vSmallFont.dispose();
 	}
 
 	private void buildImageRangeGroup(Composite parent, int boxWidthHint, VerifyListener v) {
@@ -361,7 +366,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		imageRangeGroup.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
 		imageRangeGroup.setText("Image Range");
 
-		imageLow = makeTextForDouble(imageRangeGroup,boxWidthHint,"Set image colour low value", v);
+		imageLow = makeTextForDouble(imageRangeGroup, boxWidthHint, "Set image colour low value", v);
 
 		imageLow.addFocusListener(new FocusListener() {
 
@@ -376,7 +381,8 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 						iTrace.setPaletteData(iTrace.getPaletteData());
 						plottingSystem.repaint();
 					} catch (Exception ex) {
-						if (imageLow != null) imageLow.setText(iTrace.getImageServiceBean().getMin().toString());
+						if (imageLow != null)
+							imageLow.setText(iTrace.getImageServiceBean().getMin().toString());
 					}
 				}
 			}
@@ -387,7 +393,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 			}
 		});
 
-		imageLow.addTraverseListener(e-> {
+		imageLow.addTraverseListener(e -> {
 			if (e.detail == SWT.TRAVERSE_RETURN) {
 				imageHigh.setFocus();
 			}
@@ -396,7 +402,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		Label l1 = new Label(imageRangeGroup, SWT.NONE);
 		l1.setText("-");
 
-		imageHigh = makeTextForDouble(imageRangeGroup,boxWidthHint,"Set image colour high value",v);
+		imageHigh = makeTextForDouble(imageRangeGroup, boxWidthHint, "Set image colour high value", v);
 
 		imageHigh.addFocusListener(new FocusListener() {
 
@@ -422,7 +428,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 			}
 		});
 
-		imageHigh.addTraverseListener(e-> {
+		imageHigh.addTraverseListener(e -> {
 			if (e.detail == SWT.TRAVERSE_RETURN) {
 				imageLow.setFocus();
 			}
@@ -475,7 +481,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 				e.doit = true;
 				return;
 			}
-			//for scientific notation
+			// for scientific notation
 			if (e.character == 'e' || e.character == 'E') {
 				e.doit = true;
 				return;
@@ -535,8 +541,9 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 	private String doubleToStringWithPrecision(double d) {
 		BigDecimal bd = BigDecimal.valueOf(d).round(PRECISION).stripTrailingZeros();
-		//stop 100 going to 1.0E2
-		if (bd.precision() >= 1 && bd.precision() < PRECISION.getPrecision() && bd.scale() < 0 && bd.scale() > (-1*PRECISION.getPrecision())) {
+		// stop 100 going to 1.0E2
+		if (bd.precision() >= 1 && bd.precision() < PRECISION.getPrecision() && bd.scale() < 0
+				&& bd.scale() > (-1 * PRECISION.getPrecision())) {
 			bd = bd.setScale(0);
 		}
 		return bd.toString();
@@ -575,6 +582,10 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 			return upper;
 		}
 
+	}
+
+	public void setCustomWidget(ICustomWidget customWidget) {
+		this.customWidget = customWidget;
 	}
 
 }
