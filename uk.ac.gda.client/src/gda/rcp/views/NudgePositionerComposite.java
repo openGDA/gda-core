@@ -116,7 +116,6 @@ public class NudgePositionerComposite extends Composite {
 
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
-		positionText.setTextLimit(10);
 		positionText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
 		positionText.addKeyListener(new KeyAdapter() {
 			@Override
