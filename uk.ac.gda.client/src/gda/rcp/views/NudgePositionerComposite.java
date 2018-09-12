@@ -46,7 +46,10 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
+import gda.device.ScannableMotionUnits;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -328,30 +331,16 @@ public class NudgePositionerComposite extends Composite {
 		return currentPos;
 	}
 
-	// TODO This method needs rewriting to remove the use of jython e.g the commented out example but working
-	// Might need to try casting to something with the get limits methods. The problem is the remoting gives an
-	// adaptor class which doesn't have the get limits methods.
 	private void determineUserUnits() {
-		final JythonServerFacade jythonServer = JythonServerFacade.getInstance();
-		String command = "\'" + scannableName + "\' in globals()";
-		String evaluateCommand = jythonServer.evaluateCommand(command);
-		if (evaluateCommand.equals("True")) {
-			command = "\'getUserUnits\' in dir(" + scannableName + ")";
-			evaluateCommand = jythonServer.evaluateCommand(command);
-			if (evaluateCommand.equals("True")) {
-				command = scannableName + ".getUserUnits()";
-				setUserUnits(jythonServer.evaluateCommand(command));
+		try {
+			if (scannable instanceof ScannableMotionUnits) {
+				setUserUnits(((ScannableMotionUnits) scannable).getUserUnits());
+			} else {
+				logger.debug("No user units available for {}", scannableName);
 			}
+		} catch (Exception e) {
+			logger.error("Error getting user limits for {}", scannableName, e);
 		}
-		// This was a example using reflection which should work if the remoting provided the required methods
-		// Class<? extends Scannable> scannableClass = scannable.getClass();
-		// try {
-		// Method getUnitsMethod = scannableClass.getMethod("getUserUnits");
-		// setUserUnits((String) getUnitsMethod.invoke(scannable));
-		// } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-		// logger.info("Getting user units for scannable {} failed. No getUserUnits() method accessible", scannable.getName());
-		// }
-
 	}
 
 	public void setUserUnits(String userUnits) {
@@ -359,46 +348,29 @@ public class NudgePositionerComposite extends Composite {
 	}
 
 	private void determineScannableLimits() {
-		final JythonServerFacade jythonServer = JythonServerFacade.getInstance();
-		String command = "\'" + scannableName + "\' in globals()";
-		String evaluateCommand = jythonServer.evaluateCommand(command);
-		if (evaluateCommand.equals("True")) {
-			command = "\'getLowerInnerLimit\' in dir(" + scannableName + ")";
-			evaluateCommand = jythonServer.evaluateCommand(command);
-			if (evaluateCommand.equals("True")) {
-				command = scannableName + ".getLowerInnerLimit()";
-				evaluateCommand = jythonServer.evaluateCommand(command);
-				lowerLimit = parseLimit(command, evaluateCommand);
-				command = scannableName + ".getUpperInnerLimit()";
-				evaluateCommand = jythonServer.evaluateCommand(command);
-				upperLimit = parseLimit(command, evaluateCommand);
-				positionText.setToolTipText(lowerLimit + " : " + upperLimit);
-			} else {
-				command = "\'getLowerGdaLimits\' in dir(" + scannableName + ")";
-				evaluateCommand = jythonServer.evaluateCommand(command);
-				if (evaluateCommand.equals("True")) {
-					command = scannableName + ".getLowerGdaLimits()";
-					evaluateCommand = jythonServer.evaluateCommand(command);
-					if (!evaluateCommand.equals("None")) {
-						command = scannableName + ".getLowerGdaLimits()[0]";
-						evaluateCommand = jythonServer.evaluateCommand(command);
-						lowerLimit = parseLimit(command, evaluateCommand);
-						command = scannableName + ".getUpperGdaLimits()[0]";
-						evaluateCommand = jythonServer.evaluateCommand(command);
-						upperLimit = parseLimit(command, evaluateCommand);
-						positionText.setToolTipText(lowerLimit + " : " + upperLimit);
-					}
+		try {
+			if (scannable instanceof IScannableMotor) {
+				final IScannableMotor scannableMotor = (IScannableMotor) scannable;
+				lowerLimit = scannableMotor.getLowerInnerLimit();
+				upperLimit = scannableMotor.getUpperInnerLimit();
+			} else if (scannable instanceof ScannableMotion) {
+				final ScannableMotion scannableMotion = (ScannableMotion) scannable;
+				final Double[] lowerLimits = scannableMotion.getLowerGdaLimits();
+				if (lowerLimits != null && lowerLimits.length > 0) {
+					lowerLimit = scannableMotion.getLowerGdaLimits()[0];
+				}
+				final Double[] upperLimits = scannableMotion.getLowerGdaLimits();
+				if (upperLimits != null && upperLimits.length > 0) {
+					upperLimit = scannableMotion.getUpperGdaLimits()[0];
 				}
 			}
-		}
-	}
-
-	private double parseLimit(String command, String limitString) {
-		try {
-			return Double.parseDouble(limitString);
-		} catch (NumberFormatException e) {
-			logger.error("Error parsing limit: command = {}, limitString = {}", command, limitString, e);
-			return 0.0;
+			if (lowerLimit == null && upperLimit == null) {
+				logger.debug("No scannable units available for {}", scannableName);
+			} else {
+				positionText.setToolTipText(lowerLimit + " : " + upperLimit);
+			}
+		} catch (Exception e) {
+			logger.error("Error getting scannable limits for {}", scannableName, e);
 		}
 	}
 
