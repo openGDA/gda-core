@@ -35,6 +35,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
@@ -304,33 +305,36 @@ public class InputTextComposite extends Composite {
 		}
 
 		// Add an observer to the scannable when an event occurs
-		final IObserver iObserver = (source, arg)-> {
-			//EPICS monitor by default always sending array
+		final IObserver iObserver = (source, arg) -> {
 			Object[] argArray;
-			if (arg.getClass().isArray()) {
-			    argArray=(Object[])arg;
-			    Display.getDefault().asyncExec(() -> {
-			    	//only display the 1st value.
-			    	if (isTextInput()) {
-			    		positionText.setText(argArray[0].toString());
-			    	} else {
-			    		positionText.setText(String.valueOf(argArray[0]));
-			    	}
-			    });
+			if (arg instanceof ScannablePositionChangeEvent) {
+				Display.getDefault().asyncExec(
+						() -> positionText.setText(((ScannablePositionChangeEvent) arg).newPosition.toString()));
+			} else if (arg.getClass().isArray()) {
+				// EPICS monitor by default always sending array
+				argArray = (Object[]) arg;
+				Display.getDefault().asyncExec(() -> {
+					// only display the 1st value.
+					if (isTextInput()) {
+						positionText.setText(argArray[0].toString());
+					} else {
+						positionText.setText(String.valueOf(argArray[0]));
+					}
+				});
 			} else {
-			    Display.getDefault().asyncExec(() -> {
-			    	//only display the 1st value.
-			    	if (isTextInput()) {
-			    		positionText.setText(arg.toString());
-			    	} else {
-			    		positionText.setText(String.valueOf(arg));
-			    	}
-			    });
+				Display.getDefault().asyncExec(() -> {
+					// only display the 1st value.
+					if (isTextInput()) {
+						positionText.setText(arg.toString());
+					} else {
+						positionText.setText(String.valueOf(arg));
+					}
+				});
 			}
 		};
 
 		scannable.addIObserver(iObserver);
-		this.addDisposeListener(e->	scannable.deleteIObserver(iObserver));
+		this.addDisposeListener(e -> scannable.deleteIObserver(iObserver));
 		updateGui(getCurrentPosition());
 	}
 
