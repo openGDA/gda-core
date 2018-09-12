@@ -26,7 +26,6 @@ import static gda.device.MotorStatus.READY;
 import static gda.device.MotorStatus.SOFT_LIMIT_VIOLATION;
 import static gda.device.MotorStatus.UPPER_LIMIT;
 import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
-import static gda.device.scannable.ScannableMotor.WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
@@ -40,9 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.jscience.physics.quantities.Quantity;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +50,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
-import gda.device.MotorStatus;
 import gda.device.ScannableMotion;
 import gda.factory.Factory;
 import gda.factory.Finder;
@@ -842,18 +837,5 @@ public class ScannableMotorTest {
 	public void testWaitWhileBusyMotorAtSoftLimitViolation() throws Exception {
 		when(motor.getStatus()).thenReturn(SOFT_LIMIT_VIOLATION);
 		sm.waitWhileBusy();
-	}
-
-	@Test(timeout = 1000)
-	public void testWaitWhileBusyThrowsExceptionWhenMotorIsInFaultState() throws Exception {
-		final Set<MotorStatus> faultStates = EnumSet.of(FAULT, LOWER_LIMIT, SOFT_LIMIT_VIOLATION, UPPER_LIMIT);
-		LocalProperties.set(WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE, "false");
-		sm.configure(); // get motor to re-read property
-
-		for (MotorStatus state : faultStates) {
-			when(motor.getStatus()).thenReturn(state);
-			sm.waitWhileBusy();
-		}
-		LocalProperties.clearProperty(WAIT_WHILE_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_IS_IN_FAULT_STATE);
 	}
 }
