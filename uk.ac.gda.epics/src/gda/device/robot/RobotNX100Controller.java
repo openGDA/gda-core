@@ -171,6 +171,7 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 	private ArrayList<String> keys;
 	private volatile boolean jobDone = false;
 	private PutCallbackListener pcbl;
+	private String pvName;
 
 	/**
 	 * Constructor
@@ -191,19 +192,24 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 				try {
 					nxConfig = Configurator.getConfiguration(getDeviceName(), Nx100Type.class);
 					createChannelAccess(nxConfig);
-					channelManager.tryInitialize(100);
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for Robot Controller " + getDeviceName(), e);
 					throw new FactoryException("Epics Robot Controller " + getDeviceName() + " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+			} else { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for Robot Control {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Robot Control " + getName());
 			}
+			channelManager.tryInitialize(100);
 			readTheFile();
 			setConfigured(true);
 		}
+	}
+
+	public String getPvName() {
+		return pvName;
 	}
 
 	/**
@@ -290,6 +296,27 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 			holdChannel = channelManager.createChannel(config.getHOLD().getPv(), false);
 			svonChannel = channelManager.createChannel(config.getSVON().getPv(), false);
 			errChannel = channelManager.createChannel(config.getERR().getPv(), errls, false);
+
+			// acknowledge that creation phase is completed
+			channelManager.creationPhaseCompleted();
+		} catch (Throwable th) {
+			throw new FactoryException("failed to create all channels", th);
+		}
+	}
+
+	/**
+	 * creates all required channels
+	 *
+	 * @param config
+	 * @throws FactoryException
+	 */
+	private void createChannelAccess(String basePv) throws FactoryException {
+		try {
+			jobChannel = channelManager.createChannel(basePv + ":JOB", false);
+			startChannel = channelManager.createChannel(basePv + ":START", false);
+			holdChannel = channelManager.createChannel(basePv + ":HOLD", false);
+			svonChannel = channelManager.createChannel(basePv + ":SVON", false);
+			errChannel = channelManager.createChannel(basePv + ":ERR", errls, false);
 
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();

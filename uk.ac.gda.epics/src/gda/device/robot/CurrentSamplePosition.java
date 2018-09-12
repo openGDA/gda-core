@@ -60,6 +60,7 @@ public class CurrentSamplePosition extends DeviceBase implements InitializationL
 	 * phase II interface GDA-EPICS link parameter
 	 */
 	private String deviceName;
+	private String pvName;
 	private CurrentSamplePositionListener csposls;
 	private double sampleNumber;
 
@@ -81,20 +82,21 @@ public class CurrentSamplePosition extends DeviceBase implements InitializationL
 				try {
 					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
 
-					createChannelAccess(config);
-					channelManager.tryInitialize(100);
+					createChannelAccess(config.getRECORD().getPv());
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for Actual Carousel sample position "
 							+ getDeviceName(), e);
 					throw new FactoryException("Epics Actual Carousel sample position " + getDeviceName()
 							+ " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+			} else {  // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for Actual Carousel sample position {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Actual Carousel sample position "
 						+ getName());
 			}
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -105,9 +107,9 @@ public class CurrentSamplePosition extends DeviceBase implements InitializationL
 	 * @param config
 	 * @throws FactoryException
 	 */
-	private void createChannelAccess(SimplePvType config) throws FactoryException {
+	private void createChannelAccess(String pv) throws FactoryException {
 		try {
-			sampleNumberChannel = channelManager.createChannel(config.getRECORD().getPv(), csposls, false);
+			sampleNumberChannel = channelManager.createChannel(pv, csposls, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
@@ -173,6 +175,14 @@ public class CurrentSamplePosition extends DeviceBase implements InitializationL
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }

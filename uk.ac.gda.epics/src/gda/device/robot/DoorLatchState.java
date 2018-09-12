@@ -68,6 +68,8 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 	 */
 	private String deviceName;
 
+	private String pvName;
+
 	/**
 	 * Constructor
 	 */
@@ -84,17 +86,18 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 				SimplePvType config;
 				try {
 					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-					createChannelAccess(config);
-					channelManager.tryInitialize(100);
+					createChannelAccess(config.getRECORD().getPv());
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for Experiment Door Latch State " + getDeviceName(), e);
 					throw new FactoryException("Epics Robot State " + getDeviceName() + " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+			} else { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for  Experiment Door Latch State {}", getName());
 				throw new FactoryException("Missing EPICS configuration for  Experiment Door Latch State " + getName());
 			}
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -102,16 +105,16 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 	/**
 	 * creates all required channels
 	 *
-	 * @param config
-	 * @throws FactoryException
+	 * @param pv
+	 * @throws FactoryException if channel cannot be created
 	 */
-	private void createChannelAccess(SimplePvType config) throws FactoryException {
+	private void createChannelAccess(String pv) throws FactoryException {
 		try {
-			needRecoverChannel = channelManager.createChannel(config.getRECORD().getPv(), dlsl, false);
+			needRecoverChannel = channelManager.createChannel(pv, dlsl, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
-			throw new FactoryException("failed to create channel "+ config.getRECORD().getPv(), th);
+			throw new FactoryException("failed to create channel "+ pv, th);
 		}
 	}
 
@@ -185,6 +188,14 @@ public class DoorLatchState extends DeviceBase implements InitializationListener
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }

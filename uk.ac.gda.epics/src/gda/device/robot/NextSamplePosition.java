@@ -57,6 +57,8 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 	 */
 	private String deviceName;
 
+	private String pvName;
+
 	/**
 	 * Constructor
 	 */
@@ -73,18 +75,18 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 				SimplePvType config;
 				try {
 					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-
-					createChannelAccess(config);
-					channelManager.tryInitialize(100);
+					createChannelAccess(config.getRECORD().getPv());
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for Carousel sample position " + getDeviceName(), e);
 					throw new FactoryException("Epics Carousel sample position " + getDeviceName() + " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+			} else { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for Carousel sample position {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Carousel sample position " + getName());
 			}
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -95,9 +97,9 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 	 * @param config
 	 * @throws FactoryException
 	 */
-	private void createChannelAccess(SimplePvType config) throws FactoryException {
+	private void createChannelAccess(String pv) throws FactoryException {
 		try {
-			sampleNumberChannel = channelManager.createChannel(config.getRECORD().getPv(), false);
+			sampleNumberChannel = channelManager.createChannel(pv, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
@@ -152,6 +154,14 @@ public class NextSamplePosition extends DeviceBase implements InitializationList
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }

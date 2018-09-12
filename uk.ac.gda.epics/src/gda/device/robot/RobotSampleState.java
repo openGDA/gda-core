@@ -67,6 +67,7 @@ public class RobotSampleState extends DeviceBase implements InitializationListen
 	 * phase II interface GDA-EPICS link parameter
 	 */
 	private String deviceName;
+	private String pvName;
 
 	/**
 	 * Constructor
@@ -85,18 +86,18 @@ public class RobotSampleState extends DeviceBase implements InitializationListen
 				SimplePvType config;
 				try {
 					config = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
-
-					createChannelAccess(config);
-					channelManager.tryInitialize(100);
+					createChannelAccess(config.getRECORD().getPv());
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for Robot State " + getDeviceName(), e);
 					throw new FactoryException("Epics Robot State " + getDeviceName() + " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getPvName() != null) {
+				createChannelAccess(getPvName());
+			} else { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for Robot State {}", getName());
 				throw new FactoryException("Missing EPICS configuration for Robot State " + getName());
 			}
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -104,12 +105,12 @@ public class RobotSampleState extends DeviceBase implements InitializationListen
 	/**
 	 * creates all required channels
 	 *
-	 * @param config
+	 * @param pv
 	 * @throws FactoryException
 	 */
-	private void createChannelAccess(SimplePvType config) throws FactoryException {
+	private void createChannelAccess(String pv) throws FactoryException {
 		try {
-			sampleStateChannel = channelManager.createChannel(config.getRECORD().getPv(), sstatels, false);
+			sampleStateChannel = channelManager.createChannel(pv, sstatels, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 		} catch (Throwable th) {
@@ -203,6 +204,14 @@ public class RobotSampleState extends DeviceBase implements InitializationListen
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 }
