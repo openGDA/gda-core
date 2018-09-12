@@ -53,6 +53,7 @@ import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.StepModel;
@@ -86,6 +87,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(LissajousModel.class, LissajousGenerator.class);
 		gens.put(JythonGeneratorModel.class, JythonGenerator.class);
 		gens.put(PtychographyGridModel.class, PtychographyGridGenerator.class);
+		gens.put(SinglePointModel.class, SinglePointGenerator.class);
 
 		Map<String, GeneratorInfo> tinfo = new TreeMap<>();
 		fillStaticGeneratorInfo(gens, tinfo);
@@ -154,6 +156,9 @@ public class PointGeneratorService implements IPointGeneratorService {
 			line.setLength(lroi.getLength());
 			line.setAngle(lroi.getAngle());
 			((IBoundingLineModel) model).setBoundingLine(line);
+		} else if (model instanceof SinglePointModel) {
+			((SinglePointModel) model).setX(rect.getPointX());
+			((SinglePointModel) model).setY(rect.getPointY());
 		}
 	}
 
