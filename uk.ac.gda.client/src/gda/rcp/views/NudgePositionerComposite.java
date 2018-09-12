@@ -82,6 +82,7 @@ public class NudgePositionerComposite extends Composite {
 	private Double lowerLimit; // Use Double to allow null for if no limits are set
 	private Double upperLimit;
 	private String scannableName;
+	private String scannableOutputFormat;
 	private String userUnits;
 	private String displayName; // Allow a different prettier name be used if required
 	private Double incrementValue = DEFAULT_INCREMENT;
@@ -193,7 +194,7 @@ public class NudgePositionerComposite extends Composite {
 
 	private void moveBy(double amountToMove) {
 		if (currentPosition == null) {
-			final String message = String.format("Cannot move %s", scannable.getName());
+			final String message = String.format("Cannot move %s", scannableName);
 			final String reason = "Position is unknown";
 			logger.error("{} : {}", message, reason);
 			UIHelper.showError(message, reason);
@@ -225,10 +226,10 @@ public class NudgePositionerComposite extends Composite {
 			}
 		} else {
 			// Log positions to full accuracy: round to max. 4 decimal places to display to user
-			logger.error("Cannot move {} to {}: position is outside the allowed limits [{} : {}]", scannable.getName(), position, lowerLimit, upperLimit);
+			logger.error("Cannot move {} to {}: position is outside the allowed limits [{} : {}]", scannableName, position, lowerLimit, upperLimit);
 			final DecimalFormat df = new DecimalFormat("0.####");
 			final String message = String.format("Cannot move %s to %s%nPosition is outside the allowed limits [%s : %s]",
-					scannable.getName(), df.format(position), df.format(lowerLimit), df.format(upperLimit));
+					scannableName, df.format(position), df.format(lowerLimit), df.format(upperLimit));
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error moving device", message);
 		}
 	}
@@ -280,7 +281,7 @@ public class NudgePositionerComposite extends Composite {
 		// Save the new position
 		this.currentPosition = currentPosition;
 		// Format current position using output format
-		final String currentPositionString = String.format(scannable.getOutputFormat()[0], currentPosition).trim();
+		final String currentPositionString = String.format(scannableOutputFormat, currentPosition).trim();
 		// Update the GUI in the UI thread
 		Display.getDefault().asyncExec(() -> {
 			// Update the position
@@ -574,6 +575,8 @@ public class NudgePositionerComposite extends Composite {
 
 		this.scannable = scannable;
 		this.scannableName = scannable.getName();
+		this.scannableOutputFormat = scannable.getOutputFormat()[0];
+
 		// If no display name is set when the scannable is set, set it to the scannable name
 		if (displayName == null) {
 			setDisplayName(scannableName);
