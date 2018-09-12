@@ -27,7 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 import gda.device.epicsdevice.EpicsDBR;
 import gda.epics.PVProvider;
 import gda.epics.connection.EpicsController;
@@ -64,7 +64,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * <p>
  * The monitor is only set on the channel if the class is being observed.
  */
-@ServiceInterface(Scannable.class)
+@ServiceInterface(ScannableMotionUnits.class)
 public class EpicsScannable extends ScannableMotionUnitsBase implements InitializingBean{
 	public boolean isHasUnits() {
 		return hasUnits;
