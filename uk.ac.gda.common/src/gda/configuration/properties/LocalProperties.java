@@ -797,7 +797,7 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.jython.userScriptDir", "script paths are defined in the Spring configuration for the command_server");
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault", "it is not used any more");
 		obsoletePropertyToReason.put("gda.jython.socket", "It was associated with telnet access which has been removed");
-		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState", "It has been deprecated and will be removed in GDA 9.10");
+		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState", "it is not used any more");
 		obsoletePropertyToReason.put("gda.epics.EpicsDeviceFactory", "it is not used any more: see DAQ-1156");
 		obsoletePropertyToReason.put("gda.scan.endscan.neworder", "the new scan order is now the default and previous order is deprecated - See DAQ-1425");
 	}
