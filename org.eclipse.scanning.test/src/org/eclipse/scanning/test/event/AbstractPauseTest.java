@@ -230,7 +230,7 @@ public class AbstractPauseTest extends BrokerTest {
 
 		Thread.sleep(500);
 		assertTrue(!consumer.isActive());
-		assertEquals(2, submitter.getQueue().size());
+		assertEquals(2, consumer.getQueue().size());
 
 		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
 		publisher.broadcast(resumeBean);

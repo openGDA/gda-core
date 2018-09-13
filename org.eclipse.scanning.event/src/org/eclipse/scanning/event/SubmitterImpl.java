@@ -36,7 +36,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnection<T> implements ISubmitter<T> {
+class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements ISubmitter<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitterImpl.class);
 
@@ -44,9 +44,12 @@ class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnectio
 	private int priority = 4; // Default priority is 4, see javadoc for MessageProducer.setPriority()
 	private long lifeTime = TimeUnit.DAYS.toMillis(7); // default message time to live of 7 days
 
-	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eservice) {
-		super(uri, service, eservice);
+	private final IEventService eventService;
+
+	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eventService) {
+		super(uri, service);
 		setSubmitQueueName(submitQueue);
+		this.eventService = eventService;
 	}
 
 	private MessageProducer queueMessageProducer = null;
@@ -207,13 +210,6 @@ class SubmitterImpl<T extends StatusBean> extends AbstractReadOnlyQueueConnectio
 	public void setLifeTime(long lifeTime) {
 		if (lifeTime < 0) throw new IllegalArgumentException("Time to live must be at least 0ms");
 		this.lifeTime = lifeTime;
-	}
-
-	@Override
-	public boolean isQueuePaused() {
-		// Now that the StatusQueueView uses the proxy, this method as previously implemented will no longer work with an ISubmitter.
-		// This method will be soon be removed by a subsequent commit, and ISubmitter will no longer implement IReadOnlyQueueConnection
-		throw new UnsupportedOperationException();
 	}
 
 }

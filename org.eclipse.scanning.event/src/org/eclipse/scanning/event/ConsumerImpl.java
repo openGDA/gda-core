@@ -823,7 +823,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		}
 
 		// We record the bean in the status queue
-		LOGGER.trace("Moving {} to {}", bean, statusSetSubmitter.getSubmitQueueName());
+		LOGGER.trace("Moving {} to {}", bean, getSubmitQueueName());
 		statusSetSubmitter.submit(bean);
 
 		Instant timeNow = Instant.now();

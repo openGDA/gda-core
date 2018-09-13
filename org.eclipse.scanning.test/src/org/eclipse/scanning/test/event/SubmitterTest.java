@@ -89,7 +89,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = submitter.getQueue(); // uses utility method in AbstractQueueConnection
+		List<StatusBean> beans = consumer.getQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 	}
@@ -113,7 +113,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = submitter.getQueue(); // uses utility method in AbstractQueueConnection
+		List<StatusBean> beans = consumer.getQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 

@@ -285,8 +285,9 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	@SuppressWarnings("squid:S1141")
 	protected void submit() {
+		final String submitQueueName = EventConstants.SUBMISSION_QUEUE;
 		try (ISubmitter<ScanBean> submitter = ServiceHolder.getEventService().createSubmitter(
-				new URI(CommandConstants.getScanningBrokerUri()), EventConstants.SUBMISSION_QUEUE)) {
+				new URI(CommandConstants.getScanningBrokerUri()), submitQueueName)) {
 
 			// Send it off
 			ScanBean bean=null;
@@ -306,7 +307,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			submitter.submit(bean);
 
 			if (logger.isDebugEnabled()) { // Test used because output message does work.
-				logger.debug("Submitted Bean to queue: {}", submitter.getSubmitQueueName());
+				logger.debug("Submitted Bean to queue: {}", submitQueueName);
 				logger.debug("Using URI: {}", submitter.getUri());
 				logger.debug("Submitter isConnected = {}", submitter.isConnected());
 			}
