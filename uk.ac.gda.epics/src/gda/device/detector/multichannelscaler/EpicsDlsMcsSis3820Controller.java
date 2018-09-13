@@ -55,123 +55,73 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDlsMcsSis3820Controller.class);
 
-	/**
-	 * maximum number of MCA record supported by EPICS DlsMcsSis3820 template
-	 */
+	/** Maximum number of MCA record supported by EPICS DlsMcsSis3820 template */
 	public static final int MAXIMUM_NUMBER_OF_MCA = 32;
 
-	/**
-	 * maximum number of bins in spectrum
-	 */
+	/** Maximum number of bins in spectrum */
 	public static final int MAXIMUM_NUMBER_BINS = 60000;
 
-	/**
-	 * acquisition flag
-	 */
+	/** Acquisition flag */
 	private boolean acquisitionDone = true;
 
 	private double elapsedRealTimeValue;
 
-	/**
-	 *
-	 */
 	public enum AcquisitionProperty {
-		/**
-		 *
-		 */
-		STATUS, /**
-		 *
-		 */
-		ELAPSEDTIME, /**
-		 *
-		 */
+		STATUS,
+		ELAPSEDTIME,
 		DATA
 	}
 
 	// control fields
-	/**
-	 * clear all spectrum and start acquiring, 1 start, 0 rest
-	 */
+	/** Clear all spectrum and start acquiring, 1 start, 0 rest */
 	private Channel eraseStartChannel;
 
-	/**
-	 * hardware to erase data array, 1 to erase
-	 */
+	/** Hardware to erase data array, 1 to erase */
 	private Channel eraseChannel;
 
-	/**
-	 * start acquiring, 1 start, 0 rest
-	 */
+	/** Start acquiring, 1 start, 0 rest */
 	private Channel startChannel;
 
-	/**
-	 * stop acquiring, 1 stop, 0 rest
-	 */
+	/** Stop acquiring, 1 stop, 0 rest */
 	private Channel stopChannel;
 
-	/**
-	 * number of bins to use in the spectrum
-	 */
+	/** Number of bins to use in the spectrum */
 	private Channel nbinsChannel;
 
-	/**
-	 * data update rate
-	 */
+	/** Data update rate */
 	private Channel readrateChannel;
 
-	/**
-	 * real time since start of acquisition
-	 */
+	/** Real time since start of acquisition */
 	private Channel trealChannel;
 
-	/**
-	 * acquiring status, 1 acquiring, 0 done
-	 */
+	/** Acquiring status, 1 acquiring, 0 done */
 	private Channel acqChannel;
 
-	/**
-	 * total acquisition time
-	 */
+	/** Total acquisition time */
 	private Channel tacqChannel;
 
-	/**
-	 * integration time [s] for incrementing bin number
-	 */
+	/** Integration time [s] for incrementing bin number */
 	private Channel tdwellChannel;
 
-	/**
-	 * channel-advance source, 0 internal, 1 external
-	 */
+	/** Channel-advance source, 0 internal, 1 external */
 	private Channel binadvChannel;
 
-	/**
-	 * External bin advance prescaler
-	 */
+	/** External bin advance prescaler */
 	private Channel extpreChannel;
 
-	/**
-	 * EPICS controller for CA methods
-	 */
+	/** EPICS controller for CA methods */
 	private EpicsController controller;
 
-	/**
-	 * EPICS Channel Manager
-	 */
+	/** EPICS Channel Manager */
 	private EpicsChannelManager channelManager;
 
-	/**
-	 * phase II interface GDA-EPICS link parameter
-	 */
+	/** Phase II interface GDA-EPICS link parameter */
 	private String deviceName;
 
-	/**
-	 * EPICS record name
-	 */
+	/** EPICS record name */
 	private String recordName;
 
-	/**
-	 * EPICS MCA controller array
-	 */
+	/** EPICS MCA controller array */
 	private Channel[] data;
 
 	private AcqStatusListener acqlistener;
@@ -180,30 +130,18 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 
 	private HashMap<Integer, Channel> channelIndexMap = new HashMap<Integer, Channel>();
 
-	/**
-	 * mca status, true if ON, false if OFF
-	 */
-	// private boolean[] mcaState;
-	/**
-	 * the actual number of active MCA records used in this class.
-	 */
+	/** The actual number of active MCA records used in this class */
 	private int numberOfMca = Integer.MIN_VALUE;
-
-	private Vector<String> statusUpdateRates = new Vector<String>();
 
 	private Vector<String> readUpdateRates = new Vector<String>();
 	private boolean pollElapsedRealTime=false;
 
 	private Monitor realtimemonitor;
 
-	/**
-	 *
-	 */
 	public EpicsDlsMcsSis3820Controller() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		data = new Channel[MAXIMUM_NUMBER_OF_MCA];
-		// mcaState = new boolean[MAXIMUM_NUMBER_OF_MCA];
 		acqlistener = new AcqStatusListener();
 		rtimelistener = new RealTimeListener();
 	}
@@ -220,9 +158,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 					createChannelAccess(mcsConfig);
 					channelManager.tryInitialize(100);
 				} catch (ConfigurationNotFoundException e) {
-					logger
-							.error("Can NOT find EPICS configuration for EpicsDlsMcs3820Controller " + getDeviceName(),
-									e);
+					logger.error("Can NOT find EPICS configuration for EpicsDlsMcs3820Controller {}", getDeviceName(), e);
 					throw new FactoryException("Epics DlsMcs3820Controller " + getDeviceName() + " not found");
 				}
 			} // Nothing specified in Server XML file
@@ -292,13 +228,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			channelManager.creationPhaseCompleted();
 			setConfigured(true);
 		} catch (Exception ex) {
-			throw new FactoryException("failed to create all channels", ex);
+			throw new FactoryException("Failed to create all channels", ex);
 		}
 
 	}
 
 	/**
-	 * gets the data Channel ID.
+	 * Gets the data Channel ID.
 	 *
 	 * @param index
 	 * @return data channel ID
@@ -307,7 +243,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		return channelIndexMap.get(index);
 	}
 
-	// **************** Control fields ********************************
 	/**
 	 * Activates the MCA using the Erase & Start acquire.
 	 *
@@ -319,12 +254,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			acquisitionDone = false;
 
 		} catch (Throwable th) {
-			throw new DeviceException("failed to erase and start acquiring", th);
+			throw new DeviceException("Failed to erase and start acquiring", th);
 		}
 	}
 
 	/**
-	 * erases the data array of the MCA
+	 * Erases the data array of the MCA
 	 *
 	 * @throws DeviceException
 	 */
@@ -333,12 +268,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			controller.caput(eraseChannel, 1);
 		} catch (Throwable th) {
 			logger.error("Failed to erase all spectrum on {}.", getName());
-			throw new DeviceException("erase: fail to erase all spectrum", th);
+			throw new DeviceException("Erase: fail to erase all spectrum", th);
 		}
 	}
 
 	/**
-	 * starts data acquisition
+	 * Starts data acquisition
 	 *
 	 * @throws DeviceException
 	 */
@@ -348,12 +283,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			acquisitionDone = false;
 
 		} catch (Throwable th) {
-			throw new DeviceException("failed to start acquiring", th);
+			throw new DeviceException("Failed to start acquiring", th);
 		}
 	}
 
 	/**
-	 * stops data acquisition
+	 * Stops data acquisition
 	 *
 	 * @throws DeviceException
 	 */
@@ -361,12 +296,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(stopChannel, 1);
 		} catch (Throwable th) {
-			throw new DeviceException("failed to stop acquiring", th);
+			throw new DeviceException("Failed to stop acquiring", th);
 		}
 	}
 
 	/**
-	 * gets the number of bins to use in spectrum.
+	 * Gets the number of bins to use in spectrum.
 	 *
 	 * @return the number of channels to use
 	 * @throws DeviceException
@@ -375,33 +310,32 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetInt(nbinsChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get number of bins {}.", getName());
-			throw new DeviceException("failed get number of bins", th);
+			logger.error("Failed to get number of bins {}.", getName());
+			throw new DeviceException("Failed get number of bins", th);
 		}
 	}
 
 	/**
-	 * sets the number of bins (array elements) to use in spectrum.
+	 * Sets the number of bins (array elements) to use in spectrum.
 	 *
 	 * @param nbins
 	 * @throws DeviceException
 	 */
 	public void setNumberOfBins(long nbins) throws DeviceException {
 		if (nbins > MAXIMUM_NUMBER_BINS) {
-			throw new IllegalArgumentException("Invalid number of bins," + " Maximum bins allowed is  "
+			throw new IllegalArgumentException("Invalid number of bins, maximum bins allowed is "
 					+ MAXIMUM_NUMBER_BINS);
 		}
 		try {
 			controller.caput(nbinsChannel, nbins);
 		} catch (Throwable th) {
-			logger.error("failed to set number of bins {}.", getName());
-			throw new DeviceException("failed to set number of bins", th);
+			logger.error("Failed to set number of bins {}.", getName());
+			throw new DeviceException("Failed to set number of bins", th);
 		}
 	}
 
-
 	/**
-	 * sets a new read update rate for DlsMcsSIS3820.
+	 * Sets a new read update rate for DlsMcsSIS3820.
 	 *
 	 * @param value
 	 * @throws DeviceException
@@ -413,13 +347,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(readrateChannel, value);
 		} catch (Throwable th) {
-			logger.error("failed to set read update rate on {}.", getName());
-			throw new DeviceException("failed to set read update rate", th);
+			logger.error("Failed to set read update rate on {}.", getName());
+			throw new DeviceException("Failed to set read update rate", th);
 		}
 	}
 
 	/**
-	 * gets the current read update rate from DlsMcsSIS3820.
+	 * Gets the current read update rate from DlsMcsSIS3820.
 	 *
 	 * @param value
 	 * @throws DeviceException
@@ -428,50 +362,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caget(readrateChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get read update rate on {}.", getName());
-			throw new DeviceException("failed to get read update rate", th);
+			logger.error("Failed to get read update rate on {}.", getName());
+			throw new DeviceException("Failed to get read update rate", th);
 		}
 	}
 
 	/**
-	 * enable wait for client on dlsMcsSIS3820 server. make server wait for client
-	 *
-	 * @param value -
-	 *            Enable or Disable
-	 * @throws DeviceException
-	 */
-//	public void enableClientWait(String value) throws DeviceException {
-//		if (!(value.equalsIgnoreCase("Enable") || value.equalsIgnoreCase("Disable"))) {
-//			throw new IllegalArgumentException("Input must be in range: [Enable, Disable]");
-//		}
-//		try {
-//			controller.caput(enableclientwaitChannel, value);
-//		} catch (Throwable th) {
-//			logger.error("failed to enable client wait on {}.", getName());
-//			throw new DeviceException("failed to enable client wait", th);
-//		}
-//	}
-
-	/**
-	 * sets client wait status, i.e. make client wait for server
-	 *
-	 * @param value
-	 * @throws DeviceException
-	 */
-//	public void setClientWait(String value) throws DeviceException {
-//		if (!(value.equalsIgnoreCase("Done") || value.equalsIgnoreCase("Busy"))) {
-//			throw new IllegalArgumentException("Input must be in range: [Done, Busy]");
-//		}
-//		try {
-//			controller.caput(clientwaitChannel, value);
-//		} catch (Throwable th) {
-//			logger.error("failed to set client wait status on {}.", getName());
-//			throw new DeviceException("failed to set client wait status", th);
-//		}
-//	}
-
-	/**
-	 * gets the real time since the start of acquisition
+	 * Gets the real time since the start of acquisition
 	 *
 	 * @return elapsed real time
 	 * @throws DeviceException
@@ -480,13 +377,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetDouble(trealChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get elapsed real time from {}.", getName());
+			logger.error("Failed to get elapsed real time from {}.", getName());
 			throw new DeviceException("Failed to get elapsed real time", th);
 		}
 	}
 
 	/**
-	 * gets acquire status from MCA (poll from hardware)
+	 * Gets acquire status from MCA (poll from hardware)
 	 *
 	 * @return 0 done, 1 Acquire
 	 * @throws DeviceException
@@ -495,12 +392,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetInt(acqChannel);
 		} catch (Throwable th) {
-			throw new DeviceException("failed to get acquiring status", th);
+			throw new DeviceException("Failed to get acquiring status", th);
 		}
 	}
 
 	/**
-	 * gets the total count/acquisition time
+	 * Gets the total count/acquisition time
 	 *
 	 * @return elapsed real time
 	 * @throws DeviceException
@@ -509,13 +406,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetDouble(tacqChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get total count time from {}.", getName());
+			logger.error("Failed to get total count time from {}.", getName());
 			throw new DeviceException("Failed to get total count time", th);
 		}
 	}
 
 	/**
-	 * sets the total count/acquisition time
+	 * Sets the total count/acquisition time
 	 *
 	 * @param value
 	 * @throws DeviceException
@@ -524,13 +421,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(tacqChannel, value);
 		} catch (Throwable th) {
-			logger.error("failed to set total count time from {}.", getName());
+			logger.error("Failed to set total count time from {}.", getName());
 			throw new DeviceException("Failed to set total count time", th);
 		}
 	}
 
 	/**
-	 * gets the integration time in seconds for incrementing bin number. i.e. the Dwell Time (DWEL) per bin.
+	 * Gets the integration time in seconds for incrementing bin number. i.e. the Dwell Time (DWEL) per bin.
 	 *
 	 * @return Dwell Time
 	 * @throws DeviceException
@@ -539,8 +436,8 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetDouble(tdwellChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get integration time from {}.", getName());
-			throw new DeviceException("failed get integration time", th);
+			logger.error("Failed to get integration time from {}.", getName());
+			throw new DeviceException("Failed get integration time", th);
 		}
 	}
 
@@ -554,13 +451,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(tdwellChannel, time);
 		} catch (Throwable th) {
-			logger.error("failed to set integration time for {}.", getName());
+			logger.error("Failed to set integration time for {}.", getName());
 			throw new DeviceException("Failed to set integration time", th);
 		}
 	}
 
 	/**
-	 * gets the internal or external bin advance signal
+	 * Gets the internal or external bin advance signal
 	 *
 	 * @return internal or external
 	 * @throws DeviceException
@@ -570,13 +467,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.caget(binadvChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get bin advance setting on {}.", getName());
+			logger.error("Failed to get bin advance setting on {}.", getName());
 			throw new DeviceException("Failed to get bin advance setting", th);
 		}
 	}
 
 	/**
-	 * sets the internal or external bin advance signal
+	 * Sets the internal or external bin advance signal
 	 *
 	 * @param value
 	 * @throws DeviceException
@@ -588,13 +485,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(binadvChannel, value);
 		} catch (Throwable th) {
-			logger.error("failed to set bin advance setting on {}.", getName());
+			logger.error("Failed to set bin advance setting on {}.", getName());
 			throw new DeviceException("Failed to set bin advance setting", th);
 		}
 	}
 
 	/**
-	 * gets the external bin advance pre-scaler, i.e. advance step.
+	 * Gets the external bin advance pre-scaler, i.e. advance step.
 	 *
 	 * @return bin advance pre-scaler
 	 * @throws DeviceException
@@ -604,13 +501,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetDouble(extpreChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get bin advance pre-scaler on {}.", getName());
+			logger.error("Failed to get bin advance pre-scaler on {}.", getName());
 			throw new DeviceException("Failed to get bin advance pre-scaler", th);
 		}
 	}
 
 	/**
-	 * sets the external bin advance per-scaler, i.e. advance step size, default is 1.
+	 * Sets the external bin advance per-scaler, i.e. advance step size, default is 1.
 	 *
 	 * @param value
 	 * @throws DeviceException
@@ -619,13 +516,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			controller.caput(extpreChannel, value);
 		} catch (Throwable th) {
-			logger.error("failed to set bin advance pre-scaler on {}.", getName());
+			logger.error("Failed to set bin advance pre-scaler on {}.", getName());
 			throw new DeviceException("Failed to set bin advance pre-scaler", th);
 		}
 	}
 
 	/**
-	 * gets all spectrum data from all channels
+	 * Gets all spectrum data from all channels
 	 *
 	 * @return spectrum data
 	 * @throws DeviceException
@@ -639,7 +536,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * gets the spectrum data for the specified channel
+	 * Gets the spectrum data for the specified channel
 	 *
 	 * @param channel
 	 * @return spectrum data
@@ -649,7 +546,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			return controller.cagetIntArray(data[channel]);
 		} catch (Throwable th) {
-			logger.error("failed to get the spectrum data on {} for channel {}.", getName(), channel);
+			logger.error("Failed to get the spectrum data on {} for channel {}.", getName(), channel);
 			throw new DeviceException("Failed to get the spectrum data", th);
 		}
 	}
@@ -664,20 +561,19 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			controller.setMonitor(data[channel], ml);
 			channelIndexMap.put(channel, data[channel]);
 		} catch (Throwable th) {
-			logger.error("failed to add data monitor on MCA{} for {}.", channel, getName());
+			logger.error("Failed to add data monitor on MCA{} for {}.", channel, getName());
 			throw new DeviceException("Failed to add data monitor on MCA" + channel, th);
 		}
 	}
 
 	/**
-	 * get current dlsMcsSIS3820 status
+	 * Get current dlsMcsSIS3820 status
 	 *
 	 * @return MCA status
 	 */
 	public MCAStatus getStatus() {
 		return (acquisitionDone) ? MCAStatus.READY : MCAStatus.BUSY;
 	}
-
 
 	@Override
 	public void initializationCompleted() {
@@ -688,7 +584,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 				}
 			}
 		} catch (DeviceException e) {
-			logger.error("failed to initialise available Read Update Rates.");
+			logger.error("Failed to initialise available Read Update Rates.");
 		}
 		if (isPollElapsedRealTime()) {
 			enablePollRealTime();
@@ -719,9 +615,8 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		}
 	}
 
-
 	/**
-	 * gets all available read update rates from EPICS IOC
+	 * Gets all available read update rates from EPICS IOC
 	 *
 	 * @return available read update rates
 	 * @throws DeviceException
@@ -731,8 +626,8 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 		try {
 			positionLabels = controller.cagetLabels(readrateChannel);
 		} catch (Throwable th) {
-			logger.error("failed to get read update rates avalable on {}.", getName());
-			throw new DeviceException("failed to get read update rates avalable", th);
+			logger.error("Failed to get read update rates avalable on {}.", getName());
+			throw new DeviceException("Failed to get read update rates avalable", th);
 		}
 		return positionLabels;
 	}
@@ -748,7 +643,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			if (dbr.isENUM()) {
 				acquisitionDone = ((DBR_Enum) dbr).getEnumValue()[0] == 0;
 			} else {
-				logger.error("expecting ENUM but got {} type.", dbr.getType());
+				logger.error("Expecting ENUM but got {} type.", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.STATUS, getStatus());
 			logger.debug("{}: acquisition status updated to {}", getName(), getStatus().value());
@@ -756,7 +651,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * monitors elapses real time
+	 * Monitors elapses real time
 	 */
 	private class RealTimeListener implements MonitorListener {
 		@Override
@@ -776,7 +671,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * monitor value array - ????could this be removed as no observer is add to handle this event after sending to EpicsDlsMcsSis3820?????
+	 * Monitor value array - ????could this be removed as no observer is add to handle this event after sending to EpicsDlsMcsSis3820?????
 	 */
 	public class DataMonitor implements MonitorListener {
 
@@ -792,7 +687,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * gets device name - EPICS-GDA shared name
+	 * Gets device name - EPICS-GDA shared name
 	 *
 	 * @return device name
 	 */
@@ -801,7 +696,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * sets the device name
+	 * Sets the device name
 	 *
 	 * @param deviceName
 	 */
@@ -810,7 +705,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * get Epics Record name
+	 * Get Epics Record name
 	 *
 	 * @return record name
 	 */
@@ -819,7 +714,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * sets EPICS record name
+	 * Sets EPICS record name
 	 *
 	 * @param recordName
 	 */
@@ -828,7 +723,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * gets number of MCA records in this template
+	 * Gets number of MCA records in this template
 	 *
 	 * @return number of MCA record supported
 	 */
@@ -837,7 +732,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 	}
 
 	/**
-	 * sets number of MCA record in this template.
+	 * Sets number of MCA record in this template.
 	 *
 	 * @param numberOfMca
 	 */
