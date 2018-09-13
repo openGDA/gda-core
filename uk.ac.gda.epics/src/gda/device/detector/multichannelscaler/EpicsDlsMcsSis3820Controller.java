@@ -18,6 +18,8 @@
 
 package gda.device.detector.multichannelscaler;
 
+import static java.util.stream.IntStream.range;
+
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -156,16 +158,17 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 					mcsConfig = Configurator
 							.getConfiguration(getDeviceName(), gda.epics.interfaces.McaGroupType.class);
 					createChannelAccess(mcsConfig);
-					channelManager.tryInitialize(100);
 				} catch (ConfigurationNotFoundException e) {
 					logger.error("Can NOT find EPICS configuration for EpicsDlsMcs3820Controller {}", getDeviceName(), e);
 					throw new FactoryException("Epics DlsMcs3820Controller " + getDeviceName() + " not found");
 				}
-			} // Nothing specified in Server XML file
-			else {
+			} else if (getRecordName() != null) {
+				createChannelAccess(getRecordName());
+			} else { // Nothing specified in Server XML file
 				logger.error("Missing EPICS configuration for EpicsDlsMcs3820Controller {}", getName());
 				throw new FactoryException("Missing EPICS configuration for EpicsDlsMcs3820Controller " + getName());
 			}
+			channelManager.tryInitialize(100);
 			setConfigured(true);
 		}
 	}
@@ -231,6 +234,58 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			throw new FactoryException("Failed to create all channels", ex);
 		}
 
+	}
+
+	/**
+	 * Create required channels from a given base PV. Assumes standard suffixes
+	 * @param basePv The PV up to (but not including the final ':')
+	 * @throws FactoryException if any channel can't be created
+	 */
+	private void createChannelAccess(String basePv) throws FactoryException {
+		try {
+			eraseStartChannel = channelManager.createChannel(basePv + ":EraseStart", false);
+			eraseChannel = channelManager.createChannel(basePv + "EraseAll", false);
+			startChannel = channelManager.createChannel(basePv + "StartAll", false);
+			stopChannel = channelManager.createChannel(basePv + "StopAll", false);
+			nbinsChannel = channelManager.createChannel(basePv + "NuseAll", false);
+			readrateChannel = channelManager.createChannel(basePv + "ReadAll.SCAN", false);
+			trealChannel = channelManager.createChannel(basePv + "ElapsedReal", rtimelistener, false);
+			acqChannel = channelManager.createChannel(basePv + "Acquiring", acqlistener, false);
+			tacqChannel = channelManager.createChannel(basePv + "PresetReal", false);
+			tdwellChannel = channelManager.createChannel(basePv + "Dwell", false);
+			binadvChannel = channelManager.createChannel(basePv + "ChannelAdvance", false);
+			extpreChannel = channelManager.createChannel(basePv + "Prescale", false);
+
+			try {
+				data = range(0, 32)
+						.mapToObj(i -> getChannel(basePv + ":mca" + i))
+						.toArray(Channel[]::new);
+			} catch (McsException me) {
+				throw new FactoryException("Could not create MCA channels", me.getCause());
+			}
+
+			for (int i = 0; i < MAXIMUM_NUMBER_OF_MCA; i++) {
+				channelIndexMap.put(i, data[i]);
+			}
+			// acknowledge that creation phase is completed
+			channelManager.creationPhaseCompleted();
+			setConfigured(true);
+		} catch (Exception ex) {
+			throw new FactoryException("Failed to create all channels", ex);
+		}
+
+	}
+
+	/**
+	 * Helper function to wrap {@link CAException}s in RuntimeExceptions so Channels can
+	 * be created in a stream
+	 */
+	private Channel getChannel(String pv) {
+		try {
+			return channelManager.createChannel(pv, false);
+		} catch (CAException e) {
+			throw new McsException(e);
+		}
 	}
 
 	/**
@@ -746,6 +801,13 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 
 	public void setPollElapsedRealTime(boolean pollElapsedRealTime) {
 		this.pollElapsedRealTime = pollElapsedRealTime;
+	}
+
+	/** Wrapper to allow CAExceptions to be thrown from a stream */
+	private class McsException extends RuntimeException {
+		public McsException(Throwable t) {
+			super(t);
+		}
 	}
 
 }
