@@ -340,10 +340,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 				// Original implementation of EPICS interface
 				if (getEpicsRecordName() != null) {
-					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
+					if ((epicsRecord = Finder.getInstance().find(epicsRecordName)) != null) {
 						pvName = epicsRecord.getFullRecordName();
 					} else {
-						logger.error("Epics Record " + epicsRecordName + " not found");
 						throw new FactoryException("Epics Record " + epicsRecordName + " not found");
 					}
 				}
@@ -363,18 +362,13 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 						try {
 							pvName = getPV();
 						} catch (Exception ex) {
-							logger.error(
-									"Can NOT find EPICS configuration for motor " + getDeviceName() + "."
-											+ e.getMessage(), ex);
-							throw new FactoryException("Can NOT find EPICS configuration for motor " + getDeviceName()
-									+ "." + e.getMessage(), e);
+							throw new FactoryException("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
 						}
 					}
 				}
 
 				// Nothing specified in Server XML file
 				else {
-					logger.error("Missing EPICS configuration for the motor {}", getName());
 					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
 				}
 			}
@@ -384,7 +378,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 			// If no access control object has been set, but a name has been specified, look up the name
 			if (accessControl == null && getAccessControlName() != null) {
-				accessControl = (AccessControl) Finder.getInstance().find(accessControlName);
+				accessControl = Finder.getInstance().find(accessControlName);
 				if (accessControl == null) {
 					throw new FactoryException("Can not find access control object " + accessControl.getName());
 				}
@@ -395,7 +389,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				accessControl.addIObserver(this);
 			}
 			setConfigured(true);
-		}// end of if (!configured)
+		}
 	}
 
 	public void forceCallback() throws MotorException {
@@ -436,9 +430,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
-		} catch (Throwable th) {
-			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+		} catch (Exception ex) {
+			throw new FactoryException("failed to connect to all channels", ex);
 		}
 	}
 
@@ -471,7 +464,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				return unitStringOverride;
 			waitForInitialisation();
 			return controller.caget(unitString);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new MotorException(getStatus(), "failed to get motor engineering unit", e);
 		}
 	}
@@ -485,7 +478,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			//must use caputWait to ensure the speed is set before we start moving
 			controller.caputWait(velo, mmPerSec);
 			currentSpeed = mmPerSec;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set setSpeed", ex);
 		}
 	}
@@ -500,7 +493,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			currentSpeed = controller.cagetDouble(velo);
 			return currentSpeed;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get speed", ex);
 		}
 	}
@@ -508,7 +501,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public double getMaxSpeed() throws MotorException {
 		try {
 			return controller.cagetDouble(vmax);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get max speed", ex);
 		}
 	}
@@ -517,7 +510,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public void setTimeToVelocity(double timeToVelocity) throws MotorException {
 		try {
 			controller.caput(accl, timeToVelocity);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set acceleration", ex);
 		}
 	}
@@ -527,7 +520,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			final double timeToVelocity = controller.cagetDouble(accl);
 			return timeToVelocity;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get acceleration", ex);
 		}
 	}
@@ -542,7 +535,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			retryDeadband = controller.cagetDouble(rdbd);
 			return retryDeadband;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get speed", ex);
 		}
 	}
@@ -556,7 +549,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public double getMotorResolution() throws MotorException {
 		try {
 			return controller.cagetDouble(mres);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get resolution", ex);
 		}
 	}
@@ -574,7 +567,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public double getUserOffset() throws MotorException {
 		try {
 			return controller.cagetDouble(offset);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get speed", ex);
 		}
 
@@ -583,7 +576,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public void setUserOffset(double userOffset) throws MotorException {
 		try {
 			controller.caput(offset, userOffset);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set user offset", ex);
 		}
 	}
@@ -648,8 +641,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if (!ms.equals(get_motorStatus())) {
 				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, ms, STATUSCHANGE_REASON.NEWSTATUS);
 			}
-		} catch (Throwable th) {
-			logger.error("Could not refresh motor status for {}", getName(), th);
+		} catch (Exception ex) {
+			logger.error("Could not refresh motor status for {}", getName(), ex);
 		}
 	}
 
@@ -667,7 +660,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			targetPosition = getPosition() + increament;
 			targetRangeCheck(targetPosition);
 			moveTo(targetPosition);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to moveBy", ex);
 		}
 	}
@@ -717,14 +710,14 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	void changeStatusAndNotify(MotorStatus newStatus, STATUSCHANGE_REASON reason) throws MotorException {
 		try {
-			logger.trace("Motor - {} changeStatusAndNotify started.. newStatus = {}. reason = {}", getName(), newStatus, reason);
+			logger.trace("{} changeStatusAndNotify started.. newStatus = {}. reason = {}", getName(), newStatus, reason);
 			switch (reason) {
 			case INITIALISE:
 				set_motorStatus(MotorStatus.READY);
 				notifyIObservers(MotorProperty.STATUS, getStatus());
 				setInitialised(true);
 				DMOVRefreshEnabled = true;
-				logger.debug("Motor - " + getName() + " initialised.");
+				logger.debug("{} initialised.", getName());
 				break;
 			case START_MOVETO:
 				DMOVRefreshEnabled = false; // prevent DMOV listener update
@@ -748,9 +741,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				if (newStatus != null)
 					set_motorStatus(newStatus);
 				notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-				logger.debug("Epics Motor " + getName() + " notifying CAPUT_MOVECOMPLETE " + get_motorStatus());
+				logger.debug("{} notifying CAPUT_MOVECOMPLETE {}", getName(), get_motorStatus());
 				DMOVRefreshEnabled = true; // allow DMOV listener to refresh
-				// ignoreNextDMOV = true;
 				break;
 			case CAPUT_MOVECOMPLETE_IN_ERROR:
 				MotorStatus motorStatusFromMSTAValue = MotorStatus.FAULT;
@@ -758,7 +750,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 					double mstaVal = controller.cagetDouble(msta);
 					motorStatusFromMSTAValue = getMotorStatusFromMSTAValue(mstaVal);
 				} catch (Exception e) {
-					logger.error("Error gettting msta val for " + getName(), e);
+					logger.error("Error gettting msta val for {}", getName(), e);
 				}
 				changeStatusAndNotify(motorStatusFromMSTAValue, STATUSCHANGE_REASON.CAPUT_MOVECOMPLETE);
 				break;
@@ -766,14 +758,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				// DMOVRefreshEnabled could have been changed to false by START_MOVETO since the event was added to the
 				// MoveEvent queue
 				if (DMOVRefreshEnabled) {
-					// if (ignoreNextDMOV) {
-					// ignoreNextDMOV = false;
-					// return;
-					// }
 					if (newStatus != null)
 						set_motorStatus(newStatus);
 					notifyIObservers(EpicsMotor.this, MotorEvent.MOVE_COMPLETE);
-					logger.debug("Epics Motor " + getName() + " notifying DMOV_MOVECOMPLETE " + get_motorStatus());
+					logger.trace("{} notifying DMOV_MOVECOMPLETE. New Status: {}", getName(), get_motorStatus());
 				}
 				break;
 			case NEWSTATUS:
@@ -783,7 +771,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 					if (newStatus != null && !newStatus.equals(get_motorStatus())) {
 						set_motorStatus(newStatus);
 						notifyIObservers(EpicsMotor.this, MotorEvent.REFRESH);
-						logger.trace("Epics Motor {} notifying NEWSTATUS {}", getName(), get_motorStatus());
+						logger.trace("{} notifying NEWSTATUS {}", getName(), get_motorStatus());
 					}
 				}
 				break;
@@ -793,7 +781,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		} catch (Exception ex) {
 			throw new MotorException(get_motorStatus(), "Error in changeStatusAndNotify", ex);
 		} finally {
-			logger.trace("Motor - {} changeStatusAndNotify complete", getName());
+			logger.trace("{} changeStatusAndNotify complete", getName());
 		}
 	}
 
@@ -839,8 +827,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public void moveTo(double position, double timeout) throws MotorException, TimeoutException, InterruptedException {
 
 		setUseListener.checkMotorIsInUseMode();
-
-		// final long timeout1 = (long) timeout * 1000;
 		targetPosition = position;
 		targetRangeCheck(position);
 		/*
@@ -882,7 +868,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				}
 			}
 			controller.caput(val, position, moveListener);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to moveTo", ex);
 		}
 	}
@@ -895,7 +881,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	protected double getDialLowLimit() throws MotorException {
 		try {
 			return Double.isNaN(dialLowLimit) ? controller.cagetDouble(dllm) : dialLowLimit;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "Unable to read DLLM for " + getName(), ex);
 		}
 	}
@@ -908,7 +894,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	protected double getDialHighLimit() throws MotorException {
 		try {
 			return Double.isNaN(dialHighLimit) ? controller.cagetDouble(dhlm) : dialHighLimit;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "Unable to read DHLM for " + getName(), ex);
 		}
 	}
@@ -963,7 +949,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			controller.caput(llm, minimumPosition);
 			this.minPosition = minimumPosition;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set min position", ex);
 		}
 	}
@@ -980,7 +966,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 		try {
 			return Double.isNaN(minPosition) ? (minPosition=controller.cagetDouble(llm)) : minPosition;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get min position", ex);
 		}
 	}
@@ -996,7 +982,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			controller.caput(hlm, maximumPosition);
 			this.maxPosition = maximumPosition;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set max position", ex);
 		}
 	}
@@ -1013,7 +999,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 		try {
 			return Double.isNaN(maxPosition) ? (maxPosition=controller.cagetDouble(hlm)) : maxPosition;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get max position", ex);
 		}
 	}
@@ -1026,7 +1012,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			if (isConfigured())
 				controller.caput(stop, 1);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to stop", ex);
 		}
 	}
@@ -1044,7 +1030,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			controller.caputWait(spmg, "Stop");
 			controller.caput(spmg, "Go");
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to stop", ex);
 		}
 	}
@@ -1067,7 +1053,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			} else {
 				moveTo(controller.cagetFloat(llm));
 			}
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to move continuously", ex);
 		}
 	}
@@ -1083,7 +1069,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			// set the drive field without moving motor
 			controller.caput(offset, position);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set offset position", ex);
 		}
 	}
@@ -1098,7 +1084,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			currentPosition = controller.cagetDouble(rbv);
 			return currentPosition;
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get position", ex);
 		}
 	}
@@ -1107,7 +1093,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public void home() throws MotorException {
 		try {
 			controller.caput(homf, 1, channelManager);
-		} catch (Throwable ex) {
+		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to home", ex);
 		}
 	}
@@ -1123,12 +1109,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				retryDeadband = getMotorResolution();
 			}
 		} catch (MotorException e) {
-			logger.error("Can not get retry deadband value from EPICS " + rdbd.getName());
+			logger.error("Can not get retry deadband value from EPICS {}", rdbd.getName());
 		}
 		if (retryDeadband == 0) {
-			logger.warn("EPICS motor " + getName() + " retry Deadband is set to " + retryDeadband);
+			logger.warn("{} retry Deadband is set to {}", getName(), retryDeadband);
 		} else {
-			logger.debug("EPICS motor " + getName() + " retry Deadband is set to " + retryDeadband);
+			logger.debug("{} retry Deadband is set to {}", getName(), retryDeadband);
 		}
 		try {
 			moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, MotorStatus.READY, STATUSCHANGE_REASON.INITIALISE);
@@ -1152,13 +1138,13 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 					timestamp = TIMEHandler.getTimeStamp(dbr);
 					notifyIObservers(MotorProperty.POSITION, new Double(currentPosition));
 				} else {
-					logger.error("Error: Motor Alarm should return DBRTime value.");
+					logger.error("Motor Alarm should return DBRTime value.");
 				}
 
 				if (status != Status.NO_ALARM || severity != Severity.NO_ALARM) {
 					if (!alarmRaised) {
-						logger.error("Motor - " + getName() + " raises Alarm at " + timestamp.toMONDDYYYY() + " : "
-								+ "Status=" + status.getName() + "; Severity=" + severity.getName());
+						logger.error("{} raises Alarm at {} : Status={}; Severity={}",
+								getName(), timestamp.toMONDDYYYY(), status.getName(), severity.getName());
 						alarmRaised = true;
 					}
 				} else {
@@ -1232,9 +1218,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 		try {
 			homed = isHomedFromMSTAValue(readMsta());
-		} catch (Throwable e) {
-			logger.error(getName()
-					+ " could not read MSTA record to get homed status (swallowed exception--RETURNING UNHOMED)", e);
+		} catch (Exception e) {
+			logger.error("{} could not read MSTA record to get homed status (swallowed exception--RETURNING UNHOMED)",getName(), e);
 			return false;
 		}
 		return homed;
@@ -1254,16 +1239,16 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				if (dbr.isSHORT()) {
 					dmovValue = ((DBR_Short) dbr).getShortValue()[0];
 				} else {
-					logger.error("Error: .DMOV should return SHORT type value.");
+					logger.error(".DMOV should return SHORT type value.");
 				}
 				if (getStatus() == MotorStatus.BUSY) {
 					if (dmovValue == 0) {
-						// logger.debug("Motor {} is moving ", getName());
+						logger.trace("Motor {} is moving ", getName());
 					} else if (dmovValue == 1) {
-						// logger.debug("Motor {} is stopped at {}.", getName(),
-						// currentPosition);
+						logger.trace("Motor {} is stopped at {}.", getName(),
+								currentPosition);
 					} else {
-						logger.error("Error: illegal .DMOV value." + dmovValue);
+						logger.error("Illegal .DMOV value. {}", dmovValue);
 					}
 				} else {
 					/*
@@ -1284,7 +1269,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public double getTargetPosition() throws MotorException {
 		try {
 			return controller.cagetDouble(val);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new MotorException(getStatus(), "failed to get target position", e);
 		}
 	}
@@ -1311,7 +1296,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			final DBR dbr = event.getDBR();
 
 			if (!dbr.isENUM()) {
-				logger.error(String.format("New value for %s SET PV has type %s; expected %s", getName(), dbr.getType().getName(), DBRType.ENUM.getName()));
+				logger.error("New value for {} SET PV has type {}; expected {}",
+						getName(), dbr.getType().getName(), DBRType.ENUM.getName());
 				return;
 			}
 
@@ -1319,14 +1305,15 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			final short[] values = dbrEnum.getEnumValue();
 
 			if (values.length != 1) {
-				logger.error(String.format("New value for %s SET PV has %d value(s); expected 1", getName(), values.length));
+				logger.error("New value for {} SET PV has {} value(s); expected 1", getName(), values.length);
 				return;
 			}
 
 			final short newValue = values[0];
 
 			if (newValue != SET_USE_PV_USE_VALUE && newValue != SET_USE_PV_SET_VALUE) {
-				logger.error(String.format("New value for %s SET PV is %d; expected %d or %d", getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE));
+				logger.error("New value for {} SET PV is {}; expected {} or {}",
+						getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE);
 				return;
 			}
 
@@ -1344,11 +1331,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				if (logNewState) {
 
 					if (newState == SetUseState.USE) {
-						logger.info(String.format("Motor %s is now in 'Use' mode", getName()));
+						logger.info("Motor {} is now in 'Use' mode", getName());
 					}
 
 					else if (newState == SetUseState.SET) {
-						logger.error(String.format("Motor %s is now in 'Set' mode - this will cause moves to fail", getName()));
+						logger.error("Motor {} is now in 'Set' mode - this will cause moves to fail", getName());
 					}
 				}
 
@@ -1399,7 +1386,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 					}
 					homed = isHomedFromMSTAValue(msta);
 				} else {
-					logger.error("Error: .RBV should return DOUBLE type value.");
+					logger.error(".RBV should return DOUBLE type value. Instead returned {} type.", dbr.getType());
 				}
 			} catch (Exception ex) {
 				logger.error("{} - Error in MSTA monitor", getName(), ex);
@@ -1419,7 +1406,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			} else if (dbr.isDOUBLE()) {
 				setMaxPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
 			} else {
-				logger.error("Error: illegal .HLM value.");
+				logger.error("Illegal .HLM value. Expecting float or double, got {}", dbr.getType());
 			}
 		}
 	}
@@ -1446,7 +1433,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			} else if (dbr.isDOUBLE()) {
 				setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
 			} else {
-				logger.error("Error: illegal .LLM value.");
+				logger.error("Illegal .LLM value.");
 			}
 
 		}
@@ -1462,7 +1449,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if  (dbr.isDOUBLE()) {
 				dialHighLimit = ((DBR_Double) dbr).getDoubleValue()[0];
 			} else {
-				logger.error("Error: illegal .DHLM value.");
+				logger.error("Illegal .DHLM value.");
 			}
 		}
 	}
@@ -1477,12 +1464,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if  (dbr.isDOUBLE()) {
 				dialLowLimit = ((DBR_Double) dbr).getDoubleValue()[0];
 			} else {
-				logger.error("Error: illegal .DLLM value.");
+				logger.error("Illegal .DLLM value.");
 			}
 		}
 	}
 
-	/**
+		/**
 		 * update upper dial alarm when and if it changes in EPICS.
 		 */
 		private class HLSMonitorListener implements MonitorListener {
@@ -1495,7 +1482,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 						set_motorStatus(MotorStatus.UPPER_LIMIT);
 					}
 				} else {
-					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
+					logger.error("Expecting Int type but got {} type.", dbr.getType());
 				}
 			}
 		}
@@ -1513,7 +1500,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 						set_motorStatus(MotorStatus.LOWER_LIMIT);
 					}
 				} else {
-					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
+					logger.error("Expecting Int type but got {} type.", dbr.getType());
 				}
 			}
 	}
@@ -1528,7 +1515,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if (dbr.isSHORT()) {
 				value = ((DBR_Short) dbr).getShortValue()[0];
 			} else {
-				logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
+				logger.error("Expecting Int type but got {} type.", dbr.getType());
 			}
 
 			if (value == 1) {
@@ -1654,7 +1641,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			// set the access control flag of this object
 			this.acs = (AccessControl.Status) changeCode;
 			if ((AccessControl.Status) changeCode == AccessControl.Status.ENABLED) {
-				logger.info("Beamline control of the device " + getName() + " is enabled.");
+				logger.info("Beamline control of the device {} is enabled.", getName());
 				if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.PAUSED) {
 					JythonServerFacade.getInstance().resumeCurrentScan();
 					JythonServerFacade.getInstance().print(
@@ -1666,7 +1653,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 							"current script resumed after motor: " + getName() + " is enabled.");
 				}
 			} else if ((AccessControl.Status) changeCode == AccessControl.Status.DISABLED) {
-				logger.warn("Beamline control of the device " + getName() + " is disabled.");
+				logger.warn("Beamline control of the device {} is disabled.", getName());
 			}
 		}
 		notifyIObservers(theObserved, changeCode);
