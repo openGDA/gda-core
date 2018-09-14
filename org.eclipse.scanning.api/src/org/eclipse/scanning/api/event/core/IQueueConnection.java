@@ -11,9 +11,55 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.core;
 
+import java.util.List;
+
 import org.eclipse.scanning.api.event.EventException;
 
-public interface IQueueConnection<T> extends IReadOnlyQueueConnection<T> {
+public interface IQueueConnection<T> extends IQueueReader<T> {
+
+	/**
+	 * The string to define the queue for storing status of scans.
+	 *
+	 * @return
+	 */
+	public String getStatusSetName();
+
+	/**
+	 * The string to define the queue for storing status of scans.
+	 * @param topic
+	 * @throws EventException
+	 */
+	public void setStatusSetName(String queueName) throws EventException;
+
+	/**
+	 * The string to define the queue for submitting scan objects to.
+	 *
+	 * @return
+	 */
+	public String getSubmitQueueName();
+
+	/**
+	 * The string to define the queue for submitting scan objects to.
+	 * @throws EventException
+	 */
+	public void setSubmitQueueName(String queueName) throws EventException;
+
+	/**
+	 * Looks a the command queue to find out if a given queue with
+	 * the same submission queue as this submitter is paused.
+	 *
+	 * @return
+	 */
+	boolean isQueuePaused();
+
+	/**
+	 * Return a list of beans whose jobs are either running or completed.
+	 * The list is ordered by submission time, not necessarily the ordering
+	 * of the JMS queue.
+	 *
+	 * @return running and completed beans
+	 */
+	public List<T> getRunningAndCompleted() throws EventException ;
 
 	/**
 	 * Removes all pending jobs from the consumer's submission queue.

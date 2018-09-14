@@ -34,19 +34,21 @@ import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
-public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQueueConnection<U> implements IConsumer<U> {
+public final class ConsumerProxy<U extends StatusBean> extends AbstractConnection implements IConsumer<U> {
 
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 
+	private final IEventService eventService;
+
 	private IRequester<QueueCommandBean> queueCommandRequestor;
 
 	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) {
-		super(uri, connectorService, eventService);
+		super(uri, connectorService);
 		setSubmitQueueName(submissionQueueName);
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
-
+		this.eventService = eventService;
 	}
 
 	private ConsumerInfo getConsumerInfo() {
@@ -265,6 +267,8 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 		return getConsumerStatus() != ConsumerStatus.STOPPED;
 	}
 
+	// TODO, move configuration methods to an interface that the proxy doesn't implement?
+
 	@Override
 	public boolean isDurable() {
 		// This property is not visible on the proxy
@@ -279,6 +283,18 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 
 	@Override
 	public void setPauseOnStart(boolean pauseOnStart) {
+		// This property is not visible on the proxy
+		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+	}
+
+	@Override
+	public Class<U> getBeanClass() {
+		// This property is not visible on the proxy
+		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+	}
+
+	@Override
+	public void setBeanClass(Class<U> beanClass) {
 		// This property is not visible on the proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}
