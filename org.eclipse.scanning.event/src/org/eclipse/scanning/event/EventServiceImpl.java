@@ -107,6 +107,12 @@ public class EventServiceImpl implements IEventService {
 	}
 
 	@Override
+	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName)
+			throws EventException {
+		return createConsumerProxy(uri, submissionQueueName, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+	}
+
+	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
 			String commandTopicName, String commandAckTopicName) throws EventException {
 		logger.trace("createConsumerProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,

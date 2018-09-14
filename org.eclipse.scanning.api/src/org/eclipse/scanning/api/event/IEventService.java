@@ -160,7 +160,17 @@ public interface IEventService {
 
 	/**
 	 * Create a proxy for the consumer for the given submission queue. The given command queue
-	 * to communicate with the consumer.
+	 *
+	 * @param uri
+	 * @param submissionQueueName
+	 * @return a proxy to the consumer for the given queue name
+	 * @throws EventException
+	 */
+	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName) throws EventException;
+
+	/**
+	 * Create a proxy for the consumer for the given submission queue. The given command topic and
+	 * command acknowledgement topic names are used to communicate with the consumer.
 	 *
 	 * @param uri
 	 * @param submissionQueueName
