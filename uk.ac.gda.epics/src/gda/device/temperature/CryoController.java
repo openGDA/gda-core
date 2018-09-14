@@ -44,60 +44,47 @@ import gov.aps.jca.event.MonitorListener;
  */
 public class CryoController extends DeviceBase implements InitializationListener {
 	private static final Logger logger = LoggerFactory.getLogger(CryoController.class);
-	public final double MAX_RAMP_RATE = 360.0; // Kevin/hour
+	public final double MAX_RAMP_RATE = 360.0; // Kelvin/hour
 	public final double MIN_RAMP_RATE = 1.0; // K/hour
-	/**
-	 * start/restart the program, which is a control for the whole system
-	 */
+	/** Start/restart the program, which is a control for the whole system */
 	private Channel restart = null;
-	/**
-	 * resume the program
-	 */
+
+	/** Resume the program */
 	private Channel resume = null;
-	/**
-	 * pause the program
-	 */
+
+	/** Pause the program */
 	private Channel pause = null;
-	/**
-	 * stop the program
-	 */
+
+	/** Stop the program */
 	private Channel stop = null;
-	/**
-	 * cool temperature target
-	 */
+
+	/** Cool temperature target */
 	private Channel ctemp = null;
-	/**
-	 * start a cool program
-	 */
+
+	/** Start a cool program */
 	private Channel cool = null;
-	/**
-	 * start a hold
-	 */
+
+	/** Start a hold */
 	private Channel hold = null;
-	/**
-	 * start a purge or warm
-	 */
+
+	/** Start a purge or warm */
 	private Channel purge = null;
-	/**
-	 * start a ramp
-	 */
+
+	/** Start a ramp */
 	private Channel ramp = null;
-	/**
-	 * set ramp rate
-	 */
+
+	/** Set ramp rate */
 	private Channel rrate = null;
-	/**
-	 * ramp target temperature
-	 */
+
+	/** Ramp target temperature */
 	private Channel rtemp = null;
-	/**
-	 * start a plateau
-	 */
+
+	/** Start a plateau */
 	private Channel plat = null;
-	/**
-	 * set plateau time
-	 */
+
+	/** Set plateau time */
 	private Channel ptime = null;
+
 	private Channel temp = null;
 	private Channel alarm = null;
 	private Channel phase = null;
@@ -108,8 +95,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	private Channel runtime = null;
 	private Channel end = null;
 	private Channel disable=null;
-	private Vector<String> phases = new Vector<String>();
-	private Vector<String> runmodes = new Vector<String>();
+	private Vector<String> phases = new Vector<>();
+	private Vector<String> runmodes = new Vector<>();
 	private AlarmListener al;
 	private CurrentTempListener ctl;
 	private ConnectionListener connlist;
@@ -143,13 +130,12 @@ public class CryoController extends DeviceBase implements InitializationListener
 			createChannelAccess(getPvRoot());
 			channelManager.tryInitialize(100);
 			try {
-				connState=getDisable();
+				connState = getDisable();
 			} catch (DeviceException e) {
 				logger.warn("Failed to get Hardware connection state in {} configure().", getName());
 			}
 			setConfigured(true);
-		}// end of if (!configured)
-
+		}
 	}
 
 	private void createChannelAccess(String pvRoot) throws FactoryException {
@@ -180,13 +166,12 @@ public class CryoController extends DeviceBase implements InitializationListener
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 		} catch (Exception ex) {
-			logger.error("createChannelAccess({}) failed for {}: ", pvRoot, getName(), ex);
 			throw new FactoryException("failed to create required channels for " + getName() + " using " + pvRoot, ex);
 		}
 	}
 
 	/**
-	 * switches the Cryostream on, executing the start-up phase or current Phase Table. It is also used to re-start the
+	 * Switches the Cryostream on, executing the start-up phase or current Phase Table. It is also used to re-start the
 	 * control program after it has been halted.
 	 *
 	 * @throws DeviceException
@@ -194,13 +179,13 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void start() throws DeviceException {
 		try {
 			controller.caput(restart, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start/restart the program.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start/restart the program.", e);
 		}
 	}
 
 	/**
-	 * halt the Cryostream Plus, turn off the pump and all the heaters. The controller may then be safely switches off,
+	 * Halt the Cryostream Plus, turn off the pump and all the heaters. The controller may then be safely switches off,
 	 * or re-started by start().
 	 *
 	 * @throws DeviceException
@@ -208,8 +193,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void stop() throws DeviceException {
 		try {
 			controller.caput(stop, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to stop the program.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to stop the program.", e);
 		}
 	}
 
@@ -219,8 +204,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void resume() throws DeviceException {
 		try {
 			controller.caput(resume, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to resume the program.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to resume the program.", e);
 		}
 	}
 
@@ -230,8 +215,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void pause() throws DeviceException {
 		try {
 			controller.caput(pause, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to pause the program.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to pause the program.", e);
 		}
 	}
 
@@ -242,8 +227,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public String getPhase() throws DeviceException {
 		try {
 			return phases.get(controller.cagetEnum(phase));
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get current PHASE ID.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get current PHASE ID.", e);
 		}
 	}
 
@@ -254,8 +239,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public String getRunmode() throws DeviceException {
 		try {
 			return runmodes.get(controller.cagetEnum(runmode));
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get current run mode.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get current run mode.", e);
 		}
 	}
 
@@ -266,8 +251,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getRampRate() throws DeviceException {
 		try {
 			return controller.cagetDouble(ramprate);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get current ramp rate.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get current ramp rate.", e);
 		}
 	}
 
@@ -278,8 +263,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getTargetTemp() throws DeviceException {
 		try {
 			return controller.cagetDouble(targettemp);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get current target temperature.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get current target temperature.", e);
 		}
 	}
 
@@ -290,8 +275,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getRemaining() throws DeviceException {
 		try {
 			return controller.cagetDouble(remaining);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get remaining time in current phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get remaining time in current phase.", e);
 		}
 	}
 
@@ -302,8 +287,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getRunTime() throws DeviceException {
 		try {
 			return controller.cagetDouble(runtime);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get run time since pump starts.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get run time since pump starts.", e);
 		}
 	}
 
@@ -314,8 +299,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getTemp() throws DeviceException {
 		try {
 			return controller.cagetDouble(temp);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get current temperature.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get current temperature.", e);
 		}
 	}
 
@@ -326,8 +311,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public String getAlarm() throws DeviceException {
 		try {
 			return controller.caget(alarm);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get alarm status.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get alarm status.", e);
 		}
 	}
 
@@ -337,8 +322,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void cool() throws DeviceException {
 		try {
 			controller.caput(cool, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start a fast cool phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start a fast cool phase.", e);
 		}
 	}
 
@@ -349,8 +334,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void setCoolTemp(double t) throws DeviceException {
 		try {
 			controller.caput(ctemp, t, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to set cool temperature.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set cool temperature.", e);
 		}
 	}
 
@@ -361,8 +346,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public double getCoolTemp() throws DeviceException {
 		try {
 			return controller.cagetDouble(ctemp);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get cool temperature.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get cool temperature.", e);
 		}
 	}
 
@@ -372,8 +357,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void hold() throws DeviceException {
 		try {
 			controller.caput(hold, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start hold phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start hold phase.", e);
 		}
 	}
 
@@ -383,8 +368,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void purge() throws DeviceException {
 		try {
 			controller.caput(purge, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start purge/warm phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start purge/warm phase.", e);
 		}
 	}
 
@@ -394,8 +379,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void ramp() throws DeviceException {
 		try {
 			controller.caput(ramp, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start a ramp phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start a ramp phase.", e);
 		}
 	}
 
@@ -406,8 +391,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void setRampRate(double K_hr) throws DeviceException {
 		try {
 			controller.caput(rrate, K_hr, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to set the ramp rate in K/hr.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set the ramp rate in K/hr.", e);
 		}
 	}
 
@@ -418,8 +403,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void setTargetTemp(double k) throws DeviceException {
 		try {
 			controller.caput(rtemp, k, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to set ramp Target Temperature.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set ramp Target Temperature.", e);
 		}
 	}
 
@@ -429,8 +414,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void plateau() throws DeviceException {
 		try {
 			controller.caput(plat, 1, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to start a plateau phase.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to start a plateau phase.", e);
 		}
 	}
 
@@ -441,8 +426,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void setPlateauTime(double t) throws DeviceException {
 		try {
 			controller.caput(ptime, t, 2);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to set time for the plateau.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set time for the plateau.", e);
 		}
 	}
 
@@ -457,8 +442,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 				JythonServerFacade.getInstance().print("end() is not available on this device: " + getName());
 				logger.info("end() is not available on this device: {}.", getName());
 			}
-		} catch (Throwable e) {
-			throw new DeviceException("failed to end.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to end.", e);
 		}
 	}
 
@@ -470,8 +455,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 		String[] phaseLabels = new String[phases.size()];
 		try {
 			phaseLabels = controller.cagetLabels(phase);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get phase ids.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get phase ids.", e);
 		}
 		return phaseLabels;
 	}
@@ -484,8 +469,8 @@ public class CryoController extends DeviceBase implements InitializationListener
 		String[] runmodeLabels = new String[runmodes.size()];
 		try {
 			runmodeLabels = controller.cagetLabels(runmode);
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get run mode labels.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get run mode labels.", e);
 		}
 		return runmodeLabels;
 	}
@@ -499,8 +484,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 				}
 			}
 		} catch (DeviceException e) {
-			logger.error("failed to initialise phase IDs", e);
-			e.printStackTrace();
+			logger.error("Failed to initialise phase IDs", e);
 		}
 		try {
 			for (String runMode : getRunmodes()) {
@@ -509,8 +493,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 				}
 			}
 		} catch (DeviceException e) {
-			logger.error("failed to initialise run mode labels.", e);
-			e.printStackTrace();
+			logger.error("Failed to initialise run mode labels.", e);
 		}
 
 		if (connState.equals("Enabled"))
@@ -588,7 +571,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 	}
 
 	/**
-	 * check if the hardware is connected in EPICS
+	 * Check if the hardware is connected in EPICS
 	 * @return True or False
 	 */
 	public boolean isConnected() {
@@ -596,7 +579,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 	}
 
 	/**
-	 * sets EPICS hardware connection state
+	 * Sets EPICS hardware connection state
 	 * @param connected
 	 */
 	public void setConnected(boolean connected) {
@@ -608,7 +591,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 	}
 
 	/**
-	 * sets the EPICS hardware connection state: true - Disabled; false - Enabled
+	 * Sets the EPICS hardware connection state: true - Disabled; false - Enabled
 	 * @param bool
 	 * @throws DeviceException
 	 */
@@ -618,22 +601,21 @@ public class CryoController extends DeviceBase implements InitializationListener
 				controller.caput(disable, 1, 2);
 			else
 				controller.caput(disable, 0, 2);
-		} catch (Throwable e) {
-		throw new DeviceException("failed to set DISABLE PV.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set DISABLE PV.", e);
 		}
 	}
 
 	/**
-	 * gets the EPICS hardware connection state.
+	 * Gets the EPICS hardware connection state.
 	 * @return Disabled or Enabled
 	 * @throws DeviceException
 	 */
 	public String getDisable() throws DeviceException{
 		try {
 			return connState = controller.cagetEnum(disable)==0 ? "Enabled" : "Disabled";
-		} catch (Throwable e) {
-			throw new DeviceException("failed to get from DISABLE PV.", e);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get from DISABLE PV.", e);
 		}
 	}
-
 }
