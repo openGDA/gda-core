@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.osgi.framework.BundleContext;
@@ -42,19 +42,23 @@ public class SubmissionQueueReporter {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmissionQueueReporter.class);
 
+	private IConsumer<StatusBean> consumerProxy = null;
+
 	/**
 	 * Returns whether the submission queue is empty, i.e. there are no currently running or submitted scans.
 	 * @return <code>true</code> if there are no running or submitted scans, <code>false</code> otherwise
 	 */
 	public boolean isQueueEmpty() {
 		try {
-			final ISubmitter<StatusBean> queueConnection = getQueueConnection();
+			if (consumerProxy == null) {
+				consumerProxy = getConsumerProxy();
+			}
 			// first check whether there are submitted scans which haven't been run yet
-			final boolean noSubmittedScans = queueConnection.getQueue().isEmpty();
+			final boolean noSubmittedScans = consumerProxy.getQueue().isEmpty();
 			boolean queueClear = noSubmittedScans;
 			if (noSubmittedScans) {
 				// if not check whether any scans that have been run are complete (or some other final state)
-				List<StatusBean> runningOrCompletedScans = queueConnection.getRunningAndCompleted();
+				List<StatusBean> runningOrCompletedScans = consumerProxy.getRunningAndCompleted();
 				queueClear = runningOrCompletedScans.stream().map(StatusBean::getStatus).allMatch(Status::isFinal);
 			}
 			return queueClear;
@@ -64,11 +68,11 @@ public class SubmissionQueueReporter {
 		}
 	}
 
-	private ISubmitter<StatusBean> getQueueConnection() throws URISyntaxException {
+	private IConsumer<StatusBean> getConsumerProxy() throws EventException, URISyntaxException {
 		final BundleContext context = FrameworkUtil.getBundle(SubmissionQueueReporter.class).getBundleContext();
 		final IEventService eventService = context.getService(context.getServiceReference(IEventService.class));
 		final URI queueUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		return eventService.createSubmitter(queueUri, EventConstants.SUBMISSION_QUEUE);
+		return eventService.createConsumerProxy(queueUri, EventConstants.SUBMISSION_QUEUE);
 	}
 
 }
