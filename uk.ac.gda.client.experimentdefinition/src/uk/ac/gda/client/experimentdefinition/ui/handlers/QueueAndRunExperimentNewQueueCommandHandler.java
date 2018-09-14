@@ -72,9 +72,6 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 
 		try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(
 					new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.CMD_TOPIC)) {
-			publisher.setStatusSetName(EventConstants.CMD_SET);
-			publisher.setStatusSetAddRequired(true);
-
 			QueueCommandBean bean = new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.RESUME);
 			publisher.broadcast(bean);
 		} catch (EventException | URISyntaxException e) {
