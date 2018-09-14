@@ -36,7 +36,6 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Ignore;
@@ -55,7 +54,6 @@ public class AbstractPauseTest extends BrokerTest {
 		submitter.disconnect();
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
-		((ConsumerImpl<?>) consumer).clearCommandSet();
 		consumer.disconnect();
 	}
 
@@ -70,7 +68,6 @@ public class AbstractPauseTest extends BrokerTest {
 		Thread.sleep(200);
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getConsumerId(), Command.PAUSE);
@@ -100,7 +97,6 @@ public class AbstractPauseTest extends BrokerTest {
 		Thread.sleep(200);
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
@@ -138,7 +134,6 @@ public class AbstractPauseTest extends BrokerTest {
 		}
 
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
@@ -210,7 +205,6 @@ public class AbstractPauseTest extends BrokerTest {
 
 		Thread.sleep(500);
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		publisher.setStatusSetName(EventConstants.CMD_SET);
 		publisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
@@ -268,7 +262,6 @@ public class AbstractPauseTest extends BrokerTest {
 
 		// pause the queue and immediately resume it
 		IPublisher<QueueCommandBean> commandPublisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		commandPublisher.setStatusSetName(EventConstants.CMD_SET);
 		commandPublisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);

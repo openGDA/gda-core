@@ -33,7 +33,6 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -72,10 +71,6 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
 		doClearQueue(getStatusSetName());
-	}
-
-	public void clearCommandSet() throws EventException {
-		doClearQueue(EventConstants.CMD_SET);
 	}
 
 	private void doClearQueue(String queueName) throws EventException {

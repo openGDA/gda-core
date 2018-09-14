@@ -54,7 +54,6 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
@@ -82,7 +81,6 @@ public class AbstractConsumerTest extends BrokerTest {
 		submitter.disconnect();
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
-		((ConsumerImpl<?>) consumer).clearCommandSet();
 		consumer.disconnect();
 	}
 

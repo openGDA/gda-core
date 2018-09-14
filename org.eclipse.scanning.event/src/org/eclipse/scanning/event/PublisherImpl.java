@@ -28,7 +28,6 @@ import javax.jms.Topic;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,38 +222,6 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Returns whether the two given beans are for the same object, e.g. the same scan.
-	 * This is used to determine if one bean can be considered an updated version of the first,
-	 * and potentially supercede it. Normally this is the case if two beans
-	 * have the same unique id. A special case is for {@link QueueCommandBean} where the command is
-	 * {@link Command#PAUSE} or {@link Command#RESUME} where the beans are considered the same if they
-	 * are for the same consumer id or queue name.
-	 * @return <code>true</code> if the beans are for the same object, <code>false</code> otherwise
-	 */
-	@Override
-	protected boolean isForSameObject(Object qbean, Object bean) {
-		// first check special case of beans to pause a queue, where they are considered the same
-		if (isPauseResumeBean(qbean) && isPauseResumeBean(bean)) {
-			QueueCommandBean q = (QueueCommandBean) qbean;
-			QueueCommandBean b = (QueueCommandBean) bean;
-
-			if (q.getConsumerId() != null && q.getConsumerId().equals(b.getConsumerId()))
-				return true;
-			if (q.getQueueName() != null && q.getQueueName().equals(b.getQueueName()))
-				return true;
-		}
-
-		// otherwise call method in superclass that compares by unique id
-		return super.isForSameObject(qbean, bean);
-	}
-
-	private boolean isPauseResumeBean(Object bean) {
-		if (!(bean instanceof QueueCommandBean)) return false;
-		final Command command = ((QueueCommandBean) bean).getCommand();
-		return command == Command.PAUSE || command == Command.RESUME;
 	}
 
 	@Override

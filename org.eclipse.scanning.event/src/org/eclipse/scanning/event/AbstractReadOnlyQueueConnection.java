@@ -80,38 +80,5 @@ public abstract class AbstractReadOnlyQueueConnection<U extends StatusBean> exte
 		return statusSet;
 	}
 
-	/**
-	 * Finds and returns the most recent pause bean sent to the command queue.
-	 * @param submissionQueueName name of submission queue
-	 * @return pause bean
-	 */
-	protected QueueCommandBean getLastPauseResumeBean(String submissionQueueName) {
-		IQueueReader<QueueCommandBean>   queueReader=null;
-		try {
-			queueReader = eventService.createQueueReader(getUri(), EventConstants.CMD_SET);
-			queueReader.setBeanClass(QueueCommandBean.class);
-		    List<QueueCommandBean> commandQueue = queueReader.getQueue();
-
-		    // The most recent bean in the queue is the latest
-		    for (QueueCommandBean commandBean : commandQueue) {
-		    	Command command = commandBean.getCommand();
-				if (submissionQueueName.equals(commandBean.getQueueName())
-						&& (command == Command.PAUSE || command == Command.RESUME)) {
-					return commandBean;
-				}
-			}
-		} catch (Exception ne) {
-			logger.error("Cannot get queue "+EventConstants.CMD_SET, ne);
-			return null;
-		} finally {
-			try {
-				if (queueReader!=null) queueReader.disconnect();
-			} catch (EventException e) {
-				logger.error("Cannot get disconnect "+EventConstants.CMD_SET, e);
-			}
-		}
-		return null;
-	}
-
 
 }

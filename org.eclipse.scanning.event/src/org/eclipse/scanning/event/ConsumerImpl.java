@@ -46,7 +46,6 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -574,12 +573,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			heartbeatBroadcaster.start();
 		}
 
-		// We process the paused state
-		QueueCommandBean pauseResumeBean = getLastPauseResumeBean(getSubmitQueueName());
-		if (pauseResumeBean != null) {
-			processQueueCommand(pauseResumeBean); // Might set the pause lock and block on checkPaused().
-		}
-
 		startProcessManager();
 		setActive(true);
 
@@ -682,9 +675,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			pause(); // note, sets the awaitPause flag, this thread continues
 
 			try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
-				publisher.setStatusSetName(EventConstants.CMD_SET); // The set that other clients may check
-				publisher.setStatusSetAddRequired(true);
-
 				QueueCommandBean pauseBean = new QueueCommandBean(getSubmitQueueName(), Command.PAUSE);
 				publisher.broadcast(pauseBean);
 			}

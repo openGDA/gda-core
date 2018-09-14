@@ -54,11 +54,6 @@ public class EventConstants {
 	public static final String ACK_TOPIC = "org.eclipse.scanning.ack.topic";
 
 	/**
-	 * The default set used for recent instructions to command the consumer. This queue is generally used internally.
-	 */
-	public static final String CMD_SET = "org.eclipse.scanning.command.set";
-
-	/**
 	 * The default queue used for submitting things (like ScanRequests) to a queue.
 	 * Ordered by submission.
 	 */

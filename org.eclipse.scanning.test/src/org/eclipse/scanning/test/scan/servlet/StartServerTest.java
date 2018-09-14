@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.junit.Test;
@@ -53,7 +52,6 @@ public class StartServerTest extends AbstractServletTest {
 		assertEquals(ConsumerStatus.PAUSED, servlet.getConsumer().getConsumerStatus());
 		servlet.getConsumer().clearQueue();
 		servlet.getConsumer().clearRunningAndCompleted();
-		((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 		servlet.disconnect();
 	}
 

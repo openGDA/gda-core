@@ -37,7 +37,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.Services;
@@ -74,7 +73,6 @@ public abstract class AbstractServletTest extends BrokerTest {
 		if (servlet!=null) {
 			servlet.getConsumer().clearQueue();
 			servlet.getConsumer().clearRunningAndCompleted();
-			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 		}
 	}
 
@@ -83,7 +81,6 @@ public abstract class AbstractServletTest extends BrokerTest {
 		if (servlet!=null) {
 			servlet.getConsumer().clearQueue();
 			servlet.getConsumer().clearRunningAndCompleted();
-			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 			servlet.disconnect();
 		}
 	}
