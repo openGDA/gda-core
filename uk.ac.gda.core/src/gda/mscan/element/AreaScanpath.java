@@ -199,8 +199,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 														 final List<Mutator> mutators) {
 
 			RasterModel model = new RasterModel(scannables.get(0).getName(),scannables.get(1).getName());
-			model.setFastAxisStep(scanParameters.get(0).intValue());
-			model.setSlowAxisStep(scanParameters.get(1).intValue());
+			model.setFastAxisStep(scanParameters.get(0).doubleValue());
+			model.setSlowAxisStep(scanParameters.get(1).doubleValue());
 			model.setBoundingBox(new BoundingBox(
 					bboxParameters.get(0).doubleValue(), bboxParameters.get(1).doubleValue(),
 					bboxParameters.get(2).doubleValue(), bboxParameters.get(3).doubleValue()));

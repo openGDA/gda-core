@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import com.google.common.collect.ImmutableMap;
@@ -217,8 +218,11 @@ public class ClauseContext {
 			throw new IllegalStateException(
 					"Parameters may not be added until either a Roi or a Scanpath has been specified");
 		}
+		// Because of defaulting behaviour, this next condition can only be true for AreaScanpathss
 		if (paramsFull()) {
-			throw new IllegalStateException("The required number of params has already been supplied");
+			throw new IllegalStateException(String.format(
+					"The required number of params for the %s region of interest has already been supplied",
+							StringUtils.capitalize(areaScanpath.get().name().toLowerCase())));
 		}
 		previousType = Number.class;
 		return paramsToFill.add(supplied);
@@ -259,10 +263,53 @@ public class ClauseContext {
 		areaScanMustHaveRoiPlusAreaScanpath();
 		areaScanMustHaveCorrectNumberOfParametersForRoiAndAreaScanpath();
 
-		if (roi.get() == Roi.RECTANGLE) {
-			// convert 'stop' values into length ones
-			roiParams.set(2, roiParams.get(2).doubleValue() - roiParams.get(0).doubleValue());
-			roiParams.set(3, roiParams.get(3).doubleValue() - roiParams.get(1).doubleValue());
+		// TODO: replace this switch with validation on creation of the various roi instances
+		if (roi.isPresent()) {
+			switch (roi.get()) {
+				case RECTANGLE:
+					// convert 'stop' values into length ones accounting for negative differences
+					double[] lengths = {roiParams.get(2).doubleValue() - roiParams.get(0).doubleValue(),
+										roiParams.get(3).doubleValue() - roiParams.get(1).doubleValue()};
+					int index = 0;
+					for (double length : lengths) {
+						if (length < 0) {
+							length = Math.abs(length);
+							roiParams.set(index, (roiParams.get(index).doubleValue() - length));
+						}
+						roiParams.set(index + 2, length);
+						index++;
+					}
+					break;
+				case CENTRED_RECTANGLE:
+					if (roiParams.get(2).doubleValue() < 0 || roiParams.get(3).doubleValue() <0) {
+						throw new IllegalArgumentException(
+								"Invalid Scan clause: Centred Rectangle must have positive width/height dimensions");
+					}
+					break;
+				case CIRCLE:
+					if (roiParams.get(2).doubleValue() < 0) {
+						throw new IllegalArgumentException(
+								"Invalid Scan clause: Circle must have a positive radius");
+					}
+					break;
+				default:
+			}
+			if (areaScanpath.isPresent()) {
+				for (Number param : pathParams) {
+					if (param.doubleValue() < 0) {
+						throw new IllegalArgumentException(
+								"Invalid Scan clause: Scanpaths require positive parameters");
+					}
+				}
+				if (areaScanpath.get() == AreaScanpath.GRID) {
+					for (Number param : pathParams) {
+						if (!(param instanceof Integer)) {
+							throw new IllegalArgumentException(
+									"Invalid Scan clause: Grid requires integer parameters");
+						}
+					}
+				}
+			}
 		}
 
 		//post validate the default case
