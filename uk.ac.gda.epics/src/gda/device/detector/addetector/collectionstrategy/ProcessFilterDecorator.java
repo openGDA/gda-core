@@ -82,6 +82,10 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 	private short dataTypeOutSaved;
 
 	private boolean callbackEnabledSaved;
+	/**
+	 * enable numFilter to be configured by default
+	 */
+	private boolean enableNumFilter = true; // this required by I06-418 where users want to set this number dynamically, not at bean configuration time.
 
 	// NXCollectionStrategyPlugin interface
 	@Override
@@ -89,7 +93,9 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 		logger.trace("rawPrepareForCollection({}, {}, {})", collectionTime, numberImagesPerCollection, scanInfo);
 
 		ndProcess.setFilterType(getFilterType());
-		ndProcess.setNumFilter(getNumberOfImagesToFilter());
+		if (isEnableNumFilter()) {
+			ndProcess.setNumFilter(getNumberOfImagesToFilter());
+		}
 		ndProcess.setResetFilter(isResetFilterAtStart() ? 1 : 0);
 		ndProcess.setAutoResetFilter(isAutoReset() ? 1 : 0);
 		if (isOutputEveryArray()) {
@@ -112,7 +118,9 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 		getDecoratee().saveState();
 		if (isRestoreState()) {
 			filterTypeSaved = ndProcess.getFilterType();
-			numFilterSaved = ndProcess.getNumFilter();
+			if (isEnableNumFilter()) {
+				numFilterSaved = ndProcess.getNumFilter();
+			}
 			resetFilterSaved = ndProcess.getResetFilter();
 			autoResetFilterSaved = ndProcess.getAutoResetFilter();
 			filterCallbacksSaved = ndProcess.getFilterCallbacks();
@@ -129,7 +137,9 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 		logger.trace("restoreState() called, restoreState={}", restoreState);
 		if (isRestoreState() && existingStateSaved) {
 			ndProcess.setFilterType(filterTypeSaved);
-			ndProcess.setNumFilter(numFilterSaved);
+			if (isEnableNumFilter()) {
+				ndProcess.setNumFilter(numFilterSaved);
+			}
 			ndProcess.setResetFilter(resetFilterSaved);
 			ndProcess.setAutoResetFilter(autoResetFilterSaved);
 			ndProcess.setFilterCallbacks(filterCallbacksSaved);
@@ -225,5 +235,13 @@ public class ProcessFilterDecorator extends AbstractADCollectionStrategyDecorato
 
 	public void setFilterType(int filterType) {
 		this.filterType = filterType;
+	}
+
+	public boolean isEnableNumFilter() {
+		return enableNumFilter;
+	}
+
+	public void setEnableNumFilter(boolean enableNumFilter) {
+		this.enableNumFilter = enableNumFilter;
 	}
 }
