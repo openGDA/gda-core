@@ -22,16 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A version of EpicsPositioner which does not use DMOV at all but relies on the callback mechanism to determine when
  * the move has completed.
  */
+@ServiceInterface(EnumPositioner.class)
 public class EpicsPositionerCallback extends EpicsPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPositionerCallback.class);
