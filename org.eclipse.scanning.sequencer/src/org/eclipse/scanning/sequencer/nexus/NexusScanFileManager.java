@@ -83,6 +83,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	private NexusFileBuilder fileBuilder;
 	private NexusScanFile nexusScanFile;
 	private SolsticeScanMonitor solsticeScanMonitor;
+	private NXEntryFieldBuilder entryFieldBuilder;
 
 	// we need to cache various things as they are used more than once
 	/**
@@ -199,6 +200,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	 */
 	@Override
 	public void scanFinished() throws ScanningException {
+		entryFieldBuilder.end();
 		solsticeScanMonitor.scanFinished();
 		try {
 			nexusScanFile.close();
@@ -429,6 +431,9 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		entryBuilder.addDefaultGroups();
 
 		addScanMetadata(entryBuilder, model.getScanMetadata());
+
+		entryFieldBuilder = new NXEntryFieldBuilder(entryBuilder.getNXentry());
+		entryFieldBuilder.start();
 
 		// add all the devices to the entry. Per-scan monitors are added first.
 		for (ScanRole deviceType : EnumSet.allOf(ScanRole.class)) {
