@@ -44,7 +44,9 @@ import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -57,6 +59,9 @@ public class AreaScanpathTest {
 	private static Map<AreaScanpath, Double[]> emptyPathData = new EnumMap<>(AreaScanpath.class);
 	private static Map<AreaScanpath, Double[]> correctLengthPathData = new EnumMap<>(AreaScanpath.class);
 	private static Double[] blankArray = new Double[]{};
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
 
 	private List<Scannable> scannables;
 	private List<Number> pathParams;
@@ -165,6 +170,22 @@ public class AreaScanpathTest {
 	}
 
 	@Test
+	public void createModelRejectsNegativeNoOfPointsForGrid() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Grid requires all positive parameters");
+		pathParams = Arrays.asList(-5, 6);
+		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsNonIntegerNoOfPointsForGrid() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Grid requires integer parameters");
+		pathParams = Arrays.asList(5, 6.2);
+		GRID.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
 	public void createModelCreatesCorrectModelForGrid() throws Exception {
 		pathParams = Arrays.asList(5, 6);
 		IScanPathModel model = GRID.createModel(scannables, pathParams, bboxParams, mutators);
@@ -179,6 +200,14 @@ public class AreaScanpathTest {
 		assertThat(gModel.getSlowAxisPoints(), is(6));
 		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
 		assertThat(gModel.isSnake(), is(false));
+	}
+
+	@Test
+	public void createModelRejectsNegativeNoOfPointsForRaster() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Raster requires all positive parameters");
+		pathParams = Arrays.asList(-5.2, 6.1);
+		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test

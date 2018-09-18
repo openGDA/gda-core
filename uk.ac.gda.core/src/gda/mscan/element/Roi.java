@@ -21,6 +21,7 @@ package gda.mscan.element;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -34,6 +35,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
  * to specify a Roi is linked to the {@link IROI} factory function via the constructor along with the number of
  * parameters required to specify it. The factory functions need to be a nested static class so that they are in scope
  * when the constructor is called.
+ *
  * @since GDA 9.9
  */
 public enum Roi implements IMScanElementEnum {
@@ -42,6 +44,8 @@ public enum Roi implements IMScanElementEnum {
 	CIRCLE("circ", 3, true, CircularROI.class, Factory::createCircularROI),
 	POLYGON("poly", 6, false, PolygonalROI.class, Factory::createPolygonalROI),
 	LINE("line", 4, true, LinearROI.class, Factory::createLinearROI);
+
+	private static final String PREFIX = "Invalid Scan clause: ";
 
 	private final String text;
 	private final int valueCount;
@@ -125,15 +129,16 @@ public enum Roi implements IMScanElementEnum {
 	 */
 	private void validateParamSize(final List<Number> params) {
 		if (params.size() != valueCount) {
-			String prefix = "";
+			String qualifier = "";
 			if (!hasFixedValueCount) {
-				prefix = "at least ";
+				qualifier = "at least ";
 				if (params.size() >= valueCount) {
 					return;
 				}
 			}
 			throw new IllegalArgumentException(String.format(
-					"%s requires %s%s numeric values to be specified" , roiType.getSimpleName(), prefix, valueCount));
+					"%s%s requires %s%s numeric values to be specified",
+						PREFIX, roiType.getSimpleName(), qualifier, valueCount));
 		}
 	}
 
@@ -144,18 +149,42 @@ public enum Roi implements IMScanElementEnum {
 	private static class Factory {
 
 		/**
-		 * Creates a {@link RectangularROI} using the supplied params.
+		 * Creates a {@link RectangularROI} using the supplied params. The incoming parameters are converted from a
+		 * par of co-ordinates to 1 co-ordinate and two offsets from them which is the form that the {@link RectangularROI}
+		 * constructor accepts. It also adjusts for points in the second co-ordinate being less that those in the first
+		 * by adjusting the first one to be a minx,miny combination so that the offsets are always positive.
+		 *
 		 *
 		 * @param params	A par of diagonally opposite corner coordinates of the rectangle as a {@link List} in the
 		 * 					order: x1, y1, x2, y2
 		 * @return			An {@link IROI} of the requested shape and dimensions
 		 */
 		private static IROI createRectangularROI(final List<Number> params) {
+			List<Number> internals = new ArrayList<>(params);
+			// convert 'stop' values into length ones accounting for negative differences
+			double[] lengths = {params.get(2).doubleValue() - params.get(0).doubleValue(),
+								params.get(3).doubleValue() - params.get(1).doubleValue()};
+			if (lengths[0] == 0 || lengths[1] == 0) {
+				throw new IllegalArgumentException(PREFIX + "Rectangle sides must have non-zero length");
+			}
+
+			int index = 0;
+			for (double length : lengths) {
+				// if we have a negative length then adjust the corresponding value to its current on minus the
+				// absolute value of the length to ensure we use the corner with min x and y values
+				if (length < 0) {
+					length = Math.abs(length);
+					internals.set(index, (params.get(index).doubleValue() - length));
+				}
+				internals.set(index + 2, length);                // also store the corresponding length
+				index++;
+			}
+
 			return new RectangularROI(
-					params.get(0).doubleValue(),
-					params.get(1).doubleValue(),
-					params.get(2).doubleValue(),
-					params.get(3).doubleValue(), 0);
+					internals.get(0).doubleValue(),
+					internals.get(1).doubleValue(),
+					internals.get(2).doubleValue(),
+					internals.get(3).doubleValue(), 0);
 		}
 
 		/**
@@ -166,6 +195,10 @@ public enum Roi implements IMScanElementEnum {
 		 * @return			An {@link IROI} of the requested shape and dimensions
 		 */
 		private static IROI createCenteredRectangularROI(final List<Number> params) {
+			if (params.get(2).doubleValue() <= 0 || params.get(3).doubleValue() <= 0) {
+				throw new IllegalArgumentException(PREFIX +
+						"Centred Rectangle must have positive width/height dimensions");
+			}
 			return new RectangularROI(
 					params.get(0).doubleValue() - params.get(2).doubleValue()/2,
 					params.get(1).doubleValue() - params.get(3).doubleValue()/2,
@@ -181,6 +214,9 @@ public enum Roi implements IMScanElementEnum {
 		 * @return			An {@link IROI} of the requested shape and dimensions
 		 */
 		private static IROI createCircularROI(final List<Number> params) {
+			if (params.get(2).doubleValue() <= 0) {
+				throw new IllegalArgumentException(PREFIX + "Circle must have a positive radius");
+			}
 			return new CircularROI(
 					params.get(2).doubleValue(),
 					params.get(0).doubleValue(),
@@ -196,7 +232,7 @@ public enum Roi implements IMScanElementEnum {
 		 */
 		private static IROI createPolygonalROI(final List<Number> params) {
 			if ((params.size() & 1) != 0) {
-				throw new IllegalArgumentException("PolygonalROI requires an even number of params");
+				throw new IllegalArgumentException(PREFIX + "PolygonalROI requires an even number of params");
 			}
 			PolygonalROI roi = new PolygonalROI();
 			for (int index = 0; index < params.size(); index += 2) {
@@ -213,6 +249,10 @@ public enum Roi implements IMScanElementEnum {
 		 * @return			An {@link IROI} of the requested shape and dimensions
 		 */
 		private static IROI createLinearROI(final List<Number> params) {
+			if ((params.get(2).doubleValue() - params.get(0).doubleValue()) == 0 &&
+					(params.get(3).doubleValue() - params.get(1).doubleValue()) == 0) {
+				throw new IllegalArgumentException(PREFIX + "Linear Roi must have non-zero length");
+			}
 			return new LinearROI(
 					new double[] {params.get(0).doubleValue(), params.get(1).doubleValue()},
 					new double[] {params.get(2).doubleValue(), params.get(3).doubleValue()});

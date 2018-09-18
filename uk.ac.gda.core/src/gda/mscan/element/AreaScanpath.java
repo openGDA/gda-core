@@ -41,6 +41,7 @@ import gda.device.Scannable;
  * that occupy a two dimensional area. The abbreviation to specify a path is linked to the model via the
  * constructor along with the number of parameters required to specify the path (seed count). The factory
  * functions need to be a nested static class so that they are in scope when the constructor is called.
+ *
  * @since GDA 9.9
  */
 public enum AreaScanpath implements IMScanElementEnum {
@@ -51,6 +52,7 @@ public enum AreaScanpath implements IMScanElementEnum {
 
 	private static final int NUMBER_OF_AXES = 2;
 	private static final int BBOX_REQUIRED_PARAMS = 4;
+	private static final String PREFIX = "Invalid Scan clause: ";
 
 	private final String text;
 	/** The number of parameters required to generate the path **/
@@ -138,7 +140,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 		inputs.entrySet().forEach(entry ->{
 			if (entry.getKey().size() != entry.getValue()) {
 				throw new IllegalArgumentException(String.format(
-						"%s requires %s numeric values to be specified" , modelType.getSimpleName(), entry.getValue()));
+						"%s%s requires %s numeric values to be specified",
+							PREFIX, modelType.getSimpleName(), entry.getValue()));
 			}
 		});
 	}
@@ -156,8 +159,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 							order: fastScannable, slowScannable
 		 * @param scanParameters	The number of points in each direction of the grid as a {@link List} in the order:
 		 * 							nFast, nSlow
-		 * @param bboxParameters	The coordinates of diagonally opposite corners of the rectangular bounding box that
-		 * 							encloses the grid as a {@link List} in the order x1, y1, x2, y2
+		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
+		 * 							grid plus its width and height as a {@link List} in the order x, y, width, height
 		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
@@ -165,6 +168,15 @@ public enum AreaScanpath implements IMScanElementEnum {
 				 										final List<Number> scanParameters,
 				 										final List<Number> bboxParameters,
 				 										final List<Mutator> mutators) {
+
+			for (Number param : scanParameters) {
+				if (param.doubleValue() < 0) {
+					throw new IllegalArgumentException(PREFIX + "Grid requires all positive parameters");
+				}
+				if (!(param instanceof Integer)) {
+					throw new IllegalArgumentException(PREFIX + "Grid requires integer parameters");
+				}
+			}
 			GridModel model = new GridModel(
 					scannables.get(0).getName(),
 					scannables.get(1).getName(),
@@ -188,8 +200,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 							the order: fastScannable, slowScannable
 		 * @param scanParameters	The step size in each direction of the raster as a {@link List} in the order:
 		 * 							fastStep, slowStep
-		 * @param bboxParameters	The coordinates of diagonally opposite corners of the rectangular bounding box that
-		 * 							encloses the raster as a {@link List} in the order x1, y1, x2, y2
+		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
+		 * 							raster plus its width and height as a {@link List} in the order x, y, width, height
 		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
@@ -198,6 +210,11 @@ public enum AreaScanpath implements IMScanElementEnum {
 														 final List<Number> bboxParameters,
 														 final List<Mutator> mutators) {
 
+			for (Number param : scanParameters) {
+				if (param.doubleValue() < 0) {
+					throw new IllegalArgumentException(PREFIX + "Raster requires all positive parameters");
+				}
+			}
 			RasterModel model = new RasterModel(scannables.get(0).getName(),scannables.get(1).getName());
 			model.setFastAxisStep(scanParameters.get(0).doubleValue());
 			model.setSlowAxisStep(scanParameters.get(1).doubleValue());
@@ -217,8 +234,8 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the spiral as a {@link List} in
 		 * 							the order: fastScannable, slowScannable
 		 * @param scanParameters	The required scale factor for the spiral as a single element {@link List}
-		 * @param bboxParameters	The coordinates of diagonally opposite corners of the rectangular bounding box that
-		 * 							encloses the spiral as a {@link List} in the order x1, y1, x2, y2
+		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
+		 * 							spiral plus its width and height as a {@link List} in the order x, y, width, height
 		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
