@@ -64,7 +64,7 @@ it resets to time before next TopUp fill,
 	{@literal 	<property name="cooloff"                value="4000"/>}
 	{@literal 	<property name="warmup"                 value="5000"/>}
 
-    {@literal   <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-RING-01:MODE, checks the mode is right -->}
+    {@literal   <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
     {@literal 	<property name="modeName"               value="mode"/>}
 
 	{@literal   <!-- Optional, do not usually need to set -->}
@@ -117,17 +117,17 @@ it resets to time before next TopUp fill,
 
     </pre>
 
-<h3>Ring Mode</h3>
+<h3>Topup Mode</h3>
 
-The "Ring Mode" PV is SR-CS-RING-01:MODE.
+The "Topup Mode" PV is SR-CS-FILL-01:TOPUPMODE.
 
-This PV has various states:
-<img src="./doc/modes.png" />
+This is an enum PV that has three possible values<ul>
+<li>Normal,</li>
+<li>Low Alpha,</li>
+<li>Low Alpha THz</li>
+</ul>
 
-In brief though, the only one you need to care about is state 8 = VMX. This is "normal" mode now that we've installed the new VMX (AKA DDBA) components.
-
-If this PV = 8, then we're in normal mode. If this PV is anything else, then we're in some other state.
-
+The Topup watchdog should only be used when we are in 'Normal' mode.
 
  * @author Matthew Gerring
  *
@@ -135,6 +135,8 @@ If this PV = 8, then we're in normal mode. If this PV is anything else, then we'
 public class TopupWatchdog extends AbstractWatchdog implements IPositionListener {
 
 	private static Logger logger = LoggerFactory.getLogger(TopupWatchdog.class);
+
+	private static final String NORMAL_TOPUP_MODE_VALUE = "Normal";
 
 	private String             countdownUnit;
 	private volatile IPosition lastCompletedPoint;
@@ -232,16 +234,7 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 	public void start(ScanBean bean) throws Exception {
 		logger.debug("Watchdog starting on {}", controller.getName());
 
-		// A scannable may optionally be defined to check that the mode of the machine
-		// fits with this watch dog. If it does not then there will be a nice exception
-		// to the user and the scan will fail. This watch dog should not be operational
-		// unless the mode is 8
-		if (model.getModeName()!=null) {
-			IScannable<?> mode = getScannable(model.getModeName());
-            String smode = String.valueOf(mode.getPosition());
-            if (!"VMX".equalsIgnoreCase(smode)) throw new ScanningException("The machine is in low alpha or another mode where "+getClass().getSimpleName()+" cannot be used!");
-		}
-
+		checkTopupMode(); // check the topup mode is as expected, throws exception if not
 		try {
 			// Get the topup, the unit and add a listener
 			IScannable<?> topup = getScannable(model.getCountdownName());
@@ -257,6 +250,20 @@ public class TopupWatchdog extends AbstractWatchdog implements IPositionListener
 			logger.debug("Watchdog started on {}", controller.getName());
 		} catch (Exception ne) {
 			logger.error("Cannot start watchdog!", ne);
+		}
+	}
+
+	private void checkTopupMode() throws ScanningException {
+		// A scannable may optionally be defined to check that the mode of the machine
+		// fits with this watch dog. If it does not then there will be a nice exception
+		// to the user and the scan will fail. This watch dog should not be operational
+		// unless the mode is 'Normal'
+		if (model.getModeName() != null) {
+			final IScannable<?> mode = getScannable(model.getModeName());
+            final String smode = String.valueOf(mode.getPosition());
+            if (!NORMAL_TOPUP_MODE_VALUE.equals(smode)) {
+            	throw new ScanningException("The machine is in low alpha or another mode where "+getClass().getSimpleName()+" cannot be used!");
+            }
 		}
 	}
 

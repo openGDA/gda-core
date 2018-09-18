@@ -29,7 +29,7 @@ it resets to time before next TopUp fill,
 	{@literal 	<property name="cooloff"                value="4000"/>}
 	{@literal 	<property name="warmup"                 value="5000"/>}
 
-    {@literal   <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-RING-01:MODE, checks the mode is right -->}
+    {@literal   <!-- Optional, recommended but not compulsory a scannable linked to SR-CS-FILL-01:TOPUPMODE, checks the mode is right -->}
     {@literal 	<property name="modeName"               value="mode"/>}
 
 	{@literal   <!-- Optional, do not usually need to set -->}
@@ -83,16 +83,17 @@ it resets to time before next TopUp fill,
 
     </pre>
 
-<h3>Ring Mode</h3>
+<h3>Topup Mode</h3>
 
-The "Ring Mode" PV is SR-CS-RING-01:MODE.
+The "Topup Mode" PV is SR-CS-FILL-01:TOPUPMODE.
 
-This PV has various states:
-<img src="./doc/modes.png" />
+This is an enum PV that has three possible values<ul>
+<li>Normal,</li>
+<li>Low Alpha,</li>
+<li>Low Alpha THz</li>
+</ul>
 
-In brief though, the only one you need to care about is state 8 = VMX. This is "normal" mode now that we've installed the new VMX (AKA DDBA) components.
-
-If this PV = 8, then we're in normal mode. If this PV is anything else, then we're in some other state.
+The Topup watchdog should only be used when we are in 'Normal' mode.
 
  * @author Matthew Gerring
  *
