@@ -22,15 +22,13 @@ import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.gda.client.live.stream.Activator;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
@@ -48,14 +46,14 @@ public class CreateLiveMapHandler extends AbstractHandler {
 		final StreamType streamType = liveStreamView.getActiveStreamType();
 		if (cameraConfig == null || streamType == null) {
 			MessageDialog.openError(getShell(), "Error", "Cannot get active live stream.");
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Cannot get active live stream.");
+			return null;
 		}
 
 		final LiveStreamConnection liveStreamConnection = new LiveStreamConnection(cameraConfig, streamType);
-		IMapFileController mapFileController = Activator.getService(IMapFileController.class);
+		final IMapFileController mapFileController = PlatformUI.getWorkbench().getService(IMapFileController.class);
 		mapFileController.addLiveStream(new LiveStreamPlottable(liveStreamConnection));
 
-		return Status.OK_STATUS;
+		return null;
 	}
 
 	private LiveStreamView getLiveStreamView(ExecutionEvent event) throws ExecutionException {

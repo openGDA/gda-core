@@ -18,7 +18,7 @@
 
 package uk.ac.gda.client.live.stream.handlers;
 
-import static uk.ac.gda.client.live.stream.Activator.getService;
+import static uk.ac.gda.client.live.stream.LiveStreamConstants.PLUGIN_ID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,13 +38,13 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.live.stream.Activator;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 
 /**
@@ -71,7 +71,7 @@ public class CreateMapHandler extends AbstractHandler {
 	private IStatus createMap(SnapshotData snapshot) {
 		try {
 			final String filePath = getFilePath();
-			final IPersistenceService persistenceService = getService(IPersistenceService.class);
+			final IPersistenceService persistenceService = PlatformUI.getWorkbench().getService(IPersistenceService.class);
 
 			// create a persistent file and add the data and axis.
 			final IPersistentFile persistentFile = persistenceService.createPersistentFile(filePath);
@@ -83,7 +83,7 @@ public class CreateMapHandler extends AbstractHandler {
 			logger.error("Cannot save camera snapshot to file.", e);
 			Display.getDefault().asyncExec(() -> MessageDialog.openError(getShell(),
 					"Error", "Cannot save camera snapshot to file."));
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Cannot save camera snapshot to file.", e);
+			return new Status(IStatus.ERROR, PLUGIN_ID, "Cannot save camera snapshot to file.", e);
 		}
 		return Status.OK_STATUS;
 	}
@@ -97,7 +97,7 @@ public class CreateMapHandler extends AbstractHandler {
 		final Map<String, Object> properties = new HashMap<>(2);
 		properties.put(PROPERTY_NAME_PATH, filePath);
 
-		final EventAdmin eventAdmin = getService(EventAdmin.class);
+		final EventAdmin eventAdmin = PlatformUI.getWorkbench().getService(EventAdmin.class);
 		eventAdmin.postEvent(new Event(TOPIC_NAME_MAPPING_FILE_OPEN, properties));
 	}
 
@@ -114,7 +114,7 @@ public class CreateMapHandler extends AbstractHandler {
 	}
 
 	private String getFilePath() throws Exception {
-		final IFilePathService filePathService = getService(IFilePathService.class);
+		final IFilePathService filePathService = PlatformUI.getWorkbench().getService(IFilePathService.class);
 		final String processedFilesDir = filePathService.getProcessingDir();
 
 		return filePathService.getNextPath(processedFilesDir, "snapshot");

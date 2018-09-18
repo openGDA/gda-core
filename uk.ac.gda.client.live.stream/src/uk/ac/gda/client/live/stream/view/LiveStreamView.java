@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.live.stream.view;
 
-import static uk.ac.gda.client.live.stream.Activator.getService;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -157,12 +155,12 @@ public class LiveStreamView extends ViewPart {
 	public void createPartControl(final Composite parent) {
 		this.parent = parent;
 
-		if (getService(IRemoteDatasetService.class) == null) {
+		if (PlatformUI.getWorkbench().getService(IRemoteDatasetService.class) == null) {
 			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
 		}
 
-		if (getService(IPlottingService.class) == null) {
+		if (PlatformUI.getWorkbench().getService(IPlottingService.class) == null) {
 			displayAndLogError(parent, "Cannot create Live Stream: no plotting service is available");
 			return;
 		}
@@ -177,7 +175,7 @@ public class LiveStreamView extends ViewPart {
 
 	private void createCameraSelector(final Composite parent) {
 		// Find all the implemented cameras. This is currently using the finder but could use OSGi instead.
-		List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
+		final List<CameraConfiguration> cameras = Finder.getInstance().listLocalFindablesOfType(CameraConfiguration.class);
 		final Map<String, CameraConfiguration> cameraMap = new TreeMap<>();
 		for (CameraConfiguration cam : cameras) {
 			if (cam.getDisplayName() != null) {
@@ -194,7 +192,7 @@ public class LiveStreamView extends ViewPart {
 			parent.setLayout(new GridLayout(1, false));
 			parent.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
-			Label cameraSelectorLabel = new Label(parent, SWT.NONE);
+			final Label cameraSelectorLabel = new Label(parent, SWT.NONE);
 			cameraSelectorLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
 			cameraSelectorLabel.setText("Select camera:");
 
@@ -211,7 +209,7 @@ public class LiveStreamView extends ViewPart {
 				}
 			});
 
-			Button connectButton = new Button(parent, SWT.DEFAULT);
+			final Button connectButton = new Button(parent, SWT.DEFAULT);
 			connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
 			connectButton.setText("Connect");
 			connectButton.addSelectionListener(new SelectionAdapter() {
@@ -288,11 +286,11 @@ public class LiveStreamView extends ViewPart {
 			cameraName = cameraId;
 		}
 
-		IActionBars actionBars = getViewSite().getActionBars();
+		final IActionBars actionBars = getViewSite().getActionBars();
 
 		// Setup the plotting system
 		try {
-			plottingSystem = getService(IPlottingService.class).createPlottingSystem();
+			plottingSystem = PlatformUI.getWorkbench().getService(IPlottingService.class).createPlottingSystem();
 			plottingSystem.createPlotPart(parent, getPartName(), actionBars, PlotType.IMAGE, this);
 			createScriptingConnection(getPartName());
 		} catch (Exception e) {
@@ -344,10 +342,10 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
-		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
 
 		// Setup the plotting system toolbar options
-		List<String> requiredToolBarIds = Arrays.asList(
+		final List<String> requiredToolBarIds = Arrays.asList(
 				"org.csstudio.swt.xygraph.autoscale",
 				"org.dawb.common.ui.plot.tool",
 				"org.dawb.workbench.plotting.histo",
@@ -364,7 +362,7 @@ public class LiveStreamView extends ViewPart {
 			// also prevents the NPE which would result from trying to match on a null Id.
 
 		// Remove all Menu contributions
-		IMenuManager menuManager = actionBars.getMenuManager();
+		final IMenuManager menuManager = actionBars.getMenuManager();
 		Arrays.stream(menuManager.getItems()).forEach(menuManager::remove);
 
 		// Add the Reset button to restart the view
@@ -408,7 +406,7 @@ public class LiveStreamView extends ViewPart {
 			errorText.setToolTipText("Double click this message to remove it.");
 			parent.layout(true);
 		}
-		StringBuilder s = new StringBuilder(errorText.getText());
+		final StringBuilder s = new StringBuilder(errorText.getText());
 		s.append("\n").append(errorMessage);
 		if (throwable != null) {
 			s.append("\n\t").append(throwable.getMessage());
@@ -456,7 +454,7 @@ public class LiveStreamView extends ViewPart {
 	 * Close this view and open again with the secondary ID specified
 	 */
 	private void reopenViewWithSecondaryId(final String secondaryId) {
-		IWorkbenchPage page = getSite().getPage();
+		final IWorkbenchPage page = getSite().getPage();
 		page.hideView(this);
 		try {
 			page.showView(LiveStreamView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
@@ -501,7 +499,7 @@ public class LiveStreamView extends ViewPart {
 		iTrace.setDynamicData(dataset);
 
 		// Add the axes to the trace
-		List<IDataset> axes = liveStreamConnection.getAxes();
+		final List<IDataset> axes = liveStreamConnection.getAxes();
 		if (axes != null && axes.size() == 2) {
 			iTrace.setAxes(liveStreamConnection.getAxes(), false);
 			liveStreamConnection.addAxisMoveListener(axisChangeListener);
@@ -563,7 +561,7 @@ public class LiveStreamView extends ViewPart {
 		}
 
 		// Get the rectangular ROIs
-		List<gda.device.detector.nxdetector.roi.RectangularROI<Integer>> rois = regions.stream()
+		final List<gda.device.detector.nxdetector.roi.RectangularROI<Integer>> rois = regions.stream()
 				.map(IRegion::getROI)
 				.filter(RectangularROI.class::isInstance) // Only use rectangular ROIs
 				.map(RectangularROI.class::cast) // Cast to RectangularROI

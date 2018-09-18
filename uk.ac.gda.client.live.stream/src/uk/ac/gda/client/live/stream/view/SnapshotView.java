@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.live.stream.view;
 
-import static uk.ac.gda.client.live.stream.Activator.getService;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +34,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,22 +47,16 @@ public class SnapshotView extends ViewPart {
 
 	private IPlottingSystem<Composite> plottingsystem;
 
-	private Composite parent;
-
 	private Text errorText;
-	public SnapshotView() {
-		// TODO Auto-generated constructor stub
-	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.parent=parent;
-		final IPlottingService plottingService = getService(IPlottingService.class);
+		final IPlottingService plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
 		if (plottingService == null) {
 			displayAndLogError(parent, "Cannot create Snapshot: no plotting service is available");
 			return;
 		}
-		IActionBars actionBars = getViewSite().getActionBars();
+		final IActionBars actionBars = getViewSite().getActionBars();
 		try {
 			plottingsystem = plottingService.createPlottingSystem();
 			plottingsystem.createPlotPart(parent, "Snapshot", actionBars, PlotType.IMAGE, this);
@@ -80,10 +73,10 @@ public class SnapshotView extends ViewPart {
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
-		IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
 
 		// Setup the plotting system toolbar options
-		List<String> toolBarIdsToBeRemoved = Arrays.asList(
+		final List<String> toolBarIdsToBeRemoved = Arrays.asList(
 				BasePlottingConstants.RESCALE,
 				BasePlottingConstants.SNAP_TO_GRID,
 				ToolbarConfigurationConstants.UNDO.getId());
@@ -128,7 +121,7 @@ public class SnapshotView extends ViewPart {
 			errorText.setToolTipText("Double click this message to remove it.");
 			parent.layout(true);
 		}
-		StringBuilder s = new StringBuilder(errorText.getText());
+		final StringBuilder s = new StringBuilder(errorText.getText());
 		s.append("\n").append(errorMessage);
 		if (throwable != null) {
 			s.append("\n\t").append(throwable.getMessage());

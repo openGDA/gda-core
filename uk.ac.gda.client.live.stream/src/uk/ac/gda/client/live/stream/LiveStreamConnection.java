@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.live.stream;
 
-import static uk.ac.gda.client.live.stream.Activator.getService;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -39,6 +37,7 @@ import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,9 +180,9 @@ public class LiveStreamConnection {
 
 		try {
 			if (cameraConfig.isRgb()) {
-				stream = getService(IRemoteDatasetService.class).createMJPGDataset(url, sleepTime, cacheSize);
+				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createMJPGDataset(url, sleepTime, cacheSize);
 			} else {
-				stream = getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
+				stream = PlatformUI.getWorkbench().getService(IRemoteDatasetService.class).createGrayScaleMJPGDataset(url, sleepTime, cacheSize);
 			}
 			stream.connect();
 			return stream;
@@ -202,7 +201,7 @@ public class LiveStreamConnection {
 		logger.debug("Setting up axes");
 
 		// set the scannable for the x-axis and add a position listener to it
-		final IScannableDeviceService scannableDeviceService = Activator.getService(IScannableDeviceService.class);
+		final IScannableDeviceService scannableDeviceService = PlatformUI.getWorkbench().getService(IScannableDeviceService.class);
 		final String xAxisScannableName = cameraConfig.getCameraCalibration().getxAxisScannableName();
 		try {
 			xAxisScannable = scannableDeviceService.getScannable(xAxisScannableName);
