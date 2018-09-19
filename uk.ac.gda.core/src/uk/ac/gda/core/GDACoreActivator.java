@@ -2,6 +2,7 @@ package uk.ac.gda.core;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class GDACoreActivator implements BundleActivator {
 
@@ -27,5 +28,10 @@ public class GDACoreActivator implements BundleActivator {
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		GDACoreActivator.context = null;
+	}
+
+	public static <T> T getService(Class<T> serviceClass) {
+		ServiceReference<T> ref = context.getServiceReference(serviceClass);
+		return context.getService(ref);
 	}
 }
