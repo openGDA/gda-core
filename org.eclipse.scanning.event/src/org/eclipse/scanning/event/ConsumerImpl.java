@@ -92,7 +92,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private int waitTime = 0;
 
 	private IProcessCreator<U> runner;
-	private boolean durable;
 	private MessageConsumer messageConsumer;
 
 	private volatile boolean active = false;
@@ -137,7 +136,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.consumerStateChangeLock = new ReentrantLock();
 		this.shouldResumeCondition = consumerStateChangeLock.newCondition();
 
-		durable = true;
 		consumerId = UUID.randomUUID();
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
 		this.processMap = Collections.synchronizedMap(new HashMap<>());
@@ -962,11 +960,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				return false;
 			} else {
 				LOGGER.error("Cannot consume message ", e);
-				return isDurable();
+				return true;
 			}
 		}
-
-		if (!isDurable()) return false;
 
 		// TODO: below assumes some connection problem with activemq. why would any remaining
 		// exception be a connection problem?
@@ -989,6 +985,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return false;
 		}
 
+		LOGGER.error("Cannot consume message ", e);
 		return true;
 	}
 
@@ -1258,16 +1255,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 */
 	private void setActive(boolean active) {
 		this.active = active;
-	}
-
-	@Override
-	public boolean isDurable() {
-		return durable;
-	}
-
-	@Override
-	public void setDurable(boolean durable) {
-		this.durable = durable;
 	}
 
 	@Override

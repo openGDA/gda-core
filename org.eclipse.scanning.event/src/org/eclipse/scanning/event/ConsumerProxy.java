@@ -197,12 +197,6 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public void setDurable(boolean durable) {
-		// This property is not visible on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
-	}
-
-	@Override
 	public void cleanUpCompleted() throws EventException {
 		// The queue cannot be cleaned up via a proxy, clearCompleted is available however
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
@@ -268,12 +262,6 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	// TODO, move configuration methods to an interface that the proxy doesn't implement?
-
-	@Override
-	public boolean isDurable() {
-		// This property is not visible on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
-	}
 
 	@Override
 	public boolean isPauseOnStart() {

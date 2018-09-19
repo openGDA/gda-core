@@ -194,18 +194,6 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	public boolean isActive();
 
 	/**
-	 * Durable consumers try to keep going when there are exceptions.
-	 * @return
-	 */
-	public boolean isDurable();
-
-	/**
-	 * Durable consumers try to keep going when there are exceptions.
-	 * @param durable
-	 */
-	public void setDurable(boolean durable);
-
-	/**
 	 * If the consumer should pause when it is started with
 	 * jobs in the queue and wait until the user requires it to unpause.
 	 *

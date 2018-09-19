@@ -141,7 +141,6 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		scanServlet.setStatusSet(STATUS_SET);
 		scanServlet.setBroker(uri.toString());
 		scanServlet.setPauseOnStart(false);
-		scanServlet.setDurable(true);
 		scanServlet.connect();
 
 		dservlet = new DeviceServlet();

@@ -88,7 +88,6 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		 */
 		servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
-		servlet.setDurable(true);
 		servlet.connect(); // Gets called by Spring automatically
 	}
 

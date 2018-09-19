@@ -59,7 +59,6 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 
 	// Property to specify if one scan at a time or more are completed.
 	private boolean blocking = true;
-	private boolean durable  = true;
 	private boolean purgeQueue = true;
 	private boolean pauseOnStart = false;
 
@@ -93,7 +92,6 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusSet(), getStatusTopic(),
 				getHeartbeatTopic(), getCommandTopic(), getCommandAckTopic());
 		consumer.setName(getName());
-		consumer.setDurable(isDurable());
 		consumer.setRunner(AbstractConsumerServlet.this::createProcess);
 		consumer.setPauseOnStart(pauseOnStart);
 
@@ -184,14 +182,6 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 
 	public void setBlocking(boolean blocking) {
 		this.blocking = blocking;
-	}
-
-	public boolean isDurable() {
-		return durable;
-	}
-
-	public void setDurable(boolean durable) {
-		this.durable = durable;
 	}
 
 	@Override
