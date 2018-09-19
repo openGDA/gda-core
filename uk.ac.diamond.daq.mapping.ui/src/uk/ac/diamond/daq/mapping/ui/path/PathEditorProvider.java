@@ -54,7 +54,7 @@ public final class PathEditorProvider {
 		pathToEditor.put(RandomOffsetGridModel.class, RandomOffsetGridPathEditor.class);
 		pathToEditor.put(OneDStepModel.class, OneDStepModelPathEditor.class);
 		pathToEditor.put(OneDEqualSpacingModel.class, OneDEqualSpacingPathEditor.class);
-		pathToEditor.put(SinglePointModel.class, SinglePointPathEditor.class);
+		pathToEditor.put(SinglePointModel.class, NoPathEditor.class);
 	}
 
 	private PathEditorProvider() {

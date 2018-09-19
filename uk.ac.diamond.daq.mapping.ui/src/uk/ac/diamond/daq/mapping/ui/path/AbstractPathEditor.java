@@ -70,11 +70,13 @@ public abstract class AbstractPathEditor extends AbstractModelEditor<IScanPathMo
 	 * @param enabled true if device is a Malcolm device, otherwise false
 	 */
 	public void setContinuousEnabled(boolean enabled) {
-		continuousLabel.setEnabled(enabled);
+		if (continuousLabel != null) {
+			continuousLabel.setEnabled(enabled);
 
-		continuous.setEnabled(enabled);
-		continuous.setSelection(enabled);
-		continousBinding.updateTargetToModel();
+			continuous.setEnabled(enabled);
+			continuous.setSelection(enabled);
+			continousBinding.updateTargetToModel();
+		}
 	}
 
 	protected Object[] getBeamDimensions() throws ScanningException {
