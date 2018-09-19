@@ -54,4 +54,14 @@ public class RoiElementProcessor extends ElementProcessorBase<Roi> {
 	public boolean hasRoi() {
 		return true;
 	}
+
+	/**
+	 * Retrieve the name of the enclosed {@link Roi}
+	 *
+	 * @return the name of the enclosed {@link Roi}
+	 */
+	@Override
+	public String getElementValue() {
+		return enclosed.name();
+	}
 }

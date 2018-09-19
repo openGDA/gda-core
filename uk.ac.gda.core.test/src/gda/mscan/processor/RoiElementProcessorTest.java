@@ -82,6 +82,6 @@ public class RoiElementProcessorTest {
 
 	@Test
 	public void getSource() throws Exception {
-		assertThat(processor.getSource(), is(roi));
+		assertThat(processor.getElement(), is(roi));
 	}
 }

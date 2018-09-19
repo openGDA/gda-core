@@ -48,4 +48,14 @@ public class MutatorElementProcessor extends ElementProcessorBase<Mutator> {
 			context.addMutator(enclosed);
 		}
 	}
+
+	/**
+	 * Retrieve the name of the enclosed {@link Mutator}
+	 *
+	 * @return the name of the enclosed {@link Mutator}
+	 */
+	@Override
+	public String getElementValue() {
+		return enclosed.name();
+	}
 }

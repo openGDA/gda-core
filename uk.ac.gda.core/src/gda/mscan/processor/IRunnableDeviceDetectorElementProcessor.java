@@ -18,58 +18,43 @@
 
 package gda.mscan.processor;
 
-import gda.device.Scannable;
-import gda.device.scannable.scannablegroup.ScannableGroup;
+import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.IDetectorModel;
+
 import gda.mscan.ClauseContext;
 
-/**
- * A Clause Element Processor for {@link ScannableGroup} elements
- */
-public class ScannableGroupElementProcessor extends ElementProcessorBase<ScannableGroup> {
+public class IRunnableDeviceDetectorElementProcessor extends ElementProcessorBase<IRunnableDevice<IDetectorModel>> {
 
-	public ScannableGroupElementProcessor(final ScannableGroup source) {
+	public IRunnableDeviceDetectorElementProcessor(final IRunnableDevice<IDetectorModel> source) {
 		super(source);
 	}
 
 	/**
-	 * Confirm that a {@link Scannable} is allowed as the next type to be processed in the MScan Clause grammar
-	 * and if so, unpack the {@link Scannable}s from the group used in construction and add them to the context's
-	 * list. A maximum group size of two is currently allowed.
+	 * A dummy method in this case as Runnable Devices cannot form part of a scan path definition clause.
 	 *
 	 * @param context	The {@link ClauseContext} object being completed for the current MSCan clause
 	 * @param index		The index of the clause element associated with the processor within the current clause
 	 *
 	 * @throws			IllegalStateException if the previous element of the context is null (this should never occur)
-	 * 					IllegalArgumentException if there is no list of successors corresponding to the type of the
+	 * @throws			IllegalArgumentException if there is no list of successors corresponding to the type of the
 	 * 					previous element i.e. it is not a valid element type
 	 */
 	@Override
 	public void process(final ClauseContext context, final int index) {
-		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {
-			if (enclosed.getGroupMembers().size() > 2) {
-				throw new UnsupportedOperationException(
-						"The maximum supported number of Scannable Group members (2) has been exceeded");
-			}
-			for (Scannable member : enclosed.getGroupMembers()) {
-				context.addScannable(member);
-			}
-		}
+		// No operation here as runnable devices aren't part of a scanpath definition so are not included in the grammar
 	}
 
-	@Override
-	public boolean hasScannable() {
-		return true;
-	}
 
 	@Override
-	public boolean hasScannableGroup() {
-		return true;
+	public boolean hasDetector() {
+		return enclosed.getRole() == DeviceRole.HARDWARE;
 	}
 
 	/**
-	 * Retrieve the name of the enclosed {@link ScannableGroup}
+	 * Retrieve the name of the enclosed {@link IRunnableDevice}
 	 *
-	 * @return the name of the enclosed {@link ScannableGroup}
+	 * @return the name of the enclosed {@link IRunnableDevice}
 	 */
 	@Override
 	public String getElementValue() {

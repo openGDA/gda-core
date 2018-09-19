@@ -82,9 +82,18 @@ public interface IClauseElementProcessor {
 	public void process(final ClauseContext context, final int index);
 
 	/**
-	 * Implementations of this method should return the source object used to create the processor instance
+	 * Implementations of this method should return the element used to create the processor instance
 	 *
-	 * @return	the source object used to create the processor instance
+	 * @return	the source element object used to create the processor instance
 	 */
-	public Object getSource();
+	public Object getElement();
+
+	/**
+	 * Should provide a {@link String} representation of the enclosed Clause Element. for nameable objects this should
+	 * be the name for {@link Number}s, the numeric value. The intention is to support logging etc. Could have been
+	 * achieved by overriding {{@link #toString()} but that would remove the processor description when debugging.
+	 *
+	 * @return	A String representation of the value of the enclosed Clause Element.
+	 */
+	public String getElementValue();
 }

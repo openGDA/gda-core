@@ -55,4 +55,14 @@ public class NumberElementProcessor extends ElementProcessorBase<Number> {
 	public boolean hasNumber() {
 		return true;
 	}
+
+	/**
+	 * Retrieve the value of the enclosed {@link Number}
+	 *
+	 * @return the value of the enclosed {@link Number}
+	 */
+	@Override
+	public String getElementValue() {
+		return String.valueOf(enclosed);
+	}
 }

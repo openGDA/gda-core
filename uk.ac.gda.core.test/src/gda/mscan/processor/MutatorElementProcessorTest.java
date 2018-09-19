@@ -77,6 +77,6 @@ public class MutatorElementProcessorTest {
 
 	@Test
 	public void getSource() throws Exception {
-		assertThat(processor.getSource(), is(mutator));
+		assertThat(processor.getElement(), is(mutator));
 	}
 }

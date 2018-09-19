@@ -73,6 +73,6 @@ public class NumberElementProcessorTest {
 
 	@Test
 	public void getSource() throws Exception {
-		assertThat(processor.getSource(), is(tenPointFour));
+		assertThat(processor.getElement(), is(tenPointFour));
 	}
 }
