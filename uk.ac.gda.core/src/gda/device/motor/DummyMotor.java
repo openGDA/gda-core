@@ -81,21 +81,17 @@ public class DummyMotor extends MotorBase {
 	//dimensionless ( == 1) by default
 	private String unitString = "";
 
-	// If randomlyProduceExceptions is true then a limit will be generated
-	// during a move if random.nextGaussian() produces a value greater
-	// than randomLimitTriggerLevel. When a limit is set limitCount is set
-	// to 4.This means that if the next move is away from the limit the
-	// first
-	// 4 incremental moves will still show the limit and then it will clear.
-	private boolean randomlyProduceLimits = false;
 
-	private boolean randomPositionVariation=false;
+	private boolean randomPositionVariation = false;
+
 	private double randomPositionVariationAmount = 0.;
 
 	private double randomLimitTriggerLevel = 10.0;
 
-	// See comment on randomlyProduceLimits
-	private int limitCount = 0;
+	private double lowerHardLimit = -Double.MAX_VALUE;
+
+	private double upperHardLimit = Double.MAX_VALUE;
+
 
 	// If randomlyProduceExceptions is true then moveTo will generate
 	// an exception if random.nextGaussian() produces a value greater
@@ -369,14 +365,6 @@ public class DummyMotor extends MotorBase {
 		this.status = status;
 	}
 
-	public int getLimitCount() {
-		return limitCount;
-	}
-
-	public void setLimitCount(int limitCount) {
-		this.limitCount = limitCount;
-	}
-
 	/**
 	 * Returns whether or not the motor is moving.
 	 *
@@ -406,46 +394,10 @@ public class DummyMotor extends MotorBase {
 				logger.debug("Error while waiting for dummy motor move", ex);
 			}
 
-			// If limitCount is 0 set the status to BUSY a limit may still
-			// be set from last move.
-			if (limitCount == 0)
-				status = MotorStatus.BUSY;
-
 			for (i = 0; i < numberOfIncrements; i++) {
 				if (simulatedMoveRequired) {
 
 					logger.trace("Moving {}, status {}, position {}", getName(), status, currentPosition);
-					// When a limit is randomly set, limitCount is set to 4.
-					// It is decremented here and when it reaches 0 the limit
-					// is cleared. This means that at the beginning of a move
-					// away from a limit the limit will still show. After 4
-					// increments it will clear.
-					if (status == MotorStatus.UPPER_LIMIT) {
-						if (positionIncrement < 0)
-							limitCount--;
-						else
-							break;
-					} else if (status == MotorStatus.LOWER_LIMIT) {
-						if (positionIncrement > 0)
-							limitCount--;
-						else
-							break;
-					} else {
-						// If not at a limit see whether a random limit should be set,
-						// upper or lower is set according to the direction of movement.
-						if (randomlyProduceLimits && Math.abs(random.nextGaussian()) > randomLimitTriggerLevel) {
-							limitCount = 4;
-							if (positionIncrement > 0)
-								status = MotorStatus.UPPER_LIMIT;
-							else if (positionIncrement < 0)
-								status = MotorStatus.LOWER_LIMIT;
-							break;
-						}
-					}
-
-					// Clear limit
-					if (limitCount == 0)
-						status = MotorStatus.BUSY;
 
 					// Wait for the incrementalSleepTime
 					try {
@@ -459,6 +411,20 @@ public class DummyMotor extends MotorBase {
 					// Increment the position
 					currentPosition += positionIncrement;
 					logger.trace("DummyMotor {} position is now {}", getName(), currentPosition);
+
+					if (currentPosition >= upperHardLimit) {
+						currentPosition = upperHardLimit;
+						status = MotorStatus.UPPER_LIMIT;
+						logger.trace("Dummy Motor {} reached hard limit, position is now {}", getName(), currentPosition);
+						break;
+					}
+
+					if (currentPosition <= lowerHardLimit) {
+						currentPosition = lowerHardLimit;
+						status = MotorStatus.LOWER_LIMIT;
+						logger.trace("Dummy Motor {} reached hard limit, position is now {}", getName(), currentPosition);
+						break;
+					}
 				}
 
 				// This is the else for the if (simulatedMoveRequired). This flag
@@ -472,8 +438,9 @@ public class DummyMotor extends MotorBase {
 
 			// If the move has been completed need to adjust the final position
 			// to what it should be (may be slightly wrong due to rounding).
-			if (i == numberOfIncrements)
+			if (i == numberOfIncrements && status == MotorStatus.BUSY) {
 				currentPosition = targetPosition;
+			}
 
 			savePosition(getName());
 
@@ -599,24 +566,6 @@ public class DummyMotor extends MotorBase {
 	}
 
 	/**
-	 * Gets the value of the randomlyProduceLimits flag. Stupid name because of conventions.
-	 *
-	 * @return true if motor produces random limits
-	 */
-	public boolean isRandomlyProduceLimits() {
-		return randomlyProduceLimits;
-	}
-
-	/**
-	 * Sets randomlyProduceLimits flag.
-	 *
-	 * @param randomlyProduceLimits
-	 */
-	public void setRandomlyProduceLimits(boolean randomlyProduceLimits) {
-		this.randomlyProduceLimits = randomlyProduceLimits;
-	}
-
-	/**
 	 * Sets the isHomeable flag - real motors would not allow this of course.
 	 *
 	 * @param isHomeable
@@ -657,6 +606,22 @@ public class DummyMotor extends MotorBase {
 
 	public double getTargetPosition() {
 		return targetPosition;
+	}
+
+	public double getLowerHardLimit() {
+		return lowerHardLimit;
+	}
+
+	public void setLowerHardLimit(double lowerHardLimit) {
+		this.lowerHardLimit = lowerHardLimit;
+	}
+
+	public double getUpperHardLimit() {
+		return upperHardLimit;
+	}
+
+	public void setUpperHardLimit(double upperHardLimit) {
+		this.upperHardLimit = upperHardLimit;
 	}
 
 }
