@@ -22,6 +22,10 @@ public class SinglePointModel extends AbstractMapModel {
 	private double x;
 	private double y;
 
+	public SinglePointModel() {
+		setName("Single point");
+	}
+
 	public double getX() {
 		return x;
 	}

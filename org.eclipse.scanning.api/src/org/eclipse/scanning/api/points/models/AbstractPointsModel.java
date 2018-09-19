@@ -48,6 +48,9 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 	public String getName() {
 		return name;
 	}
+	/**
+	 * Name of the model as it will appear in the UI.
+	 */
 	@Override
 	public void setName(String name) {
 		this.name = name;

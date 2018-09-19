@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.LissajousModel;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
 import org.eclipse.scanning.api.points.models.OneDStepModel;
+import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -38,6 +39,7 @@ public class ModelTest extends AbstractValidationTest {
 		COMPLETE_MODELS.add(StaticModel.class);
 		COMPLETE_MODELS.add(OneDEqualSpacingModel.class);
 		COMPLETE_MODELS.add(OneDStepModel.class);
+		COMPLETE_MODELS.add(SinglePointModel.class);
 	}
 
 	@Test
