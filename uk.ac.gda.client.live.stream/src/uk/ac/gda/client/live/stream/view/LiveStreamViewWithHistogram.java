@@ -64,6 +64,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,6 +240,19 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 	}
 
+	@Override
+	protected void reopenViewWithSecondaryId(final String secondaryId) {
+		final IWorkbenchPage page = getSite().getPage();
+		//get the ID of this view which contains custom widgets injected using IViewFactory
+		String id2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePartReference().getId();
+		page.hideView(this);
+		try {
+			page.showView(id2, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+		} catch (PartInitException e) {
+			logger.error("Error activatin view with secondary ID {}", secondaryId, e);
+		}
+	}
+
 	private void buildHistoGroup(Composite parent, int boxWidthHint, VerifyListener v) {
 		Group histoGroup = new Group(parent, SWT.BORDER);
 		histoGroup.setLayout(new GridLayout(7, false));
@@ -358,6 +374,9 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 		super.dispose();
 		if (vSmallFont != null)
 			vSmallFont.dispose();
+		if (customWidget != null) {
+			customWidget.disposeWidget();
+		}
 	}
 
 	private void buildImageRangeGroup(Composite parent, int boxWidthHint, VerifyListener v) {

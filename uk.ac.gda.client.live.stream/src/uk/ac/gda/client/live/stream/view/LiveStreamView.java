@@ -453,7 +453,7 @@ public class LiveStreamView extends ViewPart {
 	/**
 	 * Close this view and open again with the secondary ID specified
 	 */
-	private void reopenViewWithSecondaryId(final String secondaryId) {
+	protected void reopenViewWithSecondaryId(final String secondaryId) {
 		final IWorkbenchPage page = getSite().getPage();
 		page.hideView(this);
 		try {
