@@ -714,12 +714,11 @@ public final class ScannableUtils {
 	 * @return array of doubles
 	 */
 	public static Double[] objectToArray(Object position) {
-
-		Double[] posArray = new Double[0];
 		if (position instanceof Double[]) {
 			return (Double[]) position;
-
 		}
+
+		Double[] posArray = new Double[0];
 		if (position instanceof Number[]) {
 			int length = ArrayUtils.getLength(position);
 			posArray = new Double[length];
