@@ -2,6 +2,9 @@ from scisoftpy.dictutils import DataHolder
 from scisoftpy.nexus.nxclasses import NXroot
 import scisoftpy as dnp
 
+import logging
+logger = logging.getLogger(__name__)
+
 def determineScannableContainingField(targetFieldname, scannables):
 	for scn in scannables:
 		fieldnames = list(scn.getInputNames()) + list(scn.getExtraNames())
@@ -23,6 +26,8 @@ def getDatasetFromLoadedFile(loadedFile, fieldName, scanDataPointCache=None):
 	Gets a dataset called fieldName from an already loaded file see loadScanFile(scanOb)
 	returns dataset
 	'''
+
+	logger.debug('Getting data for %s, from %s (with cache=%s)', fieldName, loadedFile, scanDataPointCache)
 
 	# Check if the field names are the full local names if so get just the last part of
 	# the field names as this should be the node name. Keep original fieldname, it might
@@ -108,6 +113,8 @@ class ScanDataProcessorResult(object):
 	processor.result.fwhm = 2
 	processor.result.peak = 1
 	"""
+
+	log = logger.getChild('ScanDataProcessorResult')
 
 	def __init__(self, dataSetResult, lastScanFile, allscannables, xfieldname, yfieldname, scanDataPointCache=None):
 		self.name = dataSetResult.processorName
@@ -247,6 +254,7 @@ class ScanDataProcessorResult(object):
 		find the return values.
 		'''
 
+		self.log.debug('Determining scannable (%s) values at %s', xname, xvalue)
 		# Get the x dataset from the file
 		dsx = getDatasetFromLoadedFile(lastScanFile, xname, self.scanDataPointCache)
 		decreasing = dsx[0] > dsx[-1]
