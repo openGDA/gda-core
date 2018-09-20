@@ -164,8 +164,9 @@ public class SpringObjectServer extends ObjectServer {
 	 * <pre>gripper_jaws.[Ctrl-1]</pre>
 	 *
 	 * <p>Documented further on <a href="http://confluence.diamond.ac.uk/x/IwyvAw">Confluence</a>.
+	 * @throws FactoryException if the file could not be written
 	 */
-	void writeFindablesJythonModule() {
+	void writeFindablesJythonModule() throws FactoryException {
 
 		final String moduleName = "gdaserver";
 
@@ -272,6 +273,7 @@ public class SpringObjectServer extends ObjectServer {
 		}
 		catch (IOException e) {
 			logger.error("Could not write '{}' Jython module: {}", moduleName, modulePath, e);
+			throw new FactoryException("Could not write gdaserver.py module", e);
 		}
 	}
 
