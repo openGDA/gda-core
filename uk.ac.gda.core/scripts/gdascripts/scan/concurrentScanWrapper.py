@@ -9,6 +9,10 @@ import operator
 import time
 import java.lang.InterruptedException #@UnresolvedImport
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 PRINTTIME = False
 
 ROOT_NAMESPACE_DICT = None
@@ -58,6 +62,7 @@ def sampleScannablesInputPosition(scannable):
         return wholePos
 
 class ConcurrentScanWrapper(object):
+    log = logger.getChild('ConcurrentScanWrapper')
     """
     Overide convertArgsToConcurrentScan and configure returnToStart and relativeScan
     at initialisation to define behaviour.
@@ -108,6 +113,7 @@ class ConcurrentScanWrapper(object):
             except TypeError:
                 pass  # The single arg was iterable so leave it be.
 
+        self.log.debug('Starting wrapped concurrent scan with: %s', args)
         self.prepareScanListeners()
 
         # Prepare arguments for ConcurrentScan and possibly record initial positions
@@ -116,15 +122,19 @@ class ConcurrentScanWrapper(object):
             argStruct = self.convertArgStruct(copy(argStruct))
         except ValueError: # unpack sequence too short
             raise Exception(self.__doc__)
+
+        self.log.debug('Parsed argStruct: %s', argStruct)
         if self.returnToStart or self.relativeScan:
             initialPositions = self.sampleInitialPositions(argStruct)
         if self.relativeScan:
             argStruct = self.makeAbsolute(argStruct, initialPositions)
         newArgs = self.flattenArgStructToArgs(argStruct)
+        self.log.debug('Absolute args to scan: %s', newArgs)
         
         # Create the scan
         self.starttime=time.time()
         if self.checkArgStructForScannableScan(argStruct):
+            self.log.debug('checkArgStructForScannableScan is set')
             # (infrequently used)
             scan = SecondaryConcurrentScan(newArgs)
             scan.dataVectorPlot = self.dataVectorPlotNameForSecondaryScans
@@ -147,14 +157,17 @@ class ConcurrentScanWrapper(object):
         # ** Run the scan **
         if PRINTTIME: print "=== Scan started: "+time.ctime()
         try:
+            self.log.log(5, 'Starting scan')
             scan.runScan()
             if PRINTTIME: print ("=== Scan ended: " + self._timeStats())
         except java.lang.InterruptedException, e:
             if not scan.wasScanExplicitlyHalted():
+                self.log.error('Scan was interrupted', exc_info=True)
                 raise 
             else:
                 # Keep going if the scan was stopped manually
                 print ("=== Scan stopped early by user: " + self._timeStats())
+                self.log.debug('User stopped scan early')
                 e_explicitely_halting = e        
         finally:
             # Clear the SRS file header string
