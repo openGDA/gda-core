@@ -21,7 +21,6 @@ package uk.ac.gda.server.exafs.scan;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import org.aspectj.util.Reflection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,8 +79,7 @@ public class StepMapTest {
 			Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
 			// then stub the factory method and make sure that it always retruns the stub
-			Method staticMethod = Reflection.getMatchingMethod(ScannableCommands.class, "createConcurrentScan",
-					new Object[] { new Object[0] });
+			Method staticMethod = ScannableCommands.class.getMethod("createConcurrentScan", Object[].class);
 			MethodStubStrategy<Object> stubbedMethod = MemberModifier.stub(staticMethod);
 			stubbedMethod.toReturn(mockScan);
 		}
