@@ -28,4 +28,6 @@ public interface ICustomWidget extends Findable {
 	 * @param composite The composite onto which the control should draw
 	 */
 	public void createWidget(Composite composite);
+
+	public void disposeWidget();
 }
