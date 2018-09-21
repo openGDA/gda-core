@@ -2,7 +2,6 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Common
 Bundle-SymbolicName: uk.ac.gda.common;singleton:=true
-Eclipse-RegisterBuddy: uk.ac.gda.libs
 Eclipse-BuddyPolicy: registered
 Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Diamond Light Source
@@ -36,10 +35,9 @@ Require-Bundle: ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.apache.commons.beanutils;bundle-version="1.9.1",
  org.apache.xerces;bundle-version="[2.9.0,3.0.0)",
- jul.to.slf4j
+ jul.to.slf4j,
+ com.springsource.org.castor
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.core.runtime;version="3.5.0",
- org.exolab.castor.mapping;version="1.2.0",
- org.exolab.castor.xml;version="1.2.0",
  org.slf4j;version="[1.7.2,2.0.0)"
