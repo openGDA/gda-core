@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0",
@@ -21,7 +20,8 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  uk.ac.diamond.daq.jython.api;bundle-version="1.0.0",
  uk.ac.diamond.daq.persistence;bundle-version="1.0.0",
- org.epics.jca;bundle-version="2.4.1";visibility:=reexport
+ org.epics.jca;bundle-version="2.4.1";visibility:=reexport,
+ com.springsource.org.castor;bundle-version="1.2.0"
 Export-Package: gda.configuration.epics,
  gda.data.metadata,
  gda.device,
