@@ -66,6 +66,8 @@ public class LiveStreamConnection {
 
 	private IDatasetConnector stream;
 
+	private boolean connected;
+
 	private IScannable<? extends Number> xAxisScannable;
 	private IDataset xAxisDataset;
 
@@ -99,6 +101,14 @@ public class LiveStreamConnection {
 			throw new LiveStreamException("Stream is already connected");
 		}
 
+		if (streamType == StreamType.MJPEG && cameraConfig.getUrl() == null) {
+			throw new LiveStreamException("MJPEG stream requested but no url defined for " + cameraConfig.getName());
+		}
+		if (streamType == StreamType.EPICS_ARRAY && cameraConfig.getArrayPv() == null) {
+			throw new LiveStreamException("EPICS stream requested but no array PV defined for " + cameraConfig.getName());
+		}
+
+		// Attach the IDatasetConnector of the MJPEG stream to the trace.
 		logger.debug("Connecting to live stream");
 		switch (streamType) {
 			case MJPEG:
@@ -113,6 +123,7 @@ public class LiveStreamConnection {
 
 		setupAxes();
 
+		connected = true;
 		return stream;
 	}
 
@@ -122,7 +133,10 @@ public class LiveStreamConnection {
 		}
 	}
 
-	public IDatasetConnector getStream() {
+	public IDatasetConnector getStream() throws LiveStreamException {
+		if (!connected) {
+			connect();
+		}
 		return stream;
 	}
 
@@ -141,6 +155,12 @@ public class LiveStreamConnection {
 				stream = null;
 			}
 		}
+
+		xAxisDataset = null;
+		yAxisDataset = null;
+		xAxisScannable = null;
+		yAxisScannable = null;
+		connected = false;
 	}
 
 	public void addAxisMoveListener(IAxisChangeListener axisMoveListener) {
@@ -286,6 +306,10 @@ public class LiveStreamConnection {
 
 	public StreamType getStreamType() {
 		return streamType;
+	}
+
+	public boolean isConnected() {
+		return connected;
 	}
 
 }

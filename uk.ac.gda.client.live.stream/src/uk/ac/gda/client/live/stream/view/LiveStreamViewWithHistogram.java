@@ -34,6 +34,7 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.AxisEvent;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.axis.IAxisListener;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.IPaletteListener;
 import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
@@ -140,6 +141,7 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 		super.createLivePlot(plotComposite, secondaryId);
 
+		final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
 		if (plottingSystem == null) {
 			logger.error("Plotting system could not be created!");
 			return;
@@ -391,10 +393,12 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (iTrace != null) {
+				final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
+				final IImageTrace iTrace = getITrace();
+				if (plottingSystem != null && iTrace != null) {
 					String text = imageLow.getText();
 					try {
-						double min = Double.parseDouble(text);
+						final double min = Double.parseDouble(text);
 						iTrace.getImageServiceBean().setMin(min);
 						iTrace.setMin(min);
 						iTrace.setPaletteData(iTrace.getPaletteData());
@@ -427,10 +431,12 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				if (iTrace != null) {
+				final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
+				final IImageTrace iTrace = getITrace();
+				if (plottingSystem != null && iTrace != null) {
 					String text = imageHigh.getText();
 					try {
-						double max = Double.parseDouble(text);
+						final double max = Double.parseDouble(text);
 						iTrace.getImageServiceBean().setMax(max);
 						iTrace.setMax(max);
 						iTrace.setPaletteData(iTrace.getPaletteData());
@@ -460,10 +466,13 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Button b = (Button) e.getSource();
-				iTrace.setRescaleHistogram(b.getSelection());
-				if (b.getSelection()) {
-					iTrace.rehistogram();
+				final Button b = (Button) e.getSource();
+				final IImageTrace iTrace = getITrace();
+				if (iTrace != null) {
+					iTrace.setRescaleHistogram(b.getSelection());
+					if (b.getSelection()) {
+						iTrace.rehistogram();
+					}
 				}
 			}
 
@@ -476,7 +485,10 @@ public class LiveStreamViewWithHistogram extends LiveStreamView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				iTrace.rehistogram();
+				final IImageTrace iTrace = getITrace();
+				if (iTrace != null) {
+					iTrace.rehistogram();
+				}
 			}
 
 		});

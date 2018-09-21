@@ -23,26 +23,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegionListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
-import org.eclipse.dawnsci.plotting.api.trace.IImageTrace.DownsampleType;
-import org.eclipse.january.dataset.DataEvent;
-import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -55,7 +48,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
@@ -68,17 +60,15 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
-import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnection.IAxisChangeListener;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 
 /**
- * A RCP view for connecting to and displaying a live MJPEG stream. The intension is to provide a easy way for cameras
+ * A RCP view for connecting to and displaying a live MJPEG stream. The intention is to provide a easy way for cameras
  * to be integrated into GDA, with minimal Spring configuration.
  * <p>
- * Can be extended by overriding {@link  #createLivePlot(Composite, String)}.
+ * Can be extended by overriding {@link #createLivePlot(Composite, String)}.
  * <p>
  * To setup this view in Spring create a {@link CameraConfiguration} in client Spring
  * <p>
@@ -88,73 +78,17 @@ import uk.ac.gda.client.live.stream.handlers.SnapshotData;
  */
 public class LiveStreamView extends ViewPart {
 
-	public static final String LIVE_CAMERA_STREAM = "Live camera stream";
-
 	public static final String ID = "uk.ac.gda.client.live.stream.view.LiveStreamView";
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveStreamView.class);
 
-	protected IPlottingSystem<Composite> plottingSystem;
-	protected IImageTrace iTrace;
 	private CameraConfiguration camConfig;
-	private Composite parent;
 	private LiveStreamConnection liveStreamConnection;
 	private Text errorText;
-	private String cameraName;
-	private AtomicLong frameCounter = new AtomicLong();
-	private ScriptingConnection scriptingConnection;
-
-	private final IAxisChangeListener axisChangeListener = this::updateAxes;
-
-	private final IDataListener shapeListener = new IDataListener() {
-
-		private int[] oldShape;
-		private long lastUpdateTime = System.nanoTime(); // Initialise to make first call to getFps more reasonable
-
-		@Override
-		public void dataChangePerformed(DataEvent evt) {
-			final Display display = PlatformUI.getWorkbench().getDisplay();
-			// Check if the shape has changed, if so rescale
-			if (!Arrays.equals(evt.getShape(), oldShape)) {
-				oldShape = evt.getShape();
-				// Need to be in the UI thread to do rescaling
-				display.asyncExec(() -> {
-					if (plottingSystem != null && !plottingSystem.isDisposed()) {
-						plottingSystem.autoscaleAxes();
-						iTrace.rehistogram();
-					}
-				});
-				updateAxes();
-			}
-
-			// Build the new title while not in the UI thread
-			final String newTitle = buildTitle();
-			// Update the plot title in the UI thread
-			display.asyncExec(() -> {
-				if (plottingSystem != null && !plottingSystem.isDisposed()) {
-					plottingSystem.setTitle(newTitle);
-				}
-			});
-		}
-
-		private String buildTitle() {
-			final double fps = getFps();
-			return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
-					frameCounter.incrementAndGet(), fps);
-		}
-
-		private double getFps() {
-			final long now = System.nanoTime();
-			final long timeDiff = now - lastUpdateTime;
-			lastUpdateTime = now; // Cache for next frame
-			return 1 / (timeDiff * 1e-9);
-		}
-	};
+	private LivePlottingComposite plottingComposite;
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		this.parent = parent;
-
 		if (PlatformUI.getWorkbench().getService(IRemoteDatasetService.class) == null) {
 			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
@@ -248,12 +182,12 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	/**
-	 * This is the method that actually creates a MJPEG stream and sets up the plotting system.
+	 * This is the method that actually creates a MJPEG stream and sets up the plotting composite.
 	 * <p>
 	 * To get here the secondary id of the view need to be set (hopefully to a valid camera id)
 	 * <p>
 	 * When extending this class it is necessary to call this method with the composite the plot
-	 * should be drawn on. This instantiates the {@link #plottingSystem} and {@link #iTrace}
+	 * should be drawn on.
 	 *
 	 * @param parent
 	 *            Composite to draw on
@@ -280,65 +214,23 @@ public class LiveStreamView extends ViewPart {
 		// Use camera ID (, i.e. camera device name) and stream type for the tab text, to keep it short
 		setPartName(cameraId + ": " + streamType);
 
-		if (camConfig.getDisplayName() != null) {
-			cameraName = camConfig.getDisplayName();
-		} else {
-			cameraName = cameraId;
-		}
-
 		final IActionBars actionBars = getViewSite().getActionBars();
 
-		// Setup the plotting system
+		// Create the plotting view
 		try {
-			plottingSystem = PlatformUI.getWorkbench().getService(IPlottingService.class).createPlottingSystem();
-			plottingSystem.createPlotPart(parent, getPartName(), actionBars, PlotType.IMAGE, this);
-			createScriptingConnection(getPartName());
+			liveStreamConnection = new LiveStreamConnection(camConfig, streamType);
+			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), liveStreamConnection, actionBars, this);
+			plottingComposite.setShowAxes(camConfig.getCameraCalibration() != null);
+			plottingComposite.setShowTitle(true);
+			plottingComposite.connect();
+			setupRoiProvider();
 		} catch (Exception e) {
-			displayAndLogError(parent, "Could not create plotting system", e);
+			displayAndLogError(parent, "Could not create plotting view", e);
 			return;
 		}
 
-		// hide the axes if we don't have a calibration bean
-		for (IAxis axis : plottingSystem.getAxes()) {
-			axis.setVisible(camConfig.getCameraCalibration() != null);
-		}
-
-		// Use the full camera name from the camera configuration, if available, for the plot title as it should better
-		// describe the camera and we should have plenty of space for it.
-		plottingSystem.setTitle(cameraName + ": " + streamType + " - No data yet");
-
 		// Add useful plotting system actions
 		configureActionBars(actionBars);
-
-		// Fix the aspect ratio as is typically required for visible cameras
-		plottingSystem.setKeepAspect(true);
-		// Disable auto rescale as the live stream is constantly refreshing
-		plottingSystem.setRescale(false);
-
-		// Create a new trace.
-		iTrace = plottingSystem.createImageTrace(LIVE_CAMERA_STREAM);
-
-		// Attach the IDatasetConnector of the MJPEG stream to the trace.
-		if (streamType == StreamType.MJPEG && camConfig.getUrl() == null) {
-			displayAndLogError(parent, "MJPEG stream requested but no url defined for " + cameraName);
-		}
-		if (streamType == StreamType.EPICS_ARRAY && camConfig.getArrayPv() == null) {
-			displayAndLogError(parent, "EPICS stream requested but no array PV defined for " + cameraName);
-		}
-		setupStream(streamType);
-
-		// Try and make the stream run faster
-		iTrace.setDownsampleType(DownsampleType.POINT);
-		iTrace.setRescaleHistogram(false);
-		// Plot the new trace.
-		plottingSystem.addTrace(iTrace);
-	}
-
-	private void createScriptingConnection(String partName) {
-		if (plottingSystem != null) {
-			scriptingConnection = new ScriptingConnection(partName);
-			scriptingConnection.setPlottingSystem(plottingSystem);
-		}
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
@@ -382,6 +274,7 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+		final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
 		if (plottingSystem != null) {
 			plottingSystem.setFocus();
 		}
@@ -417,6 +310,7 @@ public class LiveStreamView extends ViewPart {
 	@Override
 	// This method is required for the plotting tools to work.
 	public <T> T getAdapter(final Class<T> clazz) {
+		final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
 		if (plottingSystem != null) {
 			T adapter = plottingSystem.getAdapter(clazz);
 			if (adapter != null) {
@@ -428,24 +322,15 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void dispose() {
+		if (plottingComposite != null) {
+			plottingComposite.dispose();
+		}
 		if (liveStreamConnection != null) {
 			try {
-				liveStreamConnection.getStream().removeDataListener(shapeListener);
-				liveStreamConnection.removeAxisMoveListener(axisChangeListener);
 				liveStreamConnection.disconnect();
-			} catch (Exception e) {
-				logger.error("Error disconnecting remote data stream", e);
-			} finally {
-				liveStreamConnection = null;
+			} catch (LiveStreamException e) {
+				logger.error("Error disconnecting live stream", e);
 			}
-		}
-		if (plottingSystem != null) {
-			plottingSystem.dispose();
-			plottingSystem = null;
-		}
-		if (scriptingConnection != null) {
-			scriptingConnection.dispose();
-			scriptingConnection = null;
 		}
 		super.dispose();
 	}
@@ -463,54 +348,10 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
-	private void updateAxes() {
-		final Display display = PlatformUI.getWorkbench().getDisplay();
-		display.asyncExec(() -> iTrace.setAxes(liveStreamConnection.getAxes(), false));
-	}
-
 	/**
-	 * This should be called when starting a new stream. It also takes care of disconnecting old streams (if any)
-	 *
-	 * @param streamType
-	 *            The type of stream to use
+	 * Set up ROI provider
 	 */
-	private void setupStream(StreamType streamType) {
-		if (liveStreamConnection != null) {
-			try {
-				liveStreamConnection.getStream().removeDataListener(shapeListener);
-				liveStreamConnection.removeAxisMoveListener(axisChangeListener);
-				liveStreamConnection.disconnect();
-			} catch (LiveStreamException e) {
-				logger.error("Error disconnecting from live stream", e);
-			}
-		}
-
-		liveStreamConnection = new LiveStreamConnection(camConfig, streamType);
-
-		final IDatasetConnector dataset;
-		try {
-			dataset = liveStreamConnection.connect();
-		} catch (LiveStreamException e) {
-			displayAndLogError(parent, e.getMessage(), e);
-			return;
-		}
-
-		// Connect the stream to the trace
-		iTrace.setDynamicData(dataset);
-
-		// Add the axes to the trace
-		final List<IDataset> axes = liveStreamConnection.getAxes();
-		if (axes != null && axes.size() == 2) {
-			iTrace.setAxes(liveStreamConnection.getAxes(), false);
-			liveStreamConnection.addAxisMoveListener(axisChangeListener);
-		}
-
-		// Add the listener for updating the frame counter
-		dataset.addDataListener(shapeListener);
-
-		// Reset the frame counter
-		frameCounter.set(0);
-
+	private void setupRoiProvider() {
 		// Setup the ROI provider if configured
 		if (camConfig.getRoiProvider() != null) {
 
@@ -521,6 +362,11 @@ public class LiveStreamView extends ViewPart {
 				}
 			};
 
+			final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
+			if (plottingSystem == null) {
+				logger.warn("ROI provider not set: plotting system is null");
+				return;
+			}
 			plottingSystem.addRegionListener(new IRegionListener.Stub() {
 
 				// Note regionS method
@@ -551,6 +397,11 @@ public class LiveStreamView extends ViewPart {
 	}
 
 	private void updateServerRois() {
+		final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
+		if (plottingSystem == null) {
+			logger.warn("Cannot update server ROIS: plotting system is null");
+			return;
+		}
 		final Collection<IRegion> regions = plottingSystem.getRegions();
 
 		// Check if any regions are non rectangular and warn if not
@@ -572,10 +423,6 @@ public class LiveStreamView extends ViewPart {
 		camConfig.getRoiProvider().updateRois(rois);
 	}
 
-	public IPlottingSystem<Composite> getPlottingSystem() {
-		return plottingSystem;
-	}
-
 	public CameraConfiguration getActiveCameraConfiguration() {
 		return camConfig;
 	}
@@ -587,7 +434,15 @@ public class LiveStreamView extends ViewPart {
 		return null;
 	}
 
-	public SnapshotData getSnapshot() {
+	public SnapshotData getSnapshot() throws LiveStreamException {
+		final IPlottingSystem<Composite> plottingSystem = getPlottingSystem();
+		if (plottingSystem == null) {
+			throw new LiveStreamException("Cannot get snapshot: plotting system is null");
+		}
+		final IImageTrace iTrace = getITrace();
+		if (iTrace == null) {
+			throw new LiveStreamException("Cannot get snapshot: image trace is null");
+		}
 		final SnapshotData snapshotData = new SnapshotData(plottingSystem.getTitle(), iTrace.getData().clone());
 		final List<IDataset> axes = iTrace.getAxes();
 		if (axes != null && !axes.isEmpty()) {
@@ -596,5 +451,19 @@ public class LiveStreamView extends ViewPart {
 		}
 
 		return snapshotData;
+	}
+
+	protected IPlottingSystem<Composite> getPlottingSystem() {
+		if (plottingComposite == null) {
+			return null;
+		}
+		return plottingComposite.getPlottingSystem();
+	}
+
+	protected IImageTrace getITrace() {
+		if (plottingComposite == null) {
+			return null;
+		}
+		return plottingComposite.getITrace();
 	}
 }

@@ -45,6 +45,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 
 /**
@@ -61,10 +62,14 @@ public class CreateMapHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final LiveStreamView liveStreamView = getLiveStreamView(event);
-		final SnapshotData snapshot = liveStreamView.getSnapshot();
 
-		final Job createMapJob = Job.create("Create map from live stream snapshot", (IJobFunction) monitor -> createMap(snapshot));
-		createMapJob.schedule();
+		try {
+			final SnapshotData snapshot = liveStreamView.getSnapshot();
+			final Job createMapJob = Job.create("Create map from live stream snapshot", (IJobFunction) monitor -> createMap(snapshot));
+			createMapJob.schedule();
+		} catch (LiveStreamException e) {
+			throw new ExecutionException("Error creating map from snapshot", e);
+		}
 		return null;
 	}
 

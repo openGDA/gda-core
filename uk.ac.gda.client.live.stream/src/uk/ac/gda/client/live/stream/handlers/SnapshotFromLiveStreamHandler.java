@@ -30,6 +30,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 import uk.ac.gda.client.live.stream.view.SnapshotView;
 
@@ -44,12 +45,12 @@ public class SnapshotFromLiveStreamHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final LiveStreamView liveStreamView = (LiveStreamView) HandlerUtil.getActivePart(event);
-		final SnapshotData snapshot = liveStreamView.getSnapshot();
 		try {
+			final SnapshotData snapshot = liveStreamView.getSnapshot();
 			final SnapshotView snapshotView = (SnapshotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(SnapshotView.ID);
 			Display.getDefault().asyncExec(() -> updateSnapshotView(snapshotView, snapshot));
 			return null;
-		} catch (PartInitException e) {
+		} catch (PartInitException | LiveStreamException e) {
 			logger.error("View '{}' cannot be initialised", SnapshotView.ID, e);
 			throw new ExecutionException("View '" + SnapshotView.ID + "' Cannot be initialised.", e);
 		}
