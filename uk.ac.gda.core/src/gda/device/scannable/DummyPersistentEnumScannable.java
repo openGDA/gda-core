@@ -19,6 +19,9 @@
 package gda.device.scannable;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
@@ -28,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.EditableEnumPositioner;
+import gda.device.EnumPositionerStatus;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
@@ -35,7 +40,7 @@ import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
  * <p>
  * If given integer, uses the index from the list of acceptable Strings
  */
-public class DummyPersistentEnumScannable extends ScannableBase {
+public class DummyPersistentEnumScannable extends ScannableBase implements EditableEnumPositioner {
 
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentScannable.class);
 
@@ -57,27 +62,12 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 	}
 
 	@Override
-	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		Double[] positionArray = ScannableUtils.objectToArray(position);
-		configuration.setProperty(getName()+"PersistentPosition",positionArray[0]);
-		try {
-			configuration.save();
-			final Double newPosition = positionArray[0];
-			notifyIObservers(getName(), newPosition);
-			notifyIObservers(getName(), new ScannablePositionChangeEvent(newPosition));
-		} catch (ConfigurationException e) {
-			mylogger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable",e);
-		}
-	}
-
-	@Override
 	public Object rawGetPosition() throws DeviceException {
 		return configuration.getProperty(getName()+"PersistentPosition");
 	}
 
-
 	@Override
-	public void asynchronousMoveTo(Object position) throws DeviceException {
+	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 
 		if (position instanceof PyString) {
 			position = position.toString();
@@ -122,13 +112,34 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 		return false;
 	}
 
-	public String[] getAcceptableStrings() {
+	@Override
+	public String[] getPositions() throws DeviceException {
 		return acceptableStrings;
 	}
 
-	public void setAcceptableStrings(String[] acceptableStrings) {
-		this.acceptableStrings = acceptableStrings;
+	@Override
+	public List<String> getPositionsList() throws DeviceException {
+		return Arrays.asList(acceptableStrings);
 	}
 
+	@Override
+	public void setPositions(String[] positions) {
+		acceptableStrings = positions;
+	}
+
+	@Override
+	public void setPositions(Collection<String> positions) {
+		acceptableStrings = positions.toArray(new String[] {});
+	}
+
+	@Override
+	public EnumPositionerStatus getStatus() throws DeviceException {
+		return EnumPositionerStatus.IDLE;
+	}
+
+	@Override
+	public boolean isInPos() throws DeviceException {
+		return false;
+	}
 
 }
