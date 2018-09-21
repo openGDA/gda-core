@@ -8,7 +8,6 @@ Bundle-Activator: uk.ac.gda.devices.bssc.Activator
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common,
  org.eclipse.core.databinding;bundle-version="1.4.1",
  uk.ac.diamond.org.springframework;bundle-version="4.0.6",
