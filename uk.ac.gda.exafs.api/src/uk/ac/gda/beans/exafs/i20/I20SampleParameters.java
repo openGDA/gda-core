@@ -103,6 +103,19 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		return descriptions;
 	}
 
+	public String getDescription() {
+		if (descriptions != null && descriptions.size()>0) {
+			return descriptions.get(0);
+		} else {
+			return "";
+		}
+	}
+
+	public void setDescription(String description) {
+		this.descriptions.clear();
+		descriptions.add(description);
+	}
+
 	public String getSampleWheelPosition() {
 		return sampleWheelPosition;
 	}

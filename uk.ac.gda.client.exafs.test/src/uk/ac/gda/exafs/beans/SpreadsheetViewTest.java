@@ -25,9 +25,8 @@ import org.junit.Test;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean;
-import uk.ac.gda.exafs.ui.dialogs.SpreadsheetViewHelperClasses;
 
-public class SpreadsheetViewHelperClassesTest {
+public class SpreadsheetViewTest {
 
 	public B18SampleParameters getSampleParameters() {
 		SampleParameterMotorPosition sampleMotorPosition = new SampleParameterMotorPosition("nameOfScannable", 10.01, true);
@@ -51,28 +50,28 @@ public class SpreadsheetViewHelperClassesTest {
 		SampleParameterMotorPosition sampleMotorPosition = sampleParameters.getSampleParameterMotorPositions().get(0);
 		String scannableName = sampleMotorPosition.getScannableName();
 
-		Object result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, "getName", null);
+		Object result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getName", null);
 		assertEquals(sampleParameters.getName(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")", null);
 		assertEquals(sampleMotorPosition, result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME, null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME, null);
 		assertEquals(sampleMotorPosition.getDoMove(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME, null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME, null);
 		assertEquals(sampleMotorPosition.getDemandPosition(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, "getUserStageParameters.getAxis2", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getUserStageParameters.getAxis2", null);
 		assertEquals(sampleParameters.getUserStageParameters().getAxis2(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, "getUserStageParameters.getAxis4", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getUserStageParameters.getAxis4", null);
 		assertEquals(sampleParameters.getUserStageParameters().getAxis4(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, "getSXCryoStageParameters.getHeight", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getSXCryoStageParameters.getHeight", null);
 		assertEquals(sampleParameters.getSXCryoStageParameters().getHeight(), result);
 
-		result = SpreadsheetViewHelperClasses.invokeMethodFromName(sampleParameters, "getSXCryoStageParameters.getRot", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getSXCryoStageParameters.getRot", null);
 		assertEquals(sampleParameters.getSXCryoStageParameters().getRot(), result);
 	}
 
@@ -93,7 +92,7 @@ public class SpreadsheetViewHelperClassesTest {
 		newParameterValues.addParameterValue("getSampleParameterMotorPosition("+scannableName+").getDemandPosition", newDemandPosition);
 		newParameterValues.addParameterValue("getSampleParameterMotorPosition("+scannableName+").getDoMove", newDoMove);
 
-		SpreadsheetViewHelperClasses.updateBeanWIthOverrides(sampleParameters, newParameterValues);
+		newParameterValues.setValuesOnBean(sampleParameters);
 
 		assertEquals(newSampleName, sampleParameters.getName());
 		assertEquals(newAxisPosition, sampleParameters.getUserStageParameters().getAxis2(), 0.0001);

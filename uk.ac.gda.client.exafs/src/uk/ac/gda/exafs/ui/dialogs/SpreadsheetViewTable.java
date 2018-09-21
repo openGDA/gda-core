@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,11 +53,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.slf4j.LoggerFactory;
 
 import gda.rcp.GDAClientActivator;
+import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.exafs.XasScanParameters;
+import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class SpreadsheetViewTable {
+
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewTable.class);
 
 	private TableViewer viewer;
 	private List<String> xmlFiles = new ArrayList<>();
@@ -127,7 +136,6 @@ public class SpreadsheetViewTable {
 		for(ParameterValuesForBean parametersForBean : parametersForScanBeans) {
 
 			TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
-			parametersForBean.getBeanTypeNiceName();
 			column.setText(parametersForBean.getBeanTypeNiceName());
 			column.setWidth(minWidth);
 			TableViewerColumn columnViewer = new TableViewerColumn(viewer, column);
@@ -222,6 +230,8 @@ public class SpreadsheetViewTable {
 
 		private final int typeIndex;
 		private String[] xmlFileNamesForCombo;
+		private List<String> scanClassTypes = Arrays.asList(QEXAFSParameters.class.getSimpleName(), XanesScanParameters.class.getSimpleName(),
+				XasScanParameters.class.getSimpleName(), XesScanParameters.class.getSimpleName());
 
 		public XmlNameEditingSupport(ColumnViewer viewer, int typeIndex) {
 			super(viewer);
@@ -231,12 +241,21 @@ public class SpreadsheetViewTable {
 		@Override
 		protected CellEditor getCellEditor(final Object element) {
 			ParametersForScan opf = (ParametersForScan) element;
-			// Make new of combo box filenames each time, in case list of all files (xmlFiles) has changed.
-			List<String> suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingType(xmlFiles, opf.getParameterValuesForScanBeans().get(typeIndex).getBeanType());
-			int i=0;
+
+			// Generate a list of files suitable for this particular combo box (i.e. scan , detector, sample or output xml files) :
+			ParameterValuesForBean parameterValuesForBean = opf.getParameterValuesForScanBeans().get(typeIndex);
+			List<String> suitableFiles = null;
+			if (parameterValuesForBean.isScanBean()) {
+				// If editor is for selecting scan xml file, several different types of file are allowed xas, xanes, xes, qexafs
+				suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingTypes(xmlFiles, scanClassTypes);
+			} else {
+				suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingType(xmlFiles, parameterValuesForBean.getBeanType());
+			}
+
+			// Make file name list to show in combo (just the filename, not full path).
 			xmlFileNamesForCombo = new String[suitableFiles.size()];
-			for(String fullFilePath : suitableFiles) {
-				xmlFileNamesForCombo[i++]=FilenameUtils.getName(fullFilePath);
+			for(int i=0; i<suitableFiles.size(); i++) {
+				xmlFileNamesForCombo[i]=FilenameUtils.getName(suitableFiles.get(i));
 			}
 
 			ComboBoxCellEditor ce = new ComboBoxCellEditor((Composite) getViewer().getControl(), xmlFileNamesForCombo, SWT.READ_ONLY);
@@ -266,7 +285,26 @@ public class SpreadsheetViewTable {
 			// update model from table
 			ParametersForScan param = (ParametersForScan) element;
 			int index = (Integer) value;
-			param.getParameterValuesForScanBeans().get(typeIndex).setBeanFileName(xmlDirectoryName+"/"+xmlFileNamesForCombo[index]);
+			ParameterValuesForBean parameterValuesForBean = param.getParameterValuesForScanBeans().get(typeIndex);
+			String fullPathToXmlFile = Paths.get(xmlDirectoryName, xmlFileNamesForCombo[index]).toString();
+			parameterValuesForBean.setBeanFileName(fullPathToXmlFile);
+
+			// For scan parameters combo box, try to set the class type using name extracted from selected XML file
+			if ( parameterValuesForBean.isScanBean() ) {
+				try {
+					String classTypeFromFile = SpreadsheetViewHelperClasses.getFirstXmlElementNameFromFile(fullPathToXmlFile);
+					// Scan beans are in uk.ac.gda.beans.exafs package
+					String className = "uk.ac.gda.beans.exafs."+classTypeFromFile;
+					Class<?> clazz = Class.forName(className);
+					if (clazz != null) {
+						parameterValuesForBean.setBeanType(clazz.getCanonicalName());
+					}
+					logger.debug("Setting class type for scan xml file {} to {}", fullPathToXmlFile, className);
+				} catch (IOException | ClassNotFoundException e) {
+					logger.error("Problem updating class for scan xml file {}", fullPathToXmlFile, e);
+				}
+			}
+
 			getViewer().update(param, null);
 		}
 	}

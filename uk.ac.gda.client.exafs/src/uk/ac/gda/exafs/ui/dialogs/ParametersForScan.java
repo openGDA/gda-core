@@ -18,16 +18,24 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class contains a full set of parameters for a single scan in a {@code List<ParameterValuesForBean>}.
+ * Each {@link ParameterValuesForBean} object contains parameters to be applied to a 'scan settings' bean.
+ * Usually there will be 4 of these (for scan, detector, sample, output settings)
+ * corresponding to the 4 xml files used QExafs, Xas, Xanes scans.
+ *
+ */
 public class ParametersForScan {
 
 	private List<ParameterValuesForBean> valuesForBeans;
 	private int numberOfRepetitions;
 
 	public ParametersForScan() {
-		valuesForBeans = new ArrayList<ParameterValuesForBean>();
+		valuesForBeans = new ArrayList<>();
 		numberOfRepetitions = 1;
 	}
 
@@ -61,7 +69,7 @@ public class ParametersForScan {
 	}
 
 	/**
-	 * Return a copy of selected parameters for using to set columns names, content type in table.
+	 * Return a copy of scan parameters suitable for setting column names and content type in GUI table.
 	 * Xml file name is set to 'Scan', 'Sample' etc. depending on class type of parameter.
 	 */
 	public ParametersForScan getParametersForTableColumns() {
@@ -74,8 +82,7 @@ public class ParametersForScan {
 			newParamValuesForBean.copyFrom(paramValuesForBean);
 
 			// Set the xml filename to Scan, Sample, Detector etc. (this is used for column label)
-			String name = paramValuesForBean.getBeanTypeNiceName();
-			newParamValuesForBean.setBeanFileName(name);
+			newParamValuesForBean.setBeanFileName(paramValuesForBean.getBeanTypeNiceName());
 
 			paramsForTableColumns.addValuesForScanBean(newParamValuesForBean);
 		}
@@ -93,5 +100,26 @@ public class ParametersForScan {
 			columnText.addAll(paramValuesForBean.getTextForTableColumns());
 		}
 		return columnText;
+	}
+
+	/**
+	 * Scan xml files required for several scan and make sure they exist
+	 * @param parametersForAllScans
+	 * @return  Warning message if required files are missing, empty string otherwise
+	 */
+	public static String checkRequiredXmlsExist(List<ParametersForScan> parametersForAllScans) {
+		String warningMessage = "";
+		int scanIndex = 0;
+		for(ParametersForScan parametersForScan : parametersForAllScans) {
+			for (ParameterValuesForBean parameterForScanBean : parametersForScan.getParameterValuesForScanBeans()) {
+				String fullXmlPath = parameterForScanBean.getBeanFileName();
+				File xmlFile = new File(fullXmlPath);
+				if (!xmlFile.exists() || !xmlFile.isFile()) {
+					warningMessage += "Scan " + scanIndex + " : file '" + fullXmlPath + "' cannot be read\n";
+				}
+			}
+			scanIndex++;
+		}
+		return warningMessage;
 	}
 }
