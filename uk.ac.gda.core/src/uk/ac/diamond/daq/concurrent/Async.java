@@ -19,10 +19,13 @@
 package uk.ac.diamond.daq.concurrent;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -214,6 +217,72 @@ public final class Async {
 	public static Future<?> submit(Runnable target, String nameFormat, Object... args) {
 		Objects.requireNonNull(target, "Runnable must not be null");
 		return THREAD_POOL.submit(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
+	}
+
+	/**
+	 * Submit a list of callables to be executed concurrently. Returns a future whose {@link Future#get() get} method
+	 * returns a list of {@link Future Futures} representing the individual tasks. The future will only complete when
+	 * all of the individual tasks are complete (whether with success or failure or cancellation).
+	 * <p>
+	 * @param <T> The return type of the given callables
+	 * @param tasks a collection of callables to be executed concurrently.
+	 * @return a Future representing the state of all the tasks
+	 *
+	 * @see ExecutorService#invokeAll(Collection)
+	 */
+	public static <T> Future<Collection<Future<T>>> submitAll(Collection<Callable<T>> tasks) {
+		return submit(() -> {
+			// create new list to prevent modifications to the original list affecting execution
+			return THREAD_POOL.invokeAll(new ArrayList<>(tasks));
+		});
+	}
+
+	/**
+	 * Submit a list of callables to be executed concurrently. Returns a future whose {@link Future#get() get} method
+	 * returns a list of {@link Future Futures} representing the individual tasks. The future will only complete when
+	 * all of the individual tasks are complete (whether with success or failure or cancellation).
+	 * <p>
+	 * @param <T> The return type of the given callables
+	 * @param tasks a collection of callables to be executed concurrently.
+	 * @return a Future representing the state of all the tasks
+	 *
+	 * @see ExecutorService#invokeAll(Collection)
+	 */
+	@SafeVarargs
+	public static <T> Future<Collection<Future<T>>> submitAll(Callable<T>... tasks) {
+		return submitAll(Arrays.asList(tasks));
+	}
+
+	/**
+	 * Submit a collection of {@link Runnable Runnables} to be executed concurrently. Returns a Future whose
+	 * {@link Future#get get} method returns a list of {@link Future Futures} when all tasks are complete (whether
+	 * successful or not). For successful runnables, the {@code get} method of the returned Future will return null.
+	 * <p>
+	 * The {@code future.get} method of unsuccessful tasks will throw an ExecutionException.
+	 *
+	 * @param tasks The collection of tasks to execute concurrently
+	 * @return Future holding list of futures of the individual tasks
+	 *
+	 * @see #submitAll(Collection)
+	 */
+	public static Future<Collection<Future<Object>>> executeAll(Collection<Runnable> tasks) {
+		return submitAll(tasks.stream().map(Executors::callable).collect(toList()));
+	}
+
+	/**
+	 * Submit a collection of {@link Runnable Runnables} to be executed concurrently. Returns a Future whose
+	 * {@link Future#get get} method returns a list of {@link Future Futures} when all tasks are complete (whether
+	 * successful or not). For successful runnables, the {@code get} method of the returned Future will return null.
+	 * <p>
+	 * The {@code future.get} method of unsuccessful tasks will throw an ExecutionException.
+	 *
+	 * @param tasks The collection of tasks to execute concurrently
+	 * @return Future holding list of futures of the individual tasks
+	 *
+	 * @see #submitAll(Collection)
+	 */
+	public static Future<Collection<Future<Object>>> executeAll(Runnable... tasks) {
+		return executeAll(Arrays.asList(tasks));
 	}
 
 	/**
