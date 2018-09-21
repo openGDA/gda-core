@@ -768,7 +768,7 @@ public class GDAJythonInterpreter {
 	}
 
 	public class OverwriteLock extends PyObject implements ContextManager {
-		ThreadLocal<Boolean> locked = new ThreadLocal<>();
+		ThreadLocal<Boolean> locked = ThreadLocal.withInitial(() -> false);
 		@Override
 		public PyObject __enter__(ThreadState ts) {
 			logger.trace("Allowing scannable overwriting");
