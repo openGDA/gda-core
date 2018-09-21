@@ -353,22 +353,13 @@ public class DetectorsSection extends AbstractMappingSection {
 	 */
 	private Collection<DeviceInformation<?>> getMappingMalcolmDeviceInfos() {
 		try {
-			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM).stream().filter(
-					this::isMappingMalcolmDevice).collect(Collectors.toList());
+			// Filter out malcolm devices with more than 2 axes, unless we're using new malcolm (note: this will show all malcolm device we can't connect to)
+			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM).stream()
+					.filter(info -> info.isNewMalcolm() || (info.getAvailableAxes() != null && info.getAvailableAxes().size() <= 2))
+					.collect(toList());
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
 			return Collections.emptyList();
-		}
-	}
-
-	private boolean isMappingMalcolmDevice(DeviceInformation<?> malcolmDeviceInfo) {
-		try {
-			// Filter out malcolm devices with more than 2 axes, unless we're using new malcolm
-			final String malcolmDeviceName = malcolmDeviceInfo.getName();
-			return getMalcolmDeviceAxes(malcolmDeviceName).size() <= 2 || isNewMalcolmVersion(malcolmDeviceName);
-		} catch (ScanningException | EventException e) {
-			logger.error("Cannot get axes for malcolm device " + malcolmDeviceInfo.getName(), e);
-			return false;
 		}
 	}
 
