@@ -36,8 +36,8 @@ import org.epics.pvaClient.PvaClientMonitorData;
 import org.epics.pvaClient.PvaClientMonitorRequester;
 import org.epics.pvaClient.PvaClientPut;
 import org.epics.pvaClient.PvaClientPutData;
-import org.epics.pvaClient.PvaClientRPC;
 import org.epics.pvaClient.PvaClientUnlistenRequester;
+import org.epics.pvaccess.client.rpc.RPCClientImpl;
 import org.epics.pvdata.pv.PVStructure;
 import org.epics.pvdata.pv.Status;
 import org.slf4j.Logger;
@@ -285,7 +285,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	private MalcolmMessage sendCallMessage(IMalcolmDevice<?> device, MalcolmMessage message) {
 
 		MalcolmMessage returnMessage = new MalcolmMessage();
-		PvaClientChannel pvaChannel = null;
+		RPCClientImpl client = null;
 
 		try {
 			PVStructure pvResult = null;
@@ -295,20 +295,10 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			PVStructure methodStructure = pvRequest.getStructureField("method");
 			PVStructure parametersStructure = pvRequest.getStructureField("parameters");
 
-			pvaChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
-
-			logger.debug("Call method = \n{}\nEND", methodStructure);
-			PvaClientRPC rpc = pvaChannel.createRPC(methodStructure);
-			rpc.issueConnect();
-			Status status = rpc.waitConnect();
-
-			if (!status.isOK()) {
-				String errMessage = "CreateRPC failed for '" + message.getMethod() + "' (" + status.getType() + ": "
-						+ status.getMessage() + ")";
-				throw new MalcolmDeviceException(errMessage);
-			}
 			logger.debug("Call param = \n{}\nEND", parametersStructure);
-			pvResult = rpc.request(parametersStructure);
+			client = new RPCClientImpl(device.getName(), methodStructure);
+			pvResult = client.request(parametersStructure, REQUEST_TIMEOUT);
+
 			logger.debug("Call response = \n{}\nEND", pvResult);
 			returnMessage = mapper.convertCallPVStructureToMalcolmMessage(pvResult, message);
 		} catch (Exception e) {
@@ -316,10 +306,10 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 					message.getMethod(), message.getArguments(), e);
 			returnMessage.setType(Type.ERROR);
 			returnMessage.setMessage(e.getMessage());
-		}
-
-		if (pvaChannel != null) {
-			pvaChannel.destroy();
+		} finally {
+			if (client != null) {
+				client.destroy();
+			}
 		}
 
 		return returnMessage;
