@@ -47,4 +47,7 @@
 	<!-- If this file exists it allows you to customise logging levels for each config -->
 	<include file="${gda.config}/properties/_common/logging_customisation.xml" />
 
+	<!-- If this file exists, it allows facilities to customise logging mode dependently-->
+	<include file="${gda.facility.dir}/properties/${gda.mode}/logging_customisation.xml" />
+
 </configuration>
