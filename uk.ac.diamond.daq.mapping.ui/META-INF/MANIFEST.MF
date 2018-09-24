@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.beanutils;bundle-version="1.9.1",
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.richbeans.widgets,
- org.eclipse.dawnsci.nexus
+ org.eclipse.dawnsci.nexus,
+ org.eclipse.e4.ui.workbench
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.e4.core.contexts,

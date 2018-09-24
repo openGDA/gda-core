@@ -31,6 +31,8 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
  */
 public class MappingExperimentView extends AbstractSectionsView {
 
+	public static final String ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
+
 	@Inject
 	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
 		super(beanProvider);

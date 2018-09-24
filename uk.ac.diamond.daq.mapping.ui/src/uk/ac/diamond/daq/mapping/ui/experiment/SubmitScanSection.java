@@ -84,7 +84,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	public void createControls(Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(composite);
 
 		// Button to submit a scan to the queue
 		final Button submitScanButton = new Button(composite, SWT.PUSH);
