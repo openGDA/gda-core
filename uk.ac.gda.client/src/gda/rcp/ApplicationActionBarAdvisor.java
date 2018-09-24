@@ -161,12 +161,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		makeWindowActions(window);
 		makeHelpActions(window);
 		makeTestActions();
-
-		// Some platform menus appear by default when certain workbench plug-ins are loaded
-		// Here we manually remove an action sets if a use property is set to false for it
-
-		// RUN_ACTION_SET may be required by pydev/jython perspective
-		// testActionSetProperty(LocalProperties.GDA_GUI_USE_ACTIONS_RUN,RUN_ACTION_SET,true,true);
 	}
 
 	private void removeActionSet(String actionSetId) {
@@ -254,19 +248,16 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			testAction = new Action() {
 				@Override
 				public void run() {
-					display.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							// Help determine where properties are coming from
-							String yyyVal = System.getProperty("yyy", "Not found");
-							String zzzVal = System.getProperty("zzz", "Not found");
-							// Generate the message
-							String msg = "GDA_dev development version";
-							msg += "\nzzz=" + zzzVal;
-							msg += "\nyyy=" + yyyVal;
-							// Bring up a MessageDialog
-							MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
-						}
+					display.asyncExec(() -> {
+						// Help determine where properties are coming from
+						String yyyVal = System.getProperty("yyy", "Not found");
+						String zzzVal = System.getProperty("zzz", "Not found");
+						// Generate the message
+						String msg = "GDA_dev development version";
+						msg += "\nzzz=" + zzzVal;
+						msg += "\nyyy=" + yyyVal;
+						// Bring up a MessageDialog
+						MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
 					});
 				}
 			};
@@ -306,73 +297,37 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		IActionBarConfigurer2 actionBarConfigurer = (IActionBarConfigurer2) getActionBarConfigurer();
 
-		{ // File Group
-			IToolBarManager fileToolBar = actionBarConfigurer.createToolBarManager();
-			fileToolBar.add(new Separator(IWorkbenchActionConstants.NEW_GROUP));
-			/*
-			 * we need to ensure a wizard is on teh menu otherwise we expose a NPE in CustomisePerpespective
-			 * perspective.setNewWizardActionIds(getVisibleIDs(wizards));
-			 */
-			fileToolBar.add(newWizardAction);
-			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.NEW_EXT));
-			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.SAVE_GROUP));
-			fileToolBar.add(saveAction);
-			// NOTE Intentionally added, rich bean editors can change bean name. If not required
-			// add new system property and set that to turn this off.
-			fileToolBar.add(saveAsAction);
+		// File Group
+		IToolBarManager fileToolBar = actionBarConfigurer.createToolBarManager();
+		fileToolBar.add(new Separator(IWorkbenchActionConstants.NEW_GROUP));
+		/*
+		 * we need to ensure a wizard is on the menu otherwise we expose a NPE in CustomisePerpespective
+		 * perspective.setNewWizardActionIds(getVisibleIDs(wizards));
+		 */
+		fileToolBar.add(newWizardAction);
+		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.NEW_EXT));
+		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.SAVE_GROUP));
+		fileToolBar.add(saveAction);
+		// NOTE Intentionally added, rich bean editors can change bean name. If not required
+		// add new system property and set that to turn this off.
+		fileToolBar.add(saveAsAction);
 
-			fileToolBar.add(new Separator(IWorkbenchActionConstants.EDIT_START));
-			fileToolBar.add(undoAction);
-			fileToolBar.add(redoAction);
-			fileToolBar.add(new Separator(IWorkbenchActionConstants.EDIT_END));
+		fileToolBar.add(new Separator(IWorkbenchActionConstants.EDIT_START));
+		fileToolBar.add(undoAction);
+		fileToolBar.add(redoAction);
+		fileToolBar.add(new Separator(IWorkbenchActionConstants.EDIT_END));
 
-			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.SAVE_EXT));
-			// fileToolBar.add(getPrintItem());
-			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.PRINT_EXT));
+		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.SAVE_EXT));
+		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.PRINT_EXT));
 
-			fileToolBar.add(new Separator(IWorkbenchActionConstants.BUILD_GROUP));
-			fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.BUILD_EXT));
+		fileToolBar.add(new Separator(IWorkbenchActionConstants.BUILD_GROUP));
+		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.BUILD_EXT));
 
-			// Add to the cool bar manager
-			coolBar.add(actionBarConfigurer.createToolBarContributionItem(fileToolBar,
-					IWorkbenchActionConstants.TOOLBAR_FILE));
-			coolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-			coolBar.add(new GroupMarker("gda.script.actions"));
-		}
-
-		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-		// coolBar.add(new GroupMarker(IIDEActionConstants.GROUP_NAV));
-		// { // Navigate group
-		// IToolBarManager navToolBar = actionBarConfigurer.createToolBarManager();
-		// navToolBar.add(new Separator(
-		// IWorkbenchActionConstants.HISTORY_GROUP));
-		// navToolBar
-		// .add(new GroupMarker(IWorkbenchActionConstants.GROUP_APP));
-		// navToolBar.add(backwardHistoryAction);
-		// navToolBar.add(forwardHistoryAction);
-		// navToolBar.add(new Separator(IWorkbenchActionConstants.PIN_GROUP));
-		// navToolBar.add(pinEditorContributionItem);
-		//
-		// // Add to the cool bar manager
-		// coolBar.add(actionBarConfigurer.createToolBarContributionItem(navToolBar,
-		// IWorkbenchActionConstants.TOOLBAR_NAVIGATE));
-		// }
-		//
-		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.GROUP_EDITOR));
-		//
-		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.GROUP_HELP));
-		//
-		// { // Help group
-		// IToolBarManager helpToolBar = actionBarConfigurer.createToolBarManager();
-		// helpToolBar.add(new Separator(IWorkbenchActionConstants.GROUP_HELP));
-		// // helpToolBar.add(searchComboItem);
-		// // Add the group for applications to contribute
-		// helpToolBar.add(new GroupMarker(IWorkbenchActionConstants.GROUP_APP));
-		// // Add to the cool bar manager
-		// coolBar.add(actionBarConfigurer.createToolBarContributionItem(helpToolBar,
-		// IWorkbenchActionConstants.TOOLBAR_HELP));
-		// }
-
+		// Add to the cool bar manager
+		coolBar.add(
+				actionBarConfigurer.createToolBarContributionItem(fileToolBar, IWorkbenchActionConstants.TOOLBAR_FILE));
+		coolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+		coolBar.add(new GroupMarker("gda.script.actions"));
 	}
 
 	@Override
@@ -515,21 +470,18 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		}
 
-		final IJythonServerStatusObserver serverObserver = new IJythonServerStatusObserver() {
-			@Override
-			public void update(Object theObserved, final Object changeCode) {
-				if (changeCode instanceof BatonChanged) {
-					updateBatonStatus(batonStatus);
-				} else if (changeCode instanceof BatonLeaseRenewRequest) {
-					// Cause the baton to be renewed by this client - Seems like a odd place for this?
-					InterfaceProvider.getBatonStateProvider().amIBatonHolder();
-				} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
-					updateScriptStatus(scriptStatus);
-				// If its a scan event limit the rate of GUI updates
-				} else if (changeCode instanceof ScanEvent && scanEventRateLimiter.tryAcquire()) {
-					updateScanDetails(scanStatus, (ScanEvent) changeCode);
-					updateScriptStatus(scriptStatus);
-				}
+		final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> {
+			if (changeCode instanceof BatonChanged) {
+				updateBatonStatus(batonStatus);
+			} else if (changeCode instanceof BatonLeaseRenewRequest) {
+				// Cause the baton to be renewed by this client - Seems like a odd place for this?
+				InterfaceProvider.getBatonStateProvider().amIBatonHolder();
+			} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
+				updateScriptStatus(scriptStatus);
+			// If its a scan event limit the rate of GUI updates
+			} else if (changeCode instanceof ScanEvent && scanEventRateLimiter.tryAcquire()) {
+				updateScanDetails(scanStatus, (ScanEvent) changeCode);
+				updateScriptStatus(scriptStatus);
 			}
 		};
 
@@ -543,13 +495,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			updateScriptStatus(scriptStatus);
 		} catch (Exception ne) {
 			logger.error("Cannot connect to JythonServerFacade", ne);
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Cannot Connect to GDA Server",
-							"The GDA Server is not responding.\n\nPlease contact your GDA support engineer.");
-				}
-			});
+			Display.getDefault().asyncExec(() -> MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Cannot Connect to GDA Server",
+					"The GDA Server is not responding.\n\nPlease contact your GDA support engineer."));
 		}
 
 		ApplicationWorkbenchAdvisor.addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver));
@@ -672,61 +619,32 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private MenuManager createFileMenu() {
 
 		MenuManager menu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
-		// menu.add(new GroupMarker(IWorkbenchActionConstants.FILE_START));
-		// {
-		// // create the New submenu, using the same id for it as the New action
-		// String newText = "&New";
-		// String newId = ActionFactory.NEW.getId();
-		// MenuManager newMenu = new MenuManager(newText, newId);
-		////            newMenu.setActionDefinitionId("org.eclipse.ui.file.newQuickMenu"); //$NON-NLS-1$
-		// newMenu.add(new Separator(newId));
-		// // this.newWizardMenu = new NewWizardMenu(getWindow());
-		// // newMenu.add(this.newWizardMenu);
-		// newMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		// menu.add(newMenu);
-		// }
-
 		// We disable the standard "new" extension marker and replace with a gda one.
 		// This is done in order to provide our own implementation of OpenLocalFileAction
 		// (which is normally provided by org.eclipse.ui.ide) which does not allow easy
 		// changes to default location. So we replace with one of our own.
-		// menu.add(new GroupMarker(IWorkbenchActionConstants.NEW_EXT));
 		menu.add(new GroupMarker(NEW_GDA_EXT));
 
 		menu.add(new Separator());
 		menu.add(closeAction);
 		menu.add(closeAllAction);
-		// menu.add(closeAllSavedAction);
 		menu.add(new GroupMarker(IWorkbenchActionConstants.CLOSE_EXT));
+
 		menu.add(new Separator());
 		menu.add(saveAction);
 		menu.add(saveAsAction);
 		menu.add(saveAllAction);
-		// menu.add(getRevertItem());
-		// menu.add(new Separator());
-		// menu.add(getMoveItem());
-		// menu.add(getRenameItem());
-		// menu.add(getRefreshItem());
-		//
-		// menu.add(new GroupMarker(IWorkbenchActionConstants.SAVE_EXT));
+
 		menu.add(new Separator());
 		menu.add(printAction);
 		menu.add(new GroupMarker(IWorkbenchActionConstants.PRINT_EXT));
-		menu.add(new Separator());
-		// menu.add(openWorkspaceAction);
-		// menu.add(new GroupMarker(IWorkbenchActionConstants.OPEN_EXT));
-		// menu.add(new Separator());
-		// menu.add(importResourcesAction);
-		// menu.add(exportResourcesAction);
 
+		menu.add(new Separator());
 		menu.add(new GroupMarker(IWorkbenchActionConstants.IMPORT_EXT));
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-
-		// menu.add(new Separator());
-		// menu.add(getPropertiesItem());
-
 		menu.add(ContributionItemFactory.REOPEN_EDITORS.create(getWindow()));
 		menu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
+
 		menu.add(new Separator());
 		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_EXPORT,true)) {
 			menu.add(exportWizardAction);
@@ -771,15 +689,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(redoAction);
 		menu.add(new GroupMarker(IWorkbenchActionConstants.UNDO_EXT));
 		menu.add(new Separator());
-
-		// menu.add(getCutItem());
-		// menu.add(getCopyItem());
-		// menu.add(getPasteItem());
 		menu.add(new GroupMarker(IWorkbenchActionConstants.CUT_EXT));
-		menu.add(new Separator());
-
-		// menu.add(getDeleteItem());
-		// menu.add(getSelectAllItem());
 		menu.add(new Separator());
 
         menu.add(getCutItem());
@@ -814,9 +724,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(new Separator());
 		addPerspectiveActions(menu);
 
-		menu.add(new Separator());
-		// addKeyboardShortcuts(menu);
-
 		Separator sep = new Separator(IWorkbenchActionConstants.MB_ADDITIONS);
 		sep.setVisible(!"carbon".equals(SWT.getPlatform())); //$NON-NLS-1$
 		menu.add(sep);
@@ -834,29 +741,25 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	 * Adds the perspective actions to the specified menu.
 	 */
 	private void addPerspectiveActions(MenuManager menu) {
-		{
-			String openText = IDEWorkbenchMessages.Workbench_openPerspective;
-			MenuManager changePerspMenuMgr = new MenuManager(openText, "openPerspective"); //$NON-NLS-1$
-			IContributionItem changePerspMenuItem = ContributionItemFactory.PERSPECTIVES_SHORTLIST.create(getWindow());
-			changePerspMenuMgr.add(changePerspMenuItem);
-			menu.add(changePerspMenuMgr);
-		}
-		{
-			MenuManager showViewMenuMgr = new MenuManager(IDEWorkbenchMessages.Workbench_showView, "showView"); //$NON-NLS-1$
-			IContributionItem showViewMenu = ContributionItemFactory.VIEWS_SHORTLIST.create(getWindow());
-			showViewMenuMgr.add(showViewMenu);
-			menu.add(showViewMenuMgr);
-		}
+		String openText = IDEWorkbenchMessages.Workbench_openPerspective;
+		MenuManager changePerspMenuMgr = new MenuManager(openText, "openPerspective"); //$NON-NLS-1$
+		IContributionItem changePerspMenuItem = ContributionItemFactory.PERSPECTIVES_SHORTLIST.create(getWindow());
+		changePerspMenuMgr.add(changePerspMenuItem);
+		menu.add(changePerspMenuMgr);
+
+		MenuManager showViewMenuMgr = new MenuManager(IDEWorkbenchMessages.Workbench_showView, "showView"); //$NON-NLS-1$
+		IContributionItem showViewMenu = ContributionItemFactory.VIEWS_SHORTLIST.create(getWindow());
+		showViewMenuMgr.add(showViewMenu);
+		menu.add(showViewMenuMgr);
 
 		menu.add(new Separator());
 		menu.add(perspectiveResetAction);
-		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_PERSPECTIVE_CUSTOM,true)) {
+		if (LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_PERSPECTIVE_CUSTOM, true)) {
 			menu.add(perspectiveCustomizeAction);
 			menu.add(perspectiveSaveAsAction);
 			menu.add(perspectiveCloseAction);
 			menu.add(perspectiveCloseAllAction);
 		}
-
 	}
 
 	/**
@@ -868,22 +771,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// See if a welcome or intro page is specified
 		if (introAction != null) {
 			menu.add(introAction);
-		} /*
-		 * else if (quickStartAction != null) { menu.add(quickStartAction); }
-		 */
+		}
+
 		menu.add(helpAction);
 		menu.add(new Separator());
 
 		menu.add(new GroupMarker("group.intro.ext")); //$NON-NLS-1$
 		addSeparatorOrGroupMarker(menu, "group.main"); //$NON-NLS-1$
-		// menu.add(helpContentsAction);
-		// menu.add(helpSearchAction);
-		// menu.add(dynamicHelpAction);
-		//		addSeparatorOrGroupMarker(menu, "group.assist"); //$NON-NLS-1$
-		// // See if a tips and tricks page is specified
-		// if (tipsAndTricksAction != null) {
-		// menu.add(tipsAndTricksAction);
-		// }
+
 		// HELP_START should really be the first item, but it was after
 		// quickStartAction and tipsAndTricksAction in 2.1.
 		menu.add(new GroupMarker(IWorkbenchActionConstants.HELP_START));
@@ -897,38 +792,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(new Separator("group.about")); //$NON-NLS-1$
 
 		menu.add(aboutAction);
-		// ActionContributionItem aboutItem = new ActionContributionItem(aboutAction);
-		//		aboutItem.setVisible(!"carbon".equals(SWT.getPlatform())); //$NON-NLS-1$
-		// menu.add(aboutItem);
 		menu.add(new GroupMarker("group.about.ext")); //$NON-NLS-1$
 		return menu;
 	}
-
-	// private IContributionItem getPrintItem() {
-	// return getItem(
-	// ActionFactory.PRINT.getId(),
-	//				"org.eclipse.ui.file.print", ISharedImages.IMG_ETOOL_PRINT_EDIT, //$NON-NLS-1$
-	// ISharedImages.IMG_ETOOL_PRINT_EDIT_DISABLED,
-	// WorkbenchMessages.Workbench_print,
-	// WorkbenchMessages.Workbench_printToolTip, null);
-	// }
-	//
-	// private IContributionItem getItem(String actionId, String commandId,
-	// String image, String disabledImage, String label, String tooltip, String helpContextId) {
-	// ISharedImages sharedImages = getWindow().getWorkbench()
-	// .getSharedImages();
-	//
-	// IActionCommandMappingService acms = (IActionCommandMappingService) getWindow()
-	// .getService(IActionCommandMappingService.class);
-	// acms.map(actionId, commandId);
-	//
-	// CommandContributionItemParameter commandParm = new CommandContributionItemParameter(
-	// getWindow(), actionId, commandId, null, sharedImages
-	// .getImageDescriptor(image), sharedImages
-	// .getImageDescriptor(disabledImage), null, label, null,
-	// tooltip, CommandContributionItem.STYLE_PUSH, null, false);
-	// return new CommandContributionItem(commandParm);
-	// }
 
 	/**
 	 * Adds a <code>GroupMarker</code> or <code>Separator</code> to a menu. The test for whether a separator should be
