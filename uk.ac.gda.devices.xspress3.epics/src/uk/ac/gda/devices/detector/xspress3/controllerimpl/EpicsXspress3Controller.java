@@ -903,14 +903,11 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 
 	@Override
 	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
-		int numPointsAvailable = 0;
 		try {
-			numPointsAvailable = pvProvider.pvUpdateArraysAvailableFrame.waitForValue(new GreaterThanOrEqualTo(desiredPoint), TIMEOUTS_MONITORING);
+			return pvProvider.pvGetNumFramesAvailableToReadout.waitForValue(new GreaterThanOrEqualTo(desiredPoint), TIMEOUTS_MONITORING);
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
 		}
-
-		return numPointsAvailable;
 	}
 
 
