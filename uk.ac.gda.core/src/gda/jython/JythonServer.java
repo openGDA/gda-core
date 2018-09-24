@@ -1035,6 +1035,11 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 					.state(getState())
 					.build();
 		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + " [cmd=" + cmd + ", state=" + super.getState() + "]";
+		}
 	}
 
 	/*
