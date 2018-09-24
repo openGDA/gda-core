@@ -283,6 +283,16 @@ public class LogbackUtils {
 		addSourcePropertyAndListener(context, processName);
 
 		setEventDelayToZeroInAllSocketAppenders(context);
+
+		addShutdownHook();
+	}
+
+	private static void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->  {
+			logger.info("Shutting down logging");
+			// See https://logback.qos.ch/manual/configuration.html#stopContext
+			getLoggerContext().stop();
+		}));
 	}
 
 	public static void addSourcePropertyAndListener(LoggerContext context, final String processName) {
