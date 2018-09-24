@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -629,6 +630,50 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			consumerStateChangeLock.unlock();
 		}
 	}
+
+	@Override
+	public boolean isQueuePaused(String submissionQueueName) {
+		if (getSubmitQueueName().equals(submissionQueueName)) {
+			return awaitPaused;
+		}
+		return super.isQueuePaused(submissionQueueName);
+	}
+
+	/**
+	 * Performs a task while the queue is paused.
+	 * @param task task to perform
+	 * @return the value returned by the given task
+	 * @throws EventException wrapping any exception thrown by the given task
+	 */
+	@Override
+	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
+		if (!getSubmitQueueName().equals(queueName)) {
+			return super.doWhilePaused(queueName, pauseMessage, task);
+		}
+
+		final boolean requiresPause = !isQueuePaused(getSubmitQueueName());
+
+		// create a pause bean
+		try {
+			// send the pause bean if we're not already paused, to signal the queue consumer to pause
+			if (requiresPause) {
+				pause();
+			}
+
+			return task.call();
+		} catch (EventException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new EventException(e);
+		} finally {
+			// if we were paused, send a PauseBean with pause=false to signal the queue consumer to resume
+			if (requiresPause) {
+				resume();
+			}
+		}
+	}
+
+
 
 	@Override
 	public void pause() throws EventException {
