@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -475,19 +476,20 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		final String iconsPath = "icons/full/obj16/";
 		Bundle ide = Platform.getBundle(IDEWorkbenchPlugin.IDE_WORKBENCH);
 		/* images for Project Explorer */
-		declareWorkbenchImage(configurer, ide, IDE.SharedImages.IMG_OBJ_PROJECT, iconsPath + "prj_obj.gif");
-		declareWorkbenchImage(configurer, ide, IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, iconsPath + "cprj_obj.gif");
+		declareWorkbenchImage(configurer, ide, IDE.SharedImages.IMG_OBJ_PROJECT, iconsPath + "prj_obj.png");
+		declareWorkbenchImage(configurer, ide, IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, iconsPath + "cprj_obj.png");
 		/* images for the problems browser */
 		declareWorkbenchImage(configurer, ide, IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, iconsPath
-				+ "error_tsk.gif");
+				+ "error_tsk.png");
 		declareWorkbenchImage(configurer, ide, IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, iconsPath
-				+ "warn_tsk.gif");
+				+ "warn_tsk.png");
 		declareWorkbenchImage(configurer, ide, IDEInternalWorkbenchImages.IMG_OBJS_INFO_PATH, iconsPath
-				+ "info_tsk.gif");
+				+ "info_tsk.png");
 	}
 
 	private void declareWorkbenchImage(IWorkbenchConfigurer configurer, Bundle bundle, String symbolicName, String path) {
 		URL url = bundle.getEntry(path);
+		Objects.requireNonNull(url);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		configurer.declareImage(symbolicName, desc, true);
 	}
