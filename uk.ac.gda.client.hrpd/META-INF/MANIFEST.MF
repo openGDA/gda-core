@@ -27,7 +27,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.plotting.api,
  org.eclipse.jface,
  uk.ac.gda.epics;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.jython;bundle-version="[2.7.0,3.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
@@ -48,7 +47,7 @@ Import-Package: com.artenum.jyconsole,
  org.springframework.util;version="3.2.2.RELEASE"
 Bundle-ClassPath: jars/javatuples-1.2.jar,
  .
-Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
+Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
  uk.ac.diamond.org.springframework
 Export-Package: org.javatuples,

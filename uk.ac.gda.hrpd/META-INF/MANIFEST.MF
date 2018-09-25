@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0
 Bundle-Activator: uk.ac.gda.hrpd.Activator
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.common,
  org.apache.poi;bundle-version="[3.9.0,4.0.0)",
