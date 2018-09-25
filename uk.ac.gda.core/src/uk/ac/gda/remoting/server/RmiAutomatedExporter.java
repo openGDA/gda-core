@@ -18,6 +18,8 @@
 
 package uk.ac.gda.remoting.server;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.remoting.rmi.RmiServiceExporter;
+
+import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
@@ -93,6 +97,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	 */
 	private void exportAll() {
 		logger.info("Starting automated RMI exports...");
+		final Stopwatch exportsTimer = Stopwatch.createStarted();
+
 		logger.debug("RMI services on port '{}' with prefix '{}'", rmiPort, AUTO_EXPORT_RMI_PREFIX);
 
 		final Map<String, Findable> allRmiExportableBeans = getRmiExportableBeans();
@@ -121,7 +127,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
-		logger.info("Completed RMI exports. Exported {} objects", allRmiExportableBeans.size());
+		logger.info("Completed RMI exports. Exported {} objects, in {} ms", allRmiExportableBeans.size(),
+				exportsTimer.elapsed(MILLISECONDS));
 	}
 
 	private Map<String, Findable> getRmiExportableBeans() {
