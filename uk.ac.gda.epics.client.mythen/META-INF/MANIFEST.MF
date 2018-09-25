@@ -33,7 +33,7 @@ Import-Package: gda.observable,
  org.springframework.util;version="3.2.2.RELEASE",
  uk.ac.gda.client.hrpd.epicsdatamonitor,
  uk.ac.gda.client.hrpd.typedpvscannables
-Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
+Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
  uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.epics.client.mythen.views
