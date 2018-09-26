@@ -341,6 +341,11 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	}
 
 	@Override
+	public void doStopSavingFiles() throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.doStopSavingFiles()");
+	}
+
+	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
 			throws DeviceException {
 		int numFrames = finalFrame - startFrame + 1;
@@ -639,7 +644,6 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	@Override
 	public void setHDFPositionMode(boolean positionMode) throws DeviceException {
 		logger.debug("Called DummyXspress3Controller.setHDFPositionMode({})", positionMode);
-
 	}
 
 }

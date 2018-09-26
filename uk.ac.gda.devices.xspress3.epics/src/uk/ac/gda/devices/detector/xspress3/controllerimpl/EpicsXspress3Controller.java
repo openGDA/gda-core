@@ -165,6 +165,15 @@ public class EpicsXspress3Controller extends ConfigurableBase implements Xspress
 	}
 
 	@Override
+	public void doStopSavingFiles() throws DeviceException {
+		try {
+			pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
+		}catch (IOException e) {
+			throw new DeviceException("IOException while stopping hdf file writer", e);
+		}
+	}
+
+	@Override
 	public void doStop() throws DeviceException {
 		try {
 			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Done);
