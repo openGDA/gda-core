@@ -20,8 +20,6 @@ package gda.rcp;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * This is a class to ensure the client has a connection to the server. During the client startup if a connection can't
@@ -86,16 +85,8 @@ public final class ServerAvailableWatchdog {
 		// Server can be reached so start the watchdog
 		logger.debug("Starting server available watchdog...");
 
-		// Scheduled execution with a named daemon thread
-		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(runnable -> {
-			Thread thread = new Thread(runnable);
-			thread.setName("Server available watchdog");
-			thread.setDaemon(true);
-			return thread;
-		});
-
 		// Start scheduled execution of checking whether the server is reachable every second starting now
-		executorService.scheduleAtFixedRate(this::checkServerReachable, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS);
+		Async.scheduleAtFixedRate(this::checkServerReachable, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS, "Server available watchdog");
 
 		logger.info("Started server available watchdog");
 		return true;
