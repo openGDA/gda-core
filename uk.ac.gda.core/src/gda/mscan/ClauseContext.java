@@ -43,6 +43,8 @@ import gda.mscan.processor.IClauseElementProcessor;
  * elements of a Scan Clause and then used to create the {@link ScanRequest} object. It sets and maintains the metadata
  * associated with each of the element types as their corresponding methods are called so the that the
  * {@link IClauseElementProcessor#process} methods that drive them can be kept very simple.
+ *
+ * @since GDA 9.10
  */
 public class ClauseContext {
 
@@ -221,7 +223,7 @@ public class ClauseContext {
 		// Because of defaulting behaviour, this next condition can only be true for AreaScanpathss
 		if (paramsFull()) {
 			throw new IllegalStateException(String.format(
-					"The required number of params for the %s region of interest has already been supplied",
+					"The required number of params for the %s has already been supplied",
 							StringUtils.capitalize(areaScanpath.get().name().toLowerCase())));
 		}
 		previousType = Number.class;
@@ -252,9 +254,7 @@ public class ClauseContext {
 	}
 
 	/**
-	 * The DAWN ROIs don't necessarily define shapes in the same way as a SPECesque syntax, e.g. for rectangles they
-	 * deal in start point and lengths rather than start point and stop point. This methods translates between the two
-	 * representations and validates that the context is consistent.
+	 * Validates that the context is consistent.
 	 */
 	public boolean validateAndAdjust() {
 		if (scannables.size() < 1 || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
@@ -262,55 +262,6 @@ public class ClauseContext {
 		}
 		areaScanMustHaveRoiPlusAreaScanpath();
 		areaScanMustHaveCorrectNumberOfParametersForRoiAndAreaScanpath();
-
-		// TODO: replace this switch with validation on creation of the various roi instances
-		if (roi.isPresent()) {
-			switch (roi.get()) {
-				case RECTANGLE:
-					// convert 'stop' values into length ones accounting for negative differences
-					double[] lengths = {roiParams.get(2).doubleValue() - roiParams.get(0).doubleValue(),
-										roiParams.get(3).doubleValue() - roiParams.get(1).doubleValue()};
-					int index = 0;
-					for (double length : lengths) {
-						if (length < 0) {
-							length = Math.abs(length);
-							roiParams.set(index, (roiParams.get(index).doubleValue() - length));
-						}
-						roiParams.set(index + 2, length);
-						index++;
-					}
-					break;
-				case CENTRED_RECTANGLE:
-					if (roiParams.get(2).doubleValue() < 0 || roiParams.get(3).doubleValue() <0) {
-						throw new IllegalArgumentException(
-								"Invalid Scan clause: Centred Rectangle must have positive width/height dimensions");
-					}
-					break;
-				case CIRCLE:
-					if (roiParams.get(2).doubleValue() < 0) {
-						throw new IllegalArgumentException(
-								"Invalid Scan clause: Circle must have a positive radius");
-					}
-					break;
-				default:
-			}
-			if (areaScanpath.isPresent()) {
-				for (Number param : pathParams) {
-					if (param.doubleValue() < 0) {
-						throw new IllegalArgumentException(
-								"Invalid Scan clause: Scanpaths require positive parameters");
-					}
-				}
-				if (areaScanpath.get() == AreaScanpath.GRID) {
-					for (Number param : pathParams) {
-						if (!(param instanceof Integer)) {
-							throw new IllegalArgumentException(
-									"Invalid Scan clause: Grid requires integer parameters");
-						}
-					}
-				}
-			}
-		}
 
 		//post validate the default case
 		validated = true;
