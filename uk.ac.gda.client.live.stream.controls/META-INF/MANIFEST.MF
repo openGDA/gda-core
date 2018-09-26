@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Controls
+Bundle-SymbolicName: uk.ac.gda.client.live.stream.controls
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.gda.client.live.stream.controls
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
