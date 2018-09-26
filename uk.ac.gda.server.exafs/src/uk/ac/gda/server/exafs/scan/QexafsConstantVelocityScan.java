@@ -51,11 +51,12 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 	}
 
 	private void prepareForCollection() throws DeviceException {
-		start = ((QEXAFSParameters) scanBean).getInitialEnergy();
-		end = ((QEXAFSParameters) scanBean).getFinalEnergy();
-		step = ((QEXAFSParameters) scanBean).getStepSize();
+		final QEXAFSParameters scanParameters = (QEXAFSParameters) scanBean;
+		start = scanParameters.getInitialEnergy();
+		end = scanParameters.getFinalEnergy();
+		step = scanParameters.getStepSize();
 		numberPoints = (int) Math.ceil((end - start) / step);
-		scanTime = ((QEXAFSParameters) scanBean).getTime();
+		scanTime = scanParameters.getTime();
 
 		double currentEnergy = (Double) qexafsScannable.getPosition();
 		double distanceToInitialEnergy = Math.abs(start - currentEnergy);

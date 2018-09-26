@@ -34,9 +34,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 	private QexafsScan qexafsScan;
 	private QexafsConstantVelocityScan qexafsConstantVelocityScan;
 
-	public XasScanFactory() {
-	}
-
 	public EnergyScan createEnergyScan() {
 
 		if (energyScan != null){
@@ -100,13 +97,17 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		if (nxDetectorList == null)
 			throw new IllegalArgumentException("No NXdetector available!");
 
+		if (!(detectorPreparer instanceof QexafsDetectorPreparer)) {
+			throw new IllegalArgumentException("For " + qexafsConstantVelocityScan.getClass().getName() +
+					" your detector preparer must implement " + QexafsDetectorPreparer.class.getName());
+		}
+
 		qexafsConstantVelocityScan = new QexafsConstantVelocityScan();
 		qexafsConstantVelocityScan.setBeamlinePreparer(beamlinePreparer);
-		qexafsConstantVelocityScan.setDetectorPreparer(qexafsDetectorPreparer);
+		qexafsConstantVelocityScan.setDetectorPreparer(detectorPreparer);
 		qexafsConstantVelocityScan.setOutputPreparer(outputPreparer);
 		qexafsConstantVelocityScan.setSamplePreparer(samplePreparer);
 		qexafsConstantVelocityScan.setLoggingScriptController(loggingScriptController);
-		qexafsConstantVelocityScan.setEnergyScannable(energyScannable);
 		qexafsConstantVelocityScan.setQexafsScannable(qexafsEnergyScannableForConstantVelocityScan);
 		qexafsConstantVelocityScan.setQexafsNXDetectorList(nxDetectorList);
 		qexafsConstantVelocityScan.setMetashop(metashop);
