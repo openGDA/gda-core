@@ -20,6 +20,7 @@ package uk.ac.gda.server.exafs.scan;
 
 import java.util.List;
 
+import gda.device.DeviceException;
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.exafs.scan.ScanStartedMessage;
@@ -32,13 +33,13 @@ import gda.scan.ConstantVelocityScanLine;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
 public class QexafsConstantVelocityScan extends EnergyScan {
-	private ContinuouslyScannableViaController qexafsScanable;
+	private ContinuouslyScannableViaController qexafsScannable;
 	private List<HardwareTriggeredNXDetector> nxDetectorList;
 	private double start;
 	private double end;
 	private int numberPoints;
 	private double step;
-	private double scan_time;
+	private double scanTime;
 
 	QexafsConstantVelocityScan() {
 		// Used by XasScanFactory
@@ -49,22 +50,22 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		return "Qexafs";
 	}
 
-	public void prepareForCollection() throws Exception {
+	private void prepareForCollection() throws DeviceException {
 		start = ((QEXAFSParameters) scanBean).getInitialEnergy();
 		end = ((QEXAFSParameters) scanBean).getFinalEnergy();
 		step = ((QEXAFSParameters) scanBean).getStepSize();
 		numberPoints = (int) Math.ceil((end - start) / step);
-		scan_time = ((QEXAFSParameters) scanBean).getTime();
+		scanTime = ((QEXAFSParameters) scanBean).getTime();
 
-		double current_energy = (Double) energyScannable.getPosition();
-		double dist_to_init = Math.abs(start - current_energy);
-		double dist_to_final = Math.abs(end - current_energy);
+		double currentEnergy = (Double) qexafsScannable.getPosition();
+		double distanceToInitialEnergy = Math.abs(start - currentEnergy);
+		double distanceToFinalEnergy = Math.abs(end - currentEnergy);
 
-		log("Current energy: " + current_energy);
+		log("Current energy: " + currentEnergy);
 		log("Initial energy:  " + start);
 		log("Final energy: " + end);
-		log("Distance to initial energy: " + dist_to_init);
-		log("Distance to final energy: " + dist_to_final);
+		log("Distance to initial energy: " + distanceToInitialEnergy);
+		log("Distance to final energy: " + distanceToFinalEnergy);
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		loggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
 		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 
-		log("Scan: " + energyScannable.getName() + " " + start + " " + end + " " + numberPoints + " " + scan_time + " " + nxDetectorList);
+		log("Scan: " + qexafsScannable.getName() + " " + start + " " + end + " " + numberPoints + " " + scanTime + " " + nxDetectorList);
 		loggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
 
 
@@ -91,30 +92,31 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 		loggingbean.atScanEnd();
 	}
 
-	public Object[] parseArguments() {
-		double acquisitionTime = (scan_time) / numberPoints;
+	private Object[] parseArguments() {
+		double acquisitionTime = scanTime / numberPoints;
 		// First four arguments are [scannable, start, stop, step]
 		// then for each detector args [detector, exposure time].
-		int n_args = 4 + 2*nxDetectorList.size();
-		Object[] args = new Object[n_args];
-		args[0] = qexafsScanable;
-		args[1] = new Double(start);
-		args[2] = new Double(end);
-		args[3] = new Double(step);
+		int numberOfArguments = 4 + 2 * nxDetectorList.size();
+		final Object[] scanArguments = new Object[numberOfArguments];
+		scanArguments[0] = qexafsScannable;
+		scanArguments[1] = Double.valueOf(start);
+		scanArguments[2] = Double.valueOf(end);
+		scanArguments[3] = Double.valueOf(step);
 		int i = 4;
 		for (HardwareTriggeredNXDetector nxDetector : nxDetectorList) {
-			args[i] = nxDetector;
-			args[i + 1] = new Double(acquisitionTime);
+			scanArguments[i] = nxDetector;
+			scanArguments[i + 1] = Double.valueOf(acquisitionTime);
 			i = i + 2;
 		}
-		return args;
+
+		return scanArguments;
 	}
 
-	public void setQexafsScanable(ContinuouslyScannableViaController qexafsScanable) {
-		this.qexafsScanable = qexafsScanable;
+	void setQexafsScannable(ContinuouslyScannableViaController qexafsScannable) {
+		this.qexafsScannable = qexafsScannable;
 	}
 
-	public void setQexafsNXDetectorList(List<HardwareTriggeredNXDetector> nxDetectorList) {
+	void setQexafsNXDetectorList(List<HardwareTriggeredNXDetector> nxDetectorList) {
 		this.nxDetectorList = nxDetectorList;
 	}
 

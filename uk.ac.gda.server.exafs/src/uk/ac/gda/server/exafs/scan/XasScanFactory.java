@@ -107,7 +107,7 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsConstantVelocityScan.setSamplePreparer(samplePreparer);
 		qexafsConstantVelocityScan.setLoggingScriptController(loggingScriptController);
 		qexafsConstantVelocityScan.setEnergyScannable(energyScannable);
-		qexafsConstantVelocityScan.setQexafsScanable(qexafsEnergyScannableForConstantVelocityScan);
+		qexafsConstantVelocityScan.setQexafsScannable(qexafsEnergyScannableForConstantVelocityScan);
 		qexafsConstantVelocityScan.setQexafsNXDetectorList(nxDetectorList);
 		qexafsConstantVelocityScan.setMetashop(metashop);
 		qexafsConstantVelocityScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
