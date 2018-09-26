@@ -108,7 +108,7 @@ public class Xspress3DataOperations {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
+		Xspress3Parameters vortexParameters = XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class,
 				Xspress3Parameters.schemaURL, getConfigFileName());
 
 		applyConfigurationParameters(vortexParameters);
@@ -141,7 +141,7 @@ public class Xspress3DataOperations {
 	protected NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
 		int numPointAvailableInArrays = 0;
 		// the numPointAvailableInArrays is the array index so framesRead - 1
-		numPointAvailableInArrays = controller.monitorUpdateArraysAvailableFrame(framesRead);
+		numPointAvailableInArrays = controller.monitorUpdateArraysAvailableFrame(framesRead) - 1;
 		logger.debug("framesRead={}, numPointAvailableInArrays={}", framesRead, numPointAvailableInArrays);
 		if (framesRead != numPointAvailableInArrays) {
 			throw new DeviceException("Xspress3 arrays are not updated correctly!");
