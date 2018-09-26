@@ -48,7 +48,6 @@ public abstract class SpectroscopyScanFactory {
 		checkDefined(outputPreparer, "outputPreparer");
 		checkDefined(loggingScriptController, "LoggingScriptController");
 		checkDefined(metashop, "metashop");
-		checkDefined(includeSampleNameInNexusName, "includeSampleNameInNexusName");
 		checkDefined(scanName, "scanName");
 	}
 
