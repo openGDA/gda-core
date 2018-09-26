@@ -101,7 +101,6 @@ public abstract class XasScanBase implements XasScan {
 	private OutputPreparer outputPreparer;
 
 	protected LoggingScriptController loggingScriptController;
-	private AsciiDataWriterConfiguration datawriterconfig;
 	private boolean includeSampleNameInNexusName;
 	private NXMetaDataProvider metashop;
 	private String scanName;
@@ -709,10 +708,6 @@ public abstract class XasScanBase implements XasScan {
 
 	public void setLoggingScriptController(LoggingScriptController loggingScriptController) {
 		this.loggingScriptController = loggingScriptController;
-	}
-
-	public void setDatawriterconfig(AsciiDataWriterConfiguration datawriterconfig) {
-		this.datawriterconfig = datawriterconfig;
 	}
 
 	public void setMetashop(NXMetaDataProvider metashop) {

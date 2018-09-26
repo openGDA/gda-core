@@ -22,7 +22,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
 import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.Scannable;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
@@ -35,7 +34,6 @@ public abstract class SpectroscopyScanFactory {
 	protected OutputPreparer outputPreparer;
 	protected SampleEnvironmentPreparer samplePreparer;
 	protected LoggingScriptController loggingScriptController;
-	protected AsciiDataWriterConfiguration datawriterconfig;
 	protected Scannable energyScannable;
 	protected NXMetaDataProvider metashop;
 	protected boolean includeSampleNameInNexusName;
@@ -49,7 +47,6 @@ public abstract class SpectroscopyScanFactory {
 		checkDefined(samplePreparer, "samplePreparer");
 		checkDefined(outputPreparer, "outputPreparer");
 		checkDefined(loggingScriptController, "LoggingScriptController");
-		checkDefined(datawriterconfig, "datawriterconfig");
 		checkDefined(metashop, "metashop");
 		checkDefined(includeSampleNameInNexusName, "includeSampleNameInNexusName");
 		checkDefined(scanName, "scanName");
@@ -99,14 +96,6 @@ public abstract class SpectroscopyScanFactory {
 
 	public void setLoggingScriptController(LoggingScriptController loggingScriptController) {
 		this.loggingScriptController = loggingScriptController;
-	}
-
-	public AsciiDataWriterConfiguration getDatawriterconfig() {
-		return datawriterconfig;
-	}
-
-	public void setDatawriterconfig(AsciiDataWriterConfiguration datawriterconfig) {
-		this.datawriterconfig = datawriterconfig;
 	}
 
 	public Scannable getEnergyScannable() {

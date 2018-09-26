@@ -51,7 +51,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setOutputPreparer(outputPreparer);
 		newMap.setSamplePreparer(samplePreparer);
 		newMap.setLoggingScriptController(loggingScriptController);
-		newMap.setDatawriterconfig(datawriterconfig);
 
 		newMap.setEnergyWithGap(energyWithGapScannable);
 		newMap.setEnergyNoGap(energyNoGapScannable);

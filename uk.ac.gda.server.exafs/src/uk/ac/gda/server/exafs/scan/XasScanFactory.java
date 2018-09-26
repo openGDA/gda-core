@@ -18,11 +18,11 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.List;
+
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ContinuouslyScannableViaController;
-
-import java.util.List;
 
 public class XasScanFactory extends SpectroscopyScanFactory {
 
@@ -54,7 +54,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		energyScan.setOutputPreparer(outputPreparer);
 		energyScan.setSamplePreparer(samplePreparer);
 		energyScan.setLoggingScriptController(loggingScriptController);
-		energyScan.setDatawriterconfig(datawriterconfig);
 		energyScan.setEnergyScannable(energyScannable);
 		energyScan.setMetashop(metashop);
 		energyScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
@@ -81,7 +80,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsScan.setOutputPreparer(outputPreparer);
 		qexafsScan.setSamplePreparer(samplePreparer);
 		qexafsScan.setLoggingScriptController(loggingScriptController);
-		qexafsScan.setDatawriterconfig(datawriterconfig);
 		qexafsScan.setEnergyScannable(qexafsEnergyScannable);
 		qexafsScan.setQexafsScanable(qexafsEnergyScannable);
 		qexafsScan.setMetashop(metashop);
@@ -108,7 +106,6 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 		qexafsConstantVelocityScan.setOutputPreparer(outputPreparer);
 		qexafsConstantVelocityScan.setSamplePreparer(samplePreparer);
 		qexafsConstantVelocityScan.setLoggingScriptController(loggingScriptController);
-		qexafsConstantVelocityScan.setDatawriterconfig(datawriterconfig);
 		qexafsConstantVelocityScan.setEnergyScannable(energyScannable);
 		qexafsConstantVelocityScan.setQexafsScanable(qexafsEnergyScannableForConstantVelocityScan);
 		qexafsConstantVelocityScan.setQexafsNXDetectorList(nxDetectorList);

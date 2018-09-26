@@ -99,7 +99,6 @@ public class StepMapTest {
 		theFactory.setSamplePreparer(testHelper.getSamplePreparer());
 		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
 		theFactory.setLoggingScriptController(testHelper.getXASLoggingScriptController());
-		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
 		theFactory.setEnergyNoGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setEnergyWithGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
