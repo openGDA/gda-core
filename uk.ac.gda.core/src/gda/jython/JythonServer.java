@@ -109,6 +109,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 	public static final String SSH_PORT_PROPERTY = "gda.server.ssh.port";
 
+	private static final SimpleDateFormat THREAD_NAME_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
 	private boolean atStartup = true;
 
 	// the Jython interpreter
@@ -430,13 +432,11 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	private String nameThread(final String command) {
-		String cmd = command;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		if (cmd.length() > 100) {
-			cmd = cmd.substring(0, 100) + " ...";
-
+		String name = command;
+		if (name.length() > 100) {
+			name = name.substring(0, 100) + " ...";
 		}
-		return sdf.format(new Date()) + " : " + cmd.replace("\n", ";");
+		return THREAD_NAME_DATE_FORMATTER.format(new Date()) + " : " + name.replace("\n", ";");
 	}
 
 	private void echoInputToServerSideTerminalObservers(String s) {
