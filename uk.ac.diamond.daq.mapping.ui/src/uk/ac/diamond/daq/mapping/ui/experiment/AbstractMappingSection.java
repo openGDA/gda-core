@@ -18,17 +18,28 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.scan.IParserService;
+import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
+import org.eclipse.scanning.device.ui.device.MonitorView;
+import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
@@ -37,10 +48,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 
 public abstract class AbstractMappingSection {
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMappingSection.class);
 
 	/**
 	 * Number of horizontal dialog units per character, value <code>4</code>.
@@ -166,5 +181,51 @@ public abstract class AbstractMappingSection {
 			dataBindingContext.removeBinding(binding);
 			binding.dispose();
 		}
+	}
+
+	protected String createScanCommand() {
+		final ScanBean scanBean = createScanBean();
+		final IParserService parserService = getEclipseContext().get(IParserService.class);
+		try {
+			return parserService.getCommand(scanBean.getScanRequest(), true);
+		} catch (Exception e) {
+			final String message = "Error creating scan commmand";
+			logger.error(message, e);
+			return message;
+		}
+	}
+
+	protected ScanBean createScanBean() {
+		final IMappingExperimentBean mappingBean = getMappingBean();
+		addMonitors(mappingBean);
+
+		final ScanBean scanBean = new ScanBean();
+		String sampleName = mappingBean.getSampleMetadata().getSampleName();
+		if (sampleName == null || sampleName.length() == 0) {
+			sampleName = "unknown sample";
+		}
+		final String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
+		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
+		scanBean.setBeamline(System.getProperty("BEAMLINE"));
+
+		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
+		final ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
+		scanBean.setScanRequest(scanRequest);
+		return scanBean;
+	}
+
+	private void addMonitors(IMappingExperimentBean mappingBean) {
+		final IViewReference viewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
+		if (viewRef == null) return;
+		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
+
+		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
+				(map, role) -> map.entrySet().stream()
+									.filter(entry -> entry.getValue() == role)
+									.map(Map.Entry::getKey).collect(toSet());
+
+		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
+		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
+		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
 	}
 }
