@@ -31,7 +31,7 @@ import uk.ac.gda.client.live.stream.controls.ImageConstants;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "uk.ac.gda.beamline.i06";
+	public static final String PLUGIN_ID = "uk.ac.gda.client.live.stream.controls";
 
 	// The shared instance
 	private static Activator plugin;
