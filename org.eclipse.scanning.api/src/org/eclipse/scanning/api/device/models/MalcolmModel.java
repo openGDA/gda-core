@@ -61,4 +61,9 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "MalcolmModel [axesToMove=" + axesToMove + " " + super.toString() + "]";
+	}
+
 }
