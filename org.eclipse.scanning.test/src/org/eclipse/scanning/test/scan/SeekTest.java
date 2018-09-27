@@ -213,7 +213,8 @@ public class SeekTest extends AbstractAcquisitionTest {
 	}
 
 	@Test
-	public void staticScannerAvaileForJython() throws Exception {
+	@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
+	public void staticScannerAvailableForJython() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
 		IRunnableDevice<ScanModel> scanner = (IRunnableDevice<ScanModel>)controller.getDevice();
