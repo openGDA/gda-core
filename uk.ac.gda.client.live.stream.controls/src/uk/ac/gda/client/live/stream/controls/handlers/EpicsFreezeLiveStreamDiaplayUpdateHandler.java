@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i06.live.stream.handlers;
+package uk.ac.gda.client.live.stream.controls.handlers;
 
 import java.util.Map;
 
@@ -33,8 +33,8 @@ import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-import uk.ac.gda.beamline.i06.Activator;
-import uk.ac.gda.beamline.i06.ImageConstants;
+import uk.ac.gda.client.live.stream.controls.Activator;
+import uk.ac.gda.client.live.stream.controls.ImageConstants;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i06.views;
+package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.factory.FindableBase;
-import uk.ac.gda.beamline.i06.live.stream.ICameraState;
+import uk.ac.gda.client.live.stream.controls.camera.state.ICameraState;
 import uk.ac.gda.client.live.stream.view.ICustomWidget;
 import uk.ac.gda.client.livecontrol.LiveControl;
 

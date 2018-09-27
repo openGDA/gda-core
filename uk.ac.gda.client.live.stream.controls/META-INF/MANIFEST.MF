@@ -1,7 +1,25 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Controls
-Bundle-SymbolicName: uk.ac.gda.client.live.stream.controls
+Bundle-Name: Live Stream Controls
+Bundle-SymbolicName: uk.ac.gda.client.live.stream.controls;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.gda.client.live.stream.controls
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: uk.ac.gda.api,
+ org.eclipse.ui.workbench,
+ org.eclipse.core.expressions;bundle-version="3.6.0",
+ org.eclipse.jface,
+ org.eclipse.core.runtime;bundle-version="3.13.0",
+ uk.ac.gda.epics,
+ org.eclipse.ui;bundle-version="3.109.0",
+ org.eclipse.osgi,
+ uk.ac.gda.client.live.stream
+Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.gda.client.live.stream.controls,
+ uk.ac.gda.client.live.stream.controls.camera.state,
+ uk.ac.gda.client.live.stream.controls.custom.widgets,
+ uk.ac.gda.client.live.stream.controls.handlers
+Import-Package: org.slf4j,
+ uk.ac.gda.client.livecontrol
+Bundle-Vendor: Diamond Light Source
+Bundle-Activator: uk.ac.gda.client.live.stream.controls.Activator

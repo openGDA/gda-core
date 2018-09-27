@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i06;
+package uk.ac.gda.client.live.stream.controls;
 
 public class ImageConstants {
 
