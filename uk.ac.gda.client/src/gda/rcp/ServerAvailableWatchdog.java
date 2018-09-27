@@ -19,7 +19,13 @@
 package gda.rcp;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -53,6 +59,10 @@ public final class ServerAvailableWatchdog {
 	private static final int FAILURES_BEFORE_ASSUMING_SERVER_DEAD = 5;
 	/** Time between attempts to connect to the server status port in sec */
 	private static final long POLLING_INTERVAL_SEC = 1;
+	/** Formatter used to display the time the client will be auto closed in the dialog */
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
+	/** The time after which the client will exit if the user doesn't interact with the dialog */
+	private static final long AUTO_CLOSE_TIME_MINS = 60;
 
 	/** Counter of the number of consecutive failed connection attempts */
 	private int failedAttempts;
@@ -128,15 +138,20 @@ public final class ServerAvailableWatchdog {
 
 			// If there have been too many consecutive failed attempts assume the server is dead
 			if (failedAttempts == FAILURES_BEFORE_ASSUMING_SERVER_DEAD) {
+				// Schedule auto closing of the client if the user doesn't respond
+				final ScheduledFuture<?> closeClientFuture = Async.schedule(this::autoCloseClient, AUTO_CLOSE_TIME_MINS,
+						TimeUnit.MINUTES);
+
 				logger.debug("Server connection was lost asking user how to proceed");
 				// syncExec here because we throw after this and the thread dies so need to block this thread while the
 				// dialog is displayed.
 				PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 					final int userSelection = displayServerConnectionLostDialog();
+					closeClientFuture.cancel(false); // Don't auto close anymore user chose something.
 					if (userSelection == 1) { // 1 is the button index of "Exit Client"
 						logger.info("User chose to close client after server connection was lost");
 						// Close down the client
-						PlatformUI.getWorkbench().close();
+						closeClient();
 					} else { // User chose "Ignore" or closed the dialog
 						logger.warn("User ignored the loss of server connection");
 					}
@@ -148,6 +163,22 @@ public final class ServerAvailableWatchdog {
 		}
 	}
 
+	private void autoCloseClient() {
+		String hostname = "UNKNOWN";
+		try {
+			hostname = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			logger.error("Error getting hostname", e);
+		}
+		logger.info("Client on '{}' is being automatically closed", hostname);
+		closeClient();
+	}
+
+	private void closeClient() {
+		// Need to be in the UI thread to call close
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> PlatformUI.getWorkbench().close());
+	}
+
 	/**
 	 * Displays a dialog indicating the server connection was lost and asks the user what they want to do returns the
 	 * index of the button pressed.
@@ -157,6 +188,10 @@ public final class ServerAvailableWatchdog {
 	 * @return 0 if "Ignore", or 1 if "Exit Client"
 	 */
 	private int displayServerConnectionLostDialog() {
+		// Calculate the time the client will be auto closed at
+		final LocalDateTime autoCloseTime = LocalDateTime.now().plus(AUTO_CLOSE_TIME_MINS, ChronoUnit.MINUTES);
+		final String autoCloseTimeString = TIME_FORMATTER.format(autoCloseTime);
+
 		// Want the dialog to be modal so get the shell from the workbench
 		final Shell shell = PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 		final MessageDialog messageBox = new MessageDialog(shell, "GDA Server connection lost", // Dialog title
@@ -166,7 +201,9 @@ public final class ServerAvailableWatchdog {
 						+ "Most likely the server has been shutdown or restarted. The client will need to be restarted"
 						+ " to restore the conection.\n\n"
 						+ "Choosing 'Ignore' will close this dialog and allow you to return to the client, but server"
-						+ " features will not work.",
+						+ " features will not work.\n\n"
+						+ "If no choice is made this client will be automatically closed at "
+						+ autoCloseTimeString,
 				SWT.ICON_ERROR, // Dialog type
 				new String[] { "Ignore", "Exit Client" }, // Buttons: Ignore=0 Exit Client=1
 				0); // Default to Ignore button if you hit enter
