@@ -99,7 +99,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	private String name = "";
 
-	private Jython commandServer = null;
+	private final Jython commandServer;
 
 	private volatile int originalAuthorisationLevel = 0;
 
