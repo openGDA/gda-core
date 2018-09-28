@@ -800,6 +800,9 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.device.scannable.ScannableMotor.waitWhileBusyThrowsExceptionWhenMotorIsInFaultState", "it is not used any more");
 		obsoletePropertyToReason.put("gda.epics.EpicsDeviceFactory", "it is not used any more: see DAQ-1156");
 		obsoletePropertyToReason.put("gda.scan.endscan.neworder", "the new scan order is now the default and previous order is deprecated - See DAQ-1425");
+		obsoletePropertyToReason.put("gda.epics.interface.schema", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.epics.SimulatedEpicsDeviceFactory", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.epics.interface.xml", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 	}
 
 	public static void checkForObsoleteProperties() {
