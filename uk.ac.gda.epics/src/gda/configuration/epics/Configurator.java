@@ -18,8 +18,6 @@
 
 package gda.configuration.epics;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.FileNotFoundException;
 
 import org.exolab.castor.xml.MarshalException;
@@ -27,9 +25,13 @@ import org.exolab.castor.xml.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
+ * @deprecated
  * EPICS interface configuration logic.
  */
+@Deprecated
 public class Configurator {
 	private static final Logger logger = LoggerFactory.getLogger(Configurator.class);
 	/**
@@ -62,6 +64,8 @@ public class Configurator {
 	 * @throws ConfigurationNotFoundException
 	 */
 	public static <T> T getConfiguration(String name, Class<T> clazz) throws ConfigurationNotFoundException {
+		logger.warn("EPICS interface file used to get configuration information for device {}."
+				+ " Support for EPICS interface files will be removed in the next release.", name);
 		if( instance == null){
 			// Load GDA_EPICS_interface configuration file if present.
 			String interfaceConfigFile = LocalProperties.get(Configurator.INTERFACE_CONFIGURATION_XML_KEY);

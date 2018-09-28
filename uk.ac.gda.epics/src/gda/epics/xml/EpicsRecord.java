@@ -29,8 +29,10 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 
 /**
+ * @deprecated
  * EpicsRecord class
  */
+@Deprecated
 public class EpicsRecord extends ConfigurableBase implements Findable, Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsRecord.class);
@@ -79,6 +81,8 @@ public class EpicsRecord extends ConfigurableBase implements Findable, Serializa
 
 	@Override
 	public void configure() throws FactoryException {
+		logger.warn("You've used and EPICS Interface file to retrieve information on {}."
+				+ "EPICS interface files are now deprecated and will removed in GDA 9.11", deviceName);
 		dp = DevicesParser.createDevicesParser();
 		tp = TypesParser.createTypesParser();
 		if (epicsDeviceName == null) {
