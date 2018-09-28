@@ -11,7 +11,6 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="uk.ac.gda.beamline.synoptics.handlers.StopAllHandlerAllowExemption"
             description="Stop all scannables except excluded"
             id="uk.ac.gda.beamline.synoptics.StopAllCommand"
             name="Stop All">
