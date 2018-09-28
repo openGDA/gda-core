@@ -37,14 +37,14 @@ public class MConsumerTest extends AbstractMConsumerTest{
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer 1");
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 	}
 
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 		consumer.disconnect();
 	}
 }

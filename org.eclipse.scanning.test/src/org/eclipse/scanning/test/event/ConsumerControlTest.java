@@ -46,7 +46,7 @@ public class ConsumerControlTest extends AbstractConsumerControlTest {
 	@Override
 	protected void doClearQueue(boolean completed) throws Exception {
 		if (completed) {
-			consumer.clearCompleted();
+			consumer.clearRunningAndCompleted();
 		} else {
 			consumer.clearQueue();
 		}

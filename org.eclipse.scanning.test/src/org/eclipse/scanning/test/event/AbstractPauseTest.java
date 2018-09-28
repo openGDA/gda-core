@@ -54,7 +54,7 @@ public class AbstractPauseTest extends BrokerTest {
 	public void dispose() throws EventException {
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 		((ConsumerImpl<?>) consumer).clearCommandSet();
 		consumer.disconnect();
 	}

@@ -73,7 +73,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		servlet = createServlet();
 		if (servlet!=null) {
 			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearCompleted();
+			servlet.getConsumer().clearRunningAndCompleted();
 			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 		}
 	}
@@ -82,7 +82,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 	public void disconnect()  throws Exception {
 		if (servlet!=null) {
 			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearCompleted();
+			servlet.getConsumer().clearRunningAndCompleted();
 			((ConsumerImpl<?>) servlet.getConsumer()).clearCommandSet();
 			servlet.disconnect();
 		}

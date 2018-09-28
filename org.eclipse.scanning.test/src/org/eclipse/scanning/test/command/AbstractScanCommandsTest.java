@@ -96,7 +96,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	public static void disconnect()  throws Exception {
 		try {
 			servlet.getConsumer().clearQueue();
-			servlet.getConsumer().clearCompleted();
+			servlet.getConsumer().clearRunningAndCompleted();
 		} catch (Exception ignored) {
 			// Not fatal if cannot clean them
 		}
@@ -120,11 +120,11 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		}
 
 		servlet.getConsumer().clearQueue();
-		servlet.getConsumer().clearCompleted();
+		servlet.getConsumer().clearRunningAndCompleted();
 
 		if (pconsumer!=null) {
 			pconsumer.clearQueue();
-			pconsumer.clearCompleted();
+			pconsumer.clearRunningAndCompleted();
 		}
 	}
 

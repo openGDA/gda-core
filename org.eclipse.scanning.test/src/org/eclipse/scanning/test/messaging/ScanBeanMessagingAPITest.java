@@ -156,7 +156,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 
 		if (scanServlet!=null) {
 			scanServlet.getConsumer().clearQueue();
-			scanServlet.getConsumer().clearCompleted();
+			scanServlet.getConsumer().clearRunningAndCompleted();
 		}
 
 		disconnect(scanServlet);

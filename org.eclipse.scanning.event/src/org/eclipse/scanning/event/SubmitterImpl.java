@@ -231,7 +231,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractQueueConnection<T> imp
 	}
 
 	@Override
-	public void clearCompleted() throws EventException {
+	public void clearRunningAndCompleted() throws EventException {
 		super.clearQueue(getStatusSetName());
 	}
 

@@ -203,7 +203,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					clearQueue();
 					break;
 				case CLEAR_COMPLETED:
-					clearCompleted();
+					clearRunningAndCompleted();
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -309,13 +309,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
 		return getQueue(getSubmitQueueName());
-	}
-
-	@Override
-	public List<U> getStatusSet() throws EventException {
-		final List<U> statusSet = getQueue(getStatusSetName());
-		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
-		return statusSet;
 	}
 
 	@Override
@@ -641,11 +634,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
-	public boolean isQueuePaused(String submissionQueueName) {
-		if (getSubmitQueueName().equals(submissionQueueName)) {
-			return awaitPaused;
-		}
-		return super.isQueuePaused(submissionQueueName);
+	public boolean isQueuePaused() {
+		return awaitPaused;
 	}
 
 	/**
@@ -660,7 +650,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			return super.doWhilePaused(queueName, pauseMessage, task);
 		}
 
-		final boolean requiresPause = !isQueuePaused(getSubmitQueueName());
+		final boolean requiresPause = !isQueuePaused();
 
 		// create a pause bean
 		try {
@@ -725,7 +715,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	}
 
 	@Override
-	public void clearCompleted() throws EventException {
+	public void clearRunningAndCompleted() throws EventException {
 		super.clearQueue(getStatusSetName());
 	}
 

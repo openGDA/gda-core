@@ -228,10 +228,12 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 		mocksToVerifyInOrder.addAll(msgConsumers);
 		InOrder inOrder = inOrder(mocksToVerifyInOrder.toArray());
 
-		// verify the pause bean was sent
-		QueueCommandBean pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
-		pauseBean.setMessage("Pause to clear queue '" + queueName + "' ");
-		inOrder.verify(pauseBeanPublisher).broadcast(pauseBean);
+		// verify the pause bean was sent if we're clearing the submission queue
+		if (!clearCompleted) {
+			QueueCommandBean pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
+			pauseBean.setMessage("Pause to clear queue '" + queueName + "' ");
+			inOrder.verify(pauseBeanPublisher).broadcast(pauseBean);
+		}
 
 		// verify the messages were consumed from the queue
 		inOrder.verify(connection).start();
@@ -239,7 +241,10 @@ public abstract class AbstractConsumerControlTest extends AbstractNewConsumerTes
 			inOrder.verify(session).createConsumer(queue, "JMSMessageID = 'msg" + (i + 1) + "'");
 			inOrder.verify(msgConsumers.get(i)).receive(receiveTimeout);
 		}
-		inOrder.verify(pauseBeanPublisher).broadcast(new QueueCommandBean(queueName, Command.RESUME));
+
+		if (!clearCompleted) {
+			inOrder.verify(pauseBeanPublisher).broadcast(new QueueCommandBean(queueName, Command.RESUME));
+		}
 	}
 
 }

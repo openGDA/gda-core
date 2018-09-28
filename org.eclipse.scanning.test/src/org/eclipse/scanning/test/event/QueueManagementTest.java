@@ -141,7 +141,7 @@ public class QueueManagementTest extends BrokerTest {
 		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 
 		if (startConsumer) {
 			startConsumer();
@@ -151,7 +151,7 @@ public class QueueManagementTest extends BrokerTest {
 	@After
 	public void tearDown() throws Exception {
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 	}
 
 	private void startConsumer() throws EventException, InterruptedException {
@@ -181,7 +181,7 @@ public class QueueManagementTest extends BrokerTest {
 	public void dispose() throws Exception {
 		submitter.disconnect();
 		consumer.clearQueue();
-		consumer.clearCompleted();
+		consumer.clearRunningAndCompleted();
 		consumer.disconnect();
 		if (semaphore != null) {
 			semaphore.release();
@@ -381,7 +381,7 @@ public class QueueManagementTest extends BrokerTest {
 		if (useQueueCommandBean) {
 			sendCommandBean(Command.CLEAR_COMPLETED);
 		} else {
-			consumer.clearCompleted();
+			consumer.clearRunningAndCompleted();
 		}
 	}
 
@@ -390,14 +390,14 @@ public class QueueManagementTest extends BrokerTest {
 		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
 			final List<StatusBean> beans = createAndSubmitBeans(submitter);
 			// check they've been submitted properly (check names for easier to read error message)
-			final List<String> names = getNames(consumer.getStatusSet());
+			final List<String> names = getNames(consumer.getRunningAndCompleted());
 			names.remove("initial");
 			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
 		}
 
 		doClearCompleted();
 
-		assertThat(consumer.getStatusSet(), is(empty()));
+		assertThat(consumer.getRunningAndCompleted(), is(empty()));
 	}
 
 	private StatusBean createBean(String name, Status status, Duration age) {
@@ -427,14 +427,14 @@ public class QueueManagementTest extends BrokerTest {
 			}
 
 			// check they've been submitted properly (check names for easier to read error message)
-			final List<String> names = getNames(consumer.getStatusSet());
+			final List<String> names = getNames(consumer.getRunningAndCompleted());
 			names.remove("initial");
 			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
 		}
 
 		consumer.cleanUpCompleted();
 
-		final Map<String, StatusBean> beanMap = consumer.getStatusSet().stream().collect(
+		final Map<String, StatusBean> beanMap = consumer.getRunningAndCompleted().stream().collect(
 				toMap(StatusBean::getName, identity()));
 		beanMap.remove("initial");
 

@@ -78,11 +78,19 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 		return getQueue(getSubmitQueueName());
 	}
 
-	@Override
 	public List<U> getQueue(String queueName) throws EventException {
 		IQueueReader<U> reader = eservice.createQueueReader(uri, queueName);
 		reader.setBeanClass(beanClass);
 		return reader.getQueue();
+	}
+
+	@Override
+	public List<U> getRunningAndCompleted() throws EventException {
+		// TODO: DAQ-1464 this method moved up from ConsumerImpl temporarily until Submitter no longer
+		// implements IQueueConnection
+		final List<U> statusSet = getQueue(getStatusSetName());
+		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
+		return statusSet;
 	}
 
 	protected Map<String, U> getMap(String queueName) throws EventException {
@@ -154,7 +162,7 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	protected <T> T doWhilePaused(String queueName, String pauseMessage, Callable<T> task) throws EventException {
 		IPublisher<QueueCommandBean> publisher = createPausePublisher();
 		QueueCommandBean pauseBean = null;
-		if (!isQueuePaused(queueName)) {
+		if (getSubmitQueueName().equals(queueName) && !isQueuePaused()) { // can only pause our submission queue
 			pauseBean = new QueueCommandBean(queueName, Command.PAUSE);
 			pauseBean.setMessage(pauseMessage);
 		}
@@ -339,8 +347,9 @@ public abstract class AbstractQueueConnection<U extends StatusBean> extends Abst
 	}
 
 
-	public boolean isQueuePaused(String submissionQueueName) {
-		QueueCommandBean bean = getLastPauseResumeBean(submissionQueueName);
+	@Override
+	public boolean isQueuePaused() {
+		QueueCommandBean bean = getLastPauseResumeBean(getSubmitQueueName());
 		return bean != null && bean.getCommand() == Command.PAUSE;
 	}
 

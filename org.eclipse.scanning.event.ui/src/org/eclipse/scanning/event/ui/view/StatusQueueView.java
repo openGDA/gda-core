@@ -392,7 +392,7 @@ public class StatusQueueView extends EventConnectionView {
 		addActionTo(toolMan, menuMan, dropDown, pauseConsumerAction);
 
 		ISubscriber<IBeanListener<QueueCommandBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
-		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(queueConnection.isQueuePaused(getSubmissionQueueName())));
+		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(queueConnection.isQueuePaused()));
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -510,14 +510,14 @@ public class StatusQueueView extends EventConnectionView {
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
-		action.setChecked(queueConnection.isQueuePaused(getSubmissionQueueName()));
+		action.setChecked(queueConnection.isQueuePaused());
 		return action;
 	}
 
 	private void pauseConsumerActionRun(IAction pauseConsumer) {
 
 		// The button can get out of sync if two clients are used.
-		final boolean currentState = queueConnection.isQueuePaused(getSubmissionQueueName());
+		final boolean currentState = queueConnection.isQueuePaused();
 		try {
 			pauseConsumer.setChecked(!currentState); // We are toggling it.
 
@@ -531,7 +531,7 @@ public class StatusQueueView extends EventConnectionView {
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		pauseConsumer.setChecked(queueConnection.isQueuePaused(getSubmissionQueueName()));
+		pauseConsumer.setChecked(queueConnection.isQueuePaused());
 	}
 
 	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {
@@ -1081,10 +1081,10 @@ public class StatusQueueView extends EventConnectionView {
 					queueConnection.setBeanClass(getBeanClass());
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
-					runList = queueConnection.getQueue(getQueueName());
+					runList = queueConnection.getRunningAndCompleted();
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					submittedList = queueConnection.getQueue(getSubmissionQueueName());
+					submittedList = queueConnection.getQueue();
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end
