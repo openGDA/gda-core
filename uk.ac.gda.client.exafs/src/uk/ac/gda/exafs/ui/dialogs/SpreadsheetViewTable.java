@@ -37,6 +37,7 @@ import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.DialogCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.FocusCellOwnerDrawHighlighter;
 import org.eclipse.jface.viewers.TableViewer;
@@ -46,13 +47,19 @@ import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.GDAClientActivator;
@@ -60,6 +67,7 @@ import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.exafs.ui.OutputParametersUIEditor;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class SpreadsheetViewTable {
@@ -176,18 +184,27 @@ public class SpreadsheetViewTable {
 		column.setWidth(100);
 		TableViewerColumn columnViewer = new TableViewerColumn(viewer, column);
 
-		if (paramConfig != null && paramConfig.getAllowedValues().length>0) {
-			// Use combo box/check box to set the value
-			String[] allowedValues = paramConfig.getAllowedValues();
-			boolean booleanParam = Arrays.equals(allowedValues, new String[] {"true", "false"});
-			if (booleanParam) {
-				// Use tickable checkbox
-				columnViewer.setEditingSupport(new CheckboxEditingSupport(viewer, typeIndex, paramIndex));
-				columnViewer.setLabelProvider(new CheckboxLabelProvider(typeIndex, paramIndex));
-			} else {
-				// Use combo box with list of allowed values
-				columnViewer.setEditingSupport(new EnumValueEditingSupport(viewer, typeIndex, paramIndex, paramConfig.getAllowedValues()) );
-				columnViewer.setLabelProvider(new EnumValueLabelProvider(typeIndex, paramIndex, paramConfig.getAllowedValues()));
+		if (paramConfig != null) {
+			if (paramConfig.getAllowedValues().length>0) {
+				// Pre-defined list of allowed values
+
+				String[] allowedValues = paramConfig.getAllowedValues();
+				boolean booleanParam = Arrays.equals(allowedValues, new String[] {"true", "false"});
+				if (booleanParam) {
+					// Use tickable checkbox
+					columnViewer.setEditingSupport(new CheckboxEditingSupport(viewer, typeIndex, paramIndex));
+					columnViewer.setLabelProvider(new CheckboxLabelProvider(typeIndex, paramIndex));
+				} else {
+					// Use combo box with list of allowed values
+					columnViewer.setEditingSupport(new EnumValueEditingSupport(viewer, typeIndex, paramIndex, paramConfig.getAllowedValues()) );
+					columnViewer.setLabelProvider(new EnumValueLabelProvider(typeIndex, paramIndex, paramConfig.getAllowedValues()));
+				}
+			} else if (paramConfig.getFullPathToGetter().matches("\\w+(ScriptName|BeforeFirstRepetition)")) {
+				//For getBeforeScriptName, getAfterScriptName, getBeforeFirstRepetition
+				// Use textbox and a 'browse for jython script file' button
+				columnViewer.setEditingSupport(new BrowseForFileEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new BrowseForFileLabelProvider(typeIndex, paramIndex));
+				column.setAlignment(SWT.RIGHT); // so name of script is visible, rather than just first part of path...
 			}
 		} else {
 			// Text box
@@ -264,11 +281,7 @@ public class SpreadsheetViewTable {
 
 		@Override
 		protected boolean canEdit(Object ob) {
-			if (xmlFiles == null || xmlFiles.size() == 0) {
-				return false;
-			} else {
-				return true;
-			}
+			return xmlFiles != null && !xmlFiles.isEmpty();
 		}
 
 		@Override
@@ -462,6 +475,140 @@ public class SpreadsheetViewTable {
 			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
 			int index = ArrayUtils.indexOf(comboItems, valueInModel);
 			return Math.max(index, 0);
+		}
+	}
+
+	/**
+	 * Textbox and button for editing before/after script name/commands.
+	 * Button opens up a file dialog to select a script file.
+	 */
+	public class BrowseForFileCellEditor extends DialogCellEditor {
+		private Text textBox;
+
+		public BrowseForFileCellEditor(Composite parent) {
+			super(parent);
+		}
+
+		@Override
+		protected Control createContents(Composite cell) {
+			textBox = new Text(cell, SWT.LEFT);
+			textBox.addListener(SWT.FocusOut, focusEvent -> setValueToModel());
+			textBox.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent event) {
+					keyReleaseOccured(event);
+				}
+			});
+			return textBox;
+		}
+
+		@Override
+		protected void keyReleaseOccured(KeyEvent keyEvent) {
+			if (keyEvent.keyCode == SWT.CR || keyEvent.keyCode == SWT.KEYPAD_CR) { // Enter key
+				setValueToModel();
+			}
+			super.keyReleaseOccured(keyEvent);
+		}
+
+		protected void setValueToModel() {
+		 	String newValue = textBox.getText();
+	        boolean newValidState = isCorrect(newValue);
+	        if (newValidState) {
+	            markDirty();
+	            doSetValue(newValue);
+	        }
+		}
+
+		@Override
+	    protected Button createButton(Composite parent) {
+	        Button button = new Button(parent, SWT.DOWN);
+	        button.setText("...");
+	        button.setToolTipText("Browse for Jython script file");
+	        return button;
+	    }
+
+		@Override
+		protected Object openDialogBox(Control cellEditorWindow) {
+			FileDialog dialog = OutputParametersUIEditor.getJythonScriptFileBrowser();
+			final String filename = dialog.open();
+			if (filename != null) {
+				textBox.setText(filename);
+				setValueToModel();
+			}
+			return null;
+		}
+
+		@Override
+		protected void doSetFocus() {
+			// Override so we can set focus to the Text widget instead of the Button.
+			textBox.setFocus();
+			textBox.selectAll();
+		}
+
+		@Override
+		protected void updateContents(Object value) {
+			String label = "";
+			if (value != null) {
+				label = value.toString();
+			}
+			textBox.setText(label);
+			textBox.setFocus();
+			textBox.forceFocus();
+		}
+	}
+
+	private class BrowseForFileEditingSupport extends EditingSupport {
+		private final int typeIndex;
+		private final int paramIndex;
+
+		public BrowseForFileEditingSupport(ColumnViewer viewer, int typeIndex, int paramIndex) {
+			super(viewer);
+			this.typeIndex = typeIndex;
+			this.paramIndex = paramIndex;
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return new BrowseForFileCellEditor((Composite)getViewer().getControl());
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			ParametersForScan param = (ParametersForScan) element;
+			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
+			return valueInModel;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			ParametersForScan param = (ParametersForScan) element;
+			String selectedFilename = (String)value;
+			setOverrideFromColumnData(param, selectedFilename, typeIndex, paramIndex);
+			getViewer().update(param, null);
+		}
+	}
+
+	/**
+	 * Label provider for file browser cell.
+	 */
+	private class BrowseForFileLabelProvider extends ColumnLabelProvider  {
+		private final int paramIndex;
+		private final int typeIndex;
+
+		public BrowseForFileLabelProvider(int typeIndex, int paramIndex) {
+			this.paramIndex = paramIndex;
+			this.typeIndex = typeIndex;
+		}
+		@Override
+		public String getText(Object element) {
+			ParametersForScan param = (ParametersForScan) element;
+			Object val = getDataForColumn(param, typeIndex, paramIndex).toString();
+			return val.toString();
 		}
 	}
 

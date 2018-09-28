@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
@@ -133,15 +134,8 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		}
 	};
 
-
 	public void openScript(final TextWrapper field) {
-		FileDialog dialog = new FileDialog(getSite().getShell(), SWT.OPEN);
-		String[] filterNames = new String[] { "Jython Script Files", "All Files (*)" };
-		dialog.setFilterNames(filterNames);
-		String[] filterExtensions = new String[] { "*.py", "*" };
-		dialog.setFilterExtensions(filterExtensions);
-		String filterPath = findDefaultFilterPath();
-		dialog.setFilterPath(filterPath);
+		FileDialog dialog = getJythonScriptFileBrowser();
 		final String filename = dialog.open();
 		if (filename != null) {
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
@@ -153,7 +147,23 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		}
 	}
 
-	private String findDefaultFilterPath() {
+	/**
+	 * Return a file browser dialog for user to select a jython script.
+	 * Starting directory is set to the user script directory.
+	 * @return FileDialog
+	 */
+	public static FileDialog getJythonScriptFileBrowser() {
+		FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OPEN);
+		String[] filterNames = new String[] { "Jython Script Files", "All Files (*)" };
+		dialog.setFilterNames(filterNames);
+		String[] filterExtensions = new String[] { "*.py", "*" };
+		dialog.setFilterExtensions(filterExtensions);
+		String filterPath = findDefaultFilterPath();
+		dialog.setFilterPath(filterPath);
+		return dialog;
+	}
+
+	private static String findDefaultFilterPath() {
 		List<String> jythonProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
 		String filterPath = System.getenv("user.home");
 		for (String path : jythonProjectFolders) {
