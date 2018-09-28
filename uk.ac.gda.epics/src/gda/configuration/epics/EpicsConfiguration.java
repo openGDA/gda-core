@@ -18,11 +18,6 @@
 
 package gda.configuration.epics;
 
-import gda.epics.interfaces.Devices;
-import gda.epics.interfaces.DevicesChoice;
-import gda.epics.interfaces.DevicesChoiceItem;
-import gda.epics.interfaces.DevicesItem;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.lang.reflect.Method;
@@ -34,9 +29,16 @@ import org.exolab.castor.xml.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.epics.interfaces.Devices;
+import gda.epics.interfaces.DevicesChoice;
+import gda.epics.interfaces.DevicesChoiceItem;
+import gda.epics.interfaces.DevicesItem;
+
 /**
+ * @deprecated
  * EPICS interface configuration logic.
  */
+@Deprecated
 public class EpicsConfiguration {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsConfiguration.class);
@@ -127,6 +129,8 @@ public class EpicsConfiguration {
 	 */
 	public <T> T getConfiguration(String name, Class<T> clazz) throws ConfigurationNotFoundException {
 		Object configuration = deviceMap.get(name);
+		logger.warn("EPICS interface file used to get configuration information for device {}."
+				+ " Support for EPICS interface files will be removed in GDA 9.11", name);
 		if (configuration == null)
 			throw new ConfigurationNotFoundException("No configuration found for '" + name + "'.");
 
@@ -149,6 +153,8 @@ public class EpicsConfiguration {
 	@SuppressWarnings("unchecked")
 	public <T> T getConfiguration(String name) throws ConfigurationNotFoundException {
 		Object configuration = deviceMap.get(name);
+		logger.warn("EPICS interface file used to get configuration information for device {}."
+				+ " Support for EPICS interface files will be removed in GDA 9.11.", name);
 		if (configuration == null)
 			throw new ConfigurationNotFoundException("No configuration found for '" + name + "'.");
 		Class<T> clazz = (Class<T>) configuration.getClass();
