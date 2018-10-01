@@ -65,7 +65,6 @@ public class NcdMaskLink extends PerVisitExternalNcdMetadata {
 	@Override
 	public void write(NXDetectorData dataTree, String treeName) {
 		logger.debug("Writing file link to {}", getFilepath());
-		int[] dims = dataTree.getDetTree(treeName).getNode("data").getData().chunkDimensions;
 		HDF5Loader hdf5Loader = new HDF5Loader(getFilepath());
 		try {
 			hdf5Loader.loadMetadata(null);
@@ -74,17 +73,22 @@ public class NcdMaskLink extends PerVisitExternalNcdMetadata {
 			InterfaceProvider.getTerminalPrinter().print("Could not read metadata from mask file: " + e.getMessage());
 			return;
 		}
+		int[] dims = dataTree.getDetTree(treeName).getNode("data").getData().chunkDimensions;
 		int[] mdims = hdf5Loader.getMetadata().getDataShapes().get(getInternalPath());
-		int len = dims.length;
-		if (!(dims[len-2] == mdims[0] && dims[len-1] == mdims[1])) {
-			String msg = String.format("%s - mask dimensions (%s) do not match detector data (%s)",
-					getName(),
-					Arrays.toString(mdims),
-					Arrays.toString(dims));
-			logger.error(msg);
-			logger.info("{} - Mask file was {}#{}", getName(), getFilepath(), getInternalPath());
-			InterfaceProvider.getTerminalPrinter().print(msg);
-			return;
+		if (dims != null) {
+			int len = dims.length;
+			if (!(dims[len-2] == mdims[0] && dims[len-1] == mdims[1])) {
+				String msg = String.format("%s - mask dimensions (%s) do not match detector data (%s)",
+						getName(),
+						Arrays.toString(mdims),
+						Arrays.toString(dims));
+				logger.error(msg);
+				logger.info("{} - Mask file was {}#{}", getName(), getFilepath(), getInternalPath());
+				InterfaceProvider.getTerminalPrinter().print(msg);
+				return;
+			}
+		} else {
+			logger.warn("{} - Couldn't read dimensions from detector data", getName());
 		}
 		dataTree.addExternalFileLink(treeName, maskName, String.format("nxfile://%s#%s", getFilepath(), getInternalPath()), false, true);
 	}
