@@ -43,6 +43,8 @@ import gda.mscan.processor.IClauseElementProcessor;
  * and a second section for which the reverse is true. This means that {{@link #isAPureScannableUsedAsReadout} must
  * be called after the current {@link Scannable} has been checked to see if it is the start of a SPEC style scan or
  * a Mapping one, since it operates on the basis that these cases have already been eliminated.
+ *
+ * @since GDA 9.10
  */
 final class ReadoutChecker {
 

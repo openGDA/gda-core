@@ -112,8 +112,13 @@ public abstract class ElementProcessorBase<T> implements IClauseElementProcessor
 		}
 	}
 
+	/**
+	 * Gets the element used to create the processor instance
+	 *
+	 * @return	the source element object used to create the processor instance
+	 */
 	@Override
-	public T getSource() {
+	public T getElement() {
 		return enclosed;
 	}
 

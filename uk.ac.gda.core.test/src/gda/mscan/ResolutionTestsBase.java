@@ -75,7 +75,7 @@ public class ResolutionTestsBase {
 		when(sg1.getGroupMembers()).thenReturn(Arrays.asList(scannable1, scannable2));
 		when(sg1.getName()).thenReturn(name);
 		IClauseElementProcessor proc = mock(ScannableGroupElementProcessor.class);
-		when(proc.getSource()).thenReturn(sg1);
+		when(proc.getElement()).thenReturn(sg1);
 		when(proc.hasScannable()).thenReturn(true);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
@@ -105,7 +105,7 @@ public class ResolutionTestsBase {
 		scannable = mock(ScannableMotor.class);
 		when(scannable.getName()).thenReturn(name);
 		IClauseElementProcessor proc = mock(ScannableElementProcessor.class);
-		when(proc.getSource()).thenReturn(scannable);
+		when(proc.getElement()).thenReturn(scannable);
 		when(proc.hasScannable()).thenReturn(true);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
@@ -114,7 +114,7 @@ public class ResolutionTestsBase {
 
 	protected static IClauseElementProcessor mockNumberProc(Number num) {
 		IClauseElementProcessor proc = mock(NumberElementProcessor.class);
-		when(proc.getSource()).thenReturn(num);
+		when(proc.getElement()).thenReturn(num);
 		when(proc.hasScannable()).thenReturn(false);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(true);
@@ -126,7 +126,7 @@ public class ResolutionTestsBase {
 
 	protected static  IClauseElementProcessor mockAreaScanpathProc(AreaScanpath scanpath) {
 		IClauseElementProcessor proc = mock(AreaScanpathElementProcessor.class);
-		when(proc.getSource()).thenReturn(scanpath);
+		when(proc.getElement()).thenReturn(scanpath);
 		when(proc.hasScannable()).thenReturn(false);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
@@ -138,7 +138,7 @@ public class ResolutionTestsBase {
 
 	protected static IClauseElementProcessor mockRoiProc(Roi roi) {
 		IClauseElementProcessor proc = mock(RoiElementProcessor.class);
-		when(proc.getSource()).thenReturn(roi);
+		when(proc.getElement()).thenReturn(roi);
 		when(proc.hasScannable()).thenReturn(false);
 		when(proc.hasRoi()).thenReturn(true);
 		when(proc.hasNumber()).thenReturn(false);

@@ -32,6 +32,12 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.mscan.element.Roi;
 import gda.mscan.processor.IClauseElementProcessor;
 
+/**
+ * Splits the incoming MScan command into separate clauses consisting of scan path definitions and/or detector/monitor
+ * references.
+ *
+ * @since GDA 9.10
+ */
 public class ScanClausesResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanClausesResolver.class);
@@ -78,7 +84,7 @@ public class ScanClausesResolver {
 
 			// a potential scan clause boundary, might be the first of a Scannable pair or a ScannableGroup
 			// if it's a mapping scan, also have to cope with one or more Detectors or Monitors at end of line
-			if (thisProcessor.hasScannable()) {
+			if (thisProcessor.hasScannable() || thisProcessor.hasDetector()) {
 				monitorSeen = monitorSeen ? true : thisProcessor.hasMonitor();     // Latch recognition of a Monitor
 				detectorSeen = detectorSeen ? true : thisProcessor.hasDetector();  // Latch recognition of a Detector
 				readoutSeen = readoutSeen ? true : checker.isAPureScannableUsedAsReadout(
@@ -95,10 +101,8 @@ public class ScanClausesResolver {
 					clauses.add(current);
 					joiner = new StringJoiner(" ");
 				}
-				joiner.add(((Scannable)thisProcessor.getSource()).getName());
-			} else {                                                        // A number, Roi, Scanpath or Mutator
-				joiner.add(thisProcessor.getSource().toString());
 			}
+			joiner.add(thisProcessor.getElementValue());
 			current.add(thisProcessor);
 		}
 		logClauseDetection(joiner);

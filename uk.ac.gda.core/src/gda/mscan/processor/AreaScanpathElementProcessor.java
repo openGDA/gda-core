@@ -50,4 +50,14 @@ public class AreaScanpathElementProcessor extends ElementProcessorBase<AreaScanp
 			context.setAreaScanpath(enclosed);
 		}
 	}
+
+	/**
+	 * Retrieve the name of the enclosed {@link AreaScanpath}
+	 *
+	 * @return the name of the enclosed {@link AreaScanpath}
+	 */
+	@Override
+	public String getElementValue() {
+		return enclosed.name();
+	}
 }

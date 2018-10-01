@@ -55,6 +55,7 @@ import gda.mscan.element.Mutator;
 import gda.mscan.element.Roi;
 import gda.mscan.processor.AreaScanpathElementProcessor;
 import gda.mscan.processor.IClauseElementProcessor;
+import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
 import gda.mscan.processor.RoiElementProcessor;
@@ -65,6 +66,8 @@ import gda.mscan.processor.ScannableGroupElementProcessor;
  * Validates, parses, builds and submits MScan commands supplied in the form of an array of typed Objects. It does
  * so by breaking the scan command up into Clauses delimited by the detection of a new {@link Scannable} (i.e.scan axis).
  * These clauses are then parsed individually to build up the overall {@link CompoundModel} object that represents the scan.
+ *
+ * @since GDA 9.10
  */
 public class MScanSubmitter {
 
@@ -74,6 +77,7 @@ public class MScanSubmitter {
 	/**
 	 * A constant map of clause element type to a lambda that will create a corresponding processor
 	 */
+	@SuppressWarnings("unchecked")
 	private static final ImmutableMap<Class<?>, ProcessorFunction> processorBuilders =
 		ImmutableMap.<Class<?>, ProcessorFunction>builder()
 		.put(Scannable.class, arg -> new ScannableElementProcessor((Scannable)arg))
@@ -83,6 +87,8 @@ public class MScanSubmitter {
 		.put(Mutator.class, arg -> new MutatorElementProcessor((Mutator)arg))
 		.put(Integer.class, arg -> new NumberElementProcessor((Number)arg))
 		.put(Double.class, arg -> new NumberElementProcessor((Number)arg))
+		.put(IRunnableDevice.class,
+				arg -> new IRunnableDeviceDetectorElementProcessor((IRunnableDevice<IDetectorModel>) arg))
 		.build();
 
 	private final List<IClauseElementProcessor> processors = new ArrayList<>();
@@ -145,13 +151,11 @@ public class MScanSubmitter {
 		// iterate over the processors for the current clause using them to populate the constituent lists of the
 		// Compound Model. The type of the first element determines the required action; only Scannables or
 		// ScannableGroups require complex parsing of the rest of the clause. The only other possibilities are
-		// {@link Detectors} and {@link Monitors}
+		// {@link Detectors} and {@link Monitors} or {@link IRunnableDevice}s
 		for (final List<IClauseElementProcessor> clauseProcessors : processorsByClause) {
 			throwIf(clauseProcessors.isEmpty() || clauseProcessors.contains(null),
 					"clause resolution returned an empty or invalid processor list for a clause");
 			IClauseElementProcessor procOne = withNullCheck(clauseProcessors.get(0));
-			String name = ((Scannable)procOne.getSource()).getName();
-			// First check for a {@link Detector} clause - this will have 1 or 2 elements depending if it sets exposure
 			if (procOne.hasDetector()) {
 				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
 				throwIf(clauseProcessors.size() > 2, "too many elements in Detector clause");
@@ -160,22 +164,25 @@ public class MScanSubmitter {
 				if (clauseProcessors.size() == 2) {
 					IClauseElementProcessor procTwo = withNullCheck(clauseProcessors.get(1));
 					throwIf(!procTwo.hasNumber(), "2nd element of unexpected type in Detector clause");
-					exposure = ((Number)procTwo.getSource()).doubleValue();
+					exposure = Double.valueOf(procTwo.getElementValue());
 				}
-				addDetector(name, exposure, detectorMap);
-				logger.debug("Detector added for {}", name);
+				if (procOne.hasScannable()) {
+					logger.debug("Detector added for {}", addDetector(
+							procOne.getElementValue(), exposure, detectorMap));
+				} else {
+					logger.debug("Detector added for {}", addDetector(
+							(IRunnableDevice<?>) procOne.getElement(), exposure, detectorMap));
+				}
 			// Next check for a {@link Monitor} clause which can have only 1 element
 			} else if (procOne.hasMonitor()) {
 				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
 				throwIf(clauseProcessors.size() != 1, "too many elements in Monitor clause");
-				monitorsPerPoint.add(name);
-				logger.debug("Monitor added for {}", name);
+				logger.debug("Monitor added for {}", addMonitor(procOne, monitorsPerPoint));
 			// that only leaves a clause starting with a plain {@link Scannable} or {@link ScannableGroup}. This could
 			// either be a readout or a scan path definition so is parsed by a dedicated method
 			} else if (clauseProcessors.size() == 1) {
 				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
-				monitorsPerPoint.add(name);
-				logger.debug("Scannable readout added for {}", name);
+				logger.debug("Scannable readout added for {}",  addMonitor(procOne, monitorsPerPoint));
 			// Handle non mapping scan path definitions (not yet a comprehensive test)
 			} else if (clauseProcessors.size() < 7 && withNullCheck(clauseProcessors.get(1)).hasNumber()){
 				 throw new IllegalArgumentException("SPEC style scans not yet supported.");
@@ -202,6 +209,19 @@ public class MScanSubmitter {
 				submitter.submit(bean);
 			}
 		}
+	}
+
+	/**
+	 * Add the name of a {@link Monitor} to the {@link List} of monitor names for the scan
+	 *
+	 * @param proc					The {@link IClauseElementProcessor} corresponding to the monitor
+	 * @param monitorsPerPoint		The list of monitor names for the scan
+	 * @return						The name of the added {@link Monitor}
+	 */
+	private String addMonitor(final IClauseElementProcessor proc, final List<String> monitorsPerPoint) {
+		String name = proc.getElementValue();
+		monitorsPerPoint.add(name);
+		return name;
 	}
 
 	/**
@@ -232,33 +252,51 @@ public class MScanSubmitter {
 			boundingBoxParams.add(boundingRoi.getPointY());
 			boundingBoxParams.add(boundingRoi.getLength(0));
 			boundingBoxParams.add(boundingRoi.getLength(1));
-			scanModel.setData(context.getAreaScanpath().createModel(context.getScannables(), context.getPathParams(), boundingBoxParams, context.getMutators()), roi);
+			scanModel.setData(context.getAreaScanpath().createModel(context.getScannables(),
+					context.getPathParams(), boundingBoxParams, context.getMutators()), roi);
 		}
 	}
 
 	/**
-	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link Detector} to the running map setting the
-	 * exposure time if specified
+	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link Detector} name to the map of detectors
+	 * setting the exposure time if specified
 	 *
 	 * @param detectorName			The name of the {@link Detector}
 	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
 	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
+	 * @return						The name of the added {@link Detector}
 	 * @throws ScanningException	If the {@link IRunnableDevice} for the {@link Detector} cannot be retrieved.
 	 */
-	private void addDetector(final String detectorName, final double exposure,
+	private String addDetector(final String detectorName, final double exposure,
 					final Map<String, Object> detectorMap) throws ScanningException {
 		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(detectorName);
 		if (detector == null) {
 			throw new ScanningException(String.format("Could not get detector for name %s", detectorName));
 		}
-		IDetectorModel model = detector.getModel();
+		return addDetector(detector, exposure, detectorMap);
+	}
+
+	/**
+	 * Adds an {@link IDetectorModel} corresponding to the supplied {@link IRunnableDevice} to the map of detectors,
+	 * setting the exposure time if specified
+	 *
+	 * @param detector				The {@link IRunnableDevice} corresponding to the detector
+	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
+	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
+	 * @return						The name of the added {@link Detector}
+	 * @throws ScanningException	If the {@link IDetectorModel} for the {@link IRunnableDevice} is null.
+	 */
+	private String addDetector(final IRunnableDevice<?> detector, final double exposure,
+			final Map<String, Object> detectorMap) throws ScanningException {
+		IDetectorModel model = (IDetectorModel)detector.getModel();
 		if (model == null) {
-			throw new ScanningException(String.format("Could not get model for detector %s", detectorName));
+			throw new ScanningException(String.format("Could not get model for detector %s", detector.getName()));
 		}
 		if (exposure > 0) {
 			model.setExposureTime(exposure);
 		}
-		detectorMap.put(detectorName, model);
+		detectorMap.put(detector.getName(), model);
+		return detector.getName();
 	}
 
 	/**
@@ -291,7 +329,9 @@ public class MScanSubmitter {
 					type = Scannable.class;
 				}
 			}
-
+			else if (args[i] instanceof IRunnableDevice<?>) {
+				type = IRunnableDevice.class;
+			}
 			// Check the processorBuilders map can construct a processor for the required type and if so
 			// make it and add it to the collection of processors that correspond to the command.
 			if (!processorBuilders.containsKey(type)) {

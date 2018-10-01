@@ -98,10 +98,10 @@ public class ScannableGroupElementProcessorTest {
 	}
 
 	/**
-	 * Test method for {@link gda.mscan.processor.ScannableElementProcessor#getSource()}.
+	 * Test method for {@link gda.mscan.processor.ScannableElementProcessor#getElement()}.
 	 */
 	@Test
 	public void getSourceReturnSuppliedObject() throws Exception {
-		assertThat(processor.getSource(), is(sGroup));
+		assertThat(processor.getElement(), is(sGroup));
 	}
 }

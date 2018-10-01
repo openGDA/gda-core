@@ -77,6 +77,6 @@ public class AreaScanpathElementProcessorTest {
 
 	@Test
 	public void getSource() throws Exception {
-		assertThat(processor.getSource(), is(path));
+		assertThat(processor.getElement(), is(path));
 	}
 }

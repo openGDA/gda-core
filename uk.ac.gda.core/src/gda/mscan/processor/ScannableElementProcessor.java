@@ -64,4 +64,14 @@ public class ScannableElementProcessor extends ElementProcessorBase<Scannable> {
 	public boolean hasMonitor() {
 		return enclosed instanceof Monitor;
 	}
+
+	/**
+	 * Retrieve the name of the enclosed {@link Scannable}
+	 *
+	 * @return the name of the enclosed {@link Scannable}
+	 */
+	@Override
+	public String getElementValue() {
+		return enclosed.getName();
+	}
 }
