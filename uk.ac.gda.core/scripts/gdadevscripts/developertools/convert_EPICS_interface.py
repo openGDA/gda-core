@@ -101,7 +101,11 @@ CLASS_MAPPING = {
     "gda.device.enumpositioner.EpicsPositioner":
         {"outer_tag": "positioner", "inner_tag": "SELECT",
          "replace_prop": "recordName", "snip_pv": True
-        }
+        },
+    "gda.device.controlpoint.EpicsControlPoint":
+        {"outer_tag": "simplePv", "inner_tag": "RECORD",
+         "replace_prop": "pvName"
+        } 
     }
 
 #--------------------------------------------------------------------
