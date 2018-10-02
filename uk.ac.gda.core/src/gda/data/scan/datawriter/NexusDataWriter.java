@@ -880,8 +880,11 @@ public class NexusDataWriter extends DataWriterBase {
 	 */
 	@Override
 	public void completeCollection() throws Exception {
-		GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
-		NexusUtils.write(file, g, "end_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+		if (file != null) {
+			// In some error conditions, this can be called twice with 'file' being null the second time
+			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
+			NexusUtils.write(file, g, "end_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+		}
 		releaseFile();
 		super.completeCollection();
 		int numberOfPoints = scanPointNumber + 1;
