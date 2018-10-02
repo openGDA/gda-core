@@ -503,12 +503,15 @@ class LatestFilenameComposite extends Composite {
 		}
 		if (filename != null) {
 			fileNameText.setText(filename);
-
-			if (fileProcessor instanceof PlotConfigurable) {
-				((PlotConfigurable) fileProcessor).setNewPlot(newPlotButton.getSelection());
-				((PlotConfigurable) fileProcessor).setPlotType(PlotType.values()[plotTypes.getSelectionIndex()]);
+			try {
+				if (fileProcessor instanceof PlotConfigurable) {
+					((PlotConfigurable) fileProcessor).setNewPlot(newPlotButton.getSelection());
+					((PlotConfigurable) fileProcessor).setPlotType(PlotType.values()[plotTypes.getSelectionIndex()]);
+				}
+				fileProcessor.processFile(filename);
+			} catch (Exception e) {
+				logger.error("Couldn't plot data from {}", filename, e);
 			}
-			fileProcessor.processFile(filename);
 		} else {
 			fileNameText.setText(WAITING);
 			textIndex.setText("");
