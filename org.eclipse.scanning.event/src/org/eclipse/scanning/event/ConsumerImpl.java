@@ -99,8 +99,18 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	 */
 	private ReentrantLock consumerStateChangeLock;
 	private Condition shouldResumeCondition;
+
+	/**
+	 * A flag to indicate that the consumer should pause before consuming the next bean from the queue.
+	 */
 	private volatile boolean awaitPaused;
-	private volatile boolean stopped = false; // a boolean to indicate if the main event loop is running (irrespective of whether it is paused)
+
+	/**
+	 * A flag to indicate if the consumer thread (the thread that consumes items from the queue and runs them)
+	 * is running, irrespective of whether it is paused.
+	 */
+	private volatile boolean consumerThreadRunning = false;
+
 	private final String commandTopicName;
 	private final String heartbeatTopicName;
 
@@ -432,7 +442,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 				heartbeatBroadcaster.stop();
 			}
 
-			setActive(false); // Stops event loop
+			setActive(false); // Stops consume loop
 
 			@SuppressWarnings("unchecked")
 			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
@@ -442,7 +452,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 					terminateProcess(wr.get());
 				}
 			}
-			stopped = true;
+			consumerThreadRunning = false;
 			fireStatusChangeListeners();
 		} finally {
 			processMap.clear();
@@ -543,9 +553,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		// pause before they start.
 		checkStartPaused();
 
-		// We're now fully initialized and about to start running the main event loop,
-		// so set the stopped flag to false and notify any threads that called awaitStart()
-		stopped = false;
+		// We're now fully initialized and about to start running the main loop that consumes and runs beans,
+		// so set the consumerThreadRunning flag to true and notify any threads that called awaitStart()
+		consumerThreadRunning = true;
 		fireStatusChangeListeners();
 		if (latchStart!=null) latchStart.countDown();
 	}
@@ -770,7 +780,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 
 	@Override
 	public ConsumerStatus getConsumerStatus() {
-		if (stopped || !isConnected()) return ConsumerStatus.STOPPED;
+		if (!consumerThreadRunning || !isConnected()) return ConsumerStatus.STOPPED;
 		return awaitPaused ? ConsumerStatus.PAUSED : ConsumerStatus.RUNNING;
 	}
 

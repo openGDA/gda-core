@@ -67,7 +67,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(consumer.getHeartbeatTopicName(), is(nullValue()));
 		assertThat(consumer.getName(), is(equalTo("Test Consumer")));
 		assertThat(consumer.getConsumerId(), is(any(UUID.class)));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.RUNNING));
+		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
 		assertThat(consumer.isActive(), is(false));
 
 		// verify the connections made in the connect() method

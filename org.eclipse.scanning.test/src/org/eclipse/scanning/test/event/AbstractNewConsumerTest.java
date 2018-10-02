@@ -151,7 +151,7 @@ public abstract class AbstractNewConsumerTest {
 		when(session.createConsumer(queue)).thenReturn(messageConsumer);
 
 		assertThat(consumer.isActive(), is(false));
-		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.RUNNING)); // TODO should not be running yet, see DAQ-1615
+		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
 		consumer.start();
 		consumer.awaitStart();
 	}
