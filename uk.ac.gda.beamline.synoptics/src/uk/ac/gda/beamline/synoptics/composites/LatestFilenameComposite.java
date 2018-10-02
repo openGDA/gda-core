@@ -394,6 +394,7 @@ class LatestFilenameComposite extends Composite {
 					fileNameText.setText(WAITING);
 					textIndex.setText("");
 				}
+				enableBtns();
 			}
 		});
 
@@ -478,6 +479,7 @@ class LatestFilenameComposite extends Composite {
 		if (findTextIndex == -1)
 			return;
 		updateIndexText(findTextIndex);
+		enableBtns();
 	}
 
 	private int findTextIndex(List<Path> dataFileCollected) {
