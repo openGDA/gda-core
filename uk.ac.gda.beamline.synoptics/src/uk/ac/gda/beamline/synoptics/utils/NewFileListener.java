@@ -43,7 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.MetadataEntry;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -79,7 +80,7 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 		try {
 			FileTime t1 = fileTimeCache.computeIfAbsent(a, NewFileListener::creationTime);
 			FileTime t2 = fileTimeCache.computeIfAbsent(b, NewFileListener::creationTime);
-			return t1.compareTo(t2);
+			return t1.equals(t2) ? a.compareTo(b) : t1.compareTo(t2);
 		} catch (IllegalStateException e) {
 			return a.compareTo(b);
 		}
@@ -100,7 +101,7 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 	@Override
 	public void update(Object source, Object arg) {
 		Async.execute(() -> {
-			if (source instanceof MetadataEntry && ((MetadataEntry) source).getName().equals("visit")) {
+			if (source instanceof Metadata || source instanceof IMetadataEntry) {
 				updateDataDirectory();
 			} else if (arg instanceof String[]) {
 				String[] files = (String[])arg;
@@ -182,6 +183,7 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 			} catch (IOException e) {
 				logger.error("Could not read contents of data directory {}. Some files may be missing", dataDirectory, e);
 			}
+			logger.trace("data files: {}", dataFiles);
 		}
 	}
 
