@@ -413,7 +413,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
 			final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = updateDetectorParameters();
-			final List<String> chosenDetectorNames = marshaller.unmarshal(json, List.class);
+			final List<String> chosenDetectorNames = marshaller.unmarshal(json, ArrayList.class);
 
 			visibleDetectors = chosenDetectorNames.stream().
 				map(detectorParamsByName::get).
