@@ -111,13 +111,16 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 		return new TimerTask() {
 			@Override
 			public void run() {
-				T image = updateImage();
 				try {
+					T image = updateImage();
 					for (ImageListener<T> listener : listeners) {
 						listener.processImage(image);
 					}
 				} catch (Exception e) {
 					logger.error("Unable to dispatch image", e);
+					if (timer != null) {
+						timer.cancel();
+					}
 				}
 			}
 		};
