@@ -202,6 +202,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				outputTextViewer.setEditable(false);
 				outputTextViewer.getTextWidget().setFont(font);
 				outputTextViewer.getTextWidget().setTabs(tabSize);
+				outputTextViewer.getTextWidget().setBottomMargin(5);
 				outputTextViewer.setDocument(outputDoc);
 				outputTextViewer.addTextListener(new TextUpdateListener(parent));
 				txtOutputLast = "";
