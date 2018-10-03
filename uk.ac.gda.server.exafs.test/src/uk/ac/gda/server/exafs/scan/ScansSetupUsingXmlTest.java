@@ -108,8 +108,6 @@ public class ScansSetupUsingXmlTest {
 
 	private XasScanFactory xasScanFactory;
 
-	private AsciiDataWriterConfiguration asciidatawriterConfig;
-
 	private QexafsTestingScannable qexafsScannable;
 
 	// Detector related objects
@@ -138,7 +136,7 @@ public class ScansSetupUsingXmlTest {
 		// Findables the server needs to know about
 		Findable[] findables = new Findable[] { xspress2Detector, counterTimer01, ffi0,
 												qexafs_xspress, qexafs_counterTimer01, qexafsFfI0,
-												qexafsScannable, asciidatawriterConfig};
+												qexafsScannable};
 
 		final Factory factory = TestHelpers.createTestFactory("test");
 		for(Findable f : findables) {
@@ -367,7 +365,6 @@ public class ScansSetupUsingXmlTest {
 		xasScanFactory.setSamplePreparer(samplePreparer);
 		xasScanFactory.setOutputPreparer(outputPreparer);
 		xasScanFactory.setLoggingScriptController(loggingScriptController);
-		xasScanFactory.setDatawriterconfig(datawriterconfig);
 		xasScanFactory.setMetashop(metashop);
 		xasScanFactory.setIncludeSampleNameInNexusName(true);
 		xasScanFactory.setEnergyScannable(qexafsScannable);
@@ -384,11 +381,6 @@ public class ScansSetupUsingXmlTest {
 		BeansFactory.setClasses(classes);
 	}
 
-	private void setupDatawriterConfig() {
-		asciidatawriterConfig = new AsciiDataWriterConfiguration();
-		asciidatawriterConfig.setCommentMarker("#");
-	}
-
 	@Before
 	public void prepareScannables() throws Exception {
 		setupDaserverTfg();
@@ -397,7 +389,6 @@ public class ScansSetupUsingXmlTest {
 		setupEnergyScannable();
 		setupScanFactory();
 		setupBeansFactory();
-		setupDatawriterConfig();
 	}
 
 	@After

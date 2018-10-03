@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
 import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.CounterTimer;
 import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
@@ -41,7 +40,6 @@ public class MapFactoryTest {
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
 	private LoggingScriptController XASLoggingScriptController;
-	private AsciiDataWriterConfiguration datawriterconfig;
 //	private ArrayList<AsciiMetadataConfig> original_header;
 	private Scannable energyScannable;
 	private NXMetaDataProvider metashop;
@@ -61,7 +59,6 @@ public class MapFactoryTest {
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
 		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
-		datawriterconfig = PowerMockito.mock(AsciiDataWriterConfiguration.class);
 //		original_header = new ArrayList<AsciiMetadataConfig>();
 		energyScannable = PowerMockito.mock(Scannable.class);
 		metashop = PowerMockito.mock(NXMetaDataProvider.class);
@@ -85,7 +82,6 @@ public class MapFactoryTest {
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
 		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyNoGapScannable(energyScannable);
 		theFactory.setEnergyWithGapScannable(energyScannable);
 		theFactory.setMetashop(metashop);
@@ -117,7 +113,6 @@ public class MapFactoryTest {
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
 		theFactory.setLoggingScriptController(XASLoggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);

@@ -40,7 +40,7 @@ public class QexafsConstantVelocityScan extends EnergyScan {
 	private double step;
 	private double scan_time;
 
-	protected QexafsConstantVelocityScan() {
+	QexafsConstantVelocityScan() {
 		// Used by XasScanFactory
 	}
 

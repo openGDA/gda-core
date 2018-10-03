@@ -41,7 +41,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -77,7 +76,6 @@ public class EnergyScanTest {
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
 	private NXMetaDataProvider metashop;
-	private AsciiDataWriterConfiguration datawriterconfig;
 	private ScannableMotor energy_scannable;
 	private EnergyScan xasscan;
 	private LoggingScriptController loggingScriptController;
@@ -154,7 +152,6 @@ public class EnergyScanTest {
 		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		datawriterconfig = new AsciiDataWriterConfiguration();
 		metashop = new NXMetaDataProvider();
 		loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 
@@ -172,7 +169,6 @@ public class EnergyScanTest {
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
 		theFactory.setLoggingScriptController(loggingScriptController);
-		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setEnergyScannable(energy_scannable);
