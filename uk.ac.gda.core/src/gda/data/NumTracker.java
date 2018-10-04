@@ -22,6 +22,7 @@ package gda.data;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,7 @@ public class NumTracker {
 	 * @param number the new file number
 	 */
 	public void setFileNumber(long number) {
-		long oldNum = findBiggestNumber();
+		int oldNum = findBiggestNumber();
 		if (writeNewFile(number)) {
 			deleteNumberedFile(oldNum);
 		}
@@ -136,8 +137,10 @@ public class NumTracker {
 	public void resetFileNumber() {
 		if (dir.exists()) {
 			for (File f : dir.listFiles(filter)) {
-				if (!f.delete()) {
-					logger.error("Could not delete file: {}", f);
+				try {
+					Files.delete(f.toPath());
+				} catch (IOException e) {
+					logger.error("Could not delete file: {}", f, e);
 				}
 			}
 		}
@@ -169,13 +172,15 @@ public class NumTracker {
 	 *
 	 * @return true if deletion worked; false otherwise
 	 */
-	private boolean deleteNumberedFile(long number) {
+	private boolean deleteNumberedFile(int number) {
 		logger.debug("deleteNumberedFile: {}", number);
 		if (dir.exists()) {
 			File theFile = makeFile(number);
 			if (theFile.exists()) {
-				if (!theFile.delete()) {
-					logger.error("Could not delete file: {}", theFile);
+				try {
+					Files.delete(theFile.toPath());
+				} catch (IOException e) {
+					logger.error("Could not delete file: {}", theFile, e);
 					return false;
 				}
 			}
