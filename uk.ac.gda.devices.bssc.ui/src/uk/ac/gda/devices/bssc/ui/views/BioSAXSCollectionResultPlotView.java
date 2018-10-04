@@ -21,7 +21,6 @@ package uk.ac.gda.devices.bssc.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawb.common.services.ServiceManager;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -49,6 +48,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +77,12 @@ public class BioSAXSCollectionResultPlotView extends ViewPart {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
-				ILoaderService loaderService = (ILoaderService) ServiceManager
-						.getService(ILoaderService.class);
+				BundleContext bundleContext =
+						FrameworkUtil.
+						getBundle(this.getClass()).
+						getBundleContext();
+
+				ILoaderService loaderService = bundleContext.getService(bundleContext.getServiceReference(ILoaderService.class));
 
 				dh = loaderService.getData(filePath.get(activeRadio), new ProgressMonitorWrapper(monitor));
 				lz = dh.getLazyDataset(dataSetPath);
