@@ -98,10 +98,12 @@ public class MythenProcessedDataset {
 	 *
 	 * @param file the file to save the data to
 	 */
-	public void save(File file, boolean hasChannelInfo) {
+	public void save(File file, boolean hasChannelInfo, boolean includeHeaders) {
 		try(PrintWriter pw = new PrintWriter(file)) {
-			pw.printf("# Filename\t %s\n", file.getAbsolutePath());
-			addHeader(pw);
+			if (includeHeaders) {
+				pw.printf("# Filename\t %s\n", file.getAbsolutePath());
+				addHeader(pw);
+			}
 			if (!hasChannelInfo) {
 				for (MythenProcessedData line : lines) {
 					pw.printf("%f %d %d\n", line.getAngle(), line.getCount(), line.getError());

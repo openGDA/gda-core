@@ -239,7 +239,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 		// read data and process it
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
-		processedData.save(processedFile, isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -586,7 +586,7 @@ public class MythenDetector extends MythenDetectorImpl implements IMythenDetecto
 	 */
 	private void processedDataArchievalAndPlot(int cycle, File rawFile, MythenProcessedDataset processedData,
 			File processedFile) {
-		processedData.save(processedFile, isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		print("Save to file " + processedFile.getAbsolutePath());
 		FileRegistrarHelper.registerFiles(new String[] { rawFile.getAbsolutePath(), processedFile.getAbsolutePath() });
 		if (cycle ==1) {
