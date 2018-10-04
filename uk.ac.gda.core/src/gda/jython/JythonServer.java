@@ -613,8 +613,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	}
 
 	@Override
-	public int addFacade(String uniqueFacadeName, String hostName, String username, String fullName,
+	public int addFacade(String jsfIdentifier, String hostName, String username, String fullName,
 			String visitID) throws DeviceException {
+		logger.info("Adding Facade: JSFIdentifier={}, username={}, fullname={}, hostname={}, visitId={}", jsfIdentifier, username, fullName, hostName, visitID);
 
 		try {
 			// get the authoriser defined by java property
@@ -626,13 +627,13 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 			// if no username supplied, then its an object server
 			if (username.compareTo("") == 0) {
 				ClientDetails info = new ClientDetails(indexNumber, "", "", hostName, Integer.MAX_VALUE, false, visitID);
-				this.batonManager.addFacade(uniqueFacadeName, info);
+				this.batonManager.addFacade(jsfIdentifier, info);
 			} else {
 				// add the facade and associated roles to the list of registered facades
 				int accessLevel = authoriser.getAuthorisationLevel(username);
 				ClientDetails info = new ClientDetails(indexNumber, username, fullName, hostName, accessLevel, false, visitID);
 				logger.info("User {} logged into GDA with authorisation level {}", username, accessLevel);
-				this.batonManager.addFacade(uniqueFacadeName, info);
+				this.batonManager.addFacade(jsfIdentifier, info);
 			}
 			return indexNumber;
 		} catch (ClassNotFoundException e) {
