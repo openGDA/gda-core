@@ -18,6 +18,8 @@
 
 package gda.device.scannable.zebra;
 
+import java.io.IOException;
+
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.units.NonSI;
 import org.slf4j.Logger;
@@ -116,11 +118,8 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			checkDeadbandAndMove(runupEnergy);
 			logger.debug("Time spent after moved to angle");
 
-			// TODO tidy up and move Strings to constants
-
 			// fixed settings
 			logger.debug("Time before fixed zebra settings");
-			Boolean changeHasBeenMade = Boolean.FALSE;
 			zebraDevice.setPCEnc(Zebra.PC_ENC_ENCSUM); //Enc1-4Av
 			zebraDevice.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
 			zebraDevice.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
@@ -147,16 +146,6 @@ public class ZebraQexafsScannable extends QexafsScannable {
 						"Inconsistent Zebra parameters: the pulse width is greater than the required pulse step, so Zebra will not emit any pulses! You need to change you scan parameters or ask beamline staff.");
 			}
 			zebraDevice.setPCPulseStep(stepDeg);
-
-			// Has a change been made, so do we need to wait for the template to complete processing?
-			// We must wait here if we have made a change so that any subsequent reads e.g. in getNumberOfDataPoints()
-			// are consistent with the parameters in this method
-			if (changeHasBeenMade) {
-				logger.debug("Have changed zebra settings, so sleeping for 1 second to ensure they have been set");
-				// yuck, but even if we go a caputwait to ensure that the Zebra record has finished processing,
-				// the readback values used in the getNumberOfDataPoints() come out incorrect.
-				Thread.sleep(1000);
-			}
 
 			logger.debug("Time after final zebra set");
 			long timeAtMethodEnd = System.currentTimeMillis();
@@ -237,17 +226,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				InterfaceProvider.getTerminalPrinter().print("Arming Zebra box to trigger detectors during mono move...");
 				logger.info("Arming Zebra box to trigger detectors during mono move...");
 
-//				zebra.pcArm() - needs to do putNoWait(1) since callback waits forever.
-				// Only available in gda9 (using 'armNoWait' option), so do it manually here...
-				pvFactory.getPVInteger(PCArm).putNoWait(1);
-				int timeWaitingToArm = 0; // ms
-				while (!zebraDevice.isPCArmed()){
-					Thread.sleep(100);
-					timeWaitingToArm += 100;
-					if(timeWaitingToArm > 20000){
-						throw new DeviceException("20s timeout waiting for Zebra to arm");
-					}
-				}
+				zebraDevice.pcArm();
 
 				// These will be used when calculating the real energy of each step in the scan, so readback once at this point.
 				logger.debug("Time before zebra readbacks");
@@ -272,12 +251,26 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		logger.debug("Time spent in performContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 	}
 
+	private void logStatus() {
+		try {
+			logger.debug("Motor status : {}", getMotor().getStatus());
+			logger.debug("Zebra number of captured points : {}", zebraDevice.getNumberOfPointsCapturedPV().get());
+		} catch (DeviceException | IOException e) {
+			logger.warn("Problem getting device status", e);
+		}
+	}
+
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
 		logger.debug("continuousMoveComplete() called");
+		long timeAtMethodStart = System.currentTimeMillis();
+
+		logStatus();
+
 		// should ensure that the motor has finished moving before we carry on
 		if (isBusy()){
 			try {
+				logger.debug("Waiting for motor move to finish");
 				waitWhileBusy(5);
 			} catch (DeviceException e) {
 				// DeviceException means a timeout, so call stop and continue
@@ -287,9 +280,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				// if interrupted then someone is aborting the scan, so must re-throw the exception
 				throw new DeviceException(e.getMessage(),e);
 			}
+			logStatus();
 		}
 
-		long timeAtMethodStart = System.currentTimeMillis();
 		// return to regular running values
 		resetDCMSpeed();
 		try {

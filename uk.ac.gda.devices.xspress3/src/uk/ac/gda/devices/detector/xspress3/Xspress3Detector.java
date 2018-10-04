@@ -151,11 +151,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	protected void startRunningXspress3FrameSet() throws DeviceException {
-		// if (writeHDF5Files) {
-		// do not do this if writeHDF5Files is false as may cause errors in
-		// epics
 		controller.setSavingFiles(writeHDF5Files);
-		// }
 		controller.doErase();
 		controller.doStart();
 
@@ -464,19 +460,20 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	/**
-	 * For the moment, all ROI on all channels are the same, and assumed by this class to be the same.
+	 * Return ROIs for a channel (detector element).
 	 *
+	 * @param channel
 	 * @return ROI[]
 	 * @throws DeviceException
 	 */
 	@Override
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+	public DetectorROI[] getRegionsOfInterest(int channel) throws DeviceException {
 		DetectorROI[] rois = new DetectorROI[controller.getNumberROIToRead()];
 
 		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
 			rois[roiNum] = new DetectorROI();
 			rois[roiNum].setRoiName("ROI" + roiNum);
-			Integer[] limits = controller.getROILimits(0, roiNum);
+			Integer[] limits = controller.getROILimits(channel, roiNum);
 			rois[roiNum].setRoiStart(limits[0]);
 			rois[roiNum].setRoiEnd(limits[1]);
 		}
@@ -728,22 +725,31 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
-		DetectorROI[] regions;
-		try {
-			regions = getRegionsOfInterest();
-		} catch (DeviceException e) {
-			Xspress3Parameters parameters = new Xspress3Parameters();
-			parameters.setDetectorName(getName());
-			return parameters;
-		}
 
 		List<DetectorElement> detectorList = new ArrayList<>();
 
 		for (int i = 0; i < getNumberOfElements(); i++){
 			DetectorElement thisElement = new DetectorElement();
-			for (DetectorROI region : regions){
-				thisElement.addRegion(region);
+			thisElement.setName("Element"+i);
+			thisElement.setNumber(i);
+
+			// Get ROIs set for this detector element
+			try {
+				for (DetectorROI region : getRegionsOfInterest(i)) {
+					thisElement.addRegion(region);
+				}
+			} catch (DeviceException e) {
+				logger.error("Problem getting ROIs for element {}. Adding default region that covers full range of MCA channels.", i, e);
+				thisElement.addRegion(new DetectorROI("ROI0", 0, controller.getMcaSize()));
 			}
+
+			// Also get the 'excluded' state for the element
+			try {
+				thisElement.setExcluded(!controller.isChannelEnabled(i));
+			} catch (DeviceException e) {
+				logger.error("Problem getting excluded property for element {}", i, e);
+			}
+
 			detectorList.add(thisElement);
 		}
 

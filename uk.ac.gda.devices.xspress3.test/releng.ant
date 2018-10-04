@@ -19,6 +19,7 @@
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />

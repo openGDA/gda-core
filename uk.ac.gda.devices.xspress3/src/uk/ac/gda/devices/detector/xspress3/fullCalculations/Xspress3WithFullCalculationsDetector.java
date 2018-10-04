@@ -205,19 +205,14 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	/**
-	 * @deprecated Use getConfigurationParameters() instead
+	 * Return ROIs set on underlying {@link Xspress3DataOperations} object.
 	 */
 	@Override
-	@Deprecated
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+	public DetectorROI[] getRegionsOfInterest(int channel) throws DeviceException {
 		return dataOperations.getRegionsOfInterest();
 	}
 
-	/**
-	 * @deprecated Use applyConfigurationParameters() instead
-	 */
 	@Override
-	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		dataOperations.setRegionsOfInterest(regionList);
 	}

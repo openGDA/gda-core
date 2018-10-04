@@ -57,6 +57,9 @@ public interface Xspress3Controller extends Findable {
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
 
+	/** Stop the hdf file writer */
+	public void doStopSavingFiles() throws DeviceException;
+
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
 
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException;
