@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -392,6 +393,19 @@ public final class XMLHelpers {
 		if (!obj.getClass().equals(cl))
 			throw new XMLHelpersException("Class created is incorrect = " + obj.getClass().getName());
 		return obj;
+	}
+
+	/**
+	 * Return a string containing the XML representation of the bean object.
+	 * @param mappingURL the URL of the Castor mapping file
+	 * @param object
+	 * @return string
+	 * @throws Exception
+	 */
+	public static String toXMLString(URL mappingURL, Object object) throws Exception {
+		final StringWriter writer = new StringWriter();
+		XMLHelpers.writeToXML(mappingURL, object, writer);
+		return writer.toString();
 	}
 
 	/**
