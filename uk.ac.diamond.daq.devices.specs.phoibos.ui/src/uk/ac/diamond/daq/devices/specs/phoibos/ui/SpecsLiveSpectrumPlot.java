@@ -41,6 +41,7 @@ public class SpecsLiveSpectrumPlot extends SpecsLivePlot implements IObserver {
 		try {
 			plottingSystem.createPlotPart(parent, "Spectrum", actionBars, PlotType.XY, this);
 			plottingSystem.setTitle("Analyser Spectrum");
+			plottingSystem.setShowLegend(false);
 		} catch (Exception e) {
 			logger.error("Couldn't setup plotting system", e);
 		}
