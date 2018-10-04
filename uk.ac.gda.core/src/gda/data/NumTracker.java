@@ -19,14 +19,14 @@
 
 package gda.data;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * This class can be used to get the next number to use for an experiment using incrementing numbers
@@ -89,7 +89,7 @@ public class NumTracker {
 		// If the directory doesn't exist then create it.
 		dir = new File(dirname);
 		if (!dir.exists()) {
-			logger.debug("Creating " + dir);
+			logger.debug("Creating '{}'", dir);
 			if (!dir.mkdirs()) {
 				final String msg = "Could not create num tracker directory " + dir;
 				logger.error(msg);
@@ -137,7 +137,7 @@ public class NumTracker {
 		if (dir.exists()) {
 			for (File f : dir.listFiles(filter)) {
 				if (!f.delete()) {
-					logger.error("Could not delete file " + f);
+					logger.error("Could not delete file: {}", f);
 				}
 			}
 		}
@@ -170,11 +170,12 @@ public class NumTracker {
 	 * @return true if deletion worked; false otherwise
 	 */
 	private boolean deleteNumberedFile(long number) {
+		logger.debug("deleteNumberedFile: {}", number);
 		if (dir.exists()) {
 			File theFile = makeFile(number);
 			if (theFile.exists()) {
 				if (!theFile.delete()) {
-					logger.error("Could not delete file " + theFile);
+					logger.error("Could not delete file: {}", theFile);
 					return false;
 				}
 			}
@@ -212,14 +213,15 @@ public class NumTracker {
 	 * @return true if the file was successfully created; false otherwise
 	 */
 	private boolean writeNewFile(long number) {
+		logger.debug("writeNewFile: {}", number);
 		if (dir.exists()) {
 			File theFile = makeFile(number);
 			try {
 				theFile.createNewFile();
-				logger.debug("Created temporary run number file " + theFile);
+				logger.debug("Created temporary run number file: {}", theFile);
 				return true;
 			} catch (IOException e) {
-				logger.error("Could not create temporary run number file " + theFile,e);
+				logger.error("Could not create temporary run number file: {}", theFile, e);
 			}
 		}
 		return false;
