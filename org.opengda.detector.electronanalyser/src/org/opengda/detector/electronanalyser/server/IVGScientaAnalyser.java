@@ -1,5 +1,7 @@
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.Set;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.factory.Findable;
@@ -9,10 +11,6 @@ public interface IVGScientaAnalyser extends Findable {
 	public abstract int getNdarrayXsize() throws Exception;
 
 	public abstract int getNdarrayYsize() throws Exception;
-
-	public abstract AnalyserCapabilities getCapabilities();
-
-	public abstract void setCapabilities(AnalyserCapabilities ac);
 
 	public abstract VGScientaController getController();
 
@@ -73,9 +71,9 @@ public interface IVGScientaAnalyser extends Findable {
 
 	public abstract String getDetectorMode() throws Exception;
 
-	public abstract void setElement(String value) throws Exception;
+	public abstract void setPsuMode(String value) throws Exception;
 
-	public abstract String getElement() throws Exception;
+	public abstract String getPsuMode() throws Exception;
 
 	public abstract void setPassEnergy(Integer value) throws Exception;
 
@@ -160,7 +158,7 @@ public interface IVGScientaAnalyser extends Findable {
 
 	double getStepTime() throws Exception;
 
-	public abstract String[] getElementSet() throws DeviceException;
+	public abstract Set<String> getPsuModes() throws DeviceException;
 
 	public abstract double[] getExtIO(int length) throws Exception;
 

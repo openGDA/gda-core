@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -844,14 +845,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void initialisation() {
 		try { // populate Combo list from EPICS PV
+			Set<String> elementSet = getAnalyser().getPsuModes();
+			String[] psuModes = elementSet.toArray(new String[elementSet.size()]);
 			comboElementSet.removeAll();
-			comboElementSet.setItems(getAnalyser().getElementSet());
+			comboElementSet.setItems(psuModes);
 		} catch (DeviceException e) {
 			logger.error("Cannot get element set list from analyser.", e);
 			e.printStackTrace();
 		}
 		try { // initialise with the current PV value
-			comboElementSet.setText(getAnalyser().getElement());
+			comboElementSet.setText(getAnalyser().getPsuMode());
 		} catch (Exception e) {
 			logger.error("Cannot get the current element set from analyser.", e);
 			e.printStackTrace();

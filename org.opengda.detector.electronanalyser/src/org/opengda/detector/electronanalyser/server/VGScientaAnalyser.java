@@ -19,6 +19,7 @@
 package org.opengda.detector.electronanalyser.server;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -57,7 +58,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	private VGScientaController controller;
-	private AnalyserCapabilities capabilites;
 	private int[] fixedModeRegion;
 	private int[] sweptModeRegion;
 
@@ -70,17 +70,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private String cachedEnergyMode;
 
 	private Double totalIntensity=new Double(0.0);
-
-
-	@Override
-	public AnalyserCapabilities getCapabilities() {
-		return capabilites;
-	}
-
-	@Override
-	public void setCapabilities(AnalyserCapabilities ac) {
-		this.capabilites = ac;
-	}
 
 	@Override
 	public VGScientaController getController() {
@@ -99,30 +88,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	@Override
 	public double[] getEnergyAxis() throws Exception {
-		double start, step;
-		int length, startChannel = 0;
-		if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
-			start = controller.getStartEnergy();
-			step = controller.getEnergyStep();
-			length = getAdBase().getSizeX();
-			startChannel = getAdBase().getMinX();
-		} else {
-			start = controller.getStartEnergy();
-			step = controller.getEnergyStep();
-			length = getNumberOfSweeptSteps();
-		}
-
-		double[] axis = new double[length];
-		for (int j = 0; j < length; j++) {
-			axis[j] = start + (j + startChannel) * step;
-		}
-		return axis;
+		return controller.getEnergyAxis();
 	}
 
 	@Override
 	public double[] getAngleAxis() throws Exception {
-		return getCapabilities().getAngleAxis(controller.getLensMode(),
-				getAdBase().getMinY_RBV(), controller.getSlice(), getAdBase().getArraySizeY_RBV());
+		return controller.getYAxis();
 	}
 
 	@Override
@@ -854,13 +825,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getDetectorMode();
 	}
 	@Override
-	public void setElement(String value) throws Exception {
-		controller.setElement(value);
+	public void setPsuMode(String value) throws Exception {
+		controller.setPsuMode(value);
 	}
 
 	@Override
-	public String getElement() throws Exception {
-		return controller.getElement();
+	public String getPsuMode() throws Exception {
+		return controller.getPsuMode();
 	}
 
 	@Override
@@ -1022,8 +993,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getLensModes().toArray(new String[0]);
 	}
 	@Override
-	public String[] getElementSet() throws DeviceException {
-		return controller.getElementset();
+	public Set<String> getPsuModes() throws DeviceException {
+		return controller.getPsuModes();
 	}
 	@Override
 	public double getExcitationEnergy() throws Exception {

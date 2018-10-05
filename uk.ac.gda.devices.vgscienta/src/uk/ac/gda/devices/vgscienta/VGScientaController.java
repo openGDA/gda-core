@@ -20,8 +20,10 @@ package uk.ac.gda.devices.vgscienta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -710,26 +712,6 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	/**
-	 * @deprecated Use {@link #setPsuMode(String)}
-	 * @param value The required element set
-	 * @throws Exception If there is a problem with the EPICS communication
-	 */
-	@Deprecated
-	public void setElement(String value) throws Exception {
-		EPICS_CONTROLLER.caputWait(getChannel(PSU_MODE), value);
-	}
-
-	/**
-	 * @deprecated Use {@link #getPsuMode()} instead
-	 * @return The current power supply mode
-	 * @throws Exception If there is a problem with the EPICS communication
-	 */
-	@Deprecated
-	public String getElement() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(PSU_MODE_RBV));
-	}
-
-	/**
 	 * This returns a copy of the list of the available lens modes.
 	 *
 	 * @return List of the available lens modes
@@ -739,13 +721,14 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	/**
-	 * This returns a copy of the list of the available power supply modes. These are only switchable by physical hardware rewiring, and are to allow different
+	 * This returns a copy of the list of the available power supply modes as a Set.
+	 * These are only switchable by physical hardware rewiring, and are to allow different
 	 * kinetic energy ranges to be reached.
 	 *
 	 * @return List of the available power supply modes
 	 */
-	public List<String> getPsuModes() {
-		return new ArrayList<>(psuModes);
+	public Set<String> getPsuModes() {
+		return new LinkedHashSet<>(psuModes);
 	}
 
 	/**
@@ -755,15 +738,6 @@ public class VGScientaController extends ConfigurableBase {
 	 */
 	public List<String> getDetectorModes() {
 		return new ArrayList<>(detectorModes);
-	}
-
-	/**
-	 * @deprecated This is deprecated use {@link #getPsuModes()} instead
-	 * @return The available element sets
-	 */
-	@Deprecated
-	public String[] getElementset() {
-		return psuModes.toArray(new String[0]);
 	}
 
 	/**
