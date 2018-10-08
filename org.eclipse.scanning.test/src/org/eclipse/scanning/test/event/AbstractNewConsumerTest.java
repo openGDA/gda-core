@@ -57,6 +57,7 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.ConsumerImpl;
 import org.eclipse.scanning.test.util.WaitingAnswer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -130,6 +131,14 @@ public abstract class AbstractNewConsumerTest {
 		runner = mock(IProcessCreator.class);
 		consumer.setRunner(runner);
 		assertThat(consumer.getRunner(), is(runner));
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		if (consumer.isActive()) {
+			consumer.stop();
+		}
+		consumer = null;
 	}
 
 	@SuppressWarnings("unchecked")

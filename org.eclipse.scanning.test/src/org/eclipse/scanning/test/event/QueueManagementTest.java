@@ -180,7 +180,7 @@ public class QueueManagementTest extends BrokerTest {
 		consumer.start();
 		consumer.awaitStart();
 
-		// create and submit the inital bean and wait for the process for it to start
+		// create and submit the initial bean and wait for the process for it to start
 		submitter.submit(createBean("initial"));
 		boolean success = initialProcessStarted.await(1, TimeUnit.SECONDS);
 		assertThat(success, is(true)); // check the above didn't time out

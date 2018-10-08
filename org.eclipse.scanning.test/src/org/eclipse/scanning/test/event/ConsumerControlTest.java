@@ -68,7 +68,7 @@ import org.mockito.Mockito;
  * control the consumer using a {@link ConsumerProxy} which sends {@link QueueCommandBean}s
  * to the consumer.
  */
-public abstract class ConsumerControlTest extends AbstractNewConsumerTest {
+public class ConsumerControlTest extends AbstractNewConsumerTest {
 
 	protected IConsumer<StatusBean> getConsumer() {
 		return consumer;
@@ -144,11 +144,11 @@ public abstract class ConsumerControlTest extends AbstractNewConsumerTest {
 		// allow the process to finish and wait for it to finish
 		waitingAnswer.resume(); // resumes the current process, once finished the consumer should pause
 
-		// verify that the first three jobs were run, but no more
 		Thread.sleep(MOCK_PROCESS_TIME_MS * (processes.size() + 1 - waitingProcessNum));
 		assertThat(consumer.isActive(), is(false));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED));
 
+		// verify that the first three jobs were run, but no more
 		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
@@ -157,7 +157,7 @@ public abstract class ConsumerControlTest extends AbstractNewConsumerTest {
 
 		doResumeConsumer();
 
-		boolean processesCompleted = latch.await(MOCK_PROCESS_TIME_MS * 20, TimeUnit.MILLISECONDS); // wait for the processes to finish
+		boolean processesCompleted = latch.await(2, TimeUnit.SECONDS); // wait for the processes to finish
 		assertThat(processesCompleted, is(true));
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		verifyJobsAfter(inOrder, beans, processes, waitingProcessNum);
@@ -213,7 +213,7 @@ public abstract class ConsumerControlTest extends AbstractNewConsumerTest {
 		doRestartConsumer(); // restart the consumer
 		inOrder.verify(processes.get(waitingProcessNum)).terminate();
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
-		Thread.sleep(250); // unfortunately, can't use Mockito.timeout as it doesn't work with InOrder
+		Thread.sleep(500); // unfortunately, can't use Mockito.timeout as it doesn't work with InOrder
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		boolean processesCompleted = latch.await(MOCK_PROCESS_TIME_MS * 20, TimeUnit.MILLISECONDS); // wait for the processes to finish
 		assertThat(processesCompleted, is(true));
@@ -247,6 +247,8 @@ public abstract class ConsumerControlTest extends AbstractNewConsumerTest {
 		IPublisher<QueueCommandBean> pauseBeanPublisher = mock(IPublisher.class);
 		when(eventService.createPublisher(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) pauseBeanPublisher); // TODO why do we need a double cast?
+
+		startConsumer();
 
 		// Set up mocks for creating the QueueBrowser
 		QueueConnectionFactory connectionFactory = mock(QueueConnectionFactory.class);

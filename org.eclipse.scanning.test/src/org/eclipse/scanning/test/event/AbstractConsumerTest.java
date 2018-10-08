@@ -502,7 +502,8 @@ public class AbstractConsumerTest extends BrokerTest {
 			Thread.sleep(100);
 		}
 
-		Thread.sleep(2500);
+		Thread.sleep(4000); // TODO: increase in timeout is temporary. This test should be replaced
+		// once the queue and status set have been moved into memory
 
 		checkStatus(submissions);
 	}

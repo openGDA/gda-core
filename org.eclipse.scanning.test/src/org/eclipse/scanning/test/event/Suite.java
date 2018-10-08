@@ -25,7 +25,10 @@ import org.junit.runners.Suite.SuiteClasses;
 	AnyBeanEventTest.class,
 	DeviceRequestTest.class,
 	AcquireRequestTest.class,
-	QueueManagementTest.class
+	QueueManagementTest.class,
+	SimpleConsumerTest.class,
+	ConsumerControlTest.class,
+	ConsumerProxyControlTest.class
 	// MConsumerTest.class  Takes too long! TODO Make shorter
 })
 public class Suite {

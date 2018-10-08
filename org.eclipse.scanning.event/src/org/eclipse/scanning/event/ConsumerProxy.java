@@ -21,6 +21,7 @@ package org.eclipse.scanning.event;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -69,6 +70,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractReadOnlyQ
 	private synchronized Object sendCommandBean(QueueCommandBean commandBean) throws EventException {
 		if (queueCommandRequestor == null) {
 			queueCommandRequestor = eventService.createRequestor(uri, getCommandTopicName(), getCommandAckTopicName());
+			queueCommandRequestor.setTimeout(1, TimeUnit.SECONDS); // allow quite a generous timeout
 		}
 
 		try {
