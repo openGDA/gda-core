@@ -48,13 +48,13 @@
 		<field name="UserStageParameters" type="uk.ac.gda.beans.exafs.b18.UserStageParameters">
 			<bind-xml name="userstage" node="element" />
 		</field>
-		<field name="SampleParameterMotorPositions" type="uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition" collection="collection"
+		<field name="SampleParameterMotorPositions" type="uk.ac.gda.beans.exafs.SampleParameterMotorPosition" collection="collection"
 			set-method="addSampleParameterMotorPosition" get-method="getSampleParameterMotorPositions">
 			<bind-xml name="sampleParameterMotorPosition" node="element" />
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition">
+	<class name="uk.ac.gda.beans.exafs.SampleParameterMotorPosition">
 		<map-to xml="sampleParameterMotorPosition" />
 		<field name="scannableName" type="string">
 			<bind-xml name="scannableName" node="element" />

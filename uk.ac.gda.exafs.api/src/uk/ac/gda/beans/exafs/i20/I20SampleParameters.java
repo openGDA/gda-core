@@ -25,10 +25,11 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class I20SampleParameters implements Serializable, ISampleParameters {
+public class I20SampleParameters implements Serializable, ISampleParametersWithMotorPositions {
 	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat" };
 	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature" };
 	static public final URL mappingURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xml");
@@ -45,6 +46,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	private MicroreactorParameters microreactorParameters;
 	private List<CustomXYZParameter> customXYZParameters;
 	private List<CustomParameter> customParameters;
+	private List<SampleParameterMotorPosition> sampleParameterMotorPositions = new ArrayList<>();
 	private boolean shouldValidate = true;
 
 	public static I20SampleParameters createFromXML(String filename) throws Exception {
@@ -67,6 +69,8 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			customXYZParameters.clear();
 		if (roomTemperatureParameters != null)
 			roomTemperatureParameters.clear();
+
+		sampleParameterMotorPositions.clear();
 	}
 
 	public I20SampleParameters() {
@@ -237,6 +241,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		result = prime * result + ((sampleWheelPosition == null) ? 0 : sampleWheelPosition.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + ((useSampleWheel == null) ? 0 : useSampleWheel.hashCode());
+		result = prime * result	+ ((sampleParameterMotorPositions == null) ? 0 : sampleParameterMotorPositions.hashCode());
 		return result;
 	}
 
@@ -317,6 +322,11 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		}
 		else if (!useSampleWheel.equals(other.useSampleWheel))
 			return false;
+		if (sampleParameterMotorPositions == null) {
+			if (other.sampleParameterMotorPositions != null)
+				return false;
+		} else if (!sampleParameterMotorPositions.equals(other.sampleParameterMotorPositions))
+			return false;
 		return true;
 	}
 
@@ -327,6 +337,31 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 			if (!list1.get(element).equals(list2.get(element)))
 				return false;
 		return true;
+	}
+
+	@Override
+	public SampleParameterMotorPosition getSampleParameterMotorPosition(String scannableName) {
+		for(SampleParameterMotorPosition sampleMotor : sampleParameterMotorPositions) {
+			if (sampleMotor.getScannableName().equalsIgnoreCase(scannableName)) {
+				return sampleMotor;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<SampleParameterMotorPosition> getSampleParameterMotorPositions() {
+		return sampleParameterMotorPositions;
+	}
+
+	@Override
+	public void setSampleParameterMotorPositions(List<SampleParameterMotorPosition> sampleParameterMotorPositions) {
+		this.sampleParameterMotorPositions = sampleParameterMotorPositions;
+	}
+
+	@Override
+	public void addSampleParameterMotorPosition(SampleParameterMotorPosition sampleParameterMotorPosition) {
+		sampleParameterMotorPositions.add(sampleParameterMotorPosition);
 	}
 
 }

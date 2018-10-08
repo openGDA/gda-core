@@ -205,6 +205,10 @@ public class SpreadsheetViewTable {
 				columnViewer.setEditingSupport(new BrowseForFileEditingSupport(viewer, typeIndex, paramIndex));
 				columnViewer.setLabelProvider(new BrowseForFileLabelProvider(typeIndex, paramIndex));
 				column.setAlignment(SWT.RIGHT); // so name of script is visible, rather than just first part of path...
+			} else {
+				// Text box
+				columnViewer.setEditingSupport(new ParameterValueEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new ParameterLabelProvider(typeIndex, paramIndex));
 			}
 		} else {
 			// Text box

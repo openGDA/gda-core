@@ -22,8 +22,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
-import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean;
 
 public class SpreadsheetViewTest {
@@ -53,13 +54,13 @@ public class SpreadsheetViewTest {
 		Object result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getName", null);
 		assertEquals(sampleParameters.getName(), result);
 
-		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")", null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")", null);
 		assertEquals(sampleMotorPosition, result);
 
-		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME, null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DO_MOVE_GETTER_NAME, null);
 		assertEquals(sampleMotorPosition.getDoMove(), result);
 
-		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, B18SampleParameters.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME, null);
+		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME+"("+scannableName+")."+SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME, null);
 		assertEquals(sampleMotorPosition.getDemandPosition(), result);
 
 		result = ParameterValuesForBean.invokeMethodFromName(sampleParameters, "getUserStageParameters.getAxis2", null);

@@ -51,13 +51,13 @@ import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 import uk.ac.gda.beans.exafs.b18.FurnaceParameters;
 import uk.ac.gda.beans.exafs.b18.LN2CryoStageParameters;
 import uk.ac.gda.beans.exafs.b18.LakeshoreParameters;
 import uk.ac.gda.beans.exafs.b18.PulseTubeCryostatParameters;
 import uk.ac.gda.beans.exafs.b18.SXCryoStageParameters;
-import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.SampleWheelParameters;
 import uk.ac.gda.beans.exafs.b18.UserStageParameters;
 import uk.ac.gda.beans.exafs.b18.XYThetaStageParameters;
