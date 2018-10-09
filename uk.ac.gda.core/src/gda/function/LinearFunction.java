@@ -24,12 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.util.QuantityFactory;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * LinearFunction (yValue = xValue * slope + intercept)
  */
-
-public class LinearFunction extends FindableFunction {
+@ServiceInterface(ILinearFunction.class)
+public class LinearFunction extends FindableFunction implements ILinearFunction {
 	private static final Logger logger = LoggerFactory.getLogger(LinearFunction.class);
 
 	private Quantity slope;
@@ -73,6 +74,7 @@ public class LinearFunction extends FindableFunction {
 	/**
 	 * @return Returns the interception.
 	 */
+	@Override
 	public String getInterception() {
 		return interception;
 	}
@@ -81,6 +83,7 @@ public class LinearFunction extends FindableFunction {
 	 * @param interception
 	 *            The interception to set.
 	 */
+	@Override
 	public void setInterception(String interception) {
 		this.interception = interception;
 		intercept = QuantityFactory.createFromString(interception);
@@ -89,6 +92,7 @@ public class LinearFunction extends FindableFunction {
 	/**
 	 * @return Returns the slopeDividend.
 	 */
+	@Override
 	public String getSlopeDividend() {
 		return slopeDividend;
 	}
@@ -97,6 +101,7 @@ public class LinearFunction extends FindableFunction {
 	 * @param slopeDividend
 	 *            The slopeDividend to set.
 	 */
+	@Override
 	public void setSlopeDividend(String slopeDividend) {
 		slopeNumerator = QuantityFactory.createFromString(slopeDividend);
 		this.slopeDividend = slopeDividend;
@@ -105,6 +110,7 @@ public class LinearFunction extends FindableFunction {
 	/**
 	 * @return Returns the slopeDivisor.
 	 */
+	@Override
 	public String getSlopeDivisor() {
 		return slopeDivisor;
 	}
@@ -113,6 +119,7 @@ public class LinearFunction extends FindableFunction {
 	 * @param slopeDivisor
 	 *            The slopeDivisor to set.
 	 */
+	@Override
 	public void setSlopeDivisor(String slopeDivisor) {
 		slopeDenominator = QuantityFactory.createFromString(slopeDivisor);
 		this.slopeDivisor = slopeDivisor;
