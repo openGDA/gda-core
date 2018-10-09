@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -68,13 +69,10 @@ public class QueueManagementTest extends BrokerTest {
 
 		@Override
 		public void execute() throws EventException, InterruptedException {
-			// release the semaphore. This releases the main thread which should be waiting to
-			// acquire the semaphore at this point.
-			semaphore.release();
-			// try to acquire the semaphore again. Since the main thread was waiting first and
-			// the semaphore is fair, we have to wait until the main thread releases the semaphore
-			// at which point this method can exit
-			semaphore.acquire();
+			// Decrement the countdown latch, this releases the main thread which should be waiting on the latch
+			initialProcessStarted.countDown();
+
+			releaseInitialProcess.await(); // this process waits until the test is finished
 			getBean().setStatus(Status.COMPLETE);
 			getPublisher().broadcast(getBean());
 		}
@@ -106,6 +104,9 @@ public class QueueManagementTest extends BrokerTest {
 	private IConsumer<StatusBean> consumer;
 	private IConsumer<StatusBean> consumerProxy;
 
+	private CountDownLatch initialProcessStarted;
+	private CountDownLatch releaseInitialProcess;
+
 	private final boolean useProxy;
 	private final boolean startConsumer;
 
@@ -123,8 +124,6 @@ public class QueueManagementTest extends BrokerTest {
 		this.useProxy = useProxy;
 		this.startConsumer = startConsumer;
 	}
-
-	private Semaphore semaphore = null;
 
 	@Before
 	public void setUp() throws Exception {
@@ -152,41 +151,39 @@ public class QueueManagementTest extends BrokerTest {
 	public void tearDown() throws Exception {
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
+
+		submitter.disconnect();
+		consumer.disconnect();
+
+		if (releaseInitialProcess != null) {
+			releaseInitialProcess.countDown();
+		}
 	}
 
+	/**
+	 * Starts the consumer and submits an initial task that waits, so that we add beans
+	 * to the queue and rearrange them without them getting run
+	 * @throws EventException
+	 * @throws InterruptedException
+	 */
 	private void startConsumer() throws EventException, InterruptedException {
 		// starts the consumer and sets it going with an initial task
 
-		// Create and acquire the semaphore and create and set the runner
-		semaphore = new Semaphore(1, true);
-		semaphore.acquire();
+		// Create the latch for releasing the initial process
+		releaseInitialProcess = new CountDownLatch(1);
+
+		// Create the latch for the initial process starting
+		initialProcessStarted = new CountDownLatch(1);
 		consumer.setRunner(new TestProcessCreator());
 
 		// start the consumer and wait until its fully started
 		consumer.start();
 		consumer.awaitStart();
 
-		// submit the initial bean and try to acquire the semaphore. This is released by the process
-		// for this
+		// create and submit the inital bean and wait for the process for it to start
 		submitter.submit(createBean("initial"));
-		// try to acquire the semaphore again, this will block until the process for the
-		// initial bean releases it
-		semaphore.acquire();
-
-		// now we know that the initial bean has been removed from the queue and is blocked,
-		// so we can add other beans to the queue and r
-	}
-
-	@After
-	public void dispose() throws Exception {
-		submitter.disconnect();
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
-		consumer.disconnect();
-		if (semaphore != null) {
-			semaphore.release();
-			semaphore = null;
-		}
+		boolean success = initialProcessStarted.await(1, TimeUnit.SECONDS);
+		assertThat(success, is(true)); // check the above didn't time out
 	}
 
 	private IConsumer<StatusBean> getConsumer() {
@@ -317,7 +314,6 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean the first time
-//		doReorderUp(beanThree);
 		getConsumer().reorder(beanThree, 1);
 
 		// Assert: first update the beans list so we can use it as the expected answer
