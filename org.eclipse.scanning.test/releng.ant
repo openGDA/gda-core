@@ -52,8 +52,68 @@
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
-			<!-- Run the "All" test suite -->
-			<test name="org.eclipse.scanning.test.All" todir="@{report.dir}"/>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${plugin.basedir}/src">
+					<include name="org/eclipse/scanning/sequencer/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/annot/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/command/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/command/Abstract*Test.java" />
+					<exclude name="org/eclipse/scanning/test/command/ScanRequestTest.java" />
+
+					<include name="org/eclipse/scanning/test/epics/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/event/SerializationTest.java" />
+					<include name="org/eclipse/scanning/test/event/ScanEventTest.java" />
+					<include name="org/eclipse/scanning/test/event/ConsumerTest.java" />
+					<include name="org/eclipse/scanning/test/event/SubmitterTest.java" />
+					<include name="org/eclipse/scanning/test/event/PauseTest.java" />
+					<include name="org/eclipse/scanning/test/event/MappingScanTest.java" />
+					<include name="org/eclipse/scanning/test/event/AnyBeanEventTest.java" />
+					<include name="org/eclipse/scanning/test/event/DeviceRequestTest.java" />
+					<include name="org/eclipse/scanning/test/event/AcquireRequestTest.java" />
+					<include name="org/eclipse/scanning/test/event/QueueManagementTest.java" />
+
+					<include name="org/eclipse/scanning/test/fakespring/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/filter/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/malcolm/real/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/malcolm/real/Abstract*Test.java" />
+
+					<include name="org/eclipse/scanning/test/messaging/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/points/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/points/Abstract*Test.java" />
+					<exclude name="org/eclipse/scanning/test/points/LissajousTest.java" />
+
+					<include name="org/eclipse/scanning/test/remote/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/remote/GetDeviceInformationTest.java" />
+
+					<include name="org/eclipse/scanning/test/scan/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/scan/Abstract*Test.java" />
+
+					<include name="org/eclipse/scanning/test/scan/nexus/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/Abstract*Test.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/CompositeNexusScannableTest.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/DummyMalcolmDeviceTest.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/NexusTest.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/PosDetectorScanTest.java" />
+					<exclude name="org/eclipse/scanning/test/scan/nexus/ScanWithNoNexusFileTest.java" />
+
+					<include name="org/eclipse/scanning/test/scan/preprocess/*Test.java" />
+
+					<include name="org/eclipse/scanning/test/scan/servlet/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/scan/servlet/Abstract*Test.java" />
+					<exclude name="org/eclipse/scanning/test/scan/servlet/DefaultConfigurationPreprocessorTest.java" />
+
+					<include name="org/eclipse/scanning/test/validation/*Test.java" />
+					<exclude name="org/eclipse/scanning/test/validation/Abstract*Test.java" />
+
+					<exclude name="**/*PluginTest.java" />
+				</fileset>
+			</batchtest>
 		</junit-call>
 	</target>
 
