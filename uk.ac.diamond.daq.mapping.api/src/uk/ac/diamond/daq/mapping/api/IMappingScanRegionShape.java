@@ -68,4 +68,9 @@ public interface IMappingScanRegionShape {
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 
+	/**
+	 * @return a field-by-field copy of this IMappingScanRegionShape
+	 */
+	public IMappingScanRegionShape copy();
+
 }

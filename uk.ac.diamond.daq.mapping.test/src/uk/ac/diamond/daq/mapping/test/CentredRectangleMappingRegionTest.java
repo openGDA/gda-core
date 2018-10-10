@@ -18,12 +18,18 @@
 
 package uk.ac.diamond.daq.mapping.test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 
 public class CentredRectangleMappingRegionTest {
@@ -127,4 +133,12 @@ public class CentredRectangleMappingRegionTest {
 		assertEquals("yRange", yRange, rectangularMappingRegion.getyRange(), yRange * 1e-8);
 	}
 
+	@Test
+	public void testCopy() {
+		final CentredRectangleMappingRegion original = new CentredRectangleMappingRegion();
+		final IMappingScanRegionShape copy = original.copy();
+
+		assertThat(copy, is(equalTo(original)));
+		assertThat(copy, is(not(sameInstance(original))));
+	}
 }

@@ -24,7 +24,17 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 public interface IMappingRegionManager {
 
-	public List<IMappingScanRegionShape> getRegions();
+	/**
+	 * @return a copy of the configured regions
+	 */
+	public List<IMappingScanRegionShape> getTemplateRegions();
+
+	/**
+	 * Get the default/template instance of the given type
+	 * @param regionClass
+	 * @return instance with default parameters
+	 */
+	public <T extends IMappingScanRegionShape> T getTemplateRegion(Class<T> regionClass);
 
 	public List<IScanPathModel> getValidPaths(IMappingScanRegionShape scanRegion);
 }

@@ -142,4 +142,46 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 		return orientation == Orientation.HORIZONTAL ? constant : stop;
 	}
 
+	@Override
+	public IMappingScanRegionShape copy() {
+		final SnappedLineMappingRegion copy = new SnappedLineMappingRegion();
+		copy.orientation = orientation;
+		return copy;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(constant);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((orientation == null) ? 0 : orientation.hashCode());
+		temp = Double.doubleToLongBits(start);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(stop);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SnappedLineMappingRegion other = (SnappedLineMappingRegion) obj;
+		if (Double.doubleToLongBits(constant) != Double.doubleToLongBits(other.constant))
+			return false;
+		if (orientation != other.orientation)
+			return false;
+		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+			return false;
+		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop)) // NOSONAR for idiomatic consistency
+			return false;
+		return true;
+	}
+
 }

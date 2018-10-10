@@ -100,6 +100,14 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public IMappingScanRegionShape copy() {
+		final PointMappingRegion copy = new PointMappingRegion();
+		copy.setxPosition(xPosition);
+		copy.setyPosition(yPosition);
+		return copy;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

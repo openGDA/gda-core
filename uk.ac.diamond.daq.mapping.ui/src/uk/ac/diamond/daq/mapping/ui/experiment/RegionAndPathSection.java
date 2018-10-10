@@ -243,7 +243,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		});
 
 		regionSelector.setContentProvider(ArrayContentProvider.getInstance());
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+		List<IMappingScanRegionShape> regionList = mappingRegionManager.getTemplateRegions();
 		regionSelector.setInput(regionList.toArray());
 
 		regionSelector.addSelectionChangedListener(new RegionSelectorListener());
@@ -300,7 +300,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		scanPathModel = mappingScanRegion.getScanPath();
 
 		// Replace the region model of the same class with the new region from the mapping bean
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+		List<IMappingScanRegionShape> regionList = mappingRegionManager.getTemplateRegions();
 		if (scanRegion == null) {
 			scanRegion = regionList.get(0);
 		} else {

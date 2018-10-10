@@ -116,6 +116,15 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public IMappingScanRegionShape copy() {
+		final CircularMappingRegion copy = new CircularMappingRegion();
+		copy.setxCentre(xCentre);
+		copy.setyCentre(yCentre);
+		copy.setRadius(radius);
+		return copy;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

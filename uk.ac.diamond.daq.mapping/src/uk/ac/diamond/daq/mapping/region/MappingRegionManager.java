@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -35,8 +37,18 @@ public class MappingRegionManager implements IMappingRegionManager {
 	private List<IScanPathModel> zeroDPaths = Collections.emptyList();
 
 	@Override
-	public List<IMappingScanRegionShape> getRegions() {
-		return regions;
+	public List<IMappingScanRegionShape> getTemplateRegions() {
+		return regions.stream().map(IMappingScanRegionShape::copy).collect(toList());
+	}
+
+	@Override
+	public <T extends IMappingScanRegionShape> T getTemplateRegion(Class<T> regionClass) {
+		return regions.stream()
+				.filter(regionClass::isInstance)
+				.map(IMappingScanRegionShape::copy)
+				.map(regionClass::cast)
+				.findFirst()
+				.orElseThrow(()-> new IllegalArgumentException("No region found of class '" + regionClass.getName() + "'"));
 	}
 
 	@Override

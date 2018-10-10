@@ -138,6 +138,16 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public IMappingScanRegionShape copy() {
+		final CentredRectangleMappingRegion copy = new CentredRectangleMappingRegion();
+		copy.setxCentre(xCentre);
+		copy.setxRange(xRange);
+		copy.setyCentre(yCentre);
+		copy.setyRange(yRange);
+		return copy;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

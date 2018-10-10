@@ -26,6 +26,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 public class LineMappingRegion implements ILineMappingRegion {
 
@@ -130,6 +131,16 @@ public class LineMappingRegion implements ILineMappingRegion {
 	@Override
 	public String whichPlottingRegionType() {
 		return RegionType.LINE.toString();
+	}
+
+	@Override
+	public IMappingScanRegionShape copy() {
+		final LineMappingRegion copy = new LineMappingRegion();
+		copy.setxStart(xStart);
+		copy.setxStop(xStop);
+		copy.setyStart(yStart);
+		copy.setyStop(yStop);
+		return copy;
 	}
 
 	@Override

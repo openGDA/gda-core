@@ -132,6 +132,16 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public IMappingScanRegionShape copy() {
+		final RectangularMappingRegion copy = new RectangularMappingRegion();
+		copy.setxStart(xStart);
+		copy.setxStop(xStop);
+		copy.setyStart(yStart);
+		copy.setyStop(yStop);
+		return copy;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

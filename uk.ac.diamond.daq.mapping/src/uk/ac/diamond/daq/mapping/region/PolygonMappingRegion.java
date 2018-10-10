@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static java.util.stream.Collectors.toList;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -90,6 +92,13 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		} else {
 			throw new IllegalArgumentException("Polygon mapping region can only update from a PolygonalROI");
 		}
+	}
+
+	@Override
+	public IMappingScanRegionShape copy() {
+		final PolygonMappingRegion copy = new PolygonMappingRegion();
+		copy.setPoints(points.stream().map(p -> new MutablePoint(p.getX(), p.getY())).collect(toList()));
+		return copy;
 	}
 
 	public static class MutablePoint {
