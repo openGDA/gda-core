@@ -971,7 +971,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 		private final IConsumer<?> consumer;
 		private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
 			Thread thread = Executors.defaultThreadFactory().newThread(r);
-			thread.setName("Alive Notification " + getTopicName());
+			thread.setName("Alive Notification for consumer " + getName());
 			thread.setDaemon(true);
 			thread.setPriority(Thread.MIN_PRIORITY);
 			return thread;
@@ -1030,6 +1030,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 			beat.setConsumerId(consumer.getConsumerId());
 			beat.setConsumerName(consumer.getName());
 			beat.setConsumerStatus(consumer.getConsumerStatus());
+			beat.setQueueName(consumer.getSubmitQueueName());
 			beat.setBeamline(System.getenv("BEAMLINE"));
 			beat.setHostName(InetAddress.getLocalHost().getHostName());
 		}

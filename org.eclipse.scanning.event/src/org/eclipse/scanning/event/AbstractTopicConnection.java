@@ -31,13 +31,11 @@ import org.eclipse.scanning.api.event.core.ITopicConnection;
  */
 public abstract class AbstractTopicConnection extends AbstractConnection implements ITopicConnection {
 
-	AbstractTopicConnection(URI uri, String topic, IEventConnectorService service) {
-		super(uri, topic, service);
-	}
+	private String topicName;
 
-	AbstractTopicConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String commandTopicName, IEventConnectorService service) {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, service);
+	AbstractTopicConnection(URI uri, String topicName, IEventConnectorService service) {
+		super(uri, service);
+		this.topicName = topicName;
 	}
 
 	/**
@@ -50,5 +48,13 @@ public abstract class AbstractTopicConnection extends AbstractConnection impleme
 		return getSession().createTopic(topicName);
 	}
 
+	@Override
+	public String getTopicName() {
+		return topicName;
+	}
+
+	public void setTopicName(String topic) {
+		this.topicName = topic;
+	}
 
 }

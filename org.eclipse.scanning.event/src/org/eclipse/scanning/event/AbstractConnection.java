@@ -34,7 +34,6 @@ abstract class AbstractConnection implements IURIConnection {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractConnection.class);
 
 	protected final URI uri;
-	protected String topicName;
 
 	// set the queue and topic names to their defaults
 	protected String submitQueueName  = EventConstants.SUBMISSION_QUEUE;
@@ -51,11 +50,6 @@ abstract class AbstractConnection implements IURIConnection {
 	AbstractConnection(URI uri, IEventConnectorService service) {
 		this.uri = uri;
 		this.service = service;
-	}
-
-	AbstractConnection(URI uri, String topic, IEventConnectorService service) {
-		this(uri, service);
-		this.topicName = topic;
 	}
 
 	AbstractConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
@@ -124,14 +118,6 @@ abstract class AbstractConnection implements IURIConnection {
 			queueSession = null;
 		}
 		setConnected(false);
-	}
-
-	public String getTopicName() {
-		return topicName;
-	}
-
-	public void setTopicName(String topic) {
-		this.topicName = topic;
 	}
 
 	@Override
