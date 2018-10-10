@@ -478,10 +478,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 			} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
 				updateScriptStatus(scriptStatus);
-			// If its a scan event limit the rate of GUI updates
-			} else if (changeCode instanceof ScanEvent && scanEventRateLimiter.tryAcquire()) {
+			} else if (changeCode instanceof ScanEvent) {
 				updateScanDetails(scanStatus, (ScanEvent) changeCode);
-				updateScriptStatus(scriptStatus);
 			}
 		};
 
@@ -515,7 +513,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			break;
 		case NOTSTARTED:
 		case RUNNING:
-			setStatusLineText(status, message, "computer_go.png");
+			// If it's an update while scan is running, limit the rate of GUI updates
+			if (scanEventRateLimiter.tryAcquire()) {
+				setStatusLineText(status, message, "computer_go.png");
+			}
 			break;
 		case FINISHING_EARLY:
 		case TIDYING_UP_AFTER_FAILURE:
