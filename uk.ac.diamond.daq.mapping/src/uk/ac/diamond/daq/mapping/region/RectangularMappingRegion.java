@@ -24,7 +24,6 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -34,7 +33,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	private double xStop = 1;
 	private double yStart = 0;
 	private double yStop = 1;
-	private String name = "Rectangle";
+	private static final String NAME = "Rectangle";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	@Override
@@ -48,9 +47,8 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	public double getxStart() {
@@ -94,7 +92,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	public void updateFromROI(IROI newROI) throws IllegalArgumentException {
+	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof RectangularROI) {
 			RectangularROI roi = (RectangularROI) newROI;
 			if (roi.getAngle() != 0.0) {
@@ -137,7 +135,6 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(xStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -159,18 +156,13 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 		if (getClass() != obj.getClass())
 			return false;
 		RectangularMappingRegion other = (RectangularMappingRegion) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		if (Double.doubleToLongBits(xStart) != Double.doubleToLongBits(other.xStart))
 			return false;
 		if (Double.doubleToLongBits(xStop) != Double.doubleToLongBits(other.xStop))
 			return false;
 		if (Double.doubleToLongBits(yStart) != Double.doubleToLongBits(other.yStart))
 			return false;
-		if (Double.doubleToLongBits(yStop) != Double.doubleToLongBits(other.yStop))
+		if (Double.doubleToLongBits(yStop) != Double.doubleToLongBits(other.yStop)) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
@@ -178,6 +170,6 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	@Override
 	public String toString() {
 		return "RectangularMappingRegion [xStart=" + xStart + ", xStop=" + xStop + ", yStart=" + yStart + ", yStop="
-				+ yStop + ", name=" + name + ", pcs=" + pcs + "]";
+				+ yStop + ", name=" + NAME + ", pcs=" + pcs + "]";
 	}
 }

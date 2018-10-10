@@ -34,9 +34,6 @@ public class MappingRegionManager implements IMappingRegionManager {
 	private List<IScanPathModel> oneDPaths = Collections.emptyList();
 	private List<IScanPathModel> zeroDPaths = Collections.emptyList();
 
-	public MappingRegionManager() {
-	}
-
 	@Override
 	public List<IMappingScanRegionShape> getRegions() {
 		return regions;

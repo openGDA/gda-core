@@ -24,8 +24,6 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -34,7 +32,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	private double xCentre = 0;
 	private double yCentre = 0;
 	private double radius = 1;
-	private String name = "Circle";
+	private static final String NAME = "Circle";
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -48,7 +46,6 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		this.pcs.removePropertyChangeListener(listener);
 	}
 
-	@UiComesAfter("regionShape")
 	public double getxCentre() {
 		return xCentre;
 	}
@@ -59,7 +56,6 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("xCentre", oldvalue, newValue);
 	}
 
-	@UiComesAfter("xCentre")
 	public double getyCentre() {
 		return yCentre;
 	}
@@ -70,7 +66,6 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("yCentre", oldvalue, newValue);
 	}
 
-	@UiComesAfter("yCentre")
 	public double getRadius() {
 		return radius;
 	}
@@ -82,13 +77,12 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	@Override
-	public void updateFromROI(IROI newROI) throws IllegalArgumentException {
+	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof CircularROI) {
 			CircularROI roi = (CircularROI) newROI;
 			// First save the old values
@@ -128,7 +122,6 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		long temp;
 		temp = Double.doubleToLongBits(radius);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		temp = Double.doubleToLongBits(xCentre);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(yCentre);
@@ -147,14 +140,9 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 		CircularMappingRegion other = (CircularMappingRegion) obj;
 		if (Double.doubleToLongBits(radius) != Double.doubleToLongBits(other.radius))
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		if (Double.doubleToLongBits(xCentre) != Double.doubleToLongBits(other.xCentre))
 			return false;
-		if (Double.doubleToLongBits(yCentre) != Double.doubleToLongBits(other.yCentre))
+		if (Double.doubleToLongBits(yCentre) != Double.doubleToLongBits(other.yCentre)) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}

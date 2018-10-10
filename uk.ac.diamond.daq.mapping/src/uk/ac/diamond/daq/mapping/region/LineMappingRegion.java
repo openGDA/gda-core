@@ -24,8 +24,6 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 
@@ -35,7 +33,7 @@ public class LineMappingRegion implements ILineMappingRegion {
 	private double yStart = 0;
 	private double xStop = 1;
 	private double yStop = 1;
-	private String name = "Line";
+	private static final String NAME = "Line";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	@Override
@@ -71,7 +69,6 @@ public class LineMappingRegion implements ILineMappingRegion {
 	}
 
 	@Override
-	@UiComesAfter("yStart")
 	public double getxStop() {
 		return xStop;
 	}
@@ -94,13 +91,12 @@ public class LineMappingRegion implements ILineMappingRegion {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	@Override
-	public void updateFromROI(IROI newROI) throws IllegalArgumentException {
+	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof LinearROI) {
 			LinearROI roi = (LinearROI) newROI;
 			// First save the old values
@@ -140,7 +136,6 @@ public class LineMappingRegion implements ILineMappingRegion {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(xStart);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -162,19 +157,15 @@ public class LineMappingRegion implements ILineMappingRegion {
 		if (getClass() != obj.getClass())
 			return false;
 		LineMappingRegion other = (LineMappingRegion) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		if (Double.doubleToLongBits(xStart) != Double.doubleToLongBits(other.xStart))
 			return false;
 		if (Double.doubleToLongBits(xStop) != Double.doubleToLongBits(other.xStop))
 			return false;
 		if (Double.doubleToLongBits(yStart) != Double.doubleToLongBits(other.yStart))
 			return false;
-		if (Double.doubleToLongBits(yStop) != Double.doubleToLongBits(other.yStop))
+		if (Double.doubleToLongBits(yStop) != Double.doubleToLongBits(other.yStop)) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
+
 }
