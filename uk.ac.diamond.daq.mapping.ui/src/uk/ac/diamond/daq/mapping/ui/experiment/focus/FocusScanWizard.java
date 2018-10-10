@@ -55,6 +55,9 @@ public class FocusScanWizard extends Wizard {
 			return false;
 		}
 
+		// update interception (if configured)
+		resultPage.updateInterception();
+
 		// move the zone plate to the selected value
 		resultPage.setFocusPosition();
 

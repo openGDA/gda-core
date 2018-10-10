@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
+import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayYesNoMessage;
+import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
+
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,6 +73,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Button;
@@ -76,10 +81,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.function.ILinearFunction;
+import gda.util.QuantityFactory;
+import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
@@ -146,6 +156,9 @@ public class FocusScanResultPage extends WizardPage {
 	private ScheduledFuture<?> future;
 	private ScheduledExecutorService updateMapExecutor;
 
+	private IScannable<Double> focusScannable;
+	private Object focusScannableOriginalPosition;
+
 	public FocusScanResultPage() {
 		super(FocusScanResultPage.class.getSimpleName());
 		setTitle("Select Focus Setting");
@@ -154,6 +167,16 @@ public class FocusScanResultPage extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
+		try {
+			focusScannable = scannableService.getScannable(focusScanBean.getFocusScannableName());
+			focusScannableOriginalPosition = focusScannable.getPosition();
+		} catch (ScanningException e) {
+			final String message = "Could not access focus scannable";
+			logger.error(message, e);
+			displayError(message, "See error log for details", logger);
+			return;
+		}
+
 		final SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
 		createFocusScanPlotControl(sashForm);
@@ -542,6 +565,31 @@ public class FocusScanResultPage extends WizardPage {
 		return true;
 	}
 
+	/**
+	 * If energy focus function modification is configured, ask the user to confirm that they wish to change the
+	 * interception.
+	 */
+	protected void updateInterception() {
+		final EnergyFocusBean energyFocusBean = focusScanBean.getEnergyFocusBean();
+		if (energyFocusBean != null) {
+			final Unit<? extends Quantity> focusScannableUnit = QuantityFactory.createUnitFromString(focusScannable.getUnit());
+			final Quantity oldFocusPosition = QuantityFactory.createFromObject(focusScannableOriginalPosition, focusScannableUnit);
+			final Quantity newFocusPosition = QuantityFactory.createFromObject(focusScannablePosition.getValue(), focusScannableUnit);
+			final Quantity difference = newFocusPosition.minus(oldFocusPosition);
+
+			final ILinearFunction energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
+			final Quantity oldInterception = QuantityFactory.createFromString(energyFocusFunction.getInterception());
+			final Quantity newInterception = oldInterception.plus(difference);
+
+			final String message = String.format("Do you want to change the interception from %s to %s?",
+					oldInterception, newInterception);
+			if (displayYesNoMessage("Change interception", message)) {
+				energyFocusFunction.setInterception(newInterception.toString());
+				saveConfig(energyFocusFunction, energyFocusBean.getEnergyFocusConfigPath(), logger);
+			}
+		}
+	}
+
 	protected void setFocusPosition() {
 		final Double newPosition = (Double) focusScannablePosition.getValue();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
@@ -562,13 +610,11 @@ public class FocusScanResultPage extends WizardPage {
 			monitor.beginTask(String.format("Moving zone plate ''%s'' to %f", zonePlateName, newPosition),
 					IProgressMonitor.UNKNOWN);
 
-			final IScannable<Double> scannable = scannableService.getScannable(focusScanBean.getFocusScannableName());
-			scannable.setPosition(newPosition);
+			focusScannable.setPosition(newPosition);
 		} catch (Exception e) {
 			throw new InvocationTargetException(e);
 		} finally {
 			monitor.done();
 		}
 	}
-
 }

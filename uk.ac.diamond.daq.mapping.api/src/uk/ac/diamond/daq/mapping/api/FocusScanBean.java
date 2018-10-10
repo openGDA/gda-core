@@ -23,17 +23,19 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 /**
  * A bean representing a focus scan. The following fields should be configured in spring:
  * <ul>
- *   <li><em>focusScannableName</em>: The name of the focus scannable (normally a zone plate);</li>
- *   <li><em>Number of focus steps</em>: The default number of focus steps to take in the scan;</li>
- *   <li><em>Number of line points</em>: The default number of points in the line to scan. The
- *      line is scanned at each focus step.</li>
+ * <li><em>focusScannableName</em>: The name of the focus scannable (normally a zone plate);</li>
+ * <li><em>Number of focus steps</em>: The default number of focus steps to take in the scan;</li>
+ * <li><em>Number of line points</em>: The default number of points in the line to scan. The line is scanned at each
+ * focus step.</li>
+ * <li><em>(Optionally) Energy/focus configuration bean</em>: A definition of a function coupling energy and focus
+ * position, and a file into which this should be serialised</li>
  * </ul>
  *
- * <em>Note:</em>This bean has a dual purpose, besides describing a particular focus scan,
- * some fields are required to setup focus scanning in general for a beamline.
- *  TODO perhaps this bean should be split into two, one to setup focus scanning on a beamline
- *  e.g. FocusScanSetupBean, and FocusScanBean only containing the fields necessary to setup
- *  a particular scan.
+ * <em>Note:</em>This bean has a dual purpose, besides describing a particular focus scan, some fields are required to
+ * setup focus scanning in general for a beamline.
+ * <p>
+ * TODO perhaps this bean should be split into two, one to setup focus scanning on a beamline e.g. FocusScanSetupBean,
+ * and FocusScanBean only containing the fields necessary to setup a particular scan.
  */
 public class FocusScanBean {
 
@@ -86,6 +88,8 @@ public class FocusScanBean {
 	 * this field is used by the focus scan UI to help and does form part of the definition of a focus scan, see note on class Javadoc.
 	 */
 	private String focusMalcolmDeviceName;
+
+	private EnergyFocusBean energyFocusBean;
 
 	public String getFocusScannableName() {
 		return focusScannableName;
@@ -149,6 +153,14 @@ public class FocusScanBean {
 
 	public void setFocusMalcolmDeviceName(String focusMalcolmDeviceName) {
 		this.focusMalcolmDeviceName = focusMalcolmDeviceName;
+	}
+
+	public EnergyFocusBean getEnergyFocusBean() {
+		return energyFocusBean;
+	}
+
+	public void setEnergyFocusBean(EnergyFocusBean energyFocusBean) {
+		this.energyFocusBean = energyFocusBean;
 	}
 
 }

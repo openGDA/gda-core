@@ -83,6 +83,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
@@ -139,6 +140,8 @@ class FocusScanSetupPage extends WizardPage {
 	private DataBindingContext bindingContext = new DataBindingContext();
 
 	private Binding exposureTimeBinding;
+
+	private EnergyFocusEditor energyFocusEditor;
 
 	FocusScanSetupPage() {
 		super(FocusScanSetupPage.class.getSimpleName());
@@ -224,6 +227,17 @@ class FocusScanSetupPage extends WizardPage {
 		// Create the controls to show the detector
 		createDetectorControls(composite);
 
+		// Create editor for an energy/focus mapping function if there is one
+		final EnergyFocusBean energyFocusBean = focusScanBean.getEnergyFocusBean();
+		if (energyFocusBean != null) {
+			try {
+				GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL));
+				energyFocusEditor = new EnergyFocusEditor(composite, energyFocusBean);
+			} catch (Exception e) {
+				logger.error("Error creating energy focus function editor", e);
+			}
+		}
+
 		sashForm.setWeights(new int[] { 9, 5 });
 		setControl(sashForm);
 		setPageComplete(false);
@@ -239,6 +253,18 @@ class FocusScanSetupPage extends WizardPage {
 		exposureTimeBinding.dispose();
 
 		super.dispose();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (energyFocusEditor != null) {
+			if (visible) {
+				energyFocusEditor.refresh();
+			} else {
+				energyFocusEditor.save();
+			}
+		}
+		super.setVisible(visible);
 	}
 
 	private Control createDataPlotControl(Composite parent) {

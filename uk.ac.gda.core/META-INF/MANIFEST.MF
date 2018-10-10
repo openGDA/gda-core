@@ -47,7 +47,9 @@ Require-Bundle: uk.ac.diamond.org.jacorb;bundle-version="2.2.0",
  uk.ac.diamond.daq.persistence;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
  org.jline;bundle-version="(3.3.1,4.0.0]",
- com.springsource.net.sf.cglib;bundle-version="2.2.0"
+ com.springsource.net.sf.cglib;bundle-version="2.2.0",
+ com.fasterxml.jackson.core.jackson-databind,
+ com.fasterxml.jackson.core.jackson-core
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.org.jacorb,
  uk.ac.gda.api,
