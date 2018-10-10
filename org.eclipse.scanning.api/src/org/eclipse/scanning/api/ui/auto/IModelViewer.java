@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.ui.auto;
 
 import org.eclipse.scanning.api.IModelProvider;
+import org.eclipse.scanning.api.IValidator;
 
 /**
  *
@@ -86,4 +87,18 @@ public interface IModelViewer<T> extends IModelProvider<T>{
 	 * @param site
 	 */
 	<V> void setViewSite(V site);
+
+	/**
+	 * Set a validator to be run when the model is changed
+	 *
+	 * @param v
+	 *            The validator to be applied
+	 */
+	void setValidator(IValidator<?> v);
+
+	/**
+	 * Check model for validity
+	 * @return true if the model is valid false otherwise
+	 */
+	boolean isValid();
 }

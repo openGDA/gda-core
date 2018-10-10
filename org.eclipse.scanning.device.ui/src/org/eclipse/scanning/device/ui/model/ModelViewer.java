@@ -108,7 +108,7 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionProvider {
+public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(ModelViewer.class);
 
@@ -136,7 +136,7 @@ class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionP
 	// Services
 	private IRunnableDeviceService dservice;
 
-	ModelViewer() {
+	public ModelViewer() {
 		super();
 	}
 
@@ -473,6 +473,16 @@ class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionP
 	}
 
 	@Override
+	public boolean isValid() {
+		try {
+			validator.validate(model);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		processWorkbenchSelection(selection);
 	}
@@ -518,12 +528,9 @@ class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISelectionP
 		}
 	}
 
-	/**
-	 * Specifically set the operation we would like to edit
-	 * @param des
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
-	protected void setValidator(IValidator<?> v) {
+	public void setValidator(IValidator<?> v) {
 		if (viewer.getTable().isDisposed()) return;
 		this.validator = (IValidator<Object>)v;
 	}
