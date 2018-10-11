@@ -1522,20 +1522,7 @@ public class NexusDataWriter extends DataWriterBase {
 			// set the entry name
 			this.entryName = "entry1";
 
-			// construct filename
-			if (nexusFileNameTemplate != null) {
-				nexusFileName = String.format(nexusFileNameTemplate, scanNumber);
-			} else if (LocalProperties.check(GDA_NEXUS_BEAMLINE_PREFIX)) {
-				nexusFileName = beamline + "-" + scanNumber + ".nxs";
-			} else {
-				nexusFileName = Long.toString(scanNumber) + ".nxs";
-			}
-
-			if (!dataDir.endsWith(File.separator)) {
-				dataDir += File.separator;
-			}
-
-			nexusFileUrl = dataDir + nexusFileName;
+			constructFileName();
 
 			// Check to see if the file(s) already exists!
 			if (new File(nexusFileUrl).exists()) {
@@ -1575,6 +1562,22 @@ public class NexusDataWriter extends DataWriterBase {
 			throw ex;
 		}
 
+	}
+
+	private void constructFileName() {
+		if (nexusFileNameTemplate != null) {
+			nexusFileName = String.format(nexusFileNameTemplate, scanNumber);
+		} else if (LocalProperties.check(GDA_NEXUS_BEAMLINE_PREFIX)) {
+			nexusFileName = beamline + "-" + scanNumber + ".nxs";
+		} else {
+			nexusFileName = Long.toString(scanNumber) + ".nxs";
+		}
+
+		if (!dataDir.endsWith(File.separator)) {
+			dataDir += File.separator;
+		}
+
+		nexusFileUrl = dataDir + nexusFileName;
 	}
 
 	/**
