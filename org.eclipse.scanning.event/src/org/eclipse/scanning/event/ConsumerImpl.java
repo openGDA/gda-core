@@ -221,7 +221,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractQueueConne
 	 * @param commandBean
 	 */
 	protected void processQueueCommand(QueueCommandBean commandBean) {
-		LOGGER.info("Consumer for queue {} received command bean {}", getSubmitQueueName(), commandBean);
+		LOGGER.debug("Consumer for queue {} received command bean {}", getSubmitQueueName(), commandBean);
 		final Command command = commandBean.getCommand();
 		Object result = null;
 		try {
