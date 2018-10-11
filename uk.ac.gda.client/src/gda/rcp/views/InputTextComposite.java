@@ -23,6 +23,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -93,7 +94,6 @@ public class InputTextComposite extends Composite {
 
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
-		positionText.setTextLimit(10);
 		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 		positionText.addKeyListener(new KeyAdapter() {
 			@Override
@@ -404,5 +404,6 @@ public class InputTextComposite extends Composite {
 
 	public void setTextWidth(int textWidth) {
 		this.textWidth = textWidth;
+		((GridData) positionText.getLayoutData()).widthHint = textWidth;
 	}
 }
