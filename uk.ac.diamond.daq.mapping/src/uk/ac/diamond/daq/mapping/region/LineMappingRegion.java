@@ -144,6 +144,19 @@ public class LineMappingRegion implements ILineMappingRegion {
 	}
 
 	@Override
+	public void centre(double x0, double y0) {
+		double halfXLength = Math.abs(xStop - xStart) / 2.0;
+		int xSign = xStart < xStop ? 1 : -1;
+		setxStart(x0 - xSign * halfXLength);
+		setxStop(x0 + xSign * halfXLength);
+
+		double halfYLength = Math.abs(yStop - yStart) / 2.0;
+		int ySign = yStart < yStop ? 1 : -1;
+		setyStart(y0 - ySign * halfYLength);
+		setyStop(y0 + ySign * halfYLength);
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

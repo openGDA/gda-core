@@ -40,4 +40,12 @@ public class PointMappingRegionTest {
 		assertThat(copy, is(not(sameInstance(original))));
 	}
 
+	@Test
+	public void testCentre() {
+		PointMappingRegion region = new PointMappingRegion();
+		region.centre(4, -3.5);
+		assertThat(region.getxPosition(), is(4.0));
+		assertThat(region.getyPosition(), is(-3.5));
+	}
+
 }

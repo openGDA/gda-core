@@ -25,6 +25,7 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -46,6 +47,30 @@ public class PolygonMappingRegionTest {
 
 		assertThat(copy, is(equalTo(original)));
 		assertThat(copy, is(not(sameInstance(original))));
+	}
+
+	@Test
+	public void testCentre() {
+		// using an unweighted centre i.e. centre of the bounding box
+		PolygonMappingRegion region = new PolygonMappingRegion();
+		region.setPoints(Arrays.asList(
+							new MutablePoint(0, 0),
+							new MutablePoint(1, 0),
+							new MutablePoint(1, 1)));
+		// centre of the bounding box = (0.5, 0.5)
+		// lengths of bounding box = (1, 1)
+
+		region.centre(-5, 5);
+
+		List<MutablePoint> shiftedPoints = region.getPoints();
+		assertThat(shiftedPoints.get(0).getX(), is(-5.5));
+		assertThat(shiftedPoints.get(0).getY(), is(4.5));
+
+		assertThat(shiftedPoints.get(1).getX(), is(-4.5));
+		assertThat(shiftedPoints.get(1).getY(), is(4.5));
+
+		assertThat(shiftedPoints.get(2).getX(), is(-4.5));
+		assertThat(shiftedPoints.get(2).getY(), is(5.5));
 	}
 
 }

@@ -168,4 +168,21 @@ public class SnappedLineMappingRegionTest {
 		assertThat(copy, is(not(sameInstance(original))));
 	}
 
+	@Test
+	public void testCentre() {
+
+		LinearROI horizROI = new LinearROI();
+		horizROI.setPoint(new double[] {0.0, 0.0});
+		horizROI.setEndPoint(new double[] {10.0, 1.0}); // the shorter dimension is ignored
+
+		SnappedLineMappingRegion region = new SnappedLineMappingRegion();
+		region.updateFromROI(horizROI);
+
+		region.centre(-5, 12);
+		assertThat(region.getxStart(), is(-10.0));
+		assertThat(region.getxStop(), is(0.0));
+		assertThat(region.getyStart(), is(12.0));
+		assertThat(region.getyStop(), is(12.0));
+	}
+
 }

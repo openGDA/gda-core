@@ -76,4 +76,21 @@ public class CircularMappingRegionTest {
 		assertThat(copy, is(equalTo(original)));
 		assertThat(copy, is(not(sameInstance(original))));
 	}
+
+	@Test
+	public void testCentre() {
+		CircularMappingRegion region = new CircularMappingRegion();
+		region.setRadius(3.0);
+		region.setxCentre(-12);
+		region.setyCentre(16.44);
+
+		double targetX = 23.4;
+		double targetY = 12.3;
+
+		region.centre(targetX, targetY);
+
+		assertThat(region.getxCentre(), is(targetX));
+		assertThat(region.getyCentre(), is(targetY));
+		assertThat(region.getRadius(), is(3.0)); // unaffected
+	}
 }

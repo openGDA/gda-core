@@ -143,4 +143,22 @@ public class RectangularMappingRegionTest {
 		assertThat(copy, is(not(sameInstance(original))));
 	}
 
+	@Test
+	public void testCentre() {
+
+		RectangularMappingRegion region = new RectangularMappingRegion();
+
+		region.setxStart(10);
+		region.setxStop(0.0);
+		region.setyStart(3);
+		region.setyStop(6);
+
+		region.centre(-1, 1);
+
+		assertThat(region.getxStart(), is(4.0));
+		assertThat(region.getxStop(), is(-6.0));
+		assertThat(region.getyStart(), is(-0.5));
+		assertThat(region.getyStop(), is(2.5));
+	}
+
 }

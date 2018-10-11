@@ -150,6 +150,26 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 	}
 
 	@Override
+	public void centre(double x0, double y0) {
+		double halfLength = Math.abs(stop - start) / 2.0;
+		int sign = start < stop ? 1 : -1;
+		switch (orientation) {
+		case HORIZONTAL:
+			start = x0 - sign * halfLength;
+			stop = x0 + sign * halfLength;
+			constant = y0;
+			break;
+		case VERTICAL:
+			start = y0 - sign * halfLength;
+			stop = y0 + sign * halfLength;
+			constant = x0;
+			break;
+		default:
+			throw new IllegalStateException("Unexpected orientation: " + orientation.toString());
+		}
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -183,5 +203,4 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 			return false;
 		return true;
 	}
-
 }

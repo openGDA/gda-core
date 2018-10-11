@@ -108,6 +108,12 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
+	public void centre(double x0, double y0) {
+		setxPosition(x0);
+		setyPosition(y0);
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
