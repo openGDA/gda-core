@@ -53,6 +53,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -391,7 +392,12 @@ public class StatusQueueView extends EventConnectionView {
 		addActionTo(toolMan, menuMan, dropDown, pauseConsumerAction);
 
 		ISubscriber<IBeanListener<QueueCommandBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
-		pauseMonitor.addListener(evt -> pauseConsumerAction.setChecked(consumerProxy.isQueuePaused()));
+		pauseMonitor.addListener(evt -> {
+			final QueueCommandBean.Command command = evt.getBean().getCommand();
+			if (command == Command.PAUSE || command == Command.RESUME) {
+				pauseConsumerAction.setChecked(consumerProxy.isQueuePaused());
+			}
+		});
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
