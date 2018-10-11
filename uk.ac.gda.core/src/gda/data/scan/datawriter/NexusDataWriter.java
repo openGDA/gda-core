@@ -169,9 +169,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 	IScanDataPoint thisPoint;
 
-	protected Metadata metadata = null;
-
-	private boolean setupPropertiesDone = false;
+	private Metadata metadata = null;
 
 	private boolean fileNumberConfigured = false;
 
@@ -188,9 +186,10 @@ public class NexusDataWriter extends DataWriterBase {
 	 */
 	public NexusDataWriter() {
 		super();
+
+		setupProperties();
+
 		// Check to see if we want to create a text/SRS file as well.
-		// in constructor instead of setupProperties as srsFile is required at an earlier stage
-		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT);
 		if (createSrsFile) {
 			logger.info("NexusDataWriter is configured to also create SRS data files");
 			srsFile = new SrsDataFile();
@@ -202,9 +201,9 @@ public class NexusDataWriter extends DataWriterBase {
 		scanNumber = fileNumber;
 	}
 
-	protected void setupProperties() throws InstantiationException {
-		if (setupPropertiesDone)
-			return;
+	private void setupProperties() {
+		logger.debug("Setting up properties...");
+
 		metadata = GDAMetadataProvider.getInstance();
 
 		try {
@@ -223,7 +222,7 @@ public class NexusDataWriter extends DataWriterBase {
 		dataDir = PathConstructor.createFromDefaultProperty();
 		if (dataDir == null) {
 			// this java property is compulsory - stop the scan
-			throw new InstantiationException("cannot work out data directory - cannot create a new data file.");
+			throw new IllegalStateException("cannot work out data directory - cannot create a new data file.");
 		}
 
 		if (beforeScanMetaData == null) {
@@ -235,7 +234,8 @@ public class NexusDataWriter extends DataWriterBase {
 				metaDataProvider.appendToTopNode(beforeScanMetaData);
 			}
 		}
-		setupPropertiesDone = true;
+
+		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT);
 	}
 
 	public INexusTree getBeforeScanMetaData() {
@@ -253,7 +253,6 @@ public class NexusDataWriter extends DataWriterBase {
 				// the scan or other datawriter has set the id
 				this.scanNumber = scanNumber;
 			} else if (this.scanNumber <= 0) {
-				setupProperties();
 				// not set in a constructor so get from num tracker
 				try {
 					NumTracker runNumber = new NumTracker(beamline);
@@ -926,7 +925,6 @@ public class NexusDataWriter extends DataWriterBase {
 	}
 
 	private void prepareFileAndStructure() throws Exception {
-		setupProperties();
 		createNextFile();
 		makeMetadata();
 		makeScannablesAndMonitors();
