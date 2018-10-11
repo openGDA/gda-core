@@ -245,14 +245,6 @@
       </perspectiveExtension>
    </extension>
       <extension
-         point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
-      <sideplot
-            class="gda.rcp.ncd.sideplot.GridScan"
-            id="gda.rcp.ncd.sideplot.GridScan"
-            name="Grid Scan">
-      </sideplot>
-      </extension>
-      <extension
             point="org.eclipse.dawnsci.plotting.api.toolPageAction">
          <tool_page_action
                action_type="TOOLBAR"
