@@ -18,12 +18,6 @@
 
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.jython.InterfaceProvider;
-
 import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +29,12 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.jython.InterfaceProvider;
+
 public class NexusDataWriterExtension extends NexusDataWriter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(NexusDataWriterExtension.class);
@@ -44,8 +44,8 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	}
 
 	@Override
-	public void configureScanNumber(int _scanNumber) throws Exception {
-		super.configureScanNumber(_scanNumber);
+	public void configureScanNumber(int scanNumber) {
+		super.configureScanNumber(scanNumber);
 		files.clear();
 	}
 
@@ -74,7 +74,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 //		super.completeCollection();
 	}
 
-	Map<String, RegionFileMapper> files = new ConcurrentHashMap<String, RegionFileMapper>();
+	Map<String, RegionFileMapper> files = new ConcurrentHashMap<>();
 
 	public Map<String, RegionFileMapper> getFiles() {
 		return files;
