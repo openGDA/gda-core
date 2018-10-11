@@ -198,7 +198,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 	public NexusDataWriter(int fileNumber) {
 		this();
-		scanNumber = fileNumber;
+		configureScanNumber(fileNumber);
 	}
 
 	private void setupProperties() {
@@ -247,8 +247,9 @@ public class NexusDataWriter extends DataWriterBase {
 	}
 
 	@Override
-	public synchronized void configureScanNumber(int scanNumber) throws Exception {
+	public synchronized void configureScanNumber(int scanNumber) {
 		if (!fileNumberConfigured) {
+			logger.debug("Configuring file number");
 			if (scanNumber > 0) {
 				// the scan or other datawriter has set the id
 				this.scanNumber = scanNumber;
@@ -260,15 +261,24 @@ public class NexusDataWriter extends DataWriterBase {
 					this.scanNumber = runNumber.incrementNumber();
 				} catch (IOException e) {
 					logger.error("Could not instantiate NumTracker", e);
-					throw new IOException("Could not instantiate NumTracker in NexusDataWriter()", e);
+					throw new IllegalStateException("Could not instantiate NumTracker in NexusDataWriter()", e);
 				}
 			}
 			// needs to use the same scan number
 			if (createSrsFile) {
-				srsFile.configureScanNumber(this.scanNumber);
+				try {
+					srsFile.configureScanNumber(this.scanNumber);
+				} catch (Exception e) {
+					logger.error("Failed to configure SRS file number", e);
+					throw new IllegalStateException(e);
+				}
 			}
 			fileNumberConfigured = true;
+			logger.debug("Scan number set to '{}'", this.scanNumber);
 		}
+
+		// Now we know the scan number construct the file name
+		constructFileName();
 	}
 
 	static final int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
@@ -1576,6 +1586,7 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 
 		nexusFileUrl = dataDir + nexusFileName;
+		logger.debug("Nexus file to be written to '{}'", nexusFileUrl);
 	}
 
 	/**
@@ -1689,7 +1700,7 @@ public class NexusDataWriter extends DataWriterBase {
 		return -1;
 	}
 
-	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
+	public void setNexusFileNameTemplate(String nexusFileNameTemplate) {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
 		// We calculate some probable paths now so that the probable
 		// file name and path are known should the intended file path
@@ -1893,7 +1904,7 @@ public class NexusDataWriter extends DataWriterBase {
 		return nexusFileName;
 	}
 
-	int getScanNumber() throws Exception {
+	int getScanNumber() {
 		configureScanNumber(-1); // ensure it has been configured
 		return scanNumber;
 	}
