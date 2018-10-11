@@ -58,6 +58,7 @@ import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonStatus;
 import gda.jython.ScriptBase;
 import gda.scan.Scan.ScanStatus;
+import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
@@ -1011,6 +1012,10 @@ public abstract class ScanBase implements NestableScan {
 		if (scanNumber < 0) {
 			scanNumber = dw.getCurrentScanIdentifier();
 		}
+
+		// At this point the DataWriter knows the scan number so can provide info on the file it will write.
+		// This allows the update to contain the path information of the data files from the start of the scan
+		sendScanEvent(EventType.UPDATED);
 	}
 
 
