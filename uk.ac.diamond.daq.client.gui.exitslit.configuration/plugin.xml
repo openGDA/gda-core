@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.rcp.views.dashboardView">
+         <command
+               commandId="uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlits"
+               icon="icons/slits_thumb.png"
+               label="Configure exit slits"
+               style="push"
+               tooltip="Configure exit slits">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsHandler"
+            description="Configure exit slits"
+            id="uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlits"
+            name="Configure exit slits">
+      </command>
+   </extension>
+
+</plugin>
