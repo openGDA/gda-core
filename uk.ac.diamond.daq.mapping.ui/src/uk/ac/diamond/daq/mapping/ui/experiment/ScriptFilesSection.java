@@ -18,12 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -67,13 +67,19 @@ public class ScriptFilesSection extends AbstractMappingSection {
 		editScriptsButton.setToolTipText("Select Script Files");
 		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editScriptsButton);
 
-		final IGuiGeneratorService guiGenerator = getService(IGuiGeneratorService.class);
-		editScriptsButton.addListener(SWT.Selection, event -> {
-			guiGenerator.openDialog(getMappingBean().getScriptFiles(), parent.getShell(), "Select Script Files");
-			updateSummaryText();
-		});
+		editScriptsButton.addListener(SWT.Selection, event -> openDialog());
 
 		updateSummaryText();
+	}
+
+	private void openDialog() {
+		IScriptFiles scripts = getMappingBean().getScriptFiles();
+		ScriptsSelectionDialog dialog = new ScriptsSelectionDialog(getShell(), scripts.getBeforeScanScript(), scripts.getAfterScanScript());
+		if (dialog.open() == Window.OK) {
+			scripts.setBeforeScanScript(dialog.getBeforeScanScript());
+			scripts.setAfterScanScript(dialog.getAfterScanScript());
+			updateSummaryText();
+		}
 	}
 
 	private void updateSummaryText() {
@@ -96,7 +102,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	}
 
 	private String getScriptName(String path) {
-		return new File(path).getName();
+		return Paths.get(path).getFileName().toString();
 	}
 
 	@Override
