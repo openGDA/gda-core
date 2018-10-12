@@ -1081,7 +1081,7 @@ public class StatusQueueView extends EventConnectionView {
 					runList = consumerProxy.getRunningAndCompleted();
 					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
 
-					submittedList = consumerProxy.getQueue();
+					submittedList = consumerProxy.getSubmissionQueue();
 					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
 
 					// We leave the list in reverse order so we can insert entries at the start by adding to the end

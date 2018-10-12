@@ -87,12 +87,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<U> getQueue() throws EventException {
-		return (List<U>) sendCommand(Command.GET_QUEUE);
+		return getSubmissionQueue();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
 		return (List<U>) sendCommand(Command.GET_RUNNING_AND_COMPLETED);
@@ -142,9 +142,10 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		return (List<U>) sendCommand(Command.GET_QUEUE);
 	}
 
 	@Override
