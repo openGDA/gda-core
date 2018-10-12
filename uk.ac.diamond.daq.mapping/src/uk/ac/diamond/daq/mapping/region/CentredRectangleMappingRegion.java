@@ -24,7 +24,6 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -34,7 +33,7 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 	private double xRange = 1.0;
 	private double yCentre = 0.5;
 	private double yRange = 1.0;
-	private static final String name = "Centred Rectangle";
+	private static final String NAME = "Centred Rectangle";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	@Override
@@ -48,9 +47,8 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	public double getxCentre() {
@@ -94,7 +92,7 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	public void updateFromROI(IROI newROI) throws IllegalArgumentException {
+	public void updateFromROI(IROI newROI) {
 		if (!(newROI instanceof RectangularROI)) {
 			throw new IllegalArgumentException("Centre rectangle mapping region can only update from a Rectangular ROI");
 		}
@@ -170,7 +168,7 @@ public class CentredRectangleMappingRegion implements IMappingScanRegionShape {
 			return false;
 		if (Double.doubleToLongBits(yCentre) != Double.doubleToLongBits(other.yCentre))
 			return false;
-		if (Double.doubleToLongBits(yRange) != Double.doubleToLongBits(other.yRange))
+		if (Double.doubleToLongBits(yRange) != Double.doubleToLongBits(other.yRange)) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}

@@ -24,8 +24,6 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiHidden;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
@@ -33,7 +31,7 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 
 	private double xPosition = 0;
 	private double yPosition = 0;
-	private String name = "Point";
+	private static final String NAME = "Point";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	@Override
@@ -46,7 +44,6 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		this.pcs.removePropertyChangeListener(listener);
 	}
 
-	@UiComesAfter("regionShape")
 	public double getxPosition() {
 		return xPosition;
 	}
@@ -57,7 +54,6 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		this.pcs.firePropertyChange("xPosition", oldvalue, newValue);
 	}
 
-	@UiComesAfter("xPosition")
 	public double getyPosition() {
 		return yPosition;
 	}
@@ -69,13 +65,12 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	}
 
 	@Override
-	@UiHidden
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	@Override
-	public void updateFromROI(IROI newROI) throws IllegalArgumentException {
+	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof PointROI) {
 			PointROI roi = (PointROI) newROI;
 			// First save the old values
@@ -108,7 +103,6 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(xPosition);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -126,15 +120,11 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		if (getClass() != obj.getClass())
 			return false;
 		PointMappingRegion other = (PointMappingRegion) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		if (Double.doubleToLongBits(xPosition) != Double.doubleToLongBits(other.xPosition))
 			return false;
-		if (Double.doubleToLongBits(yPosition) != Double.doubleToLongBits(other.yPosition))
+		if (Double.doubleToLongBits(yPosition) != Double.doubleToLongBits(other.yPosition)) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
+
 }
