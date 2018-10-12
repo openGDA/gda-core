@@ -87,11 +87,6 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 		}
 	}
 
-	@Override
-	public List<U> getQueue() throws EventException {
-		return getSubmissionQueue();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {

@@ -89,7 +89,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = consumer.getQueue();
+		List<StatusBean> beans = consumer.getSubmissionQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 	}
@@ -113,7 +113,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.submit(bean);
 		Thread.sleep(100);
 
-		List<StatusBean> beans = consumer.getQueue();
+		List<StatusBean> beans = consumer.getSubmissionQueue();
 		assertThat(beans, hasSize(1));
 		assertThat(beans.get(0), is(equalTo(bean)));
 

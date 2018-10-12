@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.event.EventException;
 
-public interface IQueueConnection<T> extends IQueueReader<T> {
+public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 
 	/**
 	 * The string to define the queue for storing status of scans.

@@ -48,7 +48,6 @@ import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.IQueueReader;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.junit.Ignore;
@@ -92,7 +91,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		// and a new persistence mechanism added
 
 		// this mock called to reader the consumer and see if it is empty to check if the consumer should start paused
-		IQueueReader<StatusBean> submitQueueReader = mock(IQueueReader.class);
+//		IQueueReader<StatusBean> submitQueueReader = mock(IQueueReader.class);
 //		when(eventService.createQueueReader(uri, EventConstants.SUBMISSION_QUEUE)).thenReturn( // TODO remove
 //				(IQueueReader<Object>) (IQueueReader<?>) submitQueueReader);
 //		when(submitQueueReader.getQueue()).thenReturn(Arrays.asList(new StatusBean()));

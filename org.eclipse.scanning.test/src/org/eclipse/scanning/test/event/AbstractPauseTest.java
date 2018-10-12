@@ -67,7 +67,7 @@ public class AbstractPauseTest extends BrokerTest {
 
 		Thread.sleep(200);
 
-		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
+		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
 		publisher.setStatusSetAddRequired(true);
 
 		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getConsumerId(), Command.PAUSE);
@@ -176,7 +176,7 @@ public class AbstractPauseTest extends BrokerTest {
 		}
 
 		final List<String> run = new ArrayList<>(4); // Order important
-		ISubscriber<EventListener> sub = eservice.createSubscriber(consumer.getUri(), consumer.getStatusTopicName());
+		ISubscriber<EventListener> sub = eservice.createSubscriber(uri, consumer.getStatusTopicName());
 		sub.addListener(new IBeanListener<StatusBean>() {
 			@Override
 			public void beanChangePerformed(BeanEvent<StatusBean> evt) {
@@ -230,7 +230,7 @@ public class AbstractPauseTest extends BrokerTest {
 
 		Thread.sleep(500);
 		assertTrue(!consumer.isActive());
-		assertEquals(2, consumer.getQueue().size());
+		assertEquals(2, consumer.getSubmissionQueue().size());
 
 		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
 		publisher.broadcast(resumeBean);

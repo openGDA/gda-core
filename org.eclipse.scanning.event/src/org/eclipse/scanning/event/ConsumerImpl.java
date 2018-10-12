@@ -264,7 +264,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					removeCompleted(commandBean.getBeanUniqueId());
 					break;
 				case GET_QUEUE:
-					result = getQueue();
+					result = getSubmissionQueue();
 					break;
 				case GET_RUNNING_AND_COMPLETED:
 					result = getRunningAndCompleted();
@@ -395,11 +395,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	@Override
 	public List<U> getSubmissionQueue() throws EventException {
 		return getQueue(getSubmitQueueName(), beanClass);
-	}
-
-	@Override
-	public List<U> getQueue() throws EventException {
-		return getSubmissionQueue();
 	}
 
 	protected <T> List<T> getQueue(String queueName, Class<T> beanClass) throws EventException {
@@ -577,7 +572,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private boolean doReorder(U bean, int amount) throws EventException {
 		// We are paused, read the queue
-		List<U> submitted = getQueue();
+		List<U> submitted = getSubmissionQueue();
 		if (submitted==null || submitted.isEmpty())
 			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
@@ -694,7 +689,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private boolean doReplace(U bean) throws EventException {
 		// We are paused, read the queue
-		List<U> submitted = getQueue();
+		List<U> submitted = getSubmissionQueue();
 		if (submitted == null || submitted.isEmpty())
 			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 

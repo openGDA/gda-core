@@ -144,7 +144,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void testBeanClass() throws Exception {
-		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
+		IConsumer<StatusBean> fconsumer = eservice.createConsumer(uri,
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
@@ -165,7 +165,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void testBeanClass2Beans() throws Exception {
-		IConsumer<StatusBean> fconsumer = eservice.createConsumer(this.consumer.getUri(),
+		IConsumer<StatusBean> fconsumer = eservice.createConsumer(uri,
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
 				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
@@ -190,7 +190,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	private void dynamicBean(final StatusBean bean, IConsumer<StatusBean> fconsumer, int statusSize) throws Exception {
 		// Hard code the service for the test
-		ISubscriber<EventListener> sub = eservice.createSubscriber(fconsumer.getUri(), fconsumer.getStatusTopicName());
+		ISubscriber<EventListener> sub = eservice.createSubscriber(uri, fconsumer.getStatusTopicName());
 		sub.addListener(new IBeanListener<StatusBean>() {
 			@Override
 			public void beanChangePerformed(BeanEvent<StatusBean> evt) {
@@ -354,7 +354,7 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void checkedHeartbeat() throws Exception {
-		ISubscriber<IHeartbeatListener> subscriber = eservice.createSubscriber(consumer.getUri(), EventConstants.HEARTBEAT_TOPIC);
+		ISubscriber<IHeartbeatListener> subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
 		HeartbeatListener listener = new HeartbeatListener(5);
 		subscriber.addListener(listener);
 
@@ -383,7 +383,7 @@ public class AbstractConsumerTest extends BrokerTest {
 			consumer.clearQueue();
 			consumer.start();
 
-			subscriber = eservice.createSubscriber(consumer.getUri(), EventConstants.HEARTBEAT_TOPIC);
+			subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
 			final List<HeartbeatBean> gotBack = new ArrayList<>(3);
 			subscriber.addListener(evt -> gotBack.add(evt.getBean()));
 

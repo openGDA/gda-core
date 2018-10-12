@@ -362,7 +362,7 @@ public class QueueManagementTest extends BrokerTest {
 
 		getConsumer().clearQueue();
 
-		assertThat(consumer.getQueue(), is(empty()));
+		assertThat(consumer.getSubmissionQueue(), is(empty()));
 	}
 
 	@Test
@@ -370,7 +370,7 @@ public class QueueManagementTest extends BrokerTest {
 		List<StatusBean> beans = createAndSubmitBeans();
 
 		// check that getting the queue works when using a consumer proxy
-		assertThat(getConsumer().getQueue(), is(equalTo(beans)));
+		assertThat(getConsumer().getSubmissionQueue(), is(equalTo(beans)));
 	}
 
 	@Test
