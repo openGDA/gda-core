@@ -1076,8 +1076,6 @@ public class StatusQueueView extends EventConnectionView {
 
 					final Instant jobStartTime = Instant.now();
 					monitor.beginTask("Connect to command server", 10);
-
-					consumerProxy.setBeanClass(getBeanClass());
 					updateProgress(jobStartTime, monitor, "Queue connection set");
 
 					runList = consumerProxy.getRunningAndCompleted();
