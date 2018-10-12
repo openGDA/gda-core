@@ -26,14 +26,12 @@ import gda.configuration.properties.LocalProperties;
  */
 public class XasNexusDataWriter extends NexusDataWriter {
 
-	public XasNexusDataWriter() throws InstantiationException {
+	public XasNexusDataWriter() {
 		super();
-		setupProperties();
 	}
 
-	public XasNexusDataWriter(int fileNumber) throws InstantiationException {
+	public XasNexusDataWriter(int fileNumber) {
 		super(fileNumber);
-		setupProperties();
 	}
 
 	@Override
