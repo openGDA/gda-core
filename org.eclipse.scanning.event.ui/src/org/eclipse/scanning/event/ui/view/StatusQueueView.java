@@ -86,7 +86,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,8 +136,8 @@ public class StatusQueueView extends EventConnectionView {
 	private List<StatusBean> submittedList =  new ArrayList<>();
 	private boolean hideOtherUsersResults = false;
 
-	private ISubscriber<IBeanListener<StatusBean>> topicMonitor;
-	private ISubscriber<IBeanListener<AdministratorMessage>> adminMonitor;
+	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
+	private ISubscriber<IBeanListener<AdministratorMessage>> adminTopicSubscriber;
 	private ISubmitter<StatusBean> submitter;
 	private IPublisher<StatusBean> statusTopicPublisher;
 	private IConsumer<StatusBean> consumerProxy;
@@ -157,7 +156,7 @@ public class StatusQueueView extends EventConnectionView {
 
 	private IEventService service;
 
-	private List<IResultHandler> resultsHandlers = null;
+	private List<IResultHandler<StatusBean>> resultsHandlers = null;
 
 	public StatusQueueView() {
 		this.service = ServiceHolder.getEventService();
@@ -216,7 +215,7 @@ public class StatusQueueView extends EventConnectionView {
 	private void updateActions() {
 		List<StatusBean> selection = getSelection();
 
-		List<String> selectedUniqueIds= selection.stream().map(sb -> sb.getUniqueId()).collect(Collectors.toList());
+		List<String> selectedUniqueIds= selection.stream().map(StatusBean::getUniqueId).collect(Collectors.toList());
 
 		List<StatusBean> selectedInSubmittedList = submittedList.stream()
 				.filter(sb -> selectedUniqueIds.contains(sb.getUniqueId()))
@@ -275,8 +274,8 @@ public class StatusQueueView extends EventConnectionView {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					topicMonitor = service.createSubscriber(uri, getTopicName());
-					topicMonitor.addListener(evt -> {
+					statusTopicSubscriber = service.createSubscriber(uri, getTopicName());
+					statusTopicSubscriber.addListener(evt -> {
 							final StatusBean bean = evt.getBean();
 							try {
 								mergeBean(bean);
@@ -285,8 +284,8 @@ public class StatusQueueView extends EventConnectionView {
 							}
 						});
 
-					adminMonitor = service.createSubscriber(uri, EventConstants.ADMIN_MESSAGE_TOPIC);
-					adminMonitor.addListener(evt -> {
+					adminTopicSubscriber = service.createSubscriber(uri, EventConstants.ADMIN_MESSAGE_TOPIC);
+					adminTopicSubscriber.addListener(evt -> {
 							final AdministratorMessage bean = evt.getBean();
 							getSite().getShell().getDisplay().syncExec(() -> {
 								MessageDialog.openError(getViewSite().getShell(), bean.getTitle(), bean.getMessage());
@@ -312,8 +311,8 @@ public class StatusQueueView extends EventConnectionView {
 	public void dispose() {
 		super.dispose();
 		try {
-			if (topicMonitor!=null) topicMonitor.disconnect();
-			if (adminMonitor!=null) adminMonitor.disconnect();
+			if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
+			if (adminTopicSubscriber!=null) adminTopicSubscriber.disconnect();
 		} catch (Exception ne) {
 			logger.warn("Problem stopping topic listening for "+getTopicName(), ne);
 		}
@@ -701,27 +700,18 @@ public class StatusQueueView extends EventConnectionView {
 		consumerProxy.clearQueue();
 		consumerProxy.clearRunningAndCompleted();
 
-		// TODO: this temporarily introduces a new race condition, as the consumer doesn't notify us when this
-		// is completed. A subsequent change fixes this by introducing an acknowledgement topic
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			logger.error("Thread interrupted", e);
-			Thread.currentThread().interrupt();
-			throw new EventException(e);
-		}
-
 		reconnect();
 	}
 
-	private List<IResultHandler> getResultsHandlers() {
+	private List<IResultHandler<StatusBean>> getResultsHandlers() {
 		if (resultsHandlers == null) {
 			final IConfigurationElement[] configElements = Platform.getExtensionRegistry()
 					.getConfigurationElementsFor(RESULTS_HANDLER_EXTENSION_POINT_ID);
-			final List<IResultHandler> handlers = new ArrayList<>(configElements.length + 1);
+			final List<IResultHandler<StatusBean>> handlers = new ArrayList<>(configElements.length + 1);
 			for (IConfigurationElement configElement : configElements) {
 				try {
-					final IResultHandler handler = (IResultHandler) configElement.createExecutableExtension("class");
+					@SuppressWarnings("unchecked")
+					final IResultHandler<StatusBean> handler = (IResultHandler<StatusBean>) configElement.createExecutableExtension("class");
 					handler.init(service, createConsumerConfiguration());
 					handlers.add(handler);
 				} catch (Exception e) {
@@ -759,14 +749,12 @@ public class StatusQueueView extends EventConnectionView {
 	 * @param bean
 	 */
 	private void openResultsActionRun(StatusBean bean) {
-
 		if (bean == null) return;
-
-		for (IResultHandler handler : getResultsHandlers()) {
+		for (IResultHandler<StatusBean> handler : getResultsHandlers()) {
 			if (handler.isHandled(bean)) {
 				try {
 					boolean ok = handler.open(bean);
-					if (ok) return;
+					if (ok) break;
 				} catch (Exception e) {
 					ErrorDialog.openError(getSite().getShell(), "Internal Error", handler.getErrorMessage(null),
 							new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
@@ -845,36 +833,34 @@ public class StatusQueueView extends EventConnectionView {
 	/**
 	 * Edits a not run yet selection
 	 */
-	@SuppressWarnings({"squid:S3776", "squid:S135"})
 	private void editActionRun() {
-
 		for (StatusBean bean : getSelection()) {
-			if (bean.getStatus()!=org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
+			if (bean.getStatus() != org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
 				MessageDialog.openConfirm(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
 					"The run '"+bean.getName()+"' cannot be edited because it is not waiting to run.");
-				continue;
-			}
-
-			try {
-				final IConfigurationElement[] c = Platform.getExtensionRegistry().getConfigurationElementsFor(MODIFY_HANDLER_EXTENSION_POINT_ID);
-				if (c!=null) {
+			} else {
+				try {
+					final IConfigurationElement[] c = Platform.getExtensionRegistry().getConfigurationElementsFor(MODIFY_HANDLER_EXTENSION_POINT_ID);
+					boolean edited = false;
 					for (IConfigurationElement i : c) {
-						final IModifyHandler handler = (IModifyHandler)i.createExecutableExtension("class");
+						@SuppressWarnings("unchecked")
+						final IModifyHandler<StatusBean> handler = (IModifyHandler<StatusBean>) i.createExecutableExtension("class");
 						handler.init(service, createConsumerConfiguration());
 						if (handler.isHandled(bean)) {
-							boolean ok = handler.modify(bean);
-							if (ok) continue;
+							edited = handler.modify(bean);
+							break;
 						}
 					}
+					if (!edited) {
+						MessageDialog.openConfirm(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
+								"There are no editors registered for '"+bean.getName()+"'\n\nPlease contact your support representative.");
+					}
+				} catch (Exception ne) {
+					final String err = "Cannot modify "+bean.getRunDirectory()+" normally.\n\nPlease contact your support representative.";
+					logger.error(err, ne);
+					ErrorDialog.openError(getSite().getShell(), "Internal Error", err, new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage()));
 				}
-			} catch (Exception ne) {
-				final String err = "Cannot modify "+bean.getRunDirectory()+" normally.\n\nPlease contact your support representative.";
-				logger.error(err, ne);
-				ErrorDialog.openError(getSite().getShell(), "Internal Error", err, new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage()));
-				continue;
 			}
-			MessageDialog.openConfirm(getSite().getShell(), "Cannot Edit '"+bean.getName()+"'",
-				"There are no editers registered for '"+bean.getName()+"'\n\nPlease contact your support representative.");
 		}
 	}
 
@@ -893,25 +879,23 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
-	@SuppressWarnings("squid:S3776")
 	private void rerunActionRun() {
-
 		for (StatusBean bean : getSelection()) {
+			boolean handled = false;
 			try {
 				final IConfigurationElement[] c = Platform.getExtensionRegistry().getConfigurationElementsFor(RERUN_HANDLER_EXTENSION_POINT_ID);
-				if (c!=null) {
-					for (IConfigurationElement i : c) {
-						final IRerunHandler handler = (IRerunHandler)i.createExecutableExtension("class");
-						handler.init(service, createConsumerConfiguration());
-						if (handler.isHandled(bean)) {
-							final StatusBean copy = bean.getClass().newInstance();
-							copy.merge(bean);
-							copy.setUniqueId(UUID.randomUUID().toString());
-							copy.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
-							copy.setSubmissionTime(System.currentTimeMillis());
-							boolean ok = handler.run(copy);
-							if (ok) continue;
-						}
+				for (IConfigurationElement i : c) {
+					@SuppressWarnings("unchecked")
+					final IRerunHandler<StatusBean> handler = (IRerunHandler<StatusBean>) i.createExecutableExtension("class");
+					handler.init(service, createConsumerConfiguration());
+					if (handler.isHandled(bean)) {
+						final StatusBean copy = bean.getClass().newInstance();
+						copy.merge(bean);
+						copy.setUniqueId(UUID.randomUUID().toString());
+						copy.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
+						copy.setSubmissionTime(System.currentTimeMillis());
+						handled = handler.run(copy);
+						if (handled) break;
 					}
 				}
 			} catch (Exception ne) {
@@ -920,8 +904,10 @@ public class StatusQueueView extends EventConnectionView {
 				ErrorDialog.openError(getSite().getShell(), "Internal Error", err, new Status(IStatus.ERROR, Activator.PLUGIN_ID, ne.getMessage()));
 				continue;
 			}
-			// If we have not already handled this rerun, it is possible to call a generic one.
-			rerun(bean);
+			if (!handled) {
+				// If we have not already handled this rerun, it is possible to call a generic one.
+				rerun(bean);
+			}
 		}
 	}
 
@@ -1006,9 +992,9 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	@SuppressWarnings("squid:S3776")
 	private IContentProvider createContentProvider() {
 		return new IStructuredContentProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				queue = (Map<String, StatusBean>)newInput;
@@ -1028,8 +1014,8 @@ public class StatusQueueView extends EventConnectionView {
 				if (!Boolean.getBoolean("org.dawnsci.commandserver.ui.view.showWholeQueue")) {
 					// Old fashioned loop. In Java8 we will use a predicate...
 					final String userName = getUserName();
-					for (Iterator it = retained.iterator(); it.hasNext();) {
-						StatusBean statusBean = (StatusBean) it.next();
+					for (Iterator<StatusBean> it = retained.iterator(); it.hasNext();) {
+						StatusBean statusBean = it.next();
 						if (statusBean.getUserName()==null) continue;
 						if (hideOtherUsersResults && !userName.equals(statusBean.getUserName())) it.remove();
 					}
@@ -1139,19 +1125,6 @@ public class StatusQueueView extends EventConnectionView {
 		queueJob.setUser(true);
 		queueJob.schedule();
 		logger.debug("updateQueue() scheduled as thread {}", queueJob.getThread());
-	}
-
-	private Class<StatusBean> getBeanClass() {
-		String beanBundleName = getSecondaryIdAttribute("beanBundleName");
-		String beanClassName  = getSecondaryIdAttribute("beanClassName");
-		try {
-
-			Bundle bundle = Platform.getBundle(beanBundleName);
-			return (Class<StatusBean>)bundle.loadClass(beanClassName);
-		} catch (Exception ne) {
-			logger.error("Cannot get class "+beanClassName+". Defaulting to StatusBean. This will probably not work though.", ne);
-			return StatusBean.class;
-		}
 	}
 
 	@SuppressWarnings("squid:S3776")
