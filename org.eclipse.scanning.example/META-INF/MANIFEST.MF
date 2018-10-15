@@ -15,7 +15,11 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.tree,
  org.eclipse.dawnsci.hdf5,
  org.eclipse.scanning.sequencer,
- org.apache.commons.beanutils;bundle-version="1.8.0"
+ org.apache.commons.beanutils;bundle-version="1.8.0",
+ org.epics.pvdata,
+ org.epics.pvaccess;bundle-version="5.1.1",
+ org.epics.pvaclient;bundle-version="4.3.2",
+ org.epics.pvdatabase;bundle-version="4.3.1"
 Export-Package: org.eclipse.scanning.example,
  org.eclipse.scanning.example.classregistry,
  org.eclipse.scanning.example.detector,
