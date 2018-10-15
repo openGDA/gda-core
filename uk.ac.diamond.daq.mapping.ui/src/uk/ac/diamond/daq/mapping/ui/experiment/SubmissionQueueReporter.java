@@ -54,7 +54,7 @@ public class SubmissionQueueReporter {
 				consumerProxy = getConsumerProxy();
 			}
 			// first check whether there are submitted scans which haven't been run yet
-			final boolean noSubmittedScans = consumerProxy.getQueue().isEmpty();
+			final boolean noSubmittedScans = consumerProxy.getSubmissionQueue().isEmpty();
 			boolean queueClear = noSubmittedScans;
 			if (noSubmittedScans) {
 				// if not check whether any scans that have been run are complete (or some other final state)
