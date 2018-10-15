@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.client.live.stream.view.StreamViewUtility.displayAndLogError;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +51,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -84,18 +85,17 @@ public class LiveStreamView extends ViewPart {
 
 	private CameraConfiguration camConfig;
 	private LiveStreamConnection liveStreamConnection;
-	private Text errorText;
 	private LivePlottingComposite plottingComposite;
 
 	@Override
 	public void createPartControl(final Composite parent) {
 		if (PlatformUI.getWorkbench().getService(IRemoteDatasetService.class) == null) {
-			displayAndLogError(parent, "Cannot create Live Stream: no remote dataset service is available");
+			displayAndLogError(logger, parent, "Cannot create Live Stream: no remote dataset service is available");
 			return;
 		}
 
 		if (PlatformUI.getWorkbench().getService(IPlottingService.class) == null) {
-			displayAndLogError(parent, "Cannot create Live Stream: no plotting service is available");
+			displayAndLogError(logger, parent, "Cannot create Live Stream: no plotting service is available");
 			return;
 		}
 
@@ -156,7 +156,7 @@ public class LiveStreamView extends ViewPart {
 			});
 
 		} else { // No cameras found
-			displayAndLogError(parent, "No cameras were found");
+			displayAndLogError(logger, parent, "No cameras were found");
 		}
 		return;
 	}
@@ -203,7 +203,7 @@ public class LiveStreamView extends ViewPart {
 		camConfig = Finder.getInstance().find(cameraId);
 
 		if (camConfig == null) {
-			displayAndLogError(parent, "Camera configuration could not be found for camera ID " + cameraId);
+			displayAndLogError(logger, parent, "Camera configuration could not be found for camera ID " + cameraId);
 			return;
 		}
 
@@ -225,7 +225,7 @@ public class LiveStreamView extends ViewPart {
 			plottingComposite.connect();
 			setupRoiProvider();
 		} catch (Exception e) {
-			displayAndLogError(parent, "Could not create plotting view", e);
+			displayAndLogError(logger, parent, "Could not create plotting view", e);
 			return;
 		}
 
@@ -278,33 +278,6 @@ public class LiveStreamView extends ViewPart {
 		if (plottingSystem != null) {
 			plottingSystem.setFocus();
 		}
-	}
-
-	private void displayAndLogError(final Composite parent, final String errorMessage) {
-		displayAndLogError(parent, errorMessage, null);
-	}
-
-	private void displayAndLogError(final Composite parent, final String errorMessage, final Throwable throwable) {
-		logger.error(errorMessage, throwable);
-		if (errorText == null) {
-			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
-			errorText.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					errorText.dispose();
-					parent.layout(true);
-					errorText = null;
-				}
-			});
-			errorText.setToolTipText("Double click this message to remove it.");
-			parent.layout(true);
-		}
-		final StringBuilder s = new StringBuilder(errorText.getText());
-		s.append("\n").append(errorMessage);
-		if (throwable != null) {
-			s.append("\n\t").append(throwable.getMessage());
-		}
-		errorText.setText(s.toString());
 	}
 
 	@Override

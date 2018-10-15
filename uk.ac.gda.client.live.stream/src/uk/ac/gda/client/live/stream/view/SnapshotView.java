@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.client.live.stream.view.StreamViewUtility.displayAndLogError;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,11 +30,7 @@ import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
 import org.eclipse.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -43,17 +41,15 @@ public class SnapshotView extends ViewPart {
 
 	public static final String ID="uk.ac.gda.client.live.stream.view.snapshotview";
 
-	private static final Logger logger=LoggerFactory.getLogger(SnapshotView.class);
+	private static final Logger logger = LoggerFactory.getLogger(SnapshotView.class);
 
 	private IPlottingSystem<Composite> plottingsystem;
-
-	private Text errorText;
 
 	@Override
 	public void createPartControl(Composite parent) {
 		final IPlottingService plottingService = PlatformUI.getWorkbench().getService(IPlottingService.class);
 		if (plottingService == null) {
-			displayAndLogError(parent, "Cannot create Snapshot: no plotting service is available");
+			displayAndLogError(logger, parent, "Cannot create Snapshot: no plotting service is available");
 			return;
 		}
 		final IActionBars actionBars = getViewSite().getActionBars();
@@ -61,7 +57,7 @@ public class SnapshotView extends ViewPart {
 			plottingsystem = plottingService.createPlottingSystem();
 			plottingsystem.createPlotPart(parent, "Snapshot", actionBars, PlotType.IMAGE, this);
 		} catch (Exception e) {
-			displayAndLogError(parent, "Could not create plotting system", e);
+			displayAndLogError(logger, parent, "Could not create plotting system", e);
 			return;
 		}
 		for (IAxis axis : plottingsystem.getAxes()) {
@@ -103,31 +99,6 @@ public class SnapshotView extends ViewPart {
 
 	}
 
-	private void displayAndLogError(final Composite parent, final String errorMessage) {
-		displayAndLogError(parent, errorMessage, null);
-	}
-	private void displayAndLogError(final Composite parent, final String errorMessage, final Throwable throwable) {
-		logger.error(errorMessage, throwable);
-		if (errorText == null) {
-			errorText = new Text(parent, SWT.LEFT | SWT.WRAP | SWT.BORDER);
-			errorText.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					errorText.dispose();
-					parent.layout(true);
-					errorText=null;
-				}
-			});
-			errorText.setToolTipText("Double click this message to remove it.");
-			parent.layout(true);
-		}
-		final StringBuilder s = new StringBuilder(errorText.getText());
-		s.append("\n").append(errorMessage);
-		if (throwable != null) {
-			s.append("\n\t").append(throwable.getMessage());
-		}
-		errorText.setText(s.toString());
-	}
 	@Override
 	// This method is required for the plotting tools to work.
 	public <T> T getAdapter(final Class<T> clazz) {
