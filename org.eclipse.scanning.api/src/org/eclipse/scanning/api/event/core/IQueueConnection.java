@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.event.core;
 import java.util.List;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.status.Status;
 
 public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 
@@ -45,6 +46,21 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	public void setSubmitQueueName(String queueName) throws EventException;
 
 	/**
+	 * Get a copy of the current submission queue as a list of beans, type T
+	 * The list is ordered by submission time, not necessarily the ordering
+	 * of the JMS queue.
+	 *
+	 * @return
+	 */
+	public List<T> getSubmissionQueue() throws EventException ;
+
+	/**
+	 * Removes all pending jobs from the consumer's submission queue.
+	 * @throws EventException
+	 */
+	void clearQueue() throws EventException;
+
+	/**
 	 * Looks a the command queue to find out if a given queue with
 	 * the same submission queue as this submitter is paused.
 	 *
@@ -62,16 +78,28 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	public List<T> getRunningAndCompleted() throws EventException ;
 
 	/**
-	 * Removes all pending jobs from the consumer's submission queue.
-	 * @throws EventException
-	 */
-	void clearQueue() throws EventException;
-
-	/**
 	 * Removes all completed jobs from the consumer's status set.
 	 * @throws EventException
 	 */
 	void clearRunningAndCompleted() throws EventException;
+
+	/**
+	 * Cleans up the status set by removing certain old jobs.
+	 * Specifically, the jobs that are removed are those that meet one of the following criteria:
+	 * <ul>
+	 *   <li>jobs that have the status {@link Status#FAILED} or {@link Status#NONE};</li>
+	 *   <li>jobs that are running (i.e. {@link Status#isRunning()} is <code>true</code>) and are older
+	 *      than the maximum running age (by default, two days);<li>
+	 *   <li>jobs that are final (i.e. {@link Status#isFinal()} is <code>true</code>) and are older than
+	 *      the maximum complete age (by default, one week);</li>
+	 *   <li>Additionally jobs that are not started or paused will have their status set to {@link Status#FAILED};</li>
+	 * </ul>
+	 *
+	 * This method is intended to be called on starting the consumer.
+	 *
+	 * @throws EventException
+	 */
+	void cleanUpCompleted() throws EventException;
 
 	/**
 	 * Tries to reorder the bean in the submission queue if it is
