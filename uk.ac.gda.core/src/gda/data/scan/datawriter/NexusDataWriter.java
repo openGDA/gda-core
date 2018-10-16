@@ -161,6 +161,8 @@ public class NexusDataWriter extends DataWriterBase {
 	 */
 	protected int scanNumber = -1;
 
+	private final ZonedDateTime startTime = ZonedDateTime.now();
+
 	protected Collection<SelfCreatingLink> scannableID;
 
 	boolean firstData = true;
@@ -957,7 +959,7 @@ public class NexusDataWriter extends DataWriterBase {
 			if (!g.containsNode("title")) {
 				NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
 			}
-			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(startTime));
 			createCustomMetaData(g);
 		} catch (Exception e) {
 			logger.info("error writing less important scan information", e);
