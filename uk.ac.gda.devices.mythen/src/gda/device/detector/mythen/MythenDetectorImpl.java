@@ -81,6 +81,9 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	protected volatile long collectionNumber;
 
+	/** Write header lines to data files */
+	private boolean includeHeaders;
+
 	/**
 	 * The Mythen client that actually interacts with the Mythen controller hardware.
 	 */
@@ -432,7 +435,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		processedData.setAdditionalHeaderStrings(headerStrings);
 
 		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-		processedData.save(processedFile, isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -554,7 +557,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 			MythenRawDataset rawData = new MythenRawDataset(rawFile);
 			MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
 			File processedFile = new File(dataDirectory, String.format(filenameTemplate, prefix, frame, "dat"));
-			processedData.save(processedFile,isHasChannelInfo());
+			processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		}
 
 		logger.info("Finished");
@@ -580,7 +583,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		logger.info("Processing data");
 		MythenRawDataset rawData = new MythenRawDataset(rawFile);
 		MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
-		processedData.save(processedFile,isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 	}
 
 	public void gated(int numGates) throws DeviceException {
@@ -606,7 +609,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		logger.info("Processing data");
 		MythenRawDataset rawData = new MythenRawDataset(rawFile);
 		MythenProcessedDataset processedData = dataConverter.process(rawData, delta);
-		processedData.save(processedFile, isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 	}
 
 	/**
@@ -661,7 +664,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 			rawData = new MythenRawDataset(rawFile);
 			processedData = dataConverter.process(rawData, delta);
 			processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-			processedData.save(processedFile,isHasChannelInfo());
+			processedData.save(processedFile,isHasChannelInfo(), isIncludeHeaders());
 			if (InterfaceProvider.getTerminalPrinter() != null) {
 				InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 			}
@@ -736,7 +739,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
 		processedFile = new File(rawFile.getAbsolutePath().replace(".raw", ".dat"));
-		processedData.save(processedFile,isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
@@ -744,6 +747,14 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 		status = IDLE;
 		plot(processedFile.getName(), processedData, num);
+	}
+
+	public boolean isIncludeHeaders() {
+		return includeHeaders;
+	}
+
+	public void setIncludeHeaders(boolean includeHeaders) {
+		this.includeHeaders = includeHeaders;
 	}
 
 	public void plot(String filename, MythenProcessedDataset processedData, int num) {
@@ -769,7 +780,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 		rawData = new MythenRawDataset(rawFile);
 		processedData = dataConverter.process(rawData, delta);
 		processedFile = new File(getDataDirectory(), collectionFilename + ".dat");
-		processedData.save(processedFile, isHasChannelInfo());
+		processedData.save(processedFile, isHasChannelInfo(), isIncludeHeaders());
 		if (InterfaceProvider.getTerminalPrinter() != null) {
 			InterfaceProvider.getTerminalPrinter().print("Save to file " + processedFile.getAbsolutePath());
 		}
