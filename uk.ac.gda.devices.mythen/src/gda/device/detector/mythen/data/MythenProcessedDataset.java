@@ -132,7 +132,7 @@ public class MythenProcessedDataset {
 			pw.printf("# %s\n", headerString);
 		}
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyy , hh:mm:ss");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyy , HH:mm:ss");
 		pw.printf("# Date\t %s\n", formatter.format(LocalDateTime.now()));
 		pw.printf("# Angle,	Count,	Error,	Channel\n");
 	}
