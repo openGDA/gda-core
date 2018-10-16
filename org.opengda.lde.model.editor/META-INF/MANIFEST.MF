@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Activator: org.opengda.lde.model.ldeexperiment.presentation.SampledefinitionEditorPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.opengda.lde.model.editor.ui.provider,
  org.opengda.lde.model.ldeexperiment.presentation
 Require-Bundle: org.eclipse.core.runtime,
@@ -22,3 +22,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text;bundle-version="3.8.2",
  org.eclipse.nebula.widgets.datechooser;bundle-version="1.0.0.2017"
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.opengda.lde.model.editor
