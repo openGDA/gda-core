@@ -58,8 +58,8 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	}
 
 	public OutputParameters() {
-		signalList = new ArrayList<SignalParameters>();
-		metadataList = new ArrayList<MetadataParameters>();
+		signalList = new ArrayList<>();
+		metadataList = new ArrayList<>();
 	}
 
 	@Override
@@ -99,9 +99,8 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		return signalList;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<SignalParameters> getCheckedSignalList() {
-		return signalActive ? getSignalList() : Collections.EMPTY_LIST;
+		return signalActive ? getSignalList() : Collections.emptyList();
 	}
 
 	public void setSignalList(List<SignalParameters> signalList) {
@@ -117,9 +116,8 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		return metadataList;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<SignalParameters> getCheckedMetadataList() {
-		return metadataActive ? getMetadataList() : Collections.EMPTY_LIST;
+	public List<MetadataParameters> getCheckedMetadataList() {
+		return metadataActive ? getMetadataList() : Collections.emptyList();
 	}
 
 	public void setMetadataList(List<MetadataParameters> metadataList) {

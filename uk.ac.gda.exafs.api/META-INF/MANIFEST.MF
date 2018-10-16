@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Exafs API
 Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
  gda.exafs.mucal;uses:="uk.ac.gda.beans.exafs",
@@ -28,3 +28,4 @@ Require-Bundle: uk.ac.gda.common,
  org.apache.commons.beanutils,
  uk.ac.diamond.org.jscience;bundle-version="2.0.2"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Automatic-Module-Name: uk.ac.gda.exafs.api

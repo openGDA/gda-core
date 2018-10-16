@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Andor
 Bundle-SymbolicName: uk.ac.gda.devices.andor
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
  uk.ac.gda.epics;bundle-version="1.0.0"
 Export-Package: gda.device.detector.nxdetector.andor.proc
@@ -11,3 +11,4 @@ Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
+Automatic-Module-Name: uk.ac.gda.devices.andor

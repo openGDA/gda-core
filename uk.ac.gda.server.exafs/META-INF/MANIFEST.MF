@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.daq.jython.api;bundle-version="1.0.0",
  org.eclipse.richbeans.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.common,
  uk.ac.gda.core,
  uk.ac.gda.client,
@@ -42,3 +42,4 @@ Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
  gda.device.detector.addetector.triggering,
  gda.device.detector.areadetector.v17,
  gda.device.detector.areadetector.v17.impl
+Automatic-Module-Name: uk.ac.gda.server.exafs

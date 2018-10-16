@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
 Export-Package: uk.ac.gda.server.exafs.epics.device.scannable
+Automatic-Module-Name: uk.ac.gda.server.exafs.epics

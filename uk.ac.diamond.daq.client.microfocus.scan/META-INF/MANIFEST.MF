@@ -4,7 +4,7 @@ Bundle-Name: Microfocus Scan components
 Bundle-SymbolicName: uk.ac.diamond.daq.client.microfocus.scan;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.client.microfocus.scan,
  uk.ac.gda.client.microfocus.scan.datawriter,
  uk.ac.gda.client.microfocus.scan.util
@@ -33,3 +33,4 @@ Import-Package: net.sf.cglib.core,
  org.slf4j;version="1.7.6",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, uk.ac.gda.core
+Automatic-Module-Name: uk.ac.diamond.daq.client.microfocus.scan
