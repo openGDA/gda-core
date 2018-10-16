@@ -64,6 +64,10 @@ public class MythenProcessedDataset {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
 			String line = null;
 			while ((line = br.readLine()) != null) {
+				if (line.startsWith("#")) {
+					// ignore comments/headers
+					continue;
+				}
 				String[] tokens = line.split(" ");
 				final double angle = Double.parseDouble(tokens[0]);
 				final int count = Integer.parseInt(tokens[1]);

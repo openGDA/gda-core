@@ -151,6 +151,9 @@ public class MythenDataFileUtils {
 			List<double[]> data = new Vector<double[]>();
 			String line = null;
 			while ((line = r.readLine()) != null) {
+				if (line.startsWith("#")) {
+					continue; // comment/header
+				}
 				String[] tokens = line.split(" ");
 				double[] values = new double[tokens.length];
 				for (int i = 0; i < tokens.length; i++) {
@@ -172,6 +175,7 @@ public class MythenDataFileUtils {
 		try {
 			List<double[]> data = new Vector<double[]>();
 			StreamTokenizer st = new StreamTokenizer(r);
+			st.commentChar('#');
 			while (st.nextToken() != StreamTokenizer.TT_EOF) {
 				double angle = st.nval;
 				st.nextToken();
