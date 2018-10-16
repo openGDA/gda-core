@@ -4,7 +4,7 @@ Bundle-Name: GDA Event Bus
 Bundle-SymbolicName: uk.ac.gda.eventbus
 Bundle-Version: 9.10.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.google.guava;bundle-version="16.0.1",
  ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  ch.qos.logback.core;bundle-version="[1.0.7,2.0.0)",
@@ -17,3 +17,5 @@ Import-Package: javax.jms,
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.eventbus;version="8.44.0"
 Service-Component: OSGI-INF/component.xml
+Automatic-Module-Name: uk.ac.gda.eventbus
+Bundle-ActivationPolicy: lazy

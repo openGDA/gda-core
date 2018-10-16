@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.example;singleton:=true
 Bundle-Version: 9.10.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
@@ -54,3 +54,4 @@ Import-Package: org.eclipse.core.databinding,
  org.eclipse.jface.databinding.viewers,
  org.eclipse.jface.databinding.wizard,
  org.slf4j;version="[1.7.2,2.0.0)"
+Automatic-Module-Name: uk.ac.gda.example

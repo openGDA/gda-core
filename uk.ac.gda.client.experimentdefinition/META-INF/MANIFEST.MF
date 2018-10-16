@@ -24,7 +24,7 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  org.eclipse.scanning.event.ui
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.beans.validation,
  uk.ac.gda.client.experimentdefinition,
  uk.ac.gda.client.experimentdefinition.components,
@@ -63,3 +63,4 @@ Import-Package: org.eclipse.core.commands,
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.util;version="3.0.4"
 Service-Component: OSGI-INF/*
+Automatic-Module-Name: uk.ac.gda.client.experimentdefinition

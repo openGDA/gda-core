@@ -4,7 +4,7 @@ Bundle-Name: Client Interfaces referenced by other plugins
 Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.rcpcontroller;singleton:=true
 Bundle-Version: 9.10.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.api;bundle-version="8.52.0",
  uk.ac.gda.core;bundle-version="9.0.0"
@@ -13,3 +13,4 @@ Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
 Import-Package: net.sf.cglib.core,
  net.sf.cglib.proxy,
  org.springframework.beans.factory;version="4.0.6.RELEASE"
+Automatic-Module-Name: uk.ac.diamond.daq.client.gui.rcpcontroller
