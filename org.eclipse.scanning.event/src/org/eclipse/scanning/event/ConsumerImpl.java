@@ -251,10 +251,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				case CLEAR_COMPLETED:
 					clearRunningAndCompleted();
 					break;
-				case MOVE_UP:
+				case MOVE_FORWARD:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, 1));
 					break;
-				case MOVE_DOWN:
+				case MOVE_BACKWARD:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, -1));
 					break;
 				case REMOVE:

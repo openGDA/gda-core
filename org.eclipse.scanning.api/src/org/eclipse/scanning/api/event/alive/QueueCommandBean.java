@@ -65,14 +65,16 @@ public class QueueCommandBean  extends IdBean {
 		CLEAR_COMPLETED,
 
 		/**
-		 * A command to move a bean up the submission queue.
+		 * A command to move a bean one place toward the head of the submission queue, i.e.
+		 * it will be executed earlier.
 		 */
-		MOVE_UP,
+		MOVE_FORWARD,
 
 		/**
-		 * A command to move a bean down the submission queue.
+		 * A command to move a bean one place toward the tail of the submission queue, i.e.
+		 * it will be executed later.
 		 */
-		MOVE_DOWN,
+		MOVE_BACKWARD,
 
 		/**
 		 * A command to remove a bean from the submission queue.
@@ -125,7 +127,7 @@ public class QueueCommandBean  extends IdBean {
 
 	/**
 	 * The unique id of the bean that the command relates to. Only specified if
-	 * the {@link #command} is {@link Command#MOVE_UP} or {@link Command#MOVE_DOWN}.
+	 * the {@link #command} is {@link Command#MOVE_FORWARD} or {@link Command#MOVE_BACKWARD}.
 	 */
 	private String beanUniqueId;
 
