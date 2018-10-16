@@ -4,7 +4,7 @@ Bundle-Name: Mythen detector classes
 Bundle-SymbolicName: uk.ac.gda.devices.mythen
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: gda.device.detector,
  gda.device.detector.mythen,
  gda.device.detector.mythen.client,
@@ -23,3 +23,4 @@ Import-Package: org.apache.commons.io,
  org.slf4j;version="[1.5.0,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.util;version="3.0.4"
+Automatic-Module-Name: uk.ac.gda.devices.mythen

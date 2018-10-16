@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics,
  uk.ac.gda.devices.pixium
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-RegisterBuddy: uk.ac.gda.core,
  uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.epics.client.pixium,
@@ -28,3 +28,4 @@ Import-Package: ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  gov.aps.jca,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4"
+Automatic-Module-Name: uk.ac.gda.epics.client.pixium

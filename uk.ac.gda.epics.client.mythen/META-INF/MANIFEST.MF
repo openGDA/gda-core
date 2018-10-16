@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.devices.mythen.visualisation,
  org.eclipse.swt
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: gda.observable,
  org.apache.commons.io,
  org.eclipse.dawnsci.analysis.api,
@@ -37,3 +37,4 @@ Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
  uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.epics.client.mythen.views
+Automatic-Module-Name: uk.ac.gda.epics.client.mythen
