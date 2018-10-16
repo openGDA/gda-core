@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GDA Test Helpers
 Bundle-SymbolicName: uk.ac.gda.test.helpers
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.mockito.mockito-core;bundle-version="[1.10.19,2.0.0)",
  uk.ac.diamond.org.springframework;bundle-version="1.0.0",
@@ -25,3 +25,4 @@ Export-Package: gda,
  uk.ac.gda.test.helpers.springmock,
  uk.ac.gda.test.helpers.swt
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+Automatic-Module-Name: uk.ac.gda.test.helpers
