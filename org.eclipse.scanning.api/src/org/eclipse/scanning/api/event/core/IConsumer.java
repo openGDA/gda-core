@@ -115,6 +115,13 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	IProcessCreator<T> getRunner();
 
 	/**
+	 * Returns whether this consumer is paused.
+	 *
+	 * @return <code>true</code> if this consumer is paused, <code>false</code> otherwise
+	 */
+	boolean isPaused();
+
+	/**
 	 * The topic used to run commands like terminate the running process and get the consumer to stop.
 	 * @return topic name
 	 */

@@ -1035,7 +1035,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public boolean isQueuePaused() {
+	public boolean isPaused() {
 		return awaitPaused;
 	}
 
@@ -1046,7 +1046,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * @throws EventException wrapping any exception thrown by the given task
 	 */
 	protected <T> T doWhilePaused(Callable<T> task) throws EventException {
-		final boolean requiresPause = !isQueuePaused();
+		final boolean requiresPause = !isPaused();
 
 		try {
 			if (requiresPause) {

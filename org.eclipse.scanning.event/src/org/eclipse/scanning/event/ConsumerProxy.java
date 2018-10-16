@@ -188,7 +188,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public boolean isQueuePaused() {
+	public boolean isPaused() {
 		return getConsumerStatus() == ConsumerStatus.PAUSED;
 	}
 

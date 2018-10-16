@@ -394,7 +394,7 @@ public class StatusQueueView extends EventConnectionView {
 		pauseMonitor.addListener(evt -> {
 			final QueueCommandBean.Command command = evt.getBean().getCommand();
 			if (command == Command.PAUSE || command == Command.RESUME) {
-				pauseConsumerAction.setChecked(consumerProxy.isQueuePaused());
+				pauseConsumerAction.setChecked(consumerProxy.isPaused());
 			}
 		});
 
@@ -515,14 +515,14 @@ public class StatusQueueView extends EventConnectionView {
 			}
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor("icons/control-pause-red.png"));
-		action.setChecked(consumerProxy.isQueuePaused());
+		action.setChecked(consumerProxy.isPaused());
 		return action;
 	}
 
 	private void pauseConsumerActionRun(IAction pauseConsumer) {
 
 		// The button can get out of sync if two clients are used.
-		final boolean queuePaused = consumerProxy.isQueuePaused();
+		final boolean queuePaused = consumerProxy.isPaused();
 		try {
 			pauseConsumer.setChecked(!queuePaused); // We are toggling it.
 			if (queuePaused) {
@@ -535,7 +535,7 @@ public class StatusQueueView extends EventConnectionView {
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		pauseConsumer.setChecked(consumerProxy.isQueuePaused());
+		pauseConsumer.setChecked(consumerProxy.isPaused());
 	}
 
 	private void pauseActionUpdate(boolean anyRunning, boolean anyPaused, boolean anySelectedSubmitted) {

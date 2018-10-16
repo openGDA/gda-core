@@ -61,14 +61,6 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	void clearQueue() throws EventException;
 
 	/**
-	 * Looks a the command queue to find out if a given queue with
-	 * the same submission queue as this submitter is paused.
-	 *
-	 * @return
-	 */
-	boolean isQueuePaused();
-
-	/**
 	 * Return a list of beans whose jobs are either running or completed.
 	 * The list is ordered by submission time, not necessarily the ordering
 	 * of the JMS queue.
