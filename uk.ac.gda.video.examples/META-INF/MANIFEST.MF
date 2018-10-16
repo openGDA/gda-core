@@ -4,7 +4,7 @@ Bundle-Name: uk.ac.gda.video.examples
 Bundle-SymbolicName: uk.ac.gda.video.examples
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: uk.ac.gda.video;bundle-version="1.0.0",
  uk.ac.gda.video.mjpeg;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0"
@@ -13,3 +13,4 @@ Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.context;version="3.0.4",
  org.springframework.context.support;version="3.0.4",
  org.springframework.core.io;version="3.0.4"
+Automatic-Module-Name: uk.ac.gda.video.examples
