@@ -4,7 +4,7 @@ Bundle-Name: JPA Toplink/Derby Persistence classes
 Bundle-SymbolicName: uk.ac.diamond.daq.persistence;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.apache.commons.configuration;bundle-version="1.10.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.apache.derby;bundle-version="10.8.2",
@@ -108,3 +108,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: jars/toplink-essentials-2b41.jar,
  jars/toplink-essentials-agent-2b41.jar,
  .
+Automatic-Module-Name: uk.ac.diamond.daq.persistence

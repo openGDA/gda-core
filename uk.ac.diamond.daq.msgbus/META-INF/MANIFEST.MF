@@ -4,7 +4,7 @@ Bundle-Name: MsgBus
 Bundle-SymbolicName: uk.ac.diamond.daq.msgbus;singleton:=true
 Bundle-Version: 9.10.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.diamond.daq.msgbus
 Require-Bundle: com.google.guava;bundle-version="16.0.1";visibility:=reexport,
  com.google.gson;bundle-version="2.2.4",
@@ -15,3 +15,4 @@ Import-Package: gda.configuration.properties,
  org.springframework.beans.factory
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ClassPath: .
+Automatic-Module-Name: uk.ac.diamond.daq.msgbus
