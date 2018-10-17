@@ -94,18 +94,22 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	void cleanUpCompleted() throws EventException;
 
 	/**
-	 * Tries to reorder the bean in the submission queue if it is
-	 * still there. If the bean has been moved to the status set,
-	 * it will not be moved
-	 *
-	 * A pause will automatically be done while the bean
-	 * is removed.
-	 *
+	 * Moves the given bean towards the head of the submission queue if possible,
+	 * i.e. it will be processed sooner.
 	 * @param bean
-	 * @return
+	 * @return <code>true</code> if the bean could be moved, <code>false</code> otherwise
 	 * @throws EventException
 	 */
-	boolean reorder(T bean, int amount) throws EventException;
+	boolean moveForward(T bean) throws EventException;
+	
+	/**
+	 * Moves the given bean towards the tail of the submission queue if possible,
+	 * i.e. it will be processed later
+	 * @param bean
+	 * @return <code>true</code> if the bean could be moved, <code>false</code> otherwise
+	 * @throws EventException
+	 */
+	boolean moveBackward(T bean) throws EventException;
 
 	/**
 	 * Tries to remove the bean from the submission queue if it is

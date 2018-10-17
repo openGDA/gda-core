@@ -267,7 +267,7 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	@Test
-	public void testReorderUp() throws Exception {
+	public void testMoveForward() throws Exception {
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();
 
@@ -276,7 +276,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean towards the start of the queue
-		getConsumer().reorder(beanThree, 1);
+		getConsumer().moveForward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -285,7 +285,7 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	@Test
-	public void testReorderDown() throws Exception {
+	public void testMoveBackward() throws Exception {
 		// Arrange: submit some beans and get the bean to reorder
 		List<StatusBean> beans = createAndSubmitBeans();
 
@@ -293,8 +293,8 @@ public class QueueManagementTest extends BrokerTest {
 		StatusBean beanThree = beans.get(2);
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
-		// Act: reorder the bean towards the start of the queue
-		getConsumer().reorder(beanThree, -1);
+		// Act: reorder the bean towards the end of the queue
+		getConsumer().moveBackward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -303,7 +303,7 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	@Test
-	public void testReorderDownTwice() throws Exception {
+	public void testMoveFowardTwice() throws Exception {
 		// A regression test for DAQ-1406 the submitter's MessageProducer was closed without being nullified
 
 		// Arrange: submit some beans and get the beans to reorder
@@ -314,7 +314,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(beanThree.getName(), is(equalTo("three")));
 
 		// Act: reorder the bean the first time
-		getConsumer().reorder(beanThree, 1);
+		getConsumer().moveForward(beanThree);
 
 		// Assert: first update the beans list so we can use it as the expected answer
 		beans.remove(beanThree);
@@ -322,7 +322,7 @@ public class QueueManagementTest extends BrokerTest {
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 
 		// Act: reorder the bean a second time
-		getConsumer().reorder(beanThree, 1);
+		getConsumer().moveForward(beanThree);
 
 		// Assert:
 		beans.remove(beanThree);

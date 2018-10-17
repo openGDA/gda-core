@@ -226,7 +226,7 @@ public class AbstractPauseTest extends BrokerTest {
 			submitter.submit(statusBean);
 		}
 
-		consumer.reorder(statusBean, 1);
+		consumer.moveForward(statusBean);
 
 		Thread.sleep(500);
 		assertTrue(!consumer.isActive());

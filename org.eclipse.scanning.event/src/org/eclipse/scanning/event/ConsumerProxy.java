@@ -110,15 +110,13 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public boolean reorder(U bean, int amount) throws EventException {
-		if (amount == 1) {
-			return sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
-		} else if (amount == -1) {
-			return sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
-		} else {
-			// TODO: replace reorder with moveUp and moveDown: see DAQ-1641
-			throw new IllegalArgumentException("Beans can only be moved up or down by one place at a time.");
-		}
+	public boolean moveForward(U bean) throws EventException {
+		return sendCommand(Command.MOVE_FORWARD, bean) == Boolean.TRUE;
+	}
+
+	@Override
+	public boolean moveBackward(U bean) throws EventException {
+		return sendCommand(Command.MOVE_BACKWARD, bean) == Boolean.TRUE;
 	}
 
 	@Override

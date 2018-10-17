@@ -252,10 +252,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					clearRunningAndCompleted();
 					break;
 				case MOVE_FORWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, 1));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> moveForward(bean));
 					break;
 				case MOVE_BACKWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> reorder(bean, -1));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> moveBackward(bean));
 					break;
 				case REMOVE:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
@@ -565,9 +565,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public boolean reorder(U bean, int amount) throws EventException {
-		if (amount==0) return false; // Nothing to reorder, no exception required, order unchanged.
-		return doWhilePaused(() -> doReorder(bean, amount));
+	public boolean moveForward(U bean) throws EventException {
+		return doWhilePaused(() -> doReorder(bean, 1));
+	}
+
+	@Override
+	public boolean moveBackward(U bean) throws EventException {
+		return doWhilePaused(() -> doReorder(bean, -1));
 	}
 
 	private boolean doReorder(U bean, int amount) throws EventException {

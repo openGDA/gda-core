@@ -451,13 +451,13 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action upActionCreate() {
-		Action action = new Action("Less urgent (-1)", Activator.getImageDescriptor("icons/arrow-090.png")) {
+		Action action = new Action("Move backward (run later)", Activator.getImageDescriptor("icons/arrow-090.png")) {
 			@Override
 			public void run() {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.reorder(bean, -1);
+							consumerProxy.moveBackward(bean);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -480,7 +480,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action downActionCreate() {
-		Action action = new Action("More urgent (+1)", Activator.getImageDescriptor("icons/arrow-270.png")) {
+		Action action = new Action("More forward (run earlier)", Activator.getImageDescriptor("icons/arrow-270.png")) {
 			@Override
 			public void run() {
 				// When moving items down, if we move an item down before moving down an adjacent item below it, we end
@@ -490,7 +490,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.reorder(bean, 1);
+							consumerProxy.moveForward(bean);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
