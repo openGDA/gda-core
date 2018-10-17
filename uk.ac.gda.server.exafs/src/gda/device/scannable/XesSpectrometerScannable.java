@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyPersistentScannable;
 import gda.device.scannable.ScannableMotionUnitsBase;
 import gda.device.scannable.ScannableMotor;
@@ -30,6 +31,7 @@ import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Controls the I20 XES Secondary Spectrometer.
@@ -39,6 +41,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  * <p>
  * Assumes the detector motor has been calibrated in such a way that its position is the same as the Bragg angle.
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class XesSpectrometerScannable extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);

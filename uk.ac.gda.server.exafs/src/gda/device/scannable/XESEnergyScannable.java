@@ -20,12 +20,15 @@ package uk.ac.gda.beamline.i20.scannable;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotionUnitsBase;
 import gda.device.scannable.ScannableStatus;
 import gda.exafs.xes.XesUtils;
 import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(ScannableMotionUnits.class)
 public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver {
 
 	private XesSpectrometerScannable xes;
