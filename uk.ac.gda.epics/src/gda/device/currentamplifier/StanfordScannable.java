@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.epics.CAClient;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Scannable to drive Stanford current amplifier, originally written for B18 and
@@ -39,6 +40,7 @@ import gda.jython.InterfaceProvider;
  *
  * @since 12/10/2016
  */
+@ServiceInterface(StanfordAmplifier.class)
 public class StanfordScannable extends CurrentAmplifierBase implements StanfordAmplifier {
 
 	private static final Logger logger = LoggerFactory.getLogger(StanfordScannable.class);
