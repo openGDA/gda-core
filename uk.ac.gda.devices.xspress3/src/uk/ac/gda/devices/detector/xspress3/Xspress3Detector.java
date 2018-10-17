@@ -42,9 +42,11 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -56,6 +58,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  *
  * @author rjw82
  */
+@ServiceInterface(FluorescenceDetector.class)
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3Detector.class);

@@ -30,6 +30,7 @@ import gda.device.Timer;
 import gda.device.timer.Tfg;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -42,6 +43,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
  * Detectors using this interface can be RMI exported from server to client and used in {@link FluorescenceDetectorComposite}.
  *
  */
+@ServiceInterface(FluorescenceDetector.class)
 public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetector, InitializingBean, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusXmapFluorescenceDetectorAdapter.class);

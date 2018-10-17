@@ -52,6 +52,7 @@ import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -73,6 +74,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * to delegate driving of the detector to {@link Xspress3Detector} and {@link Xspress3Controller} where possible, and create additional
  * PVs to obtain data where necessary.
  */
+@ServiceInterface(FluorescenceDetector.class)
 @SuppressWarnings("serial")
 public class Xspress4Detector extends DetectorBase implements FluorescenceDetector, NexusDetector {
 

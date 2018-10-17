@@ -32,6 +32,7 @@ import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -39,6 +40,7 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.XspressFluorescenceDetector;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -60,6 +62,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
+@ServiceInterface(FluorescenceDetector.class)
 public class Xspress2Detector extends XspressSystem implements XspressFluorescenceDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
