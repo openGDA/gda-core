@@ -72,7 +72,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	private synchronized Object sendCommandBean(QueueCommandBean commandBean) throws EventException {
 		if (queueCommandRequestor == null) {
 			queueCommandRequestor = eventService.createRequestor(uri, getCommandTopicName(), getCommandAckTopicName());
-			queueCommandRequestor.setTimeout(1, TimeUnit.SECONDS); // allow quite a generous timeout
+			queueCommandRequestor.setTimeout(10, TimeUnit.SECONDS); // allow a very generous timeout, can take > 1 sec to get queue from ActiveMQ
 		}
 
 		try {
