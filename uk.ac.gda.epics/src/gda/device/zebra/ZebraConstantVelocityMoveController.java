@@ -416,8 +416,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
-		// The difference between requested and RBV positions should never be more than double the motor resolution.
-		double tolerance = scannableMotor.getMotorResolution()*2;
+		// The difference between requested and RBV positions should never be more than double the retry deadband (RDBD).
+		double tolerance = scannableMotor.getDemandPositionTolerance()*2;
 
 		zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
 		zebra.setPCGateStart(pcGateStart);
