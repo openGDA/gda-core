@@ -409,7 +409,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
 		final List<U> statusSet = getQueue(getStatusSetName(), beanClass);
-		statusSet.sort((first, second) -> Long.signum(second.getSubmissionTime() - first.getSubmissionTime()));
+		statusSet.sort((first, second) -> Long.signum(first.getSubmissionTime() - second.getSubmissionTime()));
 		return statusSet;
 	}
 
