@@ -76,7 +76,7 @@ public class Services {
 	}
 
 	public void start(ComponentContext context) {
-		this.context = context;
+		Services.context = context;
 		current = this;
 	}
 
