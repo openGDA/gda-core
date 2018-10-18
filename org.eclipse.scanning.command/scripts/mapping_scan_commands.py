@@ -60,11 +60,14 @@ from org.eclipse.scanning.api.points.models import (
 
 from org.eclipse.scanning.command.Services import (
     getEventService, getRunnableDeviceService, getScannableDeviceService)
+    
+from org.eclipse.scanning.api.scan.models import ScanMetadata
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as MetadataType
 
 
 # Grepping for 'mscan' in a GDA workspace shows up nothing, so it seems that
 # mscan is a free name.
-def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, now=False, block=True,
+def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, now=False, block=True,
           allow_preprocess=False, broker_uri=None):
     """Create a ScanRequest and submit it to the GDA server.
 
@@ -107,7 +110,7 @@ def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, now=
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
 
-    submit(request=scan_request(path=path, monitorsPerPoint=monitorsPerPoint, monitorsPerScan=monitorsPerScan, det=det, allow_preprocess=allow_preprocess),
+    submit(request=scan_request(path=path, monitorsPerPoint=monitorsPerPoint, monitorsPerScan=monitorsPerScan, det=det, metadata=metadata, allow_preprocess=allow_preprocess),
            now=now, block=block, broker_uri=broker_uri)
 
 def getScannable(name):
@@ -155,7 +158,7 @@ def getScanningBrokerUri():
     return uri;
 
 
-def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, file=None, allow_preprocess=False):
+def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, file=None, allow_preprocess=False):
     """Create a ScanRequest object with the given configuration.
 
     See the mscan() docstring for usage.
@@ -174,7 +177,7 @@ def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=Non
     monitorNamesPerPoint = ArrayList(map(_stringify, _listify(monitorsPerPoint)))
     monitorNamesPerScan = ArrayList(map(_stringify, _listify(monitorsPerScan)))
     detectors = _listify(det)
-
+    metadata_list = ArrayList(_listify(metadata))
     (scan_path_models, _) = zip(*scan_paths)  # zip(* == unzip(
 
     # ScanRequest expects CompoundModel
@@ -193,6 +196,7 @@ def scan_request(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=Non
                          'monitorNamesPerPoint': monitorNamesPerPoint,
                          'monitorNamesPerScan': monitorNamesPerScan,
                          'detectors': detector_map,
+                         'scanMetadata' : metadata_list,
                          'ignorePreprocess': not allow_preprocess})
 
 
@@ -224,6 +228,18 @@ def detector(name, exposure, **kwargs):
 # Scan paths
 # ----------
 
+def sample(**kwargs):
+    """Include key, value pairs to be written in to the sample region of the file.
+    
+    For example:
+    >>> sample(name="Fe",id=12345)
+    will return a ScanMetadata object with the expected content
+    """
+    md = ScanMetadata(MetadataType.SAMPLE)
+    for key, value in kwargs.iteritems():
+        md.addField(key,value)
+    return md
+    
 def step(axis=None, start=None, stop=None, step=None, **kwargs):
     """Define a step scan path to be passed to mscan().
 
