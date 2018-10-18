@@ -457,7 +457,7 @@ public class StatusQueueView extends EventConnectionView {
 				for(StatusBean bean : getSelection()) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.reorder(bean, 1);
+							consumerProxy.reorder(bean, -1);
 						} else {
 							logger.info("Cannot move {} up as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
@@ -490,7 +490,7 @@ public class StatusQueueView extends EventConnectionView {
 				for (StatusBean bean : selection) {
 					try {
 						if (bean.getStatus() == org.eclipse.scanning.api.event.status.Status.SUBMITTED) {
-							consumerProxy.reorder(bean, -1);
+							consumerProxy.reorder(bean, 1);
 						} else {
 							logger.info("Cannot move {} down as it's status ({}) is not SUBMITTED", bean.getName(), bean.getStatus());
 						}
