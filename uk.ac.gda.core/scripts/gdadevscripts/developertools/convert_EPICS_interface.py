@@ -314,10 +314,8 @@ class ConfigFolder(object):
                 self.counter.update({bean_class: 1})
                 pv_name, replace_name, class_name = find_pv_result
                 bean.set('class', class_name)
-                bean.remove(prop) # Remove the device name property
-                new_element = ET.Element('property', {'name': replace_name,
-                                                      'value': pv_name})
-                bean.append(new_element)
+                prop.attrib['name'] = replace_name
+                prop.attrib['value'] = pv_name
             elif bean_class not in CLASS_MAPPING:
                 self.other_device_name_classes.add(bean_class)
                 self.counter.update({bean_class: 1})

@@ -27,17 +27,27 @@
 	<!-- http://logback.qos.ch/manual/appenders.html#serverSocketAppender -->
 	<appender name="LogPanel" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
 		<port>${gda.logserver.out.port}</port>
+		<!-- Placeholder for limiting the messages sent to log panels. Commented out by default.
+			 If you want to filter out TRACE messages, set the ThresholdFilter level to DEBUG.
+			 If you want to filter out DEBUG messages as well, set the ThresholdFilter level to INFO.
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ALL</level>
+		</filter>
+		 -->
 	</appender>
 
-	<!-- The root appender. By default we log all messages, but the log panel appender filters some out to avoid
-		overloading the log panel. If the log file is recording too many events then there are three possible
-		solutions:
-			1. set individual logging levels for specific packages or classes (as done below)
-				NOTE: Before using the logging system to filter out messages from a noisy class, consider editing the
-				class itself to improve how it logs its activity.
-			2. adjust the root logger level
-			3. add a filter to the log file appender -->
-	<!-- Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+	<!-- The root appender. By default we log all messages and send all messages to the Log Panels.
+		 If you want to limit the messages
+		 	* being received by the Log panel, the ThresholdFilter in the LogPanel appender can be used.
+		 	* being saved in the log file, a ThresholdFilter can be added to the LogFile appender.
+		 	* being sent to both, you can change the root logger level below.
+
+		  Note that the log_server_customisation.xml may override the root logger level and it is generally better to
+		  limit messages going to the LogServer rather than the LogServer discarding them after they are received.
+		  See client_and_server_logging.xml for examples of how to limit the log level of individual loggers.
+
+		 Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
+	 -->
 	<root>
 		<level value="ALL" />
 		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
