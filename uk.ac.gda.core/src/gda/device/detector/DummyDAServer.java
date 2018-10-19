@@ -113,6 +113,7 @@ public class DummyDAServer extends DAServer {
 	public void configure() {
 		connect();
 		doStartupScript();
+		setConfigured(true);
 	}
 
 	private void doStartupScript() {
@@ -592,6 +593,7 @@ public class DummyDAServer extends DAServer {
 		xspressScalerCommandReceived = false;
 		handles.clear();
 		key = 0;
+		setConfigured(false);
 	}
 
 	private class TimeFrameGenerator {

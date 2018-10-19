@@ -146,7 +146,6 @@ public class DAServer extends DeviceBase {
 	@Override
 	public void configure() throws FactoryException {
 		lock();
-
 		try {
 			logger.debug("connecting.");
 			connect();
@@ -167,7 +166,7 @@ public class DAServer extends DeviceBase {
 					throw new FactoryException("da.server config failed", e);
 				}
 			}
-
+			setConfigured(connected);
 		} finally {
 			unlock();
 		}
@@ -175,7 +174,12 @@ public class DAServer extends DeviceBase {
 
 	@Override
 	public void reconfigure() throws FactoryException {
-		configure();
+		try {
+			close();
+			configure();
+		} catch (DeviceException e) {
+			throw new FactoryException("Problem reconfiguring "+getName(), e);
+		}
 	}
 
 	public void connect() {
@@ -276,6 +280,7 @@ public class DAServer extends DeviceBase {
 	@Override
 	public void close() throws DeviceException {
 		connected = false;
+		setConfigured(false);
 		if (serverSocket != null) {
 			try {
 				serverSocket.close();
