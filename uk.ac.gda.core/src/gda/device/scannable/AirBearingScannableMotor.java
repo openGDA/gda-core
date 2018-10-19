@@ -24,10 +24,12 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.IAirBearingScannableMotor;
 import gda.device.Scannable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 /**
  * An extended {@link ScannableMotor} implementation that provides control to switch on/off air supply to
  * the motor's air bearing mechanism automatically when motion is requested.
  */
+@ServiceInterface(IAirBearingScannableMotor.class)
 public class AirBearingScannableMotor extends ScannableMotor implements IAirBearingScannableMotor {
 	private static final Logger logger=LoggerFactory.getLogger(AirBearingScannableMotor.class);
 	private Scannable airBearingScannable;

@@ -26,11 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Dummy object that is able to save its position into a local parameter
  */
+@ServiceInterface(Scannable.class)
 public class DummyPersistentScannable extends DummyScannable {
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentScannable.class);
 
