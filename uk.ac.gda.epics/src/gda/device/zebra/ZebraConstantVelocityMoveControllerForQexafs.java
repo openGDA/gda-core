@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -34,6 +35,7 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.enumpositioner.ValvePosition;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionStreamIndexer;
@@ -47,7 +49,7 @@ import gda.observable.IObserver;
  */
 public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBase implements ConstantVelocityMoveController2,
 		PositionCallableProvider<Double>, ContinuouslyScannableViaController {
-	
+
 	private String name;
 	private ZebraConstantVelocityMoveController zebraController;
 	private IScannableMotor scannableMotorToMove;
@@ -60,6 +62,8 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 	private double accelerationDistanceScannableMotor;
 	//For now hardcoded value as VMAX PV not available in ScannableMotor object
 	private static final double maxBraggSpeed = 0.5;
+
+	private EnumPositioner sampleShutter;
 
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveControllerForQexafs.class);
 
@@ -526,6 +530,10 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 
 	@Override
 	public void startMove() throws DeviceException {
+		if (sampleShutter != null) {
+			logger.info("Opening sample shutter");
+			sampleShutter.moveTo(ValvePosition.OPEN);
+		}
 		logger.info("startMove");
 		zebraController.startMove();
 	}
@@ -767,6 +775,10 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 	@Override
 	public void resetPointBeingPrepared() {
 		zebraController.resetPointBeingPrepared();
+	}
+
+	public void setSampleShutter(EnumPositioner sampleShutter) {
+		this.sampleShutter = sampleShutter;
 	}
 
 }
