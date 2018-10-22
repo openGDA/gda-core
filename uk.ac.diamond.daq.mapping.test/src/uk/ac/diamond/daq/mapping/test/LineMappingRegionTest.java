@@ -1,5 +1,10 @@
 package uk.ac.diamond.daq.mapping.test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +12,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 
 public class LineMappingRegionTest {
@@ -124,6 +130,35 @@ public class LineMappingRegionTest {
 
 		// Update region using ROI should throw
 		lineMappingRegion.updateFromROI(rectangularROI);
+	}
+
+	@Test
+	public void testCopy() {
+		final LineMappingRegion original = new LineMappingRegion();
+		final IMappingScanRegionShape copy = original.copy();
+
+		assertThat(copy, is(equalTo(original)));
+		assertThat(copy, is(not(sameInstance(original))));
+	}
+
+	@Test
+	public void testCentre() {
+		LineMappingRegion region = new LineMappingRegion();
+		region.setxStart(12);
+		region.setxStop(16); // length in x = 4
+		region.setyStart(5);
+		region.setyStop(-5); // length in y = 10
+
+		double centreX = -7;
+		double centreY = 1;
+
+		region.centre(centreX, centreY);
+
+		assertThat(region.getxStart(), is(-9.0)); // centreX - length in x / 2
+		assertThat(region.getxStop(), is(-5.0));  // centreX + length in x / 2
+
+		assertThat(region.getyStart(), is(6.0));  // centreY + length in x / 2 (because start > stop!)
+		assertThat(region.getyStop(), is(-4.0));  // centreY - length in x / 2
 	}
 
 }

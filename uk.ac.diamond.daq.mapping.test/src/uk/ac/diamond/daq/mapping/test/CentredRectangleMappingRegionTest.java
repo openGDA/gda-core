@@ -18,12 +18,18 @@
 
 package uk.ac.diamond.daq.mapping.test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 
 public class CentredRectangleMappingRegionTest {
@@ -127,4 +133,30 @@ public class CentredRectangleMappingRegionTest {
 		assertEquals("yRange", yRange, rectangularMappingRegion.getyRange(), yRange * 1e-8);
 	}
 
+	@Test
+	public void testCopy() {
+		final CentredRectangleMappingRegion original = new CentredRectangleMappingRegion();
+		final IMappingScanRegionShape copy = original.copy();
+
+		assertThat(copy, is(equalTo(original)));
+		assertThat(copy, is(not(sameInstance(original))));
+	}
+
+	@Test
+	public void testCentre() {
+		CentredRectangleMappingRegion region = new CentredRectangleMappingRegion();
+		region.setxCentre(5.0);
+		region.setyCentre(-2);
+		region.setxRange(7.5);
+		region.setyRange(10.6);
+
+		region.centre(50.0, 40.0);
+
+		assertThat(region.getxCentre(), is(50.0));
+		assertThat(region.getyCentre(), is(40.0));
+
+		// ranges should be unaffected
+		assertThat(region.getxRange(), is(7.5));
+		assertThat(region.getyRange(), is(10.6));
+	}
 }

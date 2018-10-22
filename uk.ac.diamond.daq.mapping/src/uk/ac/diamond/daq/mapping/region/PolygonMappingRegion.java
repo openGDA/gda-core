@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static java.util.stream.Collectors.toList;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -92,8 +95,27 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 		}
 	}
 
-	public static class MutablePoint {
+	@Override
+	public IMappingScanRegionShape copy() {
+		final PolygonMappingRegion copy = new PolygonMappingRegion();
+		copy.setPoints(points.stream().map(p -> new MutablePoint(p.getX(), p.getY())).collect(toList()));
+		return copy;
+	}
 
+	@Override
+	public void centre(double x0, double y0) {
+
+		RectangularROI boundingBox = toROI().getBounds();
+		double xShift = x0 - boundingBox.getLengths()[0] / 2.0;
+		double yShift = y0 - boundingBox.getLengths()[1] / 2.0;
+
+		setPoints(points.stream()
+			.map(point -> new MutablePoint(point.getX() + xShift,
+										   point.getY() + yShift))
+			.collect(toList()));
+	}
+
+	public static class MutablePoint {
 		private double x;
 		private double y;
 

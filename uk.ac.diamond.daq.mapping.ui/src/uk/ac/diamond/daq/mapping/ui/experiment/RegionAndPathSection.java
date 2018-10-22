@@ -45,8 +45,6 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -55,11 +53,15 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.ui.MultiFunctionButton;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
 import uk.ac.diamond.daq.mapping.ui.region.RegionEditorProvider;
@@ -199,16 +201,15 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
-		Button redrawRegion = new Button(regionComboComposite, SWT.NONE);
-		redrawRegion.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
-		redrawRegion.setToolTipText("Draw/Redraw region");
-		redrawRegion.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// Reselect the same region type to cause a redraw event
-				regionSelector.setSelection(regionSelector.getSelection());
-			}
-		});
+
+		MultiFunctionButton newRegion = new MultiFunctionButton();
+		newRegion.addFunction("Draw region", "Draw region by dragging on map",
+				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")),
+				e -> regionSelector.setSelection(regionSelector.getSelection()));
+		newRegion.addFunction("Place default region", "Place the default region on current stage position",
+				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map-pin.png")),
+				e -> createDefaultRegionAtStagePosition());
+		newRegion.draw(regionComboComposite);
 
 		// Make the path selection
 		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
@@ -243,7 +244,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		});
 
 		regionSelector.setContentProvider(ArrayContentProvider.getInstance());
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+		List<IMappingScanRegionShape> regionList = mappingRegionManager.getTemplateRegions();
 		regionSelector.setInput(regionList.toArray());
 
 		regionSelector.addSelectionChangedListener(new RegionSelectorListener());
@@ -293,6 +294,27 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		updatePoints();
 	}
 
+	private void createDefaultRegionAtStagePosition() {
+		final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
+		final double xAxisPosition = getAxisPosition(mappingStage.getActiveFastScanAxis());
+		final double yAxisPosition = getAxisPosition(mappingStage.getActiveSlowScanAxis());
+
+		scanRegion = mappingRegionManager.getTemplateRegion(scanRegion.getClass());
+		scanRegion.centre(xAxisPosition, yAxisPosition);
+		getMappingBean().getScanDefinition().getMappingScanRegion().setRegion(scanRegion);
+		updateControls();
+	}
+
+	private double getAxisPosition(String axisName) {
+		Scannable axis = Finder.getInstance().find(axisName);
+		try {
+			return (double) axis.getPosition();
+		} catch (DeviceException e) {
+			logger.error("Could not get position of axis {}", axisName, e);
+			return 0;
+		}
+	}
+
 	@Override
 	protected void updateControls() {
 		IMappingScanRegion mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion();
@@ -300,7 +322,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		scanPathModel = mappingScanRegion.getScanPath();
 
 		// Replace the region model of the same class with the new region from the mapping bean
-		List<IMappingScanRegionShape> regionList = mappingRegionManager.getRegions();
+		List<IMappingScanRegionShape> regionList = mappingRegionManager.getTemplateRegions();
 		if (scanRegion == null) {
 			scanRegion = regionList.get(0);
 		} else {

@@ -68,4 +68,17 @@ public interface IMappingScanRegionShape {
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 
+	/**
+	 * @return a field-by-field copy of this IMappingScanRegionShape
+	 */
+	public IMappingScanRegionShape copy();
+
+	/**
+	 * Shifts the current region to be centred around the specified point.
+	 *
+	 * @param x0
+	 * @param y0
+	 */
+	public void centre(double x0, double y0);
+
 }
