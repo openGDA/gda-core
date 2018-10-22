@@ -20,6 +20,7 @@ package gda.scan;
 
 import java.util.List;
 
+import gda.factory.FindableBase;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 
@@ -27,7 +28,7 @@ import gda.jython.IScanDataPointProvider;
  * Base class for IScanDataPoint caches. Initialises at the start of each scan and then
  * adds each point in turn.
  */
-public abstract class DataPointCache implements IScanDataPointObserver {
+public abstract class DataPointCache extends FindableBase implements IScanDataPointObserver {
 	/**
 	 * Extract a list of values for the given field name from the cached data.
 	 *
