@@ -283,7 +283,7 @@ public class GDAJythonInterpreter {
 		PySystemState.getDefaultBuiltins().__setitem__("overwriting", overwriteLock);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
-		GdaGlobals globals = new GdaGlobals();
+		GdaGlobals globals = new GdaGlobals(overwriteLock);
 		globals.update(mod.__dict__);
 		mod.__dict__ = globals;
 
@@ -767,24 +767,36 @@ public class GDAJythonInterpreter {
 		return interactiveConsole;
 	}
 
-	public class OverwriteLock extends PyObject implements ContextManager {
-		ThreadLocal<Boolean> locked = ThreadLocal.withInitial(() -> false);
+	protected static class OverwriteLock extends PyObject implements ContextManager {
+		private transient ThreadLocal<Integer> locks = ThreadLocal.withInitial(() -> 0);
 		@Override
 		public PyObject __enter__(ThreadState ts) {
 			logger.trace("Allowing scannable overwriting");
-			locked.set(true);
+			updateLock(1);
 			return Py.None;
 		}
 
 		@Override
 		public boolean __exit__(ThreadState ts, PyException exception) {
 			logger.trace("Preventing scannable overwriting");
-			locked.set(false);
+			updateLock(-1);
 			return false;
 		}
 
+		private void updateLock(int change) {
+			int previous = locks.get();
+			int next = previous + change;
+			if (next >= 0) {
+				logger.trace("Setting overwriting lock from {} -> {}", previous, next);
+				locks.set(next);
+			} else {
+				logger.warn("Trying to set overwrite lock to {} - resetting to 0", next);
+				locks.set(0);
+			}
+		}
+
 		protected boolean enabled() {
-			return locked.get();
+			return locks.get() > 0;
 		}
 
 		@Override
@@ -799,7 +811,12 @@ public class GDAJythonInterpreter {
 	 *
 	 * Deletions are intercepted so that deleting an aliased command also removes the alias
 	 */
-	protected class GdaGlobals extends PyStringMap {
+	protected static class GdaGlobals extends PyStringMap {
+		private final OverwriteLock overwriting;
+
+		public GdaGlobals(OverwriteLock lock) {
+			overwriting = lock;
+		}
 		@Override
 		public void __setitem__(String key, PyObject value) {
 			// TODO: DAQ-704 This should be reviewed to either allow all aliasing
@@ -817,7 +834,7 @@ public class GDAJythonInterpreter {
 			PyObject obj = get(new PyString(key), Py.None);
 			// Check if it's a scannable
 			if (!Py.None.equals(obj) && obj.__tojava__(Scannable.class) != Py.NoConversion) {
-				if (overwriteLock.enabled()) {
+				if (overwriting.enabled()) {
 					logger.debug("Overwriting scannable '{}' with '{}'", key, value);
 				} else {
 					// TODO: Throw exception instead of logging a warning
