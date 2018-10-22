@@ -166,13 +166,23 @@ public class DetectorsSection extends AbstractMappingSection {
 			exposureTimeText.addListener(SWT.Modify, event -> updateStatusLabel());
 
 			// Edit configuration
-			final Button configButton = new Button(detectorsComposite, SWT.PUSH);
-			configButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
-			configButton.setToolTipText("Edit parameters");
-			configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
+			final Composite configComposite = new Composite(detectorsComposite, SWT.NONE);
+			GridLayoutFactory.fillDefaults().applyTo(configComposite);
+			final Button configButton = new Button(configComposite, SWT.PUSH);
+			configButton.setImage(MappingExperimentUtils.getImage("icons/camera.png"));
+			if (detectorParameters.getModel() instanceof IMalcolmModel) {
+				// DAQ-1531 AcquireRequest does not work for MalcolmDevices
+				// so there is no point in allowing the configButton to be used
+				configButton.setEnabled(false);
+				configComposite.setToolTipText("Configuration dialog for Malcolm detectors unsupported");
 
-			if (detectorParameters.getModel() instanceof IMalcolmModel && detectorParameters.isIncludeInScan()) {
-				selectedMalcolmDevice = Optional.of(detectorParameters);
+				if (detectorParameters.isIncludeInScan()) {
+					selectedMalcolmDevice = Optional.of(detectorParameters);
+				}
+
+			} else {
+				configButton.setToolTipText("Edit parameters");
+				configButton.addListener(SWT.Selection, event -> editDetectorParameters(detectorParameters));
 			}
 		}
 
