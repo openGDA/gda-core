@@ -36,6 +36,7 @@ import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A worker object operating at background to monitor the photon beam availability using an ion chamber. This class
@@ -44,6 +45,7 @@ import gda.observable.ObservableComponent;
  * java parameter {@code gda.device.monitor.resumeScan} setting. This monitor behaviour can be switched on and off as
  * required.
  */
+@ServiceInterface(IBeamMonitor.class)
 public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBeamMonitor {
 	/**
 	 * the logger instance
