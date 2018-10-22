@@ -167,22 +167,20 @@ public class MScanSubmitter {
 					exposure = Double.valueOf(procTwo.getElementValue());
 				}
 				if (procOne.hasScannable()) {
-					logger.debug("Detector added for {}", addDetector(
-							procOne.getElementValue(), exposure, detectorMap));
+					addDetector(procOne.getElementValue(), exposure, detectorMap);
 				} else {
-					logger.debug("Detector added for {}", addDetector(
-							(IRunnableDevice<?>) procOne.getElement(), exposure, detectorMap));
+					addDetector((IRunnableDevice<?>) procOne.getElement(), exposure, detectorMap);
 				}
 			// Next check for a {@link Monitor} clause which can have only 1 element
 			} else if (procOne.hasMonitor()) {
 				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
 				throwIf(clauseProcessors.size() != 1, "too many elements in Monitor clause");
-				logger.debug("Monitor added for {}", addMonitor(procOne, monitorsPerPoint));
+				addMonitor(procOne, monitorsPerPoint, false);
 			// that only leaves a clause starting with a plain {@link Scannable} or {@link ScannableGroup}. This could
 			// either be a readout or a scan path definition so is parsed by a dedicated method
 			} else if (clauseProcessors.size() == 1) {
 				throwIf(!scanPathSeen, "No scan path defined - SPEC style scans not yet supported");
-				logger.debug("Scannable readout added for {}",  addMonitor(procOne, monitorsPerPoint));
+				addMonitor(procOne, monitorsPerPoint, true);
 			// Handle non mapping scan path definitions (not yet a comprehensive test)
 			} else if (clauseProcessors.size() < 7 && withNullCheck(clauseProcessors.get(1)).hasNumber()){
 				 throw new IllegalArgumentException("SPEC style scans not yet supported.");
@@ -216,12 +214,14 @@ public class MScanSubmitter {
 	 *
 	 * @param proc					The {@link IClauseElementProcessor} corresponding to the monitor
 	 * @param monitorsPerPoint		The list of monitor names for the scan
-	 * @return						The name of the added {@link Monitor}
+	 * @param isReadout				True if the element is a {@link Scannable} being used as a readout
 	 */
-	private String addMonitor(final IClauseElementProcessor proc, final List<String> monitorsPerPoint) {
+	private void  addMonitor(final IClauseElementProcessor proc,
+			final List<String> monitorsPerPoint, final boolean isReadout) {
 		String name = proc.getElementValue();
 		monitorsPerPoint.add(name);
-		return name;
+		String monitorType = isReadout ? "Scannable readout" : "Monitor";
+		logger.debug("{} added for {}", monitorType, name);
 	}
 
 	/**
@@ -253,7 +253,7 @@ public class MScanSubmitter {
 			boundingBoxParams.add(boundingRoi.getLength(0));
 			boundingBoxParams.add(boundingRoi.getLength(1));
 			scanModel.setData(context.getAreaScanpath().createModel(context.getScannables(),
-					context.getPathParams(), boundingBoxParams, context.getMutators()), roi);
+					context.getPathParams(), boundingBoxParams, context.getMutatorUses()), roi);
 		}
 	}
 
@@ -264,16 +264,15 @@ public class MScanSubmitter {
 	 * @param detectorName			The name of the {@link Detector}
 	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
 	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
-	 * @return						The name of the added {@link Detector}
 	 * @throws ScanningException	If the {@link IRunnableDevice} for the {@link Detector} cannot be retrieved.
 	 */
-	private String addDetector(final String detectorName, final double exposure,
+	private void addDetector(final String detectorName, final double exposure,
 					final Map<String, Object> detectorMap) throws ScanningException {
 		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(detectorName);
 		if (detector == null) {
 			throw new ScanningException(String.format("Could not get detector for name %s", detectorName));
 		}
-		return addDetector(detector, exposure, detectorMap);
+		addDetector(detector, exposure, detectorMap);
 	}
 
 	/**
@@ -283,10 +282,9 @@ public class MScanSubmitter {
 	 * @param detector				The {@link IRunnableDevice} corresponding to the detector
 	 * @param exposure				The exposure time of the {@link Detector} to be set if specified
 	 * @param detectorMap			The map of {@link IDetectorModel}s to add the specified one to, keyed by name
-	 * @return						The name of the added {@link Detector}
 	 * @throws ScanningException	If the {@link IDetectorModel} for the {@link IRunnableDevice} is null.
 	 */
-	private String addDetector(final IRunnableDevice<?> detector, final double exposure,
+	private void addDetector(final IRunnableDevice<?> detector, final double exposure,
 			final Map<String, Object> detectorMap) throws ScanningException {
 		IDetectorModel model = (IDetectorModel)detector.getModel();
 		if (model == null) {
@@ -296,7 +294,7 @@ public class MScanSubmitter {
 			model.setExposureTime(exposure);
 		}
 		detectorMap.put(detector.getName(), model);
-		return detector.getName();
+		logger.debug("Detector added for {}", detector.getName());
 	}
 
 	/**

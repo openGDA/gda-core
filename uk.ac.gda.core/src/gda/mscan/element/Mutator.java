@@ -28,13 +28,20 @@ import java.util.List;
  * @since GDA 9.9
  */
 public enum Mutator implements IMScanElementEnum {
-	SNAKE("snak"),
-	RANDOM_OFFSET("roff");
+	SNAKE("snak", 0, 0, new boolean[]{}),
+	RANDOM_OFFSET("roff", 2, 1, new boolean[]{true, false});
 
 	private final String text;
+	private final int maxValueCount;
+	private final int minValueCount;
+	private final boolean[] positiveValuesOnly;
 
-	private Mutator(final String text) {
+	private Mutator(final String text, final int maxValueCount,
+			final int minValueCount, final boolean[] positiveValuesOnly) {
 		this.text = text;
+		this.maxValueCount = maxValueCount;
+		this.minValueCount = minValueCount;
+		this.positiveValuesOnly = positiveValuesOnly;
 	}
 
 	/**
@@ -44,5 +51,35 @@ public enum Mutator implements IMScanElementEnum {
 	 */
 	public static List<String> strValues() {
 		return stream(values()).map(val -> val.text).collect(toList());
+	}
+
+	/**
+	 * The maximum number of values accepted to construct the mutator
+	 *
+	 * @return		The max number of values required to construct the mutator
+	 */
+	public int maxValueCount() {
+		return maxValueCount;
+	}
+
+	/**
+	 * The minimum number of values required to construct the mutator
+	 *
+	 * @return		The min number of values required to construct the mutator
+	 */
+	public int minValueCount() {
+		return minValueCount;
+	}
+
+	/**
+	 * Indicates whether the parameter value at the supplied index for this instance can only be positive
+	 *
+	 * @param index		The index of the parameter to be checked
+	 * @return			true if the parameter at the specified index must be greater than -1
+	 *
+	 * @throws			IndexOutOfBoundsException if the specified index is not valid for this instance.
+	 */
+	public boolean positiveValuesOnlyFor(final int index) {
+		return positiveValuesOnly[index];
 	}
 }
