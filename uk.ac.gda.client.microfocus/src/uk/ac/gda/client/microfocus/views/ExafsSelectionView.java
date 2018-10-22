@@ -26,6 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
@@ -34,7 +35,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
@@ -50,6 +50,14 @@ public class ExafsSelectionView extends ViewPart {
 	protected final IExperimentEditorManager controller;
 	private Text multiScanNameText;
 	private DecimalFormat format = new DecimalFormat(".###");
+
+	/**
+	 * If the sample prefix is not consistent across mapping stage,
+	 * this label will be visible to warn the user.
+	 */
+	private Label warningLabel;
+
+	private String sampleStagePrefix;
 
 	public ExafsSelectionView() {
 		super();
@@ -80,12 +88,18 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.grabExcessHorizontalSpace = true;
 		multiScanNameText.setLayoutData(gridData);
 
-		Label availableScansLabel = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
-		availableScansLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		// new Label(exafsRunComp, SWT.NONE);
+		Label separator = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+		separator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+
 		Label availableExafsLabel = new Label(exafsRunComp, SWT.LEFT);
-		availableExafsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		availableExafsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		availableExafsLabel.setText("Available Exafs Scans");
+
+		warningLabel = new Label(exafsRunComp, SWT.NONE);
+		warningLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		warningLabel.setText("Inconsistent axes selection!");
+		warningLabel.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		hideWarning();
 
 		// List of scans to select
 		exafsScanList = new List(exafsRunComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
@@ -123,7 +137,7 @@ public class ExafsSelectionView extends ViewPart {
 	private void populateExafsScanList() {
 		File projectDir = controller.getProjectFolder();
 		ScanFilter scanFilter = new ScanFilter();
-		File dirList[] = projectDir.listFiles();
+		File[] dirList = projectDir.listFiles();
 		for (File dir : dirList) {
 			if (dir.isDirectory()) {
 				String[] files = dir.list(scanFilter);
@@ -146,12 +160,9 @@ public class ExafsSelectionView extends ViewPart {
 	public void add() {
 		final String point = pointText.getText();
 		final String[] selection = exafsScanList.getSelection();
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				for (String s : selection) {
-					selectedScanList.add(point + s);
-				}
+		Display.getDefault().asyncExec(() -> {
+			for (String s : selection) {
+				selectedScanList.add(point + s);
 			}
 		});
 
@@ -170,23 +181,22 @@ public class ExafsSelectionView extends ViewPart {
 	}
 
 	public void setSelectedPoint(final Double[] xyzPosition) {
-		logger.debug("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1] + " " + xyzPosition[2]);
+		logger.trace("Info from Exafs Selection view {} {} {}", xyzPosition[0], xyzPosition[1], xyzPosition[2]);
+
 		if (xyzPosition[2] == null){
-			xyzPosition[2] = Double.parseDouble(InterfaceProvider.getCommandRunner().evaluateCommand("sc_sample_z()"));
+			xyzPosition[2] = Double.valueOf(0);
 		}
-		getSite().getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				setStatusLine("(" + format.format(xyzPosition[0]) + "," + format.format(xyzPosition[1]) + ","
-						+ format.format(xyzPosition[2]) + ")");
-				pointText.setText("(" + format.format(xyzPosition[0]) + "," + format.format(xyzPosition[1]) + ","
-						+ format.format(xyzPosition[2]) + ")");
-			}
+
+		final String formattedPosition = "(" + format.format(xyzPosition[0]) + "," + format.format(xyzPosition[1]) + ","
+				+ format.format(xyzPosition[2]) + ")";
+
+		Display.getDefault().asyncExec(() -> {
+			setStatusLine(formattedPosition);
+			pointText.setText(formattedPosition);
 		});
 	}
 
 	public void refresh() {
-//		logger.info("REfresh called from ExafsSelectionView");
 		exafsScanList.removeAll();
 		populateExafsScanList();
 	}
@@ -204,4 +214,24 @@ public class ExafsSelectionView extends ViewPart {
 		}
 	}
 
+	public void setSampleStagePrefix(String sampleStagePrefix) {
+		if (sampleStagePrefix != null) {
+			this.sampleStagePrefix = sampleStagePrefix;
+			hideWarning();
+		} else {
+			showWarning();
+		}
+	}
+
+	public String getSampleStagePrefix() {
+		return sampleStagePrefix;
+	}
+
+	private void hideWarning() {
+		warningLabel.setVisible(false);
+	}
+
+	private void showWarning() {
+		warningLabel.setVisible(true);
+	}
 }
