@@ -28,6 +28,23 @@ public class DummySpinner extends ScannableBase implements ISpin {
 	private double speed;
 
 	@Override
+	public Object rawGetPosition() throws DeviceException {
+		return getState();
+	}
+
+	@Override
+	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+		int pos = Integer.parseInt(position.toString());
+		if (pos == 1) {
+			on();
+		} else if (pos == 0) {
+			off();
+		} else {
+			throw new IllegalArgumentException("Only takes value 1 for on or 0 for off.");
+		}
+	}
+
+	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
 	}
@@ -35,11 +52,13 @@ public class DummySpinner extends ScannableBase implements ISpin {
 	@Override
 	public void on() throws DeviceException {
 		running = true;
+		notifyIObservers(this, getState());
 	}
 
 	@Override
 	public void off() throws DeviceException {
 		running = false;
+		notifyIObservers(this, getState());
 	}
 
 	@Override
