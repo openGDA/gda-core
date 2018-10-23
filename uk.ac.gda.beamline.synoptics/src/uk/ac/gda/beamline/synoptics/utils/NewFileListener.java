@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -101,16 +102,17 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 
 	@Override
 	public void update(Object source, Object arg) {
+		logger.info("Received update {} from {}", arg, source);
 		Async.execute(() -> {
 			if (source instanceof Metadata || source instanceof IMetadataEntry) {
 				updateDataDirectory();
 			} else if (arg instanceof String[]) {
 				String[] files = (String[])arg;
 				stream(files)
-					.filter(f -> f != null)
+					.filter(Objects::nonNull)
 					.forEach(this::addFile);
 			}
-		});
+		}, "NewFileUpdate");
 	}
 
 	private void addFile(String file) {
