@@ -44,6 +44,26 @@
 			collection="collection" set-method="addCustomParameter" get-method="getCustomParameters">
 			<bind-xml name="custom" node="element" />
 		</field>
+		<field name="SampleParameterMotorPositions" type="uk.ac.gda.beans.exafs.SampleParameterMotorPosition" collection="collection"
+			set-method="addSampleParameterMotorPosition" get-method="getSampleParameterMotorPositions">
+			<bind-xml name="sampleParameterMotorPosition" node="element" />
+		</field>
+	</class>
+
+	<class name="uk.ac.gda.beans.exafs.SampleParameterMotorPosition">
+		<map-to xml="sampleParameterMotorPosition" />
+		<field name="scannableName" type="string">
+			<bind-xml name="scannableName" node="element" />
+		</field>
+		<field name="description" type="string">
+			<bind-xml name="description" node="element" />
+		</field>
+		<field name="doMove" type="boolean">
+			<bind-xml name="doMove" node="element" />
+		</field>
+		<field name="demandPosition" type="double">
+			<bind-xml name="demandPosition" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.i20.CryostatParameters">

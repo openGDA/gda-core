@@ -256,10 +256,22 @@ public class ParameterValuesForBean {
 		return niceName;
 	}
 
+	/**
+	 * @return Return true if bean is instance of IScanParameters
+	 */
 	public boolean isScanBean() {
-		Class<XMLRichBean> clazz = getBeanClass();
-		if (clazz != null) {
-			return IScanParameters.class.isAssignableFrom(clazz);
+		return beanIsAssignableFrom(IScanParameters.class);
+	}
+
+	/**
+	 * See if bean object class is an instance of the specified class type.
+	 * @param clazz - type to check bean against e.g. IScanParameters, ISampleParameters etc.
+	 * @return True if bean is of specified type.
+	 */
+	public boolean beanIsAssignableFrom(Class<?> clazz) {
+		Class<XMLRichBean> beanClass = getBeanClass();
+		if (beanClass != null && clazz != null) {
+			return clazz.isAssignableFrom(beanClass);
 		} else {
 			return false;
 		}

@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans.exafs.b18;
+package uk.ac.gda.beans.exafs;
 
 import java.io.Serializable;
 
@@ -79,7 +79,7 @@ public class SampleParameterMotorPosition implements Serializable {
 		this.description = description;
 	}
 
-	/** Whether scannble should be moved to its demand position at the start of the scan */
+	/** Whether scannable should be moved to its demand position at the start of the scan */
 	public boolean getDoMove() {
 		return doMove;
 	}

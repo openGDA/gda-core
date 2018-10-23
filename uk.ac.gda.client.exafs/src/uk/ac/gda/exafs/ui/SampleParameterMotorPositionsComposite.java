@@ -45,7 +45,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.Finder;
-import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
@@ -209,7 +209,7 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 			}
 		}
 
-		public void updateWidgetFromParam() {
+		private void updateWidgetFromParam() {
 			moveToPosition.setSelection(param.getDoMove());
 			description.setText(param.getDescription());
 			String scannableToolipText = "Name of scannable : "+param.getScannableName();
@@ -219,7 +219,7 @@ public class SampleParameterMotorPositionsComposite implements IFieldWidget {
 		}
 
 		// Update underlying SampleParameterMotorPosition object with demand position and moveToPosition flag values from widget
-		public void updateParamFromWidget() {
+		private void updateParamFromWidget() {
 			param.setDoMove(moveToPosition.getSelection());
 			try {
 				param.setDemandPosition(numberFormatter.parse(demandPosition.getText()).doubleValue());

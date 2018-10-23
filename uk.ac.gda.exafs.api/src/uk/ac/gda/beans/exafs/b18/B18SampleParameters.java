@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 
-public class B18SampleParameters implements Serializable, ISampleParameters {
+public class B18SampleParameters implements Serializable, ISampleParametersWithMotorPositions {
 	private static final long serialVersionUID = 7285061621724049474L;
 
 	static public final URL mappingURL = B18SampleParameters.class.getResource("B18ParameterMapping.xml");
@@ -47,7 +48,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	String description1 = "";
 	String description2 = "";
 	String stage = "none";
-	List<String> selectedSampleStages = new ArrayList<String>();
+	List<String> selectedSampleStages = new ArrayList<>();
 
 	String temperatureControl = "none";
 	XYThetaStageParameters xythetaParameters = new XYThetaStageParameters();
@@ -58,8 +59,6 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	LakeshoreParameters lakeshoreParameters = new LakeshoreParameters();
 	SampleWheelParameters sampleWheelParameters = new SampleWheelParameters();
 	UserStageParameters userStageParameters = new UserStageParameters();
-
-	public static final String MOTOR_POSITION_GETTER_NAME = "getSampleParameterMotorPosition";
 	private List<SampleParameterMotorPosition> sampleParameterMotorPositions = new ArrayList<>();
 
 	boolean shouldValidate = true;
@@ -312,6 +311,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		sampleParameterMotorPositions.clear();
 	}
 
+	@Override
 	public SampleParameterMotorPosition getSampleParameterMotorPosition(String scannableName) {
 		for(SampleParameterMotorPosition sampleMotor : sampleParameterMotorPositions) {
 			if (sampleMotor.getScannableName().equalsIgnoreCase(scannableName)) {
@@ -321,14 +321,17 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		return null;
 	}
 
+	@Override
 	public List<SampleParameterMotorPosition> getSampleParameterMotorPositions() {
 		return sampleParameterMotorPositions;
 	}
 
+	@Override
 	public void setSampleParameterMotorPositions(List<SampleParameterMotorPosition> sampleParameterMotorPositions) {
 		this.sampleParameterMotorPositions = sampleParameterMotorPositions;
 	}
 
+	@Override
 	public void addSampleParameterMotorPosition(SampleParameterMotorPosition sampleParameterMotorPosition) {
 		sampleParameterMotorPositions.add(sampleParameterMotorPosition);
 	}

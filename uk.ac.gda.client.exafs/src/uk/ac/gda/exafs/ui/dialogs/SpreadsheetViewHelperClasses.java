@@ -48,11 +48,12 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
-import uk.ac.gda.beans.exafs.b18.SampleParameterMotorPosition;
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -633,30 +634,25 @@ public class SpreadsheetViewHelperClasses {
 	 * @return list of ParameterConfigs
 	 */
 	public static List<ParameterConfig> getSampleParameterMotorConfig(ParametersForScan paramsForScan) {
-		String beanTypeString = B18SampleParameters.class.getName();
 
-		// Find the ParameterValuesForBean to be applied B18SampleParameters
-		Optional<ParameterValuesForBean> result = paramsForScan.getParameterValuesForScanBeans()
-				.stream()
-				.filter(paramsForBean -> paramsForBean.getBeanType().equals(beanTypeString))
-				.findFirst();
-
+		Optional<ParameterValuesForBean> result = getParameterValueWithMotorParams(paramsForScan.getParameterValuesForScanBeans());
 		if (!result.isPresent()) {
-			logger.warn("getSampleParameterMotorConfig found no parameter values for {}", beanTypeString);
+			logger.warn("getSampleParameterMotorConfig - no bean found that has motor parameters");
 			return Collections.emptyList();
 		}
 
 		// Try to load sample parameters bean from xml file :
-		B18SampleParameters sampleParams;
+		ISampleParametersWithMotorPositions sampleParams;
 		try {
-			sampleParams = (B18SampleParameters) result.get().getBeanObject();
+			sampleParams = (ISampleParametersWithMotorPositions) result.get().getBeanObject();
 		} catch (Exception e) {
-			logger.error("Problem reading {} bean from xml file", beanTypeString, e);
+			logger.error("Problem reading bean from xml file {}", result.get().getBeanFileName(), e);
 			return Collections.emptyList();
 		}
 
-		String positionGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
-		String activeGetterFormat = B18SampleParameters.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+		String positionGetterFormat = ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME;
+		String activeGetterFormat = ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME + "(%s)."+ SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
+		String beanTypeString = result.get().getBeanType();
 
 		// Make list of new ParameterConfigs from sample parameter motor positions.
 		// Add two ParameterConfigs per motor : one to control demand position another to control 'doMove' flag
@@ -684,6 +680,25 @@ public class SpreadsheetViewHelperClasses {
 	}
 
 	/**
+	 *
+	 *  Find the ParameterValuesForBean that correspond to a bean object with motor parameters.
+	 *  i.e. the bean object that implements {@link ISampleParametersWithMotorPositions}.
+	 * @param paramValuesForBeans
+	 * @return ParameterValuesForBean
+	 */
+	private static Optional<ParameterValuesForBean> getParameterValueWithMotorParams(List<ParameterValuesForBean> paramValuesForBeans) {
+		// Find the ParameterValuesForBean to be applied sample parameters bean
+		Optional<ParameterValuesForBean> result = paramValuesForBeans
+				.stream().filter(paramsForBean -> paramsForBean.beanIsAssignableFrom(ISampleParametersWithMotorPositions.class))
+				.findFirst();
+
+		if (!result.isPresent()) {
+			logger.warn("addSampleParameterMotorMoveFlag - no bean found that implement ISampleParametersWithMotorPositions interface");
+		}
+		return result;
+	}
+
+	/**
 	 * Add 'do move' ParameterValue for sample parameter motor positions (true = move at scan start, false = don't move)
 	 * for selected SampleParameterMotors. <p>
 	 * i.e. if the parameter values contains demand position call {@code getSampleParameterMotorPosition(user1).getDemandPosition}
@@ -694,14 +709,10 @@ public class SpreadsheetViewHelperClasses {
 	 */
 	public static void addSampleParameterMotorMoveFlag(List<ParameterValuesForBean> paramValuesForBeans) {
 
-		// Find the ParameterValuesForBean to be applied B18SampleParameters
-		String sampleParametersClassName = B18SampleParameters.class.getName();
-		Optional<ParameterValuesForBean> result = paramValuesForBeans
-				.stream().filter(paramsForBean -> paramsForBean.getBeanType().equals(sampleParametersClassName))
-				.findFirst();
-
+		// Find the ParameterValuesForBean to be applied samploe parameters bean
+		Optional<ParameterValuesForBean> result = getParameterValueWithMotorParams(paramValuesForBeans);
 		if (!result.isPresent()) {
-			logger.warn("addSampleParameterMotorMoveFlag found no parameter values for {}", sampleParametersClassName);
+			logger.warn("addSampleParameterMotorMoveFlag - no bean found that has motor parameters");
 			return;
 		}
 
@@ -714,7 +725,7 @@ public class SpreadsheetViewHelperClasses {
 		for (ParameterValue paramValue : sampleParams.getParameterValues()) {
 			String pathToGetter = paramValue.getFullPathToGetter();
 			// Create new ParameterValue with getter for 'do move' function:
-			if (pathToGetter.startsWith(B18SampleParameters.MOTOR_POSITION_GETTER_NAME)) {
+			if (pathToGetter.startsWith(ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME)) {
 				String[] splitStr = pathToGetter.split("[.]");
 				String pathToDoMove = splitStr[0] + "." + SampleParameterMotorPosition.DO_MOVE_GETTER_NAME;
 				motorMoveFlagForSampleParams.put(index, new ParameterValue(pathToDoMove, "true"));
