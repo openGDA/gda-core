@@ -205,7 +205,7 @@ public class ZebraConstantVelocityMoveControllerForQexafs extends ConfigurableBa
 			zebraController.setRequiredSpeed(requiredScannableMotorSpeed);
 
 			accelerationDistanceScannableMotor = getAccelerationDistance(requiredScannableMotorSpeed, scannableMotorToMove, minimumScannableMotorAccelerationDistance);
-			//if (requiredScannableMotorSpeed > getScannableMotor().get)
+			scannableMotorToMove.setSpeed(maxBraggSpeed);
 
 			switch(zebraController.getMode()){
 			case Zebra.PC_PULSE_SOURCE_POSITION:
