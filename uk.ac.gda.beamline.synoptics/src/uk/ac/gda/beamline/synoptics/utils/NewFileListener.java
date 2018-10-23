@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,8 +176,8 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 			dataDirectory = newDataDirectory;
 			dataFiles.clear();
 			fileTimeCache.clear();
-			try {
-				dataFiles.addAll(Files.walk(dataDirectory)
+			try (Stream<Path> files = Files.walk(dataDirectory)) {
+				dataFiles.addAll(files
 						.filter(Files::isRegularFile)
 						.filter(this::includeFile)
 						.collect(toList()));
