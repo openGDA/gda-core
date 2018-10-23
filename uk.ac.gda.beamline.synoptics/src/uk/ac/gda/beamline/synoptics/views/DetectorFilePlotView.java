@@ -75,10 +75,6 @@ public class DetectorFilePlotView extends ViewPart {
 		if (plottingSystem == null || plottingSystem.isDisposed()) {
 			plottingSystem = createPlotSystem(plotComposite);
 		}
-		if (newPlot) {
-			plottingSystem.reset();//clear();
-			first=true;
-		}
 		if (currentPlotType != plotType) {
 //			plottingSystem.clear();
 			currentPlotType=plotType;
@@ -95,6 +91,10 @@ public class DetectorFilePlotView extends ViewPart {
 
 					@Override
 					public void run() {
+						if (newPlot) {
+							plottingSystem.reset(); // clear
+							first=true;
+						}
 						final ILineTrace lineTrace = plottingSystem.createLineTrace(yData.getName());
 						lineTrace.setData(xData, yData);
 						plottingSystem.addTrace(lineTrace);
@@ -117,6 +117,10 @@ public class DetectorFilePlotView extends ViewPart {
 
 					@Override
 					public void run() {
+						if (newPlot) {
+							plottingSystem.reset();// clear
+							first=true;
+						}
 						IImageTrace imageTrace = plottingSystem.createImageTrace(yData.getName());
 						imageTrace.setMax(yData.max(null));
 						imageTrace.setMin(yData.min(null));
