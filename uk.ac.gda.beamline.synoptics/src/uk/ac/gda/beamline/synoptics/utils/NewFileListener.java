@@ -120,8 +120,9 @@ public class NewFileListener implements DataDirectoryMonitor, IObserver, Configu
 			return;
 		}
 		if (includeFile(newPath)) {
-			dataFiles.add(newPath);
-			obsComp.notifyIObservers(this, new LatestFilenameEvent(dataFiles.size() - 1, newPath.toString()));
+			if (dataFiles.add(newPath)) {
+				obsComp.notifyIObservers(this, new LatestFilenameEvent(dataFiles.size() - 1, newPath.toString()));
+			}
 		} else {
 			logger.debug("Ignoring new file: {}", newPath);
 		}
