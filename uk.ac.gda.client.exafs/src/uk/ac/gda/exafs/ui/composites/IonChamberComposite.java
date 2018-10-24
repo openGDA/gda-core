@@ -18,13 +18,10 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
@@ -54,11 +51,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,9 +62,7 @@ import gda.device.CurrentAmplifier;
 import gda.exafs.mucal.PressureBean;
 import gda.exafs.mucal.PressureCalculation;
 import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
-import uk.ac.gda.beans.exafs.TransmissionParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -485,120 +478,73 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	 */
 	public void calculatePressure() {
 
-		if(this.isVisible()){
-
-			if (!isUseGasProperties() || workingEnergy.getValue() == null)
+		if(!this.isVisible() || !isUseGasProperties() || workingEnergy.getValue() == null) {
 				return;
-			// We run the pressure code in a separate progressible task, just in case.
-			final IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
-			try {
-
-				// Get the working energy before starting the task.
-				final double workingE = (Double) workingEnergy.getValue();
-
-				service.run(true, true, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						monitor.beginTask("Calculate Pressure", 100);
-
-						try {
-							final IonChamberParameters bean = (IonChamberParameters) provider.getInstance();
-
-							getDisplay().syncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									try {
-										final IBeanService service = ExafsActivator.getService(IBeanService.class);
-										final IBeanController control = service.createController(IonChamberComposite.this, bean);
-										control.uiToBean();
-									} catch (Exception e) {
-
-										e.printStackTrace();
-									}
-								}
-							});
-
-							bean.setWorkingEnergy(workingE);
-
-							monitor.worked(10);
-							final PressureBean ans = PressureCalculation.getPressure(bean);
-							monitor.worked(80);
-
-							getDisplay().asyncExec(new Runnable() {
-								@Override
-								public void run() {
-									final double pressureVal = ans.getPressure();
-
-									String experimentType = detParams.getExperimentType();
-
-									int index = provider.getSelectedIndex();
-
-									List<IonChamberParameters> ionParamsList = null;
-
-									if (experimentType.equals("Transmission")) {
-										TransmissionParameters params = detParams.getTransmissionParameters();
-										ionParamsList = params.getIonChamberParameters();
-									} else if (experimentType.equals("Fluorescence")) {
-										FluorescenceParameters params = detParams.getFluorescenceParameters();
-										ionParamsList = params.getIonChamberParameters();
-									} else if (experimentType.equals("XES")) {
-										FluorescenceParameters params = detParams.getXesParameters();
-										ionParamsList = params.getIonChamberParameters();
-									}
-
-									if (ionParamsList != null) {
-										ionParams = ionParamsList.get(index);
-									}
-
-									boolean originalAutoFillGas = ionParams.getAutoFillGas();
-									boolean originalFlush = ionParams.getFlush();
-
-									if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
-										if (fillGasButton != null)
-											fillGasButton.setEnabled(false);
-										autoFillGas.setEnabled(false);
-										flush.setEnabled(false);
-										autoFillGas.setValue(false);
-										flush.setValue(false);
-										pressure.setLabelColor(new Color(null, 255, 0, 0));
-									} else {
-										if (fillGasButton != null)
-											fillGasButton.setEnabled(true);
-										autoFillGas.setEnabled(true);
-										flush.setEnabled(true);
-										autoFillGas.setValue(originalAutoFillGas);
-										flush.setEnabled(true);
-										autoFillGas.setValue(originalAutoFillGas);
-										flush.setValue(originalFlush);
-										pressure.setLabelColor(new Color(null, 0, 0, 0));
-									}
-
-									if (!Double.isNaN(pressureVal) && !Double.isInfinite(pressureVal)) {
-										getPressure().setValue(pressureVal);
-									}
-
-									GridUtils.layoutFull(IonChamberComposite.this);
-								}
-							});
-							monitor.worked(10);
-
-						} catch (NullPointerException ne) {
-							// Can legally happen when user types in no value for a box.
-							logger.debug("Cannot run mucal code to find gas absorption.", ne);
-						} catch (Throwable ne) {
-							logger.error("Cannot run mucal code to find gas absorption.", ne);
-						} finally {
-							monitor.done();
-						}
-					}
-				});
-			} catch (Exception e) {
-				logger.error("Cannot run mucal code to find gas absorption.", e);
-			}
 		}
 
+		try {
+			// Get the working energy
+			final double workingE = (Double) workingEnergy.getValue();
+
+			final IonChamberParameters bean = (IonChamberParameters) provider.getInstance();
+			final IBeanService service = ExafsActivator.getService(IBeanService.class);
+			final IBeanController control = service.createController(IonChamberComposite.this, bean);
+			control.uiToBean();
+
+			bean.setWorkingEnergy(workingE);
+
+			final PressureBean ans = PressureCalculation.getPressure(bean);
+
+			final double pressureVal = ans.getPressure();
+
+			String experimentType = detParams.getExperimentType();
+
+			int index = provider.getSelectedIndex();
+
+			List<IonChamberParameters> ionParamsList = null;
+			try {
+				ionParamsList = detParams.getIonChambers();
+			} catch (Exception e) {
+				logger.warn("Problem getting ion chamber parameters for pressure calculation", e);
+			}
+
+			if (ionParamsList != null) {
+				ionParams = ionParamsList.get(index);
+			}
+
+			boolean originalAutoFillGas = ionParams.getAutoFillGas();
+			boolean originalFlush = ionParams.getFlush();
+
+			getDisplay().asyncExec(() -> {
+				if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
+					if (fillGasButton != null)
+						fillGasButton.setEnabled(false);
+					autoFillGas.setEnabled(false);
+					flush.setEnabled(false);
+					autoFillGas.setValue(false);
+					flush.setValue(false);
+					pressure.setLabelColor(new Color(null, 255, 0, 0));
+				} else {
+					if (fillGasButton != null)
+						fillGasButton.setEnabled(true);
+					autoFillGas.setEnabled(true);
+					flush.setEnabled(true);
+					autoFillGas.setValue(originalAutoFillGas);
+					flush.setEnabled(true);
+					autoFillGas.setValue(originalAutoFillGas);
+					flush.setValue(originalFlush);
+					pressure.setLabelColor(new Color(null, 0, 0, 0));
+				}
+
+				if (!Double.isNaN(pressureVal) && !Double.isInfinite(pressureVal)) {
+					getPressure().setValue(pressureVal);
+				}
+				GridUtils.layoutFull(IonChamberComposite.this);
+			});
+
+		}catch(Exception e) {
+			logger.warn("Problem running pressure calculation", e);
+		}
 	}
 
 	public ScaleBox getGas_fill1_period_box() {

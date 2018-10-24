@@ -25,6 +25,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.tschoonj.xraylib.Xraylib;
+
 import gda.configuration.properties.LocalProperties;
 import gda.util.Element;
 import gda.util.OSCommandRunner;
@@ -33,14 +35,18 @@ import uk.ac.gda.util.OSUtils;
 
 /**
  * A class which calculates pressure in the ion chamber.
- *
- * In order to use this class, you must have bin/mucal.bin in your configuration.
+ * The default behaviour is to use XRayLib to provide the absorption coefficients used in the calculation;
+ * in order to use this class with Mucal, set useMucal = true and make sure you have bin/mucal.bin in your configuration path.
  */
 public class PressureCalculation {
 
-	private final static Logger logger = LoggerFactory.getLogger(PressureCalculation.class);
+	private static final Logger logger = LoggerFactory.getLogger(PressureCalculation.class);
 	private static double maxAllowedPressure = 2.0;
 	private static double minAllowedPressure = 0.001;
+	private static boolean useMucal = false;
+
+	private PressureCalculation() {
+	}
 
 	/** Run mucal code and return absorption coefficient for element of given atomic number at specified photon energy
 	 * Refactored from PressureCalculation.getPressure(...) function.
@@ -51,7 +57,7 @@ public class PressureCalculation {
 	 * @throws Exception
 	 * @since 23/6/2016
 	 */
-	public static double getAbsorptionCoeff( int atomicNumber, double workingEnergyKev ) throws Exception {
+	public static double getAbsorptionCoeffMucal( int atomicNumber, double workingEnergyKev ) throws Exception {
 
 		if (!OSUtils.isLinuxOS())
 			throw new Exception("PressureCalculation currently only runs on linux.");
@@ -68,7 +74,7 @@ public class PressureCalculation {
 		}
 
 		String [] inputs = new String[]{ String.valueOf(workingEnergyKev), String.valueOf(atomicNumber) };
-		logger.debug("Running mucal :  atomic number = "+atomicNumber+" , working energy = "+workingEnergyKev+" keV ");
+		logger.debug("Running mucal :  atomic number = {} , working energy = {} keV", atomicNumber, workingEnergyKev);
 
 		OSCommandRunner osRunner = new OSCommandRunner(Arrays.asList(new String[]{mucalExecutablePath}), true, inputs, null);
 
@@ -83,7 +89,7 @@ public class PressureCalculation {
 		String gasAbLine = commandOutput.get(12).trim();
 
 		double muA = Double.parseDouble(gasAbLine.split("\\s+")[2]);
-		logger.debug("mucal absorption coefficient = "+muA+" cm2/g");
+		logger.debug("mucal absorption coefficient = {} cm2/g", muA);
 
 		return muA;
 	}
@@ -158,7 +164,8 @@ public class PressureCalculation {
 				pB = 0;
 			ret.setPressure(pB);
 
-			logger.debug("Pressures : "+bean.getGasType()+" = "+pB+" bar, He = "+pA+" bar" );
+			logger.debug("Pressures : {} = {} bar, He = {} bar", bean.getGasType(), pB, pA);
+
 		}
 
 		if (errorMessageText!=null) {
@@ -195,6 +202,37 @@ public class PressureCalculation {
 
 	private static int getHeliumAtomicNumber() {
 		return Element.getElement("He").getAtomicNumber();
+	}
+
+	/**
+	 * Return value of absorption coefficient using functions XrayLib.
+	 * @param atomicNumber
+	 * @param energyKev
+	 * @return absorption coefficient (cm2/g)
+	 */
+	public static double getAbsorptionCoeffXrayLib(int atomicNumber, double energyKev) {
+		logger.debug("Running Xraylib to calculate absorption coefficient :  atomic number = {}, working energy = {} keV", atomicNumber, energyKev);
+		double density = Xraylib.ElementDensity(atomicNumber);
+		double total = Xraylib.CS_Total(atomicNumber, energyKev);
+		double absorptionCoeff = density*total;
+		logger.debug("Xraylib absorption coefficient = {} cm2/g", absorptionCoeff);
+		return absorptionCoeff;
+	}
+
+	public static boolean isUseMucal() {
+		return useMucal;
+	}
+
+	public static void setUseMucal(boolean useMucal) {
+		PressureCalculation.useMucal = useMucal;
+	}
+
+	public static double getAbsorptionCoeff(int atomicNumber, double workingEnergyKev ) throws Exception {
+		if (useMucal) {
+			return getAbsorptionCoeffMucal(atomicNumber, workingEnergyKev);
+		} else {
+			return getAbsorptionCoeffXrayLib(atomicNumber, workingEnergyKev);
+		}
 	}
 
 }

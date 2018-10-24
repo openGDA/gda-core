@@ -26,6 +26,7 @@ Require-Bundle: uk.ac.gda.common,
  uk.ac.diamond.jython,
  org.apache.commons.lang,
  org.apache.commons.beanutils,
- uk.ac.diamond.org.jscience;bundle-version="2.0.2"
+ uk.ac.diamond.org.jscience;bundle-version="2.0.2",
+ com.github.tschoonj.xraylib
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.exafs.api
