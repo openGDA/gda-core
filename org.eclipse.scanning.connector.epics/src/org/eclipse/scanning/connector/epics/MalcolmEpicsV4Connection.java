@@ -12,6 +12,7 @@
 package org.eclipse.scanning.connector.epics;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,6 +56,8 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 	private static final String ERROR_MESSAGE_PATTERN_FAILED_TO_CONNECT =  ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT + " ''{0}'' ({1}: {2})";
 
 	private static final double REQUEST_TIMEOUT = 1.0;
+
+	private static final double RUN_TIMEOUT = Duration.ofDays(2).getSeconds();
 
 	private static final double NO_TIMEOUT = 0.0;
 
@@ -286,8 +289,13 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
 		MalcolmMessage returnMessage = new MalcolmMessage();
 		RPCClientImpl client = null;
+		PvaClientChannel testChannel = null;
 
 		try {
+			// Create a throw-away channel to test connection
+			testChannel = createAndCheckChannel(device, REQUEST_TIMEOUT);
+			testChannel.destroy();
+
 			PVStructure pvResult = null;
 			PVStructure pvRequest = mapper.convertMalcolmMessageToPVStructure(message);
 
@@ -297,7 +305,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 
 			logger.debug("Call param = \n{}\nEND", parametersStructure);
 			client = new RPCClientImpl(device.getName(), methodStructure);
-			pvResult = client.request(parametersStructure, REQUEST_TIMEOUT);
+			pvResult = client.request(parametersStructure, RUN_TIMEOUT);
 
 			logger.debug("Call response = \n{}\nEND", pvResult);
 			returnMessage = mapper.convertCallPVStructureToMalcolmMessage(pvResult, message);
@@ -309,6 +317,9 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		} finally {
 			if (client != null) {
 				client.destroy();
+			}
+			if (testChannel != null) {
+				testChannel.destroy();
 			}
 		}
 

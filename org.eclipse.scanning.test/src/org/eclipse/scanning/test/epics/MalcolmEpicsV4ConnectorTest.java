@@ -315,7 +315,7 @@ public class MalcolmEpicsV4ConnectorTest {
 
 			} catch (Exception ex) {
 				assertEquals(MalcolmDeviceException.class, ex.getClass());
-				assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("ChannelRPC never connected"));
+				assertTrue("Message was: " + ex.getMessage(), ex.getMessage().contains("ERROR: channel not connected"));
 			}
 
 		} catch (Exception ex) {
