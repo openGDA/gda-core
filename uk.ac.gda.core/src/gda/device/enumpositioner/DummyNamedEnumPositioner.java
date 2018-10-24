@@ -31,10 +31,12 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.NamedEnumPositioner;
 import gda.device.scannable.ScannablePositionChangeEvent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Be able to move to a position whose name is not necessarily the position name
  */
+@ServiceInterface(NamedEnumPositioner.class)
 public class DummyNamedEnumPositioner extends DummyEnumPositioner implements NamedEnumPositioner {
 	private static final Logger logger = LoggerFactory.getLogger(DummyNamedEnumPositioner.class);
 
