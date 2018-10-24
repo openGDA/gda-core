@@ -18,12 +18,13 @@
 
 package gda.device;
 
+import gda.factory.Findable;
 import gda.observable.IObservable;
 
 /**
  * interface for switching on and off X-ray beam monitor and allow query of beam status.
  */
-public interface IBeamMonitor extends IObservable{
+public interface IBeamMonitor extends IObservable, Findable {
 
 	/**
 	 * switch on beam monitoring
