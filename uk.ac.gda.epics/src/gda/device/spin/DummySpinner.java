@@ -21,7 +21,9 @@ package gda.device.spin;
 import gda.device.DeviceException;
 import gda.device.ISpin;
 import gda.device.scannable.ScannableBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(ISpin.class)
 public class DummySpinner extends ScannableBase implements ISpin {
 
 	private boolean running;

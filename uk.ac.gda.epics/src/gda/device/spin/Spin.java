@@ -39,10 +39,12 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Spin class
  */
+@ServiceInterface(ISpin.class)
 public class Spin extends ScannableBase implements ISpin, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(Spin.class);
