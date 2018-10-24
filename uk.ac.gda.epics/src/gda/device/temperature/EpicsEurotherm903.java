@@ -57,19 +57,17 @@ public class EpicsEurotherm903 extends ScannableBase {
 	 */
 	@Override
 	public boolean isBusy() throws DeviceException {
-		double temperatureDiff = Math.abs( (Double)rawGetPosition() -  requiredSetpointTemperature );
+		double temperatureDiff = Math.abs((Double) rawGetPosition() - requiredSetpointTemperature);
 		return temperatureDiff > temperatureTolerance;
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
-			requiredSetpointTemperature = (Double)position;
+			requiredSetpointTemperature = Double.parseDouble(position.toString());
 			caClient.caput(setpointPv, String.valueOf(position));
 		} catch (Exception e) {
-			if( e instanceof DeviceException)
-				throw (DeviceException)e;
-			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo", e);
+			throw new DeviceException(getName() + " exception in rawAsynchronousMoveTo", e);
 		}
 	}
 
@@ -78,9 +76,7 @@ public class EpicsEurotherm903 extends ScannableBase {
 		try {
 			return Double.parseDouble(caClient.caget(actualTemperatureRbvPv));
 		} catch (Exception e) {
-			if( e instanceof DeviceException)
-				throw (DeviceException)e;
-			throw new DeviceException(getName() +" exception in rawGetPosition", e);
+			throw new DeviceException(getName() + " exception in rawGetPosition", e);
 		}
 	}
 
@@ -104,7 +100,6 @@ public class EpicsEurotherm903 extends ScannableBase {
 	public void setSetpointPv(String setpointPv) {
 		this.setpointPv = setpointPv;
 	}
-
 
 	public String getUpperLimit() throws CAException, TimeoutException, InterruptedException{
 		return caClient.caget(upperLimitPv);
@@ -165,19 +160,20 @@ public class EpicsEurotherm903 extends ScannableBase {
 
 		double timeAtSetpointTemperature = 0.0;
 
-		while( timeAtSetpointTemperature < setpointTemperatureWaitTime ) {
+		while (timeAtSetpointTemperature < setpointTemperatureWaitTime) {
 
-			InterfaceProvider.getTerminalPrinter().print( rawGetPosition() + "\t\t\t\t\t" + timeAtSetpointTemperature );
+			InterfaceProvider.getTerminalPrinter().print(rawGetPosition() + "\t\t\t\t\t" + timeAtSetpointTemperature);
 
-			Thread.sleep( (long) pollTimeIntervalSecs*1000 );
+			Thread.sleep((long) pollTimeIntervalSecs * 1000);
 
-			if ( isBusy() == false )
+			if (!isBusy()) {
 				timeAtSetpointTemperature += pollTimeIntervalSecs;
-			else
+			} else {
 				timeAtSetpointTemperature = 0;
+			}
 		}
 
-		InterfaceProvider.getTerminalPrinter().print( "moveAndWait finished" );
+		InterfaceProvider.getTerminalPrinter().print("moveAndWait finished");
 
 	}
 }
