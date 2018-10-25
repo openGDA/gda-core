@@ -158,10 +158,14 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 		final String sourceName = event.getSourceName();
 		final Object message = event.getMessage();
 		final long timestamp = event.getTimestamp();
+		long delay;
 
 		// Check how long the event was in the queue and warn if longer than QUEUE_TIME_WARNING
-		if (System.currentTimeMillis() - timestamp > QUEUE_TIME_WARNING_MS) {
-			logger.warn("Event '{}' has waited longer than {} ms in the dispatch queue", event, QUEUE_TIME_WARNING_MS);
+		if ((delay = System.currentTimeMillis() - timestamp) > QUEUE_TIME_WARNING_MS) {
+			logger.warn("Event '{}' has waited {}ms in the dispatch queue (above {}ms warning threadshold)",
+					event,
+					delay,
+					QUEUE_TIME_WARNING_MS);
 		}
 
 		try {
