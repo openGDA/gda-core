@@ -55,6 +55,7 @@ import gda.device.detector.mythen.tasks.ScanTask;
 import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Implementation of the GDA Mythen interface.
@@ -384,19 +385,17 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	@Override
 	public void collectData() throws DeviceException {
 		beforeCollectData();
-		Thread mythenAcquire = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// do data acquisition into the file
-				AcquisitionParameters params = new AcquisitionParameters.Builder()
+		AcquisitionParameters params = new AcquisitionParameters.Builder()
 				.filename(rawFile.getAbsolutePath())
 				.frames(1)
 				.exposureTime(exposureTime)
 				.trigger(NONE)
 				.build();
+
+		Async.execute(() -> {
 				try {
-					logger.debug("starting acquire, expecting to collect for " + exposureTime + "s");
+					// do data acquisition into the file
+					logger.debug("starting acquire, expecting to collect for {}s", exposureTime);
 					mythenClient.acquire(params);
 					logger.debug("finished acquire");
 					afterCollectData();
@@ -407,17 +406,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 				} finally {
 					status = IDLE;
 				}
-			}
-		});
-		while (mythenAcquire.isAlive()) {
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		mythenAcquire.start();
+		}, "%s - collectData", getName());
 	}
 
 	protected void afterCollectData() {
