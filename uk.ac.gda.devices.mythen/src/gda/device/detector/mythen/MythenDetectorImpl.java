@@ -210,7 +210,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 	 * @return the data directory
 	 */
 	public synchronized File getDataDirectory() {
-		return new File(PathConstructor.createFromDefaultProperty() + this.subDirectory);
+		return new File(PathConstructor.createFromDefaultProperty(), this.subDirectory);
 	}
 
 	protected int numberOfModules;
