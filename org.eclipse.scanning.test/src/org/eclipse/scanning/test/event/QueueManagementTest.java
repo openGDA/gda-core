@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -51,6 +49,7 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.WaitingRunnable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,16 +62,18 @@ public class QueueManagementTest extends BrokerTest {
 
 	private class InitialProcess extends AbstractLockingPausableProcess<StatusBean> {
 
-		protected InitialProcess(StatusBean bean, IPublisher<StatusBean> publisher) {
+		private final WaitingRunnable waitingRunnable;
+
+		protected InitialProcess(WaitingRunnable waitingRunnable, StatusBean bean, IPublisher<StatusBean> publisher) {
 			super(bean, publisher);
+			this.waitingRunnable = waitingRunnable;
 		}
 
 		@Override
 		public void execute() throws EventException, InterruptedException {
-			// Decrement the countdown latch, this releases the main thread which should be waiting on the latch
-			initialProcessStarted.countDown();
+			// notifies any thread waiting on waitUntilRun and waits until its own release method is called
+			waitingRunnable.run();
 
-			releaseInitialProcess.await(); // this process waits until the test is finished
 			getBean().setStatus(Status.COMPLETE);
 			getPublisher().broadcast(getBean());
 		}
@@ -80,21 +81,26 @@ public class QueueManagementTest extends BrokerTest {
 
 	private class TestProcessCreator implements IProcessCreator<StatusBean> {
 
-		private IPublisher<StatusBean> publisher;
+		private final WaitingRunnable waitingRunnable = new WaitingRunnable();
 
 		@Override
 		public IConsumerProcess<StatusBean> createProcess(StatusBean bean, IPublisher<StatusBean> publisher)
 				throws EventException {
-			if (this.publisher == null) {
-				this.publisher = publisher;
-			}
 			if (bean.getName().equals("initial")) {
 				// return the initial process that waits to be told to resume
-				return new InitialProcess(bean, publisher);
+				return new InitialProcess(waitingRunnable, bean, publisher);
 			}
 
 			// return a short job that runs in just 10ms
 			return new DryRunProcess<StatusBean>(bean, publisher, true, 0, 1, 1, 10);
+		}
+
+		public void waitForInitialProcessToStart() throws InterruptedException {
+			waitingRunnable.waitUntilRun();
+		}
+
+		public void releaseInitialProcess() {
+			waitingRunnable.release();
 		}
 
 	}
@@ -104,8 +110,7 @@ public class QueueManagementTest extends BrokerTest {
 	private IConsumer<StatusBean> consumer;
 	private IConsumer<StatusBean> consumerProxy;
 
-	private CountDownLatch initialProcessStarted;
-	private CountDownLatch releaseInitialProcess;
+	private TestProcessCreator processFactory;
 
 	private final boolean useProxy;
 	private final boolean startConsumer;
@@ -155,8 +160,8 @@ public class QueueManagementTest extends BrokerTest {
 		submitter.disconnect();
 		consumer.disconnect();
 
-		if (releaseInitialProcess != null) {
-			releaseInitialProcess.countDown();
+		if (processFactory != null) {
+			processFactory.releaseInitialProcess();
 		}
 	}
 
@@ -169,12 +174,8 @@ public class QueueManagementTest extends BrokerTest {
 	private void startConsumer() throws EventException, InterruptedException {
 		// starts the consumer and sets it going with an initial task
 
-		// Create the latch for releasing the initial process
-		releaseInitialProcess = new CountDownLatch(1);
-
-		// Create the latch for the initial process starting
-		initialProcessStarted = new CountDownLatch(1);
-		consumer.setRunner(new TestProcessCreator());
+		processFactory = new TestProcessCreator();
+		consumer.setRunner(processFactory);
 
 		// start the consumer and wait until its fully started
 		consumer.start();
@@ -182,8 +183,7 @@ public class QueueManagementTest extends BrokerTest {
 
 		// create and submit the initial bean and wait for the process for it to start
 		submitter.submit(createBean("initial"));
-		boolean success = initialProcessStarted.await(1, TimeUnit.SECONDS);
-		assertThat(success, is(true)); // check the above didn't time out
+		processFactory.waitForInitialProcessToStart();
 	}
 
 	private IConsumer<StatusBean> getConsumer() {

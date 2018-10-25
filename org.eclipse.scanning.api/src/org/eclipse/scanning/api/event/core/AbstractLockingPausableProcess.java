@@ -71,7 +71,7 @@ public abstract class AbstractLockingPausableProcess<T extends StatusBean> imple
 				throw new EventException("Internal Error - Could not obtain lock to run device!");
 			}
 			try {
-				if (awaitPaused) {
+				while (awaitPaused) {
 					paused.await(); // Until unpaused
 				}
 			} finally {

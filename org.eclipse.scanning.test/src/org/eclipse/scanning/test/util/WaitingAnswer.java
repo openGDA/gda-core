@@ -18,35 +18,38 @@
 
 package org.eclipse.scanning.test.util;
 
-import java.util.concurrent.Semaphore;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+/**
+ * An {@link Answer} for use with tests that use Mockito, that does not complete
+ * until its {@link #resume()} method is called (from another thread). Additionally another
+ * thread can wait until the run method is called.
+ *
+ * @param <T>
+ */
 public class WaitingAnswer<T> implements Answer<T> {
+
+	private final WaitingRunnable waitResume = new WaitingRunnable();
 
 	private final T returnValue;
 
-	private final Semaphore semaphore = new Semaphore(1, true); // true to make semaphore fair, see javadoc
-
-	public WaitingAnswer(T returnValue) throws InterruptedException {
+	public WaitingAnswer(T returnValue) {
 		this.returnValue = returnValue;
-		semaphore.acquire();
 	}
 
 	@Override
 	public T answer(InvocationOnMock invocation) throws Throwable {
-		semaphore.release(); // Notify waiting thread
-		semaphore.acquire(); // Wait to be notified to continue, note this only works because the semaphore is fair
+		waitResume.run();
 		return returnValue;
 	}
 
 	public void waitUntilCalled() throws InterruptedException {
-		// wait for answer to be called. This required the semaphore to be fair, see javadoc
-		semaphore.acquire();
+		waitResume.waitUntilRun();
 	}
 
 	public void resume() {
-		semaphore.release();
+		waitResume.release();
 	}
+
 }
