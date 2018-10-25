@@ -446,8 +446,7 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 
 	@Override
 	public Object readout() throws DeviceException {
-		String filename = processedFile.getName();
-		return filename.substring(0, filename.lastIndexOf('.'));
+		return processedFile.getName();
 	}
 
 	@Override
