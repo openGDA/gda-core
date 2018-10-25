@@ -5,7 +5,7 @@
 from gda.epics import CAClient
 from gda.factory import Finder
 from contextlib import contextmanager
-from gda.jython import JythonServerFacade
+from gda.jython import Jython
 from gda.jython.commands import ScannableCommands
 
 import logging
@@ -93,14 +93,15 @@ def default_scannables(*scn):
 		ScannableCommands.remove_default(*new_scannables)
 
 
-command_server = JythonServerFacade.getInstance()
-
 def jobs():
+	
 	"""
 	Print a string showing the threads running in the command server.
 
 	Only shows the live threads.
 	"""
+	command_server = Finder.getInstance().find(Jython.SERVER_NAME)
+	
 	logger.debug("jobs() called")
 
 	s = "%-10s %-12s %-8s %-11s %s\n" % ('DATE', 'TIME', 'TYPE', 'INTERRUPTED', 'COMMAND')
