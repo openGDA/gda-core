@@ -80,11 +80,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	private static final String PUT_FAILED_MESSAGE_TEMPLATE = "Put to channel '{}' with value '{}' failed";
 	private static final String PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE = PUT_FAILED_MESSAGE_TEMPLATE + " with Status '{}'";
-	private static final String PUT_FAILED = "put failed";
-	private static final String UNEXPECTED_EXCEPTION = "Unexpected Exception";
-	private static final String GET_DBR_FAILED_TEMPLATE = "Get DBR for channel '{}' failed: {}";
+	private static final String PUT_FAILED = "put failed on ";
+	private static final String UNEXPECTED_EXCEPTION = "Unexpected Exception on ";
+	private static final String GET_DBR_FAILED_TEMPLATE = "Get DBR for channel '{}' failed";
 	private static final String CAPUT_DEBUG_MESSAGE_TEMPLATE = "Set '{}' to '{}'";
-	private static final String PUT_TIMEOUT_TEMPLATE = "Put timeout %fs";
+	private static final String PUT_TIMEOUT_TEMPLATE = "Put on %s timeout %fs";
 
 	private static final double TIMEOUT_SECONDS = EpicsGlobals.getTimeout(); // seconds
 
@@ -803,18 +803,18 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final GetEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException("get timeout, "+timeout+"s");
+				throw new TimeoutException("get on "+ch.getName()+" timeout, "+timeout+"s");
 
 			if (event.getStatus() != CAStatus.NORMAL)
-				throw new CAStatusException(event.getStatus(), "get failed");
+				throw new CAStatusException(event.getStatus(), "get on "+ch.getName()+" failed");
 
 			return event.getDBR();
-		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(GET_DBR_FAILED_TEMPLATE,ch.getName(), ex.getMessage());
-			throw ex;
 		} catch (Exception ex) {
-			logger.error(GET_DBR_FAILED_TEMPLATE, ch.getName(), ex.getMessage());
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(GET_DBR_FAILED_TEMPLATE, ch.getName(), ex);
+			if (ex instanceof TimeoutException || ex instanceof CAException || ex instanceof IllegalStateException) {
+				throw ex;
+			}
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1079,7 +1079,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug("set {} to {}", ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1100,7 +1100,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1121,7 +1121,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1142,7 +1142,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1163,7 +1163,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1184,7 +1184,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException | BufferOverflowException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1205,7 +1205,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1226,7 +1226,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1247,7 +1247,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1268,7 +1268,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1288,7 +1288,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1309,7 +1309,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		}
 	}
@@ -1521,19 +1521,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1563,19 +1563,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1605,19 +1605,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1647,19 +1647,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1689,19 +1689,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1731,19 +1731,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1773,19 +1773,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1815,19 +1815,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1857,19 +1857,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1899,19 +1899,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException | CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1934,11 +1934,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1961,11 +1961,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -1988,11 +1988,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException| CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2013,10 +2013,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			ch.put(value, pl);
 			context.flushIO();
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
@@ -2040,11 +2040,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2067,11 +2067,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2093,10 +2093,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
@@ -2120,11 +2120,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2147,11 +2147,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2174,11 +2174,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 	public void caput(Channel ch, byte[] value, double timeout) throws CAException, TimeoutException, InterruptedException {
@@ -2195,19 +2195,19 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 			final PutEvent event = listener.event;
 			if (event == null)
-				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, timeout));
+				throw new TimeoutException(String.format(PUT_TIMEOUT_TEMPLATE, ch.getName(), timeout));
 
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error(PUT_FAILED_WITH_STATUS_MESSAGE_TEMPLATE, ch.getName(), value, event.getStatus());
-				throw new CAStatusException(event.getStatus(), PUT_FAILED);
+				throw new CAStatusException(event.getStatus(), PUT_FAILED+ch.getName());
 			}
 
 		} catch (TimeoutException| CAException | IllegalStateException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2231,11 +2231,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
-			throw new CAException(UNEXPECTED_EXCEPTION, ex);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
+			throw new CAException(UNEXPECTED_EXCEPTION+ch.getName(), ex);
 		}
 	}
 
@@ -2254,10 +2254,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			context.flushIO();
 			logger.debug(CAPUT_DEBUG_MESSAGE_TEMPLATE, ch.getName(), value);
 		} catch (IllegalStateException | CAException ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value);
+			logger.error(PUT_FAILED_MESSAGE_TEMPLATE, ch.getName(), value, ex);
 			throw new CAException(UNEXPECTED_EXCEPTION, ex);
 		}
 	}
