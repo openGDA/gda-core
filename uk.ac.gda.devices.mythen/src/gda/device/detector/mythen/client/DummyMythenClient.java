@@ -50,8 +50,12 @@ public class DummyMythenClient implements MythenClient {
 				pw.printf("%d %d\n", channel, count);
 			}
 			pw.close();
+			Thread.sleep(params.getExposureTime().longValue() * 1000);
 		} catch (IOException ioe) {
 			throw new DeviceException("Unable to save data", ioe);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Interrupted while writing data", e);
 		}
 	}
 
