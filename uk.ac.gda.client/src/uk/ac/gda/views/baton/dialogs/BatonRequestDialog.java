@@ -18,11 +18,6 @@
 
 package uk.ac.gda.views.baton.dialogs;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.batoncontrol.BatonRequested;
-import gda.jython.batoncontrol.ClientDetails;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -39,6 +34,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.BatonRequested;
+import gda.jython.batoncontrol.ClientDetails;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.views.baton.BatonView;
 
@@ -70,12 +69,12 @@ public class BatonRequestDialog extends Dialog {
 	protected Control createDialogArea(Composite parent) {
 
 		getShell().setText(String.format("%s has requested the baton", request.getUserID()));
-
 		Composite container = (Composite) super.createDialogArea(parent);
 		{
 			lblARequestFor = new Label(container, SWT.NONE);
-			lblARequestFor.setText("The user '"+request.getUserID()+"' has requested the baton.\n\n"+
-			                       "Would you like to pass control to them?");
+			String message = String.format("The user '%s' (%s) has requested the baton.  %n%n" +
+					"Would you like to pass control to them?", request.getFullName(), request.getUserID());
+			lblARequestFor.setText(message);
 		}
 
 		return container;
@@ -102,30 +101,31 @@ public class BatonRequestDialog extends Dialog {
 	public static void openPassBatonForm(final Shell shell, final ClientDetails request, boolean batonAlwaysHeld) {
 
 		final BatonRequestDialog currentOpenDialog = new BatonRequestDialog(shell, request);
+		logger.debug("Baton request from {}, KEEP_BATON set to {}", request.getUserID(), batonAlwaysHeld);
 
 		if (!batonAlwaysHeld) { // We close it in 2 minutes.
+			final int minutes = GDAClientActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.BATON_REQUEST_TIMEOUT);
+			logger.debug("Waiting {} minutes before automatically releasing baton", minutes);
+
 			Job job = new Job("Automatically accepting baton change.") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 
 					if (!currentOpenDialog.isOpen()) {
+						logger.trace("Baton request dialog had already been closed at end of timeout");
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
 					}
 					try {
-
 						final Shell shell = currentOpenDialog.getShell();
-						if (shell==null) return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
-						shell.getDisplay().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								shell.dispose();
-							}
-						});
+						if (shell == null) {
+							return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
+						}
+						logger.debug("Baton request timed out. Automatically releasing baton");
+						shell.getDisplay().asyncExec(shell::dispose);
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
-
 					} catch (Exception ne) {
 						logger.error("Cannot process dialog kill", ne);
-						return  new Status(IStatus.ERROR, BatonView.ID, "Choosing ok for the user.");
+						return new Status(IStatus.ERROR, BatonView.ID, "Choosing ok for the user.");
 					}
 				}
 			};
@@ -133,12 +133,15 @@ public class BatonRequestDialog extends Dialog {
 			job.setSystem(true);
 			job.setThread(Display.getDefault().getThread());
 
-			final int minutes = GDAClientActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.BATON_REQUEST_TIMEOUT);
-			job.schedule(minutes*60*1000);// 2 minutes.
+			job.schedule(minutes*60*1000L);// 2 minutes.
 		}
 
 		final int returnCode = currentOpenDialog.open();
 		currentOpenDialog.setOpen(false);
+		logger.info("Baton request from {}@{} was {}",
+				request.getUserID(),
+				request.getHostname(),
+				returnCode == OK ? "accepted" : "denied"); // NOSONAR
 		doPass(request, returnCode == OK);
 
 	}
