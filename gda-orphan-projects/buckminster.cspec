@@ -13,6 +13,5 @@ The typical case is plugins which are:
 The Jenkins JUnit test job will include gda-orphan-projects</cs:documentation>
     <cs:dependencies>
         <cs:dependency name="uk.ac.gda.phantom.detector" componentType="osgi.bundle"/>
-        <cs:dependency name="uk.ac.gda.server.ncd.epics" componentType="osgi.bundle"/>
     </cs:dependencies>
 </cs:cspec>
