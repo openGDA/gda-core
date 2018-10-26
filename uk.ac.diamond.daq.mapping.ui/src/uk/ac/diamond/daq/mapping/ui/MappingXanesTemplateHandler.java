@@ -48,11 +48,15 @@ public class MappingXanesTemplateHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		loadTemplate(chooseFileName());
+		final String templatePath = chooseTemplate();
+		if (templatePath != null) { // null if 'Cancel' pressed
+			loadTemplate(templatePath);
+		}
+		logger.debug("Selected mapping XANES template: '{}'", templatePath);
 		return null;
 	}
 
-	private String chooseFileName() {
+	private String chooseTemplate() {
 		final FileDialog dialog = new FileDialog(Display.getCurrent().getActiveShell(), SWT.OPEN);
 		dialog.setFilterNames(FILE_FILTER_NAMES);
 		dialog.setFilterExtensions(FILE_FILTER_EXTENSIONS);
@@ -64,7 +68,6 @@ public class MappingXanesTemplateHandler extends AbstractHandler {
 	}
 
 	private void loadTemplate(String templatePath) {
-
 		final IMappingExperimentBean template;
 
 		try {
