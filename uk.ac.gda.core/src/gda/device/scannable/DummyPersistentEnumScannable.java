@@ -32,14 +32,17 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Accepts and returns a String from a list of Strings.
  * <p>
  * If given integer, uses the index from the list of acceptable Strings
  */
+@ServiceInterface(EnumPositioner.class)
 public class DummyPersistentEnumScannable extends ScannableBase implements EditableEnumPositioner {
 
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentScannable.class);
