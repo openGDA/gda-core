@@ -95,6 +95,9 @@ public abstract class AbstractNewConsumerTest {
 	protected IPublisher<StatusBean> statusTopicPublisher;
 
 	@Mock
+	protected ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
+
+	@Mock
 	protected ISubmitter<StatusBean> statusSetSubmitter;
 
 	@Mock
@@ -144,7 +147,6 @@ public abstract class AbstractNewConsumerTest {
 	@SuppressWarnings("unchecked")
 	protected void startConsumer() throws Exception {
 		// configure the event service to create the status topic subscriber, this is only done when the consumer starts
-		ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = mock(ISubscriber.class);
 		when(eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) statusTopicSubscriber);
 
@@ -168,8 +170,11 @@ public abstract class AbstractNewConsumerTest {
 	}
 
 	protected List<StatusBean> setupBeans() throws Exception {
-		List<String> names = Arrays.asList("one", "two", "three", "four", "five");
-		List<StatusBean> beans = names.stream().map(StatusBean::new).collect(Collectors.toList());
+		return setupBeans("one", "two", "three", "four", "five");
+	}
+
+	protected List<StatusBean> setupBeans(String... names) throws Exception {
+		List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(Collectors.toList());
 		TextMessage message = mock(TextMessage.class);
 		when(messageConsumer.receive(anyLong())).thenReturn(message);
 		String jsonMessage = "jsonMessage";
@@ -199,6 +204,7 @@ public abstract class AbstractNewConsumerTest {
 		final List<IConsumerProcess<StatusBean>> mockProcesses = new ArrayList<>(beans.size());
 		for (int i = 0; i < beans.size(); i++) {
 			StatusBean bean = beans.get(i);
+			@SuppressWarnings("unchecked")
 			IConsumerProcess<StatusBean> process = mock(IConsumerProcess.class);
 			mockProcesses.add(process);
 			when(runner.createProcess(bean, statusTopicPublisher)).thenReturn(process);
