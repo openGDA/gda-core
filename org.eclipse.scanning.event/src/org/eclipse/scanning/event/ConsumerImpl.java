@@ -1191,6 +1191,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			timeNow = Instant.now();
 			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to processMap.put complete", Duration.between(startTime, timeNow).toMillis()); }
 
+			LOGGER.info("Starting process for bean {}", bean);
 			process.start(); // Depending on the process may run in a separate thread (default is not to)
 		} catch (Exception e) {
 			// if an exception is thrown, set the bean status to failed. Note the exception is logged in processException()

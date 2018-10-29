@@ -68,6 +68,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		statusTopicListener = statusTopicListenerCaptor.getValue();
 
 		waitingAnswer.waitUntilCalled();
+		verify(process).start();
 	}
 
 	@Override
