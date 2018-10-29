@@ -174,7 +174,7 @@ public class RmiRemotingIntegrationTest {
 		testScannable.sendEvent("source", "event");
 
 		// Wait for the observer to be notified
-		latch.await(5, SECONDS); // If not done in 5 sec the test will fail
+		assertThat("No event was received in 5 seconds", latch.await(5, SECONDS)); // If not done in 5 sec the test will fail
 	}
 
 	@ServiceInterface(Scannable.class)
