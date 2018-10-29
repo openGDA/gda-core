@@ -72,7 +72,7 @@ public class QueueAndRunExperimentNewQueueCommandHandler extends RunExperimentNe
 
 		try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(
 					new URI(LocalProperties.getActiveMQBrokerURI()), EventConstants.CMD_TOPIC)) {
-			QueueCommandBean bean = new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.RESUME);
+			QueueCommandBean bean = new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.RESUME_QUEUE);
 			publisher.broadcast(bean);
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Cannot pause scan queue", e);
