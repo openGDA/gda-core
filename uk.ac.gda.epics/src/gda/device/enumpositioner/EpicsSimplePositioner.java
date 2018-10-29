@@ -18,21 +18,26 @@
 
 package gda.device.enumpositioner;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.JCAUtils;
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_STS_Short;
@@ -42,12 +47,15 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * This class can be used when a pv can be set which is a choice of several values. For instance d1_gain on I20 uses
- * this kind of control. The choices are hard coded and must be defined with the values map. This map allows EPICs value
- * and command line GDA value to be different to save typing.
+ * This classes addresses a positioner that is controlled by a single PV, in contrast to (for example) {@link gda.device.enumpositioner.EpicsPositioner}
+ * <p>
+ * It additionally allows the user to use different names for the preset positions than those defined in Epics.
+ * In this case, the object needs to be configured with a map of {@code <user-facing name>} to {@code <Epics name>}
  */
+@ServiceInterface(EnumPositioner.class)
 public class EpicsSimplePositioner extends EnumPositionerBase implements ConnectionListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimplePositioner.class);
@@ -135,6 +143,19 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		this.pvName = pvName;
 	}
 
+	/**
+	 * Setup position map using enum values from Epics, with key = value.
+	 */
+	private void setMapFromEpics() throws TimeoutException, CAException, InterruptedException {
+		String[] enumValues = controller.cagetLabels(currentPositionChnl);
+		logger.debug("Setting map values from Epics : {} = {}", pvName, Arrays.asList(enumValues));
+		Map<String,String> valuesMap = new LinkedHashMap<>();
+		for(String enumValue : enumValues) {
+			valuesMap.put(enumValue,  enumValue);
+		}
+		setValues(valuesMap);
+	}
+
 	@Override
 	public void connectionChanged(ConnectionEvent ev) {
 		Channel ch = (Channel) ev.getSource();
@@ -143,6 +164,14 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		if (ev.isConnected()) {
 			synchronized (monitorInstalledSet) {
 				installMonitor = !monitorInstalledSet.contains(ch);
+			}
+			// If no map has been set by user, generate it using available values from Epics
+			if (values == null || values.isEmpty()) {
+				try {
+					setMapFromEpics();
+				} catch (TimeoutException | CAException | InterruptedException e) {
+					logger.error("Problem generating map from Epics values", e);
+				}
 			}
 		}
 
