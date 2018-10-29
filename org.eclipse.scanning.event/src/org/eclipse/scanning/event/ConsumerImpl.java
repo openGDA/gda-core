@@ -233,19 +233,19 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		Object result = null;
 		try {
 			switch (command) {
-				case PAUSE:
+				case PAUSE_QUEUE:
 					pause();
 					break;
-				case RESUME:
+				case RESUME_QUEUE:
 					resume();
 					break;
-				case STOP:
+				case STOP_QUEUE:
 					disconnect();
 					break;
-				case RESTART:
+				case RESTART_QUEUE:
 					restart();
 					break;
-				case CLEAR:
+				case CLEAR_QUEUE:
 					clearQueue();
 					break;
 				case CLEAR_COMPLETED:
@@ -257,7 +257,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				case MOVE_BACKWARD:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> moveBackward(bean));
 					break;
-				case REMOVE:
+				case REMOVE_FROM_QUEUE:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
 					break;
 				case REMOVE_COMPLETED:
@@ -278,7 +278,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		} catch (Exception e) {
 			commandBean.setErrorMessage(MessageFormat.format("Could not process {0} command for queue {1}: {2}",
 					command, getSubmitQueueName(), e.getMessage()));
-			if (command == Command.PAUSE || command == Command.RESUME) {
+			if (command == Command.PAUSE_QUEUE || command == Command.RESUME_QUEUE) {
 				// for pause and resume commands, we stop and disconnect the consumer
 				LOGGER.error("Unable to process {} command on consumer for queue '{}'. Consumer will stop.",
 						commandBean.getCommand(), getSubmitQueueName(), e);
@@ -1005,7 +1005,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			pause(); // note, sets the awaitPause flag, this thread continues
 
 			try (IPublisher<QueueCommandBean> publisher = eventService.createPublisher(getUri(), getCommandTopicName())) {
-				QueueCommandBean pauseBean = new QueueCommandBean(getSubmitQueueName(), Command.PAUSE);
+				QueueCommandBean pauseBean = new QueueCommandBean(getSubmitQueueName(), Command.PAUSE_QUEUE);
 				publisher.broadcast(pauseBean);
 			}
 		}

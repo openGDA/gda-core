@@ -393,7 +393,7 @@ public class StatusQueueView extends EventConnectionView {
 		ISubscriber<IBeanListener<QueueCommandBean>> pauseMonitor = service.createSubscriber(getUri(), EventConstants.CMD_TOPIC);
 		pauseMonitor.addListener(evt -> {
 			final QueueCommandBean.Command command = evt.getBean().getCommand();
-			if (command == Command.PAUSE || command == Command.RESUME) {
+			if (command == Command.PAUSE_QUEUE || command == Command.RESUME_QUEUE) {
 				pauseConsumerAction.setChecked(consumerProxy.isPaused());
 			}
 		});

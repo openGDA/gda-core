@@ -108,7 +108,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(consumer.isActive(), is(false));
 
 		// check that a pause bean was broadcast
-		verify(commandPublisher).broadcast(new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.PAUSE));
+		verify(commandPublisher).broadcast(new QueueCommandBean(EventConstants.SUBMISSION_QUEUE, Command.PAUSE_QUEUE));
 		verify(commandPublisher).close();
 		verifyNoMoreInteractions(commandPublisher);
 	}

@@ -70,14 +70,14 @@ public class AbstractPauseTest extends BrokerTest {
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(uri, EventConstants.CMD_TOPIC);
 		publisher.setStatusSetAddRequired(true);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getConsumerId(), Command.PAUSE);
+		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getConsumerId(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(200);
 
 		assertTrue(!consumer.isActive());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getConsumerId(), Command.RESUME);
+		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getConsumerId(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(100);
@@ -99,14 +99,14 @@ public class AbstractPauseTest extends BrokerTest {
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		publisher.setStatusSetAddRequired(true);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(200);
 
 		assertTrue(!consumer.isActive());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(100);
@@ -136,7 +136,7 @@ public class AbstractPauseTest extends BrokerTest {
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		publisher.setStatusSetAddRequired(true);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		// Now we are paused. Read the submission queue
@@ -164,7 +164,7 @@ public class AbstractPauseTest extends BrokerTest {
 		});
 
 		// Start the consumer again
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		// Resubmit in new order 4-1
@@ -207,7 +207,7 @@ public class AbstractPauseTest extends BrokerTest {
 		IPublisher<QueueCommandBean> publisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		publisher.setStatusSetAddRequired(true);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		publisher.broadcast(pauseBean);
 
 		Thread.sleep(500);
@@ -232,7 +232,7 @@ public class AbstractPauseTest extends BrokerTest {
 		assertTrue(!consumer.isActive());
 		assertEquals(2, consumer.getSubmissionQueue().size());
 
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
 		publisher.broadcast(resumeBean);
 
 		Thread.sleep(500);
@@ -264,9 +264,9 @@ public class AbstractPauseTest extends BrokerTest {
 		IPublisher<QueueCommandBean> commandPublisher = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
 		commandPublisher.setStatusSetAddRequired(true);
 
-		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE);
+		QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_QUEUE);
 		commandPublisher.broadcast(pauseBean);
-		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME);
+		QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_QUEUE);
 		commandPublisher.broadcast(resumeBean);
 
 		Thread.sleep(1200); // wait long enough for the first scan to finish

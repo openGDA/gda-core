@@ -259,7 +259,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		Thread.sleep(1000); // 10 points
 
 		IPublisher<QueueCommandBean> killer = eservice.createPublisher(submitter.getUri(), EventConstants.CMD_TOPIC);
-		QueueCommandBean kbean = new QueueCommandBean(consumer.getConsumerId(), Command.STOP);
+		QueueCommandBean kbean = new QueueCommandBean(consumer.getConsumerId(), Command.STOP_QUEUE);
 		killer.broadcast(kbean);
 
 		Thread.sleep(2500);

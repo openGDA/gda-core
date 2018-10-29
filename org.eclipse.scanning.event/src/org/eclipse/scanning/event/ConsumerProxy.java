@@ -95,7 +95,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public void clearQueue() throws EventException {
-		sendCommand(Command.CLEAR);
+		sendCommand(Command.CLEAR_QUEUE);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public boolean remove(U bean) throws EventException {
-		return sendCommand(Command.REMOVE, bean) == Boolean.TRUE;
+		return sendCommand(Command.REMOVE_FROM_QUEUE, bean) == Boolean.TRUE;
 	}
 
 	@Override
@@ -155,12 +155,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public void stop() throws EventException {
-		sendCommand(Command.STOP);
+		sendCommand(Command.STOP_QUEUE);
 	}
 
 	@Override
 	public void restart() throws EventException {
-		sendCommand(Command.RESTART);
+		sendCommand(Command.RESTART_QUEUE);
 	}
 
 	@Override
@@ -177,12 +177,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public void pause() throws EventException {
-		sendCommand(Command.PAUSE);
+		sendCommand(Command.PAUSE_QUEUE);
 	}
 
 	@Override
 	public void resume() throws EventException {
-		sendCommand(Command.RESUME);
+		sendCommand(Command.RESUME_QUEUE);
 	}
 
 	@Override

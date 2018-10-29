@@ -36,28 +36,28 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to pause the consumer if it is running.
 		 */
-		PAUSE,
+		PAUSE_QUEUE,
 
 		/**
 		 * A command to resume the consumer if it paused.
 		 */
-		RESUME,
+		RESUME_QUEUE,
 
 		/**
 		 * A command to stop the consumer. It is not possible to restart a consumer
 		 * that has been stopped.
 		 */
-		STOP,
+		STOP_QUEUE,
 
 		/**
 		 * A command to restart a running consumer.
 		 */
-		RESTART,
+		RESTART_QUEUE,
 
 		/**
 		 * A command to clear the queue of submitted jobs waiting to be run.
 		 */
-		CLEAR,
+		CLEAR_QUEUE,
 
 		/**
 		 * A command to clear the set of completed jobs.
@@ -79,7 +79,7 @@ public class QueueCommandBean  extends IdBean {
 		/**
 		 * A command to remove a bean from the submission queue.
 		 */
-		REMOVE,
+		REMOVE_FROM_QUEUE,
 
 		/**
 		 * A command to remove a bean from the set of completed jobs.

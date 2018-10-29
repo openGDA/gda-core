@@ -283,7 +283,7 @@ public class ConsumerView extends EventConnectionView {
 			}
 		}
 
-		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.STOP);
+		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.STOP_QUEUE);
 		commandBean.setMessage("Requesting a termination of " + bean.getConsumerName());
 
 		sendCommandBean(commandBean, bean.getConsumerName());
@@ -300,7 +300,7 @@ public class ConsumerView extends EventConnectionView {
 		if (!ok)
 			return;
 
-		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.RESTART);
+		final QueueCommandBean commandBean = new QueueCommandBean(bean.getConsumerId(), Command.RESTART_QUEUE);
 		commandBean.setMessage("Requesting a restart of " + bean.getConsumerName());
 		commandBean.setConsumerId(bean.getConsumerId());
 		sendCommandBean(commandBean, bean.getConsumerName());
