@@ -389,12 +389,6 @@
             name="gda.spring.propertyeditors">
          </package>
          <package
-            name="gda.spring.remoting">
-         </package>
-         <package
-            name="gda.spring.remoting.rmi">
-         </package>
-         <package
             name="gda.util">
          </package>
          <package
