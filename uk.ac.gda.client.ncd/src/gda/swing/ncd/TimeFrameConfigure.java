@@ -18,8 +18,6 @@
 
 package gda.swing.ncd;
 
-import gda.device.DeviceException;
-
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -44,6 +42,9 @@ import javax.swing.event.ChangeListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
 
 /**
  * An implementation of a panel for time-frame configuration.
@@ -97,7 +98,7 @@ public class TimeFrameConfigure extends JPanel implements ChangeListener {
 		JPanel panel;
 
 		String filter[] = { "dat", "txt" };
-		jf = new JFileChooser(System.getProperty("user.dir"));
+		jf = new JFileChooser(PathConstructor.getClientVisitDirectory());
 		jf.addChoosableFileFilter(new SimpleFileFilter(filter, "Data (*.dat, *.txt)"));
 
 		panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
