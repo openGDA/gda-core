@@ -201,6 +201,14 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			commandTopicSubscriber.disconnect();
 			commandTopicSubscriber = null;
 		}
+		if (commandAckTopicPublisher != null) {
+			commandAckTopicPublisher.disconnect();
+			commandAckTopicPublisher = null;
+		}
+		if (statusTopicSubscriber != null) {
+			statusTopicSubscriber.disconnect();
+			statusTopicSubscriber = null;
+		}
 		if (beanOverrideMap != null) {
 			beanOverrideMap.clear();
 		}
@@ -251,11 +259,20 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				case CLEAR_COMPLETED:
 					clearRunningAndCompleted();
 					break;
+				case PAUSE_JOB:
+					processManager.processJobCommand(commandBean);
+					break;
+				case RESUME_JOB:
+					processManager.processJobCommand(commandBean);
+					break;
+				case TERMINATE_JOB:
+					processManager.processJobCommand(commandBean);
+					break;
 				case MOVE_FORWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> moveForward(bean));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::moveForward);
 					break;
 				case MOVE_BACKWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), bean -> moveBackward(bean));
+					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::moveBackward);
 					break;
 				case REMOVE_FROM_QUEUE:
 					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
@@ -308,6 +325,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		connect();
 		start();
 	}
+
 
 	/**
 	 * Updates the given bean on the queue to have the same status as the one given.
@@ -753,10 +771,38 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (latchStart!=null) latchStart.await();
 	}
 
+	@Override
+	public synchronized void stop() throws EventException {
+		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
+
+		try {
+			if (heartbeatBroadcaster != null) {
+				heartbeatBroadcaster.stop();
+			}
+
+			setActive(false); // Stops consume loop
+
+			@SuppressWarnings("unchecked")
+			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
+					.toArray(new WeakReference[processMap.size()]);
+			for (WeakReference<IConsumerProcess<U>> wr : wra) {
+				if (wr.get() != null) {
+					terminateProcess(wr.get());
+				}
+			}
+			consumerThreadRunning = false;
+			fireStatusChangeListeners();
+		} finally {
+			processMap.clear();
+		}
+	}
+
+	private final ProcessManager processManager = new ProcessManager();
+
 	private void startProcessManager() throws EventException {
 		if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
 		statusTopicSubscriber = eventService.createSubscriber(uri, getStatusTopicName());
-		statusTopicSubscriber.addListener(new ProcessManager());
+		statusTopicSubscriber.addListener(processManager);
 	}
 
 	/**
@@ -765,6 +811,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * and performs the appropriate action
 	 */
 	protected class ProcessManager implements IBeanListener<U> {
+
+		// TODO make this a constant
+		private final Map<Command, Status> commandToStatusMap;
+
+		ProcessManager() {
+			commandToStatusMap = new HashMap<>();
+			commandToStatusMap.put(Command.PAUSE_JOB, Status.REQUEST_PAUSE);
+			commandToStatusMap.put(Command.RESUME_JOB, Status.REQUEST_RESUME);
+			commandToStatusMap.put(Command.TERMINATE_JOB, Status.REQUEST_TERMINATE);
+		}
+
 		@Override
 		public void beanChangePerformed(BeanEvent<U> evt) {
 			U bean = evt.getBean();
@@ -798,32 +855,57 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				process.resume();
 			}
 		}
-	}
 
-	@Override
-	public synchronized void stop() throws EventException {
-		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
+		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
+			final Command command = commandBean.getCommand();
+			final String uniqueId = commandBean.getBeanUniqueId();
+			final Optional<U> optBean = findBean(uniqueId);
 
-		try {
-			if (heartbeatBroadcaster != null) {
-				heartbeatBroadcaster.stop();
-			}
-
-			setActive(false); // Stops consume loop
-
-			@SuppressWarnings("unchecked")
-			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
-					.toArray(new WeakReference[processMap.size()]);
-			for (WeakReference<IConsumerProcess<U>> wr : wra) {
-				if (wr.get() != null) {
-					terminateProcess(wr.get());
+			if (optBean.isPresent()) {
+				updateStatusAndPublish(optBean.get(), command);
+				final WeakReference<IConsumerProcess<U>> ref = processMap.get(uniqueId);
+				if (ref != null) {
+					manageProcess(ref.get(), command);
+				} else {
+					updateQueue(optBean.get());
 				}
 			}
-			consumerThreadRunning = false;
-			fireStatusChangeListeners();
-		} finally {
-			processMap.clear();
 		}
+
+		private Optional<U> findBean(String uniqueId) throws EventException {
+			final WeakReference<IConsumerProcess<U>> ref = processMap.get(uniqueId);
+			if (ref == null) {
+				return findBeanWithId(getSubmissionQueue(), uniqueId);
+			} else if (ref.get() != null) {
+				return Optional.ofNullable(ref.get().getBean());
+			}
+			return Optional.empty();
+		}
+
+		private void manageProcess(IConsumerProcess<U> process, Command command) throws EventException {
+			switch (command) {
+				case PAUSE_JOB:
+					process.pause();
+					break;
+				case RESUME_JOB:
+					process.resume();
+					break;
+				case TERMINATE_JOB:
+					process.terminate();
+					break;
+				default:
+					throw new IllegalArgumentException("Not a process command: " + command);
+			}
+		}
+
+		private void updateStatusAndPublish(U bean, Command command) throws EventException {
+			// TODO: does it work ok without setting the request status?
+			Status requestStatus = commandToStatusMap.get(command);
+			if (requestStatus == null) throw new IllegalArgumentException("Not a process command " + command);
+			bean.setStatus(requestStatus);
+			statusTopicPublisher.broadcast(bean);
+		}
+
 	}
 
 	private void terminateProcess(IConsumerProcess<U> process) throws EventException {
