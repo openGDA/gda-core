@@ -46,6 +46,8 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 
 	private final Set<IAxisMoveListener> axisMoveListeners = new HashSet<>(4);
 
+	private double[] colorRange;
+
 	public LiveStreamPlottable(LiveStreamConnection connection) {
 		this.connection = connection;
 	}
@@ -153,6 +155,16 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 		for (IAxisMoveListener axisMoveListener : axisMoveListeners) {
 			axisMoveListener.axisMoved();
 		}
+	}
+
+	@Override
+	public void setColorRange(double[] range) {
+		colorRange = range;
+	}
+
+	@Override
+	public double[] getColorRange() {
+		return colorRange;
 	}
 
 }
