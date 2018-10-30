@@ -41,7 +41,9 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(INcdSubDetector.class)
 public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvider {
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusDetector.class);
 	private String nexusFileUrl = null;

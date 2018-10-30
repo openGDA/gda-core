@@ -35,7 +35,9 @@ import gda.device.DeviceException;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(INcdSubDetector.class)
 public class NcdMarDetector extends NcdSubDetector implements LastImageProvider {
 
 	String marName;

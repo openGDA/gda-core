@@ -41,12 +41,14 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.ScanInformation;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
 /**
  * the update method has some device specific code to flag errors when triggering (gating) is attempted
  * outside the detector's capabilities
  */
+@ServiceInterface(INcdSubDetector.class)
 public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IObserver, LastImageProvider {
 
 	// Setup the logging facilities

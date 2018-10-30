@@ -30,11 +30,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This detector handles the special case of the times detector that does not need to be started/stopped and records its
  * data into other detector's sections.
  */
+@ServiceInterface(INcdSubDetector.class)
 public class NcdTimesDetector extends NcdWireDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdTimesDetector.class);

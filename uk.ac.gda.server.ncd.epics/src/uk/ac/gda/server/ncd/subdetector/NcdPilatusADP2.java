@@ -23,10 +23,13 @@ import gda.device.DeviceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.api.remoting.ServiceInterface;
+
 /**
  * This class is for the P2 2M (30Hz)
  * ideally the different timing requirements could be configured in spring
  */
+@ServiceInterface(INcdSubDetector.class)
 public class NcdPilatusADP2 extends NcdPilatusAD {
 
 	@SuppressWarnings("unused")
