@@ -22,6 +22,7 @@ package gda.device.enumpositioner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.python.core.PyString;
 import org.slf4j.Logger;
@@ -179,14 +180,13 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 		}
 	}
 
-	protected String createFormattedListAcceptablePositions() throws DeviceException {
-		String[] posLables = getPositions();
-		String rr = "(";
-		for (String s : posLables) {
-			rr += "'" + s + "' ";
-		}
-		rr = rr.trim() + ")";
-		return rr;
+	/**
+	 * Formats the available positions into a list e.g ('pos1' 'pos2' 'pos3')
+	 *
+	 * @return formatted positions list
+	 */
+	protected String createFormattedListAcceptablePositions() {
+		return getPositionsList().stream().collect(Collectors.joining("' '", "('", "')"));
 	}
 
 }
