@@ -19,6 +19,8 @@
 package gda.jython.server.shell;
 
 import static java.util.Objects.requireNonNull;
+import static org.jline.keymap.KeyMap.alt;
+import static org.jline.keymap.KeyMap.ctrl;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -215,7 +217,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private void setupKeybindings() {
 		KeyMap<Binding> mainKeyMap = read.getKeyMaps().get(LineReader.MAIN);
 		// Ctrl-space autocompletes
-		mainKeyMap.bind(new Reference(LineReader.MENU_COMPLETE), KeyMap.ctrl(' '));
+		mainKeyMap.bind(new Reference(LineReader.MENU_COMPLETE), ctrl(' '));
 
 		// Ctrl-up/down should scroll through history. If each 'line' of history is multiple lines,
 		// scrolling one at a time is not ideal.
@@ -223,7 +225,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		mainKeyMap.bind(new Reference(LineReader.DOWN_HISTORY), "\033[1;5B"); // ctrl-down
 
 		// Alt-Enter should accept the full buffer even if the cursor is part way through
-		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), KeyMap.alt('\n'));
+		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt(ctrl('M')));
+		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt('\n'));
 		read.getWidgets().put(ACCEPT_BUFFER, this::acceptBuffer);
 	}
 
