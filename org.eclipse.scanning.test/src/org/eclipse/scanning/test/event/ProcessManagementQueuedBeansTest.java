@@ -126,13 +126,13 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	@After
 	public void tearDown() throws Exception {
+		processFactory.releaseInitialProcess();
+
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
 
 		submitter.disconnect();
 		consumer.disconnect();
-
-		processFactory.releaseInitialProcess();
 	}
 
 	/**
@@ -173,6 +173,21 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 	}
 
 	@Test
+	public void testPauseQueuedOld() throws Exception {
+		testUpdateQueuedBeanStatusOld(Status.REQUEST_PAUSE);
+	}
+
+	@Test
+	public void testResumeQueuedOld() throws Exception {
+		testUpdateQueuedBeanStatusOld(Status.REQUEST_RESUME);
+	}
+
+	@Test
+	public void testTerminatePausedOld() throws Exception {
+		testUpdateQueuedBeanStatusOld(Status.REQUEST_TERMINATE);
+	}
+
+	@Test
 	public void testPauseQueued() throws Exception {
 		testUpdateQueuedBeanStatus(Status.REQUEST_PAUSE);
 	}
@@ -187,6 +202,22 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		testUpdateQueuedBeanStatus(Status.REQUEST_TERMINATE);
 	}
 
+	private void testUpdateQueuedBeanStatusOld(Status newStatus) throws Exception {
+		// TODO remove this old test - it uses the status topic to broadcast the event
+		createAndSubmitBeans();
+
+		List<StatusBean> queue = consumer.getSubmissionQueue();
+		assertThat(queue, hasSize(3));
+
+		StatusBean beanTwo = queue.get(1);
+		beanTwo.setStatus(newStatus);
+		publisher.broadcast(beanTwo);
+
+		Thread.sleep(200); // allow some time for the update to be processed
+		queue = consumer.getSubmissionQueue();
+		assertThat(queue.get(1), is(equalTo(beanTwo)));
+	}
+
 	private void testUpdateQueuedBeanStatus(Status newStatus) throws Exception {
 		createAndSubmitBeans();
 
@@ -197,7 +228,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		beanTwo.setStatus(newStatus);
 		publisher.broadcast(beanTwo);
 
-		Thread.sleep(100); // allow some time for the update to be processed
+		Thread.sleep(200); // allow some time for the update to be processed
 		queue = consumer.getSubmissionQueue();
 		assertThat(queue.get(1), is(equalTo(beanTwo)));
 	}

@@ -65,6 +65,21 @@ public class QueueCommandBean  extends IdBean {
 		CLEAR_COMPLETED,
 
 		/**
+		 * A command to pause the job for a bean.
+		 */
+		PAUSE_JOB,
+
+		/**
+		 * A command to resume the job for a bean.
+		 */
+		RESUME_JOB,
+
+		/**
+		 * A command to terminate the job for a bean.
+		 */
+		TERMINATE_JOB,
+
+		/**
 		 * A command to move a bean one place toward the head of the submission queue, i.e.
 		 * it will be executed earlier.
 		 */
