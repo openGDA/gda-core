@@ -31,11 +31,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -833,9 +831,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	}
 
 	@Override
-	public Set<String> getAvailableAxes() throws ScanningException {
+	public List<String> getAvailableAxes() throws ScanningException {
 		final String[] axesArray = getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		return new HashSet<>(Arrays.asList(axesArray));
+		return Arrays.asList(axesArray);
 	}
 
 	@Override

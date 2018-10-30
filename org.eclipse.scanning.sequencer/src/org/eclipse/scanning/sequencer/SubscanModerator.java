@@ -14,7 +14,6 @@ package org.eclipse.scanning.sequencer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
@@ -93,7 +92,7 @@ public class SubscanModerator {
 		this.outer = new ArrayList<>();
 		this.inner = new ArrayList<>();
 
-		final Set<String> axes = getAxes(detectors);
+		final List<String> axes = getAxes(detectors);
 		boolean reachedOuterScan = false;
 		for (int i = orig.size()-1; i > -1; i--) {
 			Object model = orig.get(i);
@@ -128,21 +127,21 @@ public class SubscanModerator {
 		this.outerIterable = gservice.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, outer));
 	}
 
-	private Set<String> getAxes(List<IRunnableDevice<?>> detectors) throws ScanningException {
+	private List<String> getAxes(List<IRunnableDevice<?>> detectors) throws ScanningException {
 		try {
 			return detectors.stream()
 					.filter(IMalcolmDevice.class::isInstance)
 					.map(IMalcolmDevice.class::cast)
 					.findFirst()
 					.map(this::getAxesToMove)
-					.orElse(Collections.emptySet());
+					.orElse(Collections.emptyList());
 		} catch (RuntimeException e) {
 			if (e.getCause() instanceof ScanningException) throw (ScanningException) e.getCause();
 			throw e;
 		}
 	}
 
-	private Set<String> getAxesToMove(IMalcolmDevice<?> malc) {
+	private List<String> getAxesToMove(IMalcolmDevice<?> malc) {
 		try {
 			return malc.getAvailableAxes();
 		} catch (ScanningException e) {
