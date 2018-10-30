@@ -32,10 +32,12 @@ import gda.device.Timer;
 import gda.device.TimerStatus;
 import gda.device.detector.DAServer;
 import gda.factory.Finder;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
+@ServiceInterface(Timer.class)
 public class Tfg extends DeviceBase implements Timer {
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
 

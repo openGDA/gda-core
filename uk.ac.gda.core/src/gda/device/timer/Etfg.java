@@ -25,11 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Timer;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A timer class for the VME time frame generator (Version 2) card implemented using DA.Server
  * Extended Tfg.  Tfg is the original hardware.
  */
+@ServiceInterface(Timer.class)
 public class Etfg extends Tfg {
 	public static final String START_METHOD = "Start-Method";
 	public static final String DEBOUNCE = "Debounce";
