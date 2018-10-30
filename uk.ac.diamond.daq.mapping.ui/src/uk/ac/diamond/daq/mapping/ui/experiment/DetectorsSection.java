@@ -237,8 +237,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		try {
 			// get the axesToMove from the malcolm device
 			final MappingStageInfo stageInfo = getEclipseContext().get(MappingStageInfo.class);
-			final Set<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
-			final List<String> malcolmAxesList = new ArrayList<>(malcolmAxes); // can convert to list as iteration order is predictable
+			final List<String> malcolmAxes = getMalcolmDeviceAxes(deviceName);
 
 			// only update the mapping stage if the malcolm device is configured to move at least two axes.
 			if (malcolmAxes.size() < 2) return;
@@ -249,15 +248,15 @@ public class DetectorsSection extends AbstractMappingSection {
 			boolean updatedFastAndSlowAxes = false;
 			if (!malcolmAxes.contains(stageInfo.getActiveFastScanAxis()) || !malcolmAxes.contains(stageInfo.getActiveSlowScanAxis())) {
 				// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
-				stageInfo.setActiveFastScanAxis(malcolmAxesList.get(0));
-				stageInfo.setActiveSlowScanAxis(malcolmAxesList.get(1));
+				stageInfo.setActiveFastScanAxis(malcolmAxes.get(0));
+				stageInfo.setActiveSlowScanAxis(malcolmAxes.get(1));
 				updatedFastAndSlowAxes = true;
 			}
 
 			boolean updatedAssociatedAxes = false;
 			if (malcolmAxes.size() > 2 && !malcolmAxes.contains(stageInfo.getAssociatedAxis())) {
 				// for a 3+ dimension malcolm device, we can set the z-axis as well
-				stageInfo.setAssociatedAxis(malcolmAxesList.get(2));
+				stageInfo.setAssociatedAxis(malcolmAxes.get(2));
 				updatedAssociatedAxes = true;
 			}
 
@@ -288,7 +287,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		}
 	}
 
-	private Set<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
+	private List<String> getMalcolmDeviceAxes(final String malcolmDeviceName) throws ScanningException, EventException {
 		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
 		if (!(runnableDevice instanceof IMalcolmDevice)) {
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
