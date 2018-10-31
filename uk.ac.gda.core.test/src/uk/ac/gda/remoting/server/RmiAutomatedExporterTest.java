@@ -19,6 +19,7 @@
 package uk.ac.gda.remoting.server;
 
 import static gda.factory.corba.util.EventService.USE_JMS_EVENTS;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -43,11 +44,12 @@ import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Findable;
-import gda.factory.FindableBase;
+import gda.jython.accesscontrol.RbacUtils;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -74,6 +76,7 @@ public class RmiAutomatedExporterTest {
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
+		LocalProperties.set(LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
 	}
 
 	@Before
@@ -118,6 +121,21 @@ public class RmiAutomatedExporterTest {
 		assertExportedInterface("testObj", Scannable.class);
 	}
 
+	@Test
+	public void testRbacWrappedExport() throws Exception {
+		Map<String, Findable> objects = new HashMap<>();
+		Findable findable = new TestScannable("testRbacObj");
+		Findable wrapped = RbacUtils.wrapFindableWithInterceptor(findable);
+		assertThat("Wrapped findable should be wrapped", RbacUtils.objectIsCglibProxy(wrapped));
+		objects.put("testRbacObj", wrapped);
+		when(appContext.getBeansOfType(Findable.class)).thenReturn(objects);
+
+		rmiAutoExporter.setApplicationContext(appContext);
+		rmiAutoExporter.afterPropertiesSet();
+
+		assertExported("testRbacObj");
+	}
+
 	@Test(expected=NotBoundException.class) // Should throw to indicate the object is not exported
 	public void testObjectsWithoutServiceInterfaceAreNotExported() throws Exception {
 		Map<String, Findable> objects = new HashMap<>();
@@ -128,6 +146,21 @@ public class RmiAutomatedExporterTest {
 		rmiAutoExporter.afterPropertiesSet();
 
 		assertExported("testObj");
+	}
+
+	@Test(expected=NotBoundException.class) // Should throw to indicate the object is not exported
+	public void testRbacWrappedExportWithoutServiceInterface() throws Exception {
+		Map<String, Findable> objects = new HashMap<>();
+		TestFindableWithoutServiceInterface findable = new TestFindableWithoutServiceInterface("testRbacObj");
+		Findable wrapped = RbacUtils.wrapFindableWithInterceptor(findable);
+		assertThat("Wrapped findable should be wrapped", RbacUtils.objectIsCglibProxy(wrapped));
+		objects.put("testRbacObj", wrapped);
+		when(appContext.getBeansOfType(Findable.class)).thenReturn(objects);
+
+		rmiAutoExporter.setApplicationContext(appContext);
+		rmiAutoExporter.afterPropertiesSet();
+
+		assertExported("testRbacObj");
 	}
 
 	@Test(expected=NotBoundException.class) // Should throw to indicate the object is not exported
@@ -155,9 +188,12 @@ public class RmiAutomatedExporterTest {
 	}
 
 	@ServiceInterface(Scannable.class)
-	private class TestScannable extends ScannableBase {
+	private static class TestScannable extends ScannableBase {
 		private String name;
 
+		public TestScannable() { // Needed by RBAC
+			this("testScannable");
+		}
 		public TestScannable(String name) {
 			this.name = name;
 		}
@@ -178,7 +214,10 @@ public class RmiAutomatedExporterTest {
 		}
 	}
 
-	private class TestFindableWithoutServiceInterface extends FindableBase {
+	private static class TestFindableWithoutServiceInterface extends DeviceBase {
+		public TestFindableWithoutServiceInterface() { // Needed by RBAC
+			this("testFindable");
+		}
 		public TestFindableWithoutServiceInterface(String name) {
 			setName(name);
 		}
