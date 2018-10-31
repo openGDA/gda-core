@@ -210,7 +210,11 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	private boolean isLocal(Entry<String, Findable> entry) {
 		final Findable bean = entry.getValue();
 		if (bean instanceof Localizable) {
-			return ((Localizable) bean).isLocal();
+			final boolean local = ((Localizable) bean).isLocal();
+			if(local) {
+				logger.trace("'{}' not exported as it is local", entry.getKey());
+			}
+			return local;
 		}
 		return false;
 	}
