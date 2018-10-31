@@ -20,11 +20,13 @@
 package gda.jython.batoncontrol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -36,6 +38,7 @@ import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.device.DeviceException;
+import gda.jython.IJythonServerNotifer;
 import gda.jython.InterfaceProvider;
 
 /**
@@ -317,13 +320,8 @@ public class BatonManager implements IBatonManager {
 		this.batonHolder = uniqueIdentifier;
 
 		if (!uniqueIdentifier.equals("")) {
-			//log any change
-			if (!uniqueIdentifier.equals(batonHolder)){
-				logger.info("Baton now held by " + getClientInfo(uniqueIdentifier).getUserID());
-			}
 			changeUserIDDefinedMetadata(uniqueIdentifier);
 		}
-
 		notifyServerOfBatonChange();
 	}
 
@@ -331,6 +329,7 @@ public class BatonManager implements IBatonManager {
 		// refresh the pieces of metadata which holds the current visit id and username
 		try {
 			Metadata metadata = GDAMetadataProvider.getInstance();
+			logger.trace("changeUserIDDefinedMetadata({}) called with metadata={}", uniqueIdentifier, metadata);
 			if (metadata != null) {
 
 				String currentUser = getClientInfo(uniqueIdentifier).getUserID();
@@ -370,6 +369,7 @@ public class BatonManager implements IBatonManager {
 					}
 				}
 			}
+			logger.trace("changeUserIDDefinedMetadata({}) completed with metadata={}", uniqueIdentifier, metadata);
 		} catch (Exception e) {
 			logger.warn("Exception while changing the username stored in metadata. This could cause problems with data collection", e);
 		}
@@ -440,8 +440,14 @@ public class BatonManager implements IBatonManager {
 
 	private void notifyServerOfBatonChange() {
 		// during object server startup, this may come back null
-		if (InterfaceProvider.getJythonServerNotifer() != null) {
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonChanged());
+		final IJythonServerNotifer jythonServerNotifer = InterfaceProvider.getJythonServerNotifer();
+		if (logger.isDebugEnabled()) {
+			logger.debug("notifyServerOfBatonChange() called when jythonServerNotifer={}, called from {} (abridged)",
+					jythonServerNotifer,
+					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
+		}
+		if (jythonServerNotifer != null) {
+			jythonServerNotifer.notifyServer(this, new BatonChanged());
 		}
 	}
 
