@@ -857,8 +857,14 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
-			final Command command = commandBean.getCommand();
-			final String uniqueId = commandBean.getBeanUniqueId();
+			processJobCommand(commandBean.getBeanUniqueId(), commandBean.getCommand());
+		}
+
+		public void processJobCommand(U bean, Command command) throws EventException {
+			processJobCommand(bean.getUniqueId(), command);
+		}
+
+		private void processJobCommand(String uniqueId, Command command) throws EventException {
 			final Optional<U> optBean = findBean(uniqueId);
 
 			if (optBean.isPresent()) {
@@ -1302,6 +1308,21 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		LOGGER.info("Consumer for queue {} successfully created connection to ActiveMQ using uri {}.", getName(), uri);
 
 		return consumer;
+	}
+
+	@Override
+	public void pauseJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.PAUSE_JOB);
+	}
+
+	@Override
+	public void resumeJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.RESUME_JOB);
+	}
+
+	@Override
+	public void terminateJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.TERMINATE_JOB);
 	}
 
 	@Override

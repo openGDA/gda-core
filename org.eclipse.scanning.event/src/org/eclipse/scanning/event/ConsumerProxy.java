@@ -197,6 +197,21 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
+	public void pauseJob(U bean) throws EventException {
+		sendCommand(Command.PAUSE_JOB, bean);
+	}
+
+	@Override
+	public void resumeJob(U bean) throws EventException {
+		sendCommand(Command.RESUME_JOB, bean);
+	}
+
+	@Override
+	public void terminateJob(U bean) throws EventException {
+		sendCommand(Command.TERMINATE_JOB, bean);
+	}
+
+	@Override
 	public IProcessCreator<U> getRunner() {
 		// Cannot get the runner from a proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
