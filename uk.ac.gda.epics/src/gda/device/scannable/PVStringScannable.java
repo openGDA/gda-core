@@ -19,13 +19,16 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Version of PVScannable which returns a string. TODO new versions of these classes using LazyPVFactory should be
  * written some time
  */
+@ServiceInterface(Scannable.class)
 public class PVStringScannable extends PVScannable {
 
 	public PVStringScannable() {
