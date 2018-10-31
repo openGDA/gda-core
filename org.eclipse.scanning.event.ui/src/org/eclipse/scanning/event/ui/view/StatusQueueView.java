@@ -57,7 +57,6 @@ import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
 import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.queues.QueueViews;
@@ -139,7 +138,6 @@ public class StatusQueueView extends EventConnectionView {
 	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminTopicSubscriber;
 	private ISubmitter<StatusBean> submitter;
-	private IPublisher<StatusBean> statusTopicPublisher;
 	private IConsumer<StatusBean> consumerProxy;
 
 	private Action openResultsAction;
@@ -199,13 +197,6 @@ public class StatusQueueView extends EventConnectionView {
 		} catch (Exception e) {
 			logger.error("Cannot listen to topic of command server!", e);
 		}
-
-		try {
-			statusTopicPublisher = service.createPublisher(new URI(Activator.getJmsUri()), EventConstants.STATUS_TOPIC);
-		} catch (Exception e) {
-			logger.error("Cannot create publisher to status topic", e);
-		}
-
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
 		getViewSite().setSelectionProvider(selectionProvider);
@@ -315,11 +306,6 @@ public class StatusQueueView extends EventConnectionView {
 			if (adminTopicSubscriber!=null) adminTopicSubscriber.disconnect();
 		} catch (Exception ne) {
 			logger.warn("Problem stopping topic listening for "+getTopicName(), ne);
-		}
-		try {
-			if (statusTopicPublisher != null) statusTopicPublisher.disconnect();
-		} catch (Exception e) {
-			logger.warn("Problem disconnecting publisher from status topic", e);
 		}
 		try {
 			if (consumerProxy != null) consumerProxy.disconnect();
@@ -569,14 +555,10 @@ public class StatusQueueView extends EventConnectionView {
 
 			try {
 				if (bean.getStatus().isPaused()) {
-					bean.setStatus(org.eclipse.scanning.api.event.status.Status.REQUEST_RESUME);
-					bean.setMessage("Resume of "+bean.getName());
+					consumerProxy.resumeJob(bean);
 				} else {
-					bean.setStatus(org.eclipse.scanning.api.event.status.Status.REQUEST_PAUSE);
-					bean.setMessage("Pause of "+bean.getName());
+					consumerProxy.pauseJob(bean);
 				}
-
-				statusTopicPublisher.broadcast(bean);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
 					"Cannot pause "+bean.getName()+"\n\nPlease contact your support representative.",
@@ -657,10 +639,7 @@ public class StatusQueueView extends EventConnectionView {
 
 				if (!ok) continue;
 
-				bean.setStatus(org.eclipse.scanning.api.event.status.Status.REQUEST_TERMINATE);
-				bean.setMessage("Termination of "+bean.getName());
-
-				statusTopicPublisher.broadcast(bean);
+				consumerProxy.terminateJob(bean);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot terminate "+bean.getName(), "Cannot terminate "+bean.getName()+"\n\nPlease contact your support representative.",
 						new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
