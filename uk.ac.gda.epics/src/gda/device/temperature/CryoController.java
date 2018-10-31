@@ -120,6 +120,7 @@ public class CryoController extends DeviceBase implements InitializationListener
 	private double currtemp;
 	private String connState = "Disabled";
 	private String deviceName = null;
+	private String pvRoot = null;
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
 
@@ -156,6 +157,9 @@ public class CryoController extends DeviceBase implements InitializationListener
 					throw new FactoryException("Missing EPICS XML configuration for CryoController "
 							+ getDeviceName());
 				}
+			} else if (getPvRoot() != null) {
+				createChannelAccess(getPvRoot());
+				channelManager.tryInitialize(100);
 			}
 			// Nothing specified in Server XML file
 			else {
@@ -215,11 +219,43 @@ public class CryoController extends DeviceBase implements InitializationListener
 			disable=channelManager.createChannel(config.getDISABLE().getPv(), connlist, false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create reuqired channels for " + getName(), th);
+		} catch (Exception ex) {
+			throw new FactoryException("failed to create required channels for " + getName(), ex);
 		}
 	}
 
+	private void createChannelAccess(String pvRoot) throws FactoryException {
+		try {
+			restart		= channelManager.createChannel(pvRoot + ":RESTART", false);
+			resume		= channelManager.createChannel(pvRoot + ":RESUME", false);
+			pause		= channelManager.createChannel(pvRoot + ":PAUSE", false);
+			stop		= channelManager.createChannel(pvRoot + ":STOP", false);
+			ctemp		= channelManager.createChannel(pvRoot + ":CTEMP", false);
+			cool		= channelManager.createChannel(pvRoot + ":COOL", false);
+			hold		= channelManager.createChannel(pvRoot + ":HOLD", false);
+			purge		= channelManager.createChannel(pvRoot + ":PURGE", false);
+			ramp		= channelManager.createChannel(pvRoot + ":RAMP", false);
+			rrate		= channelManager.createChannel(pvRoot + ":RRATE", false);
+			rtemp		= channelManager.createChannel(pvRoot + ":RTEMP", false);
+			plat		= channelManager.createChannel(pvRoot + ":PLAT", false);
+			ptime		= channelManager.createChannel(pvRoot + ":PTIME", false);
+			phase		= channelManager.createChannel(pvRoot + ":PHASE", false);
+			runmode		= channelManager.createChannel(pvRoot + ":RUNMODE", false);
+			ramprate	= channelManager.createChannel(pvRoot + ":RAMPRATE", false);
+			targettemp	= channelManager.createChannel(pvRoot + ":TARGETTEMP",false);
+			remaining	= channelManager.createChannel(pvRoot + ":REMAINING", false);
+			runtime		= channelManager.createChannel(pvRoot + ":RUNTIME", false);
+			temp		= channelManager.createChannel(pvRoot + ":TEMP", false);
+			alarm		= channelManager.createChannel(pvRoot + ":ALARM.VALA", false);
+			end			= channelManager.createChannel(pvRoot + ":END", false);
+			disable		= channelManager.createChannel(pvRoot + ":DISABLE", connlist, false);
+			// acknowledge that creation phase is completed
+			channelManager.creationPhaseCompleted();
+		} catch (Exception ex) {
+			logger.error("createChannelAccess({}) failed for {}: ", pvRoot, getName(), ex);
+			throw new FactoryException("failed to create required channels for " + getName() + " using " + pvRoot, ex);
+		}
+	}
 	/**
 	 * switches the Cryostream on, executing the start-up phase or current Phase Table. It is also used to re-start the
 	 * control program after it has been halted.
@@ -626,6 +662,15 @@ public class CryoController extends DeviceBase implements InitializationListener
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
+
+	public String getPvRoot() {
+		return pvRoot;
+	}
+
+	public void setPvRoot(String pvRoot) {
+		this.pvRoot = pvRoot;
+	}
+
 	/**
 	 * check if the hardware is connected in EPICS
 	 * @return True or False

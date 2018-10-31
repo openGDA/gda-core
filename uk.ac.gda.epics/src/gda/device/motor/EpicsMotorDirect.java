@@ -17,6 +17,10 @@
  */
 
 package gda.device.motor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.MotorException;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.factory.FactoryException;
 /**
@@ -27,6 +31,8 @@ import gda.factory.FactoryException;
  * significant error recovery code.
  */
 public class EpicsMotorDirect extends EpicsMotor {
+
+	private static final Logger logger = LoggerFactory.getLogger(EpicsMotorDirect.class);
 
 	private String pvNameDirect;
 
@@ -75,4 +81,15 @@ public class EpicsMotorDirect extends EpicsMotor {
 		}
 	}
 
+	@Override
+	public void setSpeed(double mmPerSec) throws MotorException {
+		logger.warn("setSpeed({}) on {} - EpicsMotorDirect devices ignore speed", mmPerSec, getName());
+		super.setSpeed(mmPerSec);
+	}
+
+	@Override
+	public double getSpeed() throws MotorException {
+		logger.warn("getSpeed() on {} - EpicsMotorDirect devices ignore speed", getName());
+		return super.getSpeed();
+	}
 }
