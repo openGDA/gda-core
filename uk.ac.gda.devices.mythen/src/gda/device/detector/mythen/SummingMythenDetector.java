@@ -29,11 +29,14 @@ import org.slf4j.LoggerFactory;
 
 import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
+import gda.device.detector.Mythen;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
 import gda.device.detector.mythen.data.MythenSum;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(Mythen.class)
 public class SummingMythenDetector extends MythenDetectorImpl {
 
 	private static final Logger logger = LoggerFactory.getLogger(SummingMythenDetector.class);

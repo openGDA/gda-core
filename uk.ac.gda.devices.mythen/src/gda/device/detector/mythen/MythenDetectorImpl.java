@@ -56,18 +56,15 @@ import gda.device.scannable.ScannableUtils;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Implementation of the GDA Mythen interface.
  */
+@ServiceInterface(Mythen.class)
 public class MythenDetectorImpl extends DetectorBase implements Mythen, InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(MythenDetectorImpl.class);
-
-	@Override
-	public boolean isLocal() {
-		return true;
-	}
 
 	/**
 	 * Exposure time in seconds.

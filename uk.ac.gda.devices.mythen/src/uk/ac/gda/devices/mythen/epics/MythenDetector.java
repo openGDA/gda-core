@@ -18,16 +18,6 @@
 
 package uk.ac.gda.devices.mythen.epics;
 
-import gda.data.fileregistrar.FileRegistrarHelper;
-import gda.device.DeviceException;
-import gda.device.detector.mythen.MythenDetectorImpl;
-import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
-import gda.device.detector.mythen.data.MythenProcessedDataset;
-import gda.device.detector.mythen.data.MythenRawDataset;
-import gda.device.detector.mythen.tasks.DataProcessingTask;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,12 +27,23 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.fileregistrar.FileRegistrarHelper;
+import gda.device.DeviceException;
+import gda.device.detector.mythen.MythenDetectorImpl;
+import gda.device.detector.mythen.data.MythenDataFileUtils.FileType;
+import gda.device.detector.mythen.data.MythenProcessedDataset;
+import gda.device.detector.mythen.data.MythenRawDataset;
+import gda.device.detector.mythen.tasks.DataProcessingTask;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.mythen.epics.MythenEpicsClient.Setting;
 
 /**
- * Mythen detector (version 3) that uses EPICS client to acquire data from the detector. 
+ * Mythen detector (version 3) that uses EPICS client to acquire data from the detector.
  * Note that Mythen 3 API is different from Mythen 2 API so this class is not backward compatible.
  */
+@ServiceInterface(IMythenDetector.class)
 public class MythenDetector extends MythenDetectorImpl implements IMythenDetector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MythenDetector.class);

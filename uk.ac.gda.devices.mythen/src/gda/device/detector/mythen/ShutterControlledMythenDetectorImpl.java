@@ -23,9 +23,12 @@ import static gda.device.detector.mythen.client.Trigger.SINGLE;
 import java.util.concurrent.FutureTask;
 
 import gda.device.DeviceException;
+import gda.device.detector.Mythen;
 import gda.device.detector.mythen.client.AcquisitionParameters;
 import gda.device.detector.mythen.tasks.ScanTask;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(Mythen.class)
 public class ShutterControlledMythenDetectorImpl extends MythenDetectorImpl {
 
 	private ScanTask openShutterTask;

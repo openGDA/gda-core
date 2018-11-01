@@ -22,10 +22,13 @@ import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.device.detector.Mythen;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.mythen.data.MythenRawDataset;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(Mythen.class)
 public class MythenNexusImpl extends MythenDetectorImpl implements NexusDetector {
 	
 	
