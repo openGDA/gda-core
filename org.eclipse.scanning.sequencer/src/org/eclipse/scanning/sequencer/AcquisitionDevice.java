@@ -213,16 +213,16 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		nexusScanFileManager.createNexusFile(Boolean.getBoolean("org.eclipse.scanning.sequencer.nexus.async"));
 
 		// create the runners and writers
-		if (model.getDetectors()!=null) {
+		if (model.getDetectors().isEmpty()) {
+			runners = LevelRunner.createEmptyRunner();
+			writers = LevelRunner.createEmptyRunner();
+		} else {
 			runners = new DeviceRunner(this, model.getDetectors());
 			if (nexusScanFileManager.isNexusWritingEnabled()) {
 				writers = new DeviceWriter(this, model.getDetectors());
 			} else {
 				writers = LevelRunner.createEmptyRunner();
 			}
-		} else {
-			runners = LevelRunner.createEmptyRunner();
-			writers = LevelRunner.createEmptyRunner();
 		}
 
 		// notify that the device is now armed
@@ -722,14 +722,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		getScanBean().setPreviousStatus(getScanBean().getStatus());
 		getScanBean().setStatus(Status.PAUSED);
 		setDeviceState(DeviceState.SEEKING);
-		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
+		for (IRunnableDevice<?> device : getModel().getDetectors()) {
 			DeviceState currentState = device.getDeviceState();
 			if (currentState.isRunning()) {
 				if (device instanceof IPausableDevice) {
-					((IPausableDevice<?>)device).pause();
+					((IPausableDevice<?>) device).pause();
 				}
 			} else {
-				logger.info("Device {} wasn't running to pause. Was ", device.getName(), currentState);
+				logger.info("Device {} wasn't running to pause. Was {}", device.getName(), currentState);
 			}
 		}
 		setDeviceState(DeviceState.PAUSED);
@@ -745,14 +745,14 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void seekInternal(int stepNumber) throws ScanningException, InterruptedException {
-
 		if (stepNumber<0) throw new ScanningException("Seek position is invalid "+stepNumber);
 		if (stepNumber>location.getTotalSize()) throw new ScanningException("Seek position is invalid "+stepNumber);
 		this.positionIterator = location.createPositionIterator();
 		IPosition pos = location.seek(stepNumber, positionIterator);
 		positioner.setPosition(pos);
-		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
-			if (device instanceof IPausableDevice) ((IPausableDevice<?>)device).seek(stepNumber);
+		for (IRunnableDevice<?> device : getModel().getDetectors()) {
+			if (device instanceof IPausableDevice)
+				((IPausableDevice<?>) device).seek(stepNumber);
 		}
 	}
 
@@ -763,7 +763,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void resumeInternal() throws ScanningException, InterruptedException {
-		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
+		for (IRunnableDevice<?> device : getModel().getDetectors()) {
 			DeviceState currentState = device.getDeviceState();
 			if (currentState == DeviceState.PAUSED) {
 				if (device instanceof IPausableDevice) {
