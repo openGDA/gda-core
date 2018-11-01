@@ -82,7 +82,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
 	private HeartbeatBroadcaster heartbeatBroadcaster;
-	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -204,10 +203,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (commandAckTopicPublisher != null) {
 			commandAckTopicPublisher.disconnect();
 			commandAckTopicPublisher = null;
-		}
-		if (statusTopicSubscriber != null) {
-			statusTopicSubscriber.disconnect();
-			statusTopicSubscriber = null;
 		}
 		if (beanOverrideMap != null) {
 			beanOverrideMap.clear();
@@ -799,18 +794,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private final ProcessManager processManager = new ProcessManager();
 
-	private void startProcessManager() throws EventException {
-		if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
-		statusTopicSubscriber = eventService.createSubscriber(uri, getStatusTopicName());
-		statusTopicSubscriber.addListener(processManager);
-	}
-
 	/**
 	 * The process manager is a listener for bean changes that handles
 	 * the status of a bean being set to a request state, e.g. {@link Status#REQUEST_PAUSE}
 	 * and performs the appropriate action
 	 */
-	protected class ProcessManager implements IBeanListener<U> {
+	protected class ProcessManager {
 
 		// TODO make this a constant
 		private final Map<Command, Status> commandToStatusMap;
@@ -820,40 +809,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			commandToStatusMap.put(Command.PAUSE_JOB, Status.REQUEST_PAUSE);
 			commandToStatusMap.put(Command.RESUME_JOB, Status.REQUEST_RESUME);
 			commandToStatusMap.put(Command.TERMINATE_JOB, Status.REQUEST_TERMINATE);
-		}
-
-		@Override
-		public void beanChangePerformed(BeanEvent<U> evt) {
-			U bean = evt.getBean();
-			if (!bean.getStatus().isRequest()) return;
-
-			WeakReference<IConsumerProcess<U>> ref = processMap.get(bean.getUniqueId());
-			try {
-				if (ref==null) { // Might be in submit queue still
-					updateQueue(bean);
-				} else {
-					IConsumerProcess<U> process = ref.get();
-					if (process!=null) {
-						manageProcess(process, bean);
-					}
-				}
-			} catch (EventException ne) {
-				LOGGER.error("Internal error, please contact your support representative.", ne);
-			}
-		}
-
-		private void manageProcess(IConsumerProcess<U> process, U bean) throws EventException {
-			process.getBean().setStatus(bean.getStatus());
-			process.getBean().setMessage(bean.getMessage());
-			if (bean.getStatus()==Status.REQUEST_TERMINATE) {
-				processMap.remove(bean.getUniqueId());
-				if (process.isPaused()) process.resume();
-				process.terminate();
-			} else if (bean.getStatus()==Status.REQUEST_PAUSE) {
-				process.pause();
-			} else if (bean.getStatus()==Status.REQUEST_RESUME) {
-				process.resume();
-			}
 		}
 
 		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
@@ -992,7 +947,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			heartbeatBroadcaster.start();
 		}
 
-		startProcessManager();
 		setActive(true);
 
 		// We should pause if there are things in the queue
