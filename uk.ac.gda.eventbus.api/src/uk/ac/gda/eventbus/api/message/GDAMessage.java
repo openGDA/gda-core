@@ -20,13 +20,11 @@ package uk.ac.gda.eventbus.api.message;
 
 import java.io.Serializable;
 
-import com.google.common.base.Optional;
-
 public abstract class GDAMessage implements Serializable, IGDAMessage {
 
 	private static final long serialVersionUID = 165830281177522976L;
 
-	private Optional<?> sourceToken = null;
+	private Object sourceToken = null;
 	private GDAMessageCategory category = GDAMessageCategory.NOTIFY;
 	private String message = "";
 
@@ -55,7 +53,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 	}
 
 	public GDAMessage(Object sourceToken, GDAMessageCategory category, String message) {
-		this.sourceToken = Optional.of(sourceToken);
+		this.sourceToken = sourceToken;
 		this.category = category;
 		this.message = message;
 	}
@@ -71,7 +69,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 	}
 
 	@Override
-	public Optional<?> getSourceToken() {
+	public Object getSourceToken() {
 		return sourceToken;
 	}
 
@@ -87,7 +85,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 
 	@Override
 	public void setSourceToken(Object sourceToken) {
-		this.sourceToken = Optional.of(sourceToken);
+		this.sourceToken = sourceToken;
 	}
 
 }
