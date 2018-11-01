@@ -212,6 +212,10 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 		return pvName;
 	}
 
+	public void setPvName(String pv) {
+		pvName = pv;
+	}
+
 	/**
 	 * Reads the lookup table file and put them into a multi-Valued Map for looking up value for the specified energy
 	 * and scannable name.
