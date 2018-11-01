@@ -53,12 +53,14 @@ import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
 /**
  * * <li>Specify {@link Scriptcontroller} instance to handle data file name changed event {@link FileNumberEvent} which
  * facilitate server to client communication</li>
  */
+@ServiceInterface(Scannable.class)
 public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(CVScan.class);

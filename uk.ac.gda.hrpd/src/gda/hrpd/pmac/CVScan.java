@@ -48,7 +48,9 @@ import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(Scannable.class)
 public class CVScan extends ScannableMotionBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(CVScan.class);
