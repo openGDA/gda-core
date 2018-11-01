@@ -524,11 +524,11 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		String[] value = new String[5];
-		value[0] = String.format(getOutputFormat()[0], getCurrent1());
-		value[1] = String.format(getOutputFormat()[1], getCurrent2());
-		value[2] = String.format(getOutputFormat()[2], getCurrent3());
-		value[3] = String.format(getOutputFormat()[3], getCurrent4());
-		value[4] = getRangeValue();
+		value[0] = getRangeValue();
+		value[1] = String.format(getOutputFormat()[0], getCurrent1());
+		value[2] = String.format(getOutputFormat()[1], getCurrent2());
+		value[3] = String.format(getOutputFormat()[2], getCurrent3());
+		value[4] = String.format(getOutputFormat()[3], getCurrent4());
 		return value;
 	}
 
