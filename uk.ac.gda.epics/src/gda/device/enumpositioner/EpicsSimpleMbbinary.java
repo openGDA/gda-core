@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.epics.connection.EpicsChannelManager;
@@ -48,10 +49,12 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class maps to EPICS SimpleMbbinary template.
  */
+@ServiceInterface(EnumPositioner.class)
 public class EpicsSimpleMbbinary extends EnumPositionerBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleMbbinary.class);
