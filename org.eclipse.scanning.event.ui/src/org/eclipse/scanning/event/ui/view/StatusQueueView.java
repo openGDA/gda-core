@@ -229,7 +229,7 @@ public class StatusQueueView extends EventConnectionView {
 		editActionUpdate(anySelectedInSubmittedList);
 		downActionUpdate(anySelectedInSubmittedList);
 
-		boolean anyRunning = queue.values().stream().anyMatch(x -> x.getStatus().isRunning());
+		boolean anyRunning = queue.values().stream().anyMatch(x -> (x.getStatus().isRunning() || x.getStatus().isResumed()));
 		boolean anyPaused = queue.values().stream().anyMatch(x -> x.getStatus().isPaused() );
 
 		stopActionUpdate(selectedInRunList);
@@ -554,6 +554,7 @@ public class StatusQueueView extends EventConnectionView {
 			}
 
 			try {
+				pauseAction.setEnabled(false);
 				if (bean.getStatus().isPaused()) {
 					consumerProxy.resumeJob(bean);
 				} else {
@@ -563,6 +564,8 @@ public class StatusQueueView extends EventConnectionView {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot pause "+bean.getName(),
 					"Cannot pause "+bean.getName()+"\n\nPlease contact your support representative.",
 					new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
+			} finally {
+				pauseAction.setEnabled(true);
 			}
 		}
 	}
