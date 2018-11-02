@@ -25,7 +25,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -537,8 +536,8 @@ class FocusScanSetupPage extends WizardPage {
 	private void checkMalcolmDeviceAxes(IScanModelWrapper<IDetectorModel> selectedMappingMalcolmDevice, IScanModelWrapper<IDetectorModel> focusMalcolmDevice) {
 		try {
 			final IRunnableDeviceService runnableDeviceService = getRunnableDeviceService();
-			final Set<String> focusDeviceAxes = getMalcolmAxes(focusMalcolmDevice, runnableDeviceService);
-			final Set<String> mappingDeviceAxes = getMalcolmAxes(selectedMappingMalcolmDevice, runnableDeviceService);
+			final List<String> focusDeviceAxes = getMalcolmAxes(focusMalcolmDevice, runnableDeviceService);
+			final List<String> mappingDeviceAxes = getMalcolmAxes(selectedMappingMalcolmDevice, runnableDeviceService);
 			if (mappingDeviceAxes.stream().anyMatch(axis -> !focusDeviceAxes.contains(axis))) {
 				MessageDialog.openWarning(getShell(), "Focus Scan",
 						MessageFormat.format("Note: the selected malcolm device is configured for different axes that the currently selected malcolm device in the Mapping Experiment View:\n"
@@ -564,7 +563,7 @@ class FocusScanSetupPage extends WizardPage {
 		}
 	}
 
-	private Set<String> getMalcolmAxes(IScanModelWrapper<IDetectorModel> wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
+	private List<String> getMalcolmAxes(IScanModelWrapper<IDetectorModel> wrapper, IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		final String deviceName = wrapper.getModel().getName();
 		final IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) runnableDeviceService.getRunnableDevice(deviceName);
 		return malcolmDevice.getAvailableAxes();
