@@ -763,7 +763,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private void resumeInternal() throws ScanningException, InterruptedException {
-
 		if (getModel().getDetectors()!=null) for (IRunnableDevice<?> device : getModel().getDetectors()) {
 			DeviceState currentState = device.getDeviceState();
 			if (currentState == DeviceState.PAUSED) {
@@ -774,10 +773,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				logger.info("Device {} wasn't paused to resume. Was {}", device.getName(), currentState);
 			}
 		}
-		if (location.isInnerScan()) {
-			getScanBean().setStatus(Status.RESUMED);
-			setDeviceState(DeviceState.RUNNING);
-		}
+
+		getScanBean().setStatus(Status.RESUMED);
+		setDeviceState(DeviceState.RUNNING);
 	}
 
 	@FunctionalInterface
