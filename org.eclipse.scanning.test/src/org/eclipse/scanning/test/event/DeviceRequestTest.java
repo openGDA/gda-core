@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -269,7 +268,7 @@ public class DeviceRequestTest extends BrokerTest {
 		DeviceInformation<?> deviceInfo = res.getDeviceInformation();
 		assertNotNull(deviceInfo);
 
-		Set<String> availableAxes = deviceInfo.getAvailableAxes();
+		List<String> availableAxes = deviceInfo.getAvailableAxes();
 		assertNotNull(availableAxes);
 		assertThat(availableAxes, contains("stage_x", "stage_y"));
 

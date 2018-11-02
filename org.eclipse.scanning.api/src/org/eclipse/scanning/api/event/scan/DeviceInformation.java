@@ -13,6 +13,7 @@ package org.eclipse.scanning.api.event.scan;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IModelProvider;
@@ -131,7 +132,7 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	 */
 	private boolean alive = true;
 
-	private Set<String> availableAxes;
+	private List<String> availableAxes;
 
 	private boolean isNewMalcolm;
 
@@ -439,12 +440,12 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		this.alive = alive;
 	}
 
-	public Set<String> getAvailableAxes() {
+	public List<String> getAvailableAxes() {
 		return availableAxes;
 	}
 
-	public void setAvailableAxes(Set<String> availableAxes) {
-		this.availableAxes = availableAxes;
+	public void setAvailableAxes(List<String> list) {
+		this.availableAxes = list;
 	}
 
 	public boolean isNewMalcolm() {

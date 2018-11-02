@@ -19,7 +19,7 @@
 package org.eclipse.scanning.event.remote;
 
 import java.net.URI;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
@@ -104,7 +104,7 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	}
 
 	@Override
-	public Set<String> getAvailableAxes() throws MalcolmDeviceException {
+	public List<String> getAvailableAxes() throws MalcolmDeviceException {
 		try {
 			updateDeviceInfo();
 			return info.getAvailableAxes();

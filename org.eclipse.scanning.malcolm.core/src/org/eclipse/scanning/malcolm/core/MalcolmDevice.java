@@ -18,14 +18,13 @@ import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERRO
 import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -427,7 +426,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		List<String> axesToMove = model.getAxesToMove();
 		if (axesToMove == null && pointGenerator != null) {
 			final List<String> scannableNames = pointGenerator.iterator().next().getNames(); // TODO get names direct from point generator when we can
-			final Set<String> availableAxes = getAvailableAxes();
+			final List<String> availableAxes = getAvailableAxes();
 			int i = scannableNames.size() - 1;
 			while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
 				i--;
@@ -628,7 +627,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	@Override
-	public Set<String> getAvailableAxes() throws MalcolmDeviceException {
+	public List<String> getAvailableAxes() throws MalcolmDeviceException {
 		// as of malcolm version 3, the attribute 'axesToMove' will be replaced by 'simultaneousAxes' with
 		// a subtly different meaning
 		Optional<IDeviceAttribute<String[]>> optAttr = getOptionalAttribute(ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -636,7 +635,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			optAttr = getOptionalAttribute(ATTRIBUTE_NAME_AXES_TO_MOVE);
 		}
 
-		return optAttr.map(IDeviceAttribute::getValue).map(Arrays::asList).map(HashSet::new).orElseThrow(
+		return optAttr.map(IDeviceAttribute::getValue).map(Arrays::asList).map(ArrayList::new).orElseThrow(
 				() -> new MalcolmDeviceException(MessageFormat.format("Malcolm device has no axes attribute, either {0} or {1}",
 						ATTRIBUTE_NAME_SIMULTANEOUS_AXES, ATTRIBUTE_NAME_AXES_TO_MOVE)));
 	}

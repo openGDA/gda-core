@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.malcolm;
 
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.scanning.api.IValidator;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -77,12 +77,11 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T
 	public boolean isLocked() throws MalcolmDeviceException;
 
 	/**
-	 * Returns the axes that this malcolm device can move. Note that although the returned value
-	 * is a {@link Set}, the iteration order the contained elements is predicatable.
+	 * Returns the axes that this malcolm device can move.
 	 * @return the axes this malcolm device can move, never <code>null</code>
 	 * @throws ScanningException
 	 */
-	public Set<String> getAvailableAxes() throws ScanningException;
+	public List<String> getAvailableAxes() throws ScanningException;
 
 	/**
 	 * Set the point generator for the malcolm device.
