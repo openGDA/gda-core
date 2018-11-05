@@ -100,7 +100,9 @@ public abstract class EpicsAttenuatorBase extends ConfigurableBase implements At
 			controller.caput(desiredTransmission, transmission);
 			logger.info("Sending change filter command.");
 			controller.caputWait(change, 1);
-			Thread.sleep(250);
+			do {
+				Thread.sleep(50);
+			} while (!isReady());
 			return controller.cagetDouble(actualTransmission);
 		} catch (Exception e) {
 			throw new DeviceException(getName() + " had Exception in setTransmission()", e);
