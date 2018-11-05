@@ -69,7 +69,7 @@ public class DummyDetector extends DetectorBase {
 	 */
 	public DummyDetector(String name) {
 		setName(name);
-		setInputNames(null);
+		setInputNames(new String[0]);
 		try {
 			configure();
 		} catch (FactoryException e) {
