@@ -18,10 +18,14 @@
 
 package uk.ac.gda.beamline.i20.scannable;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyPersistentScannable;
 import gda.device.scannable.ScannableMotionUnitsBase;
@@ -49,23 +53,23 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private volatile boolean stopCalled = false;
 	private volatile Boolean isRunningTrajectoryMovement = false;
 
-	double bragg = 80;
-	double radius = 1000;
-	double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
+	private double bragg = 80;
+	private double radius = 1000;
+	private double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
 
-	Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
-	Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
+	private Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	private Boolean[] additionalCrystalsInUse = new Boolean[] { false, false, false, false };
 
-	ScannableMotor xtal_x; // also known as L
-	ScannableMotor det_y;
-	ScannableMotor det_x;
-	ScannableMotor det_rot;
-	DummyPersistentScannable radiusScannable;
+	private ScannableMotor xtal_x; // also known as L
+	private ScannableMotor det_y;
+	private ScannableMotor det_x;
+	private ScannableMotor det_rot;
+	private DummyPersistentScannable radiusScannable;
 
-	ScannableMotor[] xtalxs = new ScannableMotor[2];
-	ScannableMotor[] xtalys = new ScannableMotor[3];
-	ScannableMotor[] xtalbraggs = new ScannableMotor[3];
-	ScannableMotor[] xtaltilts = new ScannableMotor[3];
+	private ScannableMotor[] xtalxs = new ScannableMotor[2];
+	private ScannableMotor[] xtalys = new ScannableMotor[3];
+	private ScannableMotor[] xtalbraggs = new ScannableMotor[3];
+	private ScannableMotor[] xtaltilts = new ScannableMotor[3];
 
 	private Double[] targetDetXArray;
 	private Double[] targetDetYArray;
@@ -488,4 +492,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		this.radiusScannable = radiusScannable;
 	}
 
+	public Double[] getAdditionalCrystalHorizontalOffsets() {
+		return additionalCrystalHorizontalOffsets;
+	}
 }
