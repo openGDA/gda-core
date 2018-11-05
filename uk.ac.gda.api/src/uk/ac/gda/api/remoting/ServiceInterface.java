@@ -19,6 +19,7 @@
 package uk.ac.gda.api.remoting;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -27,9 +28,13 @@ import gda.factory.Findable;
 
 /**
  * An annotation that specifies the service interface for the annotated class. This is used for RMI exports.
+ * <p>
+ * Subclasses of annotated classes will inherit the service interface from their parent class. A subclass can
+ * specify its own ServiceInterface to override that of its parent.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 public @interface ServiceInterface {
 
 	Class<? extends Findable> value();

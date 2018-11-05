@@ -39,7 +39,6 @@ import com.google.common.base.Stopwatch;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Localizable;
-import gda.jython.accesscontrol.RbacUtils;
 import gda.observable.IObservable;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -117,7 +116,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 				final String name = entry.getKey();
 				final Findable bean = entry.getValue();
 
-				final Class<?> beanClass = getType(bean);
+				final Class<?> beanClass = bean.getClass();
 				final Class<?> serviceInterface = beanClass.getAnnotation(ServiceInterface.class).value();
 
 				export(name, bean, serviceInterface);
@@ -196,7 +195,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	 * @return <code>true</code> if the object has a {@link ServiceInterface} annotation <code>false</code> otherwise
 	 */
 	private boolean hasServiceInterfaceAnnotation(Entry<String, Findable> entry) {
-		Class<?> type = getType(entry.getValue());
+		Class<?> type = entry.getValue().getClass();
 		final boolean serviceInterfaceAnnotationDeclared = type.isAnnotationPresent(ServiceInterface.class);
 
 		if (!serviceInterfaceAnnotationDeclared) {
@@ -234,12 +233,5 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 				logger.error("Failed to unbind RMI service: {}", exporter, e);
 			}
 		}
-	}
-
-	private static Class<?> getType(Object bean) {
-		if (RbacUtils.objectIsCglibProxy(bean)) {
-			return bean.getClass().getSuperclass();
-		}
-		return bean.getClass();
 	}
 }
