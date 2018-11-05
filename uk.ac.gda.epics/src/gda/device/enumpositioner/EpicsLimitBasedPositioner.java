@@ -33,9 +33,11 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLimitBasedPositioner.class);
 
-	public enum Position {
-		OUT, IN, UNKNOWN
-	}
+	private String outValue = null;
+
+	private String inValue = null;
+
+	private String unknownValue = "UNKNOWN";
 
 	private EpicsController controller;
 
@@ -83,15 +85,15 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 	}
 
 	@Override
-	public Object getPosition() throws DeviceException {
+	public String getPosition() throws DeviceException {
 		try {
 			boolean inLimit = controller.cagetInt(inLimitChannel) > 0;
 			boolean outLimit = controller.cagetInt(outLimitChannel) > 0;
 			// exactly one of these limits should be high to be in a defined position
-			if (inLimit == outLimit) return Position.UNKNOWN.name();
-			if (inLimit) return Position.IN.name();
-			if (outLimit) return Position.OUT.name();
-			return Position.UNKNOWN.name(); // unreachable, but compiler complains
+			if (inLimit == outLimit) return unknownValue;
+			if (inLimit) return inValue;
+			if (outLimit) return outValue;
+			return unknownValue; // unreachable, but compiler complains
 		} catch (Exception e) {
 			throw new DeviceException("Error getting position for " + getName(), e);
 		}
@@ -101,8 +103,8 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 	public void stop() throws DeviceException {
 		// the control PV can be "desynced" from the actual device state, particularly if there is no air in the system
 		// move the control back to wherever the limits indicate the device actually is
-		String position = getPosition().toString();
-		if (position.equals(Position.IN.name()) || position.equals(Position.OUT.name())) {
+		String position = getPosition();
+		if (position.equals(inValue) || position.equals(outValue)) {
 			try {
 				controller.caput(controlChannel, position);
 			} catch (Exception e) {
@@ -133,8 +135,19 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 			controlChannel = controller.createChannel(controlChannelPv);
 			outLimitChannel = controller.createChannel(outLimitChannelPv);
 			inLimitChannel = controller.createChannel(inLimitChannelPv);
-			addPosition(Position.OUT.name());
-			addPosition(Position.IN.name());
+
+			String[] labels = controller.cagetLabels(controlChannel);
+			if (labels.length != 2) {
+				throw new FactoryException(String.format("Expected 2 labels from '%s', found %d", controlChannelPv, labels.length));
+			}
+			outValue = labels[0];
+			inValue = labels[1];
+
+			if (inValue.equals(unknownValue) || outValue.equals(unknownValue) || inValue.equals(outValue)) {
+				throw new FactoryException(String.format("Positions must be unique - have %s, %s, %s", outValue, inValue, unknownValue));
+			}
+			addPosition(outValue);
+			addPosition(inValue);
 		} catch (Exception e) {
 			throw new FactoryException("Failed to configure device " + getName(), e);
 		}
@@ -170,5 +183,21 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 
 	public String getOutLimitChannelPv() {
 		return outLimitChannelPv;
+	}
+
+	public String getInValue() {
+		return inValue;
+	}
+
+	public String getOutValue() {
+		return outValue;
+	}
+
+	public void setUnknownValue(String unknownValue) {
+		this.unknownValue = unknownValue;
+	}
+
+	public String getUnknownValue() {
+		return unknownValue;
 	}
 }
