@@ -24,10 +24,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import gda.device.DeviceException;
+import gda.device.Monitor;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A dummy implementation of the Monitor interface for testing / development.
  */
+@ServiceInterface(Monitor.class)
 public class DummyMonitor extends MonitorBase {
 
 	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
