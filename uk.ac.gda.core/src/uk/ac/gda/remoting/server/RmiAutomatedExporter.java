@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,25 +100,30 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 
 		logger.debug("RMI services on port '{}' with prefix '{}'", rmiPort, AUTO_EXPORT_RMI_PREFIX);
 
-		final Map<String, Findable> allRmiExportableBeans = getRmiExportableBeans();
-
-		logger.debug("Exporting {} beans over RMI...", allRmiExportableBeans.size());
+		final Map<String, Findable> findableBeans = applicationContext.getBeansOfType(Findable.class);
 
 		// Cache the existing TCCL to be switched back after exporting
 		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+		int count = 0;
 
 		try {
 			// Switch the TCCL to the Spring bundle loader which should be able to see all the needed classes
 			Thread.currentThread().setContextClassLoader(SPRING_BUNDLE_LOADER);
 
-			for (Entry<String, Findable> entry : allRmiExportableBeans.entrySet()) {
+			for (Entry<String, Findable> entry : findableBeans.entrySet()) {
 				final String name = entry.getKey();
 				final Findable bean = entry.getValue();
 
 				final Class<?> beanClass = bean.getClass();
-				final Class<?> serviceInterface = beanClass.getAnnotation(ServiceInterface.class).value();
-
-				export(name, bean, serviceInterface);
+				final ServiceInterface serviceInterface = beanClass.getAnnotation(ServiceInterface.class);
+				if (serviceInterface == null) {
+					logger.trace("Not exporting {} as it has no @ServiceInterface annotation", name);
+				} else if (isLocal(entry)) {
+					logger.trace("Not exporting {} as it is local", name);
+				} else {
+					count++;
+					export(name, bean, serviceInterface.value());
+				}
 			}
 
 		} finally {
@@ -127,16 +131,8 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
-		logger.info("Completed RMI exports. Exported {} objects, in {} ms", allRmiExportableBeans.size(),
+		logger.info("Completed RMI exports. Exported {} objects, in {} ms", count,
 				exportsTimer.elapsed(MILLISECONDS));
-	}
-
-	private Map<String, Findable> getRmiExportableBeans() {
-		final Map<String, Findable> allFindableBeans = applicationContext.getBeansOfType(Findable.class);
-		return allFindableBeans.entrySet().stream()
-				.filter(this::hasServiceInterfaceAnnotation) // Removes beans without @ServiceInterface
-				.filter(this::isNotLocal) // Removes beans declared as local
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	/**
@@ -187,39 +183,12 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 		}
 	}
 
-	/**
-	 * Checks the objects class to see if it has a {@link ServiceInterface} annotation.
-	 *
-	 * @param entry
-	 *            {@link Entry} of name to {@link Findable}
-	 * @return <code>true</code> if the object has a {@link ServiceInterface} annotation <code>false</code> otherwise
-	 */
-	private boolean hasServiceInterfaceAnnotation(Entry<String, Findable> entry) {
-		Class<?> type = entry.getValue().getClass();
-		final boolean serviceInterfaceAnnotationDeclared = type.isAnnotationPresent(ServiceInterface.class);
-
-		if (!serviceInterfaceAnnotationDeclared) {
-			logger.trace("'{}' not exported as '{}' class doesn't have @ServiceInterface annotation", entry.getKey(),
-					type.getName());
-			return false; // No @ServiceInterface on class
-		}
-		return true;
-	}
-
 	private boolean isLocal(Entry<String, Findable> entry) {
 		final Findable bean = entry.getValue();
 		if (bean instanceof Localizable) {
-			final boolean local = ((Localizable) bean).isLocal();
-			if(local) {
-				logger.trace("'{}' not exported as it is local", entry.getKey());
-			}
-			return local;
+			return ((Localizable) bean).isLocal();
 		}
 		return false;
-	}
-
-	private boolean isNotLocal(Entry<String, Findable> entry) {
-		return !isLocal(entry);
 	}
 
 	/**
