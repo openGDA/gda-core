@@ -9,7 +9,7 @@
 		<property name="scannable" ref="mvcExampleScannableMotor"/>
 	</bean>
 
-	<bean class="gda.rcp.util.OSGIServiceRegister">
+	<bean class="gda.util.osgi.OSGiServiceRegister">
 		<property name="class" value="uk.ac.gda.example.mvcexample.MvcExampleModel" />
 		<property name="service" ref="mvcExampleModel" />
 	</bean>
