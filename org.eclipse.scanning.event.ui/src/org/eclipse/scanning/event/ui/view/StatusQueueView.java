@@ -1291,21 +1291,31 @@ public class StatusQueueView extends EventConnectionView {
 
 		viewer.getTable().addMouseMoveListener(cursorListener);
 
-		MouseAdapter mouseClick = new MouseAdapter() {
+		// This is the adaptor used to open scans by clicking on the location link
+		viewer.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				Point pt = new Point(e.x, e.y);
-				TableItem item = viewer.getTable().getItem(pt);
-				if (item == null) return;
-				Rectangle rect = item.getBounds(5);
-				if (rect.contains(pt)) {
-					final StatusBean bean = (StatusBean)item.getData();
-					if (bean.getStatus().isFinal())
-						openResultsActionRun(bean);
+				if (e.button == 1) { // Primary mouse click (usually left)
+					// Get the item the mouse is over
+					Point pt = new Point(e.x, e.y);
+					TableItem item = viewer.getTable().getItem(pt);
+					// The item will be null if you click somewhere on the table but not on an item
+					if (item != null) {
+						// Now check if the click is in the 5th "location" column
+						Rectangle rect = item.getBounds(5);
+						if (rect.contains(pt)) {
+							// It is in the column so get the item
+							final StatusBean bean = (StatusBean) item.getData();
+							// Only open it if its final i.e scan finished, opening SWMR files locally
+							// from non-POSIX file systems is not good
+							if (bean.getStatus().isFinal()) {
+								openResultsActionRun(bean);
+							}
+						}
+					}
 				}
 			}
-		};
-		viewer.getTable().addMouseListener(mouseClick);
+		});
 	}
 
 	@Override
