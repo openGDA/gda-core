@@ -18,6 +18,8 @@
 
 package gda.device.attenuator;
 
+import java.util.stream.IntStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,4 +153,14 @@ public abstract class EpicsAttenuatorBase extends ConfigurableBase implements At
 		}
 	}
 
+	@Override
+	public boolean isReady() throws DeviceException {
+		try {
+			boolean[] desiredPositions = getDesiredFilterPositions();
+			boolean[] actualPositions = getFilterPositions();
+			return IntStream.range(0, desiredPositions.length).allMatch(i -> desiredPositions[i] == actualPositions[i]);
+		} catch (Exception e) {
+			throw new DeviceException(getName() + " had Exception in isReady()", e);
+		}
+	}
 }
