@@ -82,7 +82,6 @@ Export-Package: gda.configuration.epics,
  gda.epics.interfaces.descriptors,
  gda.epics.util,
  gda.epics.xml,
- gda.gui.text.parameter,
  gda.spring,
  uk.ac.diamond.daq.epics.connector
 Bundle-ClassPath: .,
