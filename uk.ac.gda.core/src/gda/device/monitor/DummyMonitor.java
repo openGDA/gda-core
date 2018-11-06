@@ -102,4 +102,12 @@ public class DummyMonitor extends MonitorBase {
 	public void setUpdateInterval(int updateInterval) {
 		this.updateInterval = updateInterval;
 	}
+
+	@Override
+	public String toFormattedString() {
+		if (unit != null && !unit.isEmpty()) {
+			return String.format("%s %s", super.toFormattedString(), unit);
+		}
+		return super.toFormattedString();
+	}
 }
