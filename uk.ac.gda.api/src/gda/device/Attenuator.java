@@ -31,7 +31,7 @@ public interface Attenuator extends Findable, Configurable {
 	/**
 	 * Changes the attenuation level to the closest achievable transmission to the given value. This uses the current
 	 * beam energy in its calculations.
-	 * 
+	 *
 	 * @param transmission the desired transmission
 	 * @return the actual transmission value achieved
 	 */
@@ -39,14 +39,14 @@ public interface Attenuator extends Findable, Configurable {
 
 	/**
 	 * The current transmission, assuming the energy has not changed since the last filter adjustment.
-	 * 
+	 *
 	 * @return the current actual transmission
 	 */
 	double getTransmission() throws DeviceException;
 
 	/**
 	 * Returns the stored desired transmission value.
-	 * 
+	 *
 	 * @return the stored desired transmission value
 	 */
 	double getDesiredTransmission() throws DeviceException;
@@ -66,7 +66,7 @@ public interface Attenuator extends Findable, Configurable {
 	/**
 	 * Using the current beam energy, calculates the closest achievable transmission value to the given value with the
 	 * set of filters
-	 * 
+	 *
 	 * @param transmission
 	 * @return double the closest transmission value that could be achieved
 	 */
@@ -74,10 +74,17 @@ public interface Attenuator extends Findable, Configurable {
 
 	/**
 	 * Uses the given energy in the calculation
-	 * 
+	 *
 	 * @param transmission transmission (0 to 1)
 	 */
 	ClosestMatchTransmission getClosestMatchTransmission(double transmission, double energyInKeV) throws DeviceException;
+
+	/**
+	 * Compares the results of getFilterPositions with getDesiredFilterPositions to determine whether the
+	 * correct filters are in place and the attenuator has finished changing transmission
+	 */
+	boolean isReady() throws DeviceException;
+
 
 	/**
 	 * Returns all the current filter positions as an array of booleans (true = filter is in the beam)
