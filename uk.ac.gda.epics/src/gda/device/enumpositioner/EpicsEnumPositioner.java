@@ -205,14 +205,14 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 				if (controller.cagetEnum(statusChnl) == 0) {
 					return EnumPositionerStatus.IDLE;
 				}
-				logger.error("EpicsPositioner: " + getName() + " completed move but has error status.");
+				logger.error("{} completed move but has error status.", getName());
+				logStatusOnError();
 				notifyIObservers(this, EnumPositionerStatus.ERROR);
 				return EnumPositionerStatus.ERROR;
 			}
 			// else its an error
 			logger.error("EpicsEnumPositioner: {} failed to successfully move to required location.", getName());
-			logger.error("doneMoving: {}, inPosition: {}, status: {}", controller.cagetDouble(doneMovingChnl),
-					controller.cagetDouble(inPositionChnl), controller.cagetEnum(statusChnl));
+			logStatusOnError();
 
 			return EnumPositionerStatus.ERROR;
 
@@ -221,6 +221,15 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 					+ e.getMessage());
 		}
 
+	}
+
+	private void logStatusOnError() {
+		try {
+			logger.error("doneMoving: {}, inPosition: {}, status: {}", controller.cagetDouble(doneMovingChnl), controller.cagetDouble(inPositionChnl),
+					controller.cagetEnum(statusChnl));
+		} catch (Exception e) {
+			logger.error("Exception getting device status", e);
+		}
 	}
 
 	@Override
