@@ -18,12 +18,13 @@
 
 package gda.device.monitor;
 
+import org.jscience.physics.units.Unit;
+
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-
-import org.jscience.physics.units.Unit;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Base class for objects which need to operate in scans, but which have no
@@ -32,6 +33,7 @@ import org.jscience.physics.units.Unit;
  * This base class is important to help to distinguish types of scannables,
  * especially when storing or presenting data from scans.
  */
+@ServiceInterface(Monitor.class)
 public abstract class MonitorBase extends ScannableBase implements Monitor {
 
 	double waitForSystemTimeInMillis = 0.0;
