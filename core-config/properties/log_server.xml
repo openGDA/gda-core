@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- scan=true allows this file to be modified live to change the logging configuration -->
+<!-- scan="true" allows this file to be modified live to change the logging configuration -->
 <!-- debug="true" logs the logback configuration -->
 <configuration scan="true" scanPeriod="10 seconds" debug="true">
 
@@ -12,6 +12,9 @@
 
 	<!-- Include the standard set of properties files -->
 	<include file="${gda.core.dir}/properties/logging_properties_includes.xml" />
+
+	<!-- Without this define, we see log messages containing: [logserver/null] -->
+	<define scope="context" name="JVMNAME" class="gda.util.logging.JvmNamePropertyDefiner" />
 
 	<!-- http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
 	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -53,7 +56,7 @@
 		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
 		<appender-ref ref="LogFile" />
 	</root>
-	
+
 	<!-- If this file exists, it allows facilites to customise logging -->
 	<include file="${gda.facility.dir}/properties/_common/log_server_customisation.xml" />
 
