@@ -32,7 +32,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
 
 import gda.rcp.GDAClientActivator;
-import gda.rcp.util.OSGIServiceRegister;
+import gda.util.osgi.OSGiServiceRegister;
 import uk.ac.gda.client.composites.MotorPositionEditorControl;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.ui.components.NumberEditorControl;
@@ -70,7 +70,7 @@ public class MVCExampleView extends ViewPart {
 
 		model = new MVCExampleModel();
 
-		OSGIServiceRegister modelReg = new OSGIServiceRegister();
+		OSGiServiceRegister modelReg = new OSGiServiceRegister();
 		modelReg.setClass(IMVCExampleModel.class);
 		modelReg.setService(model);
 		try {

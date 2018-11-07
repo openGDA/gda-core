@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
-import gda.rcp.util.OSGIServiceRegister;
+import gda.util.osgi.OSGiServiceRegister;
 import junit.framework.Assert;
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
@@ -35,7 +35,7 @@ public class MvcExampleViewPluginUnitTest {
 		MyMvcExampleItem e = new MyMvcExampleItem("Item", 0.);
 		items.add(e);
 
-		OSGIServiceRegister modelReg = new OSGIServiceRegister();
+		OSGiServiceRegister modelReg = new OSGiServiceRegister();
 		modelReg.setClass(MvcExampleModel.class);
 		modelReg.setService(model);
 		modelReg.afterPropertiesSet();
