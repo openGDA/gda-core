@@ -19,18 +19,15 @@
 
 package gda.device.monitor;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * A dummy implementation of the Monitor interface for testing / development.
  */
 public class DummyMonitor extends MonitorBase {
-
-	private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 
 	private double latestValue = 0.0;
 	private String unit = "";
@@ -44,7 +41,7 @@ public class DummyMonitor extends MonitorBase {
 	public void configure() {
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
-		EXECUTOR.scheduleAtFixedRate(this::updateValue, 0, updateInterval, TimeUnit.MILLISECONDS);
+		Async.scheduleAtFixedRate(this::updateValue, 0, updateInterval, MILLISECONDS, "%s (%s)", getClass().getName(), getName());
 	}
 
 	private void updateValue() {
