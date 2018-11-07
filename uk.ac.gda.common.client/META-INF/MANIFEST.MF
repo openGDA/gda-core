@@ -6,7 +6,6 @@ Bundle-Version: 9.11.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="1.0.0",
- uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.diamond.org.jfree;bundle-version="1.0.23",
  uk.ac.diamond.org.jfree.chart;bundle-version="1.0.19",
  uk.ac.diamond.jama;bundle-version="1.0.1",

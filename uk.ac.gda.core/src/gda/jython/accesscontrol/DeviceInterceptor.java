@@ -19,21 +19,21 @@
 
 package gda.jython.accesscontrol;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.python.core.PyObject;
+import org.springframework.context.ApplicationContext;
+
 import gda.device.Device;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.factory.corba.util.NetService;
 import gda.jython.JythonServer.JythonServerThread;
 import gda.jython.JythonServerFacade;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-
-import org.python.core.PyObject;
 
 /**
  * Implementation of the CGLIB MethodInterceptor interface. This object acts as a proxy around other objects and
@@ -47,6 +47,12 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 	private ProtectedMethodComponent protectedMethods;
 
 	/**
+	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * RBAC wrap any class Spring has instantiated.
+	 */
+	private static final ClassLoader SPRING_BUNDLE_LOADER = ApplicationContext.class.getClassLoader();
+
+	/**
 	 * Factory method to create a copy of the supplied object encapsulated by an RBACInterceptor object. This object
 	 * should be used as a proxy to the original.
 	 *
@@ -54,16 +60,16 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 	 * @return the wrapped object
 	 */
 	public static Device newDeviceInstance(Device theObject) {
-		// create the object which will do the work when the proxied object is
-		// called
+		// create the object which will do the work when the proxied object is called
 		MethodInterceptor interceptor = new DeviceInterceptor(theObject);
 
 		Enhancer enhancer = new Enhancer();
+		// Set the classloader to the Spring one if were here Spring has already instantiated the class so it must be able to load it.
+		enhancer.setClassLoader(SPRING_BUNDLE_LOADER);
 		enhancer.setSuperclass(theObject.getClass());
 		enhancer.setCallback(interceptor);
 
-		// create using the null constructor. We know that this is safe as the object could not be called by Castor
-		// otherwise.
+		// Create using the no-arg constructor. This will mostly work as we typically use the no-arg in Spring
 		Object proxyObject = enhancer.create();
 
 		((Factory) proxyObject).setCallback(0, interceptor);

@@ -3,11 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GDA Example
 Bundle-SymbolicName: uk.ac.gda.example;singleton:=true
 Bundle-Version: 9.11.0.qualifier
-Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
+Eclipse-RegisterBuddy: uk.ac.gda.client.experimentdefinition, uk.ac.gda.client
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.0.0",
+Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
  org.eclipse.ui;bundle-version="3.5.1",
  org.eclipse.core.runtime;bundle-version="3.5.0",
