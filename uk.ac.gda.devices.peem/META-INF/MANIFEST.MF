@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)"
-Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.org.springframework 
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework 
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
