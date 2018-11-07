@@ -6,9 +6,15 @@
 
 	<!-- Standard shared logging configuration used by the GDA server and client. -->
 
-	<!-- In general you should just use this default logging configuration. If you really need to customise your logging
-		setup you should copy this file as a template. You will also need to override the gda.server.logging.xml
-		property to point to your customised configuration file. -->
+	<!-- In general you should just use this default logging configuration.
+
+		 Root logger levels, the Log panel filter level and the LogFile pattern can all be configured by properties, so
+		 they can be overridden by facility, group or beamline config properties.
+
+		 If you really need to customise your logging setup beyond this, you should copy this file as a template
+		 and keep the "include" line below, then override the gda.server.logging.xml property to point to your
+		 customised configuration file.
+	 -->
 
 	<!-- Include the standard set of properties files -->
 	<include file="${gda.core.dir}/properties/logging_properties_includes.xml" />
@@ -31,7 +37,7 @@
 		NOTE: Before using the logging system to filter out messages from a noisy class, consider editing the class
 		itself to improve how it logs its activity. -->
 	<root>
-		<level value="DEBUG" />
+		<level value="${gda.logging.root.level}" />
 		<appender-ref ref="LogServer" />
 	</root>
 
