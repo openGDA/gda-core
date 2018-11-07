@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui;
+package uk.ac.gda.client;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

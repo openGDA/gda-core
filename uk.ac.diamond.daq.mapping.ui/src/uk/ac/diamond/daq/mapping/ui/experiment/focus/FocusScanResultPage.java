@@ -92,9 +92,9 @@ import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
-import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanBeanSubmitter;
+import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
  * The second page of the {@link FocusScanWizard}, allowing the user to run

@@ -1,10 +1,10 @@
-package uk.ac.diamond.daq.mapping.ui;
+package uk.ac.gda.client;
 
 import org.eclipse.jface.databinding.swt.WidgetValueProperty;
 import org.eclipse.swt.SWT;
 
 /**
- * Property for JFace data binding to {@link NumberAndUnitsComposite}
+ * Property for JFace data binding to {@link NumberAndUnitsComposite} and similar classes
  *
  * @author James Mudd
  */

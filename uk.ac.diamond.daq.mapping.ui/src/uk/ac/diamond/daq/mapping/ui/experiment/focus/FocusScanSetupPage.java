@@ -89,12 +89,12 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
-import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
-import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
 import uk.ac.diamond.daq.mapping.ui.experiment.EditDetectorParametersDialog;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentUtils;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
+import uk.ac.gda.client.NumberAndUnitsComposite;
+import uk.ac.gda.client.NumberUnitsWidgetProperty;
 
 /**
  * Wizard page to set-up a focus scan.

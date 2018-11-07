@@ -35,8 +35,8 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
-import uk.ac.diamond.daq.mapping.ui.NumberAndUnitsComposite;
-import uk.ac.diamond.daq.mapping.ui.NumberUnitsWidgetProperty;
+import uk.ac.gda.client.NumberAndUnitsComposite;
+import uk.ac.gda.client.NumberUnitsWidgetProperty;
 
 /**
  * Instances of this class hold a {@code DataBindingContext} and overloaded methods
