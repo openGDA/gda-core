@@ -225,4 +225,9 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	public void setContinuousMoveController(ContinuousMoveController controller) {
 		throw new IllegalArgumentException("setContinuousMoveController(" + controller.getName() + ") not supported on " + this.getName());
 	}
+
+	@Override
+	public void stop() throws DeviceException {
+		zebraScannableMotor.getActualScannableMotor().stop();
+	}
 }
