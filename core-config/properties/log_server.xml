@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- scan=true allows this file to be modified live to change the logging configuration -->
+<!-- scan="true" allows this file to be modified live to change the logging configuration -->
 <!-- debug="true" logs the logback configuration -->
 <configuration scan="true" scanPeriod="10 seconds" debug="true">
 
 	<!-- Standard shared logging configuration for the GDA log server. -->
 
-	<!-- In general you should just use this default log server configuration. If you really need to customise your log
-		server setup you should copy this file as a template and keep the "include" line below. You will also need to
-		override the gda.logserver.xml property to point to your customised configuration file. -->
+	<!-- In general you should just use this default log server configuration.
+
+		 Root logger levels, the Log panel filter level and the LogFile pattern can all be configured by properties, so
+		 they can be overridden by facility, group or beamline config properties.
+
+		 If you really need to customise your logging setup beyond this, you should copy this file as a template
+		 and keep the "include" line below, then override the gda.logserver.xml property to point to your
+		 customised configuration file.
+	 -->
 
 	<!-- Include the standard set of properties files -->
 	<include file="${gda.core.dir}/properties/logging_properties_includes.xml" />
+
+	<!-- Without this define, we see log messages containing: [logserver/null] -->
+	<define scope="context" name="JVMNAME" class="gda.util.logging.JvmNamePropertyDefiner" />
 
 	<!-- http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
 	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -20,20 +29,20 @@
 			<fileNamePattern>${gda.logs.dir}/gda-server-%d{yyyyMMdd}.log.gz</fileNamePattern>
 		</rollingPolicy>
 		<encoder>
-			<pattern>%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%rEx</pattern>
+			<pattern>${gda.logserver.logfile.pattern}</pattern>
 		</encoder>
 	</appender>
 
 	<!-- http://logback.qos.ch/manual/appenders.html#serverSocketAppender -->
 	<appender name="LogPanel" class="ch.qos.logback.classic.net.server.ServerSocketAppender">
 		<port>${gda.logserver.out.port}</port>
-		<!-- Placeholder for limiting the messages sent to log panels. Commented out by default.
-			 If you want to filter out TRACE messages, set the ThresholdFilter level to DEBUG.
-			 If you want to filter out DEBUG messages as well, set the ThresholdFilter level to INFO.
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>ALL</level>
-		</filter>
+		<!-- Placeholder for limiting the messages sent to log panels.
+			 If you want to filter out TRACE messages, set gda.logpanel.filter to DEBUG.
+			 If you want to filter out DEBUG messages as well, set gda.logpanel.filter to INFO.
 		 -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>${gda.logpanel.filter}</level>
+		</filter>
 	</appender>
 
 	<!-- The root appender. By default we log all messages and send all messages to the Log Panels.
@@ -49,11 +58,11 @@
 		 Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
 	 -->
 	<root>
-		<level value="ALL" />
+		<level value="${gda.logserver.root.level}" />
 		<appender-ref ref="LogPanel" /> <!-- For the log panel -->
 		<appender-ref ref="LogFile" />
 	</root>
-	
+
 	<!-- If this file exists, it allows facilites to customise logging -->
 	<include file="${gda.facility.dir}/properties/_common/log_server_customisation.xml" />
 
