@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.server.servlet;
 
+import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
+
 import java.io.File;
 import java.util.Collections;
 
@@ -68,40 +70,34 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 			bean.setStatus(Status.COMPLETE);
 			bean.setMessage(null);
+		} catch (EventException eventException) {
+			throw eventException;
 		} catch (Exception e) {
 			bean.setStatus(Status.FAILED);
-			bean.setMessage(e.getMessage());
+			bean.setMessage(getRootCauseMessage(e));
 			logger.error("Cannot acquire data for detector " + getBean().getDetectorName(), e);
-			throw (e instanceof EventException) ? (EventException)e : new EventException(e);
 		}
 
 		return bean;
 	}
 
-	private IRunnableDevice<?> createRunnableDevice(AcquireRequest request) throws EventException {
+	private IRunnableDevice<?> createRunnableDevice(AcquireRequest request) throws Exception {
 		// get the services we need
 		final IRunnableDeviceService deviceService = Services.getRunnableDeviceService();
 		final IPointGeneratorService pointGenService = Services.getGeneratorService();
 
 		final ScanModel scanModel = new ScanModel();
 
-		try {
-			IPointGenerator<?> gen = pointGenService.createGenerator(new StaticModel());
-			scanModel.setPositionIterable(gen);
+		IPointGenerator<?> gen = pointGenService.createGenerator(new StaticModel());
+		scanModel.setPositionIterable(gen);
+		scanModel.setFilePath(getOutputFilePath(request));
+		IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
+		scanModel.setDetectors(detector);
+		scanModel.setScannables(Collections.emptyList());
+		initializeMalcolmDevice(request, gen);
 
-			scanModel.setFilePath(getOutputFilePath(request));
-			IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
-			scanModel.setDetectors(detector);
-			scanModel.setScannables(Collections.emptyList());
-			initializeMalcolmDevice(request, gen);
-
-			configureDetector(detector, request.getDetectorModel(), scanModel, gen);
-			return deviceService.createRunnableDevice(scanModel, null);
-		} catch (EventException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new EventException(e);
-		}
+		configureDetector(detector, request.getDetectorModel(), scanModel, gen);
+		return deviceService.createRunnableDevice(scanModel, null);
 	}
 
 	/**
@@ -142,14 +138,10 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		logger.debug("Malcolm device(s) initialized");
 	}
 
-	private String getOutputFilePath(AcquireRequest request) throws EventException {
+	private String getOutputFilePath(AcquireRequest request) throws Exception {
 		if (request.getFilePath() == null) {
 			IFilePathService filePathService = Services.getFilePathService();
-			try {
-				request.setFilePath(filePathService.getNextPath(request.getDetectorName() + "-acquire"));
-			} catch (Exception e) {
-				throw new EventException(e);
-			}
+			request.setFilePath(filePathService.getNextPath(request.getDetectorName() + "-acquire"));
 		}
 
 		return request.getFilePath();
