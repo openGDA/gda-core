@@ -45,7 +45,7 @@ import gda.factory.FactoryException;
  * This object can then be set on other beans e.g.
  *
  * <pre>
- *  {@code <bean class="gda.rcp.util.OSGIServiceRegister">
+ *  {@code <bean class="gda.util.osgi.OSGiServiceRegister">
  * 	<property name="class" value="gda.commandqueue.Processor" />
  * 	<property name="service" ref="commandQueueProcessor" />
  * </bean>}
