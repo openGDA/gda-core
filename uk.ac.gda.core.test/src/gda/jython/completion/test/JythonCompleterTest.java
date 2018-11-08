@@ -120,7 +120,7 @@ public class JythonCompleterTest {
 	@Test
 	public void testMethodCompletion() {
 		Mockito.when(jyFunc.__call__(new PyString("dummy_x.get"))).thenReturn(makeList(makeTuple("getPostion", 2), makeTuple("getBusy", 2)));
-		Collection<String> expectedMethods = Arrays.asList(new String[] {"getPostion", "getBusy"});
+		Collection<String> expectedMethods = Arrays.asList(new String[] {"getBusy", "getPostion"});
 		Collection<Integer> expectedTypes = Arrays.asList(new Integer[] {2, 2});
 
 		AutoCompletion comp = jc.getCompletionsFor("\tprint(dummy_x.get)", 18);

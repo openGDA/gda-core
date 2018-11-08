@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -39,13 +41,14 @@ import java.util.stream.Collectors;
 public class AutoCompletion implements Serializable {
 	private final String before;
 	private final String after;
-	private final Collection<AutoCompleteOption> options;
+	private final Set<AutoCompleteOption> options;
 	private final int position;
 
 	public AutoCompletion(String before, String after, Collection<AutoCompleteOption> options, int position) {
 		this.before = before;
 		this.after = after;
-		this.options = new ArrayList<>(options);
+		// Use TreeSet here to keep in natural order (i.e. alphabetical)
+		this.options = new TreeSet<>(options);
 		this.position = position;
 	}
 
