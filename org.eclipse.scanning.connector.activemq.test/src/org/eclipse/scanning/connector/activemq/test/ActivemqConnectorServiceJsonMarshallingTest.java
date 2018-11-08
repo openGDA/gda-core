@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.json.MarshallerService;
-import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
@@ -31,8 +30,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Regression tests to ensure JSON marshalling still works correctly now it is delegated to another service
@@ -94,11 +91,6 @@ public class ActivemqConnectorServiceJsonMarshallingTest {
 	@Test
 	public void testProjectBeanDeserialization() throws Exception {
 		activemqConnectorService.unmarshal(JSON_FOR_PROJECT_BEAN, ProjectBean.class);
-	}
-
-	@Test(expected = JsonMappingException.class)
-	public void testProjectBeanDeserializationWithWrongType() throws Exception {
-		activemqConnectorService.unmarshal(JSON_FOR_PROJECT_BEAN, StatusBean.class);
 	}
 
 	// TODO	remove this - just for experimenting!
