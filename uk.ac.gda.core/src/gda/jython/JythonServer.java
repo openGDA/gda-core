@@ -994,6 +994,11 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		 */
 		public int authorisationLevel;
 
+		public JythonServerThread(boolean scripted) {
+			this();
+			this.scripted = scripted;
+		}
+
 		public JythonServerThread() {
 			// Use the Jython bundle loader as the TCCL
 			this.setContextClassLoader(Py.class.getClassLoader());
@@ -1003,7 +1008,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 				// Any command run from a script should also be thought of as a script
 				scripted = ((JythonServerThread)current).scripted;
 			}
-
 			setUncaughtExceptionHandler(Threads.DEFAULT_EXCEPTION_HANDLER);
 		}
 

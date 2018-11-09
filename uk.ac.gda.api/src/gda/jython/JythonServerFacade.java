@@ -101,6 +101,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	private final Jython commandServer;
 
+	private static JythonServerFacade unattendedDataCollectionClient;
+
 	private volatile int originalAuthorisationLevel = 0;
 
 	private volatile int indexNumberInJythonServer = 0;
@@ -132,6 +134,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @throws InstantiationException
 	 */
 	protected JythonServerFacade(Jython commandServer) throws InstantiationException {
+		this(commandServer, getCurrentUsername(), getCurrentFullName());
+	}
+
+	/**
+	 * Creates a Jython server facade, using the specified Jython command server, username and fullName.
+	 *
+	 * @param commandServer
+	 *            the Jython command server
+	 * @param username
+	 *            the username of the person using this JSF
+	 * @param fullName
+	 *            the full name of the person using this JSF
+	 * @throws InstantiationException
+	 */
+	protected JythonServerFacade(Jython commandServer, String username, String fullName) throws InstantiationException {
 		try {
 			// because this is a call to the Finder, this facade cannot be called during the instantiation phase. It can
 			// be called during the configure phase.
@@ -160,13 +177,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			// register with the Command Server and validate login information supplied by the user
 			try {
 				originalUsername = UserAuthentication.getUsername();
-				String fullName = null;
 				// username is an empty string on the GDA server
 				if (StringUtils.hasText(originalUsername)) {
 					fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
 				}
 				commandServer.addIObserver(this);
-				indexNumberInJythonServer = commandServer.addFacade(name, localHost, originalUsername, fullName, "");
+				indexNumberInJythonServer = commandServer.addFacade(name, localHost, username, fullName, "");
 				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
@@ -203,7 +219,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 * @return JythonServerFacade
 	 * @throws Exception
 	 */
-	public static JythonServerFacade getCurrentInstance() throws Exception {
+	public static synchronized JythonServerFacade getCurrentInstance() throws Exception {
 
 		if (theInstance == null) {
 			theInstance = new JythonServerFacade();
@@ -220,6 +236,45 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			theInstance.commandServer.removeFacade(theInstance.name);
 			theInstance = null;
 		}
+	}
+
+	/**
+	 * @return A JSF designated for unattended data collections
+	 * @throws InstantiationException
+	 */
+	private static JythonServerFacade createUnattendedClientFacade() throws InstantiationException {
+		unattendedDataCollectionClient =  new JythonServerFacade(
+				Finder.getInstance().findSingleton(Jython.class),
+				"UDC",
+				"Unattended Data Collection");
+		return unattendedDataCollectionClient;
+	}
+
+	/**
+	 * @return The JSf singleton for unattended data collections
+	 * @throws InstantiationException
+	 */
+	public static JythonServerFacade getUnattendedClientFacade() throws InstantiationException {
+
+		if (unattendedDataCollectionClient == null) {
+			unattendedDataCollectionClient = createUnattendedClientFacade();
+		}
+		return unattendedDataCollectionClient;
+	}
+
+	/**
+	 * @return The username associated with the current JSF
+	 */
+	private static String getCurrentUsername() {
+		return UserAuthentication.getUsername();
+	}
+
+	/**
+	 * @return The full name associated with the current JSF
+	 */
+	private static String getCurrentFullName() {
+		String currentUsername = getCurrentUsername();
+		return LibGdaCommon.getFullNameOfUser(currentUsername);
 	}
 
 	// methods to copy the Jython interface

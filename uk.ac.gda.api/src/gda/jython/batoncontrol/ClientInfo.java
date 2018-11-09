@@ -111,4 +111,8 @@ public class ClientInfo implements Serializable {
 	public boolean isServer() {
 		return (authorisationLevel == Integer.MAX_VALUE);
 	}
+
+	public boolean isAutomatedUser() {
+		return (authorisationLevel == 4);
+	}
 }
