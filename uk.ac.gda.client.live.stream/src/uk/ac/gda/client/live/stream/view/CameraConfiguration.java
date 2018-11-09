@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
 import gda.factory.FindableBase;
 
@@ -106,73 +109,6 @@ public class CameraConfiguration extends FindableBase {
 		this.cameraCalibration = cameraCalibration;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((arrayPv == null) ? 0 : arrayPv.hashCode());
-		result = prime * result + cacheSize;
-		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + (rgb ? 1231 : 1237);
-		result = prime * result + ((roiProvider == null) ? 0 : roiProvider.hashCode());
-		result = prime * result + ((cameraCalibration == null) ? 0 : cameraCalibration.hashCode());
-		result = prime * result + (int) (sleepTime ^ (sleepTime >>> 32));
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		result = prime * result + (withHistogram ? 1231 : 1237);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CameraConfiguration other = (CameraConfiguration) obj;
-		if (arrayPv == null) {
-			if (other.arrayPv != null)
-				return false;
-		} else if (!arrayPv.equals(other.arrayPv))
-			return false;
-		if (cacheSize != other.cacheSize)
-			return false;
-		if (displayName == null) {
-			if (other.displayName != null)
-				return false;
-		} else if (!displayName.equals(other.displayName))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
-			return false;
-		if (rgb != other.rgb)
-			return false;
-		if (roiProvider == null) {
-			if (other.roiProvider != null)
-				return false;
-		} else if (!roiProvider.equals(other.roiProvider))
-			return false;
-		if (cameraCalibration == null) {
-			if (other.cameraCalibration != null)
-				return false;
-		} else if (!cameraCalibration.equals(other.cameraCalibration))
-			return false;
-		if (sleepTime != other.sleepTime)
-			return false;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
-		if (withHistogram != other.withHistogram)
-			return false;
-		return true;
-	}
-
 	public boolean isWithHistogram() {
 		return withHistogram;
 	}
@@ -181,4 +117,13 @@ public class CameraConfiguration extends FindableBase {
 		this.withHistogram = withHistogram;
 	}
 
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
 }
