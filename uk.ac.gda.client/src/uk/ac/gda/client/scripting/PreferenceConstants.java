@@ -35,12 +35,6 @@ public class PreferenceConstants {
 	public static final String SHOW_GDA_SCRIPTS        = "uk.ac.gda.pydev.show.python.gda.project";
 
 	/**
-	 * Name of preference to set TRUE if java jars in gda.libs are to be added to ClassPath for PyDev interpreter Taken
-	 * to be FALSE if not set.
-	 */
-	public static final String GDA_PYDEV_ADD_GDA_LIBS_JARS = "gda.PyDev.addGDALibsJars";
-
-	/**
 	 * Name of preference to set TRUE if default java jars are to be added to ClassPath for PyDev interpreter Taken to
 	 * be FALSE if not set.
 	 */

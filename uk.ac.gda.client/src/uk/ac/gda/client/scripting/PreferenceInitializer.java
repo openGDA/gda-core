@@ -19,7 +19,6 @@
 package uk.ac.gda.client.scripting;
 
 import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS;
-import static uk.ac.gda.client.scripting.PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_CONFIG_SCRIPTS;
 import static uk.ac.gda.client.scripting.PreferenceConstants.SHOW_GDA_SCRIPTS;
 
@@ -45,7 +44,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		store.setDefault(SHOW_CONFIG_SCRIPTS, false);
 		store.setDefault(SHOW_GDA_SCRIPTS, false);
-		store.setDefault(GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
 
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
