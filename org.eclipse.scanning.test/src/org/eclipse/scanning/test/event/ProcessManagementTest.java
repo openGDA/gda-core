@@ -22,6 +22,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
@@ -31,24 +33,43 @@ import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+@RunWith(value = Parameterized.class)
 public class ProcessManagementTest extends AbstractNewConsumerTest {
+
+	@Parameters(name="{index}: useCommandBean = {0}")
+	public static Object[] data() {
+		return new Object[] { true, false };
+	}
 
 	private WaitingAnswer<Void> waitingAnswer;
 
 	private IBeanListener<StatusBean> statusTopicListener;
+
+	private IBeanListener<QueueCommandBean> commandTopicListener;
 
 	@Mock
 	private IConsumerProcess<StatusBean> process;
 
 	private StatusBean bean;
 
+	private boolean useCommandBean;
+
+	public ProcessManagementTest(boolean useCommandBean) {
+		this.useCommandBean = useCommandBean;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	@Before
 	public void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this); // requried as this test runs with Parameterized instead of MockitoJUnitRunner
 		super.setUp();
 
 		bean = setupBeans("test").get(0);
@@ -62,11 +83,18 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		startConsumer();
 
 		// capture the status topic listener
+		// TODO: remove as part of DAQ-1724 when ConsumerImpl no longer listens to the status topic
 		ArgumentCaptor<IBeanListener<StatusBean>> statusTopicListenerCaptor =
 				(ArgumentCaptor<IBeanListener<StatusBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
 		verify(statusTopicSubscriber).addListener(statusTopicListenerCaptor.capture());
 		statusTopicListener = statusTopicListenerCaptor.getValue();
 
+		ArgumentCaptor<IBeanListener<QueueCommandBean>> commandTopicListenerCaptor =
+				(ArgumentCaptor<IBeanListener<QueueCommandBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
+		verify(commandTopicSubscriber).addListener(commandTopicListenerCaptor.capture());
+		commandTopicListener = commandTopicListenerCaptor.getValue();
+
+		// wait until the process has been started
 		waitingAnswer.waitUntilCalled();
 		verify(process).start();
 	}
@@ -78,7 +106,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	}
 
 	@Test
-	public void testPauseResumeProcess() throws Exception {
+	public void testPauseResumeProcessOld() throws Exception {
 		bean.setStatus(Status.REQUEST_PAUSE);
 		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
 		verify(process).pause();
@@ -89,9 +117,35 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	}
 
 	@Test
-	public void testTerminateProcess() throws Exception {
+	public void testTerminateProcessOld() throws Exception {
+		// TODO remove this old test - it uses the status topic to broadcast the event
 		bean.setStatus(Status.REQUEST_TERMINATE);
 		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
+		verify(process).terminate();
+	}
+
+	private void sendCommandBean() {
+		final QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_JOB);
+		pauseBean.setBeanUniqueId(bean.getUniqueId());
+		commandTopicListener.beanChangePerformed(new BeanEvent<>(pauseBean));
+	}
+
+	@Test
+	public void testPauseResumeProcess() throws Exception {
+		sendCommandBean();
+		verify(process).pause();
+
+		final QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_JOB);
+		resumeBean.setBeanUniqueId(bean.getUniqueId());
+		commandTopicListener.beanChangePerformed(new BeanEvent<>(resumeBean));
+		verify(process).resume();
+	}
+
+	@Test
+	public void testTerminateProcess() throws Exception {
+		final QueueCommandBean terminateBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.TERMINATE_JOB);
+		terminateBean.setBeanUniqueId(bean.getUniqueId());
+		commandTopicListener.beanChangePerformed(new BeanEvent<>(terminateBean));
 		verify(process).terminate();
 	}
 
