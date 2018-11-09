@@ -243,7 +243,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					resume();
 					break;
 				case STOP_QUEUE:
-					disconnect();
+					stop();
 					break;
 				case RESTART_QUEUE:
 					restart();
