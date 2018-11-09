@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -124,28 +125,48 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		verify(process).terminate();
 	}
 
-	private void sendCommandBean() {
-		final QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.PAUSE_JOB);
+	private void sendCommandBean(Command command) {
+		final QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), command);
 		pauseBean.setBeanUniqueId(bean.getUniqueId());
 		commandTopicListener.beanChangePerformed(new BeanEvent<>(pauseBean));
 	}
 
+	private void doPause() throws EventException {
+		if (useCommandBean) {
+			sendCommandBean(Command.PAUSE_JOB);
+		} else {
+			consumer.pauseJob(bean);
+		}
+	}
+
+	private void doResume() throws EventException {
+		if (useCommandBean) {
+			sendCommandBean(Command.RESUME_JOB);
+		} else {
+			consumer.resumeJob(bean);
+		}
+	}
+
+	private void doTerminate() throws EventException {
+		if (useCommandBean) {
+			sendCommandBean(Command.TERMINATE_JOB);
+		} else {
+			consumer.terminateJob(bean);
+		}
+	}
+
 	@Test
 	public void testPauseResumeProcess() throws Exception {
-		sendCommandBean();
+		doPause();
 		verify(process).pause();
 
-		final QueueCommandBean resumeBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.RESUME_JOB);
-		resumeBean.setBeanUniqueId(bean.getUniqueId());
-		commandTopicListener.beanChangePerformed(new BeanEvent<>(resumeBean));
+		doResume();
 		verify(process).resume();
 	}
 
 	@Test
 	public void testTerminateProcess() throws Exception {
-		final QueueCommandBean terminateBean = new QueueCommandBean(consumer.getSubmitQueueName(), Command.TERMINATE_JOB);
-		terminateBean.setBeanUniqueId(bean.getUniqueId());
-		commandTopicListener.beanChangePerformed(new BeanEvent<>(terminateBean));
+		doTerminate();
 		verify(process).terminate();
 	}
 

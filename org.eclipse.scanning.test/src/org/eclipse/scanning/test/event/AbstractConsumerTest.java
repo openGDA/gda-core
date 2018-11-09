@@ -266,44 +266,6 @@ public class AbstractConsumerTest extends BrokerTest {
 		checkTerminatedProcess(bean);
 	}
 
-	@Test
-	public void testAbortingAJobRemotely() throws Exception {
-
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.clearQueue();
-		consumer.start();
-
-		StatusBean bean = doSubmit();
-
-		Thread.sleep(200);
-
-		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), EventConstants.STATUS_TOPIC);
-		bean.setStatus(Status.REQUEST_TERMINATE);
-		terminator.broadcast(bean);
-
-		Thread.sleep(1000);
-		checkTerminatedProcess(bean);
-	}
-
-	@Test
-	public void testAbortingAJobRemotelyNoBeanClass() throws Exception {
-
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.clearQueue();
-		consumer.start();
-
-		StatusBean bean = doSubmit();
-
-		Thread.sleep(200);
-
-		IPublisher<StatusBean> terminator = eservice.createPublisher(submitter.getUri(), EventConstants.STATUS_TOPIC);
-		bean.setStatus(Status.REQUEST_TERMINATE);
-		terminator.broadcast(bean);
-
-		Thread.sleep(2000);
-		checkTerminatedProcess(bean);
-	}
-
 	private void checkTerminatedProcess(StatusBean bean) throws Exception {
 		List<StatusBean> stati = consumer.getRunningAndCompleted();
 		if (stati.size() != 1)

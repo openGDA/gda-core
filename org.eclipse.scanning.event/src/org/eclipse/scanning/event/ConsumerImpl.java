@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -82,7 +83,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
 	private HeartbeatBroadcaster heartbeatBroadcaster;
-	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -95,9 +95,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private MessageConsumer messageConsumer;
 
 	private volatile boolean active = false;
-	private volatile Map<String, WeakReference<IConsumerProcess<U>>> processMap;
 	private Map<String, U> beanOverrideMap;
 
+	private final ProcessManager processManager = new ProcessManager();
 	/**
 	 * Concurrency design recommended by Keith Ralphs after investigating
 	 * how to pause and resume a collection cycle using Reentrant locks.
@@ -138,7 +138,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		consumerId = UUID.randomUUID();
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
-		this.processMap = Collections.synchronizedMap(new HashMap<>());
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
 		this.heartbeatTopicName = heartbeatTopicName;
@@ -204,10 +203,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (commandAckTopicPublisher != null) {
 			commandAckTopicPublisher.disconnect();
 			commandAckTopicPublisher = null;
-		}
-		if (statusTopicSubscriber != null) {
-			statusTopicSubscriber.disconnect();
-			statusTopicSubscriber = null;
 		}
 		if (beanOverrideMap != null) {
 			beanOverrideMap.clear();
@@ -775,34 +770,15 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	public synchronized void stop() throws EventException {
 		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
 
-		try {
-			if (heartbeatBroadcaster != null) {
-				heartbeatBroadcaster.stop();
-			}
-
-			setActive(false); // Stops consume loop
-
-			@SuppressWarnings("unchecked")
-			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
-					.toArray(new WeakReference[processMap.size()]);
-			for (WeakReference<IConsumerProcess<U>> wr : wra) {
-				if (wr.get() != null) {
-					terminateProcess(wr.get());
-				}
-			}
-			consumerThreadRunning = false;
-			fireStatusChangeListeners();
-		} finally {
-			processMap.clear();
+		if (heartbeatBroadcaster != null) {
+			heartbeatBroadcaster.stop();
 		}
-	}
 
-	private final ProcessManager processManager = new ProcessManager();
+		setActive(false); // Stops consume loop
 
-	private void startProcessManager() throws EventException {
-		if (statusTopicSubscriber!=null) statusTopicSubscriber.disconnect();
-		statusTopicSubscriber = eventService.createSubscriber(uri, getStatusTopicName());
-		statusTopicSubscriber.addListener(processManager);
+		processManager.shutdown();
+		consumerThreadRunning = false;
+		fireStatusChangeListeners();
 	}
 
 	/**
@@ -810,7 +786,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * the status of a bean being set to a request state, e.g. {@link Status#REQUEST_PAUSE}
 	 * and performs the appropriate action
 	 */
-	protected class ProcessManager implements IBeanListener<U> {
+	protected class ProcessManager {
+
+		private volatile Map<String, WeakReference<IConsumerProcess<U>>> processMap = new ConcurrentHashMap<>();
 
 		// TODO make this a constant
 		private final Map<Command, Status> commandToStatusMap;
@@ -822,43 +800,24 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			commandToStatusMap.put(Command.TERMINATE_JOB, Status.REQUEST_TERMINATE);
 		}
 
-		@Override
-		public void beanChangePerformed(BeanEvent<U> evt) {
-			U bean = evt.getBean();
-			if (!bean.getStatus().isRequest()) return;
-
-			WeakReference<IConsumerProcess<U>> ref = processMap.get(bean.getUniqueId());
-			try {
-				if (ref==null) { // Might be in submit queue still
-					updateQueue(bean);
-				} else {
-					IConsumerProcess<U> process = ref.get();
-					if (process!=null) {
-						manageProcess(process, bean);
-					}
-				}
-			} catch (EventException ne) {
-				LOGGER.error("Internal error, please contact your support representative.", ne);
-			}
+		public boolean hasRunProcess(U bean) {
+			// returns whether there is/was a process for this bean. Note: it may have been garbage collected
+			return processMap.containsKey(bean.getUniqueId());
 		}
 
-		private void manageProcess(IConsumerProcess<U> process, U bean) throws EventException {
-			process.getBean().setStatus(bean.getStatus());
-			process.getBean().setMessage(bean.getMessage());
-			if (bean.getStatus()==Status.REQUEST_TERMINATE) {
-				processMap.remove(bean.getUniqueId());
-				if (process.isPaused()) process.resume();
-				process.terminate();
-			} else if (bean.getStatus()==Status.REQUEST_PAUSE) {
-				process.pause();
-			} else if (bean.getStatus()==Status.REQUEST_RESUME) {
-				process.resume();
-			}
+		public void registerProcess(U bean, IConsumerProcess<U> process) {
+			processMap.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
 		}
 
 		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
-			final Command command = commandBean.getCommand();
-			final String uniqueId = commandBean.getBeanUniqueId();
+			processJobCommand(commandBean.getBeanUniqueId(), commandBean.getCommand());
+		}
+
+		public void processJobCommand(U bean, Command command) throws EventException {
+			processJobCommand(bean.getUniqueId(), command);
+		}
+
+		private void processJobCommand(String uniqueId, Command command) throws EventException {
 			final Optional<U> optBean = findBean(uniqueId);
 
 			if (optBean.isPresent()) {
@@ -906,12 +865,23 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			statusTopicPublisher.broadcast(bean);
 		}
 
-	}
+		public void shutdown() {
+			@SuppressWarnings("unchecked")
+			final WeakReference<IConsumerProcess<U>>[] wra = processMap.values()
+					.toArray(new WeakReference[processMap.size()]);
+			for (WeakReference<IConsumerProcess<U>> wr : wra) {
+				IConsumerProcess<U> process = wr.get();
+				if (process != null) {
+					try {
+						process.terminate();
+					} catch (Exception e) {
+						LOGGER.error("Could not terminate process for bean {}", process.getBean());
+					}
+				}
+			}
+			processMap.clear();
+		}
 
-	private void terminateProcess(IConsumerProcess<U> process) throws EventException {
-		// TODO More to terminate than call terminate?
-		// Relies on process always setting state correctly to TERMINATED.
-		if (process!=null) process.terminate();
 	}
 
 	/**
@@ -986,7 +956,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			heartbeatBroadcaster.start();
 		}
 
-		startProcessManager();
 		setActive(true);
 
 		// We should pause if there are things in the queue
@@ -1240,7 +1209,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		Instant timeNow = Instant.now();
 		if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to statusSetSubmitter.submit complete", Duration.between(startTime, timeNow).toMillis()); }
 
-		if (processMap.containsKey(bean.getUniqueId())) {
+		if (processManager.hasRunProcess(bean)) {
 			throw new EventException("The bean with unique id '"+bean.getUniqueId()+"' has already been used. Cannot run the same uuid twice!");
 		}
 
@@ -1268,7 +1237,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			timeNow = Instant.now();
 			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to runner.createProcess complete", Duration.between(startTime, timeNow).toMillis()); }
 
-			processMap.put(bean.getUniqueId(), new WeakReference<IConsumerProcess<U>>(process));
+			processManager.registerProcess(bean, process);
 
 			timeNow = Instant.now();
 			if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to processMap.put complete", Duration.between(startTime, timeNow).toMillis()); }
@@ -1302,6 +1271,21 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		LOGGER.info("Consumer for queue {} successfully created connection to ActiveMQ using uri {}.", getName(), uri);
 
 		return consumer;
+	}
+
+	@Override
+	public void pauseJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.PAUSE_JOB);
+	}
+
+	@Override
+	public void resumeJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.RESUME_JOB);
+	}
+
+	@Override
+	public void terminateJob(U bean) throws EventException {
+		processManager.processJobCommand(bean, Command.TERMINATE_JOB);
 	}
 
 	@Override
