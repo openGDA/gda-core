@@ -44,6 +44,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.command.ParserServiceImpl;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
+import org.eclipse.scanning.event.ScanningEventsClassRegistry;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.detector.ConstantVelocityDevice;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
@@ -288,7 +289,9 @@ public final class ServiceTestHelper {
 
 	private static MarshallerService createMarshallerService() {
 		return new MarshallerService(
-				Arrays.asList(new ScanningAPIClassRegistry(), new ScanningExampleClassRegistry(),
+				Arrays.asList(new ScanningAPIClassRegistry(),
+						new ScanningExampleClassRegistry(),
+						new ScanningEventsClassRegistry(),
 						new ScanningTestClassRegistry(FredStatusBean.class, BillStatusBean.class)),
 				Arrays.asList(new PointsModelMarshaller()));
 	}

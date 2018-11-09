@@ -17,10 +17,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 import org.eclipse.scanning.api.device.models.ClusterProcessingModel;
 import org.eclipse.scanning.api.device.models.GenericModel;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.device.models.ProcessingModel;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
@@ -29,20 +26,6 @@ import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.event.status.AdministratorMessage;
-import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.api.malcolm.MalcolmTable;
-import org.eclipse.scanning.api.malcolm.attributes.BooleanArrayAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.BooleanAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.MalcolmAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.NumberArrayAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.PointGeneratorAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.StringAttribute;
-import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
-import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.Scalar;
@@ -143,30 +126,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, MonitorScanUIElement.class);
 		registerClass(tmp, AxisConfiguration.class);
 
-		// event.alive
-		registerClass(tmp, HeartbeatBean.class);
-		registerClass(tmp, QueueCommandBean.class);
-
-		// event.status
-		registerClass(tmp, AdministratorMessage.class);
-		registerClass(tmp, StatusBean.class);
-
-		// malcolm.event
-		registerClass(tmp, MalcolmModel.class);
-		registerClass(tmp, Float.class);
-		registerClass(tmp, MalcolmEvent.class);
-		registerClass(tmp, MalcolmTable.class);
-		registerClass(tmp, ChoiceAttribute.class);
-		registerClass(tmp, BooleanArrayAttribute.class);
-		registerClass(tmp, BooleanAttribute.class);
-		registerClass(tmp, MalcolmAttribute.class);
-		registerClass(tmp, NumberArrayAttribute.class);
-		registerClass(tmp, NumberAttribute.class);
-		registerClass(tmp, PointGeneratorAttribute.class);
-		registerClass(tmp, StringArrayAttribute.class);
-		registerClass(tmp, StringAttribute.class);
-		registerClass(tmp, TableAttribute.class);
-
 		// api.scan
 		registerClass(tmp, PositionEvent.class);
 
@@ -181,7 +140,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, ScriptLanguage.class);
 		registerClass(tmp, ScriptRequest.class);
 		registerClass(tmp, ScriptResponse.class);
-
 
 		idToClassMap = tmp;
 	}
