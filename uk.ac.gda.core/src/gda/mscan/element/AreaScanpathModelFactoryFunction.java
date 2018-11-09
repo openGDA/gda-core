@@ -19,6 +19,7 @@
 package gda.mscan.element;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -40,12 +41,12 @@ public interface AreaScanpathModelFactoryFunction {
 	 * @param scanParameters				The numeric parameters relevant to the specified {@link ScanModel}
 	 * @param bboxParameters				The numeric parameters describing the {@link BoundingBox} of the specified
 	 * 										{@link IROI}
-	 * @param mutators						The {@link Mutator}s to be applied to the scan path
+	 * @param mutatorUses					The {@link Mutator}s to be applied to the scan path with any parameters
 	 * @return								A model constructed using the supplied parameters
 	 * @throws IllegalArgumentException		If the required number of scannables or parameters are not supplied
 	 */
 	public IScanPathModel createScanpathModel(final List<Scannable> scannables,
 						 final List<Number> scanParameters,
 						 final List<Number> bboxParameters,
-						 final List<Mutator> mutators) throws IllegalArgumentException;
+						 final Map<Mutator, List<Number>> mutatorUses) throws IllegalArgumentException;
 }

@@ -21,8 +21,12 @@ package gda.mscan;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import org.junit.Before;
@@ -73,8 +77,9 @@ public class ClauseContextTest {
 	 * Test methods for {@link gda.mscan.ClauseContext#addScannable(gda.device.Scannable)}.
 	 */
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void scannableToAddMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied Scannable was null");
 		clauseContext.addScannable(null);
 	}
 
@@ -114,8 +119,9 @@ public class ClauseContextTest {
 	 * Test methods for {@link gda.mscan.ClauseContext#setRoi(gda.mscan.element.Roi)}.
 	 */
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roiToSetMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied Roi was null");
 		prepareForRoiTest(clauseContext);
 		clauseContext.setRoi(null);
 	}
@@ -133,8 +139,9 @@ public class ClauseContextTest {
 		clauseContext.setRoi(null);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void roiCannotBeSetTwiceBecauseRoiParamsWillHaveBeenInitialised() {
+		expectIllegalStateWithMessageContents("Roi must be the specified before any parameters");
 		prepareForRoiTest(clauseContext);
 		clauseContext.setRoi(Roi.RECTANGLE);
 		clauseContext.setRoi(Roi.CIRCLE);
@@ -164,8 +171,9 @@ public class ClauseContextTest {
 	 * Test methods for {@link gda.mscan.ClauseContext#setAreaScanpath(gda.mscan.element.AreaScanpath)}.
 	 */
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void areaScanpathToSetMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied AreaScanpath was null");
 		prepareForAreaScanpathTest(clauseContext);
 		clauseContext.setAreaScanpath(null);
 	}
@@ -205,37 +213,146 @@ public class ClauseContextTest {
 
 	/**
 	 * Test methods for {@link gda.mscan.ClauseContext#addMutator(gda.mscan.element.Mutator)}.
-	 * TODO: Add more tests when Mutator is fully supported
 	 */
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void mutatorToAddMustNotBeNull() {
+		expectIllegalArgumentWithMessageContents("The supplied Mutator was null");
 		clauseContext.addMutator(null);
 	}
 
 	@Test
-	public void addMutatorSetsMetadataAndStoresMutator() throws Exception {
-		assertThat(unvalidatedClauseContext.addMutator(Mutator.SNAKE), is(true));
-		assertThat(unvalidatedClauseContext.getMutators(), contains(Mutator.SNAKE));
-		assertThat(unvalidatedClauseContext.getMutators().size(), is(1));
+	public void addMutatorSetsMetadataAndStoresSnakeMutatorCorrectlyForGrid() throws Exception {
+		prepareForMutatorTest(unvalidatedClauseContext, AreaScanpath.GRID, 3, 3);
+		unvalidatedClauseContext.addMutator(Mutator.SNAKE);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.SNAKE, new ArrayList<Number>()));
+		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
 		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Mutator"));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(true));
+		assertNotNull(unvalidatedClauseContext.paramsToFill());
+	}
+
+	@Test
+	public void addMutatorSetsMetadataAndStoresSnakeMutatorCorrectlyForRaster() throws Exception {
+		prepareForMutatorTest(unvalidatedClauseContext, AreaScanpath.RASTER, 3, 3);
+		unvalidatedClauseContext.addMutator(Mutator.SNAKE);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasEntry(Mutator.SNAKE, new ArrayList<Number>()));
+		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
+		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("gda.mscan.element.Mutator"));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(true));
+		assertNotNull(unvalidatedClauseContext.paramsToFill());
+	}
+
+	@Test
+	public void addMutatorRejectsSnakeMutatorForSpiral() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Snake may only be applied");
+		prepareForMutatorTest(clauseContext, AreaScanpath.SPIRAL, 1);
+		clauseContext.addMutator(Mutator.SNAKE);
+	}
+
+	@Test
+	public void addMutatorRejectsSnakeMutatorForLissajous() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Snake may only be applied");
+		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3, 4, 5);
+		clauseContext.addMutator(Mutator.SNAKE);
+	}
+
+	@Test
+	public void addMutatorRejectsParametersForSnakeMutator() throws Exception {
+		expectIllegalStateWithMessageContents("Too many parameters");
+		prepareForMutatorTest(clauseContext);
+		clauseContext.addMutator(Mutator.SNAKE);
+		clauseContext.addParam(2);
+	}
+
+	@Test
+	public void addMutatorSetsMetadataAndStoresRandomOffsetGridMutatorCorrectlyForGrid() throws Exception {
+		prepareForMutatorTest(unvalidatedClauseContext);
+		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
+		unvalidatedClauseContext.addParam(20);
+		unvalidatedClauseContext.addParam(2);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasKey(Mutator.RANDOM_OFFSET));
+		assertThat(unvalidatedClauseContext.getMutatorUses().get(Mutator.RANDOM_OFFSET), contains(20, 2));
+		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
+		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("java.lang.Number"));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(true));
+		assertNotNull(unvalidatedClauseContext.paramsToFill());
+	}
+
+	@Test
+	public void addMutatorSetsMetadataAndStoresRandomOffsetGridMutatorCorrectlyForMinimumNumberOfParameters() throws Exception {
+		prepareForMutatorTest(unvalidatedClauseContext);
+		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
+		unvalidatedClauseContext.addParam(20);
+		assertThat(unvalidatedClauseContext.getMutatorUses(), hasKey(Mutator.RANDOM_OFFSET));
+		assertThat(unvalidatedClauseContext.getMutatorUses().get(Mutator.RANDOM_OFFSET), contains(20));
+		assertThat(unvalidatedClauseContext.getMutatorUses().size(), is(1));
+		assertThat(unvalidatedClauseContext.getPreviousType().getTypeName(), is("java.lang.Number"));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
-		assertNull(unvalidatedClauseContext.paramsToFill());
+		assertNotNull(unvalidatedClauseContext.paramsToFill());
+	}
+
+	@Test
+	public void addMutatorRejectsTooManyParametersForRandomOffsetGridMutator() throws Exception {
+		expectIllegalStateWithMessageContents("Too many parameters");
+		prepareForMutatorTest(unvalidatedClauseContext);
+		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
+		unvalidatedClauseContext.addParam(20);
+		unvalidatedClauseContext.addParam(2);
+		unvalidatedClauseContext.addParam(2);
+	}
+
+	@Test
+	public void addMutatorRejectsNegativeValuesOfPercentageOffsetForRandomOffsetGridMutator() throws Exception {
+		expectIllegalArgumentWithMessageContents("must be positive");
+		prepareForMutatorTest(unvalidatedClauseContext);
+		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
+		unvalidatedClauseContext.addParam(-20);
+	}
+
+	@Test
+	public void addMutatorRejectsTooFewParametersForRandomOffsetGridMutator() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Too few parameters");
+		prepareForMutatorTest(clauseContext);
+		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
+		clauseContext.validateAndAdjust();
+	}
+
+	@Test
+	public void addMutatorRejectsRandomOffsetGridMutatorForRaster() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		prepareForMutatorTest(clauseContext, AreaScanpath.RASTER, 1);
+		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
+	}
+
+	@Test
+	public void addMutatorRejectsRandomOffsetGridMutatorForSpiral() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		prepareForMutatorTest(clauseContext, AreaScanpath.SPIRAL, 1);
+		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
+	}
+
+	@Test
+	public void addMutatorRejectsRandomOffsetGridMutatorForLissajous() throws Exception {
+		expectUnsupportedOperationWithMessageContents("Random offsets may only be applied");
+		prepareForMutatorTest(clauseContext, AreaScanpath.LISSAJOUS, 1, 2, 3, 4, 5);
+		clauseContext.addMutator(Mutator.RANDOM_OFFSET);
 	}
 
 	/**
 	 * Test method for {@link gda.mscan.ClauseContext#addParam(java.lang.Number)}.
 	 */
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void paramToAddMustNotBeNull() {
 		prepareForNumericParamTest(clauseContext, Roi.CENTRED_RECTANGLE);
+		expectIllegalArgumentWithMessageContents("The supplied Number was null");
 		clauseContext.addParam(null);
 	}
 
 	@Test
 	public void cannotAddParamsIfNoScannables() throws Exception {
-		expectUnsupportedOperationWithMessageContents("at least 1 scannable");
+		expectIllegalStateWithMessageContents("at least 1 scannable");
 		clauseContext.addParam(2);
 	}
 
@@ -485,6 +602,18 @@ public class ClauseContextTest {
 		assertThat(clauseContext.validateAndAdjust(), is(true));
 	}
 
+	private void prepareForMutatorTest(final ClauseContext context) {
+		prepareForMutatorTest(context, AreaScanpath.GRID, 3, 3);
+	}
+
+	private void prepareForMutatorTest(final ClauseContext context, final AreaScanpath path, final Number... params) {
+		prepareForAreaScanpathTest(context);
+		context.setAreaScanpath(path);
+		for (Number param : params) {
+			context.addParam(param);
+		}
+	}
+
 	private void prepareForAreaScanpathTest(final ClauseContext context) {
 		prepareForRoiTest(context);
 		context.setRoi(Roi.CIRCLE);
@@ -505,12 +634,19 @@ public class ClauseContextTest {
 
 	private void expectUnsupportedOperationWithMessageContents(final String... substrings) {
 		thrown.expect(UnsupportedOperationException.class);
-		for (String substring : substrings) {
-			thrown.expectMessage(substring);
-		}
+		expectMessageContents(substrings);
 	}
 	private void expectIllegalStateWithMessageContents(final String... substrings) {
 		thrown.expect(IllegalStateException.class);
+		expectMessageContents(substrings);
+	}
+
+	private void expectIllegalArgumentWithMessageContents(final String... substrings) {
+		thrown.expect(IllegalArgumentException.class);
+		expectMessageContents(substrings);
+	}
+
+	private void expectMessageContents(final String... substrings) {
 		for (String substring : substrings) {
 			thrown.expectMessage(substring);
 		}

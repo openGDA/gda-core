@@ -21,7 +21,10 @@ package gda.mscan;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -63,7 +66,11 @@ public class ClauseContext {
 	private final List<Scannable> scannables = new ArrayList<>();
 	private final List<Number> pathParams = new ArrayList<>();
 	private final List<Number> roiParams = new ArrayList<>();
-	private final List<Mutator> mutators = new ArrayList<>();
+
+	/**
+	 * Map of {@link Mutator} to its {@link List} of parameters (which may be empty)
+	 */
+	private final Map<Mutator, List<Number>> mutatorUses = new EnumMap<>(Mutator.class);
 
 	private Class<?> previousType = Scannable.class; // Initial value; every Scan Clause starts with a Scannable
 
@@ -73,6 +80,7 @@ public class ClauseContext {
 	private boolean roiDefaulted = false;
 	private Optional<AreaScanpath> areaScanpath = Optional.empty();
 	private boolean areaScanpathDefaulted = false;
+	private boolean paramNullCheckValid = true;
 	protected boolean validated = false;
 
 	private List<Number> paramsToFill;  // Re-pointable reference used to select whether Roi or Scanpath parameters are
@@ -161,39 +169,50 @@ public class ClauseContext {
 	}
 
 	/**
-	 * Adds the supplied {@link Mutator} to the internal list providing it is not full and the supplied instance is
-	 * not null.The appropriate corresponding metadata is also set
+	 * Adds the supplied {@link Mutator} and an empty parameters {@link ArrayList} to the internal Map providing the
+	 * supplied instance is not null.The appropriate corresponding metadata is also set
 	 *
 	 * @param supplied		The {@link Mutator} to be added to the context
-	 *
-	 * @return 				The output of the {@link List#add} operation
 	 */
-	public boolean addMutator(final Mutator supplied) {
+	public void addMutator(final Mutator supplied) {
 		areaScanMustHaveRoiPlusAreaScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
-		resetParamList();
-		paramsToFill = null;
-		requiredParamCount = 0;
+		if (Mutator.RANDOM_OFFSET == supplied) {
+			if (AreaScanpath.GRID != areaScanpath.get()) {
+				throw new UnsupportedOperationException("Random offsets may only be applied to Grid paths");
+			}
+			paramNullCheckValid = true;
+		} else {
+			if (AreaScanpath.GRID != areaScanpath.get() && AreaScanpath.RASTER != areaScanpath.get()) {
+				throw new UnsupportedOperationException("Snake may only be applied to Grid or Raster paths");
+			}
+			paramNullCheckValid = false;
+		}
+		paramsToFill = new ArrayList<>();
+		mutatorUses.put(supplied, paramsToFill);
+		requiredParamCount = supplied.maxValueCount();
 		previousType = Mutator.class;
-		return mutators.add(supplied);
 	}
 
 	/**
-	 * Add the supplied to number to the param list that has been selected by the setting or a {@link Roi} or
-	 * {@link AreaScanpath}. If either or both of these has happened the default value is used and the list selection.
-	 * made based on the order ({@link Roi} is the first thing that can have paramters in the clsuae). If too many
-	 * params are supplied this will also be rejected for all {@link Roi}s and bounded {@link AreaScanpath}s.
+	 * Add the supplied number to the param list that has been selected by the setting of a {@link Roi}, {@link Mutator}
+	 * or {@link AreaScanpath}. If either or both of {@link Roi} or {@link AreaScanpath} has not been set,  the default
+	 * value is used and the list selection is  made based on the order ({@link Roi} is the first thing that can have
+	 * parameters in the clause). If too many params are supplied this will also be rejected for all {@link Roi}s and
+	 * bounded {@link AreaScanpath}s. Multiple {@link Mutator}s may be specified, so contextual validation of their
+	 * parameters is done for each.
 	 *
 	 * @param supplied		The numeric param to be added to the list
 	 *
 	 * @return The outcome of the {@link List} add operation
 	 *
-	 * @throws IllegalStateException	if no param list has yet been selected IndexOutOfBoundsException if the required
-	 * 									number of params would be exceeded.
+	 * @throws IllegalStateException			if no param list has yet been selected or too many parameters have been
+	 * 											supplied for the current list
+	 * @throws IllegalArgumentException			if the supplied param is null or has an invalid value.
 	 */
 	public boolean addParam(final Number supplied) {
 		if (scannables.isEmpty()) {
-			throw new UnsupportedOperationException("Invalid Scan clause: must contain at least 1 scannable");
+			throw new IllegalStateException("Invalid Scan clause: must contain at least 1 scannable");
 		}
 		nullCheck(supplied, Number.class.getSimpleName());
 		/**
@@ -215,8 +234,24 @@ public class ClauseContext {
 			paramsToFill = pathParams;
 			requiredParamCount = areaScanpath.get().valueCount();
 			resetParamList();
+		} else {
+			int indexOfParamToAdd = paramsToFill.size();
+			// can't use contains here as need to compare just the List objects not their content.
+			for (Entry<Mutator, List<Number>> entry : mutatorUses.entrySet()) {
+				if(entry.getValue() == paramsToFill) {
+					try {
+						if (entry.getKey().positiveValuesOnlyFor(indexOfParamToAdd) && supplied.floatValue() < 0) {
+							throw new IllegalArgumentException(String.format(
+									"%s parameter %d value must be positive", entry.getKey().name(), indexOfParamToAdd));
+						}
+					} catch(IndexOutOfBoundsException e) {
+						throw new IllegalStateException(String.format(
+									"Too many parameters supplied for %s", entry.getKey().name()));
+					}
+				}
+			}
 		}
-		if (paramsToFill == null) {
+		if (paramsToFill == null && paramNullCheckValid) {
 			throw new IllegalStateException(
 					"Parameters may not be added until either a Roi or a Scanpath has been specified");
 		}
@@ -257,11 +292,12 @@ public class ClauseContext {
 	 * Validates that the context is consistent.
 	 */
 	public boolean validateAndAdjust() {
-		if (scannables.size() < 1 || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
+		if (scannables.isEmpty() || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
 			throw new IllegalStateException("Invalid Scan clause: scan must have the required number of Scannables");
 		}
 		areaScanMustHaveRoiPlusAreaScanpath();
 		areaScanMustHaveCorrectNumberOfParametersForRoiAndAreaScanpath();
+		checkRequiredMutatorParameters();
 
 		//post validate the default case
 		validated = true;
@@ -281,9 +317,9 @@ public class ClauseContext {
 	/**
 	 * @throws	NoSuchElementException if the {@link ClauseContext} is not complete and valid.
 	 */
-	public List<Mutator> getMutators() {
+	public Map<Mutator, List<Number>> getMutatorUses() {
 		throwIfNotValidated();
-		return Collections.unmodifiableList(mutators);
+		return Collections.unmodifiableMap(mutatorUses);
 	}
 
 	/**
@@ -392,6 +428,21 @@ public class ClauseContext {
 						"Invalid Scan clause: clause must have correct no of params for Roi and Scanpath");
 			} else if (roi.get() == Roi.POLYGON && (roiParams.size() & 1) > 0) {
 				throw new IllegalStateException("Invalid Scan clause: Polygon requires an even number of params");
+			}
+		}
+	}
+
+	/**
+	 * Confirm that the minimum required number of parameters have been supplied for the specified set of
+	 * {@link Mutator}s; for use in the validation stage.
+	 *
+	 * @throws UnsupportedOperationException if too few parameters have been supplied for any of the {@link Mutator}s
+	 */
+	private void checkRequiredMutatorParameters() {
+		for (Entry<Mutator, List<Number>> entry : mutatorUses.entrySet()) {
+			if (entry.getValue().size() < entry.getKey().minValueCount()) {
+				throw new UnsupportedOperationException(String.format(
+							"Too few parameters supplied for %s", entry.getKey().name()));
 			}
 		}
 	}
