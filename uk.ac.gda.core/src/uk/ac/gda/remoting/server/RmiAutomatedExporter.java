@@ -104,7 +104,6 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 
 		// Cache the existing TCCL to be switched back after exporting
 		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-		int count = 0;
 
 		try {
 			// Switch the TCCL to the Spring bundle loader which should be able to see all the needed classes
@@ -121,7 +120,6 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 				} else if (isLocal(entry)) {
 					logger.trace("Not exporting {} as it is local", name);
 				} else {
-					count++;
 					export(name, bean, serviceInterface.value());
 				}
 			}
@@ -131,7 +129,7 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
-		logger.info("Completed RMI exports. Exported {} objects, in {} ms", count,
+		logger.info("Completed RMI exports. Exported {} objects, in {} ms", exporters.size(),
 				exportsTimer.elapsed(MILLISECONDS));
 	}
 
