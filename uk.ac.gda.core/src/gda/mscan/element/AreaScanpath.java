@@ -29,6 +29,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
+import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 
@@ -113,18 +114,25 @@ public enum AreaScanpath implements IMScanElementEnum {
 	 * @param scannables		The {@link List} of scannables associated with the path
 	 * @param pathParams		The {@link List} of numeric parameters used to generate the path
 	 * @param bboxParams		The {@link List} of bounding box parametes that define the extent of the path
-	 * @param mutators			The {@link List} of mutators to be applied to the path
+	 * @param mutatorUses		The {@link Map} of mutators to their parameters to be applied to the path
 	 *
 	 * @return					The {@link IScanPathModel} of the constructed model object
 	 *
-	 * @throws 					IllegalArgumentException if the validation of parameters fails
+	 * @throws 					IllegalArgumentException if the validation of parameters or {@link Mutator}s fails
 	 */
 	public IScanPathModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
-										final List<Number> bboxParams, final List<Mutator> mutators) {
+										final List<Number> bboxParams, final Map<Mutator, List<Number>> mutatorUses) {
 		validateInputs(ImmutableMap.of(scannables, NUMBER_OF_AXES,
 										pathParams, valueCount,
 										bboxParams, BBOX_REQUIRED_PARAMS));
-		return factory.createScanpathModel(scannables, pathParams, bboxParams, mutators);
+		if (this != GRID && mutatorUses.containsKey(Mutator.RANDOM_OFFSET)) {
+			throw new IllegalArgumentException(PREFIX + "Only Grid Model supports Random Offset paths");
+		}
+
+		if (this != GRID && this != RASTER  && mutatorUses.containsKey(Mutator.SNAKE)) {
+			throw new IllegalArgumentException(PREFIX + "Only Grid and Raster Models support Snake paths");
+		}
+		return factory.createScanpathModel(scannables, pathParams, bboxParams, mutatorUses);
 	}
 
 	/**
@@ -148,12 +156,31 @@ public enum AreaScanpath implements IMScanElementEnum {
 
 	/**
 	 * This Class contains factory methods for each of the required {@link AbstractBoundingBoxModel} based types
-	 *  mapped by the instance constructor.
+	 *  mapped by the instance constructor. It also defines constants to allow the various parameters required for
+	 *  construction of the required {@link IScanPathModel} to be expressed in a more meaningful way.
 	 */
 	private static class Factory {
+		// Constants to reference the axes of the various models via the supplied {@link List} of {@link Scannables}
+		private static final int FAST = 0;
+		private static final int SLOW = 1;
+
+		// Constants to reference the available parameters for a {@link RandomOffsetGridModel}
+		private static final int OFFSET = 0;
+		private static final int SEED = 1;
+
+		// Constants to reference the bounding box coordinates via the supplied {@link List} of {@link Number}s
+		// (bboxParameters)
+		private static final int FAST_START = 0;
+		private static final int SLOW_START = 1;
+		private static final int FAST_LENGTH = 2;
+		private static final int SLOW_LENGTH = 3;
+
+		// Constant to reference the available parameter of a {@link SpiralModel}
+		private static final int SCALE = 0;
 
 		/**
-		 * Creates a {@link GridModel} using the supplied params.
+		 * Creates a {@link GridModel} using the supplied params. If the RandomOffset {@link Mutator} is specified, a
+		 * {@link RandomOffsetGridModel} is created instead.
 		 *
 		 * @param scannables		The {@link Scannable}s that relate to the axes of the grid as a {@link List} in the
 		 * 							order: fastScannable, slowScannable
@@ -161,13 +188,13 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 							nFast, nSlow
 		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
 		 * 							grid plus its width and height as a {@link List} in the order x, y, width, height
-		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
 		private static IScanPathModel createGridModel ( final List<Scannable> scannables,
 				 										final List<Number> scanParameters,
 				 										final List<Number> bboxParameters,
-				 										final List<Mutator> mutators) {
+				 										final Map<Mutator, List<Number>> mutatorUses) {
 
 			for (Number param : scanParameters) {
 				if (param.doubleValue() < 0) {
@@ -177,17 +204,31 @@ public enum AreaScanpath implements IMScanElementEnum {
 					throw new IllegalArgumentException(PREFIX + "Grid requires integer parameters");
 				}
 			}
-			GridModel model = new GridModel(
-					scannables.get(0).getName(),
-					scannables.get(1).getName(),
-					scanParameters.get(0).intValue(),
-					scanParameters.get(1).intValue());
-
+			GridModel model;
+			if (mutatorUses.containsKey(Mutator.RANDOM_OFFSET)) {
+				RandomOffsetGridModel roModel = new RandomOffsetGridModel(
+					scannables.get(FAST).getName(),
+					scannables.get(SLOW).getName());
+				roModel.setFastAxisPoints(scanParameters.get(FAST).intValue());
+				roModel.setSlowAxisPoints(scanParameters.get(SLOW).intValue());
+				List<Number> params = mutatorUses.get(Mutator.RANDOM_OFFSET);
+				roModel.setOffset(params.get(OFFSET).doubleValue());
+				if (params.size() > 1) {
+					roModel.setSeed(mutatorUses.get(Mutator.RANDOM_OFFSET).get(SEED).intValue());
+				}
+				model = roModel;
+			} else {
+				model = new GridModel(
+						scannables.get(FAST).getName(),
+						scannables.get(SLOW).getName(),
+						scanParameters.get(FAST).intValue(),
+						scanParameters.get(SLOW).intValue());
+			}
 			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(0).doubleValue(), bboxParameters.get(1).doubleValue(),
-					bboxParameters.get(2).doubleValue(), bboxParameters.get(3).doubleValue()));
+					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
+					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 
-			if (!mutators.isEmpty() && (mutators.contains(Mutator.SNAKE))) {
+			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
 			}
 			return model;
@@ -202,27 +243,27 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 							fastStep, slowStep
 		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
 		 * 							raster plus its width and height as a {@link List} in the order x, y, width, height
-		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
 		private static IScanPathModel createRasterModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
-														 final List<Mutator> mutators) {
+														 final Map<Mutator, List<Number>> mutatorUses) {
 
 			for (Number param : scanParameters) {
 				if (param.doubleValue() < 0) {
 					throw new IllegalArgumentException(PREFIX + "Raster requires all positive parameters");
 				}
 			}
-			RasterModel model = new RasterModel(scannables.get(0).getName(),scannables.get(1).getName());
-			model.setFastAxisStep(scanParameters.get(0).doubleValue());
-			model.setSlowAxisStep(scanParameters.get(1).doubleValue());
+			RasterModel model = new RasterModel(scannables.get(FAST).getName(),scannables.get(SLOW).getName());
+			model.setFastAxisStep(scanParameters.get(FAST).doubleValue());
+			model.setSlowAxisStep(scanParameters.get(SLOW).doubleValue());
 			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(0).doubleValue(), bboxParameters.get(1).doubleValue(),
-					bboxParameters.get(2).doubleValue(), bboxParameters.get(3).doubleValue()));
+					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
+					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 
-			if (mutators.contains(Mutator.SNAKE)) {
+			if (mutatorUses.containsKey(Mutator.SNAKE)) {
 				model.setSnake(true);
 			}
 			return model;
@@ -236,19 +277,19 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * @param scanParameters	The required scale factor for the spiral as a single element {@link List}
 		 * @param bboxParameters	The coordinates of one corner of the rectangular bounding box that	encloses the
 		 * 							spiral plus its width and height as a {@link List} in the order x, y, width, height
-		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
 		private static IScanPathModel createSpiralModel (final List<Scannable> scannables,
 														 final List<Number> scanParameters,
 														 final List<Number> bboxParameters,
-														 final List<Mutator> mutators) {
+														 final Map<Mutator, List<Number>> mutatorUses) {
 
-			SpiralModel model = new SpiralModel(scannables.get(0).getName(), scannables.get(1).getName());
-			model.setScale(scanParameters.get(0).doubleValue());
+			SpiralModel model = new SpiralModel(scannables.get(FAST).getName(), scannables.get(SLOW).getName());
+			model.setScale(scanParameters.get(SCALE).doubleValue());
 			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(0).doubleValue(), bboxParameters.get(1).doubleValue(),
-					bboxParameters.get(2).doubleValue(), bboxParameters.get(3).doubleValue()));
+					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
+					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 			return model;
 		}
 		/**
@@ -260,25 +301,25 @@ public enum AreaScanpath implements IMScanElementEnum {
 		 * 							A, B, Delta, ThetaStep, nunberOfPoints
 		 * @param bboxParameters	The coordinates of diagonally opposite corners of the rectangular bounding box that
 		 * 							encloses the lissajous as a {@link List} in the order x1, y1, x2, y2
-		 * @param mutators			A {@link List} of any {@link Mutators} to be applied to the path
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
 		private static IScanPathModel createLissajousModel (final List<Scannable> scannables,
 															final List<Number> scanParameters,
 															final List<Number> bboxParameters,
-															final List<Mutator> mutators) {
+															final Map<Mutator, List<Number>> mutatorUses) {
 
 			LissajousModel model = new LissajousModel();
-			model.setFastAxisName(scannables.get(0).getName());
-			model.setSlowAxisName(scannables.get(1).getName());
+			model.setFastAxisName(scannables.get(FAST).getName());
+			model.setSlowAxisName(scannables.get(SLOW).getName());
 			model.setA(scanParameters.get(0).doubleValue());
 			model.setB(scanParameters.get(1).doubleValue());
 			model.setDelta(scanParameters.get(2).doubleValue());
 			model.setThetaStep(scanParameters.get(3).doubleValue());
 			model.setPoints(scanParameters.get(4).intValue());
 			model.setBoundingBox(new BoundingBox(
-					bboxParameters.get(0).doubleValue(), bboxParameters.get(1).doubleValue(),
-					bboxParameters.get(2).doubleValue(), bboxParameters.get(3).doubleValue()));
+					bboxParameters.get(FAST_START).doubleValue(), bboxParameters.get(SLOW_START).doubleValue(),
+					bboxParameters.get(FAST_LENGTH).doubleValue(), bboxParameters.get(SLOW_LENGTH).doubleValue()));
 			return model;
 		}
 	}
