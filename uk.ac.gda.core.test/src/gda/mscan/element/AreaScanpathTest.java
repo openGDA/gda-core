@@ -40,6 +40,7 @@ import java.util.Map;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.LissajousModel;
+import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.junit.Before;
@@ -66,7 +67,7 @@ public class AreaScanpathTest {
 	private List<Scannable> scannables;
 	private List<Number> pathParams;
 	private List<Number> bboxParams;
-	private List<Mutator> mutators;
+	private Map<Mutator, List<Number>> mutators;
 
 	@Mock
 	private Scannable scannable1;
@@ -93,7 +94,7 @@ public class AreaScanpathTest {
 		scannables = Arrays.asList(scannable1, scannable2);
 		pathParams = new ArrayList<>();
 		bboxParams = Arrays.asList(1.0, 2.0, 3.0, 4.0);
-		mutators = new ArrayList<>();
+		mutators = new EnumMap<>(Mutator.class);
 	}
 
 	@Test
@@ -203,6 +204,26 @@ public class AreaScanpathTest {
 	}
 
 	@Test
+	public void createModelCreatesCorrectModelForGridWithRandomOffsetMutator() throws Exception {
+		pathParams = Arrays.asList(5, 6);
+		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		IScanPathModel model = GRID.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(RandomOffsetGridModel.class)));
+		RandomOffsetGridModel gModel = (RandomOffsetGridModel)model;
+		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(gModel.getBoundingBox().getFastAxisStart(), is(1.0));
+		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getFastAxisLength(), is(3.0));
+		assertThat(gModel.getBoundingBox().getSlowAxisLength(), is(4.0));
+		assertThat(gModel.getFastAxisPoints(), is(5));
+		assertThat(gModel.getSlowAxisPoints(), is(6));
+		assertThat(gModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+		assertThat(gModel.getOffset(), is(20.0));
+		assertThat(gModel.getSeed(), is(2));
+		assertThat(gModel.isSnake(), is(false));
+	}
+
+	@Test
 	public void createModelRejectsNegativeNoOfPointsForRaster() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Raster requires all positive parameters");
@@ -211,8 +232,18 @@ public class AreaScanpathTest {
 	}
 
 	@Test
+	public void createModelRejectsRandomOffsetMutatorForRaster() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		pathParams = Arrays.asList(-5.2, 6.1);
+		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		RASTER.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
 	public void createModelCreatesCorrectModelForRaster() throws Exception {
 		pathParams = Arrays.asList(0.5, 6.5);
+		mutators.put(Mutator.SNAKE, new ArrayList<>());
 		IScanPathModel model = RASTER.createModel(scannables, pathParams, bboxParams, mutators);
 		assertThat(model, is(instanceOf(RasterModel.class)));
 		RasterModel rModel = (RasterModel)model;
@@ -224,7 +255,7 @@ public class AreaScanpathTest {
 		assertThat(rModel.getFastAxisStep(), is(0.5));
 		assertThat(rModel.getSlowAxisStep(), is(6.5));
 		assertThat(rModel.getBoundingBox().getSlowAxisStart(), is(2.0));
-		assertThat(rModel.isSnake(), is(false));
+		assertThat(rModel.isSnake(), is(true));
 	}
 
 	@Test
@@ -240,6 +271,24 @@ public class AreaScanpathTest {
 		assertThat(sModel.getBoundingBox().getSlowAxisLength(), is(4.0));
 		assertThat(sModel.getScale(), is(5.0));
 		assertThat(sModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+	}
+
+	@Test
+	public void createModelRejectsRandomOffsetMutatorForSpiral() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		pathParams = Arrays.asList(5.0);
+		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsSnakeMutatorForSpiral() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only Grid and Raster Models support Snake paths");
+		pathParams = Arrays.asList(5.0);
+		mutators.put(Mutator.SNAKE, new ArrayList<>());
+		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
@@ -259,5 +308,23 @@ public class AreaScanpathTest {
 		assertThat(lModel.getThetaStep(), is(8.0));
 		assertThat(lModel.getPoints(), is(9));
 		assertThat(lModel.getBoundingBox().getSlowAxisStart(), is(2.0));
+	}
+
+	@Test
+	public void createModelRejectsRandomOffsetMutatorForLissajous() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only Grid Model supports Random Offset paths");
+		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
+		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsSnakeMutatorForLissajous() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Only Grid and Raster Models support Snake paths");
+		pathParams = Arrays.asList(5.0, 6.0, 7.0, 8.0, 9);
+		mutators.put(Mutator.SNAKE, new ArrayList<>());
+		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
 	}
 }

@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -46,6 +47,7 @@ import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConditionallyConfigurable;
@@ -101,20 +103,29 @@ public class SpringObjectServer extends ObjectServer {
 		dumpListOfBeans();
 	}
 
+	private static final String GDA_ACTIVE_SPRING_PROFILES_PROPERTY_NAME = String.format("gda.%s", AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
+
 	private static void setApplicationContextActiveProfiles(ApplicationContext applicationContext) {
-		final String gdaPropertyName = String.format("gda.%s", AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
-		if (LocalProperties.contains(gdaPropertyName)) {
-			final String[] activeProfiles = Arrays.stream(LocalProperties.getStringArray(gdaPropertyName))
-					.filter(s -> !s.isEmpty())
-					.toArray(String[]::new);
+		if (LocalProperties.contains(GDA_ACTIVE_SPRING_PROFILES_PROPERTY_NAME)) {
+			final String[] activeProfiles = nonEmptyActiveSpringProfiles();
 			if (activeProfiles.length != 0) {
-				logger.info("'{}' property is set, so setting active profiles to {}", gdaPropertyName, Arrays.toString(activeProfiles));
+				logger.info("'{}' property is set, so setting active profiles to {}", GDA_ACTIVE_SPRING_PROFILES_PROPERTY_NAME, Arrays.toString(activeProfiles));
 				final ConfigurableEnvironment environment = (ConfigurableEnvironment) applicationContext.getEnvironment();
 				environment.setActiveProfiles(activeProfiles);
 			} else {
-				logger.info("'{}' is set to empty list - not using any profiles", gdaPropertyName);
+				logger.info("'{}' is set to empty list - not using any profiles", GDA_ACTIVE_SPRING_PROFILES_PROPERTY_NAME);
 			}
 		}
+	}
+
+	private static String[] nonEmptyActiveSpringProfiles() {
+		return Arrays.stream(LocalProperties.getStringArray(GDA_ACTIVE_SPRING_PROFILES_PROPERTY_NAME))
+			.filter(s -> !s.isEmpty())
+			.toArray(String[]::new);
+	}
+
+	public static List<String> getActiveSpringProfiles() {
+		return ImmutableList.copyOf(nonEmptyActiveSpringProfiles());
 	}
 
 	private void dumpListOfBeans() {
