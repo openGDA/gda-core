@@ -17,38 +17,49 @@ public class HeartbeatBean {
 
 	public static final HeartbeatBean EMPTY = new HeartbeatBean();
 
+	/**
+	 * The id of the consumer.
+	 */
 	private UUID consumerId;
 
+	/**
+	 * The name of the queue read by the consumer.
+	 */
 	private String queueName;
 
 	/**
 	 * Beamline that the acquisition server is controlling
 	 */
-	private String  beamline;
+	private String beamline;
 
 	/**
 	 * Time that the beat happened on the server
 	 */
-	private long    publishTime;
+	private long publishTime;
 
 	/**
-	 * Time that the heartbeater started or -1 is the checker does not provide this information
+	 * Time that the consumer started.
 	 */
-	private long    conceptionTime;
+	private long conceptionTime;
 
 	/**
 	 * Time that the beat happened on the server
 	 */
-	private long    lastAlive;
+	private long lastAlive;
 
 	/**
 	 * Provides the consumer name, may be null.
 	 */
 	private String consumerName;
 
-
+	/**
+	 * The status of the consumer, a {@link ConsumerStatus} enum value.
+	 */
 	private ConsumerStatus consumerStatus;
 
+	/**
+	 * The name of the machine that the consumer is running on.
+	 */
 	private String hostName;
 
 	public UUID getConsumerId() {

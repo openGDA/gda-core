@@ -143,7 +143,6 @@ public class ConsumerView extends EventConnectionView {
 		// Use job because connection might timeout.
 		final Job topicJob = new Job("Create topic listener") {
 
-			@SuppressWarnings("deprecation")
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
@@ -162,8 +161,6 @@ public class ConsumerView extends EventConnectionView {
 			        return Status.CANCEL_STATUS;
 				}
 			}
-
-
 		};
 
 		topicJob.setPriority(Job.INTERACTIVE);
