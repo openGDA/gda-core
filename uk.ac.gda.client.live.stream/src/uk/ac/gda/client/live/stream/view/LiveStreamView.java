@@ -41,6 +41,8 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -86,6 +88,7 @@ public class LiveStreamView extends ViewPart {
 	private CameraConfiguration camConfig;
 	private LiveStreamConnection liveStreamConnection;
 	private LivePlottingComposite plottingComposite;
+	private IActionBars actionBars;
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -158,7 +161,6 @@ public class LiveStreamView extends ViewPart {
 		} else { // No cameras found
 			displayAndLogError(logger, parent, "No cameras were found");
 		}
-		return;
 	}
 
 	private String cameraIdFromSecondaryId(String secondaryId) {
@@ -214,7 +216,10 @@ public class LiveStreamView extends ViewPart {
 		// Use camera ID (, i.e. camera device name) and stream type for the tab text, to keep it short
 		setPartName(cameraId + ": " + streamType);
 
-		final IActionBars actionBars = getViewSite().getActionBars();
+		actionBars = getViewSite().getActionBars();
+
+		// Use a single column to support top custom UI, main stream view and bottom custom UI.
+		parent.setLayout(GridLayoutFactory.fillDefaults().numColumns(1).spacing(0, 0).create());
 
 		// Create the plotting view
 		try {
@@ -223,6 +228,7 @@ public class LiveStreamView extends ViewPart {
 			plottingComposite.setShowAxes(camConfig.getCameraCalibration() != null);
 			plottingComposite.setShowTitle(true);
 			plottingComposite.connect();
+			GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
 			setupRoiProvider();
 		} catch (Exception e) {
 			displayAndLogError(logger, parent, "Could not create plotting view", e);
@@ -231,6 +237,59 @@ public class LiveStreamView extends ViewPart {
 
 		// Add useful plotting system actions
 		configureActionBars(actionBars);
+
+		createCustomUi(parent);
+
+	}
+
+	/**
+	 * This method sets up custom UI if defined in the {@link CameraConfiguration}.
+	 *
+	 * @param parent The parent to hold the custom UI
+	 */
+	private void createCustomUi(final Composite parent) {
+		if(camConfig.getTopUi() != null) {
+			// New composite to hold the custom UI. This insulates this class from what the custom UI does.
+			Composite topComposite = new Composite(parent, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(topComposite);
+
+			GridLayoutFactory.fillDefaults().applyTo(topComposite);
+			createCustomUiSection(topComposite, camConfig.getTopUi());
+
+			topComposite.moveAbove(plottingComposite); // Put the top composite above the plot
+		}
+
+
+		if(camConfig.getBottomUi() != null) {
+			// New composite to hold the custom UI. This insulates this class from what the custom UI does.
+			Composite bottomComposite = new Composite(parent, SWT.NONE);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(bottomComposite);
+
+			GridLayoutFactory.fillDefaults().applyTo(bottomComposite);
+			createCustomUiSection(bottomComposite, camConfig.getBottomUi());
+		}
+
+		// This redraws the top composite above the plot
+		parent.redraw();
+	}
+
+
+	/**
+	 * This method sets up a custom UI by providing it with the {@link IPlottingSystem} and {@link LiveStreamConnection}
+	 * then calling LiveStreamViewCustomUi#createUi(Composite) method to draw. At this point the custom UI can use the
+	 * plotting system or stream if required.
+	 *
+	 * @param parent
+	 *            the composite onto which the the custom UI will be drawn
+	 * @param customUi
+	 *            The custom Ui to draw
+	 */
+	private void createCustomUiSection(Composite parent, LiveStreamViewCustomUi customUi) {
+		customUi.setPlottingSystem(plottingComposite.getPlottingSystem());
+		customUi.setLiveStreamConnection(liveStreamConnection);
+		customUi.setImageTrace(plottingComposite.getITrace());
+		customUi.setActionBars(actionBars);
+		customUi.createUi(parent);
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
@@ -295,6 +354,13 @@ public class LiveStreamView extends ViewPart {
 
 	@Override
 	public void dispose() {
+		if (camConfig.getTopUi() !=  null) {
+			camConfig.getTopUi().dispose();
+		}
+		if (camConfig.getBottomUi() !=  null) {
+			camConfig.getBottomUi().dispose();
+		}
+
 		if (plottingComposite != null) {
 			plottingComposite.dispose();
 		}

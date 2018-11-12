@@ -52,6 +52,12 @@ public class CameraConfiguration extends FindableBase {
 	private CameraCalibration cameraCalibration;
 	private boolean withHistogram = false;
 
+	/** Custom UI to be drawn above the live stream */
+	private LiveStreamViewCustomUi topUi;
+	/** Custom UI to be drawn below the live stream */
+	private LiveStreamViewCustomUi bottomUi;
+
+
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -115,6 +121,46 @@ public class CameraConfiguration extends FindableBase {
 
 	public void setWithHistogram(boolean withHistogram) {
 		this.withHistogram = withHistogram;
+	}
+
+	/**
+	 * Custom UI to be drawn above the live stream
+	 *
+	 * @return Returns the custom UI instance, or <code>null</code> if not set.
+	 * @since GDA 9.11
+	 */
+	public LiveStreamViewCustomUi getTopUi() {
+		return topUi;
+	}
+
+	/**
+	 * Custom UI to be drawn above the live stream
+	 *
+	 * @param topUi Custom UI instance
+	 * @since GDA 9.11
+	 */
+	public void setTopUi(LiveStreamViewCustomUi topUi) {
+		this.topUi = topUi;
+	}
+
+	/**
+	 * Custom UI to be drawn below the live stream
+	 *
+	 * @return Returns the custom UI instance, or <code>null</code> if not set.
+	 * @since GDA 9.11
+	 */
+	public LiveStreamViewCustomUi getBottomUi() {
+		return bottomUi;
+	}
+
+	/**
+	 * Custom UI to be drawn below the live stream
+	 *
+	 * @param bottomUi Custom UI instance
+	 * @since GDA 9.11
+	 */
+	public void setBottomUi(LiveStreamViewCustomUi bottomUi) {
+		this.bottomUi = bottomUi;
 	}
 
 	@Override
