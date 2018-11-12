@@ -30,7 +30,6 @@
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
-				<path refid="libs.jars.path" />
 			</classpath>
 			<batchtest todir="@{report.dir}">
 				<fileset dir="${plugin.basedir}/src">
