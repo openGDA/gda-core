@@ -155,7 +155,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		statusListeners.remove(listener);
 	}
 
-	private void fireStatusChangeListeners() {
+	private void notifyStatusChanged() {
+		if (heartbeatBroadcaster != null) {
+			heartbeatBroadcaster.publishHeartbeat();
+		}
+
 		final ConsumerStatus status = getConsumerStatus();
 		for (IConsumerStatusListener listener : statusListeners) {
 			listener.consumerStatusChanged(status);
@@ -770,15 +774,15 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	public synchronized void stop() throws EventException {
 		if (!isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is not running");
 
-		if (heartbeatBroadcaster != null) {
-			heartbeatBroadcaster.stop();
-		}
-
 		setActive(false); // Stops consume loop
 
 		processManager.shutdown();
 		consumerThreadRunning = false;
-		fireStatusChangeListeners();
+
+		notifyStatusChanged();
+		if (heartbeatBroadcaster != null) {
+			heartbeatBroadcaster.stop();
+		}
 	}
 
 	/**
@@ -968,7 +972,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		// We're now fully initialized and about to start running the main loop that consumes and runs beans,
 		// so set the consumerThreadRunning flag to true and notify any threads that called awaitStart()
 		consumerThreadRunning = true;
-		fireStatusChangeListeners();
+		notifyStatusChanged();
 		if (latchStart!=null) latchStart.countDown();
 	}
 
@@ -1125,7 +1129,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		awaitPaused = true;
 		closeMessageConsumer(); // required so that remove(), reorder, etc. work as expected. See DAQ-1453.
 		LOGGER.info("Consumer signalled to pause {}", getName());
-		fireStatusChangeListeners();
+		notifyStatusChanged();
 	}
 
 	private void closeMessageConsumer() throws EventException {
@@ -1149,7 +1153,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			awaitPaused = false;
 			shouldResumeCondition.signalAll();
 			LOGGER.info("Consumer signalled to resume {}", getName());
-			fireStatusChangeListeners();
+			notifyStatusChanged();
 		} catch (Exception ne) {
 			throw new EventException(ne);
 		} finally {
@@ -1365,6 +1369,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		private final IPublisher<HeartbeatBean> publisher;
 		private final IConsumer<?> consumer;
+
 		private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
 			Thread thread = Executors.defaultThreadFactory().newThread(r);
 			thread.setName("Alive Notification for consumer " + getName());
@@ -1372,12 +1377,45 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			thread.setPriority(Thread.MIN_PRIORITY);
 			return thread;
 		});
+
 		private volatile HeartbeatBean lastBeat;
 		private boolean broadcasting = false;
 
 		public HeartbeatBroadcaster(URI uri, String heartbeatTopicName, IConsumer<?> consumer) {
 			this.consumer = Objects.requireNonNull(consumer);
 			publisher = eventService.createPublisher(uri, heartbeatTopicName);
+			lastBeat = createHeartbeatBean();
+		}
+
+		private HeartbeatBean createHeartbeatBean() {
+			HeartbeatBean bean = new HeartbeatBean();
+			bean.setConsumerId(consumer.getConsumerId());
+			bean.setConsumerName(consumer.getName());
+			bean.setConsumerStatus(consumer.getConsumerStatus());
+			bean.setQueueName(consumer.getSubmitQueueName());
+			bean.setBeamline(System.getenv("BEAMLINE"));
+
+			try {
+				bean.setHostName(InetAddress.getLocalHost().getHostName());
+			} catch (UnknownHostException e) {
+				LOGGER.warn("Could not resolve local host name", e);
+			}
+
+			return bean;
+		}
+
+		public void publishHeartbeat() {
+			publishHeartbeat(getConsumerStatus());
+		}
+
+		public void publishHeartbeat(ConsumerStatus consumerStatus) {
+			lastBeat.setPublishTime(System.currentTimeMillis());
+			lastBeat.setConsumerStatus(consumerStatus);
+			try {
+				publisher.broadcast(lastBeat);
+			} catch (EventException e) {
+				LOGGER.error("Could not publish heartbeat bean", e);
+			}
 		}
 
 		/**
@@ -1386,18 +1424,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		 */
 		public void start() {
 			if (broadcasting) throw new IllegalStateException("Cannot start heartbeat broadcast; it has already been started");
-			final HeartbeatBean beat = new HeartbeatBean();
-			beat.setConceptionTime(System.currentTimeMillis());
+			lastBeat.setConceptionTime(System.currentTimeMillis());
 
-			scheduler.scheduleAtFixedRate(()->{
-				try {
-					updateHeartbeatBean(beat);
-					publisher.broadcast(beat);
-				} catch (Exception e) {
-					LOGGER.error("Error encountered while broadcasting heartbeat", e);
-				}
-				lastBeat = beat;
-			}, EventTimingsHelper.getNotificationInterval(), EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);
+			scheduler.scheduleAtFixedRate(this::publishHeartbeat, EventTimingsHelper.getNotificationInterval(),
+					EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);
 			broadcasting = true;
 		}
 
@@ -1405,30 +1435,10 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		 * Stops the heartbeat broadcast thread.
 		 * @throws EventException
 		 */
-		public void stop() throws EventException {
+		public void stop() {
 			if (!broadcasting) throw new IllegalStateException("Cannot stop Heartbeat broadcaster; it is not running");
 			scheduler.shutdownNow();
-			if (lastBeat == null) {
-				lastBeat = new HeartbeatBean();
-				try {
-					updateHeartbeatBean(lastBeat);
-				} catch (UnknownHostException e) {
-					throw new EventException("Error encountered while broadcasting final heartbeat", e);
-				}
-			}
-			lastBeat.setConsumerStatus(ConsumerStatus.STOPPED);
-			publisher.broadcast(lastBeat);
 			broadcasting = false;
-		}
-
-		private void updateHeartbeatBean(HeartbeatBean beat) throws UnknownHostException {
-			beat.setPublishTime(System.currentTimeMillis());
-			beat.setConsumerId(consumer.getConsumerId());
-			beat.setConsumerName(consumer.getName());
-			beat.setConsumerStatus(consumer.getConsumerStatus());
-			beat.setQueueName(consumer.getSubmitQueueName());
-			beat.setBeamline(System.getenv("BEAMLINE"));
-			beat.setHostName(InetAddress.getLocalHost().getHostName());
 		}
 
 		public void disconnect() throws EventException {

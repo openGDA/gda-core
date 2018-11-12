@@ -20,18 +20,23 @@ package org.eclipse.scanning.event;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
+import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IRequester;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
 public final class ConsumerProxy<U extends StatusBean> extends AbstractConnection implements IConsumer<U> {
@@ -39,16 +44,33 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 
+	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
+
 	private final IEventService eventService;
 
 	private IRequester<QueueCommandBean> queueCommandRequestor;
 
-	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) {
+	private ISubscriber<IHeartbeatListener> consumerStatusTopicSubscriber;
+
+	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) throws EventException {
 		super(uri, connectorService);
 		setSubmitQueueName(submissionQueueName);
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
 		this.eventService = eventService;
+
+		subscribeToConsumerStatusTopic();
+	}
+
+	private void subscribeToConsumerStatusTopic() throws EventException {
+		consumerStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
+		consumerStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getConsumerStatus()));
+	}
+
+	private void fireStatusChangeListeners(ConsumerStatus status) {
+		for (IConsumerStatusListener listener : statusListeners) {
+			listener.consumerStatusChanged(status);
+		}
 	}
 
 	private ConsumerInfo getConsumerInfo() {
@@ -107,6 +129,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	public synchronized void disconnect() throws EventException {
 		super.disconnect();
 		queueCommandRequestor.disconnect();
+		consumerStatusTopicSubscriber.disconnect();
 	}
 
 	@Override
@@ -245,14 +268,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public void addConsumerStatusListener(IConsumerStatusListener listener) {
-		// Can't add or remove status listeners on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		statusListeners.add(listener);
 	}
 
 	@Override
 	public void removeConsumerStatusListener(IConsumerStatusListener listener) {
-		// Can't add or remove status listeners on the proxy
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+		statusListeners.remove(listener);
 	}
 
 	@Override

@@ -317,7 +317,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Test
 	public void checkedHeartbeat() throws Exception {
 		ISubscriber<IHeartbeatListener> subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
-		HeartbeatListener listener = new HeartbeatListener(5);
+		HeartbeatListener listener = new HeartbeatListener(6);
 		subscriber.addListener(listener);
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
@@ -327,8 +327,8 @@ public class AbstractConsumerTest extends BrokerTest {
 		listener.awaitBeats();
 		Duration broadcastDuration = Duration.between(broadcastStartTime, Instant.now());
 
-		// We should have received 5 heart beats
-		assertEquals(5, listener.numberOfBeats());
+		// We should have received 6 heart beats, including the initial one on consumer start-up
+		assertEquals(6, listener.numberOfBeats());
 
 		// The heartbeats should have come from our consumer only
 		listener.beatsReceived.forEach(beat -> assertEquals(consumer.getConsumerId(), beat.getConsumerId()));

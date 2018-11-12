@@ -120,9 +120,9 @@ public class HeartbeatBean extends QueueCommandBean {
 
 	@Override
 	public String toString() {
-		return "HeartbeatBean [beamline=" + beamline + ", publishTime="
-				+ publishTime + ", conceptionTime=" + conceptionTime
-				+ ", consumerId=" + getConsumerId() + "]";
+		return "HeartbeatBean [" + "beamline=" + beamline + ", publishTime=" + publishTime +
+				", conceptionTime=" + conceptionTime + ", consumerId=" + getConsumerId() +
+				", consumerStatus=" + getConsumerStatus() + "]";
 	}
 
 	public String getConsumerName() {

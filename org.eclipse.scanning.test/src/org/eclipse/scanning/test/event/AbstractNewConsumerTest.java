@@ -45,6 +45,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
+import org.eclipse.scanning.api.event.alive.HeartbeatBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -95,6 +96,9 @@ public abstract class AbstractNewConsumerTest {
 	protected IPublisher<StatusBean> statusTopicPublisher;
 
 	@Mock
+	protected IPublisher<HeartbeatBean> heartbeatTopicPublisher;
+
+	@Mock
 	protected ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 
 	@Mock
@@ -116,7 +120,9 @@ public abstract class AbstractNewConsumerTest {
 
 		when(eventService.createSubmitter(uri, EventConstants.STATUS_SET)).thenReturn(statusSetSubmitter);
 		when(eventService.createPublisher(uri, EventConstants.STATUS_TOPIC)).thenReturn(
-				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher); // TODO why do we need the double cast?
+				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher);
+		when(eventService.createPublisher(uri, EventConstants.HEARTBEAT_TOPIC)).thenReturn(
+				(IPublisher<Object>) (IPublisher<?>) heartbeatTopicPublisher);
 		when(eventService.createSubscriber(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) commandTopicSubscriber);
 		when(eventService.createPublisher(uri, EventConstants.ACK_TOPIC)).thenReturn(
@@ -124,7 +130,7 @@ public abstract class AbstractNewConsumerTest {
 
 		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				/* EventConstants.HEARTBEAT_TOPIC */ null, // not worth testing and would need powermock to mock out the constructor for new HeartbeatBroadcaster
+				EventConstants.HEARTBEAT_TOPIC,
 				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);
