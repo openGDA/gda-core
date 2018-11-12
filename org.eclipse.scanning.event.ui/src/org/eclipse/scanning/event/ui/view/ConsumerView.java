@@ -173,18 +173,11 @@ public class ConsumerView extends EventConnectionView {
 	}
 
 	private void sync(HeartbeatBean bean) {
-
-		HeartbeatBean old = consumers.put(bean.getUniqueId(), bean);
+		HeartbeatBean old = consumers.put(bean.getConsumerId().toString(), bean);
 		if (!bean.equalsIgnoreLastAlive(old)) {
-			viewer.getControl().getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run () {
-					viewer.refresh();
-				}
-			});
+			viewer.getControl().getDisplay().syncExec(() -> viewer.refresh());
 		}
 	}
-
 
 	@Override
 	public void dispose() {

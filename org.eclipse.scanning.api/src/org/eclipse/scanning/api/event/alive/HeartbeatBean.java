@@ -11,9 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.alive;
 
-public class HeartbeatBean extends QueueCommandBean {
+import java.util.UUID;
+
+public class HeartbeatBean {
 
 	public static final HeartbeatBean EMPTY = new HeartbeatBean();
+
+	private UUID consumerId;
+
+	private String queueName;
 
 	/**
 	 * Beamline that the acquisition server is controlling
@@ -44,6 +50,22 @@ public class HeartbeatBean extends QueueCommandBean {
 	private ConsumerStatus consumerStatus;
 
 	private String hostName;
+
+	public UUID getConsumerId() {
+		return consumerId;
+	}
+
+	public void setConsumerId(UUID consumerId) {
+		this.consumerId = consumerId;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
+	}
 
 	public long getConceptionTime() {
 		return conceptionTime;
@@ -120,9 +142,10 @@ public class HeartbeatBean extends QueueCommandBean {
 
 	@Override
 	public String toString() {
-		return "HeartbeatBean [" + "beamline=" + beamline + ", publishTime=" + publishTime +
-				", conceptionTime=" + conceptionTime + ", consumerId=" + getConsumerId() +
-				", consumerStatus=" + getConsumerStatus() + "]";
+		return "HeartbeatBean [" + "queueName=" + queueName +
+				"beamline=" + beamline + ", publishTime=" + publishTime +
+				", conceptionTime=" + conceptionTime + ", consumerId=" + consumerId +
+				", consumerStatus=" + consumerStatus + "]";
 	}
 
 	public String getConsumerName() {
