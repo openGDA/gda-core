@@ -65,7 +65,6 @@
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
-				<path refid="libs.jars.path" />
 			</classpath>
 			<!-- DAQ-275 run ScannableNexusWrapperScanTest separately (default forkmode=perBatch), since otherwise it fails due to earlier Jython-related tests not cleaning up -->
 			<batchtest todir="@{report.dir}">
@@ -161,9 +160,7 @@
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
-				<path refid="tp.path" />
-				<!-- target platform -->
-				<path refid="libs.jars.path" />
+				<path refid="tp.path" /> <!-- target platform -->
 			</classpath>
 		</javac>
 		<delete dir="${dist} "/>
@@ -232,7 +229,6 @@
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />
-				<path refid="libs.jars.path" />
 			</classpath>
 		</java>
 	</target>
