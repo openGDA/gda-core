@@ -86,6 +86,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 	private Button btnNext;
 	private Button btnCancel;
 	private Button btnFinish;
+	private Button chkAcquire;
 
 	private ConfigureExitSlitsComposite[] controlSections;
 
@@ -110,16 +111,17 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
         GridLayoutFactory.fillDefaults().applyTo(container);
         container.setBackground(COLOUR_WHITE);
 
+		// Live stream view
+		final CameraControl cameraControl = params.getCameraControl();
 		try {
-			params.getCameraControl().startAcquiring();
+	        cameraControl.startAcquiring();
+			liveStreamConnection = new LiveStreamConnection(cameraConfig, streamType);
+			createPlottingView(container);
+			cameraControl.stopAcquiring();
 		} catch (DeviceException e) {
-			final String message = String.format("Error acquiring from camera %s", params.getCameraControl().getName());
+			final String message = String.format("Error acquiring from camera %s", cameraControl.getName());
 			displayError("Data acquisition error", message, e, logger);
 		}
-
-		// Live stream view
-		liveStreamConnection = new LiveStreamConnection(cameraConfig, streamType);
-		createPlottingView(container);
 
 		createSeparator(container);
 
@@ -195,7 +197,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		chkShowAxes.addSelectionListener(widgetSelectedAdapter(e -> plottingComposite.setShowAxes(chkShowAxes.getSelection())));
 
 		// Start/stop acquiring
-		final Button chkAcquire = createCheckBox(plottingControlComposite, "Acquire data");
+		chkAcquire = createCheckBox(plottingControlComposite, "Acquire data");
 		final CameraControl cameraControl = params.getCameraControl();
 		try {
 			chkAcquire.setSelection(cameraControl.getAcquireState() == CameraState.ACQUIRING);
@@ -313,6 +315,11 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 			btnNext.setEnabled(currentPage < controlSections.length - 1 && currentControl.canGoToNextPage());
 			btnCancel.setEnabled(currentControl.canCancel());
 			btnFinish.setEnabled(currentControl.canFinish());
+			try {
+				chkAcquire.setSelection(params.getCameraControl().getAcquireState() == CameraState.ACQUIRING);
+			} catch (DeviceException e) {
+				logger.error("Error updating 'Acquire data' button", e);
+			}
 		}
 	}
 
@@ -323,11 +330,6 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		final ConfigureExitSlitsComposite currentControl = controlSections[currentPage];
 		setTitle(currentControl.getTitle());
 		setMessage(currentControl.getDescription());
-	}
-
-	@Override
-	protected boolean isResizable() {
-		return true;
 	}
 
 	@Override
