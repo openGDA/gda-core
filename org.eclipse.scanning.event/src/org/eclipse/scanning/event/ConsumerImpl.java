@@ -1424,7 +1424,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		 */
 		public void start() {
 			if (broadcasting) throw new IllegalStateException("Cannot start heartbeat broadcast; it has already been started");
-			lastBeat.setConceptionTime(System.currentTimeMillis());
+			lastBeat.setStartTime(System.currentTimeMillis());
 
 			scheduler.scheduleAtFixedRate(this::publishHeartbeat, EventTimingsHelper.getNotificationInterval(),
 					EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);

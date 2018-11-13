@@ -33,19 +33,14 @@ public class HeartbeatBean {
 	private String beamline;
 
 	/**
-	 * Time that the beat happened on the server
+	 * Time that the bean was published by the consumer.
 	 */
 	private long publishTime;
 
 	/**
 	 * Time that the consumer started.
 	 */
-	private long conceptionTime;
-
-	/**
-	 * Time that the beat happened on the server
-	 */
-	private long lastAlive;
+	private long startTime;
 
 	/**
 	 * Provides the consumer name, may be null.
@@ -78,12 +73,12 @@ public class HeartbeatBean {
 		this.queueName = queueName;
 	}
 
-	public long getConceptionTime() {
-		return conceptionTime;
+	public long getStartTime() {
+		return startTime;
 	}
 
-	public void setConceptionTime(long conceptionTime) {
-		this.conceptionTime = conceptionTime;
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
 	}
 
 	public long getPublishTime() {
@@ -102,77 +97,12 @@ public class HeartbeatBean {
 		this.beamline = beamline;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
-		result = prime * result + (int) (conceptionTime ^ (conceptionTime >>> 32));
-		result = prime * result + ((consumerName == null) ? 0 : consumerName.hashCode());
-		result = prime * result + ((consumerStatus == null) ? 0 : consumerStatus.hashCode());
-		result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
-		result = prime * result + (int) (lastAlive ^ (lastAlive >>> 32));
-		result = prime * result + (int) (publishTime ^ (publishTime >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HeartbeatBean other = (HeartbeatBean) obj;
-		if (beamline == null) {
-			if (other.beamline != null)
-				return false;
-		} else if (!beamline.equals(other.beamline))
-			return false;
-		if (conceptionTime != other.conceptionTime)
-			return false;
-		if (consumerName == null) {
-			if (other.consumerName != null)
-				return false;
-		} else if (!consumerName.equals(other.consumerName))
-			return false;
-		if (consumerStatus != other.consumerStatus)
-			return false;
-		if (hostName == null) {
-			if (other.hostName != null)
-				return false;
-		} else if (!hostName.equals(other.hostName))
-			return false;
-		if (lastAlive != other.lastAlive)
-			return false;
-		if (publishTime != other.publishTime)
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "HeartbeatBean [" + "queueName=" + queueName +
-				"beamline=" + beamline + ", publishTime=" + publishTime +
-				", conceptionTime=" + conceptionTime + ", consumerId=" + consumerId +
-				", consumerStatus=" + consumerStatus + "]";
-	}
-
 	public String getConsumerName() {
 		return consumerName;
 	}
 
 	public void setConsumerName(String consumerName) {
 		this.consumerName = consumerName;
-	}
-
-	public long getLastAlive() {
-		return lastAlive;
-	}
-
-	public void setLastAlive(long lastAlive) {
-		this.lastAlive = lastAlive;
 	}
 
 	public ConsumerStatus getConsumerStatus() {
@@ -191,23 +121,49 @@ public class HeartbeatBean {
 		this.hostName = hostName;
 	}
 
-	public boolean equalsIgnoreLastAlive(HeartbeatBean obj) {
+	@Override
+	public String toString() {
+		return "HeartbeatBean [" + "queueName=" + queueName +
+				"beamline=" + beamline + ", publishTime=" + publishTime +
+				", conceptionTime=" + startTime + ", consumerId=" + consumerId +
+				", consumerStatus=" + consumerStatus + "]";
+	}
 
-		if (!super.equals(obj)) return false;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beamline == null) ? 0 : beamline.hashCode());
+		result = prime * result + (int) (startTime ^ (startTime >>> 32));
+		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
+		result = prime * result + ((consumerName == null) ? 0 : consumerName.hashCode());
+		result = prime * result + ((consumerStatus == null) ? 0 : consumerStatus.hashCode());
+		result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
+		result = prime * result + (int) (publishTime ^ (publishTime >>> 32));
+		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeartbeatBean other = obj;
+		HeartbeatBean other = (HeartbeatBean) obj;
 		if (beamline == null) {
 			if (other.beamline != null)
 				return false;
 		} else if (!beamline.equals(other.beamline))
 			return false;
-		if (conceptionTime != other.conceptionTime)
+		if (startTime != other.startTime)
+			return false;
+		if (consumerId == null) {
+			if (other.consumerId != null)
+				return false;
+		} else if (!consumerId.equals(other.consumerId))
 			return false;
 		if (consumerName == null) {
 			if (other.consumerName != null)
@@ -220,6 +176,13 @@ public class HeartbeatBean {
 			if (other.hostName != null)
 				return false;
 		} else if (!hostName.equals(other.hostName))
+			return false;
+		if (publishTime != other.publishTime)
+			return false;
+		if (queueName == null) {
+			if (other.queueName != null)
+				return false;
+		} else if (!queueName.equals(other.queueName))
 			return false;
 		return true;
 	}

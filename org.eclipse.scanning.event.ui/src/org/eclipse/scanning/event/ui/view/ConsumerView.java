@@ -149,7 +149,6 @@ public class ConsumerView extends EventConnectionView {
 					heartMonitor = service.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
 					heartMonitor.addListener(evt -> {
 							HeartbeatBean bean = evt.getBean();
-							bean.setLastAlive(System.currentTimeMillis());
 							sync(bean);
 						}
 					);
@@ -171,7 +170,7 @@ public class ConsumerView extends EventConnectionView {
 
 	private void sync(HeartbeatBean bean) {
 		HeartbeatBean old = consumers.put(bean.getConsumerId().toString(), bean);
-		if (!bean.equalsIgnoreLastAlive(old)) {
+		if (!bean.equals(old)) {
 			viewer.getControl().getDisplay().syncExec(() -> viewer.refresh());
 		}
 	}
@@ -337,7 +336,7 @@ public class ConsumerView extends EventConnectionView {
 				Collections.sort(beats, new Comparator<HeartbeatBean>() {
 					@Override
 					public int compare(HeartbeatBean o1, HeartbeatBean o2) {
-						return (int)(o2.getConceptionTime()-o1.getConceptionTime());
+						return (int)(o2.getStartTime()-o1.getStartTime());
 					}
 				});
 				return beats.toArray(new HeartbeatBean[consumers.size()]);
@@ -367,7 +366,7 @@ public class ConsumerView extends EventConnectionView {
 				ConsumerStatus status = cbean.getConsumerStatus();
 
 				if (status==ConsumerStatus.RUNNING &&
-						cbean.getLastAlive() > System.currentTimeMillis() - NOTIFICATION_INTERVAL_MS * 2) {
+						cbean.getPublishTime() > System.currentTimeMillis() - NOTIFICATION_INTERVAL_MS * 2) {
 					// No heartbeat bean is > 2 * notification frequency, despite receiving no STOPPED bean
 					// note: its not clear when this will be shown as we we don't continually update the UI.
 					status = ConsumerStatus.STOPPED;
@@ -383,7 +382,7 @@ public class ConsumerView extends EventConnectionView {
 			@Override
 			public String getText(Object element) {
 				try {
-					return DateFormat.getDateTimeInstance().format(new Date(((HeartbeatBean)element).getConceptionTime()));
+					return DateFormat.getDateTimeInstance().format(new Date(((HeartbeatBean)element).getStartTime()));
 				} catch (Exception e) {
 					return e.getMessage();
 				}
@@ -412,7 +411,7 @@ public class ConsumerView extends EventConnectionView {
 			@Override
 			public String getText(Object element) {
 				try {
-					return DateFormat.getDateTimeInstance().format(new Date(((HeartbeatBean)element).getLastAlive()));
+					return DateFormat.getDateTimeInstance().format(new Date(((HeartbeatBean)element).getPublishTime()));
 				} catch (Exception e) {
 					return e.getMessage();
 				}
@@ -427,7 +426,7 @@ public class ConsumerView extends EventConnectionView {
 			public String getText(Object element) {
 				try {
 					final HeartbeatBean cbean = (HeartbeatBean)element;
-					long time = cbean.getLastAlive()-cbean.getConceptionTime();
+					long time = cbean.getPublishTime()-cbean.getStartTime();
 				Format format = (time<HOUR_IN_MS) ? new SimpleDateFormat("mm'm' ss's'") : new SimpleDateFormat("dd'd' mm'm' ss's'");
 					return format.format(new Date(time));
 				} catch (Exception e) {
