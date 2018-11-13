@@ -47,28 +47,23 @@ public class ScanningPerspective implements IPerspectiveFactory {
 			folderLayout.addView(MonitorView.ID);
 		}
 
-		IFolderLayout folder = layout.createFolder("folder_3", IPageLayout.LEFT, 0.22f, IPageLayout.ID_EDITOR_AREA);
-		folder.addView("org.dawnsci.mapping.ui.mappeddataview:mapview=org.eclipse.scanning.device.ui.vis.visualiseView;spectrumview=org.eclipse.scanning.device.ui.spectrumview");
+		IFolderLayout left = layout.createFolder("folder_3", IPageLayout.LEFT, 0.22f, IPageLayout.ID_EDITOR_AREA);
+		left.addView("org.dawnsci.mapping.ui.mappeddataview:mapview=org.eclipse.scanning.device.ui.vis.visualiseView;spectrumview=org.eclipse.scanning.device.ui.spectrumview");
 
-		folder = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.05f, IPageLayout.ID_EDITOR_AREA);
-		folder.addView("org.eclipse.scanning.device.ui.spectrumview");
-		folder.addView(getQueueViewId());
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_0", IPageLayout.TOP, 0.66f, "org.eclipse.scanning.device.ui.spectrumview");
-			folderLayout.addView("org.eclipse.scanning.device.ui.vis.visualiseView");
-			//folderLayout.addView("org.eclipse.scanning.device.ui.vis.StreamView");
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.26f, "org.eclipse.scanning.device.ui.scanEditor");
-			folderLayout.addView(ModelView.ID);
-			folderLayout.addView(ControlView.ID);
-			folderLayout.addView(ScanRegionView.ID);
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.54f, "org.eclipse.scanning.device.ui.modelEditor");
-			folderLayout.addView(ExecuteView.ID);
-			folderLayout.addView(getConsumerViewId());
-		}
+		IFolderLayout right = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.05f, IPageLayout.ID_EDITOR_AREA);
+		right.addView("org.eclipse.scanning.device.ui.spectrumview");
+		right.addView(getQueueViewId());
+
+		IFolderLayout top = layout.createFolder("folder_0", IPageLayout.TOP, 0.66f, "org.eclipse.scanning.device.ui.spectrumview");
+		top.addView("org.eclipse.scanning.device.ui.vis.visualiseView");
+
+		IFolderLayout bottom1 = layout.createFolder("folder_1", IPageLayout.BOTTOM, 0.26f, "org.eclipse.scanning.device.ui.scanEditor");
+		bottom1.addView(ModelView.ID);
+		bottom1.addView(ControlView.ID);
+		bottom1.addView(ScanRegionView.ID);
+
+		IFolderLayout bottom2 = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.54f, "org.eclipse.scanning.device.ui.modelEditor");
+		bottom2.addView(ExecuteView.ID);
 	}
 
 	private String getUriString() {
@@ -99,7 +94,7 @@ public class ScanningPerspective implements IPerspectiveFactory {
 	 * Hard codes certain views to life so that the perspective tends to work.
 	 */
 	public static void createKeyPlayers() {
-		ViewUtil.createViews(ScanRegionView.ID, ModelView.ID, getQueueViewId(), getConsumerViewId(), VisualiseView.ID);
+		ViewUtil.createViews(ScanRegionView.ID, ModelView.ID, getQueueViewId(), VisualiseView.ID);
 	}
 
 	private static String getQueueViewId() {
@@ -109,10 +104,6 @@ public class ScanningPerspective implements IPerspectiveFactory {
 		} catch (Exception ne) {
 			return QueueViews.getQueueViewID();
 		}
-	}
-
-	private static String getConsumerViewId() {
-		return "org.eclipse.scanning.event.ui.consumerView:partName=Consumers";
 	}
 
 }

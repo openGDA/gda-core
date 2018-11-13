@@ -17,15 +17,6 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="true"
-            category="org.dawnsci.commandserver.category"
-            class="org.eclipse.scanning.event.ui.view.ConsumerView"
-            icon="icons/hand-share.png"
-            id="org.eclipse.scanning.event.ui.consumerView"
-            name="Active Consumers"
-            restorable="true">
-      </view>
-      <view
             category="org.dawnsci.commandserver.category"
             class="org.eclipse.scanning.event.ui.view.StatusQueueLaunchView"
             icon="icons/computer--pencil.png"
