@@ -2,6 +2,8 @@ bashlog debug "gda_servers_core" "Entered"
 DEBUG=""
 GDA_ARGS=""
 options_text=""
+readonly SUCCESS=0
+readonly UNREACHABLE=33
 readonly ABORTED=66
 readonly FAILED=99
 
@@ -237,21 +239,25 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
             # Set a trap to intercept the SIGPIPE generated when Cancel or close window is clicked
             # or the SIGINT from Ctrl-C and run the cleanup function to kill the starting servers.
             trap cleanup PIPE INT
-
+            countdown=60                                       # Timeout (s) for ping if startup file detected
             while :
             do                                                 # First check for startup errors
                 if [ -r $OBJECT_SERVER_STARTUP_FILE ]; then
                     read it < <(cat $OBJECT_SERVER_STARTUP_FILE)
+                    (( countdown-- ))
                     if [[ ${#it} > 0 ]]; then
-                        gda_zenity --error --width 500  --text="GDA Server failed to start:\n\n$it\n"
+                        gda_zenity --error --width 300 --text="GDA Server failed to start:\n\n$it\n"
                         exit $FAILED
+                    elif [[ "${countdown}" == 0 ]]; then
+                        gda_zenity --warning --width 300 --text="GDA Server status port cannot be contacted but the startup file does not indicate a failure\nPlease check status using the ssh client:\n\n$it\n"
+                        exit $UNREACHABLE
                     fi
-                fi                                             # then ping the server until it responds.
+                fi                                             # then ping the server until it responds or times out.
 
-                nc -z "${server_machine}" "$GDA_STATUS_PORT" # checks whether the status port is open, 0 if yes, 1 if no
-                if [[ "$?" == 0 ]]; then
+                nc -z "${server_machine}" "$GDA_STATUS_PORT"   # checks whether the status port is open, 0 if yes, 1 if no
+                if [[ "$?" == $SUCCESS ]]; then
                     if [[ -n "${DISPLAY:-}" && "${GDA_NO_PROMPT:-}" != true ]]; then    # if we are using zenity progress bar then change
-                        echo "#\nServer started"                                        # its text when startup is successful for 2 seconds
+                        echo "#\nServer started"                                        # its text for 2 seconds when startup is successful
                         sleep 2
                     fi
                     break
@@ -261,12 +267,22 @@ if [[ "${GDA_MODE}" == "dummy" ]] || [[ "${ssh_tunnel_activated:-}" == true ]] |
             done
         ) | $progress_consumer                      # consuming it with the corresponding command
 
-        status=("${PIPESTATUS[0]}")               # Cache the startup exit code so that no later commands modify the value.
-        if [[ "${status}" == $FAILED ]]; then
-            msg="failed to start"
-        else
-           [[ "${status}" == $ABORTED ]] && msg="start aborted" || { msg="started"; GDA_SERVERS_UP=true; }
-        fi
+        status=("${PIPESTATUS[0]}")                 # Cache the startup exit code so that no later commands modify the value.
+        case $status in
+            $SUCCESS)
+                msg="started";
+                GDA_SERVERS_UP=true;
+                ;;
+            $UNREACHABLE)
+                msg="status port unreachable, check condition manually";
+                ;;
+            $ABORTED)
+                msg="start aborted";
+                ;;
+            $FAILED|*)                              # Default option if non zero status
+                msg="failed to start";
+                ;;
+        esac
 
         set -e                                    # Reinstate on error exit.
         echo
