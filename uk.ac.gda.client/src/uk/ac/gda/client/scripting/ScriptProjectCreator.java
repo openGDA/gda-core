@@ -146,18 +146,6 @@ public class ScriptProjectCreator {
 			}
 		}
 
-		// Defines all third party libs that can be used in scripts.
-		if (preferenceStore.getBoolean(PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS)) {
-			final List<String> gdaJars = LibsLocationFinder.findGdaLibs();
-			info.libs.addAll(gdaJars);
-		}
-
-		// Defines gda classes which can be used in scripts.
-		final String gdaInterfacePath = LibsLocationFinder.findGdaInterface();
-		if (gdaInterfacePath != null) {
-			info.libs.add(gdaInterfacePath);
-		}
-
 		List<String> allScriptProjectFolders = JythonServerFacade.getInstance().getAllScriptProjectFolders();
 		for (String s : allScriptProjectFolders) {
 			info.libs.add(s);
