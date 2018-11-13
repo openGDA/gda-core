@@ -102,9 +102,20 @@ public interface IExperimentObjectManager extends Serializable{
 	 * order that they will be presented to the user (in both the Experiment perspective and the ExperimentRunEditor).
 	 * <p>
 	 * These strings match the values returned from the getBeanType method in IExperimentBeanDescription
-	 *
+	 * <p>
+	 * This can be customised by setting ExafsPreferenceConstants.SCAN_TAB_ORDER to the required order (e.g.
+	 * "Scan, Sample, Detector, Output") in plugin_customization.ini.
 	 * @return - String[]
 	 */
 	public String[] getOrderedColumnBeanTypes();
+
+	/**
+	 * Returns the index of the tab to be selected when opening new scan settings in Experiment perspective.
+	 * <p>
+	 * This can be customised by setting ExafsPreferenceConstants.SELECTED_SCAN_TAB to one of
+	 * Scan, Detector, Sample, Output in plugin_customization.ini
+	 * @return int
+	 */
+	int getDefaultSelectedColumnIndex();
 
 }
