@@ -21,6 +21,7 @@ package gda.jython.server.shell;
 import static java.util.Objects.requireNonNull;
 import static org.jline.keymap.KeyMap.alt;
 import static org.jline.keymap.KeyMap.ctrl;
+import static org.jline.utils.AttributedString.stripAnsi;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -123,6 +124,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	/** The unique ID of this shell */
 	private final int shellNumber;
 	private volatile boolean running;
+	/** Flag to let welcome output be coloured */
+	private final boolean colour;
 
 	public JythonShell(Terminal term) throws Exception {
 		this(term, new HashMap<>());
@@ -135,6 +138,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		final String gdaVar = LocalProperties.getVarDir();
 		File historyFile = new File(gdaVar, JYTHON_SERVER_HISTORY_FILE);
 		String theme = env.getOrDefault(THEME_ENVIRONMENT_VARIABLE, DEFAULT_THEME);
+		colour = theme != null && !theme.isEmpty();
 		read = LineReaderBuilder.builder()
 				.terminal(term)
 				.appName("GDA")
@@ -207,7 +211,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		server.addOutputTerminal(this);
 		server.addIScanDataPointObserver(this);
 		setupKeybindings();
-		rawWrite(WELCOME_BANNER);
+		rawWrite(colour ? WELCOME_BANNER : stripAnsi(WELCOME_BANNER));
 		setTitle(String.format(TITLE_TEMPLATE, shellNumber));
 	}
 
