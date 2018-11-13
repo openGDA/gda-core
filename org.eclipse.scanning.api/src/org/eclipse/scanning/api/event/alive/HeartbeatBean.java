@@ -15,8 +15,6 @@ import java.util.UUID;
 
 public class HeartbeatBean {
 
-	public static final HeartbeatBean EMPTY = new HeartbeatBean();
-
 	/**
 	 * The id of the consumer.
 	 */
