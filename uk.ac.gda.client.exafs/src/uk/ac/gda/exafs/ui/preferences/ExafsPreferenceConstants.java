@@ -154,4 +154,14 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String XANES_IS_DEFAULT_SCAN_TYPE = "exafs.editor.xanesdefaultscan.preference";
 
+	/**
+	 * The order which the scan xml tabs in Experiment perspective should appear (default is Scan, Detector, Sample, Output)
+	 */
+	public static final String SCAN_TAB_ORDER = "exafs.editor.scan.tab.order";
+
+	/**
+	 * The type of scan xml tab which should be selected when opening settings for a scan in Experiment perspective.
+	 * (default is 'Scan')
+	 */
+	public static final String SELECTED_SCAN_TAB = "exafs.editor.selected.scan.tab";
 }
