@@ -71,4 +71,9 @@ public class ExampleExperimentObjectManager extends ExperimentObjectManager impl
 		return new String[]{ExampleExperimentObject.SCANBEANTYPE};
 	}
 
+	@Override
+	public int getDefaultSelectedColumnIndex() {
+		return 0;
+	}
+
 }
