@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.data;
 
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -47,7 +49,9 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
-	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");
+	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");;
+	private static final String[] DEFAULT_SCAN_TAB_ORDER = { "Scan", "Detector", "Sample", "Output" };
+	private static final String DEFAULT_SELECTED_SCAN_TAB = "Scan";
 
 	public ScanObjectManager() {
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
@@ -183,7 +187,25 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	@Override
 	public String[] getOrderedColumnBeanTypes() {
-		return new String[]{"Scan","Detector","Sample","Output"};
+		String orderFromPref = ExafsActivator.getDefault().getPreferenceStore().getString(ExafsPreferenceConstants.SCAN_TAB_ORDER);
+		if (orderFromPref != null && !orderFromPref.isEmpty()) {
+			return orderFromPref.trim().split("\\W+");
+		} else {
+			return DEFAULT_SCAN_TAB_ORDER;
+		}
 	}
 
+	@Override
+	public int getDefaultSelectedColumnIndex() {
+		String selectedTabName = ExafsActivator.getDefault().getPreferenceStore().getString(ExafsPreferenceConstants.SELECTED_SCAN_TAB);
+		if (selectedTabName == null || selectedTabName.isEmpty()) {
+			selectedTabName = DEFAULT_SELECTED_SCAN_TAB;
+		}
+
+		int selectedTabIndex = Arrays.asList(getOrderedColumnBeanTypes()).indexOf(selectedTabName);
+		if (selectedTabIndex < 0) {
+			selectedTabIndex = 0;
+		}
+		return selectedTabIndex;
+	}
 }
