@@ -47,6 +47,7 @@ public class ScriptsSelectionDialog extends Dialog {
 
 	private static final String DIALOG_TITLE = "Select scripts";
 	private static final String BROWSE_ICON_PATH = "icons/folder-import.png";
+	private static final String CLEAR_ICON_PATH = "icons/cross.png";
 	private static final String SCRIPTS_SUBDIRECTORY = "scripts";
 	private static final String[] FILTER_NAMES = new String[] {"Python scripts", "All files"};
 	private static final String[] FILTER_EXTENSIONS = new String[] {"*.py", "*.*"};
@@ -85,7 +86,7 @@ public class ScriptsSelectionDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		final Composite composite = (Composite) super.createDialogArea(parent);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(composite);
 
 		beforeScriptSupplier = createControlsRow(composite, "Before", getBeforeScanScript());
 		afterScriptSupplier  = createControlsRow(composite, "After", getAfterScanScript());
@@ -94,7 +95,8 @@ public class ScriptsSelectionDialog extends Dialog {
 	}
 
 	/**
-	 * Creates label, text box, and browse button.
+	 * Creates label, text box, browse button, and clear button.
+	 *
 	 * @param composite on which to create widgets
 	 * @param whenToRun 'Before' or 'After' for labels/captions
 	 * @param currentScript currently selected script to populate text box
@@ -109,6 +111,10 @@ public class ScriptsSelectionDialog extends Dialog {
 		browse.setImage(MappingExperimentUtils.getImage(BROWSE_ICON_PATH));
 		browse.setToolTipText("Browse...");
 		browse.addListener(SWT.Selection, e -> textbox.setText(browseForScript(whenToRun.toLowerCase())));
+		final Button clear = new Button(composite, SWT.PUSH);
+		clear.setImage(MappingExperimentUtils.getImage(CLEAR_ICON_PATH));
+		clear.setToolTipText("Clear");
+		clear.addListener(SWT.Selection, e -> textbox.setText(""));
 		return textbox::getText;
 	}
 
