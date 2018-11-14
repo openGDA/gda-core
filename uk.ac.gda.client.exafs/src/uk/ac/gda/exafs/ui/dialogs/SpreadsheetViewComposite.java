@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.dialogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,7 +55,6 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
-import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
 public class SpreadsheetViewComposite {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewComposite.class);
@@ -107,7 +107,7 @@ public class SpreadsheetViewComposite {
 			for(ParameterValuesForBean paramForBean : paramsForScan.getParameterValuesForScanBeans()) {
 				String fullFileName = paramForBean.getBeanFileName();
 				String filename = FilenameUtils.getName(fullFileName);
-				String newFullFilename = FilenameUtils.normalize(xmlDirectoryName+"/"+filename);
+				String newFullFilename = Paths.get(xmlDirectoryName, filename).toString();
 				paramForBean.setBeanFileName(newFullFilename);
 			}
 		}
@@ -129,19 +129,6 @@ public class SpreadsheetViewComposite {
 
 	public List<ParametersForScan> getParametersForScans() {
 		return parameterValuesForScanFiles;
-	}
-
-	public void showParametersForScans() {
-		System.out.println("Current override parameter settings");
-		for(int i=0; i<parameterValuesForScanFiles.size(); i++) {
-			for (ParameterValuesForBean override : parameterValuesForScanFiles.get(i).getParameterValuesForScanBeans()) {
-				System.out.println(
-						String.format("%s, %s : ", override.getBeanFileName(), override.getBeanType()));
-				for (ParameterValue vals : override.getParameterValues()) {
-					System.out.println("\t" + vals.getFullPathToGetter() + " : " + vals.getNewValue());
-				}
-			}
-		}
 	}
 
 	public void createTableAndControls() {
@@ -236,7 +223,17 @@ public class SpreadsheetViewComposite {
 				dirDialog.setFilterPath(xmlDirectoryNameText.getText());
 				String result = dirDialog.open();
 				if (result != null) {
-					setXmlDirectoryName(result);
+					// Check with user if really want to continue with changing directory
+					boolean changeXmlDir = true;
+					if (!parameterValuesForScanFiles.isEmpty()) {
+						changeXmlDir = MessageDialog.openQuestion(parent.getShell(), "Continue with changing directory?",
+							"Changing XML directory will also clear the table of all the scans.\nDo you want to continue?");
+					}
+
+					if (changeXmlDir) {
+						clearAllScans();
+						setXmlDirectoryName(result);
+					}
 				}
 			}
 		});
@@ -650,6 +647,12 @@ public class SpreadsheetViewComposite {
 				iter.remove();
 			}
 		}
+
+		// Perform same actions as when clearing the table if there are no scans left
+		if (parameterValuesForScanFiles.isEmpty()) {
+			clearAllScans();
+		}
+
 		// Update viewer
 		spreadsheetTable.refresh();
 	}
