@@ -39,9 +39,9 @@ import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
-import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBeanEvent;
+import org.eclipse.scanning.api.event.alive.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -146,7 +146,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testBeanClass() throws Exception {
 		IConsumer<StatusBean> fconsumer = eservice.createConsumer(uri,
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+				EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.clearQueue();
@@ -167,7 +167,7 @@ public class AbstractConsumerTest extends BrokerTest {
 	public void testBeanClass2Beans() throws Exception {
 		IConsumer<StatusBean> fconsumer = eservice.createConsumer(uri,
 				EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.HEARTBEAT_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+				EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		try {
 			fconsumer.setRunner(new DryRunProcessCreator<StatusBean>(0, 100, 50, 50L, true));
 			fconsumer.clearQueue();
@@ -288,13 +288,13 @@ public class AbstractConsumerTest extends BrokerTest {
 		}
 	}
 
-	private static class HeartbeatListener implements IHeartbeatListener {
+	private static class ConsumerStatusListener implements IConsumerStatusBeanListener {
 
-		private List<HeartbeatBean> beatsReceived = Collections.synchronizedList(new ArrayList<>());
+		private List<ConsumerStatusBean> beatsReceived = Collections.synchronizedList(new ArrayList<>());
 		private final CountDownLatch countdown;
 		private int expectedBeats;
 
-		public HeartbeatListener(int expectedBeats)  {
+		public ConsumerStatusListener(int expectedBeats)  {
 			countdown = new CountDownLatch(expectedBeats);
 			this.expectedBeats = expectedBeats;
 		}
@@ -308,7 +308,7 @@ public class AbstractConsumerTest extends BrokerTest {
 		}
 
 		@Override
-		public void heartbeatPerformed(HeartbeatEvent evt) {
+		public void consumerStatusChanged(ConsumerStatusBeanEvent evt) {
 			beatsReceived.add(evt.getBean());
 			countdown.countDown();
 		}
@@ -316,8 +316,8 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void checkedHeartbeat() throws Exception {
-		ISubscriber<IHeartbeatListener> subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
-		HeartbeatListener listener = new HeartbeatListener(6);
+		ISubscriber<IConsumerStatusBeanListener> subscriber = eservice.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
+		ConsumerStatusListener listener = new ConsumerStatusListener(6);
 		subscriber.addListener(listener);
 
 		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
@@ -339,14 +339,14 @@ public class AbstractConsumerTest extends BrokerTest {
 
 	@Test
 	public void uncheckedHeartbeat() throws Exception {
-		ISubscriber<IHeartbeatListener> subscriber = null;
+		ISubscriber<IConsumerStatusBeanListener> subscriber = null;
 		try {
 			consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
 			consumer.clearQueue();
 			consumer.start();
 
-			subscriber = eservice.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
-			final List<HeartbeatBean> gotBack = new ArrayList<>(3);
+			subscriber = eservice.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
+			final List<ConsumerStatusBean> gotBack = new ArrayList<>(3);
 			subscriber.addListener(evt -> gotBack.add(evt.getBean()));
 
 			Thread.sleep(800);

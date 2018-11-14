@@ -28,9 +28,9 @@ import java.util.EventListener;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IdBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
-import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBeanEvent;
+import org.eclipse.scanning.api.event.alive.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
@@ -65,10 +65,10 @@ public class ConsumerProxyControlTest extends ConsumerControlTest {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setUp() throws Exception {
-		// set up the mock heartbeat subscriber used by the consumer proxy
-		ISubscriber<IHeartbeatListener> heartbeatSubscriber = mock(ISubscriber.class);
-		when(eventService.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC)).thenReturn(
-				(ISubscriber<EventListener>) (ISubscriber<?>) heartbeatSubscriber);
+		// set up the mock consumer status topic subscriber used by the consumer proxy
+		ISubscriber<IConsumerStatusBeanListener> consumerStatusTopicSubscriber = mock(ISubscriber.class);
+		when(eventService.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC)).thenReturn(
+				(ISubscriber<EventListener>) (ISubscriber<?>) consumerStatusTopicSubscriber);
 
 		// setup the mock command requester used by the consumer proxy to invoke the consumers topic listener directly
 		// with the bean passed to it (this would normally happen over JMS, which this test mocks out)
@@ -88,20 +88,20 @@ public class ConsumerProxyControlTest extends ConsumerControlTest {
 				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 
 		// capture the consumer proxy's listener to consumer status events
-		verify(eventService).createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
-		ArgumentCaptor<IHeartbeatListener> heartbeatListenerCaptor =
-				(ArgumentCaptor<IHeartbeatListener>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IHeartbeatListener.class);
-		verify(heartbeatSubscriber).addListener(heartbeatListenerCaptor.capture());
-		IHeartbeatListener heartbeatListener = heartbeatListenerCaptor.getValue();
+		verify(eventService).createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
+		ArgumentCaptor<IConsumerStatusBeanListener> consumerStatusBeanListenerCaptor =
+				(ArgumentCaptor<IConsumerStatusBeanListener>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IConsumerStatusBeanListener.class);
+		verify(consumerStatusTopicSubscriber).addListener(consumerStatusBeanListenerCaptor.capture());
+		IConsumerStatusBeanListener heartbeatListener = consumerStatusBeanListenerCaptor.getValue();
 
 		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
-				HeartbeatBean bean = invocation.getArgumentAt(0, HeartbeatBean.class);
-				heartbeatListener.heartbeatPerformed(new HeartbeatEvent(bean));
+				ConsumerStatusBean bean = invocation.getArgumentAt(0, ConsumerStatusBean.class);
+				heartbeatListener.consumerStatusChanged(new ConsumerStatusBeanEvent(bean));
 				return null;
 			}
-		}).when(heartbeatTopicPublisher).broadcast(any(HeartbeatBean.class));
+		}).when(consumerStatusTopicPublisher).broadcast(any(ConsumerStatusBean.class));
 
 		super.setUp();
 

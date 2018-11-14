@@ -30,7 +30,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
+import org.eclipse.scanning.api.event.alive.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -50,7 +50,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	private IRequester<QueueCommandBean> queueCommandRequestor;
 
-	private ISubscriber<IHeartbeatListener> consumerStatusTopicSubscriber;
+	private ISubscriber<IConsumerStatusBeanListener> consumerStatusTopicSubscriber;
 
 	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) throws EventException {
 		super(uri, connectorService);
@@ -63,7 +63,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	private void subscribeToConsumerStatusTopic() throws EventException {
-		consumerStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.HEARTBEAT_TOPIC);
+		consumerStatusTopicSubscriber = eventService.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
 		consumerStatusTopicSubscriber.addListener(evt -> fireStatusChangeListeners(evt.getBean().getConsumerStatus()));
 	}
 
@@ -251,9 +251,8 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public String getHeartbeatTopicName() {
-		// The proxy doesn't know the heartbeat topic name
-		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+	public String getConsumerStatusTopicName() {
+		return consumerStatusTopicSubscriber.getTopicName();
 	}
 
 	@Override

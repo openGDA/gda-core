@@ -63,7 +63,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(consumer.getStatusSetName(), is(EventConstants.STATUS_SET));
 		assertThat(consumer.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
 		assertThat(consumer.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
-		assertThat(consumer.getHeartbeatTopicName(), is(nullValue()));
+		assertThat(consumer.getConsumerStatusTopicName(), is(nullValue()));
 		assertThat(consumer.getName(), is(equalTo("Test Consumer")));
 		assertThat(consumer.getConsumerId(), is(any(UUID.class)));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));

@@ -45,7 +45,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
@@ -96,7 +96,7 @@ public abstract class AbstractNewConsumerTest {
 	protected IPublisher<StatusBean> statusTopicPublisher;
 
 	@Mock
-	protected IPublisher<HeartbeatBean> heartbeatTopicPublisher;
+	protected IPublisher<ConsumerStatusBean> consumerStatusTopicPublisher;
 
 	@Mock
 	protected ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
@@ -121,8 +121,8 @@ public abstract class AbstractNewConsumerTest {
 		when(eventService.createSubmitter(uri, EventConstants.STATUS_SET)).thenReturn(statusSetSubmitter);
 		when(eventService.createPublisher(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher);
-		when(eventService.createPublisher(uri, EventConstants.HEARTBEAT_TOPIC)).thenReturn(
-				(IPublisher<Object>) (IPublisher<?>) heartbeatTopicPublisher);
+		when(eventService.createPublisher(uri, EventConstants.CONSUMER_STATUS_TOPIC)).thenReturn(
+				(IPublisher<Object>) (IPublisher<?>) consumerStatusTopicPublisher);
 		when(eventService.createSubscriber(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) commandTopicSubscriber);
 		when(eventService.createPublisher(uri, EventConstants.ACK_TOPIC)).thenReturn(
@@ -130,7 +130,7 @@ public abstract class AbstractNewConsumerTest {
 
 		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.HEARTBEAT_TOPIC,
+				EventConstants.CONSUMER_STATUS_TOPIC,
 				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);

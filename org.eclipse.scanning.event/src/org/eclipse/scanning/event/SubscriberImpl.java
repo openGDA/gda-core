@@ -39,9 +39,9 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IdBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
-import org.eclipse.scanning.api.event.alive.HeartbeatEvent;
-import org.eclipse.scanning.api.event.alive.IHeartbeatListener;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBeanEvent;
+import org.eclipse.scanning.api.event.alive.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanClassListener;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
@@ -118,8 +118,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 			return ((IBeanClassListener) listener).getBeanClass();
 		} else if (listener instanceof IScanListener) {
 			return ScanBean.class;
-		} else if (listener instanceof IHeartbeatListener) {
-			return HeartbeatBean.class;
+		} else if (listener instanceof IConsumerStatusBeanListener) {
+			return ConsumerStatusBean.class;
 		} else if (listener instanceof ILocationListener) {
 			return Location.class;
 		} else {
@@ -232,8 +232,8 @@ class SubscriberImpl<T extends EventListener> extends AbstractTopicConnection im
 
 		ret.put(IScanListener.class, (bean, listener) ->
 				invokeScanListener((IScanListener) listener, (ScanBean) bean));
-		ret.put(IHeartbeatListener.class, (bean, listener) ->
-				((IHeartbeatListener) listener).heartbeatPerformed(new HeartbeatEvent((HeartbeatBean) bean)));
+		ret.put(IConsumerStatusBeanListener.class, (bean, listener) ->
+				((IConsumerStatusBeanListener) listener).consumerStatusChanged(new ConsumerStatusBeanEvent((ConsumerStatusBean) bean)));
 		ret.put(IBeanListener.class, (bean, listener) ->
 				((IBeanListener<Object>) listener).beanChangePerformed(new BeanEvent<Object>(bean)));
 		ret.put(ILocationListener.class, (bean, listener) ->

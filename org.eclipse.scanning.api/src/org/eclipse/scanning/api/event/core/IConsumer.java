@@ -15,7 +15,7 @@ import java.util.UUID;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
 
 /**
  *
@@ -159,10 +159,10 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	public String getCommandAckTopicName();
 
 	/**
-	 * If set, the name of the topic that the consumer publishes {@link HeartbeatBean}s to, to indicate that it is running.
-	 * @return the heartbeat topic name, may be <code>null</code>
+	 * If set, the name of the topic that the consumer publishes {@link ConsumerStatusBean}s to, to indicate that it is running.
+	 * @return the consumer status topic name, may be <code>null</code>
 	 */
-	public String getHeartbeatTopicName();
+	public String getConsumerStatusTopicName();
 
     /**
      * The string UUID which denotes this consumer

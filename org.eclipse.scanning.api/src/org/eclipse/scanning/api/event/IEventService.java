@@ -74,13 +74,10 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 public interface IEventService {
 
 	/**
-	 * Creates an ISubscriber with the default scan event topic and default heartbeat topic.
+	 * Creates an ISubscriber for the topic with the given name.
 	 * Useful on the client for adding event listeners to be notified.
 	 *
-	 *  Normally this method is good enough to connect to the acquisition server
-	 *  and receive its heartbeat and scan events.
-	 *
-	 *  Scan events have a unique id with which to assertain if a given scan event
+	 *  Scan events have a unique id with which to ascertain if a given scan event
 	 *  came from given scan.
 	 *
 	 * @param uri - the location of the JMS broker
@@ -90,7 +87,7 @@ public interface IEventService {
 
 
 	/**
-	 * Creates an IEventPublisher with the default scan event topic and no heartbeat events.
+	 * Creates an IEventPublisher for the topic with the given name.
 	 *
 	 * @param uri - the location of the JMS broker
 	 * @return IEventManager
@@ -108,14 +105,14 @@ public interface IEventService {
 
 
 	/**
-	 * Create a consumer with the default, status topic, submission queue, status queue and termination topic.
+	 * Create a consumer with the default, status topic, submission queue, status queue and command topic.
 	 * @param uri
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException;
 
 	/**
-	 * Create a consumer with the submission queue, status queue, status topic and termination topic passed in.
+	 * Create a consumer with the submission queue, status queue, and status topic passed in.
 	 *
 	 * @param uri
 	 * @param submissionQueueName
@@ -128,25 +125,27 @@ public interface IEventService {
 						                                        String statusTopicName) throws EventException;
 
 	/**
-	 * Create a consumer with the submission queue, status queue, status topic and termination topic passed in.
+	 * Create a consumer with the submission queue, status queue, status topic, consumer status topic,
+	 * command topic and command acknowledgement topic passed in.
 	 *
 	 * @param uri the uri of the message
-	 * @param submissionQName
+	 * @param submissionQueueName
 	 * @param statusQueueName
 	 * @param statusTopicName
 	 * @param commandTopicName
 	 * @param commandAckTopicName
 	 * @return
 	 */
-	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName,
+	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
 						                                        String statusQueueName,
 						                                        String statusTopicName,
-						                                        String heartbeatTopicName,
+						                                        String consumerStatusTopicName,
 						                                        String commandTopicName,
 						                                        String commandAckTopicName) throws EventException;
 
 	/**
-	 * Create a proxy for the consumer for the given submission queue. The given command queue
+	 * Create a proxy for the consumer for the given submission queue, using the default
+	 * command and command acknowledgement topics.
 	 *
 	 * @param uri
 	 * @param submissionQueueName
@@ -192,16 +191,6 @@ public interface IEventService {
 	 * @throws EventException
 	 */
 	public <T extends IdBean> IResponder<T> createResponder(URI uri, String requestTopic, String responseTopic) throws EventException;
-
-	/**
-	 * Checks the heartbeat can be found and if it cannot in the given time, throws an exception.
-	 * @param uri - URI
-	 * @param patientName - Name of entity we are checking the hearbeat of
-	 * @param listenTime - Time to listener before giving up
-	 * @return
-	 * @throws EventException
-	 */
-	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException;
 
 	/**
 	 * The current event connector service that this event service is using to

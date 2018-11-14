@@ -29,6 +29,7 @@ public class EventConstants {
      * It is usually better to use your own topic rather than the default.
      */
 	public static final String SCAN_TOPIC      = "org.eclipse.scanning.scan.topic";
+
     /**
      * The default topic used for status update events
      * It is usually better to use your own topic rather than the default.
@@ -36,10 +37,10 @@ public class EventConstants {
 	public static final String STATUS_TOPIC      = "org.eclipse.scanning.status.topic";
 
 	/**
-	 * The default topic used for heartbeat events.
+	 * The default topic used for consumer status events.
      * It is usually better to use your own topic rather than the default.
 	 */
-	public static final String HEARTBEAT_TOPIC = "org.eclipse.scanning.alive.topic";
+	public static final String CONSUMER_STATUS_TOPIC = "org.eclipse.scanning.consumer.status.topic";
 
 	/**
 	 * The default topic used for to send command to a consumer, e.g. pause/terminate

@@ -56,7 +56,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.HeartbeatBean;
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
@@ -82,7 +82,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private UUID consumerId;
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
-	private HeartbeatBroadcaster heartbeatBroadcaster;
+	private ConsumerStatusBroadcaster consumerStatusBroadcaster;
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -121,12 +121,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private final String commandTopicName;
 	private final String commandAckTopicName;
-	private final String heartbeatTopicName;
+	private final String consumerStatusTopicName;
 
 	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
 
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String heartbeatTopicName, String commandTopicName, String commandAckTopicName,
+			String consumerStatusTopicName, String commandTopicName, String commandAckTopicName,
 			IEventConnectorService connectorService, IEventService eventService)
 			throws EventException {
 		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService);
@@ -140,7 +140,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		name = "Consumer " + consumerId; // This will hopefully be changed to something meaningful...
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
-		this.heartbeatTopicName = heartbeatTopicName;
+		this.consumerStatusTopicName = consumerStatusTopicName;
 
 		connect();
 	}
@@ -156,8 +156,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	private void notifyStatusChanged() {
-		if (heartbeatBroadcaster != null) {
-			heartbeatBroadcaster.publishHeartbeat();
+		if (consumerStatusBroadcaster != null) {
+			consumerStatusBroadcaster.publishConsumerStatusBean();
 		}
 
 		final ConsumerStatus status = getConsumerStatus();
@@ -171,8 +171,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		statusTopicPublisher = eventService.createPublisher(uri, getStatusTopicName());
 		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
-		if (heartbeatTopicName!=null) {
-			heartbeatBroadcaster = new HeartbeatBroadcaster(uri, heartbeatTopicName, this);
+		if (consumerStatusTopicName!=null) {
+			consumerStatusBroadcaster = new ConsumerStatusBroadcaster(uri, consumerStatusTopicName, this);
 		}
 
 		if (getCommandTopicName()!=null) {
@@ -196,9 +196,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			statusTopicPublisher.disconnect();
 			statusTopicPublisher = null;
 		}
-		if (heartbeatBroadcaster != null) {
-			heartbeatBroadcaster.disconnect();
-			heartbeatBroadcaster = null;
+		if (consumerStatusBroadcaster != null) {
+			consumerStatusBroadcaster.disconnect();
+			consumerStatusBroadcaster = null;
 		}
 		if (commandTopicSubscriber != null)  {
 			commandTopicSubscriber.disconnect();
@@ -780,8 +780,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		consumerThreadRunning = false;
 
 		notifyStatusChanged();
-		if (heartbeatBroadcaster != null) {
-			heartbeatBroadcaster.stop();
+		if (consumerStatusBroadcaster != null) {
+			consumerStatusBroadcaster.stop();
 		}
 	}
 
@@ -956,8 +956,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		if (runner == null) {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
-		} else if (heartbeatTopicName != null) {
-			heartbeatBroadcaster.start();
+		} else if (consumerStatusTopicName != null) {
+			consumerStatusBroadcaster.start();
 		}
 
 		setActive(true);
@@ -1338,8 +1338,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public String getHeartbeatTopicName() {
-		return heartbeatTopicName;
+	public String getConsumerStatusTopicName() {
+		return consumerStatusTopicName;
 	}
 
 	@Override
@@ -1363,11 +1363,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	/**
-	 * Class responsible for updating and broadcasting {@code HeartbeatBean}s. Essentially a wrapper for an {@code IPublisher<HeartbeatBean>}
+	 * Class responsible for updating and broadcasting {@code ConsumerStatusBean}s. Essentially a wrapper for an {@code IPublisher<ConsumerStatusBean>}
 	 */
-	private class HeartbeatBroadcaster {
+	private class ConsumerStatusBroadcaster {
 
-		private final IPublisher<HeartbeatBean> publisher;
+		private final IPublisher<ConsumerStatusBean> publisher;
 		private final IConsumer<?> consumer;
 
 		private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -1378,17 +1378,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return thread;
 		});
 
-		private volatile HeartbeatBean lastBeat;
+		private volatile ConsumerStatusBean lastBeat;
 		private boolean broadcasting = false;
 
-		public HeartbeatBroadcaster(URI uri, String heartbeatTopicName, IConsumer<?> consumer) {
+		public ConsumerStatusBroadcaster(URI uri, String consumerStatusTopicName, IConsumer<?> consumer) {
 			this.consumer = Objects.requireNonNull(consumer);
-			publisher = eventService.createPublisher(uri, heartbeatTopicName);
-			lastBeat = createHeartbeatBean();
+			publisher = eventService.createPublisher(uri, consumerStatusTopicName);
+			lastBeat = createConsumerStatusBean();
 		}
 
-		private HeartbeatBean createHeartbeatBean() {
-			HeartbeatBean bean = new HeartbeatBean();
+		private ConsumerStatusBean createConsumerStatusBean() {
+			ConsumerStatusBean bean = new ConsumerStatusBean();
 			bean.setConsumerId(consumer.getConsumerId());
 			bean.setConsumerName(consumer.getName());
 			bean.setConsumerStatus(consumer.getConsumerStatus());
@@ -1404,39 +1404,39 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return bean;
 		}
 
-		public void publishHeartbeat() {
-			publishHeartbeat(getConsumerStatus());
+		public void publishConsumerStatusBean() {
+			publishConsumerStatus(getConsumerStatus());
 		}
 
-		public void publishHeartbeat(ConsumerStatus consumerStatus) {
+		public void publishConsumerStatus(ConsumerStatus consumerStatus) {
 			lastBeat.setPublishTime(System.currentTimeMillis());
 			lastBeat.setConsumerStatus(consumerStatus);
 			try {
 				publisher.broadcast(lastBeat);
 			} catch (EventException e) {
-				LOGGER.error("Could not publish heartbeat bean", e);
+				LOGGER.error("Could not publish consumer status bean", e);
 			}
 		}
 
 		/**
-		 * Starts a thread which broadcasts {@link HeartbeatBean}s to the heartbeat topic
+		 * Starts a thread which broadcasts {@link ConsumerStatusBean}s to the consumer status topic
 		 * at a frequency determined by the property <code>org.eclipse.scanning.event.heartbeat.freq</code>
 		 */
 		public void start() {
-			if (broadcasting) throw new IllegalStateException("Cannot start heartbeat broadcast; it has already been started");
+			if (broadcasting) throw new IllegalStateException("Cannot start consumer status broadcast; it has already been started");
 			lastBeat.setStartTime(System.currentTimeMillis());
 
-			scheduler.scheduleAtFixedRate(this::publishHeartbeat, EventTimingsHelper.getNotificationInterval(),
+			scheduler.scheduleAtFixedRate(this::publishConsumerStatusBean, EventTimingsHelper.getNotificationInterval(),
 					EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);
 			broadcasting = true;
 		}
 
 		/**
-		 * Stops the heartbeat broadcast thread.
+		 * Stops the consumer status broadcast thread.
 		 * @throws EventException
 		 */
 		public void stop() {
-			if (!broadcasting) throw new IllegalStateException("Cannot stop Heartbeat broadcaster; it is not running");
+			if (!broadcasting) throw new IllegalStateException("Cannot stop consumer status broadcaster; it is not running");
 			scheduler.shutdownNow();
 			broadcasting = false;
 		}

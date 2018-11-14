@@ -13,7 +13,7 @@ package org.eclipse.scanning.api.event.alive;
 
 import java.util.UUID;
 
-public class HeartbeatBean {
+public class ConsumerStatusBean {
 
 	/**
 	 * The id of the consumer.
@@ -121,7 +121,7 @@ public class HeartbeatBean {
 
 	@Override
 	public String toString() {
-		return "HeartbeatBean [" + "queueName=" + queueName +
+		return "ConsumerStatusBean [" + "queueName=" + queueName +
 				"beamline=" + beamline + ", publishTime=" + publishTime +
 				", conceptionTime=" + startTime + ", consumerId=" + consumerId +
 				", consumerStatus=" + consumerStatus + "]";
@@ -150,7 +150,7 @@ public class HeartbeatBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeartbeatBean other = (HeartbeatBean) obj;
+		ConsumerStatusBean other = (ConsumerStatusBean) obj;
 		if (beamline == null) {
 			if (other.beamline != null)
 				return false;

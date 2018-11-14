@@ -13,6 +13,7 @@ package org.eclipse.scanning.event;
 
 import java.time.Duration;
 
+import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
 import org.eclipse.scanning.api.event.core.IConsumer;
 
 /**
@@ -28,7 +29,7 @@ public final class EventTimingsHelper {
 	}
 
 	/**
-	 * The interval at which HeartbeatBeans are send by an {@link IConsumer} in ms, default 2 seconds (i.e. 2000ms)
+	 * The interval at which {@link ConsumerStatusBean}s are send by an {@link IConsumer} in ms, default 2 seconds (i.e. 2000ms)
 	 * Set org.eclipse.scanning.event.heartbeat.interval system property to change this time.
 	 */
 	private static long notificationInterval = Duration.ofSeconds(2).toMillis();

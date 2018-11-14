@@ -13,7 +13,7 @@ package org.eclipse.scanning.event;
 
 import static org.eclipse.scanning.api.event.EventConstants.ACK_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.CMD_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.HEARTBEAT_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.CONSUMER_STATUS_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_SET;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
@@ -86,22 +86,22 @@ public class EventServiceImpl implements IEventService {
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri) throws EventException {
-		return createConsumer(uri, SUBMISSION_QUEUE, STATUS_SET, STATUS_TOPIC, HEARTBEAT_TOPIC, CMD_TOPIC, ACK_TOPIC);
+		return createConsumer(uri, SUBMISSION_QUEUE, STATUS_SET, STATUS_TOPIC, CONSUMER_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
 			String statusQueueName, String statusTopicName) throws EventException {
-		return createConsumer(uri, submissionQueueName, statusQueueName, statusTopicName, HEARTBEAT_TOPIC, CMD_TOPIC, ACK_TOPIC);
+		return createConsumer(uri, submissionQueueName, statusQueueName, statusTopicName, CONSUMER_STATUS_TOPIC, CMD_TOPIC, ACK_TOPIC);
 	}
 
 
 	@Override
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQName, String statusQueueName,
-			String statusTopicName, String heartbeatTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
+			String statusTopicName, String consumerStatusTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
 		logger.trace("createConsumer({}, {}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusQueueName, statusTopicName,
-				heartbeatTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
-		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, heartbeatTopicName,
+				consumerStatusTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
+		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, consumerStatusTopicName,
 				commandTopicName, commandAckTopicName, eventConnectorService, this);
 	}
 
@@ -117,13 +117,6 @@ public class EventServiceImpl implements IEventService {
 		logger.trace("createConsumerProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,
 				commandTopicName, commandAckTopicName, eventConnectorService, this);
 		return new ConsumerProxy<>(uri, submissionQueueName, commandTopicName, commandAckTopicName, eventConnectorService, this);
-	}
-
-	@Override
-	public void checkHeartbeat(URI uri, String patientName, long listenTime) throws EventException, InterruptedException {
-		logger.trace("checkHeartbeat({}, {}, {}) using {} and {}", uri, patientName, listenTime, eventConnectorService, this);
-		HeartbeatChecker checker = new HeartbeatChecker(this, uri, patientName, listenTime);
-		checker.checkPulse();
 	}
 
 	@Override

@@ -11,14 +11,17 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.alive;
 
-import org.eclipse.scanning.api.event.bean.IBeanClassListener;
+import java.util.EventObject;
 
-public interface IHeartbeatListener extends IBeanClassListener<HeartbeatBean> {
+public class ConsumerStatusBeanEvent extends EventObject {
 
-	public void heartbeatPerformed(HeartbeatEvent evt);
+	private static final long serialVersionUID = -120191399800024906L;
 
-	@Override
-	default Class<HeartbeatBean> getBeanClass() {
-		return HeartbeatBean.class;
+	public ConsumerStatusBeanEvent(ConsumerStatusBean source) {
+		super(source);
+	}
+
+	public ConsumerStatusBean getBean() {
+		return (ConsumerStatusBean)getSource();
 	}
 }
