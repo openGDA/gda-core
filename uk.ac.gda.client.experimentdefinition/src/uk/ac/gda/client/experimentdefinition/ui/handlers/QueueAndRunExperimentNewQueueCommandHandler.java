@@ -26,8 +26,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean.Command;
+import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
+import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.slf4j.LoggerFactory;
 
