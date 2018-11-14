@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -35,7 +34,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -82,7 +80,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private UUID consumerId;
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
-	private ConsumerStatusBroadcaster consumerStatusBroadcaster;
+	private ConsumerStatusPublisher consumerStatusBroadcaster;
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -172,7 +170,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (consumerStatusTopicName!=null) {
-			consumerStatusBroadcaster = new ConsumerStatusBroadcaster(uri, consumerStatusTopicName, this);
+			consumerStatusBroadcaster = new ConsumerStatusPublisher(uri);
 		}
 
 		if (getCommandTopicName()!=null) {
@@ -780,9 +778,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		consumerThreadRunning = false;
 
 		notifyStatusChanged();
-		if (consumerStatusBroadcaster != null) {
-			consumerStatusBroadcaster.stop();
-		}
 	}
 
 	/**
@@ -956,8 +951,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		if (runner == null) {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
-		} else if (consumerStatusTopicName != null) {
-			consumerStatusBroadcaster.start();
 		}
 
 		setActive(true);
@@ -1022,15 +1015,16 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		// exception be a connection problem?
 		LOGGER.warn("{} ActiveMQ connection to {} lost.", getName(), uri, e);
 		LOGGER.warn("We will check every 2 seconds for 24 hours, until it comes back.");
+		final long retryInterval = EventTimingsHelper.getConnectionRetryInterval();
 		try {
 			if (Thread.interrupted()) return false;
 			// Wait for 2 seconds (default time)
-			Thread.sleep(EventTimingsHelper.getNotificationInterval());
+			Thread.sleep(retryInterval);
 		} catch (InterruptedException ie) {
 			throw new EventException("The consumer was unable to wait!", ie);
 		}
 
-		waitTime += EventTimingsHelper.getNotificationInterval();
+		waitTime += retryInterval;
 
 		// Exits if wait time more than one day
 		if (waitTime > ONE_DAY) {
@@ -1365,34 +1359,23 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	/**
 	 * Class responsible for updating and broadcasting {@code ConsumerStatusBean}s. Essentially a wrapper for an {@code IPublisher<ConsumerStatusBean>}
 	 */
-	private class ConsumerStatusBroadcaster {
+	private class ConsumerStatusPublisher {
 
 		private final IPublisher<ConsumerStatusBean> publisher;
-		private final IConsumer<?> consumer;
 
-		private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-			Thread thread = Executors.defaultThreadFactory().newThread(r);
-			thread.setName("Alive Notification for consumer " + getName());
-			thread.setDaemon(true);
-			thread.setPriority(Thread.MIN_PRIORITY);
-			return thread;
-		});
+		private volatile ConsumerStatusBean lastBean;
 
-		private volatile ConsumerStatusBean lastBeat;
-		private boolean broadcasting = false;
-
-		public ConsumerStatusBroadcaster(URI uri, String consumerStatusTopicName, IConsumer<?> consumer) {
-			this.consumer = Objects.requireNonNull(consumer);
+		public ConsumerStatusPublisher(URI uri) {
 			publisher = eventService.createPublisher(uri, consumerStatusTopicName);
-			lastBeat = createConsumerStatusBean();
+			lastBean = createConsumerStatusBean();
 		}
 
 		private ConsumerStatusBean createConsumerStatusBean() {
 			ConsumerStatusBean bean = new ConsumerStatusBean();
-			bean.setConsumerId(consumer.getConsumerId());
-			bean.setConsumerName(consumer.getName());
-			bean.setConsumerStatus(consumer.getConsumerStatus());
-			bean.setQueueName(consumer.getSubmitQueueName());
+			bean.setConsumerId(getConsumerId());
+			bean.setConsumerName(getName());
+			bean.setConsumerStatus(getConsumerStatus());
+			bean.setQueueName(getSubmitQueueName());
 			bean.setBeamline(System.getenv("BEAMLINE"));
 
 			try {
@@ -1405,40 +1388,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		public void publishConsumerStatusBean() {
-			publishConsumerStatus(getConsumerStatus());
-		}
-
-		public void publishConsumerStatus(ConsumerStatus consumerStatus) {
-			lastBeat.setPublishTime(System.currentTimeMillis());
-			lastBeat.setConsumerStatus(consumerStatus);
+			lastBean.setPublishTime(System.currentTimeMillis());
+			lastBean.setConsumerStatus(getConsumerStatus());
 			try {
-				publisher.broadcast(lastBeat);
+				publisher.broadcast(lastBean);
 			} catch (EventException e) {
 				LOGGER.error("Could not publish consumer status bean", e);
 			}
-		}
-
-		/**
-		 * Starts a thread which broadcasts {@link ConsumerStatusBean}s to the consumer status topic
-		 * at a frequency determined by the property <code>org.eclipse.scanning.event.heartbeat.freq</code>
-		 */
-		public void start() {
-			if (broadcasting) throw new IllegalStateException("Cannot start consumer status broadcast; it has already been started");
-			lastBeat.setStartTime(System.currentTimeMillis());
-
-			scheduler.scheduleAtFixedRate(this::publishConsumerStatusBean, EventTimingsHelper.getNotificationInterval(),
-					EventTimingsHelper.getNotificationInterval(), TimeUnit.MILLISECONDS);
-			broadcasting = true;
-		}
-
-		/**
-		 * Stops the consumer status broadcast thread.
-		 * @throws EventException
-		 */
-		public void stop() {
-			if (!broadcasting) throw new IllegalStateException("Cannot stop consumer status broadcaster; it is not running");
-			scheduler.shutdownNow();
-			broadcasting = false;
 		}
 
 		public void disconnect() throws EventException {

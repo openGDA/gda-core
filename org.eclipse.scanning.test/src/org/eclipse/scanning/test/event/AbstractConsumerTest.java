@@ -72,12 +72,12 @@ public class AbstractConsumerTest extends BrokerTest {
 	@Before
 	public void start() {
 		EventTimingsHelper.setReceiveTimeout(100);
-		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
+		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 	}
 
 	@After
 	public void stop() throws Exception {
-		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
+		EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
 		submitter.disconnect();
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
@@ -313,62 +313,6 @@ public class AbstractConsumerTest extends BrokerTest {
 			countdown.countDown();
 		}
 }
-
-	@Test
-	public void checkedHeartbeat() throws Exception {
-		ISubscriber<IConsumerStatusBeanListener> subscriber = eservice.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
-		ConsumerStatusListener listener = new ConsumerStatusListener(6);
-		subscriber.addListener(listener);
-
-		consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-		consumer.clearRunningAndCompleted();
-		Instant broadcastStartTime = Instant.now();
-		consumer.start();
-		listener.awaitBeats();
-		Duration broadcastDuration = Duration.between(broadcastStartTime, Instant.now());
-
-		// We should have received 6 heart beats, including the initial one on consumer start-up
-		assertEquals(6, listener.numberOfBeats());
-
-		// The heartbeats should have come from our consumer only
-		listener.beatsReceived.forEach(beat -> assertEquals(consumer.getConsumerId(), beat.getConsumerId()));
-
-		// 5 heartbeats at a notification period of 200 ms should have taken ~ 1 second
-		assertEquals(1000, broadcastDuration.toMillis(), 10);
-	}
-
-	@Test
-	public void uncheckedHeartbeat() throws Exception {
-		ISubscriber<IConsumerStatusBeanListener> subscriber = null;
-		try {
-			consumer.setRunner(new DryRunProcessCreator<StatusBean>(100L, true));
-			consumer.clearQueue();
-			consumer.start();
-
-			subscriber = eservice.createSubscriber(uri, EventConstants.CONSUMER_STATUS_TOPIC);
-			final List<ConsumerStatusBean> gotBack = new ArrayList<>(3);
-			subscriber.addListener(evt -> gotBack.add(evt.getBean()));
-
-			Thread.sleep(800);
-			if (gotBack.size() < 1)
-				throw new Exception("No hearbeat the paitent might be dead!");
-
-			doSubmit();
-			Thread.sleep(500);
-			consumer.stop(); // Should also stop heartbeat within 2s
-			Thread.sleep(300);
-
-			final int sizeBeforeSleep = gotBack.size();
-			if (sizeBeforeSleep < 2)
-				throw new Exception("No hearbeat the paitent might be dead!");
-
-			Thread.sleep(400); // Should beat again if not dead
-			final int sizeAfterSleep = gotBack.size();
-			assertEquals("Got a heartbean after stopping the consumer", sizeBeforeSleep, sizeAfterSleep);
-		} finally {
-			subscriber.disconnect();
-		}
-	}
 
 	private StatusBean doSubmit() throws Exception {
 		return doSubmit("Test");

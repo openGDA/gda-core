@@ -13,9 +13,6 @@ package org.eclipse.scanning.event;
 
 import java.time.Duration;
 
-import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.core.IConsumer;
-
 /**
  * A helper class for getting interval and timeout preferences for the queueing and events system.
  */
@@ -29,17 +26,16 @@ public final class EventTimingsHelper {
 	}
 
 	/**
-	 * The interval at which {@link ConsumerStatusBean}s are send by an {@link IConsumer} in ms, default 2 seconds (i.e. 2000ms)
-	 * Set org.eclipse.scanning.event.heartbeat.interval system property to change this time.
+	 * The time the consumer should wait after an error reading from the JMS queue before trying again.
 	 */
-	private static long notificationInterval = Duration.ofSeconds(2).toMillis();
+	private static long connectionRetryInterval = Duration.ofSeconds(2).toMillis();
 
-	public static long getNotificationInterval() {
-		return Long.getLong("org.eclipse.scanning.event.heartbeat.interval", notificationInterval);
+	public static long getConnectionRetryInterval() {
+		return Long.getLong("org.eclipse.scanning.event.heartbeat.interval", connectionRetryInterval);
 	}
 
-	public static void setNotificationInterval(long interval) {
-		notificationInterval = interval;
+	public static void setConnectionRetryInterval(long interval) {
+		connectionRetryInterval = interval;
 		System.setProperty("org.eclipse.scanning.event.heartbeat.interval", String.valueOf(interval));
 	}
 

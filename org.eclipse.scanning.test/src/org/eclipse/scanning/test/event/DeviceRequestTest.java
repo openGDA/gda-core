@@ -88,14 +88,14 @@ public class DeviceRequestTest extends BrokerTest {
 	@Before
 	public void start() {
 
-		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
+		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 		EventTimingsHelper.setReceiveTimeout(100);
 	}
 
 	@After
 	public void stop() throws Exception {
 
-	EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
+	EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
 	if (requester!=null) requester.disconnect();
 	if (responder!=null) responder.disconnect();
 	}

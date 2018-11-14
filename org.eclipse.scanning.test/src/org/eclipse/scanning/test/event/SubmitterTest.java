@@ -63,12 +63,12 @@ public class SubmitterTest extends BrokerTest {
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
 		EventTimingsHelper.setReceiveTimeout(100);
-		EventTimingsHelper.setNotificationInterval(200); // Normally 2000
+		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 	}
 
 	@After
 	public void stop() throws Exception {
-		EventTimingsHelper.setNotificationInterval(2000); // Normally 2000
+		EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
 		submitter.disconnect();
 		consumer.clearQueue();
 		submitter.disconnect();
