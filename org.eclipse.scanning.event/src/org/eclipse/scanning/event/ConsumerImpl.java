@@ -313,7 +313,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					result = getRunningAndCompleted();
 					break;
 				case GET_INFO:
-					result = getConsumerInfo();
+					result = consumerStatusBean;
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown command " + commandBean.getCommand());
@@ -418,15 +418,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				throw new EventException("Cannot close session!", e);
 			}
 		}
-	}
-
-	private ConsumerInfo getConsumerInfo() {
-		ConsumerInfo info = new ConsumerInfo();
-		info.setConsumerId(getConsumerId());
-		info.setName(getName());
-		info.setStatus(getConsumerStatus());
-
-		return info;
 	}
 
 	private void addBeanOverride(U bean) {

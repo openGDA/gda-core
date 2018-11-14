@@ -51,7 +51,6 @@ public class ScanningEventsClassRegistry implements IClassRegistry {
 		// event.consumer
 		registerClass(tmp, ConsumerStatusBean.class);
 		registerClass(tmp, QueueCommandBean.class);
-		registerClass(tmp, ConsumerInfo.class);
 
 		// event.status
 		registerClass(tmp, AdministratorMessage.class);

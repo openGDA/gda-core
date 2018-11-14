@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
 import org.eclipse.scanning.api.event.consumer.IConsumerStatusBeanListener;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
@@ -73,9 +74,9 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 		}
 	}
 
-	private ConsumerInfo getConsumerInfo() {
+	private ConsumerStatusBean getConsumerInfo() {
 		try {
-			return (ConsumerInfo) sendCommand(Command.GET_INFO);
+			return (ConsumerStatusBean) sendCommand(Command.GET_INFO);
 		} catch (EventException e) {
 			throw new RuntimeException("Could not get consumer info", e);
 		}
@@ -262,7 +263,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public ConsumerStatus getConsumerStatus() {
-		return getConsumerInfo().getStatus();
+		return getConsumerInfo().getConsumerStatus();
 	}
 
 	@Override
@@ -277,7 +278,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public String getName() {
-		return getConsumerInfo().getName();
+		return getConsumerInfo().getConsumerName();
 	}
 
 	@Override
