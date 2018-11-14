@@ -80,7 +80,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private UUID consumerId;
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
-	private ConsumerStatusPublisher consumerStatusBroadcaster;
+	private IPublisher<ConsumerStatusBean> consumerStatusPublisher;
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
@@ -121,7 +121,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
 
-	private final Set<IConsumerStatusListener> statusListeners = new CopyOnWriteArraySet<>();
+	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
+	private ConsumerStatusBean consumerStatusBean;
 
 	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
 			String consumerStatusTopicName, String commandTopicName, String commandAckTopicName,
@@ -145,21 +146,21 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public void addConsumerStatusListener(IConsumerStatusListener listener) {
-		statusListeners.add(listener);
+		consumerStatusListeners.add(listener);
 	}
 
 	@Override
 	public void removeConsumerStatusListener(IConsumerStatusListener listener) {
-		statusListeners.remove(listener);
+		consumerStatusListeners.remove(listener);
 	}
 
 	private void notifyStatusChanged() {
-		if (consumerStatusBroadcaster != null) {
-			consumerStatusBroadcaster.publishConsumerStatusBean();
+		if (consumerStatusBean != null && consumerStatusPublisher != null) {
+			publishConsumerStatusBean();
 		}
 
 		final ConsumerStatus status = getConsumerStatus();
-		for (IConsumerStatusListener listener : statusListeners) {
+		for (IConsumerStatusListener listener : consumerStatusListeners) {
 			listener.consumerStatusChanged(status);
 		}
 	}
@@ -170,7 +171,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (consumerStatusTopicName!=null) {
-			consumerStatusBroadcaster = new ConsumerStatusPublisher(uri);
+			consumerStatusPublisher = eventService.createPublisher(uri, consumerStatusTopicName);
+			consumerStatusBean = createConsumerStatusBean();
 		}
 
 		if (getCommandTopicName()!=null) {
@@ -180,6 +182,33 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		setConnected(true);
+	}
+
+	private ConsumerStatusBean createConsumerStatusBean() {
+		ConsumerStatusBean bean = new ConsumerStatusBean();
+		bean.setConsumerId(getConsumerId());
+		bean.setConsumerName(getName());
+		bean.setConsumerStatus(getConsumerStatus());
+		bean.setQueueName(getSubmitQueueName());
+		bean.setBeamline(System.getenv("BEAMLINE"));
+
+		try {
+			bean.setHostName(InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			LOGGER.warn("Could not resolve local host name", e);
+		}
+
+		return bean;
+	}
+
+	public void publishConsumerStatusBean() {
+		consumerStatusBean.setPublishTime(System.currentTimeMillis());
+		consumerStatusBean.setConsumerStatus(getConsumerStatus());
+		try {
+			consumerStatusPublisher.broadcast(consumerStatusBean);
+		} catch (EventException e) {
+			LOGGER.error("Could not publish consumer status bean", e);
+		}
 	}
 
 	@Override
@@ -194,9 +223,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			statusTopicPublisher.disconnect();
 			statusTopicPublisher = null;
 		}
-		if (consumerStatusBroadcaster != null) {
-			consumerStatusBroadcaster.disconnect();
-			consumerStatusBroadcaster = null;
+		if (consumerStatusPublisher != null) {
+			consumerStatusPublisher.disconnect();
+			consumerStatusPublisher = null;
 		}
 		if (commandTopicSubscriber != null)  {
 			commandTopicSubscriber.disconnect();
@@ -1356,50 +1385,5 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.beanClass = beanClass;
 	}
 
-	/**
-	 * Class responsible for updating and broadcasting {@code ConsumerStatusBean}s. Essentially a wrapper for an {@code IPublisher<ConsumerStatusBean>}
-	 */
-	private class ConsumerStatusPublisher {
-
-		private final IPublisher<ConsumerStatusBean> publisher;
-
-		private volatile ConsumerStatusBean lastBean;
-
-		public ConsumerStatusPublisher(URI uri) {
-			publisher = eventService.createPublisher(uri, consumerStatusTopicName);
-			lastBean = createConsumerStatusBean();
-		}
-
-		private ConsumerStatusBean createConsumerStatusBean() {
-			ConsumerStatusBean bean = new ConsumerStatusBean();
-			bean.setConsumerId(getConsumerId());
-			bean.setConsumerName(getName());
-			bean.setConsumerStatus(getConsumerStatus());
-			bean.setQueueName(getSubmitQueueName());
-			bean.setBeamline(System.getenv("BEAMLINE"));
-
-			try {
-				bean.setHostName(InetAddress.getLocalHost().getHostName());
-			} catch (UnknownHostException e) {
-				LOGGER.warn("Could not resolve local host name", e);
-			}
-
-			return bean;
-		}
-
-		public void publishConsumerStatusBean() {
-			lastBean.setPublishTime(System.currentTimeMillis());
-			lastBean.setConsumerStatus(getConsumerStatus());
-			try {
-				publisher.broadcast(lastBean);
-			} catch (EventException e) {
-				LOGGER.error("Could not publish consumer status bean", e);
-			}
-		}
-
-		public void disconnect() throws EventException {
-			publisher.disconnect();
-		}
-	}
 
 }
