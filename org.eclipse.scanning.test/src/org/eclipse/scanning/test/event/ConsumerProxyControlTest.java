@@ -28,12 +28,12 @@ import java.util.EventListener;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IdBean;
-import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
-import org.eclipse.scanning.api.event.alive.ConsumerStatusBeanEvent;
-import org.eclipse.scanning.api.event.alive.IConsumerStatusBeanListener;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatusBeanEvent;
+import org.eclipse.scanning.api.event.consumer.IConsumerStatusBeanListener;
+import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumer.IConsumerStatusListener;
 import org.eclipse.scanning.api.event.core.IRequester;

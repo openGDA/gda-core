@@ -46,8 +46,8 @@ import javax.jms.Session;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.QueueCommandBean;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
+import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;

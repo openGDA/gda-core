@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.URISyntaxException;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.alive.ConsumerStatus;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;

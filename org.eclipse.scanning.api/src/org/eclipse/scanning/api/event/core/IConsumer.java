@@ -14,8 +14,8 @@ package org.eclipse.scanning.api.event.core;
 import java.util.UUID;
 
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.alive.ConsumerStatus;
-import org.eclipse.scanning.api.event.alive.ConsumerStatusBean;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
 
 /**
  *

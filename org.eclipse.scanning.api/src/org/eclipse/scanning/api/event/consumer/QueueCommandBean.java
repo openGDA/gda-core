@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.alive;
+package org.eclipse.scanning.api.event.consumer;
 
 import java.util.UUID;
 

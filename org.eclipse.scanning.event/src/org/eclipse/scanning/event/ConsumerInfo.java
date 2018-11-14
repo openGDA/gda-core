@@ -20,7 +20,7 @@ package org.eclipse.scanning.event;
 
 import java.util.UUID;
 
-import org.eclipse.scanning.api.event.alive.ConsumerStatus;
+import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.core.IConsumer;
 
 /**
