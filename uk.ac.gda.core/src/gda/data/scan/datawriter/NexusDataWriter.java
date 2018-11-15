@@ -931,8 +931,12 @@ public class NexusDataWriter extends DataWriterBase {
 		logger.debug("completeCollection() called with file={}, entryName={}", file, entryName);
 		if (file != null) {
 			// In some error conditions, this can be called twice with 'file' being null the second time
-			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
-			NexusUtils.write(file, g, "end_time", ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()));
+			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+			ILazyWriteableDataset endTime = file.getData(g, "end_time").getWriteableDataset();
+			endTime.setSlice(
+					null,
+					DatasetFactory.createFromObject(ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now())),
+					new int[] {0}, new int[] {1}, new int[] {1});
 		}
 		releaseFile();
 		super.completeCollection();
@@ -1054,9 +1058,12 @@ public class NexusDataWriter extends DataWriterBase {
 				NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
 			}
 			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(startTime));
+			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
+					"end_time", Dataset.STRING, new int[] {1}, new int[] {1}, new int[] {1});
+			file.createData(g, endTime);
 			createCustomMetaData(g);
 		} catch (Exception e) {
-			logger.info("error writing less important scan information", e);
+			logger.warn("error writing less important scan information", e);
 		}
 	}
 
