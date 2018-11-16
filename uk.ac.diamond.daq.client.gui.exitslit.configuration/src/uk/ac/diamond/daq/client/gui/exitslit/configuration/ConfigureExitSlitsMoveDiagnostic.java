@@ -54,7 +54,6 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 	private static final String DIAGNOSTIC_OUT = "Out";
 
 	private static final String SHUTTER_OPEN = "Open";
-	private static final String SHUTTER_CLOSE = "Close";
 	private static final String SHUTTER_CLOSED = "Closed";
 
 	private static final int COLUMNS = 5;
@@ -150,7 +149,7 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 		movingIn = false;
 		try {
 			if (!isShutterClosed()) {
-				moveShutter(SHUTTER_CLOSE);
+				moveShutter(SHUTTER_CLOSED);
 			} else if (!isDiagnosticOut()) {
 				moveDiagnosticPositioner(DIAGNOSTIC_OUT);
 			}
