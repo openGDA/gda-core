@@ -26,20 +26,19 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * This widget consists of a button and a dropdown menu which lets the user
- * select the function the button performs. It is meant to duplicate the look
- * and behaviour of button-plus-menu widgets found in SWT toolbars, but as a
- * stand-alone widget that can be drawn on any composite.
+ * This widget consists of a button and a drop-down menu which lets the user
+ * select the function the button performs.
  * <p>
- * Functions are added with {@link #addFunction(String, String, Image, Listener)}
+ * Functions are added with {@link #addFunction(String, String, Image, Runnable)}
  * noting that the addition order is the order the functions are displayed on the menu
  * and the first function is selected by default.
  * <p>
@@ -49,7 +48,8 @@ import org.eclipse.swt.widgets.MenuItem;
 public class MultiFunctionButton {
 
 	private List<ButtonFunction> functions = new ArrayList<>();
-	private Button button;
+	private ToolItem button;
+	private ButtonFunction selectedFunction;
 
 	/**
 	 * Add a function this widget could perform. The first function added is selected by default,
@@ -58,16 +58,17 @@ public class MultiFunctionButton {
 	 * @param title the menu item text, and the button text if the icon is {@code null}
 	 * @param description tooltips for menu item and button itself
 	 * @param icon set as image for button and menu item unless {@code null}
-	 * @param listener attached to the button as a selection listener - cannot be {@code null}
+	 * @param runnable run when this function is selected; cannot be {@code null}
 	 */
-	public void addFunction(String title, String description, Image icon, Listener listener) {
-		Objects.requireNonNull(listener);
-		functions.add(new ButtonFunction(title, description, icon, listener));
+	public void addFunction(String title, String description, Image icon, Runnable runnable) {
+		Objects.requireNonNull(runnable, "The runnable associated with this function cannot be null!");
+		functions.add(new ButtonFunction(title, description, icon, runnable));
 	}
 
 	/**
 	 * This method draws the widget on given composite once all functions are set
-	 * @param parent
+	 *
+	 * @param parent on which to draw this widget
 	 */
 	public void draw(Composite parent) {
 
@@ -75,52 +76,40 @@ public class MultiFunctionButton {
 			throw new IllegalStateException("No functions set");
 		}
 
-		final Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(composite);
+		final Composite composite = new Group(parent, SWT.BORDER);
+		composite.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		GridLayoutFactory.fillDefaults().applyTo(composite);
 		GridDataFactory.fillDefaults().applyTo(composite);
 
-		button = new Button(composite, SWT.PUSH | SWT.FLAT);
-		GridDataFactory.fillDefaults().applyTo(button);
-		setFunction(functions.get(0));
+		final ToolBar toolBar = new ToolBar(composite, SWT.FLAT);
 
-		final Button arrow = new Button(composite, SWT.FLAT | SWT.ARROW | SWT.DOWN);
-		GridDataFactory.fillDefaults().hint(18, SWT.DEFAULT).applyTo(arrow);
-
-		arrow.addListener(SWT.Selection, arrowSelection -> {
-			final Menu menu = new Menu(composite.getShell(), SWT.POP_UP);
-			for (ButtonFunction mode : functions) {
-				MenuItem item = new MenuItem(menu, SWT.PUSH);
-				if (mode.getIcon()!=null) item.setImage(mode.getIcon());
-				item.setText(mode.getTitle());
-				item.setToolTipText(mode.getDescription());
-				item.addListener(SWT.Selection, itemSelection -> {
-					setFunction(mode);
-					mode.getListener().handleEvent(makeButtonSelectionEvent());
-				});
+		button = new ToolItem(toolBar, SWT.DROP_DOWN);
+		button.addListener(SWT.Selection, e -> {
+			if (e.detail == SWT.ARROW) { // i.e. clicked on the arrow
+				final Menu menu = new Menu(composite.getShell(), SWT.POP_UP);
+				for (ButtonFunction mode : functions) {
+					MenuItem item = new MenuItem(menu, SWT.PUSH);
+					if (mode.getIcon() != null) item.setImage(mode.getIcon());
+					item.setText(mode.getTitle());
+					item.setToolTipText(mode.getDescription());
+					item.addListener(SWT.Selection, itemSelection -> {
+						// set as default function...
+						setFunction(mode);
+						// ...and run it
+						selectedFunction.run();
+					});
+				}
+				menu.setVisible(true);
+			} else { // the function that's already selected
+				selectedFunction.run();
 			}
-			menu.setVisible(true);
 		});
 
-	}
-
-	private Event makeButtonSelectionEvent() {
-		Event event = new Event();
-		event.display = button.getDisplay();
-		event.widget = button;
-		event.type = SWT.Selection;
-		event.detail = SWT.SELECTED;
-		event.item = button;
-		return event;
+		setFunction(functions.get(0));
 	}
 
 	private void setFunction(ButtonFunction mode) {
-		// remove current listener
-		for (Listener listener : button.getListeners(SWT.Selection)) {
-			button.removeListener(SWT.Selection, listener);
-		}
-
-		// add mode listener
-		button.addListener(SWT.Selection, mode.getListener());
+		selectedFunction = mode;
 
 		// icon/title & tooltip
 		if (mode.getIcon() != null) {
@@ -138,29 +127,29 @@ public class MultiFunctionButton {
 		private final String title;
 		private final String description;
 		private final Image icon;
-		private final Listener listener;
+		private final Runnable runnable;
 
-		private ButtonFunction(String title, String description, Image icon, Listener listener) {
+		private ButtonFunction(String title, String description, Image icon, Runnable runnable) {
 			this.title = title != null ? title : "";
 			this.description = description != null ? description : "";
 			this.icon = icon;
-			this.listener = listener;
+			this.runnable = runnable;
 		}
 
-		String getTitle() {
+		private String getTitle() {
 			return title;
 		}
 
-		String getDescription() {
+		private String getDescription() {
 			return description;
 		}
 
-		Image getIcon() {
+		private Image getIcon() {
 			return icon;
 		}
 
-		Listener getListener() {
-			return listener;
+		private void run() {
+			runnable.run();
 		}
 	}
 

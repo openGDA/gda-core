@@ -205,10 +205,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		MultiFunctionButton newRegion = new MultiFunctionButton();
 		newRegion.addFunction("Draw region", "Draw region by dragging on map",
 				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")),
-				e -> regionSelector.setSelection(regionSelector.getSelection()));
+				()-> regionSelector.setSelection(regionSelector.getSelection()));
 		newRegion.addFunction("Place default region", "Place the default region on current stage position",
 				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map-pin.png")),
-				e -> createDefaultRegionAtStagePosition());
+				this::createDefaultRegionAtStagePosition);
 		newRegion.draw(regionComboComposite);
 
 		// Make the path selection
