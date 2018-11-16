@@ -21,9 +21,9 @@ package gda.jython.completion;
 import java.io.Serializable;
 
 /**
- * Text and type pair for a possible text completion
+ * Text and type pair for a possible text completion. Implements {@link Comparable} to allow sorting into alphabetical order.
  */
-public class AutoCompleteOption implements Serializable {
+public class AutoCompleteOption implements Serializable, Comparable<AutoCompleteOption> {
 
 	/**
 	 * The full version of the just the section being completed
@@ -52,4 +52,10 @@ public class AutoCompleteOption implements Serializable {
 	public String toString() {
 		return String.format("%s(%s)", text, type);
 	}
+
+	@Override
+	public int compareTo(AutoCompleteOption other) {
+		return this.text.compareToIgnoreCase(other.text);
+	}
+
 }
