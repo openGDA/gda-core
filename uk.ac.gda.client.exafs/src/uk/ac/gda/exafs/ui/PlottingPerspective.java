@@ -18,14 +18,13 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
-import gda.rcp.views.JythonTerminalView;
-
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
+import gda.rcp.views.JythonTerminalView;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -34,7 +33,6 @@ import uk.ac.gda.exafs.ui.plot.FourierScanPlotView;
 import uk.ac.gda.exafs.ui.plot.LnI0ItScanPlotView;
 import uk.ac.gda.exafs.ui.plot.SubtractedBackgroundScanPlotView;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.exafs.ui.views.scalersmonitor.XspressMonitorView;
 
 public class PlottingPerspective implements IPerspectiveFactory {
 
@@ -56,7 +54,6 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			flBottom.addView(JythonTerminalView.ID);
 			IFolderLayout flBottomRight = layout.createFolder("flBottomRight", IPageLayout.RIGHT, 0.5f, "flBottom");
 			flBottomRight.addView(ScriptControllerLogView.ID);
-			flBottomRight.addView(XspressMonitorView.ID);
 			IFolderLayout flTopRight = layout.createFolder("flTopRight", IPageLayout.RIGHT, 0.5f, "flTop");
 			flTopRight.addView(LnI0ItScanPlotView.ID);
 			flTopRight.addView(SubtractedBackgroundScanPlotView.ID);
@@ -71,7 +68,6 @@ public class PlottingPerspective implements IPerspectiveFactory {
 			folderLayout_0.addView(LnI0ItScanPlotView.ID);
 		IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.BOTTOM, 0.5f, "folder1");
 		folderLayout.addView(JythonTerminalView.ID);
-		folderLayout.addView(XspressMonitorView.ID);
 		IFolderLayout folderLayout_1 = layout.createFolder("folder0", IPageLayout.BOTTOM, 0.7f, LivePlotView.ID);
 		folderLayout_1.addView(CommandQueueViewFactory.ID);
 		IFolderLayout folderLayout_2 = layout.createFolder("folder2", IPageLayout.RIGHT, 0.5f, "folder0");

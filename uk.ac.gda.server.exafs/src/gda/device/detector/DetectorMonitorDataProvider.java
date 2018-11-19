@@ -19,74 +19,67 @@
 package gda.device.detector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.CounterTimer;
+import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.device.detector.addetector.ADDetector;
-import gda.device.detector.addetector.triggering.SimpleAcquire;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.countertimer.TfgScaler;
+import gda.device.Scannable;
 import gda.device.detector.countertimer.TfgScalerWithDarkCurrent;
-import gda.device.detector.countertimer.TfgScalerWithLogValues;
 import gda.device.scannable.ScannableBase;
+import gda.device.scannable.ScannableGetPosition;
+import gda.device.scannable.ScannableGetPositionWrapper;
+import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.observable.IObserver;
-import gda.scan.ScanInformation;
-import uk.ac.gda.beans.xspress.XspressDetector;
+import gda.scan.ScanBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+
 /**
- * Class to to provide data used for detector rate view (e.g. XspressMonitorView}, XmapMonitorView})
- * An instance of this class runs on the server and returns data from {@link CounterTimer}, {@link XspressDetector},
- * , {@link XmapDetector} detectors vis the {@link #getIonChamberValues(COLLECTION_TYPES)}
- * and {@link #getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES)} methods.
- * Set {@link #setCollectionAllowed} to False to prevent collection of data. This can be used to be sure that no data is
- * being collected by the detector rate view whilst a scan is running. <p>
- * This class can also be used in a scan to stop detector rate collection :
+ * Class to to provide data used for a detector rate view.
+ *
+ * <li>An instance of this class runs on the server; calls are made to  {@link #collectData(List)}, passing in a list of
+ * scannables. This returns a list of positions for each of the scannables and detectors by performing the same sequence
+ * of calls to atScanStart, prepareForCollection, etc. as would normally be done during a step scan.
+ * <li>Any Xspress detector passed to collectData will be set to return only the FF value and has file writing switched off;
+ * Any Tfg scaler scannables do not correct for dark current, and will not show time frame length.
+ * These settings are restored at end of collectData.
+ * <li>Set {@link #setCollectionAllowed} to False to prevent collection of data. This can be used to be sure that no data is
+ * being collected by the detector rate view whilst a scan is running.
+ * <li>This class can also be used in a scan to stop detector rate collection :
  * the {@link #atScanStart} sets the collection flag allowed flag to false, and blocks until the current collection has finished.
  *
  */
+@ServiceInterface(DetectorMonitorDataProviderInterface.class)
 public class DetectorMonitorDataProvider extends ScannableBase implements DetectorMonitorDataProviderInterface {
 
 	protected static final Logger logger = LoggerFactory.getLogger(DetectorMonitorDataProvider.class);
 
-	public enum COLLECTION_TYPES {IONCHAMBERS, XSPRESS2, XMAP, XMAP_I1, MEDIPIX}
-
-	private volatile boolean collectionInProgress = false;
-
-	private boolean collectionAllowed = true;
+	private volatile boolean collectFrameIsRunning = false;
+	private volatile boolean collectionAllowed = true;
 
 	private double collectionTime = 1.0;
 
-	private boolean darkCurrentRequired;
+	private boolean darkCurrentRequired = false;
+	private static final String TFG_TIME_FIELD_NAME = "time";
 
-	// References to the detectors - set these by injection using Spring or Jython.
-	private XspressDetector xspress2Detector;
-	private CounterTimer ionchambers;
-	private XmapDetector xmapDetector;
-	private ADDetector medipixDetector;
-
-	private String name;
+	private boolean onlyShowFF;
+	private boolean showDtValues;
+	private boolean writeHdfFile;
 
 	public DetectorMonitorDataProvider() {
 		// Set to empty lists to avoid exceptions when formatting the position
 		setOutputFormat(new String[]{});
 		setInputNames(new String[]{});
-	}
-
-	public static COLLECTION_TYPES getCollectionTypeFromString(String typeString) {
-		try {
-			logger.debug("Getting collection type from {}", typeString);
-			return COLLECTION_TYPES.valueOf(typeString.toUpperCase());
-		} catch(IllegalArgumentException e) {
-			logger.warn("Collection type {} not recognised", typeString);
-		}
-		return null;
 	}
 
 	@Override
@@ -97,362 +90,265 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	@Override
 	public void setCollectionTime(double collectionTime) {
 		this.collectionTime = collectionTime;
-
-	}
-
-	private String getMissingDetectors(COLLECTION_TYPES collectionType) {
-		String missingDetectors = "";
-		if (ionchambers==null) {
-			missingDetectors += "ionchambers ";
-		}
-		if (collectionType == COLLECTION_TYPES.XSPRESS2 && xspress2Detector==null) {
-			missingDetectors += "xspress2Detector ";
-		}
-		if ((collectionType == COLLECTION_TYPES.XMAP || collectionType == COLLECTION_TYPES.XMAP_I1) && xmapDetector==null) {
-			missingDetectors += "xmapDetector";
-		}
-		return missingDetectors;
 	}
 
 	/**
-	 * Check that detectors have been set for required collection type
-	 * @param collectionType
-	 * @throws DeviceException if required detector(s) are missing.
-	 * 			This can be caught up by the detector rates gui and displayed as a warning message to user
+	 * Check if {@link #collectData(List)} can run.
+	 * @return true if collection not already taking place, collection is allowed and scan/script is not running
 	 */
-	private void checkDetectors(COLLECTION_TYPES collectionType) throws DeviceException{
-		String missingDetectors = getMissingDetectors(collectionType);
-		if (missingDetectors.length()>0) {
-			throw new DeviceException("Cannot collect data - "+missingDetectors+" have not been set ");
+	private boolean collectDataCanRun() {
+		if (isScriptOrScanIsRunning()) {
+			logger.info("Cannot collect data : script or scan is already running");
+			return false;
+		} else if (!collectionAllowed || collectFrameIsRunning) {
+			logger.info("Cannot collect data : collection already happening = {}, collection allowed = {}", collectFrameIsRunning, collectionAllowed);
+			return false;
+		} else {
+			return true;
 		}
 	}
 
-	private void storeDarkCurrentRequired() {
-		darkCurrentRequired = false;
-		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
-			darkCurrentRequired = ((TfgScalerWithDarkCurrent)ionchambers).isDarkCurrentRequired();
-			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(false);
-		}
-	}
-
-	private void restoreDarkCurrentRequired() {
-		if (ionchambers instanceof TfgScalerWithDarkCurrent) {
-			((TfgScalerWithDarkCurrent)ionchambers).setDarkCurrentRequired(darkCurrentRequired);
-		}
-	}
-
-	/**
-	 * Setup ion chamber to record one frame of data and return the data collected.
-	 * Also trigger collection of xspress, xmap data at the same time.
-	 * @param type
-	 * @return ionchamber counts [counts per second]
-	 * @throws Exception
-	 */
 	@Override
-	public Double[] getIonChamberValues(COLLECTION_TYPES type) throws Exception {
-		logger.debug("Collect ion chamber values for {}", type.toString());
-		if(!checkCollectionAllowedStatus()) {
-			return null;
-		}
-		checkDetectors(type);
-		waitWhileBusy();
-		collectionInProgress=true;
-		storeDarkCurrentRequired();
-
-		try {
-			switch(type) {
-				case IONCHAMBERS : return getIonChambersCounts();
-				case XSPRESS2 : return getIonChambersForXspress2();
-				case XMAP 	  : return getIonChambersForXmap();
-				case XMAP_I1  : return getIonChambersForXmapI1();
-				case MEDIPIX  : return getIonChambersForMedipix();
-				default 	  : return null;
-			}
-		} finally {
-			collectionInProgress=false;
-			restoreDarkCurrentRequired();
-			logger.debug("Collect ion chamber values finished");
-		}
-	}
-
-	/**
-	 * Return data from xspress2, xmap detector. Note, this does not trigger collection of new data -
-	 * it only returns data last recorded (e.g. during last call to {@link #getIonChamberValues(COLLECTION_TYPES)}.
-	 * @param type
-	 * @return xspress2, xmap data for each element of the detector
-	 * @throws DeviceException
-	 */
-	@Override
-	public Double[] getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES type) throws DeviceException {
-		logger.debug("Collect fluorescence detector values for {}", type.toString());
-		if(!checkCollectionAllowedStatus()) {
-			return null;
-		}
-		checkDetectors(type);
-		waitWhileBusy();
-		collectionInProgress=true;
-		try {
-			switch(type) {
-				case IONCHAMBERS : return new Double[0];
-				case XSPRESS2 : return getXSpress2Data();
-				case XMAP 	  :
-				case XMAP_I1  : return getXmapData();
-				case MEDIPIX  : return getMedipixData();
-				default 	  : return null;
-			}
-		} finally {
-			collectionInProgress=false;
-			logger.debug("Collect fluorescence detector values finished");
-		}
-	}
-
-	/**
-	 * Return number of elements on the xmap, xspress2 detector
-	 * @param type
-	 * @return number of detector elements
-	 * @throws DeviceException
-	 */
-	@Override
-	public int getNumElements(COLLECTION_TYPES type) throws DeviceException {
-		checkDetectors(type);
-		switch(type) {
-			case IONCHAMBERS : return 0;
-			case XSPRESS2 : return xspress2Detector.getNumberOfDetectors();
-			case XMAP :
-			case XMAP_I1 : return xmapDetector.getNumberOfMca();
-			case MEDIPIX : return 1;
-			default 	 : return 0;
-		}
-	}
-
-	private boolean checkCollectionAllowedStatus() {
-		logger.debug("Collection allowed = {}", collectionAllowed);
-		if (!collectionAllowed) {
-			logger.info("Detector rate collection currently disabled");
-		}
-		return collectionAllowed;
-	}
-
-	public boolean getScriptOrScanIsRunning() {
+	public boolean isScriptOrScanIsRunning() {
 		return JythonServerFacade.getInstance().getScanStatus() != JythonStatus.IDLE ||
 			   JythonServerFacade.getInstance().getScriptStatus() != JythonStatus.IDLE;
 	}
 
-	private Double[] getNormalisedIonChamberCounts() throws DeviceException {
-		double[] results = (double[]) ionchambers.readout();
+	@Override
+	public List<String> collectData(List<String> allScannableNames) throws DeviceException, InterruptedException {
+		List<String> data = Collections.emptyList();
 
-		String[] extraNames = ionchambers.getExtraNames();
-		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
-		results[i0Index] /= collectionTime;
-		results[i0Index + 1] /= collectionTime;
-		results[i0Index + 2] /= collectionTime;
-
-		return new Double[] { results[i0Index + 0], results[i0Index + 1], results[i0Index + 2] };
-	}
-
-	private Double[] getIonChamberReadout() throws DeviceException {
-		int startIndex = ArrayUtils.indexOf(ionchambers.getExtraNames(), "I0");
-		int numChannelsToNormaliseByTime = 3;
-		if (ionchambers instanceof TfgScaler) {
-			if ( ((TfgScaler)ionchambers).isTimeChannelRequired() ) {
-				startIndex = 1;
-			} else {
-				startIndex = 0;
-			}
-
-			// Determine how many of the readout values should be normalised by time
-			boolean useCustomisedOutput = false;
-			// If using customised output for Tfg (gda9 only), don't normalise anything just copy the value
-			// (since values are in arbitrary user specified order with various ratios, logs etc).
-			if (ionchambers instanceof TfgScalerWithLogValues) {
-				useCustomisedOutput = ((TfgScalerWithLogValues)ionchambers).getUseCustomisedOutput();
-			}
-
-			if (!useCustomisedOutput) {
-				numChannelsToNormaliseByTime = ((TfgScaler)ionchambers).getNumChannelsToRead();
-			} else {
-				numChannelsToNormaliseByTime = 0;
-			}
+		if (!collectDataCanRun()) {
+			return data;
 		}
 
-		double[] results = (double[]) ionchambers.readout();
-		List<Double> resultsList = new ArrayList<>();
-		for(int i=startIndex; i<results.length; i++) {
-			if (i<startIndex+numChannelsToNormaliseByTime) {
-				// raw counts, normalised by time
-				resultsList.add(results[i]/collectionTime);
-			} else {
-				// processed value (e.g. lnI0It ...)
-				resultsList.add(results[i]);
-			}
-		}
-		return resultsList.toArray(new Double[]{});
-	}
-
-	private Double[] getIonChambersCounts() throws Exception {
-		logger.debug("Collect values from {}", ionchambers.getName());
-
-		if ( !getScriptOrScanIsRunning() && !ionchambers.isBusy()) {
-			ionchambers.setCollectionTime(collectionTime);
-			ionchambers.clearFrameSets();
-			ionchambers.collectData();
-			ionchambers.waitWhileBusy();
-		} else {
-			throw new Exception("Script/scan already running");
-		}
-
-		return getIonChamberReadout();
-	}
-
-	private Double[] getIonChambersForXspress2() throws Exception {
-		logger.debug("Collect values from {} and {}", ionchambers.getName(), xspress2Detector.getName());
-
-		if ( !getScriptOrScanIsRunning() && !xspress2Detector.isBusy()
-				&& !ionchambers.isBusy()) {
-			xspress2Detector.collectData();
-			ionchambers.setCollectionTime(collectionTime);
-			ionchambers.clearFrameSets();
-			ionchambers.collectData();
-			xspress2Detector.waitWhileBusy();
-			ionchambers.waitWhileBusy();
-		} else {
-			throw new Exception("Script/scan already running");
-		}
-
-		return getNormalisedIonChamberCounts();
-	}
-
-	protected Double[] getXSpress2Data() throws DeviceException {
-		logger.debug("Collect values from {}", xspress2Detector.getName());
-		Double[] rates = (Double[]) xspress2Detector.getAttribute("liveStats");
-		return rates;
-	}
-
-	protected Double[] getIonChambersForXmapI1() throws Exception {
-		// Collect data in same way as regular xmap
-		getIonChambersForXmap();
-
-		// read 4th channel of ionchamber - this has counts for I1
-		double[] ion_results = ionchambers.readFrame(4, 1, 0);
-		return new Double[] {ion_results[0] / collectionTime};
-	}
-
-	protected Double[] getIonChambersForXmap() throws Exception {
-		logger.debug("Collect values from {} and {}", ionchambers.getName(), xmapDetector.getName());
-
-		if ( !getScriptOrScanIsRunning() && !xmapDetector.isBusy() && !ionchambers.isBusy() ){
-			xmapDetector.collectData();
-			ionchambers.setCollectionTime(collectionTime);
-			ionchambers.clearFrameSets();
-			ionchambers.collectData();
-			ionchambers.waitWhileBusy();
-			xmapDetector.stop();
-			xmapDetector.waitWhileBusy();
-		} else {
-			throw new Exception("Script/scan already running");
-		}
-
-		return getNormalisedIonChamberCounts();
-	}
-
-	/**
-	 * Collection of single frame of data on Medipix. This is externally triggered by the Tfg.
-	 * Readout of data is done via the array plugin part of epics-- see {@link #getMedipixData()}.
-	 * @return
-	 * @throws Exception
-	 */
-	private Double[] getIonChambersForMedipix() throws Exception {
-		// Should be MultipleExposureHardwareTriggeredStrategy for medipix
-		SimpleAcquire acquire = ( (SimpleAcquire) medipixDetector.getCollectionStrategy());
-
-		acquire.getAdBase().setArrayCallbacks(1); // set callback on array plugin
-		acquire.prepareForCollection(1, 1, ScanInformation.EMPTY);
-
-		ionchambers.setCollectionTime(collectionTime);
-		ionchambers.collectData();
-		ionchambers.waitWhileBusy();
-
-		// read 4th channel of ionchamber - this has counts for I1
-		double[] ion_results = ionchambers.readFrame(4, 1, 0);
-		return new Double[] {ion_results[0] / collectionTime};
-	}
-
-	private int getNumPixelsInImage() throws Exception {
-		NDPluginBase ndarrayPluginBase = medipixDetector.getNdArray().getPluginBase();
-		int dim0 = ndarrayPluginBase.getArraySize0_RBV();
-		int dim1 = ndarrayPluginBase.getArraySize1_RBV();
-		return Math.max(1, dim0) * Math.max(1, dim1);
-	}
-
-	/**
-	 * Readout current array data from medipix
-	 * @return Sum of counts over all pixels.
-	 * @throws Exception
-	 */
-	private Double[] getMedipixData() throws DeviceException {
-		double totalCounts = 0.0;
 		try {
-			int numElements = getNumPixelsInImage();
-			int[] arrayData = medipixDetector.getNdArray().getIntArrayData(numElements);
-			for(int i=0; i<arrayData.length; i++) {
-				totalCounts += arrayData[i];
-			}
-		} catch (Exception e) {
-			throw new DeviceException(e);
+			collectFrameIsRunning = true;
+			data = collectFrameOfData(allScannableNames, collectionTime);
+		} finally {
+			collectFrameIsRunning = false;
 		}
-		return new Double[] {totalCounts};
+		return data;
 	}
 
-	private Double[] getXmapData() throws DeviceException {
-		return (Double[]) xmapDetector.getAttribute("liveStats");
+	/**
+	 * Collect single frame of data for given list of scannables, return formatted string of readout values.
+	 * This is like doing a step scan with a single point and no 'moving parts'.
+	 * @param allScannableNames
+	 * @param collectionTime
+	 * @return data from detector
+	 * @throws DeviceException
+	 * @throws InterruptedException
+	 */
+	private List<String> collectFrameOfData(List<String> allScannableNames, double collectionTime) throws DeviceException, InterruptedException {
+
+		List<Scannable> allScannables = getScannables(allScannableNames); // all scannables
+
+		// Make list of just the detectors
+		List<Detector> detectors = allScannables.stream()
+				.filter(scn -> scn instanceof Detector)
+				.map(scn -> (Detector)scn)
+				.collect(Collectors.toList());
+
+		try {
+			prepareForCollection(allScannables, detectors, collectionTime);
+
+			for (Scannable scannable : allScannables) {
+				scannable.atLevelStart();
+			}
+
+			// Collect detector data
+			for (Detector det : detectors) {
+				logger.debug("Calling {}.collectData()", det.getName());
+				det.collectData();
+			}
+
+			// Wait for completion
+			for (Scannable scn : allScannables) {
+				scn.waitWhileBusy();
+			}
+
+			for (Scannable scn : allScannables) {
+				scn.atLevelEnd();
+			}
+
+			// readout data from each scannable
+			List<String> outputData = new ArrayList<>();
+			for (Scannable scn : allScannables) {
+				logger.debug("Reading data out data for {}", scn.getName());
+				ScannableGetPosition wrapper = new ScannableGetPositionWrapper(scn.getPosition(),
+						scn.getOutputFormat());
+
+				List<String> formattedValues = new ArrayList<>();
+				formattedValues.addAll(Arrays.asList(wrapper.getStringFormattedValues()));
+
+				// Remove time value from Tfg readout
+				if (scn instanceof TfgScalerWithDarkCurrent) {
+					String[] extraNames = scn.getExtraNames();
+					for(int i=0; i<extraNames.length; i++) {
+						if (extraNames[i].equalsIgnoreCase(TFG_TIME_FIELD_NAME)) {
+							formattedValues.remove(i);
+							break;
+						}
+					}
+				}
+				outputData.addAll(formattedValues);
+			}
+			return outputData;
+		} finally {
+			restoreDetectorSettings(allScannables);
+		}
 	}
 
-	public XspressDetector getXspress2Detector() {
-		return xspress2Detector;
+
+	private void restoreDetectorSettings(List<Scannable> allScannables) {
+		for(Scannable scn : allScannables) {
+			restoreTfgSettings(scn);
+			restoreFluoDetector(scn);
+		}
 	}
 
-	public void setXspress2Detector(XspressDetector xspress2Detector) {
-		this.xspress2Detector = xspress2Detector;
+	/**
+	 * Save 'show FF' and 'show deadtime', hdf file writing parameters for FluorescenceDectector
+	 * @param scn
+	 */
+	private void prepareFluoDetector(Scannable scn) {
+		if (! (scn instanceof FluorescenceDetector) ) {
+			return;
+		}
+		FluorescenceDetector detector = (FluorescenceDetector)scn;
+		FluorescenceDetectorParameters params= detector.getConfigurationParameters();
+		if (params instanceof XspressParameters) {
+			XspressParameters parameters = (XspressParameters) params;
+			onlyShowFF = parameters.isOnlyShowFF();
+			showDtValues = parameters.isShowDTRawValues();
+
+			parameters.setOnlyShowFF(true);
+			parameters.setShowDTRawValues(false);
+		}
+		writeHdfFile = detector.isWriteHDF5Files();
+		detector.setWriteHDF5Files(false);
+	}
+
+	/**
+	 * Restore previously saved 'show FF', 'show deadtime', hdf file writing values to FluorescenceDetector
+	 * @param scn
+	 */
+	private void restoreFluoDetector(Scannable scn) {
+		if (! (scn instanceof FluorescenceDetector) ) {
+			return;
+		}
+		FluorescenceDetector detector = (FluorescenceDetector)scn;
+		FluorescenceDetectorParameters params= detector.getConfigurationParameters();
+		if (params instanceof XspressParameters) {
+			XspressParameters parameters = (XspressParameters) params;
+			parameters.setOnlyShowFF(onlyShowFF);
+			parameters.setShowDTRawValues(showDtValues);
+		}
+		detector.setWriteHDF5Files(writeHdfFile);
+	}
+
+	/**
+	 * Save currently set value of Tfg darkCurrentRequired and switch off dark current collection.
+	 * @param tfg
+	 */
+	private void prepareTfgSettings(Scannable scn) {
+		if (scn instanceof TfgScalerWithDarkCurrent) {
+			TfgScalerWithDarkCurrent tfg = (TfgScalerWithDarkCurrent) scn;
+			darkCurrentRequired = tfg.isDarkCurrentRequired();
+			tfg.setDarkCurrentRequired(false);
+		}
+	}
+
+	/**
+	 * Prepare Tfg for collecting a frame of data - save and switch off dark current
+	 * collection and clear any previously set frames.
+	 * @param tfg
+	 * @throws DeviceException
+	 */
+	private void prepareTfg(Scannable scn) throws DeviceException {
+		if (scn instanceof TfgScalerWithDarkCurrent) {
+			TfgScalerWithDarkCurrent tfg = (TfgScalerWithDarkCurrent) scn;
+			prepareTfgSettings(tfg);
+			tfg.clearFrameSets();
+		}
+	}
+
+	/**
+	 * Restore previously saved values of darkCurrentRequired on the Tfg
+	 * @param tfg
+	 */
+	private void restoreTfgSettings(Scannable scn) {
+		if (scn instanceof TfgScalerWithDarkCurrent) {
+			TfgScalerWithDarkCurrent tfg = (TfgScalerWithDarkCurrent) scn;
+			tfg.setDarkCurrentRequired(darkCurrentRequired);
+		}
+	}
+
+	/**
+	 * Prepare scannables for data collection by performing same steps as {@link ScanBase#prepareDevicesForCollection()};
+	 *
+	 * @param scannables
+	 * @param detectors
+	 * @param collectionTime
+	 * @throws DeviceException
+	 */
+	private void prepareForCollection(List<Scannable> scannables, List<Detector> detectors, double collectionTime) throws DeviceException {
+		String list = scannables.stream().map(Scannable::getName).collect(Collectors.toList()).toString();
+		logger.debug("prepareForCollection started. Scannables = {}", list);
+		for(Detector det : detectors) {
+			det.setCollectionTime(collectionTime);
+			det.prepareForCollection();
+			prepareTfg(det);
+			prepareFluoDetector(det);
+		}
+
+		for(Scannable scn : scannables) {
+			scn.atScanStart();
+		}
+		for(Scannable scn : scannables) {
+			scn.atScanLineStart();
+		}
+		logger.debug("prepareForCollection finished");
+	}
+
+
+	private List<Scannable> getScannables(List<String> scannableNames) {
+		List<Scannable> scannables = new ArrayList<>();
+		for (String scnName : scannableNames) {
+			Scannable scannable = Finder.getInstance().findNoWarn(scnName);
+			if (scannable != null) {
+				scannables.add(scannable);
+			} else {
+				logger.warn("Could not find scannable called {} on server", scnName);
+			}
+		}
+		return scannables;
 	}
 
 	@Override
-	public String[] getIonChambersExtraNames() {
-		return ionchambers.getExtraNames();
-	}
+	public List<String> getOutputFields(List<String> scannableNames) {
+		List<String> columnNames = new ArrayList<>();
+		for (Scannable scannable : getScannables(scannableNames)) {
+			prepareFluoDetector(scannable);
+			prepareTfgSettings(scannable);
+			String[] extraNames = scannable.getExtraNames();
+			if (extraNames != null && extraNames.length > 0) {
+				List<String> namesToAdd = new ArrayList<>();
+				for (String name : extraNames) {
+					if (!name.equalsIgnoreCase(TFG_TIME_FIELD_NAME) ) {
+						namesToAdd.add(name);
+					}
+				}
+				columnNames.addAll(namesToAdd);
+			} else {
+				columnNames.add(scannable.getName());
+			}
 
-	@Override
-	public String[] getIonChambersOutputFormats() {
-		return ionchambers.getOutputFormat();
-	}
-
-	public void setIonChambers(CounterTimer ionchambers) {
-		this.ionchambers = ionchambers;
-	}
-
-	public XmapDetector getXmapDetector() {
-		return xmapDetector;
-	}
-
-	public void setXmapDetector(XmapDetector xmapDetector) {
-		this.xmapDetector = xmapDetector;
-	}
-
-	public ADDetector getMedipixDetector() {
-		return medipixDetector;
-	}
-
-	public void setMedipixDetector(ADDetector medipixDetector) {
-		this.medipixDetector = medipixDetector;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
+			restoreFluoDetector(scannable);
+			restoreTfgSettings(scannable);
+		}
+		return columnNames;
 	}
 
 	@Override
@@ -493,9 +389,10 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	 */
 	@Override
 	public void atScanStart() {
-		logger.debug("atScanStart");
+		logger.info("Stopping detector rate view collection at scan start");
 		collectionAllowed = false;
 		waitWhileBusy();
+		logger.info("Detector rate view collection stopped at scan start");
 	}
 
 	/**
@@ -513,11 +410,17 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 
 	@Override
 	public boolean isBusy() {
-		return collectionInProgress;
+		return collectFrameIsRunning;
 	}
 
 	@Override
 	public void stop() {
+		// Stop GUI collection thread after current collection finishes
+		if (collectionAllowed) {
+			collectionAllowed = false;
+			waitWhileBusy();
+		}
+		// Allow collection again
 		collectionAllowed = true;
 	}
 
@@ -535,19 +438,11 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		logger.debug("waitWhileBusy finished");
 	}
 
-	/** Whether collection of detector rates is taking place and {@link #getIonChamberValues(COLLECTION_TYPES)} and
-	 * {@link #getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES)}
-	 * are being called periodically by gui thread.
-	 * (i.e runCollection() method of MonitorViewBase is being run by a view) */
-	private boolean collectionIsRunning;
-
+	/** @return true if collection of detector values is currently taking place.
+	 * i.e. {@link #collectData(List)} is currently in progress. */
 	@Override
 	public boolean getCollectionIsRunning() {
-		return collectionIsRunning;
+		return collectFrameIsRunning;
 	}
 
-	@Override
-	public void setCollectionIsRunning(boolean collectionIsRunning) {
-		this.collectionIsRunning = collectionIsRunning;
-	}
 }
