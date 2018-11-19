@@ -116,7 +116,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * @param data
 	 */
-	protected NexusGroupData(IDataset data) {
+	public NexusGroupData(IDataset data) {
 		this(data.getShape(), DatasetUtils.convertToDataset(data).getBuffer());
 	}
 
