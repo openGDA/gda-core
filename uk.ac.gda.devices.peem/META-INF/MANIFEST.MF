@@ -33,7 +33,5 @@ Bundle-ClassPath: .,
  jars/peem-1.0.jar,
  jars/gda_peem-corba.jar
 Bundle-Vendor: Diamond Light Source
-Import-Package: net.sf.cglib.core,
- net.sf.cglib.proxy,
- org.slf4j;version="[1.7.2,2.0.0)",
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
