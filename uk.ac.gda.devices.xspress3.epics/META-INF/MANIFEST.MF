@@ -16,7 +16,5 @@ Export-Package: uk.ac.gda.devices.detector.xspress3.controllerimpl
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework,
  uk.ac.gda.core
-Import-Package: net.sf.cglib.core,
- net.sf.cglib.proxy,
- org.springframework.beans.factory;version="4.0.6.RELEASE",
+Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.devices.detector.xspress3
