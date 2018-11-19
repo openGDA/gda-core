@@ -31,10 +31,12 @@ import gda.device.DeviceException;
 import gda.device.currentamplifier.ScalingAndOffset;
 import gda.device.detector.NXDetectorData;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A class to represent a detector for NCD.
  */
+@ServiceInterface(INcdSubDetector.class)
 public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implements IHaveExtraNames {
 
 	private static final Logger logger = LoggerFactory.getLogger(SingleScalerWithScalingAndOffset.class);

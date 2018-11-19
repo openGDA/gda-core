@@ -32,10 +32,12 @@ import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.device.memory.Gdhist;
 import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A class to represent a detector for NCD.
  */
+@ServiceInterface(INcdSubDetector.class)
 public class NcdWireDetector extends NcdSubDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdWireDetector.class);

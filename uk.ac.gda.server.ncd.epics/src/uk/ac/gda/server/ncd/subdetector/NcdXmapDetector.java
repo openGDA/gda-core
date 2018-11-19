@@ -33,11 +33,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 /**
  * class for integrating a single vortex detector via xmap into the ncddetector system
  */
+@ServiceInterface(INcdSubDetector.class)
 public class NcdXmapDetector extends NcdSubDetector  {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdXmapDetector.class);

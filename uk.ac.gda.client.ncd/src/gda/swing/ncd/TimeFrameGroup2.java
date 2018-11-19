@@ -59,10 +59,10 @@ public class TimeFrameGroup2 {
 	public TimeFrameGroup2(int group) {
 		this.group = group;
 		nframe    = 1;
-		waitTime  = 100;
+		waitTime  = LocalProperties.getAsInt("gda.ncd.defaultWaitMs", 200);
 		waitUnit  = TimeFrameTableModel2.displayUnits[2];
-		runTime   = 2;
-		runUnit   = TimeFrameTableModel2.displayUnits[3];
+		runTime   = LocalProperties.getAsInt("gda.ncd.defaultRunMs", 1000);
+		runUnit   = TimeFrameTableModel2.displayUnits[2];
 		waitPause = TimeFrameTableModel2.displayPause[1];
 		runPause  = TimeFrameTableModel2.displayPause[1];
 		waitPulse = LocalProperties.get("gda.ncd.defaultWaitPulse", "00000000");
