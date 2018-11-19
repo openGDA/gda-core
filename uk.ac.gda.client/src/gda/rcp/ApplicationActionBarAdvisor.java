@@ -73,7 +73,6 @@ import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.batoncontrol.BatonChanged;
-import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
@@ -473,9 +472,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> {
 			if (changeCode instanceof BatonChanged) {
 				updateBatonStatus(batonStatus);
-			} else if (changeCode instanceof BatonLeaseRenewRequest) {
-				// Cause the baton to be renewed by this client - Seems like a odd place for this?
-				InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 			} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
 				updateScriptStatus(scriptStatus);
 			} else if (changeCode instanceof ScanEvent) {
