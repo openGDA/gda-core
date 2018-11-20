@@ -80,8 +80,8 @@ public class FocusScanUtils {
 	 *            for logging information or error messages
 	 */
 	public static void saveConfig(ILinearFunction energyFocusFunction, String energyFocusConfigPath, Logger logger) {
-		logger.debug("Saving energy focus configuration to file");
-		final Path filePath = Paths.get(energyFocusConfigPath);
+		final Path filePath = Paths.get(energyFocusConfigPath).normalize();
+		logger.debug("Saving energy focus configuration to {}", filePath);
 		try {
 			final String energyFocusConfigJson = objectMapper.writeValueAsString(energyFocusFunction);
 			// save to a file in gda_var so it can be picked up by localStation

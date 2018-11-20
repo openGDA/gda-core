@@ -18,242 +18,142 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static org.jscience.physics.units.SI.KILO;
+import static org.jscience.physics.units.SI.METER;
+import static org.jscience.physics.units.SI.MICRO;
+import static org.jscience.physics.units.SI.MILLI;
+import static org.jscience.physics.units.SI.NANO;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
+import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.getInitialLengthUnit;
+import static uk.ac.gda.client.UIHelper.showError;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.jscience.physics.quantities.Energy;
+import org.jscience.physics.quantities.Length;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import gda.function.ILinearFunction;
+import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
  * Display and allow editing of a linear function representing an energy/focus mapping
- * <p>
- * Controls are written directly into the parent composite, which must have a grid layout with at least 2 columns
  */
 public class EnergyFocusFunctionDisplay {
 	private static final Logger logger = LoggerFactory.getLogger(EnergyFocusFunctionDisplay.class);
 
+	private static final int COMPOSITE_WIDTH = 200;
+
+	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
+	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
+	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
+
+	private static final Unit<Energy> MODEL_ENERGY_UNIT = ELECTRON_VOLT;
+	private static final List<Unit<Energy>> ENERGY_UNITS = ImmutableList.of(KILO(ELECTRON_VOLT), ELECTRON_VOLT);
+	private static final Unit<Energy> INITIAL_ENERGY_UNIT = ELECTRON_VOLT;
+
 	private final ILinearFunction energyFocusFunction;
 
-	private final ValueAndLengthUnits slopeDividendComposite;
-	private final ValueAndLengthUnits interceptionComposite;
-	private final ValueAndLabel slopeDivisorComposite;
+	private final NumberAndUnitsComposite<Length> slopeDividendComposite;
+	private final NumberAndUnitsComposite<Length> interceptionComposite;
+	private final NumberAndUnitsComposite<Energy> slopeDivisorComposite;
 
 	public EnergyFocusFunctionDisplay(Composite parent, ILinearFunction energyFocusFunction) {
+		final Composite mainComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(mainComposite);
 		this.energyFocusFunction = energyFocusFunction;
 
-		createLabel(parent, "Slope dividend:");
-		slopeDividendComposite = new ValueAndLengthUnits(parent, energyFocusFunction.getSlopeDividend());
+		slopeDividendComposite = createRow(mainComposite, "Slope dividend:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
+		interceptionComposite = createRow(mainComposite, "Interception:", MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
+		slopeDivisorComposite = createRow(mainComposite, "Slope divisor:", MODEL_ENERGY_UNIT, ENERGY_UNITS, INITIAL_ENERGY_UNIT);
 
-		createLabel(parent, "Interception:");
-		interceptionComposite = new ValueAndLengthUnits(parent, energyFocusFunction.getInterception());
-
-		createLabel(parent, "Slope divisor:");
-		slopeDivisorComposite = new ValueAndLabel(parent, energyFocusFunction.getSlopeDivisor());
+		// Set initial values
+		update();
 	}
 
 	/**
-	 * Update the GDA function with values from this display
+	 * Update the energy focus function (on the server) with values from this display
 	 */
 	public void updateEnergyFocusFunction() {
 		try {
-			energyFocusFunction.setSlopeDividend(getSlopeDividend());
-			energyFocusFunction.setInterception(getInterception());
-			energyFocusFunction.setSlopeDivisor(getSlopeDivisor());
+			energyFocusFunction.setSlopeDividend(getValueAsString(slopeDividendComposite));
+			energyFocusFunction.setInterception(getValueAsString(interceptionComposite));
+			energyFocusFunction.setSlopeDivisor(getValueAsString(slopeDivisorComposite));
 		} catch (Exception e) {
 			displayError("Error updating energy focus function", e.getMessage(), logger);
 		}
 	}
 
-	public String getSlopeDividend() {
-		return slopeDividendComposite.getValue();
-	}
-
-	public String getInterception() {
-		return interceptionComposite.getValue();
-	}
-
-	public String getSlopeDivisor() {
-		return slopeDivisorComposite.getValue();
+	private static String getValueAsString(NumberAndUnitsComposite<?> composite) {
+		return composite.getValueAsQuantity().toString();
 	}
 
 	/**
 	 * Update display from energyFocusFunction
 	 */
-	public void refresh() {
-		slopeDividendComposite.updateValue(energyFocusFunction.getSlopeDividend());
-		interceptionComposite.updateValue(energyFocusFunction.getInterception());
-		slopeDivisorComposite.updateValue(energyFocusFunction.getSlopeDivisor());
+	public void update() {
+		final Quantity slopeDividend = parseValue(energyFocusFunction.getSlopeDividend());
+		slopeDividendComposite.setValue(slopeDividend.to(MODEL_LENGTH_UNIT).getAmount());
+
+		final Quantity interception = parseValue(energyFocusFunction.getInterception());
+		interceptionComposite.setValue(interception.to(MODEL_LENGTH_UNIT).getAmount());
+
+		final Quantity slopeDivisor = parseValue(energyFocusFunction.getSlopeDivisor());
+		slopeDivisorComposite.setValue(slopeDivisor.to(MODEL_ENERGY_UNIT).getAmount());
 	}
 
-	private static Label createLabel(Composite parent, String text) {
+	/**
+	 * Parse an energy function value (in String format) to a {@link Quantity}
+	 *
+	 * @param value
+	 *            Energy function value as String
+	 * @return corresponding {@link Quantity}
+	 */
+	private static Quantity parseValue(String value) {
+		final String[] splitValue = value.split(" ");
+		try {
+			final Double valueNum = Double.parseDouble(splitValue[0]);
+			// Allow "um" for microns
+			final Unit<?> valueUnit = (splitValue[1].equals("um") ? MICRO(METER) : Unit.valueOf(splitValue[1]));
+			return Quantity.valueOf(valueNum, valueUnit);
+		} catch (Exception e) {
+			showError("Error parsing energy function value '{}'", e);
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	/**
+	 * Create a row consisting of a label and a {@link NumberAndUnitsComposite}
+	 *
+	 * @param parent
+	 *            Composite on which to create the widgets
+	 * @param text
+	 *            Label text
+	 * @param quantity
+	 *            The {@link Quantity} that the {@link NumberAndUnitsComposite} should support
+	 * @return The {@link NumberAndUnitsComposite} that has been created
+	 */
+	private static <Q extends Quantity> NumberAndUnitsComposite<Q> createRow(Composite parent, String text,
+			Unit<Q> modelUnit, List<Unit<Q>> validUnits, Unit<Q> initialUnit) {
 		final Label label = new Label(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(label);
 		label.setText(text);
-		return label;
-	}
 
-	private static Text createText(Composite parent, String text) {
-		final Text textBox = new Text(parent, SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(textBox);
-		textBox.setText(text);
-		return textBox;
-	}
+		final NumberAndUnitsComposite<Q> numberAndUnitsComposite = new NumberAndUnitsComposite<>(parent, SWT.NONE,
+				modelUnit, validUnits, initialUnit);
+		GridDataFactory.fillDefaults().hint(COMPOSITE_WIDTH, SWT.DEFAULT).grab(true, false).applyTo(numberAndUnitsComposite);
 
-	/**
-	 * Composite to show the slope divisor, whose value can be changed, but whose units cannot.<br>
-	 */
-	private static class ValueAndLabel extends Composite {
-
-		private final Text valueText;
-		private final Label unitsLabel;
-
-		public ValueAndLabel(Composite parent, String value) {
-			super(parent, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(this);
-			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
-
-			// The value has come from the linear function, so we can assume it's in a regular format
-			final String[] parsedValue = value.split(" ");
-			valueText = createText(this, parsedValue[0]);
-			unitsLabel = createLabel(this, parsedValue[1]);
-		}
-
-		public String getValue() {
-			return String.format("%s %s", valueText.getText(), unitsLabel.getText());
-		}
-
-		public void updateValue(String value) {
-			final String[] parsedValue = value.split(" ");
-			valueText.setText(parsedValue[0]);
-			unitsLabel.setText(parsedValue[1]);
-		}
-	}
-
-	/**
-	 * Composite to show a length and units, where the user can change the value of both.
-	 * <p>
-	 * When the units are changed, the text in the text box is also changed, so the value itself stays the same.
-	 */
-	private static class ValueAndLengthUnits extends Composite {
-
-		private final Text valueText;
-		private final ComboViewer unitsCombo;
-		private LengthUnits currentUnits;
-
-		public ValueAndLengthUnits(Composite parent, String value) {
-			super(parent, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(this);
-			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
-
-			final String[] parsedValue = value.split(" ");
-			valueText = createText(this, parsedValue[0]);
-
-			unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
-			unitsCombo.add(LengthUnits.values());
-			updateUnits(parsedValue[1]);
-			unitsCombo.addSelectionChangedListener(this::handleSelectionChanged);
-		}
-
-		private void updateUnits(String units) {
-			currentUnits = LengthUnits.fromInternalName(units);
-			unitsCombo.setSelection(new StructuredSelection(currentUnits), true);
-		}
-
-		private void handleSelectionChanged(@SuppressWarnings("unused") SelectionChangedEvent event) {
-			// If units have changed, update value accordingly
-			final LengthUnits newUnits = (LengthUnits) unitsCombo.getStructuredSelection().getFirstElement();
-			if (newUnits != currentUnits) {
-				double oldValue;
-				try {
-					oldValue = Double.parseDouble(valueText.getText());
-				} catch (Exception e) {
-					displayError("Error changing units", "Current value is not valid: units not changed", logger);
-					// Restore old units
-					unitsCombo.setSelection(new StructuredSelection(currentUnits), true);
-					return;
-				}
-
-				final double newValue = newUnits.fromMm(currentUnits.toMm(oldValue));
-				valueText.setText(Double.toString(newValue));
-				currentUnits = newUnits;
-			}
-		}
-
-		public void updateValue(String value) {
-			final String[] parsedValue = value.split(" ");
-			valueText.setText(parsedValue[0]);
-			updateUnits(parsedValue[1]);
-		}
-
-		public String getValue() {
-			final LengthUnits selectedUnits = (LengthUnits) unitsCombo.getStructuredSelection().getFirstElement();
-			return String.format("%s %s", valueText.getText(), selectedUnits.getInternalName());
-		}
-
-		/**
-		 * Enum holding units and their conversion to and from mm
-		 * <p>
-		 * Each unit has a display value and an internal value, because we want to display microns as "µm", but the
-		 * Quantity object stores them as "um".
-		 */
-		private enum LengthUnits {
-			MM("mm", "mm", 1.0), UM("µm", "um", 1e3), NM("nm", "nm", 1e6);
-
-			private final String displayName;
-			private final String internalName;
-			private final double conversionFactor;
-
-			private static Map<String, LengthUnits> internalNameMap;
-
-			LengthUnits(String displayName, String internalName, double conversionFactor) {
-				this.displayName = displayName;
-				this.internalName = internalName;
-				this.conversionFactor = conversionFactor;
-			}
-
-			public double toMm(double value) {
-				return value / conversionFactor;
-			}
-
-			public double fromMm(double value) {
-				return value * conversionFactor;
-			}
-
-			private static void initialiseMap() {
-				if (internalNameMap == null) {
-					internalNameMap = new HashMap<>();
-					for (LengthUnits unit : LengthUnits.values()) {
-						internalNameMap.put(unit.getInternalName(), unit);
-					}
-				}
-			}
-
-			public static LengthUnits fromInternalName(String displayName) {
-				initialiseMap();
-				return internalNameMap.get(displayName);
-			}
-
-			@Override
-			public String toString() {
-				return displayName;
-			}
-
-			public String getInternalName() {
-				return internalName;
-			}
-		}
+		return numberAndUnitsComposite;
 	}
 }

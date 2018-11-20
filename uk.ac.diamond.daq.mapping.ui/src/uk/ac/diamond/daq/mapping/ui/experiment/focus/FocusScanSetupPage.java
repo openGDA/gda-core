@@ -233,8 +233,12 @@ class FocusScanSetupPage extends WizardPage {
 		final EnergyFocusBean energyFocusBean = focusScanBean.getEnergyFocusBean();
 		if (energyFocusBean != null) {
 			try {
-				GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL));
-				energyFocusEditor = new EnergyFocusEditor(composite, energyFocusBean);
+				final Composite energyFocusComposite = new Composite(composite, SWT.NONE);
+				GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(energyFocusComposite);
+				GridLayoutFactory.fillDefaults().applyTo(energyFocusComposite);
+
+				GridDataFactory.fillDefaults().grab(true, false).applyTo(new Label(energyFocusComposite, SWT.SEPARATOR | SWT.HORIZONTAL));
+				energyFocusEditor = new EnergyFocusEditor(energyFocusComposite, energyFocusBean);
 			} catch (Exception e) {
 				logger.error("Error creating energy focus function editor", e);
 			}

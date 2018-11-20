@@ -23,11 +23,12 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveC
 import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +39,7 @@ import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
  * Allows the user to edit a a LinearFunction coupling beamline energy and focus position. It was written for I08 but
  * may be applicable to other beamlines.
  * <p>
- * The function to be edited and the file in which it is to be serialised are passed in a
- * {@link EnergyFocusBean}
- * <p>
- * The class is intended to be used in a {@link FocusScanSetupPage} and as such writes directly onto the parent
- * Composite, which must have a grid layout with at least 2 columns.
+ * The function to be edited and the file in which it is to be serialised are passed in an {@link EnergyFocusBean}
  */
 public class EnergyFocusEditor {
 	private static final Logger logger = LoggerFactory.getLogger(EnergyFocusEditor.class);
@@ -53,18 +50,23 @@ public class EnergyFocusEditor {
 	private final EnergyFocusFunctionDisplay energyFocusDisplay;
 
 	public EnergyFocusEditor(Composite parent, EnergyFocusBean energyFocusBean) {
+		// Before proceeding, check that we have an energy focus function and somewhere to persist it.
 		energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
 		Objects.requireNonNull(energyFocusFunction, "No energy focus function defined for this beamline");
 		energyFocusConfigPath = energyFocusBean.getEnergyFocusConfigPath();
 		Objects.requireNonNull(energyFocusConfigPath, "No file defined to save energy focus function settings");
 
-		final Label title = new Label(parent, SWT.NONE);
-		GridDataFactory.swtDefaults().span(2, 1).applyTo(title);
-		title.setText("Energy focus mapping:");
+		final Group editorGroup = new Group(parent, SWT.BORDER);
+		GridLayoutFactory.fillDefaults().applyTo(editorGroup);
+		editorGroup.setText("Energy focus mapping");
 
-		energyFocusDisplay = new EnergyFocusFunctionDisplay(parent, energyFocusFunction);
+		final Composite mainComposite = new Composite(editorGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(mainComposite);
+		GridLayoutFactory.swtDefaults().applyTo(mainComposite);
 
-		final Button applyButton = new Button(parent, SWT.PUSH);
+		energyFocusDisplay = new EnergyFocusFunctionDisplay(mainComposite, energyFocusFunction);
+
+		final Button applyButton = new Button(mainComposite, SWT.PUSH);
 		GridDataFactory.swtDefaults().span(2, 1).align(SWT.END, SWT.CENTER).applyTo(applyButton);
 		applyButton.setText("Apply");
 		applyButton.setToolTipText("Apply new energy focus values");
@@ -78,7 +80,7 @@ public class EnergyFocusEditor {
 	 * (e.g. on the command line)
 	 */
 	public void refresh() {
-		energyFocusDisplay.refresh();
+		energyFocusDisplay.update();
 	}
 
 	/**
