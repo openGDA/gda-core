@@ -18,14 +18,15 @@
 
 package uk.ac.gda.views.baton.action;
 
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
+
+import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
 
 /**
  * Take the Baton
@@ -36,15 +37,30 @@ public class TakeAction extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		if (!InterfaceProvider.getBatonStateProvider().requestBaton()) {
-			MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OK | SWT.ICON_WARNING);
-			messageBox.setMessage("You do not have enough authorisation to take the baton from the current holder.\n\n"+
-					              "The current holder is aware of your request and will normally release within two minutes.");
-			messageBox.setText("Baton requested");
-			messageBox.open();
-			return Boolean.FALSE;
-		}
+			final boolean batonHolderIsAutomatedClient =
+					InterfaceProvider.getBatonStateProvider().getBatonHolder().isAutomatedUser();
 
-		return RefreshBatonAction.refresh();
+			MessageBox messageBox = new MessageBox(
+					HandlerUtil.getActiveShellChecked(event),
+					SWT.OK | SWT.ICON_WARNING);
+
+			if (batonHolderIsAutomatedClient) {
+				messageBox.setMessage("You have requested the baton from an automated client.\n\n"
+						+ "The automated client is finishing the current instruction, after which "
+						+ "you will be assigned the baton automatically. "
+						+ "Thank you for your patience.");
+				messageBox.setText("Baton requested by human user");
+				messageBox.open();
+			} else {
+				messageBox.setMessage("You do not have enough authorisation to take the baton from"
+						+ " the current holder.\n\nThe current holder is aware of your request and "
+						+ "will normally release within two minutes.");
+				messageBox.setText("Baton requested");
+				messageBox.open();
+			}
+		}
+		Async.submit(RefreshBatonAction::refresh);
+		return null;
 	}
 
 }

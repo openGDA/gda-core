@@ -136,19 +136,24 @@ public class BatonManager implements IBatonManager {
 
 			facadeNames.put(uniqueID, info.copy());
 
-			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in
-			// this case the only client. This is useful as it gives this client certain privileges in this class
-			// which subsequent clients do not have e.g. to set the visit ID).
-			if (!useBaton && leaseHolders.size() == 0 && !info.getUserID().equals("")) {
+			// if baton control not in use and this is the only client, the set this as the baton
+			// holder (meaning in this case the only client. This is useful as it gives this client
+			// certain privileges in this class which subsequent clients do not have e.g. to set
+			// the visit ID).
+			if (!useBaton && leaseHolders.isEmpty() && !info.isServer()) {
 				changeBatonHolder(uniqueID);
 			}
 			// if baton in use and firstClientTakesBaton flag set and this is the first client
-			else if (firstClientTakesBaton && useBaton && leaseHolders.size() == 0 && !info.getUserID().equals("")) {
+			else if (firstClientTakesBaton &&
+					useBaton &&
+					leaseHolders.isEmpty() &&
+					!info.isServer() &&
+					!info.isAutomatedUser()) {
 				changeBatonHolder(uniqueID);
 			}
 
 			// skip this part if an object server
-			if (info.getAuthorisationLevel() != Integer.MAX_VALUE) {
+			if (!info.isServer()) {
 				renewLease(uniqueID);
 				notifyServerOfBatonChange();
 			}
@@ -310,8 +315,16 @@ public class BatonManager implements IBatonManager {
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this,
 					new BatonRequested(new ClientDetails(other, false)));
 		}
+		// Automated client will reject any request to pass the baton to human user until it has
+		// finished the current task. The human user requesting the baton gets a pop-up dialog
+		// saying they will get the baton when the automated client finishes its task. Don't log
+		// baton request denied if baton holder is automated client as this will confuse the user
+		if (getClientInfo(this.batonHolder).isAutomatedUser()) {
+			logger.info("Baton request from '{}' received by automated client", uniqueIdentifier);
+		} else {
+			logger.warn("Baton request from '{}' was denied", uniqueIdentifier);
+		}
 
-		logger.warn("Baton request from '{}' was denied", uniqueIdentifier);
 		// if get here then cannot take baton
 		return false;
 	}
