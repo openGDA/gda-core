@@ -19,10 +19,12 @@
 package uk.ac.diamond.daq.mapping.ui.path;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.jscience.physics.quantities.Length;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
@@ -34,13 +36,13 @@ public class RasterPathEditor extends AbstractPathEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Step");
-		NumberAndUnitsComposite xStep = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xStep);
 
 		binder.bind(xStep, "fastAxisStep", getModel(), GREATER_THAN_ZERO);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Step");
-		NumberAndUnitsComposite yStep = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yStep);
 
 		binder.bind(yStep, "slowAxisStep", getModel(), GREATER_THAN_ZERO);

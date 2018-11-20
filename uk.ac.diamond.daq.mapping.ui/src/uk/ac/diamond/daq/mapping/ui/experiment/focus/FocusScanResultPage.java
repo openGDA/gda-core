@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayYesNoMessage;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -81,6 +82,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
@@ -141,7 +143,7 @@ public class FocusScanResultPage extends WizardPage {
 
 	private StatusBean statusBean = null;
 
-	private NumberAndUnitsComposite focusScannablePosition;
+	private NumberAndUnitsComposite<Length> focusScannablePosition;
 
 	private ISubscriber<IBeanListener<StatusBean>> statusQueueSubscriber;
 
@@ -475,7 +477,7 @@ public class FocusScanResultPage extends WizardPage {
 		label.setText("Focus position:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		focusScannablePosition = new NumberAndUnitsComposite(composite, SWT.NONE);
+		focusScannablePosition = createNumberAndUnitsLengthComposite(composite);
 		GridDataFactory.swtDefaults().applyTo(focusScannablePosition);
 
 		new Label(parent, SWT.NONE).setText("Select 'Finish' to move the focus to the selected position.");

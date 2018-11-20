@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
+
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -26,6 +28,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.jscience.physics.quantities.Length;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
@@ -37,19 +40,19 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
-		NumberAndUnitsComposite xCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Range");
-		NumberAndUnitsComposite xRange = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xRange);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
-		NumberAndUnitsComposite yCentre = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Range");
-		NumberAndUnitsComposite yRange = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yRange);
 
 		createValidatedBindings(getFastAxisName(), xCentre, "xCentre", xRange, "xRange");
@@ -59,9 +62,9 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 	}
 
 	private void createValidatedBindings(String scannableName,
-										 NumberAndUnitsComposite centreWidget,
+										 NumberAndUnitsComposite<Length> centreWidget,
 										 String centreProperty,
-										 NumberAndUnitsComposite rangeWidget,
+										 NumberAndUnitsComposite<Length> rangeWidget,
 										 String rangeProperty) {
 
 		binder.bind(centreWidget, centreProperty, getModel());

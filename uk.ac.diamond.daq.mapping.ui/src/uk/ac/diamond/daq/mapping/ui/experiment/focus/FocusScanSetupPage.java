@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
+
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -78,6 +80,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.jscience.physics.quantities.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,7 +320,7 @@ class FocusScanSetupPage extends WizardPage {
 		label.setText("Centre position:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		final NumberAndUnitsComposite focusCentre = new NumberAndUnitsComposite(parent, SWT.NONE);
+		final NumberAndUnitsComposite<Length> focusCentre = createNumberAndUnitsLengthComposite(parent);
 		GridDataFactory.fillDefaults().applyTo(focusCentre);
 		setCurrentFocusPosition();
 		bindControlToProperty(focusCentre, "focusCentre", focusScanBean);
@@ -326,7 +329,7 @@ class FocusScanSetupPage extends WizardPage {
 		label.setText("Range (+/-):");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		final NumberAndUnitsComposite focusRange = new NumberAndUnitsComposite(parent, SWT.NONE);
+		final NumberAndUnitsComposite<Length> focusRange = createNumberAndUnitsLengthComposite(parent);
 		GridDataFactory.fillDefaults().applyTo(focusRange);
 		bindControlToProperty(focusRange, "focusRange", focusScanBean);
 
@@ -587,7 +590,7 @@ class FocusScanSetupPage extends WizardPage {
 		final IObservableValue model = BeanProperties.value(propertyName).observe(bean);
 		final IObservableValue target;
 		if (control instanceof NumberAndUnitsComposite) {
-			target = new NumberUnitsWidgetProperty().observe(control);
+			target = new NumberUnitsWidgetProperty<Length>().observe(control);
 		} else if (control instanceof Text) {
 			target = WidgetProperties.text(SWT.Modify).observe(control);
 		} else {

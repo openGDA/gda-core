@@ -55,7 +55,7 @@ public class DataBinder {
 	 * Validates that value > 0
 	 */
 	public static final IValidator GREATER_THAN_ZERO = value -> ((double) value > 0.0) ? ValidationStatus.ok() : ValidationStatus.error("Value must be greater than zero!");
-	private static final NumberUnitsWidgetProperty nuwProperty = new NumberUnitsWidgetProperty();
+	private static final NumberUnitsWidgetProperty<?> nuwProperty = new NumberUnitsWidgetProperty<>();
 
 	/**
 	 * Get an IObservableValue from a widget.

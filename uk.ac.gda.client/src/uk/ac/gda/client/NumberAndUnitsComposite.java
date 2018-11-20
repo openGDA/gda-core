@@ -20,6 +20,7 @@ package uk.ac.gda.client;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -28,19 +29,21 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-
-import gda.configuration.properties.LocalProperties;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
 
 /**
- * A Composite for displaying a number with a unit. Currently this only supports mm, µm and nm but could be generalised.
- * It supports JFace databinding via {@link NumberUnitsWidgetProperty}
+ * A Composite for displaying a number with a unit.<br>
+ * The selection of units supported is configured in the constructor.<br>
+ * It supports JFace databinding via {@link NumberUnitsWidgetProperty} *
+ * <p>
+ * Generic parameter Q is the type of quantity this composite can be used to edit e.g.
+ * {@link org.jscience.physics.quantities.Energy}, {@link org.jscience.physics.quantities.Length},
+ * {@link org.jscience.physics.quantities.Duration}
  *
  * @author James Mudd
  */
-public class NumberAndUnitsComposite extends Composite {
-
-	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.diamond.daq.mapping.ui.defaultUnits";
-
+public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	/** The text field showing the numeric value */
 	private final Text text;
 	/** The combo box to select the units */
@@ -51,11 +54,34 @@ public class NumberAndUnitsComposite extends Composite {
 	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
 	private final NumberFormat decimalFormat = new DecimalFormat("0.#####");
 
-	/** Cache the current value to allow the text to be updated when the units are changed */
-	private volatile double currentValueMm;
+	/** Units of the corresponding model value */
+	private final Unit<Q> modelUnit;
 
-	public NumberAndUnitsComposite(Composite parent, int style) {
+	/** Cache the current value (in model units) to allow the text to be updated when the units are changed */
+	private volatile double currentValueModelUnit;
+
+	/**
+	 * Constructor
+	 *
+	 * @param parent
+	 *            parent composite
+	 * @param style
+	 *            SWT style
+	 * @param validUnits
+	 *            Units that the user can choose for this value
+	 * @param initialUnit
+	 *            Units to be selected when the combo box is first displayed
+	 * @param modelUnit
+	 *            Units of the model to which the composite is bound
+	 */
+	public NumberAndUnitsComposite(Composite parent, int style, List<Unit<Q>> validUnits, Unit<Q> initialUnit, Unit<Q> modelUnit) {
 		super(parent, style);
+		this.modelUnit = modelUnit;
+
+		// Check that default units is one of the valid units
+		if (!validUnits.contains(initialUnit)) {
+			throw new IllegalArgumentException(String.format("Default unit '%s' is not one of the valid values", initialUnit));
+		}
 
 		GridDataFactory.fillDefaults().applyTo(this);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
@@ -67,45 +93,44 @@ public class NumberAndUnitsComposite extends Composite {
 		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data
 		// binding.
 		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
-		unitsCombo.add(Units.values());
-		final String defaultUnits = LocalProperties.get(DEFAULT_UNITS_PROPERTY, "mm").toUpperCase();
-		unitsCombo.setSelection(new StructuredSelection(Units.valueOf(defaultUnits)));
-		unitsCombo.addSelectionChangedListener(event -> setValue(currentValueMm));
+		unitsCombo.add(validUnits.stream().toArray());
+		unitsCombo.setSelection(new StructuredSelection(initialUnit));
+		unitsCombo.addSelectionChangedListener(event -> setValue(currentValueModelUnit));
 	}
 
 	/**
-	 * Gets the value set in the UI in mm. Called by the data binding to update the model with changes by the user in
-	 * the UI
+	 * Gets the value set in the UI in model units. Called by the data binding to update the model with changes by the
+	 * user in the UI
 	 *
-	 * @return the value in mm
+	 * @return the value in model units
 	 */
 	public Object getValue() {
 		try {
 			final double value = Double.parseDouble(text.getText());
 
-			// Always have mm in the model so convert to mm and save current mm value
-			currentValueMm = getUnits().toMm(value);
+			// Save value in model units
+			currentValueModelUnit = Quantity.valueOf(value, getUnits()).to(modelUnit).getAmount();
 		} catch (NumberFormatException e) {
 			// Expected when building the GUI
 		}
-		return currentValueMm;
+		return currentValueModelUnit;
 	}
 
 	/**
-	 * Sets the value shown by this UI element. This is called my the data binding to update the UI with changes in the
-	 * model. This should always be called in mm.
+	 * Sets the value shown by this UI element. This is called by the data binding to update the UI with changes in the
+	 * model. This should always be called in model units.
 	 *
 	 * @param value
-	 *            The value to set in mm
+	 *            The value to set in model units
 	 */
 	public void setValue(Object value) {
 		// This should only ever be called with a double so cast it
 		double number = (double) value;
 		// Update the current Value
-		currentValueMm = number;
+		currentValueModelUnit = number;
 
 		// Value in current units
-		final double valueInCurrentUnits = getUnits().fromMm(number);
+		final double valueInCurrentUnits = Quantity.valueOf(number, modelUnit).to(getUnits()).getAmount();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
@@ -118,40 +143,23 @@ public class NumberAndUnitsComposite extends Composite {
 	}
 
 	/**
-	 * Gets the units currently selected in the UI
+	 * Get the currently-displayed value in the form of a Quantity object
 	 *
-	 * @return The currently selected Units
+	 * @return Current value as a quantity
 	 */
-	private Units getUnits() {
-		return (Units) unitsCombo.getStructuredSelection().getFirstElement();
+	public Quantity getValueAsQuantity() {
+		final double value = Double.parseDouble(text.getText());
+		return Quantity.valueOf(value, getUnits());
 	}
 
 	/**
-	 * Enum holding units and there conversion to and from mm
+	 * Gets the units currently selected in the UI
+	 *
+	 * @return The currently selected Unit
 	 */
-	private enum Units {
-		MM("mm", 1.0), UM("µm", 1e3), NM("nm", 1e6);
-
-		private final String displayName;
-		private final double conversionFactor;
-
-		Units(String displayName, double conversionFactor) {
-			this.displayName = displayName;
-			this.conversionFactor = conversionFactor;
-		}
-
-		public double toMm(double value) {
-			return value / conversionFactor;
-		}
-
-		public double fromMm(double value) {
-			return value * conversionFactor;
-		}
-
-		@Override
-		public String toString() {
-			return displayName;
-		}
+	@SuppressWarnings("unchecked")
+	private Unit<Q> getUnits() {
+		return (Unit<Q>) unitsCombo.getStructuredSelection().getFirstElement();
 	}
 
 }

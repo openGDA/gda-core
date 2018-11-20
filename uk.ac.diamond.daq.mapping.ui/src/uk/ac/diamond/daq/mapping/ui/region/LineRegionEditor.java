@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
+
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -26,6 +28,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.jscience.physics.quantities.Length;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
@@ -39,29 +42,29 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Start");
-		NumberAndUnitsComposite xStart = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xStart);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Start");
-		NumberAndUnitsComposite yStart = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yStart);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Stop");
-		NumberAndUnitsComposite xStop = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xStop);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Stop");
-		NumberAndUnitsComposite yStop = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yStop);
 
 		validateAndBind(xStart, yStart, xStop, yStop);
 		return composite;
 	}
 
-	private void validateAndBind(NumberAndUnitsComposite xStart,
-								 NumberAndUnitsComposite yStart,
-								 NumberAndUnitsComposite xStop,
-								 NumberAndUnitsComposite yStop) {
+	private void validateAndBind(NumberAndUnitsComposite<Length> xStart,
+								 NumberAndUnitsComposite<Length> yStart,
+								 NumberAndUnitsComposite<Length> xStop,
+								 NumberAndUnitsComposite<Length> yStop) {
 
 		binder.bind(xStart, "xStart", getModel());
 		binder.bind(yStart, "yStart", getModel());

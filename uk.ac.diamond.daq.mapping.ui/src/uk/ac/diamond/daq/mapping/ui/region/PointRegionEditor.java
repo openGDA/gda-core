@@ -18,9 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.jscience.physics.quantities.Length;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
@@ -31,12 +34,12 @@ public class PointRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " position");
-		NumberAndUnitsComposite xPosition = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> xPosition = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(xPosition);
 		binder.bind(xPosition, "xPosition", getModel());
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " position");
-		NumberAndUnitsComposite yPosition = new NumberAndUnitsComposite(composite, SWT.NONE);
+		NumberAndUnitsComposite<Length> yPosition = createNumberAndUnitsLengthComposite(composite);
 		grabHorizontalSpace.applyTo(yPosition);
 		binder.bind(yPosition, "yPosition", getModel());
 
