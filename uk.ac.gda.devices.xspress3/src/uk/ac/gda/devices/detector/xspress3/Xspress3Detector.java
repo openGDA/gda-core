@@ -84,7 +84,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	private String defaultSubdirectory = "";
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
-	private int currentScanNumber = -1;
 
 	private String configFileName;
 
@@ -123,20 +122,12 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	private void setNumberOfFramesToCollectBasedOnCurrentlyRunningScan() throws DeviceException {
-		int lengthOfEachScanLine = getLengthOfEachScanLine();
+		int lengthOfEachScanLine = XspressHelperMethods.getLengthOfEachScanLine();
 		// Length of -1 indicates a MultiRegionScan is running. Don't set the number of frames
 		// in this case; assume something else is setting this correctly
 		if (lengthOfEachScanLine != -1) {
 			setNumberOfFramesToCollect(lengthOfEachScanLine);
 		}
-	}
-
-	private int getLengthOfEachScanLine() {
-		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		currentScanNumber = currentscan.getScanNumber();
-		int numDimensions = currentscan.getDimensions().length;
-		int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
-		return lengthOfEachScanLine;
 	}
 
 	@Override
@@ -162,7 +153,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		currentScanNumber = -1;
 		// Make sure filewriting is stopped, caches flushed to disc etc.
 		if (writeHDF5Files) {
 			controller.setSavingFiles(false);
@@ -176,18 +166,76 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		}
 	}
 
-	private void prepareFileWriting() throws DeviceException {
-		if (writeHDF5Files) {
-			// set file path name, number here if known or set
+	public static class XspressHelperMethods {
+
+		private XspressHelperMethods() {
+		}
+
+		/**
+		 * Generate output file directory for hdf file; returns filePath if not empty/null, otherwise returns
+		 * path to directory called 'defaultSubDirectory' in default data location (at top level of visit folder).
+		 * @param filePath
+		 * @param defaultSubDirectory
+		 * @return path to hdf directory
+		 */
+		public static String getFilePath(String filePath, String defaultSubDirectory) {
 			if (StringUtils.isNotEmpty(filePath)) {
-				controller.setFilePath(filePath);
+				return filePath;
 			} else {
 				String hdfDir = PathConstructor.createFromDefaultProperty();
-				if (StringUtils.isNotEmpty(defaultSubdirectory)) {
-					hdfDir = Paths.get(hdfDir, defaultSubdirectory).toString();
+				if (StringUtils.isNotEmpty(defaultSubDirectory)) {
+					hdfDir = Paths.get(hdfDir, defaultSubDirectory).toString();
 				}
-				controller.setFilePath(hdfDir);
+				return hdfDir;
 			}
+		}
+
+		/**
+		 * Construct prefix to use for filename, using format : {@code <filePrefix>_<scanNumber>}
+		 * @param filePrefix
+		 * @return
+		 */
+		public static String getFilePrefix(String filePrefix) {
+			if (StringUtils.isNotEmpty(filePrefix)) {
+				String scanNumber = Long.toString(XspressHelperMethods.getScanNumber());
+				if (!scanNumber.isEmpty()) {
+					scanNumber = "_" + scanNumber;
+				}
+				return filePrefix + scanNumber + "_";
+			} else {
+				return "xspress3_";
+			}
+		}
+
+		/**
+		 * Return number of currently running scan, or -1 if scan is not running.
+		 * @return scan number
+		 */
+		public static int getScanNumber() {
+			ScanInformation currentScan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			if (currentScan != null) {
+				return currentScan.getScanNumber();
+			} else {
+				return -1;
+			}
+		}
+
+		/**
+		 * Return length of line for currently running scan (inner most scan dimension).
+		 * @return
+		 */
+		public static int getLengthOfEachScanLine() {
+			ScanInformation currentScan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+			int numDimensions = currentScan.getDimensions().length;
+			int lengthOfEachScanLine = currentScan.getDimensions()[numDimensions - 1];
+			return lengthOfEachScanLine;
+		}
+	}
+
+	private void prepareFileWriting() throws DeviceException {
+		if (writeHDF5Files) {
+
+			controller.setFilePath(XspressHelperMethods.getFilePath(filePath, defaultSubdirectory));
 
 			// Make new directory for the hdf files if necessary
 			File file = new File(controller.getFilePath());
@@ -195,22 +243,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				file.mkdirs();
 			}
 
-			if (StringUtils.isNotEmpty(filePrefix)) {
-				String scanNumber = getScanNumber();
-				if (!scanNumber.isEmpty()) {
-					scanNumber = "_" + scanNumber;
-				}
-				controller.setFilePrefix(filePrefix + scanNumber + "_");
-			} else {
-				controller.setFilePrefix("xspress3_");
-			}
-
+			controller.setFilePrefix(XspressHelperMethods.getFilePrefix(filePrefix));
 			controller.setNextFileNumber(0);
 		}
-	}
-
-	private String getScanNumber() {
-		return Long.toString(currentScanNumber);
 	}
 
 	@Override
