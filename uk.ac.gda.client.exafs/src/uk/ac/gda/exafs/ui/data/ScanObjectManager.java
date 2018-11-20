@@ -19,6 +19,9 @@
 package uk.ac.gda.exafs.ui.data;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -67,6 +70,22 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 					logger.error("Error adding Observer to LoggingScriptController", e);
 				}
 			}
+		}
+
+		setInstancePreferences();
+	}
+
+	/**
+	 *  Set the instance scope scan preferences from values set at client startup plugin_customization.ini
+	 */
+	private void setInstancePreferences() {
+		Map<String, ScanType> prefStrings = new HashMap<>();
+		prefStrings.put(ExafsPreferenceConstants.XES_MODE_ENABLED, ScanType.XES_ONLY);
+		prefStrings.put(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, ScanType.QEXAFS_DEFAULT);
+		prefStrings.put(ExafsPreferenceConstants.XANES_IS_DEFAULT_SCAN_TYPE, ScanType.XANES_DEFAULT);
+		for(Entry<String, ScanType> entry : prefStrings.entrySet()) {
+			boolean isSelected = ExafsActivator.getDefault().getPreferenceStore().getBoolean(entry.getKey());
+			serverPrefs.putBoolean(entry.getValue().toString(), isSelected);
 		}
 	}
 
