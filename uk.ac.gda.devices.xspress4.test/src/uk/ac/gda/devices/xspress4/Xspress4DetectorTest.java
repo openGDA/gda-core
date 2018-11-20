@@ -57,6 +57,8 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.DummyXspress3Controller;
+import uk.ac.gda.devices.detector.xspress4.DummyXspress4Controller;
+import uk.ac.gda.devices.detector.xspress4.Xspress4Controller;
 import uk.ac.gda.devices.detector.xspress4.Xspress4Detector;
 import uk.ac.gda.devices.xspress4.HelperClasses.CheckType;
 
@@ -74,6 +76,7 @@ public class Xspress4DetectorTest {
 	private String ELEMENT_NAME = "Element";
 	private String simulationFileName = "/scratch/dummyHdfFile.h5";
 	private XspressParameters xspressParams;
+	private Xspress4Controller xsp4Controller;
 
 	@Before
 	public void setup() throws Exception {
@@ -105,9 +108,16 @@ public class Xspress4DetectorTest {
 		controllerForDetector.configure();
 		controllerForDetector.setSimulationFileName(simulationFileName);
 
+		xsp4Controller = new DummyXspress4Controller();
+		xsp4Controller.setNumElements(controllerForDetector.getNumberOfChannels());
+		xsp4Controller.setNumMcaChannels(128);
+		xsp4Controller.setNumScalers(8);
+
 		xspress4detector = new Xspress4Detector();
 		xspress4detector.setName("xspress4detector");
-		xspress4detector.setController(controllerForDetector);
+		xspress4detector.setXspress3Controller(controllerForDetector);
+		xspress4detector.setController(xsp4Controller);
+		xspress4detector.setWriteHdfFiles(false);
 		xspress4detector.configure();
 	}
 
