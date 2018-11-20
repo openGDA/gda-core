@@ -39,11 +39,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.ScannablePositionChangeEvent;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.dls.client.views.ReadonlyScannableComposite;
 
 /**
- * Composite to move the diagnostic unit into or out of the beam and open or close the exit slit shutter
+ * Composite to move the diagnostic unit into or out of the beam, coordinated with moving exit slits and
+ * starting/stopping data acquisition
  * <p>
  * The constructor parameter "moveIn" controls how the devices should be moved (see below)
  */
@@ -58,29 +59,24 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 	private static final int COLUMNS = 5;
 
-	private boolean stopping = false;
+	private volatile boolean stopping = false;
 
 	/**
 	 * <code>true</code> if the user should<br>
 	 * <ul>
 	 * <li>move the diagnostic stick in</li>
 	 * <li>open the shutter</li>
+	 * <li>start data acquisition</li>
 	 * </ul>
-	 * and hence to make the "Next" button active when it is in
 	 * <p>
 	 * <code>false</code> if the user should
 	 * <ul>
+	 * <li>stop data acquisition</li>
 	 * <li>close the shutter</li>
 	 * <li>move the stick out</li>
 	 * </ul>
 	 */
 	private final boolean moveIn;
-
-	/**
-	 * <code>true</code> if the user has pressed "Move in"
-	 * <code>false</code> if the user has pressed "Move out"
-	 */
-	private Boolean movingIn;
 
 	private Button btnMoveIn;
 	private Button btnMoveOut;
@@ -91,9 +87,12 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 	private ProgressBar progressBar;
 
+	private ConfigureExitSlitsParameters params;
+
 	public ConfigureExitSlitsMoveDiagnostic(Composite parent, int style, String title, String description, ConfigureExitSlitsParameters params, boolean moveIn) {
 		super(parent, style, title, description);
 		this.moveIn = moveIn;
+		this.params = params;
 		diagnosticPositioner = params.getDiagnosticPositioner();
 		exitSlitShutter = params.getExitSlitShutter();
 
@@ -108,10 +107,10 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 		diagnosticPosition.setBackground(COLOUR_WHITE);
 
 		btnMoveIn = createButton(this, "Move in", "Move diagnostic into the beam and open slits");
-		btnMoveIn.addSelectionListener(widgetSelectedAdapter(e -> moveIn()));
+		btnMoveIn.addSelectionListener(widgetSelectedAdapter(e -> Async.execute(this::moveIn)));
 
 		btnMoveOut = createButton(this, "Move out", "Close slits and move diagnostic out of the beam");
-		btnMoveOut.addSelectionListener(widgetSelectedAdapter(e -> moveOut()));
+		btnMoveOut.addSelectionListener(widgetSelectedAdapter(e -> Async.execute(this::moveOut)));
 
 		btnStop = createStopButton(this);
 		btnStop.addSelectionListener(widgetSelectedAdapter(e -> stopMotors()));
@@ -119,7 +118,7 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 		progressBar = new ProgressBar(this, SWT.INDETERMINATE);
 		progressBar.setVisible(false);
 
-		// Shutter position (changed automatically in sync with diagnostic)
+		// Shutter position
 		final ReadonlyScannableComposite shutterPosition = new ReadonlyScannableComposite(this, SWT.TRANSPARENT, exitSlitShutter, "Exit slit shutter", "", 0, true);
 		GridDataFactory.swtDefaults().applyTo(shutterPosition);
 		shutterPosition.setMinPeriodMS(SCANNABLE_UPDATE_PERIOD);
@@ -132,12 +131,13 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 	private void moveIn() {
 		stopping = false;
-		movingIn = true;
 		try {
-			if (!isDiagnosticIn()) {
-				moveDiagnosticPositioner(DIAGNOSTIC_IN);
-			} else if (!isShutterOpen())  {
-				moveShutter(SHUTTER_OPEN);
+			diagnosticPositioner.moveTo(DIAGNOSTIC_IN);
+			if (!stopping) {
+				exitSlitShutter.moveTo(SHUTTER_OPEN);
+			}
+			if (!stopping) {
+				params.getCameraControl().startAcquiring();
 			}
 		} catch (DeviceException e) {
 			displayError(MOTOR_ERROR, "Error moving positioner in", e, logger);
@@ -146,12 +146,13 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 	private void moveOut() {
 		stopping = false;
-		movingIn = false;
 		try {
-			if (!isShutterClosed()) {
-				moveShutter(SHUTTER_CLOSED);
-			} else if (!isDiagnosticOut()) {
-				moveDiagnosticPositioner(DIAGNOSTIC_OUT);
+			params.getCameraControl().stopAcquiring();
+			if (!stopping) {
+				exitSlitShutter.moveTo(SHUTTER_CLOSED);
+			}
+			if (!stopping) {
+				diagnosticPositioner.moveTo(DIAGNOSTIC_OUT);
 			}
 		} catch (DeviceException e) {
 			displayError(MOTOR_ERROR, "Error moving positioner out", e, logger);
@@ -172,15 +173,6 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 		}
 	}
 
-	private void moveDiagnosticPositioner(String position) {
-		try {
-			diagnosticPositioner.asynchronousMoveTo(position);
-		} catch (DeviceException ex) {
-			final String message = String.format("Error moving diagnostic positioner %s", diagnosticPositioner.getName());
-			displayError(MOTOR_ERROR, message, ex, logger);
-		}
-	}
-
 	private boolean isDiagnosticIn() throws DeviceException {
 		return diagnosticPositioner.getPosition().equals(DIAGNOSTIC_IN);
 	}
@@ -190,20 +182,7 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 	}
 
 	private boolean isDiagnosticInPosition() throws DeviceException {
-		if (moveIn) {
-			return isDiagnosticIn();
-		} else {
-			return isDiagnosticOut();
-		}
-	}
-
-	private void moveShutter(String position) {
-		try {
-			exitSlitShutter.asynchronousMoveTo(position);
-		} catch (DeviceException ex) {
-			final String message = String.format("Error moving exit slit shutter %s", exitSlitShutter.getName());
-			displayError(MOTOR_ERROR, message, ex, logger);
-		}
+		return moveIn ? isDiagnosticIn() : isDiagnosticOut();
 	}
 
 	private boolean isShutterOpen() throws DeviceException {
@@ -215,47 +194,26 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 	}
 
 	private boolean isShutterInPosition() throws DeviceException {
-		if (moveIn) {
-			return isShutterOpen();
-		} else {
-			return isShutterClosed();
-		}
-	}
-
-	@Override
-	protected void onUpdate(Object source, Object arg) {
-		if (arg instanceof ScannablePositionChangeEvent && !stopping) {
-			// If the first motor is in place, start the second one
-			try {
-				if (movingIn) {
-					// Wait for diagnostic to move in, then open shutter
-					if (source == diagnosticPositioner && isDiagnosticIn() && !isShutterOpen()) {
-						moveShutter(SHUTTER_OPEN);
-					}
-				} else {
-					// Wait for shutter to close, then move diagnostic out
-					if (source == exitSlitShutter && isShutterClosed() && !isDiagnosticOut()) {
-						moveDiagnosticPositioner(DIAGNOSTIC_OUT);
-					}
-				}
-			} catch (Exception e) {
-				displayError(MOTOR_ERROR, "Error moving positioner out", e, logger);
-			}
-		}
-		super.onUpdate(source, arg);
+		return moveIn ? isShutterOpen() : isShutterClosed();
 	}
 
 	@Override
 	protected void updateButtons() {
-		if (btnMoveIn != null && btnMoveOut != null) {
-			try {
+		try {
+			if (btnMoveIn != null) {
 				btnMoveIn.setEnabled(!isBusy() && (!isDiagnosticIn() || !isShutterOpen()));
-				btnMoveOut.setEnabled(!isBusy() && (!isDiagnosticOut() || !isShutterClosed()));
-				btnStop.setEnabled(isBusy());
-				progressBar.setVisible(isBusy());
-			} catch (DeviceException e) {
-				displayError(MOTOR_ERROR, "Error getting device information", e, logger);
 			}
+			if (btnMoveOut != null) {
+				btnMoveOut.setEnabled(!isBusy() && (!isDiagnosticOut() || !isShutterClosed()));
+			}
+			if (btnStop != null) {
+				btnStop.setEnabled(isBusy());
+			}
+			if (progressBar != null) {
+				progressBar.setVisible(isBusy());
+			}
+		} catch (DeviceException e) {
+			displayError(MOTOR_ERROR, "Error getting device information", e, logger);
 		}
 	}
 
