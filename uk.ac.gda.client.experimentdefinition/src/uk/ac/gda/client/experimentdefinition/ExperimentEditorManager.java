@@ -24,13 +24,12 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -745,7 +744,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(), ob.getMultiScanName());
 		String[] typesInOrder = man.getOrderedColumnBeanTypes();
 
-		HashMap<String, IFile> orderedMap = new HashMap<String, IFile>();
+		Map<String, IFile> orderedMap = new LinkedHashMap<>();
 
 		for (String type : typesInOrder) {
 			for (IExperimentBeanDescription desc : allBeanDescriptions) {
@@ -757,54 +756,47 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	}
 
 	protected IEditorPart[] openRequiredEditors(final IExperimentObject ob) {
-		boolean anyEditors = false;
-		try {
-			anyEditors = getActivePage().getEditorReferences().length > 0;
-		} catch (Exception e) {
-			anyEditors = false;
-		}
+		// Make list of paths of files to be opened (in same order as required tab order)
 		List<IFile> filesToOpen = listFilesToOpen(ob);
+
+		// Make list of paths of files already opened in editors
+		List<IPath> alreadyOpenFiles = new ArrayList<>();
+		for (IEditorReference editorRef : getActivePage().getEditorReferences()) {
+			IEditorPart editorInput = editorRef.getEditor(false);
+			if (editorInput != null) {
+				FileEditorInput fileEditor = (FileEditorInput) editorInput.getEditorInput();
+				alreadyOpenFiles.add(fileEditor.getFile().getFullPath());
+			}
+		}
+
+		// See if editors for files to be opened are already displayed.
+		boolean requiredEditorsAlreadyOpen = true;
+		for (IFile fileToOpen : filesToOpen) {
+			if (!alreadyOpenFiles.contains(fileToOpen.getFullPath())) {
+				requiredEditorsAlreadyOpen = false;
+			}
+		}
+
+		// nothing to do editors for required files are already open.
+		// Return null (return arg is not important since it isn't used anywhere...)
+		if (requiredEditorsAlreadyOpen) {
+			return null;
+		}
+
+		// Close all the active editors, ask if user wants to save modified xml
+		getActivePage().closeEditors(getActivePage().getEditorReferences(), true);
 		IEditorPart[] editors = new IEditorPart[filesToOpen.size()];
-		if (anyEditors) {
-			// open each editor required and put it all thw
-			for (int i = editors.length - 1; i >= 0; i--) {
-				if (isEditor(filesToOpen.get(i))) {
-					editors[i] = getEditor(filesToOpen.get(i));
-					moveEditorToTheLeftEnd(getActivePage(), editors[i]);
-				} else
-					editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
-			}
 
-		} else
-			for (int i = editors.length - 1; i >= 0; i--)
-				editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
-
-		if (editors.length > 0) {
-			closeUnwantedEditors(editors);
-			getActivePage().activate(editors[0]);
+		// Open each editor in turn (same order as given by list returned by listFilesToOpen)
+		for (int i = 0; i<editors.length; i++) {
+			editors[i] = openEditor(filesToOpen.get(i), false);
 		}
+
+		IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(), ob.getMultiScanName());
+		int index = man.getDefaultSelectedColumnIndex();
+		getActivePage().activate(editors[index]);
+
 		return editors;
-	}
-
-	private void closeUnwantedEditors(IEditorPart[] ourEditors) {
-		IEditorReference[] openEdRefs = getActivePage().getEditorReferences();
-		IEditorInput[] ourEdParts = new IEditorInput[ourEditors.length];
-		for (int i = 0; i < ourEditors.length; i++) {
-			if (ourEditors[i]!=null) {
-				ourEdParts[i] = ourEditors[i].getEditorInput();
-			}
-		}
-
-		IEditorReference[] edRefsToClose = new IEditorReference[0];
-		for (IEditorReference edRef : openEdRefs) {
-			try {
-				if (!ArrayUtils.contains(ourEdParts, edRef.getEditorInput()))
-					edRefsToClose = (IEditorReference[]) ArrayUtils.add(edRefsToClose, edRef);
-			} catch (PartInitException e) {
-				logger.warn("Exception initialising " + edRef.getContentDescription(), e);
-			}
-		}
-		getActivePage().closeEditors(edRefsToClose, true);
 	}
 
 	@Override
