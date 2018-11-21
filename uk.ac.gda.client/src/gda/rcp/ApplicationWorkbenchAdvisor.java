@@ -74,13 +74,16 @@ import gda.gui.RCPControllerImpl;
 import gda.gui.RCPOpenPerspectiveCommand;
 import gda.gui.RCPOpenViewCommand;
 import gda.gui.RCPSetPreferenceCommand;
+import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.jython.UserMessage;
+import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
 import gda.util.ObjectServer;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.closeactions.UserOptionsOnCloseDialog;
 import uk.ac.gda.client.liveplot.LivePlotViewManager;
 import uk.ac.gda.client.scripting.JythonPerspective;
@@ -238,7 +241,9 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			}
 
 			listenForUserMessages();
-			listenForBatonMessages();
+			if (LocalProperties.isBatonManagementEnabled()) {
+				listenForBatonMessages();
+			}
 
 			// should these two be done during initialize instead of now when Windows have been created?
 			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
@@ -296,28 +301,28 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		InterfaceProvider.getJSFObserver().addIObserver(messageObserver);
 	}
 
+	/**
+	 * Add an observer to receive and respond to baton events
+	 * <p>
+	 * Lease renewal is done in a new thread to prevent the update process blocking.
+	 * @see BatonLeaseRenewRequest
+	 * @see BatonRequested
+	 * @see LocalProperties#isBatonManagementEnabled()
+	 */
 	private void listenForBatonMessages() {
-
-		final IObserver batonObserver = new IObserver() {
-			@Override
-			public void update(Object source, Object arg) {
-				if (arg instanceof BatonRequested) {
-					final BatonRequested request = (BatonRequested) arg;
-					if (JythonServerFacade.getInstance().amIBatonHolder()) {
-						final Display display = PlatformUI.getWorkbench().getDisplay();
-						display.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-								BatonRequestDialog.doPassBaton(shell, request);
-							}
-						});
-					}
+		final IBatonStateProvider bsp = InterfaceProvider.getBatonStateProvider();
+		bsp.addBatonChangedObserver((source, arg) -> Async.execute(() -> {
+				if (arg instanceof BatonLeaseRenewRequest) {
+					logger.trace("Renewing baton from {}", bsp);
+					bsp.amIBatonHolder();
+				} else if (arg instanceof BatonRequested && bsp.amIBatonHolder()) {
+					final Display display = PlatformUI.getWorkbench().getDisplay();
+					display.asyncExec(() -> {
+							final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+							BatonRequestDialog.doPassBaton(shell, (BatonRequested)arg);
+					});
 				}
-			}
-		};
-
-		InterfaceProvider.getJSFObserver().addIObserver(batonObserver);
+		}));
 	}
 
 	private void refreshFromLocal() {
