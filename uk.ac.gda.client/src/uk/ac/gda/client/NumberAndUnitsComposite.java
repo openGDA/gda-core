@@ -20,6 +20,7 @@ package uk.ac.gda.client;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -62,20 +63,40 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	private volatile Unit<Q> currentUnit;
 
 	/**
+	 * Constructor for the case where only one unit is permitted
+	 * <p>
+	 * For parameters, see (@link
+	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, List, Unit)}
+	 */
+	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit) {
+		this(parent, style, modelUnit, Arrays.asList(modelUnit), modelUnit);
+	}
+
+	/**
+	 * Constructor for the case where the initially-displayed unit is the same as the model unit
+	 * <p>
+	 * For parameters, see (@link
+	 * {@link NumberAndUnitsComposite#NumberAndUnitsComposite(Composite, int, Unit, List, Unit)}
+	 */
+	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, List<Unit<Q>> validUnits) {
+		this(parent, style, modelUnit, validUnits, modelUnit);
+	}
+
+	/**
 	 * Constructor
 	 *
 	 * @param parent
 	 *            parent composite
 	 * @param style
 	 *            SWT style
+	 * @param modelUnit
+	 *            Units of the model to which the composite is bound
 	 * @param validUnits
 	 *            Units that the user can choose for this value
 	 * @param initialUnit
 	 *            Units to be selected when the combo box is first displayed
-	 * @param modelUnit
-	 *            Units of the model to which the composite is bound
 	 */
-	public NumberAndUnitsComposite(Composite parent, int style, List<Unit<Q>> validUnits, Unit<Q> initialUnit, Unit<Q> modelUnit) {
+	public NumberAndUnitsComposite(Composite parent, int style, Unit<Q> modelUnit, List<Unit<Q>> validUnits, Unit<Q> initialUnit) {
 		super(parent, style);
 		this.modelUnit = modelUnit;
 		this.currentUnit = initialUnit;

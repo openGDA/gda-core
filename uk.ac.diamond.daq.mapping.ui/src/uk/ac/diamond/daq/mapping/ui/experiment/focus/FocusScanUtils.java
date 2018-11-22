@@ -159,6 +159,6 @@ public class FocusScanUtils {
 	 * @return a {@link NumberAndUnitsComposite} initialised for length
 	 */
 	protected static NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent) {
-		return new NumberAndUnitsComposite<>(parent, SWT.NONE, LENGTH_UNITS, INITIAL_LENGTH_UNIT, MODEL_LENGTH_UNIT);
+		return new NumberAndUnitsComposite<>(parent, SWT.NONE, MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
 	}
 }
