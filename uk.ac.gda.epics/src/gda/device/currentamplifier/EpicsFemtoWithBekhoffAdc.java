@@ -85,16 +85,10 @@ public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetec
 	private static final String ADC_ENABLE = "ENABLED";
 	private static final String ADC_RETRIGGER = "RETRIGGER";
 	private static final String ADC_START = "TRIGGER";
-	private static final String ADC_CLEAR = "CLEAR";
 	private static final String ADC_SAMPLES = "SAMPLES";
-	private static final String ADC_OFFSET = "OFFSET";
 	private static final String ADC_AVERAGE = "AVERAGE"; //on I21 this is the integration time for the averaged value
-	private static final String ADC_BUFFFER_COUNT = "BUFFERCOUNT";
-	private static final String ADC_CHANNEL_BUFFFER = "CHANBUFF";
-	private static final String ADC_CAPTURE = "CAPTURE";
 	private static final String ADC_VALUE = "VALUE"; //on I21 this is the actual averaged value over the specified integration time.
 	private static final String ADC_STATE = "STATE";
-	private static final String ADC_INTERRUPT = "INTERRUPT";
 	private static final String ADC_INTEGRAL = "INTEGRAL";
 
 	private boolean hasIAVinPV = true;
