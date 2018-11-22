@@ -18,10 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.createNumberAndUnitsLengthComposite;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayYesNoMessage;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.saveConfig;
-import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;

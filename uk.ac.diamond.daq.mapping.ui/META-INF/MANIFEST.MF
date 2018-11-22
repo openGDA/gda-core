@@ -35,7 +35,9 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.org.jscience,
  com.fasterxml.jackson.core.jackson-databind,
  com.fasterxml.jackson.core.jackson-core,
- uk.ac.gda.client
+ uk.ac.gda.client,
+ uk.ac.diamond.org.jscience,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.e4.core.contexts,

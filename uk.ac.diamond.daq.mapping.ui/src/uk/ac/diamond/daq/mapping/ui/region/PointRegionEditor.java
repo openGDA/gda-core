@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;

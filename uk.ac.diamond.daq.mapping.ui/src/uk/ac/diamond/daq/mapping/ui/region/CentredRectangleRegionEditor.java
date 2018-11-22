@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
-
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;

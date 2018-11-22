@@ -18,8 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static org.jscience.physics.units.SI.METER;
+import static org.jscience.physics.units.SI.MICRO;
+import static org.jscience.physics.units.SI.MILLI;
+import static org.jscience.physics.units.SI.NANO;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -32,8 +38,15 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.jscience.physics.quantities.Length;
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
  * Base class for model (e.g. region, path) editors. Once the model is set, call createEditorPart.
@@ -41,6 +54,13 @@ import gda.configuration.properties.LocalProperties;
  * @param <T> Type of model handled by the editor
  */
 public abstract class AbstractModelEditor<T> {
+	private static final Logger logger = LoggerFactory.getLogger(AbstractModelEditor.class);
+
+	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
+	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
+	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
+
+	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.gda.client.defaultUnits";
 
 	private T model;
 	private Composite composite;
@@ -141,6 +161,40 @@ public abstract class AbstractModelEditor<T> {
 		} catch (EventException | URISyntaxException e) {
 			throw new EventException("Could not create remote service", e);
 		}
+	}
+
+	/**
+	 * Get the initial units (i.e. the units shown in the combo box when it is first displayed)
+	 * <p>
+	 * This defaults to millimetres but can be set in a property
+	 *
+	 * @return the initial units
+	 */
+	@SuppressWarnings("unchecked")
+	public static Unit<Length> getInitialLengthUnit() {
+		final String unitString = LocalProperties.get(DEFAULT_UNITS_PROPERTY, "mm").toLowerCase();
+		try {
+			final Unit<?> unit = Unit.valueOf(unitString);
+			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
+				return (Unit<Length>) unit;
+			}
+			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
+			return MODEL_LENGTH_UNIT;
+		} catch (Exception e) {
+			logger.warn("Cannot parse value '{}' of property '{}': assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
+			return MODEL_LENGTH_UNIT;
+		}
+	}
+
+	/**
+	 * Create a {@link NumberAndUnitsComposite} for length units, assuming model units are mm
+	 *
+	 * @param parent
+	 *            composite
+	 * @return a {@link NumberAndUnitsComposite} initialised for length
+	 */
+	protected static NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent) {
+		return new NumberAndUnitsComposite<>(parent, SWT.NONE, LENGTH_UNITS, INITIAL_LENGTH_UNIT, MODEL_LENGTH_UNIT);
 	}
 
 }

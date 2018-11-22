@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.path;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
-import static uk.ac.gda.client.UIHelper.createNumberAndUnitsLengthComposite;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

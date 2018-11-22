@@ -18,12 +18,6 @@
 
 package uk.ac.gda.client;
 
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
-
-import java.util.List;
 import java.util.Random;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -37,23 +31,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.ExpandItem;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-
-import gda.configuration.properties.LocalProperties;
 
 public class UIHelper {
-	private static final Logger logger = LoggerFactory.getLogger(UIHelper.class);
-
-	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.gda.client.defaultUnits";
-
-	public static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
-	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
-	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
 
 	private UIHelper() {}
 
@@ -174,38 +153,4 @@ public class UIHelper {
 		hex = "#" + hex;
 		return hex;
 	}
-
-	/**
-	 * Get the initial units (i.e. the units shown in the combo box when it is first displayed)
-	 * <p>
-	 * This defaults to millimetres but can be set in a property
-	 *
-	 * @return the initial units
-	 */
-	@SuppressWarnings("unchecked")
-	public static Unit<Length> getInitialLengthUnit() {
-		final String unitString = LocalProperties.get(DEFAULT_UNITS_PROPERTY, "mm").toLowerCase();
-		try {
-			final Unit<?> unit = Unit.valueOf(unitString);
-			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
-				return (Unit<Length>) unit;
-			}
-			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
-			return MODEL_LENGTH_UNIT;
-		} catch (Exception e) {
-			logger.warn("Cannot parse value '{}' of property '{}': assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
-			return MODEL_LENGTH_UNIT;
-		}
-	}
-	/**
-	 * Create a {@link NumberAndUnitsComposite} for length units, assuming model units are mm
-	 *
-	 * @param parent
-	 *            composite
-	 * @return a {@link NumberAndUnitsComposite} initialised for length
-	 */
-	public static NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent) {
-		return new NumberAndUnitsComposite<>(parent, SWT.NONE, LENGTH_UNITS, INITIAL_LENGTH_UNIT, MODEL_LENGTH_UNIT);
-	}
-
 }
