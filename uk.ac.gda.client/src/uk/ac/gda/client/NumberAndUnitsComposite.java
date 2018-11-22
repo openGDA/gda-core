@@ -136,7 +136,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 *
 	 * @return the value in model units
 	 */
-	public Object getValue() {
+	public double getValue() {
 		return getValueAsQuantity().to(modelUnit).getAmount();
 	}
 
@@ -147,12 +147,9 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 * @param value
 	 *            The value to set in model units
 	 */
-	public void setValue(Object value) {
-		// This should only ever be called with a double so cast it
-		double number = (double) value;
-
+	public void setValue(double value) {
 		// Value in current units
-		final double valueInCurrentUnits = Quantity.valueOf(number, modelUnit).to(currentUnit).getAmount();
+		final double valueInCurrentUnits = Quantity.valueOf(value, modelUnit).to(currentUnit).getAmount();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001

@@ -219,8 +219,7 @@ public class FocusScanResultPage extends WizardPage {
 	}
 
 	private void updatePageComplete() {
-		setPageComplete(statusBean != null && statusBean.getStatus().isFinal() &&
-				focusScannablePosition.getValue() != null);
+		setPageComplete(statusBean != null && statusBean.getStatus().isFinal());
 	}
 
 	private void createRunScanControls(Composite parent) {

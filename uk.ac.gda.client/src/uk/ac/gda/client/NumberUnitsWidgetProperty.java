@@ -33,7 +33,7 @@ public class NumberUnitsWidgetProperty<Q extends Quantity> extends WidgetValuePr
 	@Override
 	protected void doSetValue(Object source, Object value) {
 		if (source instanceof NumberAndUnitsComposite && value instanceof Double) {
-			((NumberAndUnitsComposite<Q>) source).setValue(value);
+			((NumberAndUnitsComposite<Q>) source).setValue((double) value);
 		}
 	}
 
