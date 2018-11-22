@@ -47,30 +47,15 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	private static final int SysSignalMin = 0;
 	private static final int SysSignalMax = 63;
 
-	private static final String connected = "CONNECTED";
-	private static final String store = "STORE";
-	private static final String sysReset = "SYS_RESET";
 	private static final String sysResetProc = "SYS_RESET.PROC";
-	private static final String sysVer = "SYS_VER";
 	private static final String sysStat1Lo = "SYS_STAT1LO";
 	private static final String sysStat1Hi = "SYS_STAT1HI";
-	private static final String sysStat1 = "SYS_STAT1";
 	private static final String sysStat2Lo = "SYS_STAT2LO";
 	private static final String sysStat2Hi = "SYS_STAT2HI";
-	private static final String sysStat2 = "SYS_STAT2";
-	private static final String sysErrState = "SYS_STATERR";
-
-	private static final String PCSource = "PC_ENC";
-	private static final String PCTimeUnits = "PC_TSPRE";
-	private static final String PCTimeUnits_ms = "ms";
-	private static final String PCTimeUnits_s = "s";
-
 	private static final String PCArmSource = "PC_ARM_SEL";
 	private static final String PCArm = "PC_ARM";
 	private static final String PCDisArm = "PC_DISARM";
 	private static final String PCArmOut = "PC_ARM_OUT";
-	private static final String PCArmSourceSoft = "Soft";
-	private static final String PCArmSourceExternal = "External";
 	private static final String PCDir = "PC_DIR";
 
 	private static final double PCGateStartMin = -214881.9984;
