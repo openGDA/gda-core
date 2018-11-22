@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -57,8 +58,8 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	/** Units of the corresponding model value */
 	private final Unit<Q> modelUnit;
 
-	/** Cache the current value (in model units) to allow the text to be updated when the units are changed */
-	private volatile double currentValueModelUnit;
+	/** Cache the current units to allow the text to be updated when the units are changed */
+	private volatile Unit<Q> currentUnit;
 
 	/**
 	 * Constructor
@@ -77,6 +78,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	public NumberAndUnitsComposite(Composite parent, int style, List<Unit<Q>> validUnits, Unit<Q> initialUnit, Unit<Q> modelUnit) {
 		super(parent, style);
 		this.modelUnit = modelUnit;
+		this.currentUnit = initialUnit;
 
 		// Check that default units is one of the valid units
 		if (!validUnits.contains(initialUnit)) {
@@ -95,7 +97,37 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
 		unitsCombo.add(validUnits.stream().toArray());
 		unitsCombo.setSelection(new StructuredSelection(initialUnit));
-		unitsCombo.addSelectionChangedListener(event -> setValue(currentValueModelUnit));
+		unitsCombo.addSelectionChangedListener(this::handleUnitChange);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void handleUnitChange(SelectionChangedEvent event) {
+		final Quantity currentValue = getValueAsQuantity(); // in "old" units
+		currentUnit = (Unit<Q>) ((StructuredSelection) event.getSelection()).getFirstElement();
+		setValue(currentValue.to(modelUnit).getAmount());
+	}
+
+	/**
+	 * Get the current value in the text box without doing any units conversion
+	 *
+	 * @return current value in the text box as a double
+	 */
+	private double getTextAsDouble() {
+		try {
+			return Double.parseDouble(text.getText());
+		} catch (NumberFormatException e) {
+			// Expected when building the GUI
+			return 0.0;
+		}
+	}
+
+	/**
+	 * Get the currently-displayed value in the form of a Quantity object
+	 *
+	 * @return Current value as a quantity
+	 */
+	public Quantity getValueAsQuantity() {
+		return Quantity.valueOf(getTextAsDouble(), currentUnit);
 	}
 
 	/**
@@ -105,15 +137,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 * @return the value in model units
 	 */
 	public Object getValue() {
-		try {
-			final double value = Double.parseDouble(text.getText());
-
-			// Save value in model units
-			currentValueModelUnit = Quantity.valueOf(value, getUnits()).to(modelUnit).getAmount();
-		} catch (NumberFormatException e) {
-			// Expected when building the GUI
-		}
-		return currentValueModelUnit;
+		return getValueAsQuantity().to(modelUnit).getAmount();
 	}
 
 	/**
@@ -126,11 +150,9 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	public void setValue(Object value) {
 		// This should only ever be called with a double so cast it
 		double number = (double) value;
-		// Update the current Value
-		currentValueModelUnit = number;
 
 		// Value in current units
-		final double valueInCurrentUnits = Quantity.valueOf(number, modelUnit).to(getUnits()).getAmount();
+		final double valueInCurrentUnits = Quantity.valueOf(number, modelUnit).to(currentUnit).getAmount();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
@@ -141,25 +163,4 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 			text.setText(decimalFormat.format(valueInCurrentUnits));
 		}
 	}
-
-	/**
-	 * Get the currently-displayed value in the form of a Quantity object
-	 *
-	 * @return Current value as a quantity
-	 */
-	public Quantity getValueAsQuantity() {
-		final double value = Double.parseDouble(text.getText());
-		return Quantity.valueOf(value, getUnits());
-	}
-
-	/**
-	 * Gets the units currently selected in the UI
-	 *
-	 * @return The currently selected Unit
-	 */
-	@SuppressWarnings("unchecked")
-	private Unit<Q> getUnits() {
-		return (Unit<Q>) unitsCombo.getStructuredSelection().getFirstElement();
-	}
-
 }
