@@ -641,11 +641,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return xspress4Controller.getDeadtimeCorrectionEnergy();
 	}
 
-	public void setWriteHdfFiles(boolean writeHdfFiles) {
+	@Override
+	public void setWriteHDF5Files(boolean writeHdfFiles) {
 		this.writeHdfFiles = writeHdfFiles;
 	}
 
-	public boolean isWriteHdfFiles() {
+	@Override
+	public boolean isWriteHDF5Files() {
 		return writeHdfFiles;
 	}
 

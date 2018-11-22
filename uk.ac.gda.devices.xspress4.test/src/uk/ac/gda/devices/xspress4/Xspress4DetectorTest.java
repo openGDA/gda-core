@@ -117,7 +117,7 @@ public class Xspress4DetectorTest {
 		xspress4detector.setName("xspress4detector");
 		xspress4detector.setXspress3Controller(controllerForDetector);
 		xspress4detector.setController(xsp4Controller);
-		xspress4detector.setWriteHdfFiles(false);
+		xspress4detector.setWriteHDF5Files(false);
 		xspress4detector.configure();
 	}
 

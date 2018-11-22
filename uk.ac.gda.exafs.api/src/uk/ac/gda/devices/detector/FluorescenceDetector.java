@@ -43,4 +43,14 @@ public interface FluorescenceDetector extends Findable {
 	 */
 	public FluorescenceDetectorParameters getConfigurationParameters();
 
+	/** @return true if detector creates an HDF5 file during a scan.
+	 * This is normally created by Epics via the HDF plugin of the area detector.
+	 */
+	public boolean isWriteHDF5Files();
+
+	/**
+	 * Set to true to configure the detector to write an HDF5 file during a scan.
+	 * @param writeHdfFiles
+	 */
+	public void setWriteHDF5Files(boolean writeHdfFiles);
 }

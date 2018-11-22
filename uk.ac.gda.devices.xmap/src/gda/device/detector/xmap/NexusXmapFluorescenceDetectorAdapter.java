@@ -215,4 +215,17 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 	public void setMcaCollectionUsesTfg(boolean mcaDataUsesTfg) {
 		this.mcaCollectionUsesTfg = mcaDataUsesTfg;
 	}
+
+	/**
+	 * This class is used for step scans and no HDF file are produced.
+	 */
+	@Override
+	public boolean isWriteHDF5Files() {
+		return false;
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		// do nothing
+	}
 }

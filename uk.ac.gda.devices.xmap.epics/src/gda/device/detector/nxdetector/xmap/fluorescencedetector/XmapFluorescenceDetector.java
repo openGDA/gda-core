@@ -18,6 +18,13 @@
 
 package gda.device.detector.nxdetector.xmap.fluorescencedetector;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.detector.HardwareTriggeredNXDetector;
 import gda.device.detector.nxdetector.NXPluginBase;
@@ -29,14 +36,6 @@ import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 import gda.device.detector.xmap.NexusXmap;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -60,8 +59,8 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 
 	public XmapFluorescenceDetector(int numberOfElements) {
 		this.numberOfElements = numberOfElements;
-		nxdetectorROI = new ArrayList<ADRoiStatsPair>();
-		roiNameList = new ArrayList<String>();
+		nxdetectorROI = new ArrayList<>();
+		roiNameList = new ArrayList<>();
 		for (int i = 1; i < 8; i++) {
 			roiNameList.add("roi" + i);
 		}
@@ -165,7 +164,7 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 			edxdInterface.getVortexParameters().getRois().add(new DetectorROI());
 		}
 
-		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+		List<DetectorElement> detectorList = new ArrayList<>();
 
 		for (int i = 0; i < numberOfElements; i++) {
 			DetectorElement thisElement = new DetectorElement();
@@ -236,6 +235,19 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 
 	@Override
 	public void deleteIObservers() {
+	}
+
+	/**
+	 * This class is used for step scans and no HDF file are produced.
+	 */
+	@Override
+	public boolean isWriteHDF5Files() {
+		return false;
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		// do nothing
 	}
 
 }
