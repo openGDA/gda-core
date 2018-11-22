@@ -134,14 +134,14 @@ public class RoiTest {
 	public void createRoiRejectsSidesOfZeroWidthForRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Rectangle sides must have non-zero length");
-		IROI roi = RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 1.0, 4.0));
+		RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 1.0, 4.0));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfZeroHeightForRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Rectangle sides must have non-zero length");
-		IROI roi = RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 3.0, 2.0));
+		RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 3.0, 2.0));
 	}
 
 	@Test
@@ -174,28 +174,28 @@ public class RoiTest {
 	public void createRoiRejectsSidesOfZeroWidthForCentredRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		IROI roi = CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 0, 4.0));
+		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 0, 4.0));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfZeroHeightForCentredRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		IROI roi = CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, 0));
+		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, 0));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfNegativeWidthForCentredRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		IROI roi = CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, -20, 4.0));
+		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, -20, 4.0));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfNegativeHeightForCentredRectangle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		IROI roi = CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, -10));
+		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, -10));
 	}
 
 	@Test
@@ -214,13 +214,13 @@ public class RoiTest {
 	public void createRoiRejectsSidesOfZeroWidthForCircle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Circle must have a positive radius");
-		IROI roi = CIRCLE.createIROI(Arrays.asList(1.0, 2.0, 0));
+		CIRCLE.createIROI(Arrays.asList(1.0, 2.0, 0));
 	}
 	@Test
 	public void createRoiRejectsSidesOfNegativeWidthForCircle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Circle must have a positive radius");
-		IROI roi = CIRCLE.createIROI(Arrays.asList(1.0, 2.0, -6));
+		CIRCLE.createIROI(Arrays.asList(1.0, 2.0, -6));
 	}
 
 	@Test
@@ -250,7 +250,7 @@ public class RoiTest {
 	public void createRoiRejectsZeroLengthForLine() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Linear Roi must have non-zero length");
-		IROI roi = LINE.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
+		LINE.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
 	}
 
 	@Test
