@@ -24,7 +24,6 @@ public class Xspress2CurrentSettings {
 	private int fullMCABits = 12;
 	private XspressParameters xspressParameters;
 	private Double deadtimeEnergy; // in keV NOT eV!
-	private boolean addDTScalerValuesToAscii = false;
 	private String[] defaultOutputFormat = new String[] { "%5.4g" };
 	private boolean sumAllElementData = false;
 	/*
@@ -43,7 +42,7 @@ public class Xspress2CurrentSettings {
 		else
 			getChannelLabels(channelLabels, true);
 
-		if (isAddDTScalerValuesToAscii()) {
+		if (xspressParameters.isShowDTRawValues()) {
 			for (DetectorElement detector : getParameters().getDetectorList()) {
 				if (!detector.isExcluded()) {
 					channelLabels.add(detector.getName() + "_allEvents");
@@ -196,11 +195,11 @@ public class Xspress2CurrentSettings {
 	}
 
 	public boolean isAddDTScalerValuesToAscii() {
-		return addDTScalerValuesToAscii;
+		return xspressParameters.isShowDTRawValues();
 	}
 
 	public void setAddDTScalerValuesToAscii(boolean addDTScalerValuesToAscii) {
-		this.addDTScalerValuesToAscii = addDTScalerValuesToAscii;
+		xspressParameters.setShowDTRawValues(addDTScalerValuesToAscii);
 	}
 
 	/*
