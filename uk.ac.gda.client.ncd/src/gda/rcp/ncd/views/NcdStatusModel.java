@@ -27,7 +27,6 @@ import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -100,7 +99,7 @@ public class NcdStatusModel implements IObserver {
 
 	public NcdStatusModel() {
 		Findable thickness = Finder.getInstance().find(THICKNESS_METADATA);
-		if (thickness instanceof ScannableAdapter) {
+		if (thickness instanceof Scannable) {
 			setThicknessScannable(((Scannable) thickness));
 		} else {
 		}
