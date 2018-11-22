@@ -69,6 +69,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMonitor.class);
 
+	/** The size of the change in the monitored value to cause an event to be sent. In decimal i.e. 100% = 1.0 */
 	private double sensitivity = 0.0;
 
 	protected volatile double latestDblValue;
@@ -317,28 +318,28 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					double lastValue = latestDblValue;
 					latestDblValue = ((DBR_Double) dbr).getDoubleValue()[0];
 					latestValue = latestDblValue;
-					if (Math.abs((latestDblValue - lastValue) / lastValue) * 100.0 >= sensitivity) {
+					if (Math.abs((latestDblValue - lastValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestDblValue);
 					}
 				} else if (dbr.isINT()) {
 					int lastValue = latestIntValue;
 					latestIntValue = ((DBR_Int) dbr).getIntValue()[0];
 					latestValue = latestIntValue;
-					if (Math.abs((lastValue - latestIntValue) / lastValue) * 100.0 >= sensitivity) {
+					if (Math.abs((lastValue - latestIntValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestIntValue);
 					}
 				} else if (dbr.isSHORT()) {
 					short lastValue = latestShtValue;
 					latestShtValue = ((DBR_Short) dbr).getShortValue()[0];
 					latestValue = latestShtValue;
-					if (Math.abs((lastValue - latestShtValue) / lastValue) * 100.0 >= sensitivity) {
+					if (Math.abs((lastValue - latestShtValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestShtValue);
 					}
 				} else if (dbr.isFLOAT()) {
 					float lastValue = latestFltValue;
 					latestFltValue = ((DBR_Float) dbr).getFloatValue()[0];
 					latestValue = latestFltValue;
-					if (Math.abs((lastValue - latestFltValue) / lastValue) * 100.0 >= sensitivity) {
+					if (Math.abs((lastValue - latestFltValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestFltValue);
 					}
 				} else if (dbr.isSTRING()) {
@@ -376,8 +377,9 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					latestDblArray = ((DBR_Double) dbr).getDoubleValue();
 					latestValue = latestDblArray;
 					for (int i = 0; i < latestDblArray.length; i++) {
-						if (Math.abs((latestDblArray[i] - lastValue[i]) / lastValue[i]) * 100.0 >= sensitivity) {
+						if (Math.abs((latestDblArray[i] / lastValue[i]) - 1)  >= sensitivity) {
 							notifyIObservers(this, latestDblArray);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isINT()) {
@@ -385,8 +387,9 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					latestIntArray = ((DBR_Int) dbr).getIntValue();
 					latestValue = latestIntArray;
 					for (int i = 0; i < lastValue.length; i++) {
-						if (Math.abs((latestIntArray[i] - lastValue[i]) / lastValue[i]) * 100.0 >= sensitivity) {
+						if (Math.abs((latestIntArray[i] / lastValue[i]) - 1)  >= sensitivity) {
 							notifyIObservers(this, latestIntArray);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isSHORT()) {
@@ -394,8 +397,9 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					latestShtArray = ((DBR_Short) dbr).getShortValue();
 					latestValue = latestShtArray;
 					for (int i = 0; i < latestShtArray.length; i++) {
-						if (Math.abs((lastValue[i] - latestShtArray[i]) / lastValue[i]) * 100.0 >= sensitivity) {
+						if (Math.abs((latestShtArray[i] / lastValue[i]) - 1)  >= sensitivity) {
 							notifyIObservers(this, latestShtValue);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isFLOAT()) {
@@ -403,8 +407,9 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					latestFltArray = ((DBR_Float) dbr).getFloatValue();
 					latestValue = latestFltArray;
 					for (int i = 0; i < latestFltArray.length; i++) {
-						if (Math.abs((lastValue[i] - latestFltArray[i]) / lastValue[i]) * 100.0 >= sensitivity) {
+						if (Math.abs((latestFltArray[i] / lastValue[i]) - 1)  >= sensitivity) {
 							notifyIObservers(this, latestFltValue);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isSTRING()) {
@@ -414,6 +419,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					for (int i = 0; i < latestStrArray.length; i++) {
 						if (!lastValue[i].equalsIgnoreCase(latestStrArray[i])) {
 							notifyIObservers(this, latestStrValue);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isENUM()) {
@@ -426,6 +432,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					for (int i = 0; i < latestStrArray.length; i++) {
 						if (!lastValue[i].equalsIgnoreCase(latestStrArray[i])) {
 							notifyIObservers(this, latestStrValue);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isBYTE()) {
@@ -435,6 +442,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 					for (int i = 0; i < lastValue.length; i++) {
 						if (latestByteArray[i] != lastValue[i]) {
 							notifyIObservers(this, latestByteArray);
+							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else {
@@ -534,16 +542,16 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	 * @return the sensitivity of updates from this monitor
 	 */
 	public double getSensitivity() {
-		return sensitivity;
+		return sensitivity * 100;
 	}
 
 	/**
-	 * Sets the sensitivity level of updates to IObservers from this object.
+	 * Sets the percentage sensitivity level of updates to IObservers from this object.
 	 *
 	 * @param sensitivity
 	 */
 	public void setSensitivity(double sensitivity) {
-		this.sensitivity = sensitivity;
+		this.sensitivity = sensitivity / 100;
 	}
 
 	private void ensuredConfigured() throws FactoryException{
