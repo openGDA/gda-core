@@ -336,7 +336,7 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 	}
 
 	public void setDetectors(Collection<INcdSubDetector> dets) {
-		subDetectors = dets;
+		subDetectors = new ArrayList(dets);
 		setTimer(timer);
 	}
 
