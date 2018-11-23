@@ -42,8 +42,15 @@ import org.jscience.physics.units.Unit;
  * Generic parameter Q is the type of quantity this composite can be used to edit e.g.
  * {@link org.jscience.physics.quantities.Energy}, {@link org.jscience.physics.quantities.Length},
  * {@link org.jscience.physics.quantities.Duration}
+ * <p>
+ * The composite contains a text box with the numeric value (displayed in scientific format if appropriate) and a
+ * drop-down box to choose units:<br>
+ * <img src="NumberAndUnitsComposite-microns.png"><br>
+ * It automatically converts the numeric value when the units are changed:<br>
+ * <img src="NumberAndUnitsComposite-nanometres.png"><br>
  *
  * @author James Mudd
+ * @author Anthony Hull
  */
 public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	/** The text field showing the numeric value */
