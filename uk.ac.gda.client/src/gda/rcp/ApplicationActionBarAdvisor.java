@@ -76,7 +76,6 @@ import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.rcp.views.GdaImages;
-import gda.scan.Scan;
 import gda.scan.ScanEvent;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.ui.status.LinkContributionItem;
@@ -472,8 +471,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> {
 			if (changeCode instanceof BatonChanged) {
 				updateBatonStatus(batonStatus);
-			} else if (changeCode instanceof JythonServerStatus || changeCode instanceof Scan.ScanStatus) {
-				updateScriptStatus(scriptStatus);
+			} else if (changeCode instanceof JythonServerStatus) {
+				updateScriptStatus(scriptStatus, (JythonServerStatus)changeCode);
 			} else if (changeCode instanceof ScanEvent) {
 				updateScanDetails(scanStatus, (ScanEvent) changeCode);
 			}
@@ -485,8 +484,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			InterfaceProvider.getJSFObserver().addIObserver(serverObserver);
 			InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 			updateBatonStatus(batonStatus);
-			updateScanStatus(scanStatus);
-			updateScriptStatus(scriptStatus);
+			JythonServerStatus jythonServerStatus = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
+			updateScanStatus(scanStatus, jythonServerStatus);
+			updateScriptStatus(scriptStatus, jythonServerStatus);
 		} catch (Exception ne) {
 			logger.error("Cannot connect to JythonServerFacade", ne);
 			Display.getDefault().asyncExec(() -> MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Cannot Connect to GDA Server",
@@ -524,14 +524,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 	}
 
-	private void updateScanStatus(StatusLineContributionItem status) {
-		final JythonStatus scan = InterfaceProvider.getScanStatusHolder().getScanStatus();
-		updateStatus(status, scan, "Scan");
+	private void updateScanStatus(StatusLineContributionItem status, JythonServerStatus jythonStatus) {
+		updateStatus(status, jythonStatus.scanStatus, "Scan");
 	}
 
-	private void updateScriptStatus(StatusLineContributionItem status) {
-		final JythonStatus script = InterfaceProvider.getScriptController().getScriptStatus();
-		updateStatus(status, script, "Script");
+	private void updateScriptStatus(StatusLineContributionItem status, JythonServerStatus jythonStatus) {
+		updateStatus(status, jythonStatus.scriptStatus, "Script");
 	}
 
 	private void updateStatus(StatusLineContributionItem status, JythonStatus scan, final String postFix) {
