@@ -69,6 +69,7 @@ import gda.commandqueue.Queue;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import gda.jython.JythonServerStatus;
 import gda.jython.JythonStatus;
 import gda.jython.authenticator.UserAuthentication;
@@ -484,7 +485,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			InterfaceProvider.getJSFObserver().addIObserver(serverObserver);
 			InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 			updateBatonStatus(batonStatus);
-			JythonServerStatus jythonServerStatus = InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus();
+			JythonServerFacade jsf = JythonServerFacade.getInstance();
+			JythonServerStatus jythonServerStatus = new JythonServerStatus(jsf.getScriptStatus(), jsf.getScanStatus());
 			updateScanStatus(scanStatus, jythonServerStatus);
 			updateScriptStatus(scriptStatus, jythonServerStatus);
 		} catch (Exception ne) {
