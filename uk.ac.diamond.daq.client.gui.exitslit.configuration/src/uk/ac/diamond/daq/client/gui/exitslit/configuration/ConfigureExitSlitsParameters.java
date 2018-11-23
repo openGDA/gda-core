@@ -43,6 +43,8 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 	private static final String GDA_SLIT_POSITION_TWEAK_AMOUNT = "gda.slit.position.tweak.amount";
 	private static final String GDA_CROSSHAIR_Y_POSITION = "gda.crosshair.y.position";
 	private static final String GDA_CROSSHAIR_X_POSITION = "gda.crosshair.x.position";
+	private static final String GDA_APERTURE_ARRAY_IN_POSITION = "gda.aperture.array.in.position";
+	private static final String GDA_APERTURE_ARRAY_OUT_POSITION = "gda.aperture.array.out.position";
 
 	// To be configured in Spring
 	private String propertyFilePath;
@@ -52,8 +54,6 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 	private Scannable exitSlitShutter;
 	private IScannableMotor apertureArrayXMotor;
 	private IScannableMotor apertureArrayYMotor;
-	private Double apertureArrayInPosition;
-	private Double apertureArrayOutPosition;
 	private IScannableMotor mirrorPitchMotor;
 
 	// Set during execution
@@ -61,6 +61,8 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 	private Double crosshairYPosition;
 	private Double pitchTweakAmount;
 	private Double slitPositionTweakAmount;
+	private Double apertureArrayInPosition;
+	private Double apertureArrayOutPosition;
 
 	// Findable interface support
 	private String name;
@@ -76,8 +78,6 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 				Objects.requireNonNull(exitSlitShutter, "Exit slit shutter not set");
 				Objects.requireNonNull(apertureArrayXMotor, "Aperture array horizontal motor not set");
 				Objects.requireNonNull(apertureArrayYMotor, "Aperture array vertical motor not set");
-				Objects.requireNonNull(apertureArrayInPosition, "Aperture array 'in' position not set");
-				Objects.requireNonNull(apertureArrayOutPosition, "Aperture array 'out' position not set");
 				Objects.requireNonNull(mirrorPitchMotor, "Aperture array motor not set");
 
 				final Configuration configuration = new PropertiesConfiguration(propertyFilePath);
@@ -85,11 +85,15 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 				crosshairYPosition = configuration.getDouble(GDA_CROSSHAIR_Y_POSITION, null);
 				pitchTweakAmount = configuration.getDouble(GDA_PITCH_TWEAK_AMOUNT, null);
 				slitPositionTweakAmount = configuration.getDouble(GDA_SLIT_POSITION_TWEAK_AMOUNT, null);
+				apertureArrayInPosition = configuration.getDouble(GDA_APERTURE_ARRAY_IN_POSITION, null);
+				apertureArrayOutPosition = configuration.getDouble(GDA_APERTURE_ARRAY_OUT_POSITION, null);
 
 				Objects.requireNonNull(crosshairXPosition, "Crosshair x position not set");
 				Objects.requireNonNull(crosshairYPosition, "Crosshair y position not set");
 				Objects.requireNonNull(pitchTweakAmount, "Pitch tweak amount not set");
 				Objects.requireNonNull(slitPositionTweakAmount, "Slit position tweak amount not set");
+				Objects.requireNonNull(apertureArrayInPosition, "Aperture array 'in' position not set");
+				Objects.requireNonNull(apertureArrayOutPosition, "Aperture array 'out' position not set");
 
 				setConfigured(true);
 			} catch (Exception e) {
@@ -150,16 +154,8 @@ public class ConfigureExitSlitsParameters extends ConfigurableBase implements Fi
 		return apertureArrayInPosition;
 	}
 
-	public void setApertureArrayInPosition(double apertureArrayInPosition) {
-		this.apertureArrayInPosition = apertureArrayInPosition;
-	}
-
 	public double getApertureArrayOutPosition() {
 		return apertureArrayOutPosition;
-	}
-
-	public void setApertureArrayOutPosition(double apertureArrayOutPosition) {
-		this.apertureArrayOutPosition = apertureArrayOutPosition;
 	}
 
 	public IScannableMotor getMirrorPitchMotor() {

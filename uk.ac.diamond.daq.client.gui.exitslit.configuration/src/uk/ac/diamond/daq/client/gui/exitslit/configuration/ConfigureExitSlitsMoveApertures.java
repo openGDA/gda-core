@@ -28,6 +28,7 @@ import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitS
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createStopButton;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.displayError;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.ScheduledFuture;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -68,11 +69,11 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 
 	private final ConfigureExitSlitsParameters params;
 
-	private Button btnMoveIn;
-	private Button btnMoveOut;
-	private Button btnStop;
+	private final Button btnMoveIn;
+	private final Button btnMoveOut;
+	private final Button btnStop;
 
-	private ProgressBar progressBar;
+	private final ProgressBar progressBar;
 	private ScheduledFuture<?> progressBarUpdater;
 
 	// Start point and size of the move - used to update the progress bar
@@ -82,6 +83,8 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 	private final IScannableMotor apertureYMotor;
 
 	private static final int COLUMNS = 5;
+
+	private final DecimalFormat floatFormat = new DecimalFormat("#.#####");
 
 	public ConfigureExitSlitsMoveApertures(Composite parent, int style, String title, String description, ConfigureExitSlitsParameters params, boolean moveIn) {
 		super(parent, style, title, description);
@@ -98,11 +101,13 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 		aperturePosition.setMinPeriodMS(SCANNABLE_UPDATE_PERIOD);
 		aperturePosition.setColourMap(DIAGNOSTIC_COLOUR_MAP);
 
-		btnMoveIn = createButton(this, "Move in", "Move apertures in");
-		btnMoveIn.addSelectionListener(widgetSelectedAdapter(e -> moveApertures(params.getApertureArrayInPosition())));
+		final double inPos = params.getApertureArrayInPosition();
+		btnMoveIn = createButton(this, "Move in", tooltipMessage("in", inPos));
+		btnMoveIn.addSelectionListener(widgetSelectedAdapter(e -> moveApertures(inPos)));
 
-		btnMoveOut = createButton(this, "Move out", "Move apertures out");
-		btnMoveOut.addSelectionListener(widgetSelectedAdapter(e -> moveApertures(params.getApertureArrayOutPosition())));
+		final double outPos = params.getApertureArrayOutPosition();
+		btnMoveOut = createButton(this, "Move out", tooltipMessage("out", outPos));
+		btnMoveOut.addSelectionListener(widgetSelectedAdapter(e -> moveApertures(outPos)));
 
 		btnStop = createStopButton(this);
 		btnStop.addSelectionListener(widgetSelectedAdapter(e -> stopMotor()));
@@ -113,6 +118,10 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 		progressBar.setSelection(0);
 
 		updateButtons();
+	}
+
+	private String tooltipMessage(String direction, double position) {
+		return String.format("Move apertures %s (position %s)", direction, floatFormat.format(position));
 	}
 
 	private boolean apertureInPosition() {
