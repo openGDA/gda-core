@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.rcp.views.dashboardView">
+         <command
+               commandId="uk.ac.diamond.daq.client.gui.energyfocus.editor.EditEnergyFocusFunctionDialog"
+               icon="icons/chart_line.png"
+               label="Edit energy focus function"
+               style="push"
+               tooltip="Edit energy focus function">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.daq.client.gui.energyfocus.editor.EditEnergyFocusFunctionHandler"
+            description="Edit energy focus function"
+            id="uk.ac.diamond.daq.client.gui.energyfocus.editor.EditEnergyFocusFunctionDialog"
+            name="Edit energy focus function">
+      </command>
+   </extension>
+</plugin>
