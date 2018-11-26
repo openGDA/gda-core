@@ -34,6 +34,8 @@ import gda.observable.ObservableComponent;
  */
 public abstract class ConfigureExitSlitsComposite extends Composite implements IObservable {
 
+	private static final int DEFAULT_SKIP_AMOUNT = 1;
+
 	protected static final int NUDGE_BUTTON_WIDTH = 28;
 
 	private final String title;
@@ -54,6 +56,10 @@ public abstract class ConfigureExitSlitsComposite extends Composite implements I
 
 	public abstract boolean canGoToPreviousPage();
 
+	public boolean canSkip() {
+		return false;
+	}
+
 	protected boolean canCancel() {
 		return true;
 	}
@@ -63,6 +69,13 @@ public abstract class ConfigureExitSlitsComposite extends Composite implements I
 	}
 
 	protected abstract void updateButtons();
+
+	/**
+	 * @return The number of pages to go forwards when the "Skip" button is pressed.
+	 */
+	protected int getSkipAmount() {
+		return DEFAULT_SKIP_AMOUNT;
+	}
 
 	public String getTitle() {
 		return title;

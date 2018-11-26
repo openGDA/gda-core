@@ -78,6 +78,14 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 	 */
 	private final boolean moveIn;
 
+	/**
+	 * Number of pages to go forwards if the user presses the "Skip" button
+	 * <p>
+	 * This is relevant only on the "move diagnostic in" screen.<br>
+	 * If the user does not want to tweak the mirror pitch, they can go directly to moving the horizontal slit position.
+	 */
+	private static final int SKIP_AMOUNT = 4;
+
 	private Button btnMoveIn;
 	private Button btnMoveOut;
 	private Button btnStop;
@@ -225,6 +233,19 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 			logger.error("Error getting position of device", e);
 			return false;
 		}
+	}
+
+	@Override
+	public boolean canSkip() {
+		// If the user does not need to tweak the mirror pitch, they can skip the
+		// apertures out - tweak mirror - apertures in sequence
+		return moveIn && canGoToNextPage();
+	}
+
+	@Override
+	protected int getSkipAmount() {
+		// Skipping is only relevant on the "move diagnostic in" screen
+		return moveIn ? SKIP_AMOUNT : 0;
 	}
 
 	@Override

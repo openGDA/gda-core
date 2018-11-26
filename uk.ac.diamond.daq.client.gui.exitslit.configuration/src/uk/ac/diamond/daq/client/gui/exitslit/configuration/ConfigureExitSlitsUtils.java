@@ -98,6 +98,11 @@ public class ConfigureExitSlitsUtils {
 		return checkBox;
 	}
 
+	public static void createSeparator(Composite parent) {
+		final Label separator = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+		GridDataFactory.fillDefaults().applyTo(separator);
+	}
+
 	public static void displayError(String text, String message, Exception ex, Logger logger) {
 		logger.error(message, ex);
 		final MessageBox messageBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_ERROR | SWT.OK);

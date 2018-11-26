@@ -18,15 +18,25 @@
 
 package uk.ac.diamond.daq.client.gui.exitslit.configuration;
 
+import static org.eclipse.jface.dialogs.IDialogConstants.BACK_ID;
+import static org.eclipse.jface.dialogs.IDialogConstants.BACK_LABEL;
+import static org.eclipse.jface.dialogs.IDialogConstants.CANCEL_ID;
+import static org.eclipse.jface.dialogs.IDialogConstants.CANCEL_LABEL;
+import static org.eclipse.jface.dialogs.IDialogConstants.FINISH_ID;
+import static org.eclipse.jface.dialogs.IDialogConstants.FINISH_LABEL;
+import static org.eclipse.jface.dialogs.IDialogConstants.NEXT_ID;
+import static org.eclipse.jface.dialogs.IDialogConstants.NEXT_LABEL;
+import static org.eclipse.jface.dialogs.IDialogConstants.SKIP_ID;
+import static org.eclipse.jface.dialogs.IDialogConstants.SKIP_LABEL;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.COLOUR_RED;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.COLOUR_WHITE;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createCheckBox;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createComposite;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createSeparator;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.displayError;
 
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -84,6 +94,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 
 	private Button btnBack;
 	private Button btnNext;
+	private Button btnSkip;
 	private Button btnCancel;
 	private Button btnFinish;
 	private Button chkAcquire;
@@ -131,22 +142,20 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
         return container;
     }
 
-	private void createSeparator(final Composite container) {
-		final Label separator = new Label(container, SWT.HORIZONTAL | SWT.SEPARATOR);
-		GridDataFactory.fillDefaults().applyTo(separator);
-	}
-
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		btnBack = createButton(parent, IDialogConstants.BACK_ID, IDialogConstants.BACK_LABEL, false);
+		btnBack = createButton(parent, BACK_ID, BACK_LABEL, false);
 		btnBack.addSelectionListener(widgetSelectedAdapter(e -> goToPage(currentPage - 1)));
 
-		btnNext = createButton(parent, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
+		btnNext = createButton(parent, NEXT_ID, NEXT_LABEL, false);
 		btnNext.addSelectionListener(widgetSelectedAdapter(e -> goToPage(currentPage + 1)));
 
-		btnCancel = createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		btnSkip = createButton(parent, SKIP_ID, SKIP_LABEL, false);
+		btnSkip.addSelectionListener(widgetSelectedAdapter(e -> goToPage(currentPage + controlSections[currentPage].getSkipAmount())));
 
-		btnFinish = createButton(parent, IDialogConstants.FINISH_ID, IDialogConstants.FINISH_LABEL, false);
+		btnCancel = createButton(parent, CANCEL_ID, CANCEL_LABEL, false);
+
+		btnFinish = createButton(parent, FINISH_ID, FINISH_LABEL, false);
 		btnFinish.addSelectionListener(widgetSelectedAdapter(e -> close()));
 
 		updateButtons();
@@ -313,6 +322,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 			final ConfigureExitSlitsComposite currentControl = controlSections[currentPage];
 			btnBack.setEnabled(currentPage > 0 && currentControl.canGoToPreviousPage());
 			btnNext.setEnabled(currentPage < controlSections.length - 1 && currentControl.canGoToNextPage());
+			btnSkip.setEnabled(currentControl.canSkip());
 			btnCancel.setEnabled(currentControl.canCancel());
 			btnFinish.setEnabled(currentControl.canFinish());
 			try {
