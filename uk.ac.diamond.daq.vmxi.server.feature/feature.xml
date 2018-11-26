@@ -210,27 +210,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="uk.ac.gda.vmxi.samplehandling.service.binding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.gda.vmxi.samplehandling.service.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.gda.vmxi.samplehandling.service.impl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.gda.devices.insitu"
          download-size="0"
          install-size="0"
