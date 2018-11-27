@@ -26,14 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScanPlotSettings implements Serializable {
-	
+
 	/**
 	 * The following are values for unlistedColumnBehaviour
 	 */
-	public static int PLOT=0;
-	public static int PLOT_NOT_VISIBLE=1;
-	public static int IGNORE=2;
-	
+	public static final int PLOT = 0;
+	public static final int PLOT_NOT_VISIBLE = 1;
+	public static final int IGNORE = 2;
+
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ScanPlotSettings.class);
 	private String xAxisName;
@@ -72,7 +72,7 @@ public class ScanPlotSettings implements Serializable {
 	 * The list of y-axes to plot and make visible
 	 * <p>
 	 * If you do not want anything plotted and visible, then give this an empty list.
-	 * 
+	 *
 	 * @param yAxesShown
 	 */
 	public void setYAxesShown(String[] yAxesShown) {
@@ -83,7 +83,7 @@ public class ScanPlotSettings implements Serializable {
 	 * The list of y-axes to plot but make invisible.
 	 * <p>
 	 * Give this an empty list to ensure anything outside of the yAxesShown list is not plotted.
-	 * 
+	 *
 	 * @param yAxesNotShown
 	 */
 	public void setYAxesNotShown(String[] yAxesNotShown) {
