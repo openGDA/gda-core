@@ -90,7 +90,6 @@ import gda.gui.scanplot.ScanDataPointPlotter;
 import gda.plots.Marker;
 import gda.plots.ScanLine;
 import gda.plots.ScanPair;
-import gda.plots.Type;
 import gda.plots.UpdatePlotQueue;
 import gda.plots.XYDataHandler;
 import gda.rcp.GDAClientActivator;
@@ -721,11 +720,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 
 	@Override
 	public void setLineMarker(int which, Marker marker) {
-	}
-
-	@Override
-	public void setLineType(Type t) {
-		// do nothing
 	}
 
 	@Override

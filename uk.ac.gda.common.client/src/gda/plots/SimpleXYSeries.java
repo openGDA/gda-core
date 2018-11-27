@@ -63,7 +63,6 @@ public class SimpleXYSeries extends XYSeries {
 	private int axis;
 	private Paint paint;
 	private Marker marker;
-	private Type type;
 	private int symbolSize = 3;
 	private Paint symbolPaint;
 	private Pattern pattern;
@@ -113,7 +112,6 @@ public class SimpleXYSeries extends XYSeries {
 		// 72 lines before the defaults start repeating.
 		marker = Marker.fromCounter(lineNumber % 8);
 		pattern = Pattern.SOLID;
-		type = Type.LINEONLY;
 
 		// Change the List of data into a synchronized version. This
 		// is needed to cure bug 46 but does lead to some slowing down
@@ -402,45 +400,6 @@ public class SimpleXYSeries extends XYSeries {
 	 */
 	public Marker getMarker() {
 		return marker;
-	}
-
-	/**
-	 * Sets the line Type.
-	 *
-	 * @param type
-	 *            the new value
-	 */
-	public void setType(Type type) {
-		unArchive();
-		this.type = type;
-		fireSeriesChanged();
-	}
-
-	/**
-	 * Returns the line Type.
-	 *
-	 * @return the Type
-	 */
-	public Type getType() {
-		return type;
-	}
-
-	/**
-	 * Returns whether or not lines are drawn
-	 *
-	 * @return true if lines are drawn
-	 */
-	public boolean isDrawLines() {
-		return type.getDrawLine();
-	}
-
-	/**
-	 * Returns whether or not markers are drawn
-	 *
-	 * @return true if markers are drawn
-	 */
-	public boolean isDrawMarkers() {
-		return type.getDrawPoints();
 	}
 
 	/**
