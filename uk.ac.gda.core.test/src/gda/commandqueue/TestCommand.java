@@ -25,51 +25,47 @@ public class TestCommand extends CommandBase {
 	public boolean pause = false;
 	public int steps = 10;
 	public int currentStep = 0;
-	Processor processor;
 	public boolean throwException=false;
 
 
-	public TestCommand(Processor processor, long max_time_out) {
-		this(processor, max_time_out, 10);
+	public TestCommand() {
+		this(10);
 	}
 
-	public TestCommand(Processor processor, @SuppressWarnings("unused") long max_time_out, int steps) {
+	public TestCommand(int steps) {
 		super();
-		this.processor = processor;
 		this.steps = steps;
 	}
 
 	@Override
 	public void run() throws Exception {
 		super.beginRun();
-		while (currentStep < steps ) {
+		while (currentStep < steps) {
 			try {
 				Thread.sleep(5);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
-			if( currentStep == 2 ){
-				if(pause){
-					/*
-					 * we need to go into pause state and inform the processor
-					 */
+			if (currentStep == 2) {
+				if (pause) {
+					// enter pause state and inform the processor
 					pause();
 				}
-				if(skip){
-					/*
-					 * we need to go into pause state and inform the processor
-					 */
+				if (skip) {
+					// enter abort state and inform processor
 					abort();
 				}
-				if(throwException){
+				if (throwException){
 					throw new Exception("TestCommand exception");
 				}
 			}
-			if( getState() != STATE.PAUSED)
+			if (getState() != STATE.PAUSED) {
 				currentStep++;
+			}
 		}
-		if( getState() != STATE.ABORTED)
+		if (getState() != STATE.ABORTED) {
 			super.endRun();
+		}
 	}
 
 	@Override
@@ -85,6 +81,5 @@ public class TestCommand extends CommandBase {
 	@Override
 	public void setDetails(String details) throws Exception {
 	}
-
 
 }

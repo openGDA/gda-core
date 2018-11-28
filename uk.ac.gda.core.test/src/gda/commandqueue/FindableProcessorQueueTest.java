@@ -46,10 +46,10 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testPause() throws Exception {
-		TestCommand pauseCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
-		pauseCommand.pause=true;
+		TestCommand pauseCommand = new TestCommand();
+		pauseCommand.pause = true;
 		queue.addToTail(pauseCommand);
-		TestCommand normalCommand = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
+		TestCommand normalCommand = new TestCommand(5);
 		queue.addToTail(normalCommand);
 		processor.start(MAX_TIMEOUT_MS);
 		Thread.sleep(PAUSE_FOR_PROCESSOR);
@@ -59,7 +59,7 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testException() throws Exception {
-		TestCommand throwExceptionCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
+		TestCommand throwExceptionCommand = new TestCommand();
 		throwExceptionCommand.throwException=true;
 		throwExceptionCommand.setDescription("testException");
 		queue.addToTail(throwExceptionCommand);
@@ -70,10 +70,10 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testSkip() throws Exception {
-		TestCommand skipCommand = new TestCommand(processor,MAX_TIMEOUT_MS);
+		TestCommand skipCommand = new TestCommand();
 		skipCommand.skip=true;
 		queue.addToTail(skipCommand);
-		TestCommand normalCommand = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
+		TestCommand normalCommand = new TestCommand();
 		queue.addToTail(normalCommand);
 		processor.start(MAX_TIMEOUT_MS);
 		Thread.sleep(PAUSE_FOR_PROCESSOR);
@@ -87,7 +87,7 @@ public class FindableProcessorQueueTest implements IObserver {
 	@Test
 	public void testStartWithQueueEmpty() throws Exception {
 		processor.start(MAX_TIMEOUT_MS);
-		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
+		TestCommand command = new TestCommand(3);
 		command.addIObserver(new IObserver() {
 
 			@Override
@@ -103,7 +103,7 @@ public class FindableProcessorQueueTest implements IObserver {
 
 	@Test
 	public void testStartWithQueueNonEmpty() throws Exception {
-		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
+		TestCommand command = new TestCommand(1);
 		queue.addToTail(command);
 		processor.start(MAX_TIMEOUT_MS);
 		Thread.sleep(PAUSE_FOR_PROCESSOR);
