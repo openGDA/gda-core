@@ -49,10 +49,12 @@ public class TestCommand extends CommandBase {
 			if (currentStep == 2) {
 				if (pause) {
 					// enter pause state and inform the processor
+					pause = false;
 					pause();
 				}
 				if (skip) {
 					// enter abort state and inform processor
+					skip = false;
 					abort();
 				}
 				if (throwException){
