@@ -19,14 +19,14 @@
 
 package gda.plots;
 
-import gda.scan.AxisSpec;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
 
 import org.eclipse.january.dataset.DoubleDataset;
 import org.jfree.data.Range;
+
+import gda.scan.AxisSpec;
 
 public interface XYDataHandler {
 	public void setXAxisLabel(String label);
@@ -50,7 +50,6 @@ public interface XYDataHandler {
 	public void unArchive();
 	public void copySettings(XYDataHandler other);
 	public void setTitle(String title);
-	public void setLineType(Type t);
 	public void setZooming(boolean zooming);
 	public void deleteAllLines();
 	public void setLeftRangeBounds(Range leftRangeBounds);
