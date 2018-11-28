@@ -223,24 +223,19 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				else if (this.state.equals(Processor.STATE.PROCESSING_ITEMS)
 						&& (argState.equals(Command.STATE.COMPLETED) || argState.equals(Command.STATE.ABORTED))) {
 					try {
-						int size = queue.getSummaryList().size();
-						if (size == 0){
+						if (queue.getSummaryList().isEmpty()) {
 							// if empty then the behaviour is governed by the pauseWhenQueueEmpty attribute
 							if (pauseWhenQueueEmpty) {
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.PAUSE;
 							} else {
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.START;
 							}
 						} else {
 							// if normal completion or skipped then continue running the queue
 							if (skip || argState.equals(Command.STATE.COMPLETED)){
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.START;
 								skip = false;
 							} else { // the red 'abort and pause' button pressed
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.PAUSE;
 							}
 						}
