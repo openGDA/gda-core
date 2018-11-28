@@ -25,6 +25,8 @@ import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitS
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.SCANNABLE_UPDATE_PERIOD;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.SHUTTER_COLOUR_MAP;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createButton;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createInstructionLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createSeparator;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createStopButton;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.displayError;
 
@@ -97,8 +99,8 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 	private ConfigureExitSlitsParameters params;
 
-	public ConfigureExitSlitsMoveDiagnostic(Composite parent, int style, String title, String description, ConfigureExitSlitsParameters params, boolean moveIn) {
-		super(parent, style, title, description);
+	public ConfigureExitSlitsMoveDiagnostic(Composite parent, String title, String description, String instructions, ConfigureExitSlitsParameters params, boolean moveIn) {
+		super(parent, title, description);
 		this.moveIn = moveIn;
 		this.params = params;
 		diagnosticPositioner = params.getDiagnosticPositioner();
@@ -106,6 +108,11 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 
 		GridLayoutFactory.swtDefaults().numColumns(COLUMNS).applyTo(this);
 		setBackground(COLOUR_WHITE);
+
+		// Instructions
+		GridDataFactory.swtDefaults().span(COLUMNS, 1).applyTo(createInstructionLabel(this, instructions));
+
+		GridDataFactory.fillDefaults().span(COLUMNS, 1).grab(true,  false).applyTo(createSeparator(this));
 
 		// Diagnostic position control
 		final ReadonlyScannableComposite diagnosticPosition = new ReadonlyScannableComposite(this, SWT.TRANSPARENT, diagnosticPositioner, "Diagnostic stick positioner", "", 0, true);

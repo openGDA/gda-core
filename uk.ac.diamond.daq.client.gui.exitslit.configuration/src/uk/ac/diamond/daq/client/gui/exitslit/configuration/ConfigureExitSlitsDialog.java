@@ -74,7 +74,48 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  * </ul>
  */
 public class ConfigureExitSlitsDialog extends TitleAreaDialog {
+
 	private static final Logger logger = LoggerFactory.getLogger(ConfigureExitSlitsDialog.class);
+
+	// Text strings for "move diagnostic"
+	private static final String DIAGNOSTIC_TITLE_IN = "Move diagnostic in";
+	private static final String DIAGNOSTIC_DESCRIPTION_IN = "Move the diagnostic stick into the beam if it is not already there";
+	private static final String DIAGNOSTIC_INSTRUCTIONS_IN = "Press 'Move in' to move the diagnostic stick into the beam, then press:\n"
+			+ "- 'Next' to move the apertures out and adjust the mirror pitch, or\n"
+			+ "- 'Skip' to go straight to tuning the horizontal slits";
+
+	private static final String DIAGNOSTIC_TITLE_OUT = "Move diagnostic out";
+	private static final String DIAGNOSTIC_DESCRIPTION_OUT = "Move the diagnostic stick out of the beam";
+	private static final String DIAGNOSTIC_INSTRUCTIONS_OUT = "Press 'Move out' to move the diagnostic stick out of the beam, then press:\n"
+			+ "- 'Next' for final instructions";
+
+	// Text strings for "move apertures"
+	private static final String APERTURES_TITLE_IN = "Move apertures in";
+	private static final String APERTURES_DESCRIPTION_IN = "Move exit slit apertures into beam";
+	private static final String APERTURES_INSTRUCTIONS_IN = "Press 'Move in' to move the apertures into the beam, then press:\n"
+			+ "- 'Next' to adjust the horizontal slit position";
+
+	private static final String APERTURES_TITLE_OUT = "Move apertures out";
+	private static final String APERTURES_DESCRIPTION_OUT = "Move exit slit apertures out of beam";
+	private static final String APERTURES_INSTRUCTIONS_OUT = "Press 'Move out' to move the apertures out of the beam, then press:\n"
+			+ "- 'Next' to adjust the mirror pitch";
+
+	// Text strings for "tweak mirror pitch"
+	private static final String TWEAK_MIRROR_TITLE = "Tweak mirror pitch";
+	private static final String TWEAK_MIRROR_DESCRIPTION = "Align the beam on the cross hairs";
+	private static final String TWEAK_MIRROR_INSTRUCTIONS = "Adjust the mirror pitch up or down until the beam is on the cross hairs, then press:\n"
+			+ " - 'Next' to move the apertures back in";
+
+	// Text strings for "tweak horizontal slits"
+	private static final String TWEAK_SLITS_TITLE = "Tweak slit position";
+	private static final String TWEAK_SLITS_DESCRIPTION = "Align the horizontal slits";
+	private static final String TWEAK_SLITS_INSTRUCTIONS = "Adjust the horizontal slits, then press:\n"
+			+ " - 'Next' to stop data acquisition and move the diagnostic stick out";
+
+	// Text strings for final screen
+	private static final String FINISH_TITLE = "Configuration complete";
+	private static final String FINISH_DESCRIPTION = "Exit slit configuration is complete";
+	private static final String FINISH_INSTRUCTIONS = "Use live control to fine-tune the image";
 
 	private static final String TITLE = "Configure exit slits";
 
@@ -239,13 +280,13 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		controlComposite.setBackground(COLOUR_WHITE);
 
 		controlSections = new ConfigureExitSlitsComposite[] {
-			new ConfigureExitSlitsMoveDiagnostic(controlComposite, SWT.NONE, "Move diagnostic into beam", "Press 'Move in' if the diagnostic stick is not already in the beam", params, true),
-			new ConfigureExitSlitsMoveApertures(controlComposite, SWT.NONE, "Move apertures out", "Move exit slit apertures out of beam", params, false),
-			new ConfigureExitSlitsNudgeMotor(controlComposite, SWT.NONE, "Tweak mirror pitch", "Tweak mirror pitch till the beam is on the cross hairs", params.getMirrorPitchMotor(), "Mirror pitch", params.getPitchTweakAmount()),
-			new ConfigureExitSlitsMoveApertures(controlComposite, SWT.NONE, "Move apertures in", "Move exit slit apertures into beam", params, true),
-			new ConfigureExitSlitsNudgeMotor(controlComposite, SWT.NONE, "Tweak slit position", "Tweak position of horizontal slits then stop acquisition", params.getApertureArrayXMotor(), "Slit position", params.getSlitPositionTweakAmount()),
-			new ConfigureExitSlitsMoveDiagnostic(controlComposite, SWT.NONE, "Move diagnostic out of beam", "Press 'Move out' to move the diagnostic stick out of the beam", params, false),
-			new ConfigureExitSlitsFinish(controlComposite, SWT.NONE)
+			new ConfigureExitSlitsMoveDiagnostic(controlComposite, DIAGNOSTIC_TITLE_IN, DIAGNOSTIC_DESCRIPTION_IN, DIAGNOSTIC_INSTRUCTIONS_IN, params, true),
+			new ConfigureExitSlitsMoveApertures(controlComposite, APERTURES_TITLE_OUT, APERTURES_DESCRIPTION_OUT, APERTURES_INSTRUCTIONS_OUT, params, false),
+			new ConfigureExitSlitsNudgeMotor(controlComposite, TWEAK_MIRROR_TITLE, TWEAK_MIRROR_DESCRIPTION, TWEAK_MIRROR_INSTRUCTIONS, params.getMirrorPitchMotor(), "Mirror pitch", params.getPitchTweakAmount()),
+			new ConfigureExitSlitsMoveApertures(controlComposite, APERTURES_TITLE_IN, APERTURES_DESCRIPTION_IN, APERTURES_INSTRUCTIONS_IN, params, true),
+			new ConfigureExitSlitsNudgeMotor(controlComposite, TWEAK_SLITS_TITLE, TWEAK_SLITS_DESCRIPTION, TWEAK_SLITS_INSTRUCTIONS, params.getApertureArrayXMotor(), "Slit position", params.getSlitPositionTweakAmount()),
+			new ConfigureExitSlitsMoveDiagnostic(controlComposite, DIAGNOSTIC_TITLE_OUT, DIAGNOSTIC_DESCRIPTION_OUT, DIAGNOSTIC_INSTRUCTIONS_OUT, params, false),
+			new ConfigureExitSlitsFinish(controlComposite, FINISH_TITLE, FINISH_DESCRIPTION, FINISH_INSTRUCTIONS)
 		};
 
 		createSeparator(parent);

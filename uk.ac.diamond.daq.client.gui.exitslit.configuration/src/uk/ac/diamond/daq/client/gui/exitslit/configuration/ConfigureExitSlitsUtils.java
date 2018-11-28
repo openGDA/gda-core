@@ -42,6 +42,7 @@ public class ConfigureExitSlitsUtils {
 
 	public static final Color COLOUR_WHITE = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
 	public static final Color COLOUR_RED = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+	public static final Color COLOUR_DARK_RED = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED);
 
 	public static final ImmutableMap<String, Integer> SHUTTER_COLOUR_MAP = ImmutableMap.of(
 		"Open", SWT.COLOR_DARK_GREEN,
@@ -98,9 +99,19 @@ public class ConfigureExitSlitsUtils {
 		return checkBox;
 	}
 
-	public static void createSeparator(Composite parent) {
+	public static Label createSeparator(Composite parent) {
 		final Label separator = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
 		GridDataFactory.fillDefaults().applyTo(separator);
+		return separator;
+	}
+
+	public static Label createInstructionLabel(Composite parent, String instructions) {
+		final Label label = new Label(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(label);
+		label.setBackground(COLOUR_WHITE);
+		label.setForeground(COLOUR_DARK_RED);
+		label.setText(instructions);
+		return label;
 	}
 
 	public static void displayError(String text, String message, Exception ex, Logger logger) {

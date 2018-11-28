@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.client.gui.exitslit.configuration;
 
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.COLOUR_WHITE;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
@@ -45,8 +46,8 @@ public abstract class ConfigureExitSlitsComposite extends Composite implements I
 
 	protected final IObserver updateObserver = this::onUpdate;
 
-	public ConfigureExitSlitsComposite(Composite parent, int style, String title, String description) {
-		super(parent, style);
+	public ConfigureExitSlitsComposite(Composite parent, String title, String description) {
+		super(parent, SWT.NONE);
 		this.title = title;
 		this.description = description;
 		setBackground(COLOUR_WHITE);

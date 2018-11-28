@@ -19,8 +19,10 @@
 package uk.ac.diamond.daq.client.gui.exitslit.configuration;
 
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.COLOUR_WHITE;
-import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createInstructionLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createSeparator;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.widgets.Composite;
 
@@ -29,16 +31,15 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class ConfigureExitSlitsFinish extends ConfigureExitSlitsComposite {
 
-	private static final String TITLE = "Exit slit configuration complete";
-	private static final String DESCRIPTION = "Use live control to fine-tune the image";
-
-	public ConfigureExitSlitsFinish(Composite parent, int style) {
-		super(parent, style, TITLE, DESCRIPTION);
+	public ConfigureExitSlitsFinish(Composite parent, String title, String description, String instructions) {
+		super(parent, title, description);
 
 		GridLayoutFactory.swtDefaults().applyTo(this);
 		setBackground(COLOUR_WHITE);
 
-		createLabel(this, DESCRIPTION);
+		// Instructions
+		GridDataFactory.swtDefaults().applyTo(createInstructionLabel(this, instructions));
+		GridDataFactory.fillDefaults().grab(true,  false).applyTo(createSeparator(this));
 	}
 
 	@Override

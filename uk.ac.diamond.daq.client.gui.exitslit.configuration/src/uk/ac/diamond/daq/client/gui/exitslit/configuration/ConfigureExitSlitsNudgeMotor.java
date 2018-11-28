@@ -23,6 +23,8 @@ import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitS
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.MOTOR_ERROR;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.SCANNABLE_UPDATE_PERIOD;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createButton;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createInstructionLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createSeparator;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createStopButton;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.displayError;
 
@@ -55,14 +57,19 @@ public class ConfigureExitSlitsNudgeMotor extends ConfigureExitSlitsComposite {
 
 	private static final int COLUMNS = 4;
 
-	public ConfigureExitSlitsNudgeMotor(Composite parent, int style, String title, String description,
+	public ConfigureExitSlitsNudgeMotor(Composite parent, String title, String description, String instructions,
 			IScannableMotor motor, String motorDescription, double tweakAmount) {
-		super(parent, style, title, description);
+		super(parent, title, description);
 		this.motor = motor;
 
 		GridLayoutFactory.swtDefaults().numColumns(COLUMNS).applyTo(this);
 		setBackground(COLOUR_WHITE);
 
+		// Instructions
+		GridDataFactory.swtDefaults().span(COLUMNS, 1).applyTo(createInstructionLabel(this, instructions));
+		GridDataFactory.fillDefaults().span(COLUMNS, 1).grab(true,  false).applyTo(createSeparator(this));
+
+		// Motor position with buttons to adjust it
 		final DecimalFormat motorPositionFormat = new DecimalFormat("#.#####");
 		final String motorPositionString = motorPositionFormat.format(tweakAmount);
 

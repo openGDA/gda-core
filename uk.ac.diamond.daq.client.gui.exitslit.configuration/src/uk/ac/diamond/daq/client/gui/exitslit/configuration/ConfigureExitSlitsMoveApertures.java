@@ -25,6 +25,8 @@ import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitS
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.MOTOR_ERROR;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.SCANNABLE_UPDATE_PERIOD;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createButton;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createInstructionLabel;
+import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createSeparator;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.createStopButton;
 import static uk.ac.diamond.daq.client.gui.exitslit.configuration.ConfigureExitSlitsUtils.displayError;
 
@@ -86,8 +88,8 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 
 	private final DecimalFormat floatFormat = new DecimalFormat("#.#####");
 
-	public ConfigureExitSlitsMoveApertures(Composite parent, int style, String title, String description, ConfigureExitSlitsParameters params, boolean moveIn) {
-		super(parent, style, title, description);
+	public ConfigureExitSlitsMoveApertures(Composite parent, String title, String description, String instructions, ConfigureExitSlitsParameters params, boolean moveIn) {
+		super(parent, title, description);
 		this.params = params;
 		this.moveIn = moveIn;
 		apertureYMotor = params.getApertureArrayYMotor();
@@ -95,6 +97,11 @@ public class ConfigureExitSlitsMoveApertures extends ConfigureExitSlitsComposite
 		GridLayoutFactory.swtDefaults().numColumns(COLUMNS).applyTo(this);
 		setBackground(COLOUR_WHITE);
 
+		// Instructions
+		GridDataFactory.swtDefaults().span(COLUMNS, 1).applyTo(createInstructionLabel(this, instructions));
+		GridDataFactory.fillDefaults().span(COLUMNS, 1).grab(true,  false).applyTo(createSeparator(this));
+
+		// Aperture position control
 		final ReadonlyScannableComposite aperturePosition = new ReadonlyScannableComposite(this, SWT.NONE, apertureYMotor, "Aperture array motor", "", 2, true);
 		GridDataFactory.swtDefaults().applyTo(aperturePosition);
 		aperturePosition.setBackground(COLOUR_WHITE);
