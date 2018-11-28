@@ -18,7 +18,7 @@
 
 package gda.device.detector.multichannelscaler;
 
-import static java.util.stream.IntStream.range;
+import static java.util.stream.IntStream.rangeClosed;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -257,7 +257,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 			extpreChannel = channelManager.createChannel(basePv + "Prescale", false);
 
 			try {
-				data = range(0, 32)
+				data = rangeClosed(1, 32)
 						.mapToObj(i -> getChannel(basePv + ":mca" + i))
 						.toArray(Channel[]::new);
 			} catch (McsException me) {

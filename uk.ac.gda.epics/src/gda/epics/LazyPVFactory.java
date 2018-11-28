@@ -25,6 +25,7 @@ import static org.apache.commons.lang.ArrayUtils.toPrimitive;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1262,9 +1263,9 @@ public class LazyPVFactory {
 
 	}
 
-	static private class StringFromWaveform extends AbstractPVAdapter<Byte[], String> {
+	static class StringFromWaveform extends AbstractPVAdapter<Byte[], String> {
 
-		private StringFromWaveform(PV<Byte[]> byteArrayPV) {
+		StringFromWaveform(PV<Byte[]> byteArrayPV) {
 			super(byteArrayPV);
 		}
 
@@ -1275,7 +1276,15 @@ public class LazyPVFactory {
 
 		@Override
 		protected String innerToOuter(Byte[] innerValue) {
-			return new String(toPrimitive(innerValue)).trim();
+			final byte nullByte = 0;
+			final int nullIndex = Arrays.asList(innerValue).indexOf(nullByte);
+			final byte[] byteArray = toPrimitive(innerValue);
+			if (nullIndex == -1) {
+				// No null byte, so use entire array
+				return new String(byteArray).trim();
+			} else {
+				return new String(byteArray, 0, nullIndex).trim();
+			}
 		}
 
 		@Override
