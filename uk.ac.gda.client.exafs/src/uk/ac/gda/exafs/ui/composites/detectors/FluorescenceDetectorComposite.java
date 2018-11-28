@@ -97,7 +97,7 @@ public class FluorescenceDetectorComposite extends Composite {
 
 		try {
 			sashFormPlot = new SashFormPlotComposite(this, null);
-			sashFormPlot.getPlottingSystem().setRescale(false);
+			sashFormPlot.getPlottingSystem().setRescale(true);
 			sashFormPlot.getPlottingSystem().setShowLegend(false);
 			sashFormPlot.getSashForm().setWeights(new int[] { 30, 70 });
 			sashFormPlot.getRegionOnDisplay().setShowPosition(true); // This has no effect but would be nice!
@@ -774,14 +774,6 @@ public class FluorescenceDetectorComposite extends Composite {
 	public void updateRoiWindowSettings() {
 		String readoutMode = readoutModeComposite.getReadoutMode();
 		regionsComposite.updateControlVisibility( readoutMode );
-	}
-
-	/**
-	 * @return true if 'autoscale on acquire' checkbox is checked.
-	 * @since 8/9/2016
-	 */
-	public boolean getAutoScaleOnAcquire() {
-		return acquireComposite.getAutoScaleOnAcquireCheckBox().getSelection();
 	}
 
 	public boolean getShowDataLoadedFromFile() {

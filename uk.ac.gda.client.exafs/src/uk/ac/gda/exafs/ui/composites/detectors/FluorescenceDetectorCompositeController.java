@@ -429,8 +429,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			@Override
 			public void run() {
 				plotDataAndUpdateCounts();
-				if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
-					fluorescenceDetectorComposite.autoscaleAxes();
 			}
 		});
 	}
@@ -469,9 +467,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			} else {
 				fluorescenceDetectorComposite.plotDatasets(dataset);
 			}
-
-			if (fluorescenceDetectorComposite.getAutoScaleOnAcquire())
-				fluorescenceDetectorComposite.autoscaleAxes();
 
 			calculateAndDisplayCountTotals();
 		}
