@@ -95,7 +95,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
-import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
@@ -714,18 +713,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
-	}
-
-	protected void updateRegionStatus(final RegionJob regionJob, final STATUS status) {
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				Region region = regionJob.getRegion();
-				region.setStatus(status);
-				sequenceTableViewer.refresh();
-			}
-		});
 	}
 
 	protected void updateRegionStatus(final Region region, final STATUS status) {
