@@ -27,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- *
+ * Handles clearing the existing traces from the Scan Plot
  */
 public class LivePlotClearGraphHandler extends AbstractHandler {
 
@@ -35,14 +35,13 @@ public class LivePlotClearGraphHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
 		if (view instanceof LivePlotView) {
-			boolean b = MessageDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Clearing all plots",
-					"This will clear all the plots in the graph.\n Are you sure you want to do this?");
-			if (b) {
-				if( view instanceof LivePlotView){
-					LivePlotView livePlotView = (LivePlotView) view;
-					livePlotView.clearGraph();
-				}
+			final LivePlotView livePlotView = (LivePlotView) view;
+			boolean clear = MessageDialog.openQuestion(PlatformUI.getWorkbench().getModalDialogShellProvider().getShell(),
+					"Clear all plots?", // Dialog title
+					"This will clear all the plots in the graph.\n\n"
+					+ "Are you sure you want to do this?");
+			if (clear) {
+				livePlotView.clearGraph();
 			}
 		}
 		return null;
