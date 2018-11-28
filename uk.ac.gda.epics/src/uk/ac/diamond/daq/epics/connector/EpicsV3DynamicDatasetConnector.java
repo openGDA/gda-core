@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.cosylab.epics.caj.CAJChannel;
 import com.google.common.util.concurrent.RateLimiter;
 
+import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -73,6 +74,8 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private static final String UINT8_DATA_TYPE = "UInt8";
 
 	private final RateLimiter frameRateLimiter = RateLimiter.create(20);
+
+	private final EpicsChannelManager channelManager = new EpicsChannelManager();
 
 	private Channel dataChannel = null;
 	private Channel dim0Ch = null;
@@ -198,19 +201,22 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 	@Override
 	public String connect() throws DatasetException {
-		return connect(500, TimeUnit.MILLISECONDS);
+		return connect(1, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public String connect(long time, TimeUnit unit) throws DatasetException {
+		logger.debug("Connecting to EPICS Array at '{}'", dataChannelPV);
 		try {
-			dataChannel = EPICS_CONTROLLER.createChannel(dataChannelPV);
-			dim0Ch = EPICS_CONTROLLER.createChannel(dim0PV);
-			dim1Ch = EPICS_CONTROLLER.createChannel(dim1PV);
-			dim2Ch = EPICS_CONTROLLER.createChannel(dim2PV);
-			numDimCh = EPICS_CONTROLLER.createChannel(numDimensionsPV);
-			colourModeCh = EPICS_CONTROLLER.createChannel(colourModePV);
-			Channel dataTypeCh = EPICS_CONTROLLER.createChannel(dataTypePV);
+			dataChannel = channelManager.createChannel(dataChannelPV);
+			dim0Ch = channelManager.createChannel(dim0PV);
+			dim1Ch = channelManager.createChannel(dim1PV);
+			dim2Ch = channelManager.createChannel(dim2PV);
+			numDimCh = channelManager.createChannel(numDimensionsPV);
+			colourModeCh = channelManager.createChannel(colourModePV);
+			Channel dataTypeCh = channelManager.createChannel(dataTypePV);
+			// Wait for the channels to be ready
+			channelManager.tryInitialize(unit.toMillis(time));
 
 			dim0 = EPICS_CONTROLLER.cagetInt(dim0Ch);
 			dim1 = EPICS_CONTROLLER.cagetInt(dim1Ch);
@@ -236,44 +242,44 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			logger.error("Error connecting to EPICS stream", e);
 			throw new DatasetException(e);
 		}
-		return null;
+		logger.info("Connected to EPICS Array at '{}'", dataChannelPV);
+		return null; // No thread is used to "run" the connection
 	}
 
 	@Override
 	public void disconnect() throws DatasetException {
+		logger.debug("Disconnecting...");
 		// Remove listeners to stop sending updates
 		listeners.clear();
 
-		if (null != dataChannel) {
+		if (null != dataChannelMonitor) {
 			dataChannelMonitor.removeMonitorListener(dataChannelMonitorListener);
-			EPICS_CONTROLLER.destroy(dataChannel);
 			dataChannelMonitor = null;
 		}
-		if (null != dim0Ch) {
+		if (null != dim0ChMonitor) {
 			dim0ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
-			EPICS_CONTROLLER.destroy(dim0Ch);
 			dim0ChMonitor = null;
 		}
-		if (null != dim1Ch) {
+		if (null != dim1ChMonitor) {
 			dim1ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
-			EPICS_CONTROLLER.destroy(dim1Ch);
 			dim1ChMonitor = null;
 		}
-		if (null != dim2Ch) {
+		if (null != dim2ChMonitor) {
 			dim2ChMonitor.removeMonitorListener(arrayParametersMonitorListener);
-			EPICS_CONTROLLER.destroy(dim2Ch);
 			dim2ChMonitor = null;
 		}
-		if (null != colourModeCh) {
+		if (null != colourModeChMonitor) {
 			colourModeChMonitor.removeMonitorListener(arrayParametersMonitorListener);
-			EPICS_CONTROLLER.destroy(colourModeCh);
 			colourModeChMonitor = null;
 		}
-		if (null != numDimCh) {
+		if (null != numDimChMonitor) {
 			numDimChMonitor.removeMonitorListener(arrayParametersMonitorListener);
-			EPICS_CONTROLLER.destroy(numDimCh);
 			numDimChMonitor = null;
 		}
+
+		// Destroy all the channels
+		channelManager.destroy();
+		logger.info("Disconnected EPICS array stream '{}'", dataChannelPV);
 	}
 
 	@Override
