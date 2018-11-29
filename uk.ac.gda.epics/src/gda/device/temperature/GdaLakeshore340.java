@@ -60,13 +60,11 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		this.controller = controller;
 	}
 
-	private String EpicsLakeshore340ControllerName;
+	private String epicsLakeshore340ControllerName;
 
 	private long startTime;
 
 	private String stateString = null;
-
-	private String dataString = null;
 
 	/**
 	 * Constructor
@@ -84,17 +82,16 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 
 		if (!isConfigured()) {
 			poller = new Poller();
-			poller.setPollTime(LONGPOLLTIME);
+			poller.setPollTime(LONG_POLL_TIME);
 			// register this as listener to poller for update temperature values.
 			poller.addListener(this);
 
-			//String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
 			String filePrefix = PathConstructor.createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}
 			if (controller == null)
-				setController((EpicsLakeshore340Controller) Finder.getInstance().find(EpicsLakeshore340ControllerName));
+				setController((EpicsLakeshore340Controller) Finder.getInstance().find(epicsLakeshore340ControllerName));
 
 			if (controller != null) {
 				logger.debug("Controller {} found", controller.getName());
@@ -106,21 +103,21 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
-							// no-op
+							Thread.currentThread().interrupt();
 						}
 						i++;
 					}
 					if (!controller.isConfigured())
 						logger.warn("configure {} at start failed. You may need to reconfigure {} after GDA started.",
-								EpicsLakeshore340ControllerName, getName());
+								epicsLakeshore340ControllerName, getName());
 				} else {
 					controller.configure();
 				}
 			} else {
 				// if controller does not exist, unregister this listener as no data source is available
 				poller.deleteListener(this);
-				logger.error("Cryo controller {} not found", EpicsLakeshore340ControllerName);
-				throw new FactoryException("Cryo controller " + EpicsLakeshore340ControllerName + " not found");
+				logger.error("Cryo controller {} not found", epicsLakeshore340ControllerName);
+				throw new FactoryException("Cryo controller " + epicsLakeshore340ControllerName + " not found");
 			}
 			if (controller.isConfigured()  && controller.isConnected()) {
 				try {
@@ -195,15 +192,16 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		finalTemp = ramp.getEndTemperature();
 		rate = ramp.getRate();
 
-		logger.debug("finalTemp is " + finalTemp);
-		if (finalTemp > upperTemp || finalTemp < lowerTemp)
+		logger.debug("finalTemp is {}", finalTemp);
+		if (finalTemp > upperTemp || finalTemp < lowerTemp) {
 			throw new DeviceException("Invalid ramp final temperature");
+		}
 
-		logger.debug("Ramp rate in K/hour is " + rate);
-		if (rate >= ILakeshoreController.MIN_RAMP_RATE || rate <= ILakeshoreController.MAX_RAMP_RATE)
+		logger.debug("Ramp rate in K/hour is {}", rate);
+		if (rate >= ILakeshoreController.MIN_RAMP_RATE || rate <= ILakeshoreController.MAX_RAMP_RATE) {
 			throw new DeviceException("Invalid ramp rate for temperature");
+		}
 
-		//controller.setRampRate(rate);
 		controller.setTargetTemp(finalTemp);
 		targetTemp = finalTemp;
 		setPoint = finalTemp;
@@ -215,9 +213,9 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	 * @throws DeviceException
 	 */
 	public void sendStart() throws DeviceException {
-		if (busy)
+		if (busy) {
 			throw new DeviceException(getName() + " is already ramping to temerature");
-		//controller.ramp();
+		}
 		busy = true;
 		notify();
 	}
@@ -225,7 +223,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -241,7 +239,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 			return;
 		}
 		sendStop();
-//		poller.stop();
 	}
 
 	/**
@@ -269,7 +266,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		startPoller();
 		controller.setTargetTemp(targetTemp);
 		setPoint = targetTemp;
-		//controller.ramp();
 		busy = true;
 		notify();
 		Async.scheduleAtFixedRate(this::notifyUsersOfPosition, 5, 5, SECONDS);
@@ -320,7 +316,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	@Override
 	public void setRampRate(double rate) throws DeviceException {
 		logger.warn("This method is not available for Lakeshore 340");
-		//controller.setRampRate(rate);
 		throw new IllegalStateException("Device " + getName() +" does have this function.");
 	}
 
@@ -333,7 +328,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	@Override
 	public double getRampRate() throws DeviceException {
 		logger.warn("This method is not available for Lakeshore 340. Return default value of 2k/min");
-		//return controller.getRampRate();
 		throw new IllegalStateException("Device " + getName() +" does have this function.");
 	}
 
@@ -348,8 +342,6 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		NumberFormat n = NumberFormat.getInstance();
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
-
-		// logger.debug(getName() + " pollDone called");
 
 		try {
 			if (isAtTargetTemperature()) {
@@ -372,28 +364,25 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		}
 
 		TemperatureStatus ts;
-		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
+		String dataString = n.format(timeSinceStart / 1000.0) + " " + currentTemp;
 
 		ts = new TemperatureStatus(currentTemp, lowerTemp, upperTemp, targetTemp, currentRamp, stateString, dataString);
-		// logger.debug(getName() + " notifying IObservers with " + ts);
 		notifyIObservers(this, ts);
 	}
 
 	/**
 	 * @return EpicsLakeshore340ControllerName
 	 */
-
 	public String getEpicsLakeshore340ControllerName() {
-		return EpicsLakeshore340ControllerName;
+		return epicsLakeshore340ControllerName;
 	}
 
 	/**
-	 * @param epicsLakeshore340ControllerName
+	 * @param controllerName
 	 */
-	public void setEpicsLakeshore340ControllerName(String epicsLakeshore340ControllerName) {
-		EpicsLakeshore340ControllerName = epicsLakeshore340ControllerName;
+	public void setEpicsLakeshore340ControllerName(String controllerName) {
+		epicsLakeshore340ControllerName = controllerName;
 	}
-
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
@@ -428,7 +417,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	}
 
 	@SuppressWarnings("unused")
-	private Object getPositionWithStatus() throws DeviceException {
+	private Object getPositionWithStatus() {
 		String[] value = new String[8];
 		value[0] = String.format(getOutputFormat()[0], currentTemp);
 		value[1] = stateString;
@@ -445,52 +434,10 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 		return busy;
 	}
 
-	// @Override
-	// public String toString() {
-	// try {
-	//
-	// // get the current position as an array of doubles
-	// Object position = getPosition();
-	//
-	// // if position is null then simply return the name
-	// if (position == null) {
-	// logger.warn("getPosition() from " + getName() + " returns NULL.");
-	// return getName() + " : NOT AVAILABLE";
-	// }
-	//
-	// String[] positionAsArray = getCurrentPositionArray(position, this);
-	//
-	// // if cannot create array of doubles then use position's toString
-	// // method
-	// if (positionAsArray == null || positionAsArray.length == 1) {
-	// return getName() + " : " + position.toString();
-	// }
-	//
-	// // else build a string of formatted positions
-	// String output = getName() + " : ";
-	// int i = 0;
-	// for (; i < this.inputNames.length; i++) {
-	// output += this.inputNames[i] + ": " + positionAsArray[i] + " ";
-	// }
-	//
-	// for (int j = 0; j < this.extraNames.length; j++) {
-	// output += this.extraNames[j] + ": " + positionAsArray[i + j] + " ";
-	// }
-	//
-	// return output.trim();
-	//
-	// } catch (PyException e) {
-	// logger.info(getName() + ": jython exception while getting position. " + e.toString());
-	// return getName();
-	// } catch (Exception e) {
-	// logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-	// return getName();
-	// }
-	// }
 	@Override
 	public String toString() {
 		try {
-			String myString = "";
+			StringBuilder myString = new StringBuilder();
 			Object position = this.getPosition();
 
 			if (position == null) {
@@ -499,35 +446,35 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
+			myString.append(this.getName());
+			myString.append(" : ");
 			if (!(position.getClass().isArray() || position instanceof PySequence)) {
-				myString += this.getName() + " : ";
 				if (position instanceof String) {
-					myString += position.toString();
+					myString.append(position.toString());
 				} else {
-					myString += String.format(outputFormat[0], Double.parseDouble(position.toString()));
+					myString.append(String.format(outputFormat[0], Double.parseDouble(position.toString())));
 				}
 			} else {
-				myString += this.getName() + " : ";
 				if (position instanceof PySequence) {
 					for (int i = 0; i < ((PySequence) position).__len__(); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double.parseDouble(((PySequence) position)
-								.__finditem__(i).toString()));
+						myString.append(String.format(outputFormat[0], Double.parseDouble(((PySequence) position)
+								.__finditem__(i).toString())));
 					}
 				} else {
 					for (int i = 0; i < Array.getLength(position); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double
-								.parseDouble(Array.get(position, i).toString()));
+						myString.append(String.format(outputFormat[0], Double
+								.parseDouble(Array.get(position, i).toString())));
 					}
 				}
 
 			}
-			return myString;
+			return myString.toString();
 		} catch (Exception e) {
 			logger.warn("{}: exception while getting value", getName(), e);
 			return valueUnavailableString();

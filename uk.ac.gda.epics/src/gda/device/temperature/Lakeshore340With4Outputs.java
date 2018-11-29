@@ -43,7 +43,7 @@ public class Lakeshore340With4Outputs extends GdaLakeshore340 {
 		return temp;
 	}
 
-	public void setReadbackChannel(int ch) throws DeviceException {
+	public void setReadbackChannel(int ch) {
 		controller.setReadbackChannel(ch);
 	}
 

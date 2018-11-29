@@ -45,11 +45,9 @@ import uk.ac.diamond.daq.concurrent.Async;
  */
 public class Eurotherm2K extends TemperatureBase implements IObserver {
 
-	/**
-	 * logging instance
-	 */
 	private static final Logger logger = LoggerFactory.getLogger(Eurotherm2K.class);
-	private final double ROOM_TEMPERATURE = 22.0; // C
+
+	private static final double ROOM_TEMPERATURE = 22.0; // C
 	private EpicsEurotherm2kController controller;
 
 	private String controllerName;
@@ -66,13 +64,9 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	 * Constructor
 	 */
 	public Eurotherm2K() {
-
 		setInputNames(new String[] {"Temperature"});
-		//setExtraNames(new String[] {"Status", "Time Elapsed"});
 		String[] outputFormat = new String[inputNames.length + extraNames.length];
 		outputFormat[0] = "%5.2f";
-		//outputFormat[1] = "%s";
-		//outputFormat[2] = "%s";
 		setOutputFormat(outputFormat);
 	}
 
@@ -81,11 +75,10 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 		if (!isConfigured()) {
 			poller = new Poller();
-			poller.setPollTime(LONGPOLLTIME);
+			poller.setPollTime(LONG_POLL_TIME);
 			// register this as listener to poller for update temperature values.
 			poller.addListener(this);
 
-			//String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
 			String filePrefix = PathConstructor.createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
@@ -105,7 +98,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
-							// no-op
+							Thread.currentThread().interrupt();
 						}
 						i++;
 					}
@@ -133,7 +126,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 				startPoller();
 				setConfigured(true);
 			} else {
-				logger.warn("'{}' need to reconfigure '{}' before using.", getName(), getName() + ".reconfigure( )");
+				logger.warn("'{}' need to reconfigure '{}.reconfigure()' before using.", getName(), getName());
 			}
 		}
 	}
@@ -195,16 +188,15 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		finalTemp = ramp.getEndTemperature();
 		rate = ramp.getRate();
 
-		logger.debug("finalTemp is " + finalTemp);
+		logger.debug("finalTemp is {}", finalTemp);
 		if (finalTemp > upperTemp || finalTemp < lowerTemp)
 			throw new DeviceException("Invalid ramp final temperature");
 
-		logger.debug("Ramp rate in K/hour is " + rate);
+		logger.debug("Ramp rate in K/hour is {}", rate);
 		if (rate >= controller.minRampRate || rate <= controller.maxRampRate)
 			throw new DeviceException("Invalid ramp rate for temperature");
 
 		controller.setRampRate(rate);
-		// cont.setTargetTemperature(finalTemp);
 		targetTemp = finalTemp;
 		setPoint = finalTemp;
 	}
@@ -225,7 +217,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -245,7 +237,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	 * @throws DeviceException
 	 */
 	private void sendStop() throws DeviceException {
-		setPoint=controller.getTemp();
+		setPoint = controller.getTemp();
 		controller.setTargetTemperature(setPoint);
 		if (isAtTargetTemperature()) {
 			busy = false;
@@ -341,7 +333,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		}
 
 		TemperatureStatus ts;
-		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
+		dataString = n.format(timeSinceStart / 1000.0) + " " + currentTemp;
 		timeElapsed = n.format(timeSinceStart / 1000.0) + " sec";
 		ts = new TemperatureStatus(currentTemp, lowerTemp, upperTemp, targetTemp, currentRamp, stateString, dataString);
 		notifyIObservers(this, ts);
@@ -375,9 +367,6 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	public EpicsEurotherm2kController getController() {
 		return controller;
 	}
-
-
-
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
@@ -424,7 +413,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	}
 
 	@SuppressWarnings("unused")
-	private Object getPositionWithStatus() throws DeviceException {
+	private Object getPositionWithStatus() {
 		String[] value = new String[3];
 		value[0] = String.format(getOutputFormat()[0], currentTemp);
 		value[1] = stateString;
@@ -437,51 +426,10 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		return busy;
 	}
 
-//	@Override
-//	public String toString() {
-//		try {
-//
-//			// get the current position as an array of doubles
-//			Object position = getPositionWithStatus();
-//
-//			// if position is null then simply return the name
-//			if (position == null) {
-//				logger.warn("getPosition() from " + getName() + " returns NULL.");
-//				return getName() + " : NOT AVAILABLE";
-//			}
-//
-//			String[] positionAsArray = getCurrentPositionArray(position, this);
-//
-//			// if cannot create array of doubles then use position's toString
-//			// method
-//			if (positionAsArray == null || positionAsArray.length == 1) {
-//				return getName() + " : " + position.toString();
-//			}
-//
-//			// else build a string of formatted positions
-//			String output = getName() + " : ";
-//			int i = 0;
-//			for (; i < this.inputNames.length; i++) {
-//				output += this.inputNames[i] + ": " + positionAsArray[i] + " ";
-//			}
-//
-//			for (int j = 0; j < this.extraNames.length; j++) {
-//				output += this.extraNames[j] + ": " + positionAsArray[i + j] + " ";
-//			}
-//			return output.trim();
-//
-//		} catch (PyException e) {
-//			logger.info(getName() + ": jython exception while getting position. " + e.toString());
-//			return getName();
-//		} catch (Exception e) {
-//			logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-//			return getName();
-//		}
-//	}
 	@Override
 	public String toString() {
 		try {
-			String myString = "";
+			StringBuilder myString = new StringBuilder();
 			Object position = this.getPosition();
 
 			if (position == null) {
@@ -490,33 +438,33 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 			}
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
+			myString.append(this.getName());
+			myString.append(" : ");
 			if (!(position.getClass().isArray() || position instanceof PySequence)) {
-				myString += this.getName() + " : ";
 				if (position instanceof String) {
-					myString += position.toString();
+					myString.append(position.toString());
 				} else {
-					myString += String.format(outputFormat[0], Double.parseDouble(position.toString()));
+					myString.append(String.format(outputFormat[0], Double.parseDouble(position.toString())));
 				}
 			} else {
-				myString += this.getName() + " : ";
 				if (position instanceof PySequence) {
 					for (int i = 0; i < ((PySequence) position).__len__(); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double.parseDouble(((PySequence) position).__finditem__(i)
-								.toString()));
+						myString.append(String.format(outputFormat[0], Double.parseDouble(((PySequence) position).__finditem__(i)
+								.toString())));
 					}
 				} else {
 					for (int i = 0; i < Array.getLength(position); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double.parseDouble(Array.get(position, i).toString()));
+						myString.append(String.format(outputFormat[0], Double.parseDouble(Array.get(position, i).toString())));
 					}
 				}
 			}
-			return myString;
+			return myString.toString();
 		} catch (Exception e) {
 			logger.warn("{}: exception while getting value", getName(), e);
 			return valueUnavailableString();

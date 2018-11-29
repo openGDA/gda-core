@@ -66,21 +66,14 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 
 	private String stateString = null;
 
-	private String dataString = null;
-
 	/**
 	 * Constructor
 	 */
 	public OxfordCryostream700() {
 
 		setInputNames(new String[] { "Temperature" });
-		// setExtraNames(new String[] {"Status", "TimeRemaining(min)", "PhaseID", "RunMode"});
 		String[] outputFormat = new String[inputNames.length + extraNames.length];
 		outputFormat[0] = "%5.2f";
-		// outputFormat[1] = "%s";
-		// outputFormat[2] = "%5d";
-		// outputFormat[3] = "%s";
-		// outputFormat[4] = "%s";
 
 		setOutputFormat(outputFormat);
 	}
@@ -89,13 +82,12 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 	public void configure() throws FactoryException {
 
 		if (!isConfigured()) {
-			//String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
 			String filePrefix = PathConstructor.createFromProperty("gda.device.temperature.datadir");
 			if ((filePrefix != null) && (fileSuffix != null)) {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}
 			if (cryoController == null) { // CASTOR configuration
-				if ((cryoController = (CryoController) Finder.getInstance().find(cryoControllerName)) != null) {
+				if ((cryoController = Finder.getInstance().find(cryoControllerName)) != null) {
 					logger.debug("CryoController {} found", cryoControllerName);
 				} else {
 					logger.error("Cryo controller {} not found", cryoControllerName);
@@ -111,6 +103,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
 						// no-op
 					}
 					i++;
@@ -123,7 +116,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 			}
 
 			poller = new Poller();
-			poller.setPollTime(LONGPOLLTIME);
+			poller.setPollTime(LONG_POLL_TIME);
 			// register this as listener to poller for update temperature values.
 			poller.addListener(this);
 
@@ -180,7 +173,6 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -199,11 +191,11 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 		finalTemp = ramp.getEndTemperature();
 		rate = ramp.getRate();
 
-		logger.debug("finalTemp is " + finalTemp);
+		logger.debug("finalTemp is {}", finalTemp);
 		if (finalTemp > upperTemp || finalTemp < lowerTemp)
 			throw new DeviceException("Invalid ramp final temperature");
 
-		logger.debug("Ramp rate in K/hour is " + rate);
+		logger.debug("Ramp rate in K/hour is {}", rate);
 		if (rate >= cryoController.MIN_RAMP_RATE || rate <= cryoController.MAX_RAMP_RATE)
 			throw new DeviceException("Invalid ramp rate for temperature");
 
@@ -229,7 +221,7 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -241,7 +233,6 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 	@Override
 	protected void doStop() throws DeviceException {
 		sendStop();
-		// poller.stop();
 	}
 
 	/**
@@ -250,7 +241,6 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 	 * @throws DeviceException
 	 */
 	private void sendStop() throws DeviceException {
-		// cryo.stop();
 		cryoController.hold();
 		setPoint = getCurrentTemperature();
 		cryoController.setTargetTemp(setPoint);
@@ -345,8 +335,6 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
 
-		// logger.debug(getName() + " pollDone called");
-
 		try {
 			if (isAtTargetTemperature()) {
 				busy = false;
@@ -368,10 +356,9 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 		}
 
 		TemperatureStatus ts;
-		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
+		String dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
 
 		ts = new TemperatureStatus(currentTemp, lowerTemp, upperTemp, targetTemp, currentRamp, stateString, dataString);
-		// logger.debug(getName() + " notifying IObservers with " + ts);
 		notifyIObservers(this, ts);
 	}
 
@@ -448,52 +435,10 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 		return busy;
 	}
 
-	// @Override
-	// public String toString() {
-	// try {
-	//
-	// // get the current position as an array of doubles
-	// Object position = getPosition();
-	//
-	// // if position is null then simply return the name
-	// if (position == null) {
-	// logger.warn("getPosition() from " + getName() + " returns NULL.");
-	// return getName() + " : NOT AVAILABLE";
-	// }
-	//
-	// String[] positionAsArray = getCurrentPositionArray(position, this);
-	//
-	// // if cannot create array of doubles then use position's toString
-	// // method
-	// if (positionAsArray == null || positionAsArray.length == 1) {
-	// return getName() + " : " + position.toString();
-	// }
-	//
-	// // else build a string of formatted positions
-	// String output = getName() + " : ";
-	// int i = 0;
-	// for (; i < this.inputNames.length; i++) {
-	// output += this.inputNames[i] + ": " + positionAsArray[i] + " ";
-	// }
-	//
-	// for (int j = 0; j < this.extraNames.length; j++) {
-	// output += this.extraNames[j] + ": " + positionAsArray[i + j] + " ";
-	// }
-	//
-	// return output.trim();
-	//
-	// } catch (PyException e) {
-	// logger.info(getName() + ": jython exception while getting position. " + e.toString());
-	// return getName();
-	// } catch (Exception e) {
-	// logger.info(getName() + ": exception while getting position. " + e.getMessage() + "; " + e.getCause(), e);
-	// return getName();
-	// }
-	// }
 	@Override
 	public String toString() {
 		try {
-			String myString = "";
+			StringBuilder myString = new StringBuilder();
 			Object position = this.getPosition();
 
 			if (position == null) {
@@ -503,33 +448,35 @@ public class OxfordCryostream700 extends TemperatureBase implements IObserver {
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
 			if (!(position.getClass().isArray() || position instanceof PySequence)) {
-				myString += this.getName() + " : ";
+				myString.append(this.getName());
+				myString.append(" : ");
 				if (position instanceof String) {
-					myString += position.toString();
+					myString.append(position.toString());
 				} else {
-					myString += String.format(outputFormat[0], Double.parseDouble(position.toString()));
+					myString.append(String.format(outputFormat[0], Double.parseDouble(position.toString())));
 				}
 			} else {
-				myString += this.getName() + " : ";
+				myString.append(this.getName());
+				myString.append(" : ");
 				if (position instanceof PySequence) {
 					for (int i = 0; i < ((PySequence) position).__len__(); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double.parseDouble(((PySequence) position)
-								.__finditem__(i).toString()));
+						myString.append(String.format(outputFormat[0], Double.parseDouble(((PySequence) position)
+								.__finditem__(i).toString())));
 					}
 				} else {
 					for (int i = 0; i < Array.getLength(position); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += String.format(outputFormat[0], Double
-								.parseDouble(Array.get(position, i).toString()));
+						myString.append(String.format(outputFormat[0], Double
+								.parseDouble(Array.get(position, i).toString())));
 					}
 				}
 			}
-			return myString;
+			return myString.toString();
 		} catch (Exception e) {
 			logger.warn("{}: exception while getting value", getName(), e);
 			return valueUnavailableString();
