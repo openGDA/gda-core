@@ -41,8 +41,12 @@ import gda.observable.ObservableComponent;
 public class ClientSideIObservableMethodInterceptor implements MethodInterceptor {
 	private static final Logger logger = LoggerFactory.getLogger(ClientSideIObservableMethodInterceptor.class);
 
+	/** If an RMI call takes longer than this threshold then logging will be produced. */
+	private static final long RMI_CALL_TIME_LOGGING_THRESHOLD_MS = 100;
+
 	/**
-	 * Expected name of UI thread, see {@link uk.ac.gda.remoting.client.ClientSideIObservableMethodInterceptor#isUiThread}
+	 * Expected name of UI thread, see
+	 * {@link uk.ac.gda.remoting.client.ClientSideIObservableMethodInterceptor#isUiThread}
 	 */
 	private static final String UI_THREAD = "main";
 
@@ -61,6 +65,7 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 		final Method method = invocation.getMethod();
 		final Class<?> declaringClass = method.getDeclaringClass();
 
+		// If it's an IObservable method we want to intercept it
 		if (declaringClass.equals(IObservable.class)) {
 			// Invoke the method on our IObservable delegate
 			return method.invoke(observableComponent, invocation.getArguments());
@@ -69,24 +74,33 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 		final Stopwatch invokeStopwatch = Stopwatch.createStarted();
 		try {
 			return invocation.proceed();
-
 		} finally {
-			long elapsedTime = invokeStopwatch.elapsed(MILLISECONDS);
-
-			if (elapsedTime > 100 && logger.isWarnEnabled()) {
-				final String threadName = Thread.currentThread().getName();
-				if (isUiThread(threadName)) {
-					logger.warn("RPC call to '{}.{}' took {} ms from UI thread [{}]",
-							declaringClass.getName(), method.getName(), elapsedTime, threadName);
-				} else {
-					logger.debug("RPC call to '{}.{}' took {} ms from Non UI thread [{}]",
-							declaringClass.getName(), method.getName(), elapsedTime, threadName);
-				}
-				if (logger.isTraceEnabled()) { // getStackTrace() is expensive so guard against unnecessary calls.
-					logger.trace("RPC call to '{}.{}' called from {}", declaringClass.getName(), method.getName(),
-						Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).collect(Collectors.toList()));
-				}
+			final long elapsedTime = invokeStopwatch.elapsed(MILLISECONDS);
+			if (elapsedTime > RMI_CALL_TIME_LOGGING_THRESHOLD_MS && logger.isWarnEnabled()) {
+				logRmiCalls(method, declaringClass, elapsedTime);
 			}
+		}
+	}
+
+	/**
+	 * Logs time taken for RMI calls including detecting if they are from the UI thread.
+	 *
+	 * @param method the method being called
+	 * @param declaringClass the class that defined the method
+	 * @param elapsedTime the time the RMI call took
+	 */
+	private void logRmiCalls(final Method method, final Class<?> declaringClass, final long elapsedTime) {
+		final String threadName = Thread.currentThread().getName();
+		if (isUiThread(threadName)) {
+			logger.warn("RPC call to '{}.{}' took {} ms from UI thread [{}]", declaringClass.getName(),
+					method.getName(), elapsedTime, threadName);
+		} else {
+			logger.debug("RPC call to '{}.{}' took {} ms from Non UI thread [{}]", declaringClass.getName(),
+					method.getName(), elapsedTime, threadName);
+		}
+		if (logger.isTraceEnabled()) { // getStackTrace() is expensive so guard against unnecessary calls.
+			logger.trace("RPC call to '{}.{}' called from {}", declaringClass.getName(), method.getName(),
+					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).collect(Collectors.toList()));
 		}
 	}
 
