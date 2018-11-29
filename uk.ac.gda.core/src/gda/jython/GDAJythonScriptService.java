@@ -70,4 +70,9 @@ public class GDAJythonScriptService implements IScriptService {
 		return new ScriptResponse<>();
 	}
 
+	@Override
+	public void setNamedValue(String name, Object value) {
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, value);
+	}
+
 }
