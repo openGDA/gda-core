@@ -12,7 +12,9 @@
 package org.eclipse.scanning.test.scan.servlet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
@@ -23,7 +25,9 @@ import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 
 public final class MockScriptService implements IScriptService {
 
-	private List<ScriptRequest> scriptRequests = new ArrayList<>();
+	private final Map<String, Object> namedValues = new HashMap<>();
+
+	private final List<ScriptRequest> scriptRequests = new ArrayList<>();
 
 	@Override
 	public ScriptLanguage[] supported() {
@@ -39,6 +43,15 @@ public final class MockScriptService implements IScriptService {
 
 	public List<ScriptRequest> getScriptRequests() {
 		return scriptRequests;
+	}
+
+	@Override
+	public void setNamedValue(String name, Object value) {
+		namedValues.put(name, value);
+	}
+
+	public Object getNamedValue(String name) {
+		return namedValues.get(name);
 	}
 
 }

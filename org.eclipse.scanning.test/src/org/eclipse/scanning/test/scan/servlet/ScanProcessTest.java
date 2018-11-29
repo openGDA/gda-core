@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -43,6 +44,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -50,6 +52,8 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
@@ -123,6 +127,10 @@ public class ScanProcessTest {
 		List<ScriptRequest> scriptRequests = (sservice).getScriptRequests();
 		assertThat(scriptRequests.size(), is(2));
 		assertThat(scriptRequests, hasItems(before, after));
+		assertThat(sservice.getNamedValue(IScriptService.VAR_NAME_SCAN_BEAN), is(equalTo(scanBean)));
+		assertThat(sservice.getNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST), is(equalTo(scanRequest)));
+		assertThat(sservice.getNamedValue(IScriptService.VAR_NAME_SCAN_MODEL), is(instanceOf(ScanModel.class)));
+		assertThat(sservice.getNamedValue(IScriptService.VAR_NAME_SCAN_PATH), is(instanceOf(IPointGenerator.class)));
 	}
 
 	@Test

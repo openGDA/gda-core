@@ -24,11 +24,23 @@ package org.eclipse.scanning.api.script;
  */
 public interface IScriptService {
 
+	public static final String VAR_NAME_SCAN_BEAN = "scanBean";
+	public static final String VAR_NAME_SCAN_REQUEST = "scanRequest";
+	public static final String VAR_NAME_SCAN_MODEL = "scanModel";
+	public static final String VAR_NAME_SCAN_PATH = "scanPath";
+
 	/**
 	 * For DAQ server version 8 and 9 this will probably be {JYTHON, SPEC_PASTICHE}
 	 * @return the available supported scripting languages that this service can execute.
 	 */
 	ScriptLanguage[] supported();
+
+	/**
+	 * Sets the variable with the given name to the given value, if the implementation supports this.
+	 * @param name name
+	 * @param value value
+	 */
+	void setNamedValue(String name, Object value);
 
 	/**
 	 * Execute a script on the server. This can be used for instance inside scanning to run

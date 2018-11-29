@@ -155,10 +155,10 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			// Move to a position if they set one
 			setPosition(bean.getScanRequest().getStart(), "start");
 
+			this.controller = createRunnableDevice(bean, gen);
+
 			// Run a script, if any has been requested
 			runScript(bean.getScanRequest().getBefore(), bean.getScanRequest()::setBeforeResponse);
-
-			this.controller = createRunnableDevice(bean, gen);
 
 			if (blocking) { // Normally the case
 				executeBlocking(controller, bean);
@@ -342,6 +342,13 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	private void runScript(ScriptRequest req, Consumer<ScriptResponse<?>> cons) throws UnsupportedLanguageException, ScriptExecutionException {
 		if (req==null) return; // Nothing to do
 		if (scriptService==null) throw new ScriptExecutionException("No script service is available, cannot run script request "+req);
+
+		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_BEAN, bean);
+		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST, bean.getScanRequest());
+		final ScanModel scanModel = ((ScanModel) controller.getDevice().getModel());
+		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_MODEL, scanModel);
+		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPositionIterable());
+
 		ScriptResponse<?> res = scriptService.execute(req);
 		logger.debug("Script ran with response {}.", res);
 		cons.accept(res);
