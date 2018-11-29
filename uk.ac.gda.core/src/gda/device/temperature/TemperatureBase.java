@@ -20,6 +20,7 @@
 package gda.device.temperature;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +46,11 @@ import gda.util.PollerListener;
 public abstract class TemperatureBase extends ScannableMotionBase implements AlarmListener, Temperature, PollerListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureBase.class);
-	protected final static long LONGPOLLTIME = 5000;
-	protected final static long SHORTPOLLTIME = 1000;
-	protected final static long POLLTIME = 100;
-	protected long polltime = LONGPOLLTIME;
-	protected long longPolltime = LONGPOLLTIME;
+	protected static final long LONG_POLL_TIME = 5000;
+	protected static final long SHORT_POLL_TIME = 1000;
+	protected static final long POLL_TIME = 100;
+	protected long pollTime = LONG_POLL_TIME;
+	protected long longPollTime = LONG_POLL_TIME;
 	protected double timeSinceStart = -1000.0;
 	protected double lowerTemp = -35.0;
 	protected double upperTemp = 200.0;
@@ -57,26 +58,26 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected double targetTemp = 0.0;
 	protected volatile double currentTemp = 0.0;
 	protected double setPoint;
-	protected ArrayList<TemperatureRamp> rampList = new ArrayList<TemperatureRamp>();
+	protected List<TemperatureRamp> rampList = new ArrayList<>();
 	protected Poller poller;
 	private boolean running = false;
 	protected volatile boolean busy = false;
 	protected int currentRamp = -1;
-	protected ArrayList<String> probeNameList = new ArrayList<String>();
-	private double accuracy = 0.1; // 0.05;
+	protected List<String> probeNameList = new ArrayList<>();
+	private double accuracy = 0.1;
 	protected int count = 0;
 	protected DataFileWriter dataFileWriter = null;
 	protected DataWriter dataWriter = null;
-	protected ArrayList<double[]> bufferedData = new ArrayList<double[]>();
+	protected ArrayList<double[]> bufferedData = new ArrayList<>();
 	protected String fileSuffix = null;
 
 	@Override
 	public void configure() throws FactoryException{
-		this.setInputNames(new String[]{"temperature"});
-		this.setOutputFormat(new String[]{"%5.2f"});
+		this.setInputNames(new String[] {"temperature"});
+		this.setOutputFormat(new String[] {"%5.2f"});
 
 		poller = new Poller();
-		poller.setPollTime(longPolltime);
+		poller.setPollTime(longPollTime);
 		poller.addListener(this);
 
 		String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
@@ -98,7 +99,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 *            the poll time in msec
 	 */
 	public void setPolltime(long polltime) {
-		this.polltime = polltime;
+		this.pollTime = polltime;
 	}
 
 	/**
@@ -107,7 +108,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 * @return the poll time in msec
 	 */
 	public long getPolltime() {
-		return polltime;
+		return pollTime;
 	}
 
 	/**
@@ -146,7 +147,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	public void alarm(Alarm theAlarm) {
 		holdTimeAlarm = null;
 
-		logger.debug(getName() + " holdTimer alarm gone off");
+		logger.debug("{} holdTimer alarm gone off", getName());
 
 		try {
 			startNextRamp();
@@ -170,7 +171,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 */
 	@Override
 	public void clearRamps() {
-		logger.debug(getName() + " clearRamps() called");
+		logger.debug("{} clearRamps() called", getName());
 		rampList.clear();
 	}
 
@@ -188,7 +189,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 */
 	public void stopPoller() {
 		if (poller != null) {
-			logger.info(getName() + " stop the temperature poller thread.");
+			logger.info("{} stop the temperature poller thread.", getName());
 			poller.stop();
 		}
 	}
@@ -210,12 +211,12 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 * @param probeNames
 	 *            the probe name (used by Castor)
 	 */
-	public void setProbeNames(ArrayList<String> probeNames) {
+	public void setProbeNames(List<String> probeNames) {
 		this.probeNameList = probeNames;
 	}
 
 	@Override
-	public ArrayList<String> getProbeNames() throws DeviceException {
+	public List<String> getProbeNames() throws DeviceException {
 		return probeNameList;
 	}
 
@@ -247,7 +248,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		// It requires 5 consecutive readings to be +/- accuracy to minimise errors
 		// caused be overheat or overcool.
 		if (busy) {
-			logger.info(getName() + " isAt TargetTemperature()");
+			logger.info("{} isAt TargetTemperature()", getName());
 		}
 		currentTemp = getCurrentTemperature();
 		double diff = setPoint - currentTemp;
@@ -331,8 +332,8 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		}
 
 		this.targetTemp = targetTemp;
-		logger.debug(getName() + " setTargetTemperature targetTemp " + this.targetTemp);
-		poller.setPollTime(SHORTPOLLTIME);
+		logger.debug("{} setTargetTemperature targetTemp {}", getName(), targetTemp);
+		poller.setPollTime(SHORT_POLL_TIME);
 		startTowardsTarget();
 	}
 
@@ -344,7 +345,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 *            an ArrayList<TemperatureRamp> of ramps to be set
 	 */
 	@Override
-	public void setRamps(ArrayList<TemperatureRamp> newRamps) {
+	public void setRamps(List<TemperatureRamp> newRamps) {
 		if (!running) {
 			rampList = newRamps;
 		}
@@ -370,7 +371,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				bufferedData.clear();
 				sendRamp(currentRamp);
 				doStart();
-				poller.setPollTime(polltime);
+				poller.setPollTime(pollTime);
 			} catch (DeviceException de) {
 				logger.error("Error starting {}", getName(), de);
 				running = false;
@@ -387,7 +388,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		double holdTime;
 		if (currentRamp != -1 && !rampList.isEmpty()) {
 			holdTime = rampList.get(currentRamp).getDwellTime();
-			logger.debug(getName() + " Hold timer starting for " + holdTime);
+			logger.debug("{} Hold timer starting for {}", getName(), holdTime);
 			// If holdTime is 0.0 should hold forever so do not set alarm
 			if (holdTime > 0.0)
 				holdTimeAlarm = new Alarm((long) (holdTime * 60000.0), this);
@@ -411,7 +412,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		try {
 			running = false;
 			doStop();
-			poller.setPollTime(LONGPOLLTIME);
+			poller.setPollTime(LONG_POLL_TIME);
 			currentRamp = -1;
 			// reset time as this stops the graph plotting. see bug #377
 			timeSinceStart = -1000;
@@ -455,8 +456,9 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	public synchronized void waitForTemp() throws DeviceException {
 		while (!isAtTargetTemperature()) {
 			try {
-				wait(POLLTIME);
+				wait(POLL_TIME);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				throw new DeviceException("Interrupted waiting in waitForTemp()");
 			}
 		}
@@ -499,9 +501,6 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	 * @throws DeviceException
 	 */
 	protected abstract void setHWUpperTemp(double upperTemp) throws DeviceException;
-
-	@Override
-	public abstract void hold() throws DeviceException;
 
 	/**
 	 * Run the ramp sequence.
@@ -572,18 +571,13 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 			return null;
 		}
 
-		// else create an array of the expected size and fill it
-		String[] currentPosition = new String[scannable.getInputNames().length + scannable.getExtraNames().length];
-		currentPosition = (String[]) currentPositionObj;
-
-		return currentPosition;
+		return (String[]) currentPositionObj;
 
 	}
 
-	public Object readout() { return null;}
+	public Object readout() { return null; }
 
 	public int[] getDataDimensions() {
-		int[] dims = {getInputNames().length + getExtraNames().length, bufferedData.size()};
-		return dims;
+		return new int[] {getInputNames().length + getExtraNames().length, bufferedData.size()};
 	}
 }

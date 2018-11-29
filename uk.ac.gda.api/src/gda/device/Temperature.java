@@ -19,7 +19,7 @@
 
 package gda.device;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An interface to be implemented by distributed Temperature controllers
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public interface Temperature extends Scannable {
 	/**
 	 * Get the current temperature
-	 * 
+	 *
 	 * @return the current temperature
 	 * @throws DeviceException
 	 */
@@ -35,7 +35,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Set the target or end temperature
-	 * 
+	 *
 	 * @param target
 	 *            the target temperature
 	 * @throws DeviceException
@@ -44,7 +44,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Get the target temperature
-	 * 
+	 *
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
@@ -52,7 +52,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Check the current temperature against the target temperature
-	 * 
+	 *
 	 * @return true if current temperature equals target temperature
 	 * @throws DeviceException
 	 */
@@ -60,7 +60,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Set to the lower operating temperature
-	 * 
+	 *
 	 * @param lowLimit
 	 *            the lower temperature limit in degrees C
 	 * @throws DeviceException
@@ -69,7 +69,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Set the upper operating temperature
-	 * 
+	 *
 	 * @param upperLimit
 	 *            the upper temperature limit in degrees C
 	 * @throws DeviceException
@@ -78,7 +78,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Get the upper operating temperature limit
-	 * 
+	 *
 	 * @return the upper temperature limit in degrees C
 	 * @throws DeviceException
 	 */
@@ -86,7 +86,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Get the lower operating temperature limit
-	 * 
+	 *
 	 * @return the lower temperature limit in degrees C
 	 * @throws DeviceException
 	 */
@@ -94,15 +94,15 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Get probe names
-	 * 
+	 *
 	 * @return an array of probe names
 	 * @throws DeviceException
 	 */
-	public ArrayList<String> getProbeNames() throws DeviceException;
+	public List<String> getProbeNames() throws DeviceException;
 
 	/**
 	 * Select probe
-	 * 
+	 *
 	 * @param probeName
 	 *            the probe to use
 	 * @throws DeviceException
@@ -111,21 +111,21 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Suspend the current thread and wait for the controller to reach its target temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void waitForTemp() throws DeviceException;
 
 	/**
 	 * Clears all specified ramps
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clearRamps() throws DeviceException;
 
 	/**
 	 * Adds a new ramp
-	 * 
+	 *
 	 * @param ramp
 	 *            the new TemperatureRamp to add
 	 * @throws DeviceException
@@ -134,7 +134,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Start running the ramps
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException;
@@ -142,7 +142,7 @@ public interface Temperature extends Scannable {
 	/**
 	 * Stops running ramps or moving to temperature (allows the device to do whatever it does while not running
 	 * programs), or in some case just hold the temperature position
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -150,21 +150,21 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * perform the start/restart up procedure of the controller
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void begin() throws DeviceException;
 
 	/**
 	 * perform the shutdown procedure of the controller
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void end() throws DeviceException;
 
 	/**
 	 * sets the ramp rate
-	 * 
+	 *
 	 * @param rate
 	 * @throws DeviceException
 	 */
@@ -172,7 +172,7 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * gets the ramp rate
-	 * 
+	 *
 	 * @return rate
 	 * @throws DeviceException
 	 */
@@ -180,23 +180,23 @@ public interface Temperature extends Scannable {
 
 	/**
 	 * Stops running ramps or moving to temperature but holds the current temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void hold() throws DeviceException;
 
 	/**
 	 * Sets a list of ramps
-	 * 
+	 *
 	 * @param ramps
 	 *            an ArrayList<TemperatureRamp> of TemperatureRamps
 	 * @throws DeviceException
 	 */
-	public void setRamps(ArrayList<TemperatureRamp> ramps) throws DeviceException;
+	public void setRamps(List<TemperatureRamp> ramps) throws DeviceException;
 
 	/**
 	 * Gets the running state of the controller
-	 * 
+	 *
 	 * @return true if controller is running a program or moving to a target false otherwise
 	 * @throws DeviceException
 	 */

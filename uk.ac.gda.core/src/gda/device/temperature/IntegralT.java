@@ -20,8 +20,8 @@
 package gda.device.temperature;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +41,14 @@ public class IntegralT extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(IntegralT.class);
 
+	private static final double MAXTEMP = 200.0;
+	private static final double MINTEMP = -35.0;
+	private static final int READ_TIMEOUT = 1000;
+	private static final String OKREPLY = "OK\r\n";
+	private static final int DEC_PLACES = 2;
+	private static final int INT_PLACES = 3;
+
 	private double startTime = 0;
-
-	private final static double MAXTEMP = 200.0;
-
-	private final static double MINTEMP = -35.0;
-
-	private final static int READ_TIMEOUT = 1000;
-
-	private final static String OKREPLY = "OK\r\n";
 
 	private Serial serial;
 
@@ -58,10 +57,6 @@ public class IntegralT extends TemperatureBase {
 	private int probe = 0;
 
 	private NumberFormat nf;
-
-	private static final int dec_places = 2;
-
-	private static final int int_places = 3;
 
 	private AsynchronousReaderWriter arw = null;
 
@@ -87,11 +82,11 @@ public class IntegralT extends TemperatureBase {
 	public void configure() throws FactoryException {
 		super.configure();
 		nf = NumberFormat.getInstance();
-		nf.setMaximumFractionDigits(dec_places);
-		nf.setMaximumIntegerDigits(int_places);
-		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-			logger.error("Serial Device " + serialDeviceName + " not found");
+		nf.setMaximumFractionDigits(DEC_PLACES);
+		nf.setMaximumIntegerDigits(INT_PLACES);
+		logger.debug("Finding: {}", serialDeviceName);
+		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
 			try {
 				serial.setBaudRate(baudRate);
@@ -171,7 +166,7 @@ public class IntegralT extends TemperatureBase {
 	 */
 	public double getSetPoint() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN_SP_00");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -194,12 +189,12 @@ public class IntegralT extends TemperatureBase {
 
 	private double getHWUpperTemp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN_SP_04");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	private double getHWLowerTemp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN_SP_05");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -228,7 +223,7 @@ public class IntegralT extends TemperatureBase {
 	 */
 	@Override
 	public void setProbe(String name) throws DeviceException {
-		ArrayList<String> names = getProbeNames();
+		List<String> names = getProbeNames();
 		for (int i = 0; i < names.size(); i++) {
 			if (names.get(i).equals(name)) {
 				switch (i) {
@@ -239,7 +234,7 @@ public class IntegralT extends TemperatureBase {
 				default:
 					setIntProbe();
 				}
-				logger.debug("Setting probe source to " + name);
+				logger.debug("Setting probe source to {}", name);
 				break;
 			}
 		}
@@ -263,14 +258,14 @@ public class IntegralT extends TemperatureBase {
 		finalTemp = ramp.getEndTemperature();
 		rate = ramp.getRate();
 
-		logger.debug("finalTemp is " + finalTemp);
+		logger.debug("finalTemp is {}", finalTemp);
 		if (finalTemp > upperTemp || finalTemp < lowerTemp)
 			throw new DeviceException("Invalid ramp final temperature");
 
 		double dtime = Math.abs((finalTemp - currentTemp) / rate);
 		int minutes = (int) dtime;
 
-		logger.debug("minutes is " + minutes);
+		logger.debug("minutes is {}", minutes);
 		if (minutes < 0 || minutes > 999)
 			throw new DeviceException("Invalid ramp time");
 
@@ -308,8 +303,9 @@ public class IntegralT extends TemperatureBase {
 			if (!arw.sendCommandAndGetReply("OUT_MODE_01_1").equals(OKREPLY))
 				throw new DeviceException(getName() + " command failure");
 			probe = 1;
-		} else
+		} else {
 			throw new DeviceException("External Pt 100 T1 is not connected");
+		}
 	}
 
 	/**
@@ -337,7 +333,7 @@ public class IntegralT extends TemperatureBase {
 	 */
 	public double getBathTemp() throws DeviceException, NumberFormatException {
 		String reply = arw.sendCommandAndGetReply("IN_PV_00");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -349,7 +345,7 @@ public class IntegralT extends TemperatureBase {
 	public double getExtTemp() throws DeviceException {
 		if (getStatusSignal().charAt(5) == '1') {
 			String reply = arw.sendCommandAndGetReply("IN_PV_01");
-			return java.lang.Double.valueOf(reply).doubleValue();
+			return Double.parseDouble(reply);
 		}
 		throw new DeviceException("External Pt 100 T1 is not connected");
 	}
@@ -360,7 +356,7 @@ public class IntegralT extends TemperatureBase {
 	 */
 	public double getXp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN_PAR_00");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -369,7 +365,7 @@ public class IntegralT extends TemperatureBase {
 	 */
 	public double getTn() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN_PAR_01");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -385,7 +381,7 @@ public class IntegralT extends TemperatureBase {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -403,7 +399,7 @@ public class IntegralT extends TemperatureBase {
 		n.setMaximumFractionDigits(2);
 		n.setGroupingUsed(false);
 
-		logger.debug(getName() + " pollDone called");
+		logger.debug("{} pollDone called", getName());
 
 		try {
 			if (isAtTargetTemperature()) {
@@ -432,7 +428,7 @@ public class IntegralT extends TemperatureBase {
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
-		logger.debug(getName() + " notifying IObservers with " + ts);
+		logger.debug("{} notifying IObservers with {}", getName(), ts);
 		notifyIObservers(this, ts);
 
 		// change poll time ??
@@ -486,7 +482,7 @@ public class IntegralT extends TemperatureBase {
 
 		String str = "OUT_SP_00_" + nf.format(temp);
 		if (!arw.sendCommandAndGetReply(str).equals(OKREPLY)) {
-			logger.debug("setTemp " + temp);
+			logger.debug("setTemp {}", temp);
 			throw new DeviceException(getName() + " command failure");
 		}
 
@@ -502,8 +498,6 @@ public class IntegralT extends TemperatureBase {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

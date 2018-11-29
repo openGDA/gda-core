@@ -22,6 +22,7 @@ package gda.device.temperature.corba.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
@@ -334,7 +335,7 @@ public class TemperatureAdapter extends ScannableAdapter implements Temperature 
 	}
 
 	@Override
-	public void setRamps(ArrayList<TemperatureRamp> rampList) throws DeviceException {
+	public void setRamps(List<TemperatureRamp> rampList) throws DeviceException {
 		for (int j = 0; j < NetService.RETRY; j++) {
 			try {
 				int nramps = rampList.size();
@@ -346,9 +347,7 @@ public class TemperatureAdapter extends ScannableAdapter implements Temperature 
 				}
 				corbaTemperature.setRamps(ramps);
 				return;
-			} catch (COMM_FAILURE cf) {
-				corbaTemperature = CorbaTemperatureHelper.narrow(netService.reconnect(name));
-			} catch (TRANSIENT ct) {
+			} catch (COMM_FAILURE | TRANSIENT cf) {
 				corbaTemperature = CorbaTemperatureHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException e) {
 				throw new DeviceException(e.message);
@@ -363,9 +362,7 @@ public class TemperatureAdapter extends ScannableAdapter implements Temperature 
 			try {
 				corbaTemperature.start();
 				return;
-			} catch (COMM_FAILURE cf) {
-				corbaTemperature = CorbaTemperatureHelper.narrow(netService.reconnect(name));
-			} catch (TRANSIENT ct) {
+			} catch (COMM_FAILURE | TRANSIENT cf) {
 				corbaTemperature = CorbaTemperatureHelper.narrow(netService.reconnect(name));
 			} catch (CorbaDeviceException e) {
 				throw new DeviceException(e.message);

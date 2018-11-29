@@ -35,12 +35,6 @@ public class DummyTemperature extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemperature.class);
 
-	/**
-	 * Constructor
-	 */
-	public DummyTemperature() {
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -48,7 +42,7 @@ public class DummyTemperature extends TemperatureBase {
 
 	@Override
 	public double getCurrentTemperature() throws DeviceException {
-		logger.debug("getCurrentTemperature: " + currentTemp);
+		logger.debug("getCurrentTemperature: {}", currentTemp);
 		return currentTemp;
 	}
 
@@ -59,24 +53,19 @@ public class DummyTemperature extends TemperatureBase {
 			throw new DeviceException("Target temperature outside hard limits");
 		}
 
-		if (target > upperTemp || target < lowerTemp) {
-			throw new DeviceException("Target temperature outside soft limits");
-		}
-
 		if (busy) {
 			throw new DeviceException("Water bath already ramping to temerature");
 		}
 
 		targetTemp = target;
-		// busy = true;
-		logger.debug("setTargetTemperature: about to startTowardsTarget: " + targetTemp);
-		poller.setPollTime(polltime);
+		logger.debug("setTargetTemperature: about to startTowardsTarget: {}", targetTemp);
+		poller.setPollTime(pollTime);
 		startTowardsTarget();
 	}
 
 	@Override
 	public boolean isAtTargetTemperature() throws DeviceException {
-		logger.debug("isAtTargetTemperature: returning not busy:" + !busy + " and " + "not isRunning: " + !isRunning());
+		logger.debug("isAtTargetTemperature: returning not busy ({}) and not isRunning: ({})", !busy, !isRunning());
 		return !busy && !isRunning();
 	}
 
@@ -134,7 +123,7 @@ public class DummyTemperature extends TemperatureBase {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -149,6 +138,7 @@ public class DummyTemperature extends TemperatureBase {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
 		}
 		// README - Poller would be responsible for this normally.
 		logger.debug("sendStart: setting busy to false.");
@@ -162,13 +152,14 @@ public class DummyTemperature extends TemperatureBase {
 		logger.debug("startTowardsTarget: setting busy to true.");
 		busy = true;
 		currentTemp = targetTemp;
-		logger.debug("startTowardsTarget: currentTemp = " + currentTemp);
+		logger.debug("startTowardsTarget: currentTemp = {}", currentTemp);
 		try {
 			Thread.sleep(250);
 		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
 		}
 		TemperatureStatus ts = new TemperatureStatus(currentTemp);
-		logger.debug("DummyTemp notifyIObservers with " + ts.toString());
+		logger.debug("DummyTemp notifyIObservers with {}", ts);
 		notifyIObservers(this, ts);
 		logger.debug("startTowardsTarget: setting busy to false.");
 		busy = false;
@@ -182,7 +173,5 @@ public class DummyTemperature extends TemperatureBase {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 }

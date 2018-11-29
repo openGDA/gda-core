@@ -19,14 +19,14 @@
 
 package gda.device.temperature;
 
-import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
-
 import java.text.NumberFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.TemperatureRamp;
+import gda.util.PollerEvent;
 
 /**
  * Default Linkam Stage. (i.e. one with no commands of its own) FIXME what is a stage ?
@@ -97,7 +97,7 @@ public class DefaultStageT95 implements LinkamStage {
 		n.setGroupingUsed(false);
 
 		logger.debug("DefaultStageT95 pollDone called");
-		logger.debug("DefaultStageT95 pollDone timeSinceStart is " + timeSinceStart);
+		logger.debug("DefaultStageT95 pollDone timeSinceStart is {}", timeSinceStart);
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();
 			timeSinceStart = d.getTime() - startTime;
@@ -116,9 +116,9 @@ public class DefaultStageT95 implements LinkamStage {
 		data[0] = currentTemp;
 		data[1] = (timeSinceStart - xValueDifference) / 1000.0;
 		if (data[1] >= 0.0) {
-			System.out.println("current temp " + data[0] + " time since start " + data[1]);
+			logger.debug("current temp {}, time since start {}", data[0], data[1]);
 			linkamT95.getBufferedData().add(data);
-			System.out.println("index " + index + " array size " + linkamT95.getBufferedData().size());
+			logger.debug("index {}, array size {}", index, linkamT95.getBufferedData().size());
 			index++;
 		}
 	}

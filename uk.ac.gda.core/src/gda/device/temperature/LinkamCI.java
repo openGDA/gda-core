@@ -38,11 +38,18 @@ public class LinkamCI extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(LinkamCI.class);
 
-	private final static double MAXTEMP = 900.0;
+	private static final double MAXTEMP = 900.0;
+	private static final double MINTEMP = -35.0;
 
-	private final static double MINTEMP = -35.0;
-
-	private String debugName;
+	// Possible values of the status byte
+	private static final int STOPPED = 1;
+	private static final int HEATING = 16;
+	private static final int COOLING = 32;
+	private static final int HOLDINGLIMIT = 48;
+	private static final int HOLDINGTIME = 64;
+	private static final int HOLDINGTEMP = 80;
+	private static final int COOLINGFAULT = 1;
+	private static final int OK = 128;
 
 	private int state;
 
@@ -61,24 +68,7 @@ public class LinkamCI extends TemperatureBase {
 	// should be replaced with a more general Stage class if necessary later
 	private LinkamStage stage = null;
 
-	// Possible values of the status byte
-	private final int STOPPED = 1;
-
-	private final int HEATING = 16;
-
-	private final int COOLING = 32;
-
-	private final int HOLDINGLIMIT = 48;
-
-	private final int HOLDINGTIME = 64;
-
-	private final int HOLDINGTEMP = 80;
-
 	private String errorMessage = "";
-
-	private final int COOLINGFAULT = 1;
-
-	private final int OK = 128;
 
 	// FIXME
 	// This makes the xml configuration bogus
@@ -104,15 +94,13 @@ public class LinkamCI extends TemperatureBase {
 	public void configure() throws FactoryException {
 		super.configure();
 		if (serial == null) {
-			logger.debug("Finding: " + serialDeviceName);
-			if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-				logger.error("Serial Device " + serialDeviceName + " not found");
+			logger.debug("Finding: {}", serialDeviceName);
+			if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+				logger.error("Serial Device {} not found", serialDeviceName);
 			}
 		}
 		if (serial != null) {
 			logger.debug("LinkamCI configure called");
-			// debugName is used in error output
-			debugName = getClass().getName() + " " + getName();
 
 			try {
 				serial.setBaudRate(baudRate);
@@ -192,8 +180,8 @@ public class LinkamCI extends TemperatureBase {
 	 *            the new state
 	 */
 	private void changeState(int newState) {
-		logger.debug("state is " + state + " " + stateToString(state));
-		logger.debug("newState is " + newState + " " + stateToString(newState));
+		logger.debug("state is {} {}", state, stateToString(state));
+		logger.debug("newState is {} {}", newState, stateToString(newState));
 
 		if (newState != state) {
 			switch (state) {
@@ -223,11 +211,11 @@ public class LinkamCI extends TemperatureBase {
 			// The cooling too fast fault is not fatal so just change
 			// message
 			errorMessage = " TOO FAST";
-			logger.error("Error detected in LinkamCI: errorMessage is " + errorMessage);
+			logger.error("Error detected in LinkamCI: errorMessage is {}", errorMessage);
 		} else if (errorByte != OK) {
 			// Other errors are treated as fatal until we know otherwise
 			errorMessage = " ERROR " + errorByte;
-			logger.error("Error detected in LinkamCI: errorMessage is " + errorMessage);
+			logger.error("Error detected in LinkamCI: errorMessage is {}", errorMessage);
 			stop();
 		} else {
 			errorMessage = "";
@@ -248,7 +236,7 @@ public class LinkamCI extends TemperatureBase {
 		double temperature = Double.NaN;
 
 		try {
-			int value = java.lang.Integer.parseInt(string, 16);
+			int value = Integer.parseInt(string, 16);
 
 			if (value > 63575) {
 				value = -((65535 - value) + 1);
@@ -259,8 +247,8 @@ public class LinkamCI extends TemperatureBase {
 		// even though sensible error and status values have been returned so we
 		// catch the normally uncaught NumberFormatException to deal with this
 		catch (NumberFormatException nfe) {
-			logger.error("extractTemperature caught NumberFormatException " + nfe);
-			logger.error("                   string was " + string);
+			logger.error("extractTemperature caught NumberFormatException", nfe);
+			logger.error("                   string was {}", string);
 		}
 		return temperature;
 	}
@@ -323,7 +311,7 @@ public class LinkamCI extends TemperatureBase {
 		String cmd = "T";
 		String status = arw.sendCommandAndGetReply(cmd);
 
-		logger.debug("getStatusString status is " + status);
+		logger.debug("getStatusString status is {}", status);
 		return status;
 	}
 
@@ -390,15 +378,10 @@ public class LinkamCI extends TemperatureBase {
 	 *            is the temperature limit to a resolution of 0.1degC, max value 99.9
 	 */
 	private void sendLimit(int rampNumber, double limit) {
+		logger.debug("Linkam.sendLimit called {}", limit);
+
 		String cmd = "L" + rampNumber;
-
-		logger.debug("Linkam.sendLimit called " + limit);
-
-		// if (limit < 0.1 || limit > 99.9)
-		// throw new DeviceException ("Limit is outide Linkam specification");
-
 		String send = cmd + (int) (limit * 10.0);
-
 		arw.handleCommand(send);
 	}
 
@@ -411,15 +394,10 @@ public class LinkamCI extends TemperatureBase {
 	 *            is the heating/cooling rate. The rate is 0.01degC/min. The maximum is 99.99degC/min.
 	 */
 	private void sendRate(int rampNumber, double rate) {
+		logger.debug("Linkam.sendRate called {}", rate);
+
 		String cmd = "R" + rampNumber;
-
-		logger.debug("Linkam.sendRate called " + rate);
-
-		// if (rate < 0.01 || rate > 99.99)
-		// throw new DeviceException ("Rate is outide Linkam specification");
-
 		String send = cmd + (int) (rate * 100);
-
 		arw.handleCommand(send);
 	}
 
@@ -433,7 +411,7 @@ public class LinkamCI extends TemperatureBase {
 	}
 
 	/**
-	 * Sends a stop commmand
+	 * Sends a stop command
 	 */
 	private void sendStop() {
 		logger.debug("Linkam sendStop() called");
@@ -445,24 +423,24 @@ public class LinkamCI extends TemperatureBase {
 	 * Creates a dsc if the reply to the ? command demands it. Eventually Dsc should be replaced by a more general Stage
 	 * class.
 	 *
-	 * @return an intance of the created stage
+	 * @return an instance of the created stage
 	 */
 	private LinkamStage createStage() {
 		String reply;
-		LinkamStage stage = null;
+		LinkamStage newStage = null;
 
 		try {
 			reply = arw.sendCommandAndGetReply("\u00efS");
-			logger.debug("createStage S reply was " + reply);
+			logger.debug("createStage S reply was {}", reply);
 			if (reply.indexOf("DSC") != -1) {
-				stage = new DscStage(this, arw, samplingTime);
+				newStage = new DscStage(this, arw, samplingTime);
 			} else {
-				stage = new DefaultStage(this);
+				newStage = new DefaultStage(this);
 			}
 		} catch (DeviceException de) {
 			logger.error("Error in {}.createStage()", getName(), de);
 		}
-		return stage;
+		return newStage;
 	}
 
 	@Override
@@ -478,7 +456,7 @@ public class LinkamCI extends TemperatureBase {
 		// signals to be sent e.g. to start a TFG
 		currentRamp++;
 
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			if (currentRamp == startingRamp) {
 				sendB();
@@ -541,12 +519,12 @@ public class LinkamCI extends TemperatureBase {
 	 *            the new value
 	 */
 	private void setPumpAuto(boolean value) {
-		if (value == true) {
+		if (value) {
 			arw.handleCommand("Pa");
-			poller.setPollTime(LONGPOLLTIME);
+			poller.setPollTime(LONG_POLL_TIME);
 		} else {
 			arw.handleCommand("Pm");
-			poller.setPollTime(polltime);
+			poller.setPollTime(pollTime);
 		}
 	}
 
@@ -629,8 +607,6 @@ public class LinkamCI extends TemperatureBase {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

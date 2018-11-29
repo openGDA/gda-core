@@ -19,15 +19,15 @@
 
 package gda.device.temperature;
 
-import gda.device.DeviceException;
-import gda.device.SerialReaderWriter;
-import gda.device.TemperatureRamp;
-import gda.util.PollerEvent;
-
 import java.text.NumberFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.SerialReaderWriter;
+import gda.device.TemperatureRamp;
+import gda.util.PollerEvent;
 
 /**
  * A Linkam DSC device is used as a temperature controlled sample stage here. It connects to a LinkamT95 which controls
@@ -119,7 +119,7 @@ public class DscStageT95 implements LinkamStage {
 					break;
 
 				dataString = n.format(xValue) + " " + temperature + " " + dscValue;
-				logger.debug("DSC dataString is " + dataString);
+				logger.debug("DSC dataString is {}", dataString);
 				linkamT95.sendNotify(dataString);
 
 				dataString = n.format(xValue - xValueDifference) + " " + temperature + " " + dscValue;
@@ -131,7 +131,7 @@ public class DscStageT95 implements LinkamStage {
 				if (xValue != -1.0)
 					xValue += samplingTime;
 
-				double data[] = new double[3];
+				double[] data = new double[3];
 				data[0] = temperature;
 				data[1] = (xValue - xValueDifference);
 				data[2] = dscValue;

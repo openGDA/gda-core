@@ -20,8 +20,8 @@
 package gda.device.temperature;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +41,11 @@ public class Lauda extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(Lauda.class);
 
+	private static final double MAXTEMP = 200.0;
+	private static final double MINTEMP = -35.0;
+	private static final String OKREPLY = "OK\r\n";
+
 	private double startTime = 0;
-
-	private final static double MAXTEMP = 200.0;
-
-	private final static double MINTEMP = -35.0;
-
-	private final static String OKREPLY = "OK\r\n";
 
 	private int probe = 0;
 
@@ -78,9 +76,9 @@ public class Lauda extends TemperatureBase {
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-			logger.error("Serial Device " + serialDeviceName + " not found");
+		logger.debug("Finding: {}", serialDeviceName);
+		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
 			try {
 				serial.setBaudRate(baudRate);
@@ -203,7 +201,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	public double getSetPoint() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN 3");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -247,13 +245,13 @@ public class Lauda extends TemperatureBase {
 
 	private double getHWUpperTemp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN 9");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	private double getHWLowerTemp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN 8");
-		logger.debug("getLowerTemp got reply " + reply);
-		return java.lang.Double.valueOf(reply).doubleValue();
+		logger.debug("getLowerTemp got reply {}", reply);
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -265,7 +263,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	@Override
 	public void setProbe(String name) throws DeviceException {
-		ArrayList<String> names = getProbeNames();
+		List<String> names = getProbeNames();
 		for (int i = 0; i < names.size(); i++) {
 			if (names.get(i).equals(name)) {
 				switch (i) {
@@ -278,7 +276,7 @@ public class Lauda extends TemperatureBase {
 				default:
 					setIntProbe();
 				}
-				logger.debug("Setting probe source to " + name);
+				logger.debug("Setting probe source to {}", name);
 				break;
 			}
 		}
@@ -302,7 +300,7 @@ public class Lauda extends TemperatureBase {
 		finalTemp = ramp.getEndTemperature();
 		rate = ramp.getRate();
 
-		logger.debug("finalTemp is " + finalTemp);
+		logger.debug("finalTemp is {}", + finalTemp);
 		if (finalTemp > upperTemp || finalTemp < lowerTemp)
 			throw new DeviceException("Invalid ramp final temperature");
 
@@ -311,8 +309,8 @@ public class Lauda extends TemperatureBase {
 		int hours = time / 60;
 		int minutes = time - (hours * 60);
 
-		logger.debug("hours is " + hours);
-		logger.debug("minutes is " + minutes);
+		logger.debug("hours is {}", hours);
+		logger.debug("minutes is {}", minutes);
 		if ((hours < 0 || hours > 99) || (minutes < 0 || minutes > 59))
 			throw new DeviceException("Invalid ramp time");
 
@@ -350,8 +348,9 @@ public class Lauda extends TemperatureBase {
 			if (!arw.sendCommandAndGetReply("OUT RT1").equals(OKREPLY))
 				throw new DeviceException("Lauda command failure");
 			probe = 1;
-		} else
+		} else {
 			throw new DeviceException("External Pt 100 T1 is not connected");
+		}
 	}
 
 	/**
@@ -367,9 +366,9 @@ public class Lauda extends TemperatureBase {
 			if (!arw.sendCommandAndGetReply("OUT RT2").equals(OKREPLY))
 				throw new DeviceException("Lauda command failure");
 			probe = 2;
-		} else
+		} else {
 			throw new DeviceException("External Pt 100 T1 is not connected");
-
+		}
 	}
 
 	/**
@@ -397,7 +396,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	public double getBathTemp() throws DeviceException, NumberFormatException {
 		String reply = arw.sendCommandAndGetReply("IN 1");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -409,7 +408,7 @@ public class Lauda extends TemperatureBase {
 	public double getExtProbe1() throws DeviceException {
 		if (getStatusSignal().charAt(5) == '1') {
 			String reply = arw.sendCommandAndGetReply("IN 2");
-			return java.lang.Double.valueOf(reply).doubleValue();
+			return Double.parseDouble(reply);
 		}
 		throw new DeviceException("External Pt 100 T1 is not connected");
 	}
@@ -423,7 +422,7 @@ public class Lauda extends TemperatureBase {
 	public double getExtProbe2() throws DeviceException {
 		if (getStatusSignal().charAt(6) == '1') {
 			String reply = arw.sendCommandAndGetReply("IN 7");
-			return java.lang.Double.valueOf(reply).doubleValue();
+			return Double.parseDouble(reply);
 		}
 		throw new DeviceException("External Pt 100 T2 is not connected");
 	}
@@ -475,7 +474,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	public double getXp() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN A");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -486,7 +485,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	public double getTn() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN B");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -497,7 +496,7 @@ public class Lauda extends TemperatureBase {
 	 */
 	public double getTv() throws DeviceException {
 		String reply = arw.sendCommandAndGetReply("IN C");
-		return java.lang.Double.valueOf(reply).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -513,7 +512,7 @@ public class Lauda extends TemperatureBase {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -548,7 +547,7 @@ public class Lauda extends TemperatureBase {
 			else
 				stateString = "Idle";
 		} catch (DeviceException de) {
-			logger.debug(de.getStackTrace().toString());
+			logger.debug("Error in pollDone", de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();
@@ -559,7 +558,7 @@ public class Lauda extends TemperatureBase {
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
-		logger.debug("Lauda notifying IObservers with " + ts);
+		logger.debug("Lauda notifying IObservers with {}", ts);
 		notifyIObservers(this, ts);
 
 		// change poll time ??
@@ -581,14 +580,10 @@ public class Lauda extends TemperatureBase {
 
 	@Override
 	public void hold() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

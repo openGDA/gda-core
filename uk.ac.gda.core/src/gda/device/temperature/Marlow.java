@@ -42,33 +42,20 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	private static final Logger logger = LoggerFactory.getLogger(Marlow.class);
 
-	private final static double MINTEMP = -35.0;
-
-	private final static String SETPOINT = "SL";
-
-	private final static String MEASURED = "PV";
-
-	private final static String WORKING = "SP";
-
-	private final static String MINSET = "LS";
-
-	private final static String MAXSET = "HS";
-
-	private final static String XPBAND = "XP";
-
-	private final static String IDENTITY = "II";
-
-	private final static char STX = '\02';
-
-	private final static char ETX = '\03';
-
-	private final static char EOT = '\04';
-
-	private final static char ENQ = '\05';
-
-	private final static char ACK = '\06';
-
-	private final static char NAK = 21;
+	private static final double MINTEMP = -35.0;
+	private static final String SETPOINT = "SL";
+	private static final String MEASURED = "PV";
+	private static final String WORKING = "SP";
+	private static final String MINSET = "LS";
+	private static final String MAXSET = "HS";
+	private static final String XPBAND = "XP";
+	private static final String IDENTITY = "II";
+	private static final char STX = '\02';
+	private static final char ETX = '\03';
+	private static final char EOT = '\04';
+	private static final char ENQ = '\05';
+	private static final char ACK = '\06';
+	private static final char NAK = 21;
 
 	private int uid = 0;
 
@@ -111,9 +98,9 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-			logger.error("Serial Device " + serialDeviceName + " not found");
+		logger.debug("Finding: {}", serialDeviceName);
+		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
 			try {
 				serial.setBaudRate(baudRate);
@@ -208,7 +195,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	 */
 	private void checkReply(String reply) throws DeviceException {
 		int irep = reply.charAt(0);
-		logger.debug(debugName + " checkReply character: " + irep);
+		logger.debug("{} checkReply character: {}", getName(), irep);
 
 		if (reply.charAt(0) == NAK) {
 			throw new DeviceException("Negative Acknowledgement received from Marlow");
@@ -239,7 +226,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 		if (buffer.charAt(++i) == bcc) {
 			response = buffer.substring(3, i - 1);
-			logger.debug("Reply from Marlow: " + response);
+			logger.debug("Reply from Marlow: {}", response);
 		} else {
 			throw new DeviceException("Marlow replied with checksum error");
 		}
@@ -307,7 +294,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	public double getCurrentTemperature() throws DeviceException {
 		String str = encode(MEASURED);
 		String reply = arw.sendCommandAndGetReply(str);
-		currentTemp = java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		currentTemp = Double.parseDouble(reply);
 		return currentTemp;
 	}
 
@@ -320,7 +307,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 		String str = encode(IDENTITY);
 		String reply = arw.sendCommandAndGetReply(str);
 		String identity = decodeReply(reply);
-		logger.debug("Marlow " + identity.substring(1) + " controller");
+		logger.debug("Marlow {} controller", identity.substring(1));
 	}
 
 	/**
@@ -333,7 +320,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	public double getTargetTemperature() throws DeviceException {
 		String str = encode(WORKING);
 		String reply = arw.sendCommandAndGetReply(str);
-		return Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -345,7 +332,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	private double getXp() throws DeviceException {
 		String str = encode(XPBAND);
 		String reply = arw.sendCommandAndGetReply(str);
-		return Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(reply);
 	}
 
 	/**
@@ -376,14 +363,14 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 		logger.debug("Marlow pollDone called");
 
 		try {
-			logger.debug("Marlow pollDone: stopFlag is " + stopFlag);
+			logger.debug("Marlow pollDone: stopFlag is {}", stopFlag);
 			if (isAtTargetTemperature() || stopFlag) {
 				busy = false;
 				stopFlag = false;
-				logger.debug("pollDone: stop flag should be false, is:  " + stopFlag
-						+ "::: busy flag should be false, is: " + busy);
+				logger.debug("pollDone: stop flag should be false, is: {}"
+						+ "::: busy flag should be false, is: {}", stopFlag, busy);
 			}
-			logger.debug("busy is " + busy);
+			logger.debug("busy is {}", busy);
 			if (busy)
 				stateString = (targetTemp > currentTemp) ? "Heating" : "Cooling";
 			else if (currentRamp > -1)
@@ -402,7 +389,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
-		logger.debug("Marlow notifying IObservers with " + ts);
+		logger.debug("Marlow notifying IObservers with {}", ts);
 		notifyIObservers(this, ts);
 
 		try {
@@ -422,19 +409,8 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	private double getSetPoint() throws DeviceException {
 		String str = encode(SETPOINT);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(reply);
 	}
-
-	/**
-	 * Get to the OutputPower This method needs re implementing, if necessary
-	 *
-	 * @return the output power
-	 * @throws DeviceException
-	 */
-	/*
-	 * never used private double getOutputPower() throws DeviceException { // README: OUTPOWER is not available in 800s
-	 * return Double.NaN; }
-	 */
 
 	/**
 	 * Tells the hardware to start heating or cooling
@@ -445,7 +421,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 		if (busy) {
 			throw new DeviceException("Marlow is already moving to temperature");
 		}
-		logger.debug("sendStart: busy should be false, is: " + busy + ". Setting busy to true.");
+		logger.debug("sendStart: busy should be false, is: {}. Setting busy to true.", busy);
 		busy = true;
 	}
 
@@ -491,7 +467,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	@Override
 	public Object getAttribute(String name) throws DeviceException {
 		if (name.equalsIgnoreCase("Xp"))
-			return new Double(getXp());
+			return getXp();
 
 		return null;
 	}
@@ -533,16 +509,12 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	 */
 	@Override
 	public void doStop() throws DeviceException {
-		// dataFileWriter.close();// must implement this
-		// sendStop();
-		logger
-				.debug("doStop: Send stop has not been called. "
+		logger.debug("doStop: Send stop has not been called. "
 						+ "If it had the stop flag would have been set to true.");
-		logger.debug("Stop called" + " - NO COMMAND TO STOP ACTUAL HARDWARE. \n"
+		logger.debug("Stop called - NO COMMAND TO STOP ACTUAL HARDWARE. \n"
 				+ "Therefore it will reach target temperature.");
-		// busy = false;
-		logger.debug("doStop: Stop flag should be false? Is: " + stopFlag + ". Setting it to true");
-		logger.debug("doStop: busy flag should be false? Is: " + busy);
+		logger.debug("doStop: Stop flag should be false? Is: {}. Setting it to true", stopFlag);
+		logger.debug("doStop: busy flag should be false? Is: {}", busy);
 		stopFlag = true;
 	}
 
@@ -566,7 +538,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	public void startTowardsTarget() throws DeviceException {
 
 		if (!stopFlag) {
-			logger.debug("startTowardsTarget: the Stop flag is: " + stopFlag + ". Sending start command.");
+			logger.debug("startTowardsTarget: the Stop flag is: {}. Sending start command.", stopFlag);
 			String str = encode(SETPOINT, targetTemp);
 			String reply = arw.sendCommandAndGetReply(str);
 			checkReply(reply);
@@ -587,11 +559,12 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	@Override
 	public synchronized void waitForTemp() throws DeviceException {
 		while (busy) {
-			logger.debug("waitForTemp: the busy flag is: " + busy);
+			logger.debug("waitForTemp: the busy flag is: {}", busy);
 			synchronized (this) {
 				try {
-					wait(POLLTIME);
+					wait(POLL_TIME);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 					throw new DeviceException("Interrupted waiting in waitForTemp()");
 				}
 			}
@@ -618,8 +591,6 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }
