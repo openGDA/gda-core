@@ -19,8 +19,8 @@
 package gda.device.temperature;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,31 +38,32 @@ import gda.util.PollerEvent;
 public class TangoEurotherm2400 extends TemperatureBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoEurotherm2400.class);
-	private final static double MAXTEMP = 900.0;
-	private final static double MINTEMP = -35.0;
+	private static final double MAXTEMP = 900.0;
+	private static final double MINTEMP = -35.0;
+
+	private static final short CURRENT_SEGMENT_NUM = 56;
+	private static final short CURRENT_SEGMENT_TYPE = 29;
+	private static final short CURRENT_PROGRAM = 22;
+	private static final short PROGRAM_STATUS = 23;
+	private static final short SETPOINT_MAXIMUM = 111;
+	private static final short SETPOINT_MINIMUM = 112;
+	private static final short INSTRUMENT_IDENTITY = 122;
+	private static final short SCALE_FACTOR = 525;
+	private static final short MAXIMUM_SEGMENTS = 211;
+	private static final short MAXIMUM_PROGRAMS = 517;
+	private static final short STATUS = 75;
+	private static final short SETPOINT = 2;
+
+	private static final short HOLD = 4;
+	private static final short RUN = 2;
+	private static final short RESET = 1;
+
 	private TangoDeviceProxy tangoDeviceProxy;
 	private double startTime = 0;
 	private int scale;
 	private short maxSegments;
 	private short maxPrograms;
 	protected volatile boolean activeProgram = false;
-
-	private static short CURRENT_SEGMENT_NUM = 56;
-	private static short CURRENT_SEGMENT_TYPE = 29;
-	private static short CURRENT_PROGRAM = 22;
-	private static short PROGRAM_STATUS = 23;
-	private static short SETPOINT_MAXIMUM = 111;
-	private static short SETPOINT_MINIMUM = 112;
-	private static short INSTRUMENT_IDENTITY = 122;
-	private static short SCALE_FACTOR = 525;
-	private static short MAXIMUM_SEGMENTS = 211;
-	private static short MAXIMUM_PROGRAMS = 517;
-	private static short STATUS = 75;
-	private static short SETPOINT = 2;
-
-	private short HOLD = 4;
-	private short RUN = 2;
-	private short RESET = 1;
 
 	public TangoEurotherm2400() {
 		// These will be overwritten by the values specified in the XML
@@ -73,22 +74,20 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 
 	@Override
 	public void configure() throws FactoryException {
-//		if (!configured) {
 		super.configure();
-			try {
-				getInstrumentIdentity();
-				getScaleFactor();
-				getMaximumSegments();
-				getMaximumPrograms();
-				lowerTemp = getSetPointMinimum();
-				upperTemp = getSetPointMaximum();
-				getCurrentTemperature();
-				startPoller();
-				setConfigured(true);
-			} catch (DeviceException e) {
-				logger.error(e.getMessage());
-			}
-//		}
+		try {
+			getInstrumentIdentity();
+			getScaleFactor();
+			getMaximumSegments();
+			getMaximumPrograms();
+			lowerTemp = getSetPointMinimum();
+			upperTemp = getSetPointMaximum();
+			getCurrentTemperature();
+			startPoller();
+			setConfigured(true);
+		} catch (DeviceException e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	@Override
@@ -133,10 +132,10 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 	private void getInstrumentIdentity() throws DeviceException {
 		try {
 			short ident = getModbusValue(INSTRUMENT_IDENTITY);
-			System.out.println("Eurotherm identity as short is " + ident);
+			logger.debug("Eurotherm identity as short is {}", ident);
 			String identString = String.format("%x", ident);
-			logger.info("Eurotherm identity is " + identString);
-			if (identString.charAt(0) != '2' & identString.charAt(1) != '4') {
+			logger.info("Eurotherm identity is {}", identString);
+			if (identString.charAt(0) != '2' && identString.charAt(1) != '4') {
 				DeviceException ex = new DeviceException("This is not an Eurotherm 2000 series.");
 				logger.error("This is not an Eurotherm 2000 series.");
 				throw ex;
@@ -144,7 +143,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			probeNameList.add(identString);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to read eurotherm identity: " + ex.getMessage());
+			logger.error("Failed to read eurotherm identity", ex);
 			throw ex;
 		}
 	}
@@ -154,7 +153,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			scale = (int) Math.pow(10, getModbusValue(SCALE_FACTOR));
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to read eurotherm identity: " + ex.getMessage());
+			logger.error("Failed to read eurotherm identity", ex);
 			throw ex;
 		}
 	}
@@ -164,7 +163,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			maxSegments = getModbusValue(MAXIMUM_SEGMENTS);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get maximum segments: " + ex.getMessage());
+			logger.error("Failed to get maximum segments", ex);
 			throw ex;
 		}
 	}
@@ -174,7 +173,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			maxPrograms = getModbusValue(MAXIMUM_PROGRAMS);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get maximum programs: " + ex.getMessage());
+			logger.error("Failed to get maximum programs", ex);
 			throw ex;
 		}
 	}
@@ -185,7 +184,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			currentTemp = tangoDeviceProxy.getAttributeAsDouble("Temperature");
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to read eurotherm temperature: " + ex.getMessage());
+			logger.error("Failed to read eurotherm temperature", ex);
 			throw ex;
 		}
 		return currentTemp;
@@ -201,10 +200,10 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			status = getModbusValue(STATUS);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to read eurotherm temperature: " + ex.getMessage());
+			logger.error("Failed to read eurotherm temperature", ex);
 			throw ex;
 		}
-		logger.debug("getStatus status is " + status);
+		logger.debug("getStatus status is {}", status);
 		return status;
 	}
 
@@ -223,7 +222,6 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			currentTemp = getCurrentTemperature();
 			if (busy && currentRamp == -1 && isAtTargetTemperature()) {
 				busy = false;
-//				startHoldTimer();
 			} else if (busy && activeProgram && getProgramStatus() == RESET) {
 				busy = false;
 				activeProgram = false;
@@ -234,13 +232,11 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 				} else {
 					stateString = (targetTemp > currentTemp) ? "Heating" : "Cooling";
 				}
-//			} else if (currentRamp > -1) {
-//				stateString = "At temperature";
 			} else {
 				stateString = "Idle";
 			}
 		} catch (DeviceException de) {
-			logger.error("Exception " + de.getMessage());
+			logger.error("Error updating current state", de);
 		}
 		if (timeSinceStart >= 0.0) {
 			Date d = new Date();
@@ -248,13 +244,13 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 		}
 		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
-		logger.debug("Eurotherm notifying IObservers with " + ts);
+		logger.debug("Eurotherm notifying IObservers with {}", ts);
 
 		double data[] = new double[2];
 		data[0] = currentTemp;
 		data[1] = timeSinceStart / 1000.0;
 		if (data[1] >= 0.0) {
-			System.out.println("current temp " + data[0] + " time since start " + data[1]);
+			logger.debug("current temp {} time since start {}", data[0], data[1]);
 			bufferedData.add(data);
 		}
 
@@ -291,7 +287,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			setModbusValue(PROGRAM_STATUS, HOLD);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to hold eurotherm: " + ex.getMessage());
+			logger.error("Failed to hold eurotherm", ex);
 			throw ex;
 		}
 	}
@@ -311,7 +307,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			busy = true;
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to start eurotherm: " + ex.getMessage());
+			logger.error("Failed to start eurotherm", ex);
 			throw ex;
 		}
 	}
@@ -328,14 +324,6 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 	protected void startNextRamp() throws DeviceException {
 		activeProgram = true;
 		sendStart();
-		//		currentRamp++;
-//		logger.debug("startNextRamp called currentRamp now " + currentRamp);
-//		if (currentRamp < rampList.size()) {
-//			sendRamp(currentRamp);
-//			sendStart();
-//		} else {
-//			stop();
-//		}
 	}
 
 	@Override
@@ -354,7 +342,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to stop eurotherm: " + ex.getMessage());
+			logger.error("Failed to stop eurotherm", ex);
 			throw ex;
 		}
 	}
@@ -377,7 +365,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			busy = true;
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to stop eurotherm: " + ex.getMessage());
+			logger.error("Failed to stop eurotherm", ex);
 			throw ex;
 		}
 	}
@@ -399,7 +387,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 	public void runRamp() throws DeviceException {
 	}
 
-	public ArrayList<double[]> getBufferedData() {
+	public List<double[]> getBufferedData() {
 		return bufferedData;
 	}
 
@@ -411,10 +399,10 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 	/**
 	 * Sets the array of ramps.
 	 *
-	 * @param ramps an ArrayList<TemperatureRamp> of ramps to be set
+	 * @param ramps an List<TemperatureRamp> of ramps to be set
 	 */
 	@Override
-	public void setRamps(ArrayList<TemperatureRamp> ramps) {
+	public void setRamps(List<TemperatureRamp> ramps) {
 		rampList = ramps;
 		short[] modbusBuffer = new short[17*8];
 
@@ -424,8 +412,6 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 		modbusBuffer[4] = 1; // program cycles
 		int segment = 1;
 		int j;
-//		TemperatureRamp lastRamp=null;
-//		double startTemp;
 		for (TemperatureRamp ramp : ramps) {
 			j = segment * 8;
 			// rate segment
@@ -433,10 +419,6 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			modbusBuffer[j+1] = (short) (ramp.getEndTemperature()*scale);
 			modbusBuffer[j+2] = (short) (ramp.getRate()*scale);
 			// time segment
-//			modbusBuffer[j] = 2;
-//			modbusBuffer[j+1] = (short) (ramp.getEndTemperature()*scale);
-//			startTemp = (segment == 1) ? currentTemp : lastRamp.getEndTemperature();
-//			modbusBuffer[j+2] = (short) (Math.abs(ramp.getEndTemperature() - startTemp)*60*scale/(ramp.getRate()));
 
 			segment++;
 			short dwell = (short)(ramp.getDwellTime()*1);
@@ -447,7 +429,6 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 				modbusBuffer[j+2] = dwell;
 				segment++;
 			}
-//			lastRamp = ramp;
 		}
 		// end segment
 		j = segment * 8;
@@ -485,52 +466,52 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 
 			args[0] = baseOffset;
 			args[1] = modbusBuffer[0]; // Holdback type (0:OFF, 1:Low, 2:High, 3:Band)
-			System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+			logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 			argin = new DeviceData();
 			argin.insert(args);
 			tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 			if (modbusBuffer[0] != 0) {
 				args[0] = (short) (baseOffset + 1);
 				args[1] = modbusBuffer[1]; // Holdback value
-				System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+				logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 				argin = new DeviceData();
 				argin.insert(args);
 				tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 			}
 			args[0] = (short) (baseOffset + 2);
 			args[1] = modbusBuffer[2]; // Ramp Time units  (0:secs, 1:mins, 2:hours)
-			System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+			logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 			argin = new DeviceData();
 			argin.insert(args);
 			tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 
 			args[0] = (short) (baseOffset + 3);
 			args[1] = modbusBuffer[3]; // Dwell Time units  (0:secs, 1:mins, 2:hours)
-			System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+			logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 			argin = new DeviceData();
 			argin.insert(args);
 			tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 
 			args[0] = (short) (baseOffset + 4);
 			args[1] = modbusBuffer[4]; // Program Cycles
-			System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+			logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 			argin = new DeviceData();
 			argin.insert(args);
 			tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 
 			for (int i=1 ; i<=numSegments; i++ ) {
 				int segtype = modbusBuffer[(i * 8)];
-				logger.debug("segment type", segtype);
+				logger.debug("segment type: {}", segtype);
 				args[0] = (short) (baseOffset + (i * 8));
 				args[1] = modbusBuffer[(i * 8)]; // Segment Type 0:End, 1:Ramp(rate) 2:Ramp(time) 3:Dwell 4:Step 5:Call program"
-				System.out.println("Segment 0" + " address " + args[0] + " value " + args[1]);
+				logger.debug("Segment 0 address {}, value {}", args[0], args[1]);
 				argin = new DeviceData();
 				argin.insert(args);
 				tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 				if (segtype == 0 ) {	// End
 					args[0] = (short) (baseOffset + (i * 8) + 3);
 					args[1] = modbusBuffer[(i * 8) + 3]; // End action (0:Reset, 1:Indefinite_Dwell, 2:SetOutput)
-					System.out.println("Segment " + segtype + " address " + args[0] + " value " + args[1]);
+					logger.debug("Segment {}, address {}, value {}", segtype, args[0], args[1]);
 					argin = new DeviceData();
 					argin.insert(args);
 					tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
@@ -556,7 +537,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			}
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to write " + programNumber + " to the eurotherm: " + ex.getMessage());
+			logger.error("Failed to write {} to the eurotherm", programNumber, ex);
 			throw ex;
 		}
 	}
@@ -581,7 +562,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			}
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get current segment type: " + ex.getMessage());
+			logger.error("Failed to get current segment type", ex);
 			throw ex;
 		}
 	}
@@ -591,7 +572,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			return getModbusValue(CURRENT_SEGMENT_NUM);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get current segment number: " + ex.getMessage());
+			logger.error("Failed to get current segment number", ex);
 			throw ex;
 		}
 	}
@@ -601,7 +582,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			return getModbusValue(CURRENT_PROGRAM);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get current program: " + ex.getMessage());
+			logger.error("Failed to get current program", ex);
 			throw ex;
 		}
 	}
@@ -611,7 +592,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			return getModbusValue(PROGRAM_STATUS);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get program status: " + ex.getMessage());
+			logger.error("Failed to get program status", ex);
 			throw ex;
 		}
 	}
@@ -621,7 +602,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			return (short)(getModbusValue(SETPOINT_MAXIMUM)/scale);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get setpoint maximum: " + ex.getMessage());
+			logger.error("Failed to get setpoint maximum", ex);
 			throw ex;
 		}
 	}
@@ -631,7 +612,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 			return (short)(getModbusValue(SETPOINT_MINIMUM)/scale);
 		} catch (DevFailed e) {
 			DeviceException ex = new DeviceException(e.errors[0].desc);
-			logger.error("Failed to get setpoint minimum: " + ex.getMessage());
+			logger.error("Failed to get setpoint minimum" , ex);
 			throw ex;
 		}
 	}
@@ -645,7 +626,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 		argin = new DeviceData();
 		argin.insert(args);
 		argout = tangoDeviceProxy.command_inout("ReadHoldingRegisters", argin);
-		System.out.println("modbus address " + address + "return value " + argout.extractShortArray()[0]);
+		logger.debug("modbus address {}, return value {}", address, argout.extractShortArray()[0]);
 		return argout.extractShortArray()[0];
 	}
 
@@ -656,7 +637,7 @@ public class TangoEurotherm2400 extends TemperatureBase implements InitializingB
 		args[1] = value;
 		argin = new DeviceData();
 		argin.insert(args);
-		System.out.println("modbus address " + address + "writing value " + value);
+		logger.debug("modbus address {}, writing value {}", address, value);
 		tangoDeviceProxy.command_inout("PresetSingleRegister", argin);
 	}
 }

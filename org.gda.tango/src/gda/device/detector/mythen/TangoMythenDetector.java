@@ -43,7 +43,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
  */
 @CorbaAdapterClass(DetectorAdapter.class)
 @CorbaImplClass(DetectorImpl.class)
-public class TangoMythenDetector extends TangoLimaDetector { //implements NexusDetector {
+public class TangoMythenDetector extends TangoLimaDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoMythenDetector.class);
 	private Thread runner;
@@ -54,11 +54,7 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 	private String plotPanelName;
 	private TangoDeviceProxy tangoDeviceProxy = null;
 
-//	private static int count = 0;
 	private double collectionTime;
-
-	public TangoMythenDetector() {
-	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -70,8 +66,6 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 			setExtraNames(new String[] { "lastImageNumber"});
 			setOutputFormat(new String[]{"%d"});
 			this.setInputNames(new String[0]);
-//			setInputNames(null);
-//			setExtraNames(null);
 			runner = new Thread(this::runMythenDetector, getClass().getName());
 			runner.setDaemon(true);
 			runner.start();
@@ -98,35 +92,17 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		// // scanPoint = 0;
-		// // tangoDeviceProxy.setSavingNextNumber(getScanNumber());
-		// String dataDir = PathConstructor.createFromDefaultProperty();
-		// if (dataDir != null) {
-		// // tangoDeviceProxy.setSavingDirectory(dataDir);
-		// }
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-//
-//		@Override
-//	    public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
-//	            try {
-//	                    String detectorType = detector.getDetectorType();
-//	                    dataTree.addScanFileLink(getName(), "nxfile://" + detector.getAttribute("LastFileName") + "#entry_0000/measurement/" + detectorType + "/data");
-//	            } catch (Exception e) {
-//	                    throw new DeviceException("error getting HDF file name", e);
-//	            }
-//
-//	            addMetadata(dataTree);
-//	    }
 	}
 
 	@Override
 	public void setCollectionTime(double time) {
 		collectionTime = time;
 		super.setCollectionTime(time);
-		logger.debug("TangoMythenDetector: set collection time " + time);
+		logger.debug("TangoMythenDetector: set collection time {}", time);
 	}
 
 	/**
@@ -138,7 +114,6 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 		logger.debug("TangoMythenDetector: Starting mythen acquisition");
 		state = Detector.BUSY;
 		notifyAll();
-		// startAcq();
 	}
 
 	@Override
@@ -153,7 +128,7 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 	}
 
 	public void monitorLive(String panelName) {
-		logger.debug("TangoMythenDetector: panel name is: " + panelName);
+		logger.debug("TangoMythenDetector: panel name is: {}", panelName);
 		plotPanelName = panelName;
 		updateFrameClients(lastFrame, currentFrame);
 	}
@@ -182,7 +157,6 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 	}
 
 	private void updateFrameClients(int lastFrameUFC, int currentFrameUFC) {
-		// logger.debug("TangoMythenDetector(): update frame client");
 		try {
 			double[] data = (double[])readLastImage();
 			int[] dims = getDataDimensions();
@@ -190,7 +164,7 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 			ds.setName("Mythen");
 			plotData(plotPanelName, ds);
 		} catch (Exception e) {
-			logger.error("TangoMythenDetector: Exception preparing or sending live data: ", e.getMessage());
+			logger.error("TangoMythenDetector: Exception preparing or sending live data", e);
 		}
 		lastFrame = currentFrameUFC;
 	}
@@ -209,7 +183,7 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 				break;
 			}
 		} catch (Exception e) {
-			logger.error("TangoMythenDetector: plotData() could not plot", e.getMessage());
+			logger.error("TangoMythenDetector: plotData() could not plot", e);
 		}
 	}
 
@@ -225,9 +199,10 @@ public class TangoMythenDetector extends TangoLimaDetector { //implements NexusD
 					updateFrameClients(lastFrame, currentFrame);
 				}
 			} catch (InterruptedException e) {
-				logger.error("TangoMythenDetector: runner() exception " + e.getMessage());
+				Thread.currentThread().interrupt();
+				logger.error("TangoMythenDetector: runner()", e);
 			} catch (Exception e) {
-				logger.error("TangoMythenDetector: runner() exception " + e.getMessage());
+				logger.error("TangoMythenDetector: runner()", e);
 			} finally {
 				state = Detector.IDLE;
 			}
