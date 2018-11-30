@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 
 /**
@@ -83,11 +87,11 @@ public class FocusScanBean {
 	private IDetectorModel detector;
 
 	/**
-	 * The name of the malcolm device to use for focus malcolm scans. This field should be set
-	 * in spring if it is required to use a particular malcolm device for focus scans. Note that
-	 * this field is used by the focus scan UI to help and does form part of the definition of a focus scan, see note on class Javadoc.
+	 * The devices that can be used for focus scans.<br>
+	 * The names here must match the names of the corresponding {@link DetectorModelWrapper} beans defined in the
+	 * {@link MappingExperimentBean}
 	 */
-	private String focusMalcolmDeviceName;
+	private List<String> focusScanDevices = Collections.emptyList();
 
 	private EnergyFocusBean energyFocusBean;
 
@@ -147,12 +151,13 @@ public class FocusScanBean {
 		this.detector = detector;
 	}
 
-	public String getFocusMalcolmDeviceName() {
-		return focusMalcolmDeviceName;
+	public List<String> getFocusScanDevices() {
+		return focusScanDevices;
 	}
 
-	public void setFocusMalcolmDeviceName(String focusMalcolmDeviceName) {
-		this.focusMalcolmDeviceName = focusMalcolmDeviceName;
+	public void setFocusScanDevices(List<String> focusScanDevices) {
+		Objects.requireNonNull(focusScanDevices, "Focus scan devices must not be set null");
+		this.focusScanDevices = focusScanDevices;
 	}
 
 	public EnergyFocusBean getEnergyFocusBean() {
@@ -161,6 +166,14 @@ public class FocusScanBean {
 
 	public void setEnergyFocusBean(EnergyFocusBean energyFocusBean) {
 		this.energyFocusBean = energyFocusBean;
+	}
+
+	@Override
+	public String toString() {
+		return "FocusScanBean [focusScannableName=" + focusScannableName + ", focusCentre=" + focusCentre
+				+ ", focusRange=" + focusRange + ", numberOfFocusSteps=" + numberOfFocusSteps + ", lineRegion="
+				+ lineRegion + ", numberOfLinePoints=" + numberOfLinePoints + ", detector=" + detector
+				+ ", focusScanDevices=" + focusScanDevices + ", energyFocusBean=" + energyFocusBean + "]";
 	}
 
 }

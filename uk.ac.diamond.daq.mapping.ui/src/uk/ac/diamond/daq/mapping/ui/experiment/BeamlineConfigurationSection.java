@@ -68,7 +68,10 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 			LOGGER.error("Error creating IScannableDeviceService", e);
 		}
 
-		final boolean addFocusScanButton = getService(FocusScanBean.class) != null;
+		final FocusScanBean focusScanBean = getService(FocusScanBean.class);
+		final boolean addFocusScanButton = (focusScanBean != null
+				&& focusScanBean.getFocusScanDevices() != null
+				&& !focusScanBean.getFocusScanDevices().isEmpty());
 		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
 		final int numColumns = addFocusScanButton ? 4 : 3;
 		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).applyTo(beamlineConfigComposite);
