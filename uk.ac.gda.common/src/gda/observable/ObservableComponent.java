@@ -49,7 +49,7 @@ public class ObservableComponent implements IObservable {
 	 * (i.e. when adding or removing observer) it's very fast to iterate though the set. Typically modifying observers in done infrequently compared to the
 	 * number of events sent, this offers good performance.
 	 */
-	private final Set<IObserver> myIObservers = new CopyOnWriteArraySet<>();
+	private final Set<IObserver> observers = new CopyOnWriteArraySet<>();
 
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the observer on it. {@inheritDoc}
@@ -65,7 +65,7 @@ public class ObservableComponent implements IObservable {
 		if (anIObserver == null) {
 			throw new IllegalArgumentException("Can't add a null observer");
 		}
-		myIObservers.add(anIObserver);
+		observers.add(anIObserver);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class ObservableComponent implements IObservable {
 		if (anIObserver == null) {
 			throw new IllegalArgumentException("Can't delete a null observer");
 		}
-		myIObservers.remove(anIObserver);
+		observers.remove(anIObserver);
 	}
 
 	/**
@@ -92,21 +92,21 @@ public class ObservableComponent implements IObservable {
 	 */
 	@Override
 	public void deleteIObservers() {
-		myIObservers.clear();
+		observers.clear();
 	}
 
 	/**
 	 * Notify all observers on the list of the requested change, swallowing any exceptions to ensure all observers are updated.
 	 *
-	 * @param theObserved
+	 * @param source
 	 *            the observed component
-	 * @param changeCode
+	 * @param event
 	 *            the data to be sent to the observer.
 	 */
-	public void notifyIObservers(Object theObserved, Object changeCode) {
-		for (IObserver anIObserver : myIObservers) {
+	public void notifyIObservers(Object source, Object event) {
+		for (IObserver observer : observers) {
 			try {
-				sendEventToObserver(anIObserver, theObserved, changeCode);
+				sendEventToObserver(observer, source, event);
 			} catch (Exception ex) {
 				// Don't log the full stack trace to keep the log tidier, full trace is in debug if enabled
 				logger.error("swallowing exception: {}", ex.toString());
@@ -118,10 +118,10 @@ public class ObservableComponent implements IObservable {
 					 */
 					// TODO Probably this workaround to avoid calling toString in no longer required. Scannable.toFormattedString was added.
 					// Additionally this class now no longer contains explicit synchronized methods due to the use of CopyOnWriteArraySet
-					final String anIObserverDescription = anIObserver == null ? "null" : anIObserver.getClass().getName();
-					final String theObservedDescription = theObserved == null ? "null" : theObserved.getClass().getName();
+					final String anIObserverDescription = observer == null ? "null" : observer.getClass().getName();
+					final String theObservedDescription = source == null ? "null" : source.getClass().getName();
 
-					logger.debug("triggered by {}.update({}, {})", anIObserverDescription, theObservedDescription, changeCode, ex);
+					logger.debug("triggered by {}.update({}, {})", anIObserverDescription, theObservedDescription, event, ex);
 				}
 
 			}
@@ -156,7 +156,7 @@ public class ObservableComponent implements IObservable {
 	}
 
 	public boolean isBeingObserved() {
-		return !myIObservers.isEmpty();
+		return !observers.isEmpty();
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class ObservableComponent implements IObservable {
 	 * @since 9.8
 	 */
 	public int getNumberOfObservers() {
-		return myIObservers.size();
+		return observers.size();
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class ObservableComponent implements IObservable {
 	 * @since 9.8
 	 */
 	public Set<IObserver> getObservers() {
-		return Collections.unmodifiableSet(myIObservers);
+		return Collections.unmodifiableSet(observers);
 	}
 
 }
