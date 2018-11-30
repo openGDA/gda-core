@@ -43,16 +43,13 @@ import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
-import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.util.SpringObjectServer;
 import gda.util.logging.LogbackUtils;
-import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.richbeans.BeansFactoryInit;
 import uk.ac.gda.ui.dialog.AuthenticationDialog;
@@ -122,9 +119,6 @@ public class Application implements IApplication {
 
 			fixVisitID();
 
-			// If baton management is enabled, the baton has to be renewed periodically.
-			addBatonRenewalObserver();
-
 			// This is where we block while the client is running
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
 			// Here once the client is being closed
@@ -186,26 +180,6 @@ public class Application implements IApplication {
 					// Exit time, if exception thrown here, user gets message.
 				}
 			}
-		}
-	}
-
-	/**
-	 * Add an observer to receive and respond to baton lease renew reqeuests
-	 * <p>
-	 * Lease renewal is done in a new thread to prevent the update process blocking.
-	 * This method does nothing if baton management is not enabled.
-	 * @see BatonLeaseRenewRequest
-	 * @see LocalProperties#isBatonManagementEnabled()
-	 */
-	private void addBatonRenewalObserver() {
-		if (LocalProperties.isBatonManagementEnabled()) {
-			final IBatonStateProvider bsp = InterfaceProvider.getBatonStateProvider();
- 			bsp.addBatonChangedObserver((theObserved, changeCode) -> {
-				if (changeCode instanceof BatonLeaseRenewRequest) {
-					logger.trace("Renewing baton from {}", bsp);
-					Async.submit(bsp::amIBatonHolder);
-				}
-			});
 		}
 	}
 
