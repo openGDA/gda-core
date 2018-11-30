@@ -48,6 +48,8 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 
 	private double[] colorRange;
 
+	private IDynamicShape cachedDataset = null;
+
 	public LiveStreamPlottable(LiveStreamConnection connection) {
 		this.connection = connection;
 	}
@@ -130,14 +132,15 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 	}
 
 	@Override
-	public IDynamicShape connect() throws LiveStreamException {
+	public void connect() throws LiveStreamException {
 		connection.addAxisMoveListener(axisChangeListener);
-		return connection.connect();
+		cachedDataset =  connection.connect();
 	}
 
 	@Override
 	public void disconnect() throws LiveStreamException {
 		connection.removeAxisMoveListener(axisChangeListener);
+		cachedDataset = null;
 		connection.disconnect();
 	}
 
@@ -165,6 +168,11 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 	@Override
 	public double[] getColorRange() {
 		return colorRange;
+	}
+
+	@Override
+	public IDynamicShape getDynamicDataset() {
+		return cachedDataset;
 	}
 
 }
