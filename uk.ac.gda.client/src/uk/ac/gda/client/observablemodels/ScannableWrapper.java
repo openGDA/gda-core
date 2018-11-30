@@ -30,6 +30,7 @@ import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableStatus;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.UIObservableModel;
 
@@ -162,31 +163,34 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScannableStatus) {
 			ScannableStatus status = (ScannableStatus) arg;
-			try {
-				if (status == ScannableStatus.BUSY) {
-					if (scannablePositionChecker == null) {
-						synchronized(this) { // Make sure there is only one scannablePositionChecker
-							if (scannablePositionChecker == null) {
-								scannablePositionChecker = new PositionChecker();
-								Thread t = new Thread(scannablePositionChecker);
-								t.start();
-							}
+			if (status == ScannableStatus.BUSY) {
+				if (scannablePositionChecker == null) {
+					synchronized (this) { // Make sure there is only one scannablePositionChecker
+						if (scannablePositionChecker == null) {
+							scannablePositionChecker = new PositionChecker();
+							Thread t = new Thread(scannablePositionChecker);
+							t.start();
 						}
 					}
-				} else {
-					if (scannablePositionChecker != null) {
-						synchronized(this) {
-							if (scannablePositionChecker != null) {
-								scannablePositionChecker.stop();
-								scannablePositionChecker = null;
-							}
-						}
-					}
-					updatePosition();
 				}
-			} catch (DeviceException e) {
-				logger.error("Error updating scannable motor position", e);
+			} else { // Not BUSY
+				if (scannablePositionChecker != null) {
+					synchronized (this) {
+						if (scannablePositionChecker != null) {
+							scannablePositionChecker.stop();
+							scannablePositionChecker = null;
+						}
+					}
+				}
+				Async.execute(() -> {
+					try {
+						updatePosition();
+					} catch (DeviceException e) {
+						logger.error("Error updating scannable motor position", e);
+					}
+				});
 			}
+
 		}
 	}
 
@@ -207,7 +211,7 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 	}
 
 	private class PositionChecker implements Runnable {
-		private boolean stopped = false;
+		private volatile boolean stopped = false;
 
 		public void stop() {
 			stopped = true;
