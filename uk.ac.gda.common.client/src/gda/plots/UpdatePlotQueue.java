@@ -19,89 +19,66 @@
 
 package gda.plots;
 
-import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Queue decoupling requests for scan plot updates to the actual update thread.
+ */
 /**
  *
  */
 public class UpdatePlotQueue {
 	private static final Logger logger = LoggerFactory.getLogger(UpdatePlotQueue.class);
 
-	private Vector<XYDataHandler> items = new Vector<XYDataHandler>();
-	private final XYDataHandler[] itemsToBeHandledType = new XYDataHandler[0];
+	private static final String THREAD_NAME = UpdatePlotQueue.class.getSimpleName();
 
-	private boolean killed = false;
-	private Thread thread = null;
+	private final BlockingQueue<XYDataHandler> items = new LinkedBlockingQueue<>();
+	private final Thread thread;
 
-	public boolean isKilled() {
-		return killed;
+	public UpdatePlotQueue() {
+		thread = new Thread(this::runPlotQueueUpdates, THREAD_NAME);
+		thread.setDaemon(true);
+		thread.start();
+		logger.debug("Started {} thread", THREAD_NAME);
 	}
 
-	public void setKilled(boolean killed) {
-		this.killed = killed;
-	}
-
-	private int plotPeriodMS=500;
 
 	/**
+	 * Add a request for an update to the queue
+	 *
 	 * @param simplePlot
 	 */
 	public void update(XYDataHandler simplePlot) {
-		synchronized (items) {
-			if( items.contains(simplePlot))
-				return;
-			items.add(simplePlot);
-			if (thread == null) {
-				thread = new Thread(this::runPlotQueueUpdates, "XYDataHandler:UpdatePlotQueue");
-			}
-			items.notifyAll();
-		}
-		if( !thread.isAlive())
-			thread.start();
+		items.add(simplePlot);
+		logger.trace("Added update plot request '{}' to queue", simplePlot);
 	}
 
 	private void runPlotQueueUpdates() {
-		while (!killed) {
+		while (!Thread.currentThread().isInterrupted()) {
 			try {
-				XYDataHandler[] itemsToBeHandled = null;
-				synchronized (items) {
-					if (!killed && items.isEmpty())
-						items.wait();
-					if (!items.isEmpty()) {
-						itemsToBeHandled = items.toArray(itemsToBeHandledType);
-						items.clear();
-					}
-				}
-				if (itemsToBeHandled != null && !killed) {
-					Thread.sleep(plotPeriodMS);
-					int numItems = itemsToBeHandled.length;
-					for (int index = 0; index < numItems; index++) {
-						try {
-							XYDataHandler simplePlot = itemsToBeHandled[index];
-							if( simplePlot != null){
-								simplePlot.onUpdate(false);
-								//remove duplicates as another update of the same plot is not required
-								for (int j = index; j < numItems; j++) {
-									if (itemsToBeHandled[j] == simplePlot)
-										itemsToBeHandled[j]=null;
-								}
-							}
-						} catch (Exception ex) {
-							logger.error("Error running plot queue", ex);
-						}
-					}
-				}
+				XYDataHandler item = items.take();
+				item.onUpdate(false);
+			} catch (InterruptedException e) {
+				// We are about to be ended
+				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				logger.error("Error running plot queue", e);
 			}
 		}
+		logger.debug("{} thread ending", THREAD_NAME);
 	}
 
-	public void setPlotPeriodMS(int plotPeriodMS) {
-		this.plotPeriodMS = plotPeriodMS;
+
+	/**
+	 * Causes the plot update thread to be killed
+	 */
+	public void kill() {
+		logger.debug("Requested thread to be killed");
+		thread.interrupt();
 	}
 }
 

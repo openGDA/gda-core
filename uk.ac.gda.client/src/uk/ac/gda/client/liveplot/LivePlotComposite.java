@@ -56,7 +56,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -98,7 +97,6 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.preferences.PreferenceConstants;
 /**
  * Composite for displaying XY data from ScanDataPoints.
  *
@@ -483,7 +481,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	 */
 	int nextUnInitialisedLine = 0;
 	protected LiveData scans[] = new LiveData[0];
-	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
+	private final UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 	private IPositionListener plottingSystemPositionListener;
 	private ScriptingConnection scriptingConnection;
 
@@ -542,10 +540,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			}
 		};
 		plottingSystem.addPositionListener(plottingSystemPositionListener);
-
-		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
-		updateQueue.setPlotPeriodMS(plotPeriodMS);
 
 	}
 
@@ -625,7 +619,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 
 	@Override
 	public void dispose() {
-		updateQueue.setKilled(true);
+		updateQueue.kill();
 		if( scriptingConnection != null)
 			scriptingConnection.dispose();
 		if (plottingSystem != null) {
