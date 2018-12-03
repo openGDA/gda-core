@@ -255,7 +255,11 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	}
 
 	@PreDestroy
-	public void dispose() {
+	public final void dispose() {
+		disposeInternal();
+	}
+
+	protected void disposeInternal() {
 		plotter.dispose();
 		beamPositionPlotter.dispose();
 	}
