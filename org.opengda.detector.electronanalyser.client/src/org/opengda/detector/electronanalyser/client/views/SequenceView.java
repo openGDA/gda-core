@@ -308,13 +308,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		sequenceTableViewer.setLabelProvider(labelProvider);
 		regions = Collections.emptyList();
 
-		try {
-			resource = regionDefinitionResourceUtil.getResource();
-			resource.eAdapters().add(notifyListener);
-			sequenceTableViewer.setInput(resource);
-		} catch (Exception e2) {
-			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
-		}
 
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -878,6 +871,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		}
+		try {
+			resource = regionDefinitionResourceUtil.getResource();
+			resource.eAdapters().add(notifyListener);
+			sequenceTableViewer.setInput(resource);
+		} catch (Exception e2) {
+			logger.error("Cannot load resouce from file: " + regionDefinitionResourceUtil.getFileName(), e2);
+		}
+
 		// initialise region list
 		regions = sequence.getRegion();
 		// add drag and drop support,must ensure editing domain not null at this

@@ -689,7 +689,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 */
 	@Override
 	public EList<Region> getRegionsByName(String regionName) {
-		BasicEList<Region> regions = new BasicEList<Region>();
+		BasicEList<Region> regions = new BasicEList<>();
 		for (Region region : getRegion()) {
 			if (region.getRegionId().equals(regionName)) {
 				regions.add(region);
@@ -752,7 +752,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	@Override
 	public EList<Region> getRegion() {
 		if (region == null) {
-			region = new EObjectContainmentEList.Unsettable<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
+			region = new EObjectContainmentEList.Unsettable<>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
 		}
 		return region;
 	}
