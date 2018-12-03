@@ -39,7 +39,6 @@ import org.eclipse.dawnsci.plotting.api.region.RegionEvent;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -308,14 +307,13 @@ public class LiveStreamView extends ViewPart {
 
 		// Remove all ToolBar contributions with Ids which are either undefined or not required
 		Arrays.stream(toolBarManager.getItems())
-			.filter(ci -> ci.getId() == null || requiredToolBarIds.stream().noneMatch(ci.getId()::contains))
+			.filter(ci -> ci.getId() == null || !requiredToolBarIds.contains(ci.getId()))
 			.forEach(toolBarManager::remove);
 			// If getId() returns null then the match will not be performed as the || short circuits it, this
 			// also prevents the NPE which would result from trying to match on a null Id.
 
 		// Remove all Menu contributions
-		final IMenuManager menuManager = actionBars.getMenuManager();
-		Arrays.stream(menuManager.getItems()).forEach(menuManager::remove);
+		actionBars.getMenuManager().removeAll();
 
 		// Add the Reset button to restart the view
 		toolBarManager.insertBefore(toolBarManager.getItems()[0].getId(), new Action() {
