@@ -63,6 +63,11 @@ class StatusPanel extends Composite {
 	}
 
 	void updateStatusLabel() {
+		if (statusLabel.isDisposed()) {
+			logger.warn("Attempt to update Status label when disposed");
+			return;
+		}
+
 		final String firstLine;
 		final String secondLine;
 		if (message != null && message.length() > 0) {
