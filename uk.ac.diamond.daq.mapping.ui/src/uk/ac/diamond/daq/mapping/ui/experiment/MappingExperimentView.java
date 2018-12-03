@@ -63,4 +63,14 @@ public class MappingExperimentView extends AbstractSectionsView {
 			// a section for submitting the scan to the queue
 			SubmitScanSection.class);
 	}
+
+	@Override
+	protected void disposeInternal() {
+		// OuterScannableSection must be disposed so that any scan path editors are properly disposed
+		final AbstractMappingSection outerScannables = getSection(OuterScannablesSection.class);
+		if (outerScannables != null) {
+			outerScannables.dispose();
+		}
+		super.disposeInternal();
+	}
 }

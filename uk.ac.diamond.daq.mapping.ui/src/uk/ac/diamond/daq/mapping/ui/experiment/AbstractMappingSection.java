@@ -115,6 +115,10 @@ public abstract class AbstractMappingSection {
 		// do nothing, subclasses may override
 	}
 
+	public void dispose() {
+		// do nothing, subclasses may override
+	}
+
 	protected void updateStatusLabel() {
 		mappingView.getStatusPanel().updateStatusLabel();
 	}
