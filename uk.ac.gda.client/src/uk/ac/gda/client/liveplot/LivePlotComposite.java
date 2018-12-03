@@ -78,7 +78,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionGroup;
-import org.jfree.data.Range;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -657,12 +656,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			scans = Arrays.copyOf(scans, (which + 10) * 2);
 		}
 	}
-
-	@Override
-	public void setDomainBounds(Range domainBounds) {
-		// do nothing
-	}
-
 
 	@Override
 	public void setLineColor(int which, Color color) {
