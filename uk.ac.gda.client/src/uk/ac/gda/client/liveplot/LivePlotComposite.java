@@ -29,7 +29,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -615,10 +614,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void copySettings(XYDataHandler other) {
-	}
-
-	@Override
 	public void deleteAllLines() {
 		if (!isDisposed()) {
 			plottingSystem.clear();
@@ -645,28 +640,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public Range getLeftDomainBounds() {
-		return null;
-	}
-
-	@Override
 	public int getNextAvailableLine() {
 		return nextUnInitialisedLine;
-	}
-
-	@Override
-	public Double getStripWidth() {
-		return null;
-	}
-
-	@Override
-	public NumberFormat getXAxisNumberFormat() {
-		return null;
-	}
-
-	@Override
-	public NumberFormat getYAxisNumberFormat() {
-		return null;
 	}
 
 	@Override
@@ -688,15 +663,6 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		// do nothing
 	}
 
-	@Override
-	public void setLeftRangeBounds(Range leftRangeBounds) {
-		// do nothing
-	}
-
-	@Override
-	public void setLegendVisible(boolean newValue) {
-		// do nothing
-	}
 
 	@Override
 	public void setLineColor(int which, Color color) {
@@ -732,46 +698,11 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	}
 
 	@Override
-	public void setRightRangeBounds(Range rightRangeBounds) {
-
-	}
-
-	@Override
-	public void setScientificXAxis() {
-
-	}
-
-	@Override
-	public void setScientificYAxis() {
-	}
-
-	@Override
-	public void setTitle(String title) {
-		plottingSystem.setTitle(title);
-	}
-
-	@Override
-	public void setTurboMode(boolean turboMode) {
-	}
-
-	@Override
-	public void setVerticalXAxisTicks(boolean value) {
-	}
-
-	@Override
 	public void setXAxisLabel(String label) {
 	}
 
 	@Override
 	public void setYAxisLabel(String label) {
-	}
-
-	@Override
-	public void setZooming(boolean zooming) {
-	}
-
-	@Override
-	public void unArchive() {
 	}
 
 	@Override

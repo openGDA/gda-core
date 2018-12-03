@@ -21,7 +21,6 @@ package gda.plots;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.text.NumberFormat;
 
 import org.eclipse.january.dataset.DoubleDataset;
 import org.jfree.data.Range;
@@ -40,27 +39,8 @@ public interface XYDataHandler {
 	public Marker getLineMarker(int which);
 	public static int LEFTYAXIS = 0; //taken from SimplePlot
 
-	//needed by ScanPlot
-	public void setTurboMode(boolean turboMode);
-	public void setLegendVisible(boolean newValue);
-	public void setScientificXAxis();
-	public void setScientificYAxis();
-	public void setVerticalXAxisTicks(boolean value) ;
 	public void dispose();
-	public void unArchive();
-	public void copySettings(XYDataHandler other);
-	public void setTitle(String title);
-	public void setZooming(boolean zooming);
 	public void deleteAllLines();
-	public void setLeftRangeBounds(Range leftRangeBounds);
-	public void setRightRangeBounds(Range rightRangeBounds);
-
-
-	//needed by SimplePlot
-	public NumberFormat getXAxisNumberFormat();
-	public NumberFormat getYAxisNumberFormat();
-	public Range getLeftDomainBounds();
-	public Double getStripWidth();
 
 	//needed by PlotTreeLegend
 	public void setLineColor(int which, Color color);
