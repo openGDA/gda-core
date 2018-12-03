@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
 import gda.factory.FindableBase;
+import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
 
 /**
@@ -50,7 +51,7 @@ public class CameraConfiguration extends FindableBase {
 	/** If set, will allow ROIs drawn on the live stream to be passes to AD plugins in scans*/
 	private RemoteRectangularROIsProvider roiProvider;
 	/** If set, adds axes to the camera and allows the image to be set in the Map view. */
-	private CameraCalibration cameraCalibration;
+	private CalibratedAxesProvider calibratedAxesProvider;
 	private boolean withHistogram = false;
 
 	/** Custom UI to be drawn above the live stream */
@@ -109,11 +110,12 @@ public class CameraConfiguration extends FindableBase {
 		this.roiProvider = roiProvider;
 	}
 
-	public CameraCalibration getCameraCalibration() {
-		return cameraCalibration;
+	public CalibratedAxesProvider getCalibratedAxesProvider() {
+		return calibratedAxesProvider;
 	}
-	public void setCameraCalibration(CameraCalibration cameraCalibration) {
-		this.cameraCalibration = cameraCalibration;
+
+	public void setCalibratedAxesProvider(CalibratedAxesProvider calibratedAxesProvider) {
+		this.calibratedAxesProvider = calibratedAxesProvider;
 	}
 
 	public boolean isWithHistogram() {

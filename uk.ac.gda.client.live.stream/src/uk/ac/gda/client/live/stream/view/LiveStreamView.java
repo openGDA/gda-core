@@ -226,7 +226,7 @@ public class LiveStreamView extends ViewPart {
 		try {
 			liveStreamConnection = new LiveStreamConnection(camConfig, streamType);
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), liveStreamConnection, actionBars, this);
-			plottingComposite.setShowAxes(camConfig.getCameraCalibration() != null);
+			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
 			plottingComposite.connect();
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);

@@ -27,22 +27,16 @@ import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.DataEvent;
+import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetConnector;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.scan.PositionEvent;
-import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.scan.event.IPositionListenable;
-import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.epics.connector.EpicsV3DynamicDatasetConnector;
-import uk.ac.gda.client.live.stream.view.CameraCalibration;
+import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
@@ -68,28 +62,15 @@ public class LiveStreamConnection {
 
 	private boolean connected;
 
-	private IScannable<? extends Number> xAxisScannable;
 	private IDataset xAxisDataset;
 
-	private IScannable<? extends Number> yAxisScannable;
 	private IDataset yAxisDataset;
+
+	private IDataListener axesUpdater;
 
 	private final Logger logger = LoggerFactory.getLogger(LiveStreamConnection.class);
 
 	private final Set<IAxisChangeListener> axisChangeListeners = new HashSet<>(4);
-	private final IPositionListener axisScannableMoveListener = new IPositionListener() {
-
-		@Override
-		public void positionChanged(PositionEvent event) throws ScanningException {
-			try {
-				if (stream != null) updateAxes();
-				fireAxisMoveListeners();
-			} catch (LiveStreamException e) {
-				logger.error("Could not update axes for live stream", e);
-			}
-		}
-
-	};
 
 	public LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		this.cameraConfig = cameraConfig;
@@ -127,12 +108,6 @@ public class LiveStreamConnection {
 		return stream;
 	}
 
-	private void fireAxisMoveListeners() {
-		for (IAxisChangeListener axisChangeListener : axisChangeListeners) {
-			axisChangeListener.axisChanged();
-		}
-	}
-
 	public IDatasetConnector getStream() throws LiveStreamException {
 		if (!connected) {
 			connect();
@@ -148,6 +123,11 @@ public class LiveStreamConnection {
 		// Disconnect the existing stream
 		if (stream != null) { // Will be null the first time
 			try {
+				CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
+				if (calibratedAxesProvider != null) {
+					calibratedAxesProvider.disconnect();
+					stream.removeDataListener(axesUpdater);
+				}
 				stream.disconnect();
 			} catch (Exception e) {
 				throw new LiveStreamException("Error disconnecting from live stream", e);
@@ -158,8 +138,6 @@ public class LiveStreamConnection {
 
 		xAxisDataset = null;
 		yAxisDataset = null;
-		xAxisScannable = null;
-		yAxisScannable = null;
 		connected = false;
 	}
 
@@ -216,89 +194,22 @@ public class LiveStreamConnection {
 	 * in the Spring configuration.
 	 * @throws LiveStreamException
 	 */
-	private void setupAxes() throws LiveStreamException {
-		if (cameraConfig.getCameraCalibration() == null) return;
+	private void setupAxes() {
+		final CalibratedAxesProvider calibratedAxesProvider = cameraConfig.getCalibratedAxesProvider();
+		if (calibratedAxesProvider == null) return;
 		logger.debug("Setting up axes");
+		calibratedAxesProvider.connect();
+		this.axesUpdater = new AxesUpdater(calibratedAxesProvider);
+		stream.addDataListener(axesUpdater);
 
-		// set the scannable for the x-axis and add a position listener to it
-		final IScannableDeviceService scannableDeviceService = PlatformUI.getWorkbench().getService(IScannableDeviceService.class);
-		final String xAxisScannableName = cameraConfig.getCameraCalibration().getxAxisScannableName();
-		try {
-			xAxisScannable = scannableDeviceService.getScannable(xAxisScannableName);
-			if (xAxisScannable instanceof IPositionListenable) {
-				((IPositionListenable) xAxisScannable).addPositionListener(axisScannableMoveListener);
-			}
-		} catch (ScanningException e) {
-			throw new LiveStreamException("Could not get scannable for x-axis of camera: " + xAxisScannableName, e);
-		}
-
-		// set the scannable for the y-axis and add a position listener to it
-		final String yAxisScannableName = cameraConfig.getCameraCalibration().getyAxisScannableName();
-		try {
-			yAxisScannable = scannableDeviceService.getScannable(yAxisScannableName);
-			if (yAxisScannable instanceof IPositionListenable) {
-				((IPositionListenable) yAxisScannable).addPositionListener(axisScannableMoveListener);
-			}
-		} catch (ScanningException e) {
-			throw new LiveStreamException("Could not get scannable for y-axis of camera: " + yAxisScannableName, e);
-		}
-
-		updateAxes();
+		xAxisDataset = calibratedAxesProvider.getXAxisDataset();
+		yAxisDataset = calibratedAxesProvider.getYAxisDataset();
 	}
 
-	private void updateAxes() throws LiveStreamException {
-		if (cameraConfig.getCameraCalibration() == null || xAxisScannable == null || yAxisScannable == null)
-			return;
-
-		final CameraCalibration calibration = cameraConfig.getCameraCalibration();
-		final int[] dataShape = stream.getDataset().getShape();
-		if (dataShape.length < 2) { // note: this may be the case at the start of the scan, so don't throw an exception
-			return;
-		}
-
-		xAxisDataset = createAxisDataset(xAxisScannable,
-				calibration.getxAxisOffset(), calibration.getxAxisPixelScaling(), dataShape[1]);
-		yAxisDataset = createAxisDataset(yAxisScannable,
-				calibration.getyAxisOffset(), calibration.getyAxisPixelScaling(), dataShape[0]);
-	}
-
-	/**
-	 * Creates and returns a dataset for an axis given the parameters below.
-	 * @param axisScannable the {@link IScannable} for the axis
-	 * @param cameraOffset the offset of the camera position relative to the scannable
-	 * @param pixelScaling the size of a camera pixel in the units used by the scannable
-	 * @param numPixels the number of pixels in the given axis of the scannable
-	 * @return a dataset for the axis
-	 * @throws LiveStreamException
-	 */
-	private IDataset createAxisDataset(IScannable<? extends Number> axisScannable, double cameraOffset, double pixelScaling, int numPixels) throws LiveStreamException {
-		// get the current position of the axis scannable
-		final double pos;
-		try {
-			pos = axisScannable.getPosition().doubleValue();
-		} catch (Exception e) {
-			throw new LiveStreamException("Could not get position for axis: " + axisScannable.getName(), e);
-		}
-
-		// calculate the camera position and size
-		final double cameraPos = pos + cameraOffset;
-		final double imageSize = numPixels * pixelScaling;
-
-		// from those values, we can get the image start and stop values
-		final double imageStart = cameraPos - imageSize/2;
-		final double imageStop = cameraPos + imageSize/2;
-
-		// create the linear dataset and set the name
-		final IDataset axisDataset = DatasetFactory.createLinearSpace(DoubleDataset.class, imageStart, imageStop, numPixels);
-		axisDataset.setName(axisScannable.getName());
-
-		return axisDataset;
-	}
 
 	public List<IDataset> getAxes() {
 		if (xAxisDataset == null || yAxisDataset == null) {
-			// returns null rather than empty list to indicate that axes have not been configured
-			return null;
+			return null; // returns null rather than empty list to indicate that axes have not been configured (therefore NOSONAR please)
 		}
 
 		return Arrays.asList(xAxisDataset, yAxisDataset);
@@ -310,6 +221,42 @@ public class LiveStreamConnection {
 
 	public boolean isConnected() {
 		return connected;
+	}
+
+	class AxesUpdater implements IDataListener {
+
+		private int[] streamDataShape;
+		private final CalibratedAxesProvider calibratedAxesProvider;
+
+		public AxesUpdater(CalibratedAxesProvider calibratedAxesProvider) {
+			this.calibratedAxesProvider = calibratedAxesProvider;
+		}
+
+		@Override
+		public void dataChangePerformed(DataEvent dataEvent) {
+			if (!Arrays.equals(streamDataShape, dataEvent.getShape())) {
+				calibratedAxesProvider.resizeStream(dataEvent.getShape());
+				streamDataShape = dataEvent.getShape();
+			}
+
+			final IDataset xDataset = calibratedAxesProvider.getXAxisDataset();
+			final IDataset yDataset = calibratedAxesProvider.getYAxisDataset();
+
+			if (xDataset.equals(xAxisDataset) && yDataset.equals(yAxisDataset)) {
+				// no change
+				return;
+			}
+
+			xAxisDataset = xDataset;
+			yAxisDataset = yDataset;
+			fireAxisMoveListeners();
+		}
+
+		private void fireAxisMoveListeners() {
+			for (IAxisChangeListener axisChangeListener : axisChangeListeners) {
+				axisChangeListener.axisChanged();
+			}
+		}
 	}
 
 }
