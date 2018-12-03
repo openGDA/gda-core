@@ -202,7 +202,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 	}
 
-	private void submitScan() {
+	protected void submitScan() {
 		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
 		try {
 			ScanBean scanBean = createScanBean();
