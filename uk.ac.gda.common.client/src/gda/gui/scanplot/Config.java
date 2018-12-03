@@ -26,6 +26,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.scan.AxisSpec;
 import gda.scan.AxisSpecProvider;
 import gda.scan.IScanDataPoint;
@@ -62,16 +63,18 @@ class Config {
 			return false;
 		if (prevConfig.xAxisHeader == null)
 			return false;
-		if (!prevConfig.xAxisHeader.equals(xAxisHeader))
-			return false;
 		if (prevConfig.numberofChildScans != numberofChildScans)
 			return false;
 		if (prevConfig.numberOfScannables != numberOfScannables)
 			return false;
 		if (prevConfig.numberOfDetectors != numberOfDetectors)
 			return false;
-		if (prevConfig.scanPlotSettings != null && !prevConfig.scanPlotSettings.equals(scanPlotSettings)) {
-			return false;
+		if (!LocalProperties.check("gda.gui.scanplot.maintainYTraceSelectionOnXaxisChange", false)) {
+			if (!prevConfig.xAxisHeader.equals(xAxisHeader))
+				return false;
+			if (prevConfig.scanPlotSettings != null && !prevConfig.scanPlotSettings.equals(scanPlotSettings)) {
+				return false;
+			}
 		}
 		Set<String> previousScan = new HashSet<>(namesOfVisibleLinesInPreviousScan);
 		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
