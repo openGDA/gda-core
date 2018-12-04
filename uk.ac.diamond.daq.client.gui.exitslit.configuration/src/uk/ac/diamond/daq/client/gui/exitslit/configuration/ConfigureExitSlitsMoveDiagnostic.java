@@ -133,6 +133,15 @@ public class ConfigureExitSlitsMoveDiagnostic extends ConfigureExitSlitsComposit
 		shutterPosition.setColourMap(SHUTTER_COLOUR_MAP);
 		shutterPosition.setBackground(COLOUR_WHITE);
 
+		// If everything is already in position, start data acquisition automatically
+		try {
+			if (moveIn && isDiagnosticInPosition() && isShutterInPosition()) {
+				params.getCameraControl().startAcquiring();
+			}
+		} catch (DeviceException ex) {
+			displayError(MOTOR_ERROR, "Error starting data acquisition", ex, logger);
+		}
+
 		// Synchronise buttons with hardware state
 		updateButtons();
 	}
