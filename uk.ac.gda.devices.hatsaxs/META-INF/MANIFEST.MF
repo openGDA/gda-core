@@ -11,13 +11,8 @@ Import-Package: gda.configuration.properties,
 Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.common,
  org.eclipse.core.runtime;bundle-version="3.8.0"
-Export-Package: org.embl,
- org.embl.ctrl,
- org.embl.data,
- org.embl.net,
- uk.ac.gda.devices.hatsaxs,
+Export-Package: uk.ac.gda.devices.hatsaxs,
  uk.ac.gda.devices.hatsaxs.beans;uses:="uk.ac.gda.beans,gda.factory"
-Bundle-ClassPath: .,
- jars/JLib.jar
+Bundle-ClassPath: .
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source

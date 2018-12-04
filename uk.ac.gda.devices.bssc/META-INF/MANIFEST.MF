@@ -17,11 +17,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb
-Import-Package: org.embl,
- org.embl.ctrl,
- org.embl.data,
- org.embl.net,
- org.slf4j;version="[1.7.2,2.0.0)",
+Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  uk.ac.gda.devices.hatsaxs.beans
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
