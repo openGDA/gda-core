@@ -1055,7 +1055,12 @@ public class NexusDataWriter extends DataWriterBase {
 			NexusUtils.writeString(file, g, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
 			NexusUtils.writeIntegerArray(file, g, "scan_dimensions", thisPoint.getScanDimensions());
 			if (!g.containsNode("title")) {
-				NexusUtils.writeString(file, g, "title", metadata.getMetadataValue("title"));
+				String title = metadata.getMetadataValue("title");
+				if(title == null || title.isEmpty()) {
+					// If no title is set use the scan command as the title (DAQ-1861)
+					title = thisPoint.getCommand();
+				}
+				NexusUtils.writeString(file, g, "title", title);
 			}
 			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(startTime));
 			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
