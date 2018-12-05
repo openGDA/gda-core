@@ -130,6 +130,9 @@ public class NexusDataWriter extends DataWriterBase {
 	/** Property that if enabled writes a measurement group that contains the data printed to the console during the scan */
 	private static final String GDA_NEXUS_CREATE_MEASUREMENT_GROUP = "gda.nexus.writeMeasurementGroup";
 
+	/** Property that if enabled create a link called <code>positioners</code> to the <code>before_scan</code> */
+	private static final String GDA_NEXUS_LINK_POSITIONERS_GROUP = "gda.nexus.linkPositionersGroup";
+
 	/** Are we going to write an SRS file as well? */
 	private boolean createSrsFile = CREATE_SRS_FILE_BY_DEFAULT;
 
@@ -245,6 +248,21 @@ public class NexusDataWriter extends DataWriterBase {
 		}
 
 		createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT);
+	}
+
+	/**
+	 * Creates a link called <code>positioners</code> to the <code>before_scan</code> entry.
+	 *
+	 * @param beforeScanGroupPath
+	 */
+	private void createPositionersGroupLink() {
+		String beforeScanGroupPath = '/' + entryName + "/before_scan";
+		String positionersPath = '/' + entryName + "/positioners";
+		try {
+			file.link(beforeScanGroupPath, positionersPath);
+		} catch (NexusException e) {
+			logger.error("Failed to create positioners link '{}' to '{}", positionersPath, beforeScanGroupPath, e);
+		}
 	}
 
 	public INexusTree getBeforeScanMetaData() {
@@ -985,6 +1003,9 @@ public class NexusDataWriter extends DataWriterBase {
 		makeDetectors();
 		if (LocalProperties.check(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, false)) {
 			makeMeasurementGroup();
+		}
+		if(LocalProperties.check(GDA_NEXUS_LINK_POSITIONERS_GROUP, false)) {
+			createPositionersGroupLink();
 		}
 	}
 
