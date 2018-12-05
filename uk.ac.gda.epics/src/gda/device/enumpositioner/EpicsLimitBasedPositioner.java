@@ -18,6 +18,12 @@
 
 package gda.device.enumpositioner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,23 +39,17 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLimitBasedPositioner.class);
 
-	private String outValue = null;
-
-	private String inValue = null;
-
 	private String unknownValue = "UNKNOWN";
 
 	private EpicsController controller;
 
-	private Channel inLimitChannel;
+	private List<String> preConfigurePositions;
 
-	private Channel outLimitChannel;
+	private List<Channel> limitChannels = new ArrayList<>();
+
+	private List<String> limitChannelPvs;
 
 	private Channel controlChannel;
-
-	private String outLimitChannelPv;
-
-	private String inLimitChannelPv;
 
 	private String controlChannelPv;
 
@@ -86,29 +86,39 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 
 	@Override
 	public String getPosition() throws DeviceException {
+		// check all limit pvs and return the position corresponding to the raised limit
+		// returns the unknown value if none, or more than one, are set.
 		try {
-			boolean inLimit = controller.cagetInt(inLimitChannel) > 0;
-			boolean outLimit = controller.cagetInt(outLimitChannel) > 0;
-			// exactly one of these limits should be high to be in a defined position
-			if (inLimit == outLimit) return unknownValue;
-			if (inLimit) return inValue;
-			if (outLimit) return outValue;
-			return unknownValue; // unreachable, but compiler complains
+			int highIndex = -1;
+			for (int i = 0; i < limitChannels.size(); i++) {
+				Channel limitChannel = limitChannels.get(i);
+				boolean high = controller.cagetInt(limitChannel) > 0;
+				if (high) {
+					if (0 <= highIndex) {
+						// multiple limits are set - undetermined state
+						return unknownValue;
+					} else {
+						highIndex = i;
+					}
+				}
+			}
+			return 0 <= highIndex ? getPosition(highIndex) : unknownValue;
 		} catch (Exception e) {
-			throw new DeviceException("Error getting position for " + getName(), e);
+			throw new DeviceException("Error getting position for '" + getName() + "'", e);
 		}
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		// the control PV can be "desynced" from the actual device state, particularly if there is no air in the system
+		// the control PV can be "desynced" from the actual device state, e.g. if there's no air in a pneumatic system
 		// move the control back to wherever the limits indicate the device actually is
 		String position = getPosition();
-		if (position.equals(inValue) || position.equals(outValue)) {
+		List<String> positions = getPositionsList();
+		if (0 <= positions.indexOf(position)) {
 			try {
 				controller.caput(controlChannel, position);
 			} catch (Exception e) {
-				logger.error("Error putting to control pv in device " + getName(), e);
+				logger.error("Error putting to control pv in device '" + getName() + "' for a stop");
 			}
 		}
 		lastDemandedPosition = null;
@@ -119,38 +129,44 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 		if (isConfigured()) {
 			return;
 		}
+
 		try {
 			if (controlChannel != null) {
 				controller.destroy(controlChannel);
 				controlChannel = null;
 			}
-			if (outLimitChannel != null) {
-				controller.destroy(outLimitChannel);
-				outLimitChannel = null;
-			}
-			if (inLimitChannel != null) {
-				controller.destroy(inLimitChannel);
-				inLimitChannel = null;
-			}
+			limitChannels.stream().filter(Objects::nonNull).forEach(c -> controller.destroy(c));
+			limitChannels.clear();
+
 			controlChannel = controller.createChannel(controlChannelPv);
-			outLimitChannel = controller.createChannel(outLimitChannelPv);
-			inLimitChannel = controller.createChannel(inLimitChannelPv);
-
-			String[] labels = controller.cagetLabels(controlChannel);
-			if (labels.length != 2) {
-				throw new FactoryException(String.format("Expected 2 labels from '%s', found %d", controlChannelPv, labels.length));
+			String[] controlLabels = controller.cagetLabels(controlChannel);
+			if (preConfigurePositions == null || preConfigurePositions.isEmpty()) {
+				preConfigurePositions = Arrays.asList(controlLabels);
+			} else if (controlLabels.length > preConfigurePositions.size()) {
+				logger.warn(String.format("Using %d labels out of possible %d for device '%s' - extra labels will be hidden",
+						preConfigurePositions.size(), controlLabels.length, getName()));
+			} else if (controlLabels.length < preConfigurePositions.size()) {
+				throw new IllegalArgumentException("More positions specified than avaiable by controller");
 			}
-			outValue = labels[0];
-			inValue = labels[1];
 
-			if (inValue.equals(unknownValue) || outValue.equals(unknownValue) || inValue.equals(outValue)) {
-				throw new FactoryException(String.format("Positions must be unique - have %s, %s, %s", outValue, inValue, unknownValue));
+			if (preConfigurePositions.contains(unknownValue)) {
+				throw new IllegalArgumentException("Unknown position value '" + unknownValue + "' conflicts with an actual positions");
 			}
-			addPosition(outValue);
-			addPosition(inValue);
+
+			if (limitChannelPvs.size() != preConfigurePositions.size()) {
+				throw new IllegalArgumentException(String.format("%d limit channels set, but %d positions to configure",
+						limitChannelPvs.size(), preConfigurePositions.size()));
+			}
+
+			for (String pv : limitChannelPvs) {
+				limitChannels.add(controller.createChannel(pv));
+			}
+			addPositions(preConfigurePositions);
+
 		} catch (Exception e) {
 			throw new FactoryException("Failed to configure device " + getName(), e);
 		}
+
 		setConfigured(true);
 	}
 
@@ -169,28 +185,26 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 		return controlChannelPv;
 	}
 
-	public void setInLimitChannelPv(String inLimitChannelPv) {
-		this.inLimitChannelPv = inLimitChannelPv;
+	public void setLimitPvs(Collection<String> pvs) {
+		this.limitChannelPvs = new ArrayList<>(pvs);
 	}
 
-	public String getInLimitChannelPv() {
-		return inLimitChannelPv;
+	public List<String> getLimitPvs() {
+		return new ArrayList<>(this.limitChannelPvs);
 	}
 
-	public void setOutLimitChannelPv(String outLimitChannelPv) {
-		this.outLimitChannelPv = outLimitChannelPv;
+	@Override
+	public String[] getPositions() throws DeviceException {
+		if (isConfigured()) {
+			return super.getPositions();
+		} else {
+			return preConfigurePositions.toArray(new String[] {});
+		}
 	}
 
-	public String getOutLimitChannelPv() {
-		return outLimitChannelPv;
-	}
-
-	public String getInValue() {
-		return inValue;
-	}
-
-	public String getOutValue() {
-		return outValue;
+	public void setPositions(String[] positions) {
+		// will require a reconfigure to take effect
+		preConfigurePositions = Arrays.asList(positions);
 	}
 
 	public void setUnknownValue(String unknownValue) {
