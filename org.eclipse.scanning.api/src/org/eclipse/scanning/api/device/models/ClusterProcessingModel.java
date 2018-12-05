@@ -35,7 +35,7 @@ public class ClusterProcessingModel implements INameable, IReflectedModel {
 	private String xmx = "1024m";
 
 	@FieldDescriptor(visible=false)
-	private int timeOut = 60000;
+	private int timeOut = 600000;
 
 	@FieldDescriptor(visible=false)
 	private int numberOfCores = 1;
