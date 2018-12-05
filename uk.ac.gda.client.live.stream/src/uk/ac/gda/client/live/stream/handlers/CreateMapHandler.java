@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistentFile;
+import org.eclipse.dawnsci.plotting.api.PlottingEventConstants;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -54,7 +55,6 @@ import uk.ac.gda.client.live.stream.view.LiveStreamView;
  */
 public class CreateMapHandler extends AbstractHandler {
 
-	private static final String TOPIC_NAME_MAPPING_FILE_OPEN = "org/dawnsci/events/file/OPEN";
 	private static final String PROPERTY_NAME_PATH = "path";
 
 	private final Logger logger = LoggerFactory.getLogger(CreateMapHandler.class);
@@ -103,7 +103,7 @@ public class CreateMapHandler extends AbstractHandler {
 		properties.put(PROPERTY_NAME_PATH, filePath);
 
 		final EventAdmin eventAdmin = PlatformUI.getWorkbench().getService(EventAdmin.class);
-		eventAdmin.postEvent(new Event(TOPIC_NAME_MAPPING_FILE_OPEN, properties));
+		eventAdmin.postEvent(new Event(PlottingEventConstants.FILE_OPEN_EVENT, properties));
 	}
 
 	private Shell getShell() {
