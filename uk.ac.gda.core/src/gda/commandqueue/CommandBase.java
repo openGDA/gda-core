@@ -101,7 +101,7 @@ public abstract class CommandBase implements Command {
 
 	@Override
 	public void resume() throws Exception {
-		run();
+		setState(STATE.RUNNING);
 	}
 
 }

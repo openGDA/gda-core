@@ -223,24 +223,19 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				else if (this.state.equals(Processor.STATE.PROCESSING_ITEMS)
 						&& (argState.equals(Command.STATE.COMPLETED) || argState.equals(Command.STATE.ABORTED))) {
 					try {
-						int size = queue.getSummaryList().size();
-						if (size == 0){
+						if (queue.getSummaryList().isEmpty()) {
 							// if empty then the behaviour is governed by the pauseWhenQueueEmpty attribute
 							if (pauseWhenQueueEmpty) {
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.PAUSE;
 							} else {
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.START;
 							}
 						} else {
 							// if normal completion or skipped then continue running the queue
 							if (skip || argState.equals(Command.STATE.COMPLETED)){
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.START;
 								skip = false;
 							} else { // the red 'abort and pause' button pressed
-								this.state = STATE.WAITING_START;
 								commandToBeProcessed = COMMAND.PAUSE;
 							}
 						}
@@ -259,20 +254,19 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		obsComp.notifyIObservers(this, new SimpleCommandProgress(percentDone, msg));
 	}
 
+	@SuppressWarnings("squid:S2189") // complaint about infinite loops
 	@Override
 	public void run() {
 		cmdBeingProcessed = null;
-		while(true){
+		while (true) {
 
 			//enter region of waiting for a change to the queue or a change of started
 			boolean notifyListenersNeeded=false;
 			synchronized (lock) {
-				if(commandToBeProcessed.compareTo(COMMAND.START)==0){
+				if (commandToBeProcessed == COMMAND.START) {
 					running=true;
 					commandToBeProcessed=COMMAND.NONE;
-				}
-				else if( (commandToBeProcessed.compareTo(COMMAND.STOP)==0) ||
-						(commandToBeProcessed.compareTo(COMMAND.PAUSE)==0)){
+				} else if (commandToBeProcessed == COMMAND.STOP || commandToBeProcessed == COMMAND.PAUSE) {
 					running=false;
 					commandToBeProcessed=COMMAND.NONE;
 				}
@@ -286,7 +280,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 			}
 
 			synchronized (lock) {
-				if(!queueChanged && !skip && commandToBeProcessed.compareTo(COMMAND.NONE)==0){
+				if (!queueChanged && !skip && commandToBeProcessed == COMMAND.NONE) {
 					try {
 						lock.wait();
 					} catch (InterruptedException e) {
@@ -296,11 +290,9 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				skip = false; // acknowledge
 				queueChanged = false; //acknowledge the queueChanged event
 
-				if(commandToBeProcessed.compareTo(COMMAND.START)==0){
+				if (commandToBeProcessed == COMMAND.START) {
 					running=true;
-				}
-				else if( (commandToBeProcessed.compareTo(COMMAND.STOP)==0) ||
-						(commandToBeProcessed.compareTo(COMMAND.PAUSE)==0)){
+				} else if (commandToBeProcessed == COMMAND.STOP || commandToBeProcessed == COMMAND.PAUSE) {
 					running=false;
 				}
 
@@ -343,11 +335,9 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				cmdBeingProcessed = null;
 
 				synchronized(lock){
-					if(commandToBeProcessed.compareTo(COMMAND.START)==0){
+					if (commandToBeProcessed == COMMAND.START){
 						running=true;
-					}
-					else if( (commandToBeProcessed.compareTo(COMMAND.STOP)==0) ||
-							(commandToBeProcessed.compareTo(COMMAND.PAUSE)==0)){
+					} else if (commandToBeProcessed == COMMAND.STOP || commandToBeProcessed == COMMAND.PAUSE) {
 						running=false;
 					}
 				}
@@ -403,7 +393,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		}else {
 			newState = STATE.PROCESSING_ITEMS;
 		}
-		if(newState.compareTo(state)!=0){
+		if (newState != state) {
 			state = newState;
 			return true;
 		}
