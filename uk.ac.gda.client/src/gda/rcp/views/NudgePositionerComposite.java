@@ -18,7 +18,10 @@
 
 package gda.rcp.views;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -26,19 +29,20 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,16 +56,21 @@ import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
 
 /**
  * A class which provides a GUI composite to allow easy control of a scannable.
  * <p>
- * It provides the current position which can be edited and moved and buttons to allow incremental moves. It also provides a stop button to abort moves. Tapping
- * the up and down arrows while in the position box will nudge the position by the increment.
+ * It provides the current position which can be edited and moved (unless READ_ONLY is specified) and buttons to allow
+ * incremental moves. It also provides a stop button to abort moves. Tapping the up and down arrows while in the
+ * position box will nudge the position by the increment.
  * <p>
  * The format of the displayed number will be specified by the scannable output format.
+ * <p>
+ * Example of vertical & horizontal format:<br>
+ * <img src="nudgepositionercomposite.png" />
  */
 public class NudgePositionerComposite extends Composite {
 
@@ -71,12 +80,13 @@ public class NudgePositionerComposite extends Composite {
 	private static final int DEFAULT_INCREMENT_TEXT_WIDTH = 30;
 
 	// GUI Elements
-	private Label displayNameLabel;
-	private Text positionText;
-	private Text incrementText;
-	private Button stopButton;
-	private Button decrementButton;
-	private Button incrementButton;
+	private final CLabel displayNameLabel;
+	private final Text positionText;
+	private final Text incrementText;
+	private final Button stopButton;
+	private final Button decrementButton;
+	private final Button incrementButton;
+	private final Composite nudgeAmountComposite;
 
 	// Update job
 	private Job updateReadbackJob;
@@ -90,8 +100,9 @@ public class NudgePositionerComposite extends Composite {
 	private String displayName; // Allow a different prettier name be used if required
 	private Double incrementValue = DEFAULT_INCREMENT;
 	private Double currentPosition;
-	private GridData stopButtonGridData;
+	private RowData stopButtonRowData;
 	private int incrementTextWidth = DEFAULT_INCREMENT_TEXT_WIDTH;
+	private final boolean readOnlyPosition;
 
 	/**
 	 * Constructor for a NudgePositionerComposite only requires the specification of minimal parameters.
@@ -99,97 +110,105 @@ public class NudgePositionerComposite extends Composite {
 	 * @param parent
 	 *            The parent composite
 	 * @param style
-	 *            SWT style parameter (Typically SWT.NONE)
+	 *            SWT style parameter. This is typically SWT.NONE, but you can specify:
+	 *            <ul>
+	 *            <li>SWT.VERTICAL or SWT.HORIZONTAL to lay the controls out vertically or horizontally respectively
+	 *            (default is vertical)</li>
+	 *            <li>SWT.READ_ONLY to make the position text box read-only. Note that the increment/decrement text box
+	 *            will always be writable</li>
+	 *            </ul>
 	 */
 	public NudgePositionerComposite(Composite parent, int style) {
-		super(parent, style);
+		// Mask out style attributes that are intended for specific controls
+		super(parent, style & ~SWT.HORIZONTAL & ~SWT.VERTICAL & ~SWT.READ_ONLY);
 
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
 		// Setup layout
-		final GridLayout gridLayout = new GridLayout(3, false);
-		gridLayout.horizontalSpacing = 0;
-		gridLayout.verticalSpacing = 0;
-		gridLayout.marginHeight = 0;
-		this.setLayout(gridLayout);
+		final int rowLayoutType = ((style & SWT.HORIZONTAL) != 0) ? SWT.HORIZONTAL : SWT.VERTICAL;
+		final RowLayout rowLayout = new RowLayout(rowLayoutType);
+		rowLayout.fill = true;
+		rowLayout.center = true;
+		rowLayout.marginTop = 1;
+		rowLayout.marginBottom = 1;
+		rowLayout.spacing = 1;
+		this.setLayout(rowLayout);
 
 		// Name label
-		displayNameLabel = new Label(this, SWT.NONE);
-		displayNameLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1));
+		displayNameLabel = new CLabel(this, SWT.CENTER);
 
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
-		positionText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
-		positionText.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent key) {
-				// If enter was pressed move to new position
-				if (key.character == SWT.CR) { // enter or numpad enter pressed
-					// Get the new position from the text box
-					double newPosition = Double.parseDouble(positionText.getText().split(" ")[0]);
-					move(newPosition);
+		readOnlyPosition = (style & SWT.READ_ONLY) != 0;
+		if (readOnlyPosition) {
+			positionText.setEditable(false);
+		} else {
+			positionText.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent key) {
+					// If enter was pressed move to new position
+					if (key.character == SWT.CR) { // enter or numpad enter pressed
+						// Get the new position from the text box
+						double newPosition = Double.parseDouble(positionText.getText().split(" ")[0]);
+						move(newPosition);
+					}
+					// If up was pressed increment position and move
+					if (key.keyCode == SWT.ARROW_UP) { // up arrow pressed
+						moveBy(incrementValue);
+					}
+					// If down was pressed decrement position and move
+					if (key.keyCode == SWT.ARROW_DOWN) { // down arrow pressed
+						moveBy(-incrementValue);
+					}
 				}
-				// If up was pressed increment position and move
-				if (key.keyCode == SWT.ARROW_UP) { // up arrow pressed
-					moveBy(incrementValue);
+			});
+			positionText.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					// Update to ensure current position is shown when focus is lost
+					updateReadbackJob.schedule();
 				}
-				// If down was pressed decrement position and move
-				if (key.keyCode == SWT.ARROW_DOWN) { // down arrow pressed
-					moveBy(-incrementValue);
-				}
-			}
-		});
-		positionText.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				// Update to ensure current position is shown when focus is lost
-				updateReadbackJob.schedule();
-			}
-		});
+			});
+		}
+
+		// Increment/decrement value
+		nudgeAmountComposite = new Composite(this, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(nudgeAmountComposite);
+		final GridDataFactory buttonDataFactory = GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false);
 
 		// Decrement button
-		decrementButton = new Button(this, SWT.NONE);
+		decrementButton = new Button(nudgeAmountComposite, SWT.NONE);
 		decrementButton.setText("-");
-		decrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false).create());
-		decrementButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				moveBy(-incrementValue);
-			}
-		});
+		buttonDataFactory.applyTo(decrementButton);
+		decrementButton.addSelectionListener(widgetSelectedAdapter(e -> moveBy(-incrementValue)));
 
 		// Increment text box
-		incrementText = new Text(this, SWT.BORDER);
-		incrementText.setLayoutData(GridDataFactory.fillDefaults().hint(incrementTextWidth, SWT.DEFAULT).grab(true, false).create());
+		incrementText = new Text(nudgeAmountComposite, SWT.BORDER);
+		GridDataFactory.fillDefaults().hint(incrementTextWidth, SWT.DEFAULT).grab(true, false).applyTo(incrementText);
 		incrementText.addListener(SWT.Modify, event -> setIncrement(incrementText.getText()));
 
 		// Increment button
-		incrementButton = new Button(this, SWT.NONE);
+		incrementButton = new Button(nudgeAmountComposite, SWT.NONE);
 		incrementButton.setText("+");
-		incrementButton.setLayoutData(GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false).create());
-		incrementButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				moveBy(incrementValue);
-			}
-		});
+		buttonDataFactory.applyTo(incrementButton);
+		incrementButton.addSelectionListener(widgetSelectedAdapter(e-> moveBy(incrementValue)));
 
 		// Stop button
 		stopButton = new Button(this, SWT.NONE);
-		stopButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					scannable.stop();
-				} catch (DeviceException e1) {
-					logger.error("Error while stopping " + scannableName, e1);
-				}
+		stopButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			try {
+				scannable.stop();
+			} catch (DeviceException ex) {
+				logger.error("Error while stopping " + scannableName, ex);
 			}
-		});
-		stopButtonGridData = new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1);
-		stopButton.setLayoutData(stopButtonGridData);
+		}));
+		stopButtonRowData = new RowData();
+		stopButton.setLayoutData(stopButtonRowData);
 		stopButton.setText("Stop");
+		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
+		Objects.requireNonNull(stopImage, "Missing image for stop button");
+		stopButton.setImage(stopImage.createImage());
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
@@ -287,6 +306,10 @@ public class NudgePositionerComposite extends Composite {
 		final String currentPositionString = String.format(scannableOutputFormat, currentPosition).trim();
 		// Update the GUI in the UI thread
 		Display.getDefault().asyncExec(() -> {
+			if (positionText.isDisposed()) {
+				logger.warn("Attempting to update positionText when it has been disposed");
+				return;
+			}
 			// Update the position
 			if (currentPositionString == null) {
 				positionText.setText("null");
@@ -298,7 +321,7 @@ public class NudgePositionerComposite extends Composite {
 			// Update the controls enabled/disabled
 			decrementButton.setEnabled(!moving);
 			incrementButton.setEnabled(!moving);
-			positionText.setEditable(!moving);
+			positionText.setEditable(!moving && !readOnlyPosition);
 			if (stopButton != null) {
 				stopButton.setEnabled(moving);
 			}
@@ -457,8 +480,8 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public void hideStopButton() {
 		stopButton.setVisible(false);
-		// Exclude the stop button so the layout will compress when its hidden
-		stopButtonGridData.exclude = true;
+		// Exclude the stop button so the layout will compress when it's hidden
+		stopButtonRowData.exclude = true;
 		this.redraw();
 	}
 
@@ -469,8 +492,8 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public void showStopButton() {
 		stopButton.setVisible(true);
-		// Don't exclude the stop button so the layout will expand when its shown
-		stopButtonGridData.exclude = false;
+		// Don't exclude the stop button so the layout will expand when it's shown
+		stopButtonRowData.exclude = false;
 		this.redraw();
 	}
 
