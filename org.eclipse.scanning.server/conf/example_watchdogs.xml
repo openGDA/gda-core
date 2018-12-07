@@ -9,11 +9,9 @@
 		<property name="countdownName"     value="topup"/>
 		<property name="cooloff"           value="4000"/>
 		<property name="warmup"            value="5000"/>
-        <property name="bundle"            value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->
 	</bean>
 	<bean id="topupWatchdog" class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">
 		<property name="model"             ref="topupModel"/>
-        <property name="bundle"            value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->
 	</bean>
 
 	<!--  Watchdog Expression Example -->
@@ -22,11 +20,9 @@
 	    <!-- So the expression is really:   beamcurrent >= 1.0 && !portshutter.equalsIgnoreCase("Closed")  -->
 		<property name="expression"   value="beamcurrent >= 1.0 &amp;&amp; !portshutter.equalsIgnoreCase(&quot;Closed&quot;)"/>
 		<property name="message"      value="Beam has been lost"/>
-        <property name="bundle"       value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->
 	</bean>
 	<bean id="expressionWatchdog" class="org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog" init-method="activate">
 		<property name="model"        ref="expressionModel"/>
-        <property name="bundle"       value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->
 	</bean>
 
 </beans>

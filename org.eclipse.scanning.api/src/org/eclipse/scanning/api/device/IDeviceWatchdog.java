@@ -52,11 +52,9 @@ Example XML configuration
 	{@literal 	<property name="countdownName"          value="topup"/>}
 	{@literal 	<property name="cooloff"                value="4000"/>}
 	{@literal 	<property name="warmup"                 value="5000"/>}
-	{@literal     <property name="bundle"                 value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
 	{@literal <bean id="topupWatchdog" class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">}
 	{@literal 	<property name="model"             ref="topupModel"/>}
-	{@literal     <property name="bundle"            value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
 	</pre>
  *

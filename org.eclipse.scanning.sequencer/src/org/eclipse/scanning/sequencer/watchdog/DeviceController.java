@@ -71,7 +71,6 @@ class DeviceController implements IDeviceController {
 	 */
 	@Override
 	public void pause(String id, DeviceWatchdogModel model) throws ScanningException, InterruptedException {
-
 		states.put(id, DeviceState.PAUSED);
 		models.put(id, model); // May be null
 		if (device.getDeviceState() != DeviceState.RUNNING) {
@@ -79,10 +78,14 @@ class DeviceController implements IDeviceController {
 					id, device.getDeviceState(), DeviceState.RUNNING);
 			return; // Cannot pause it.
 		}
-		if (bean!=null&&model!=null) bean.setMessage(model.getMessage());
+
+		if (bean != null && model != null) {
+			bean.setMessage(model.getMessage());
+		}
 		logger.info("Controller pausing on {} because of id {}", getName(), id);
 		device.pause();
 	}
+
 	@Override
 	public void seek(String id, int stepNumber) throws ScanningException, InterruptedException {
 
@@ -116,13 +119,12 @@ class DeviceController implements IDeviceController {
 					.map(DeviceWatchdogModel::getMessage)
 					.ifPresent(message -> getBean().setMessage(message));
 			}
-			return;
 		}
 	}
 
 	private static final boolean canResume(Map<String, DeviceState> states) {
 		// we can resume if none of the states are PAUSED
-		return !states.values().stream().filter(state -> state==DeviceState.PAUSED).findAny().isPresent();
+		return states.values().stream().noneMatch(state -> state == DeviceState.PAUSED);
 	}
 
 	@Override

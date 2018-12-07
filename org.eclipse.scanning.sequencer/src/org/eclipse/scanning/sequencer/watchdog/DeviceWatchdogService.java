@@ -71,7 +71,6 @@ public class DeviceWatchdogService implements IDeviceWatchdogService {
 			controller.setObjects(watchdogs);
 			return controller;
 		} catch (Exception ne) {
-			ne.printStackTrace();
 			logger.error("Cannot create watchdogs", ne);
 			return null;
 		}

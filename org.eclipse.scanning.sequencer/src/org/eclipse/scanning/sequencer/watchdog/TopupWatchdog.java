@@ -72,11 +72,9 @@ it resets to time before next TopUp fill,
 	{@literal 	<property name="topupTime"              value="15000"/>}
 	{@literal   <!-- End optional, do not usually need to set -->}
 
-    {@literal   <property name="bundle"               value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
 	{@literal <bean id="topupWatchdog"    class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">}
 	{@literal 	<property name="model"    ref="topupModel"/>}
-    {@literal   <property name="bundle"   value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
 </pre>
 

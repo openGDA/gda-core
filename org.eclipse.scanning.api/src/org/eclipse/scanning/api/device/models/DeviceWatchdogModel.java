@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device.models;
 
+import java.time.Duration;
+
 /**
  *
  * Model for confuring a watchdog.
@@ -37,11 +39,9 @@ it resets to time before next TopUp fill,
 	{@literal 	<property name="topupTime"              value="15000"/>}
 	{@literal   <!-- End optional, do not usually need to set -->}
 
-    {@literal   <property name="bundle"               value="org.eclipse.scanning.api" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
 	{@literal <bean id="topupWatchdog"    class="org.eclipse.scanning.sequencer.watchdog.TopupWatchdog" init-method="activate">}
 	{@literal 	<property name="model"    ref="topupModel"/>}
-    {@literal   <property name="bundle"   value="org.eclipse.scanning.sequencer" /> <!-- Delete for real spring? -->}
 	{@literal </bean>}
     </pre>
 
@@ -100,6 +100,9 @@ The Topup watchdog should only be used when we are in 'Normal' mode.
  */
 public class DeviceWatchdogModel {
 
+	private static final long DEFAULT_PERIOD = Duration.ofMinutes(10).toMillis();
+	private static final long DEFAULT_TOPUP_TIME = Duration.ofSeconds(15).toMillis();
+
 	/**
 	 * This is an expression of scannables which are monitored and the expression
 	 * reevaluated if they change during a scan. Each variable in the scan *must*
@@ -113,16 +116,16 @@ public class DeviceWatchdogModel {
 	private String countdownName; // e.g. "topup", "countdown" PV likely to be SR-CS-FILL-01:COUNTDOWN which is in s
 
 	// c in ms
-	private long   cooloff;       // time in ms before topup for which the scan should be paused.
+	private long cooloff;       // time in ms before topup for which the scan should be paused.
 
 	// w in ms
-	private long   warmup;        // time in ms after topup the scan should wait before starting.
+	private long warmup;        // time in ms after topup the scan should wait before starting.
 
 	// p in ms
-	private long   period = 10*60*1000; // Period in ms, default is 10min
+	private long period = DEFAULT_PERIOD; // Period in ms, default is 10min
 
 	// Tf in ms
-	private long   topupTime = 15*1000; // The time that a topup takes. This is varible but in normal mode <= 15s
+	private long topupTime = DEFAULT_TOPUP_TIME; // The time that a topup takes. This is varible but in normal mode <= 15s
 
 	// The name of the mode pv, if any.
 	private String modeName;            // If this is set the PV will be checked to ensure that the topup mode is as expected.
