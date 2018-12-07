@@ -58,6 +58,16 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	protected boolean inScan = false;
 
+	/**
+	 * The analyser work function in eV used for KE <-> BE conversions via: BE = hν - KE - Φ
+	 * <p>
+	 * This value will be used for the work function (Φ) term.
+	 * <p>
+	 * This value is empirically determined by measuring the position of know features to calibrate the BE scale. It is
+	 * usually close to 4.5 eV.
+	 */
+	private double workFunction; // In eV this is analyser work function (Φ) usually close to 4.5 eV
+	private Scannable pgmEnergyScannable;
 	private VGScientaController controller;
 	private VGScientaAnalyserEnergyRange energyRange;
 	private DetectorConfiguration fixedModeConfiguration;
@@ -142,6 +152,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	private int sensorXSize;
 	private int sensorYSize;
+
+	private double currentPhotonEnergy;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -302,7 +314,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 		if (kineticEnergyChangesDuringScan || firstReadoutInScan) {
 			double[] axis = getEnergyAxis();
+			double[] bindingAxis = toBindingEnergy(axis);
 			data.addAxis(getName(), "energies", new NexusGroupData(axis), 2, 1, "eV", kineticEnergyChangesDuringScan);
+			data.addAxis(getName(), "binding_energies", new NexusGroupData(bindingAxis), 2, 2, "eV", kineticEnergyChangesDuringScan);
 		}
 
 		if (firstReadoutInScan) { // place in entry1/instrument/analyser(NXdetector) group.
@@ -352,6 +366,29 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 						null);
 			}
 		}
+	}
+
+	public double[] toBindingEnergy(double[] kineticEnergy) {
+		updateCurrentPhotonEnergy();
+		double[] bindingEnergy = new double[kineticEnergy.length];
+		for (int i = 0; i < bindingEnergy.length; i++) {
+			bindingEnergy[i] = toBindingEnergy(kineticEnergy[i]);
+		}
+		return bindingEnergy;
+	}
+
+	private void updateCurrentPhotonEnergy() {
+		try {
+			logger.debug("Stored value of photon energy {} eV", currentPhotonEnergy);
+			currentPhotonEnergy = (double) pgmEnergyScannable.getPosition();
+			logger.debug("Updated value of photon energy {} eV", currentPhotonEnergy);
+		} catch (DeviceException e) {
+			logger.error("Could not get current photon energy from PGM Energy scannable", e);
+		}
+	}
+
+	public double toBindingEnergy(double kineticEnergy) {
+		return currentPhotonEnergy - kineticEnergy - getWorkFunction();
 	}
 
 	@Override
@@ -812,5 +849,21 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void setSlices(int slices) throws Exception {
 		// TODO validate the slices value it should be < the detector region Y size
 		controller.setSlices(slices);
+	}
+
+	public double getWorkFunction() {
+		return workFunction;
+	}
+
+	public void setWorkFunction(double workFunction) {
+		this.workFunction = workFunction;
+	}
+
+	public Scannable getPgmEnergyScannable() {
+		return pgmEnergyScannable;
+	}
+
+	public void setPgmEnergyScannable(Scannable pgmEnergyScannable) {
+		this.pgmEnergyScannable = pgmEnergyScannable;
 	}
 }
