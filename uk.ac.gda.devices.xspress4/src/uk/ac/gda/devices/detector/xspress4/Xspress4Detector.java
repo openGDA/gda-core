@@ -666,4 +666,17 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void setFilePrefix(String filePrefix) {
 		this.filePrefix = filePrefix;
 	}
+
+	public String getDefaultSubdirectory() {
+		return defaultSubDirectory;
+	}
+
+	/**
+	 * Set a subdirectory to use when writing the hdf files. This is a subdirectory at the default datadirectory location
+	 * (gda.data.scan.datawriter.datadir) and is used if no explicit filePath has been set (using {@link #setFilePath(String)}).
+	 * @param defaultSubdirectory
+	 */
+	public void setDefaultSubdirectory(String defaultSubDirectory) {
+		this.defaultSubDirectory = defaultSubDirectory;
+	}
 }
