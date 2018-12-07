@@ -38,14 +38,10 @@ public class DummyTemp extends TemperatureBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemp.class);
 
-	private final static double MAXTEMP = 200.0;
-
-	private final static double MINTEMP = -35.0;
-
+	private static final double MAXTEMP = 200.0;
+	private static final double MINTEMP = -35.0;
 	private static final int IDLE = 0;
-
 	private static final int RAMPING = 2;
-
 	private static final int HOLDING = 3;
 
 	private int rampState = IDLE;
@@ -79,14 +75,14 @@ public class DummyTemp extends TemperatureBase {
 	@Override
 	public void reconfigure() throws FactoryException {
 		if (!isConfigured()) {
-			logger.debug("Reconfiguring DummyTemp " + getName());
+			logger.debug("Reconfiguring DummyTemp {}", getName());
 			configure();
 		}
 	}
 
 	@Override
 	public void close() {
-		logger.debug("Dummy temperature " + getName() + " closed");
+		logger.debug("Dummy temperature {} closed", getName());
 		setConfigured(false);
 		stopPoller();
 		poller = null;
@@ -94,8 +90,9 @@ public class DummyTemp extends TemperatureBase {
 
 	@Override
 	public void setHWLowerTemp(double lowLimit) throws DeviceException {
-		if (lowLimit < lowerTemp)
+		if (lowLimit < lowerTemp) {
 			throw new DeviceException("Invalid lower temperature limit");
+		}
 	}
 
 	/**
@@ -107,8 +104,9 @@ public class DummyTemp extends TemperatureBase {
 	 */
 	@Override
 	public void setHWUpperTemp(double upperLimit) throws DeviceException {
-		if (upperLimit < lowerTemp || upperLimit > upperTemp)
+		if (upperLimit < lowerTemp || upperLimit > upperTemp) {
 			throw new DeviceException("Invalid upper temperature limit");
+		}
 	}
 
 	/**
@@ -120,7 +118,7 @@ public class DummyTemp extends TemperatureBase {
 	 */
 	@Override
 	public void setProbe(String name) throws DeviceException {
-		logger.debug("Setting probe source to " + name);
+		logger.debug("Setting probe source to {}", name);
 	}
 
 	/**
@@ -169,11 +167,9 @@ public class DummyTemp extends TemperatureBase {
 		int hours = time / 60;
 		int minutes = time - (hours * 60);
 
-		if ((hours < 0 || hours > 99) || (minutes < 0 || minutes > 59))
+		if ((hours < 0 || hours > 99) || (minutes < 0 || minutes > 59)) {
 			throw new DeviceException("Invalid ramp time");
-
-		// targetTemperature = finalTemp;
-		// rampRate = rate;
+		}
 	}
 
 	/**
@@ -190,7 +186,7 @@ public class DummyTemp extends TemperatureBase {
 		currentRamp = which;
 		setTargetTemperature(rampList.get(currentRamp).getEndTemperature());
 		rampState = RAMPING;
-		logger.debug("rampState changed to RAMPING " + currentRamp);
+		logger.debug("rampState changed to RAMPING {}", currentRamp);
 		busy = true;
 		notify();
 	}
@@ -217,7 +213,6 @@ public class DummyTemp extends TemperatureBase {
 	 * @throws DeviceException
 	 */
 	public synchronized void runRamps() throws DeviceException {
-		// doAllRamps = true;
 		if (dataFileWriter != null) {
 			dataFileWriter.open();
 		}
@@ -227,7 +222,7 @@ public class DummyTemp extends TemperatureBase {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			runRamp(currentRamp);
@@ -238,7 +233,6 @@ public class DummyTemp extends TemperatureBase {
 
 	@Override
 	protected void doStop() throws DeviceException {
-		// doAllRamps = false;
 		if (dataFileWriter != null) {
 			dataFileWriter.close();
 		}
@@ -254,10 +248,9 @@ public class DummyTemp extends TemperatureBase {
 	 *
 	 * @return the Lauda water bath temperature
 	 * @throws DeviceException
-	 * @throws NumberFormatException
 	 */
 	@Override
-	public double getCurrentTemperature() throws DeviceException, NumberFormatException {
+	public double getCurrentTemperature() throws DeviceException {
 		return currentTemp;
 	}
 
@@ -265,9 +258,8 @@ public class DummyTemp extends TemperatureBase {
 	 * Read the temperature of the controlling device either internal bath external probe1 or external probe2.
 	 *
 	 * @return the control temperature
-	 * @throws NumberFormatException
 	 */
-	public double getBathTemp() throws NumberFormatException {
+	public double getBathTemp() {
 		return 0.0;
 	}
 
@@ -285,10 +277,9 @@ public class DummyTemp extends TemperatureBase {
 	 * Get the current setpoint temperature.
 	 *
 	 * @return the setpoint temperature
-	 * @throws DeviceException
 	 */
 	@Override
-	public double getTargetTemperature() throws DeviceException {
+	public double getTargetTemperature() {
 		return 0.0;
 	}
 
@@ -349,9 +340,9 @@ public class DummyTemp extends TemperatureBase {
 				if (busy) {
 					double change;
 					if (rampState == RAMPING) {
-						change = rampList.get(currentRamp).getRate() * (polltime + 100) / 60000;
+						change = rampList.get(currentRamp).getRate() * (pollTime + 100) / 60000;
 					} else {
-						change = defaultRate * polltime / 10000.0;
+						change = defaultRate * pollTime / 10000.0;
 						if (change > getAccuracy() && Math.abs(currentTemp - targetTemp) <= change)
 							change = Math.abs(currentTemp - targetTemp);
 					}
@@ -361,8 +352,8 @@ public class DummyTemp extends TemperatureBase {
 
 					currentTemp = currentTemp + change;
 
-					logger.debug("DummyTemp has changed currentTemp to " + currentTemp);
-					wait(polltime);
+					logger.debug("DummyTemp has changed currentTemp to {}", currentTemp);
+					wait(pollTime);
 				}
 
 				else {
@@ -372,7 +363,7 @@ public class DummyTemp extends TemperatureBase {
 					}
 					if (rampState == IDLE) {
 						wait();
-						logger.debug("DummyTemp run thread woken up currentRamp is " + currentRamp);
+						logger.debug("DummyTemp run thread woken up currentRamp is {}", currentRamp);
 					}
 
 				}
@@ -386,7 +377,6 @@ public class DummyTemp extends TemperatureBase {
 	/*
 	 * never used private boolean lowLevel() throws DeviceException { return false; }
 	 */
-
 	@Override
 	public boolean isAtTargetTemperature() {
 		return Math.abs(currentTemp - targetTemp) <= getAccuracy();
@@ -400,7 +390,7 @@ public class DummyTemp extends TemperatureBase {
 
 	@Override
 	public void addRamp(TemperatureRamp ramp) {
-		logger.debug("DummyTemp addRamp() called with " + ramp);
+		logger.debug("DummyTemp addRamp() called with {}", ramp);
 		rampList.add(ramp);
 	}
 
@@ -467,7 +457,7 @@ public class DummyTemp extends TemperatureBase {
 			dataFileWriter.write(dataString);
 		}
 
-		double data[] = new double[2];
+		double[] data = new double[2];
 		data[0] = currentTemp;
 		data[1] = timeSinceStart / 1000.0;
 		bufferedData.add(data);
@@ -515,8 +505,8 @@ public class DummyTemp extends TemperatureBase {
 
 	@Override
 	public Object readout() {
-		int dims[] = getDataDimensions();
-		double data[][] = new double[dims[1]][dims[0]];
+		int[] dims = getDataDimensions();
+		double[][] data = new double[dims[1]][dims[0]];
 		for (int i=0; i<dims[1]; i++)
 			data[i] = bufferedData.get(i);
 		return data;

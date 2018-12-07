@@ -40,33 +40,20 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	private static final Logger logger = LoggerFactory.getLogger(Newtronic.class);
 
-	private final static double MAXTEMP = 999.0;
-
-	private final static double MINTEMP = 0.0;
-
-	private final static String SETPOINT = "SP";
-
-	private final static String MEASURED = "PV";
-
-	private final static String WORKING = "SP";
-
-	private final static String MINSET = "LS";
-
-	private final static String MAXSET = "HS";
-
-	private final static String XPBAND = "XP";
-
-	private final static char STX = '\02';
-
-	private final static char ETX = '\03';
-
-	private final static char EOT = '\04';
-
-	private final static char ENQ = '\05';
-
-	private final static char ACK = '\06';
-
-	private final static char NAK = 21;
+	private static final double MAXTEMP = 999.0;
+	private static final double MINTEMP = 0.0;
+	private static final String SETPOINT = "SP";
+	private static final String MEASURED = "PV";
+	private static final String WORKING = "SP";
+	private static final String MINSET = "LS";
+	private static final String MAXSET = "HS";
+	private static final String XPBAND = "XP";
+	private static final char STX = '\02';
+	private static final char ETX = '\03';
+	private static final char EOT = '\04';
+	private static final char ENQ = '\05';
+	private static final char ACK = '\06';
+	private static final char NAK = 21;
 
 	private String unit = "00";
 
@@ -81,8 +68,6 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	private Serial serial = null;
 
 	private String serialDeviceName;
-
-	private String debugName;
 
 	private AsynchronousReaderWriter arw = null;
 
@@ -107,13 +92,10 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-			logger.error("Serial Device " + serialDeviceName + " not found");
+		logger.debug("Finding: {}", serialDeviceName);
+		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
-			// debugName is used in error output
-			debugName = getClass().getName() + " " + getName();
-
 			try {
 				serial.setBaudRate(baudRate);
 				serial.setStopBits(stopBits);
@@ -205,7 +187,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	 */
 	private void checkReply(String reply) throws DeviceException {
 		int irep = reply.charAt(0);
-		logger.debug(debugName + "checkReply character: " + irep);
+		logger.debug("{} checkReply character: {}", getName(), irep);
 
 		if (reply.charAt(0) == NAK) {
 			throw new DeviceException("Negative Acknowledgement received from Eurotherm");
@@ -235,13 +217,13 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 		}
 
 		if (buffer.charAt(++i) == bcc) {
-			if (buffer.indexOf("-") >= 0) {
+			if (buffer.indexOf('-') >= 0) {
 				String temp = buffer.replace('-', '.');
 				response = "-" + temp.substring(2, 8);
 			} else {
 				response = buffer.substring(2, 8);
 			}
-			logger.debug("Reply from Newtronic: " + response);
+			logger.debug("Reply from Newtronic: {}", response);
 		} else {
 			throw new DeviceException("Eurotherm replied with checksum error");
 		}
@@ -250,7 +232,6 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void doStop() throws DeviceException {
-		// sendStop();
 	}
 
 	/**
@@ -299,7 +280,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	public double getCurrentTemperature() throws DeviceException {
 		String str = encode(MEASURED);
 		String reply = arw.sendCommandAndGetReply(str);
-		currentTemp = java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		currentTemp = Double.parseDouble(decodeReply(reply));
 		return currentTemp;
 	}
 
@@ -322,7 +303,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	public double getSetPoint() throws DeviceException, NumberFormatException {
 		String str = encode(WORKING);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 
 	/**
@@ -334,7 +315,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	private double getXp() throws DeviceException {
 		String str = encode(XPBAND);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 
 	/**
@@ -360,7 +341,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 				startHoldTimer();
 			}
 
-			logger.debug("busy is " + busy);
+			logger.debug("busy is {}", busy);
 			if (busy)
 				stateString = (targetTemp > currentTemp) ? "Heating" : "Cooling";
 			else if (currentRamp > -1)
@@ -379,7 +360,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
-		logger.debug("Newtronic notifying IObservers with " + ts);
+		logger.debug("Newtronic notifying IObservers with {}", ts);
 		notifyIObservers(this, ts);
 
 		// change poll time ??
@@ -390,12 +371,6 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	 */
 	@Override
 	protected void sendRamp(int which) {
-		if (!rampList.isEmpty()) {
-			// sendRate(1,
-			// ((TemperatureRamp)rampList.get(which)).getRate());
-			// sendLimit(1,
-			// ((TemperatureRamp)rampList.get(which)).getEndTemperature());
-		}
 	}
 
 	/**
@@ -410,7 +385,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 		if (temp > upperTemp || temp < lowerTemp)
 			throw new DeviceException("Trying to set temperature outside of limits");
 		if (busy)
-			throw new DeviceException(debugName + " is already ramping to temerature");
+			throw new DeviceException(getName() + " is already ramping to temerature");
 
 		String str = encode(SETPOINT, temp);
 		String reply = arw.sendCommandAndGetReply(str);
@@ -441,8 +416,6 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	public void sendStart() throws DeviceException {
 		if (busy)
 			throw new DeviceException("Eurotherm is already ramping to temperature");
-		// if (!arw.sendCommandAndGetReply("START").equals(OKREPLY))
-		// throw new DeviceException ("Eurotherm command failure");
 		busy = true;
 	}
 
@@ -456,7 +429,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -496,7 +469,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	@Override
 	public Object getAttribute(String name) throws DeviceException {
 		if (name.equalsIgnoreCase("Xp"))
-			return new Double(getXp());
+			return getXp();
 
 		return null;
 	}
@@ -522,14 +495,10 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void hold() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -40,41 +40,24 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 
 	private static final Logger logger = LoggerFactory.getLogger(Eurotherm900.class);
 
-	private final static double MAXTEMP = 900.0;
-
-	private final static double MINTEMP = -35.0;
-
-	private final static String SETPOINT = "SL";
-
-	private final static String MEASURED = "PV";
-
-	private final static String WORKING = "SP";
-
-	private final static String XPBAND = "XP";
-
-	private final static String IDENTITY = "II";
-
-	private final static String OPTSTAT = "OS";
-
-	private final static String OUTPOWER = "OP";
-
-	private final static String RESET = "0";
-
-	private final static String RUN = "2";
-
-	private final static String HOLD = "3";
-
-	private final static char STX = '\02';
-
-	private final static char ETX = '\03';
-
-	private final static char EOT = '\04';
-
-	private final static char ENQ = '\05';
-
-	private final static char ACK = '\06';
-
-	private final static char NAK = 21;
+	private static final double MAXTEMP = 900.0;
+	private static final double MINTEMP = -35.0;
+	private static final String SETPOINT = "SL";
+	private static final String MEASURED = "PV";
+	private static final String WORKING = "SP";
+	private static final String XPBAND = "XP";
+	private static final String IDENTITY = "II";
+	private static final String OPTSTAT = "OS";
+	private static final String OUTPOWER = "OP";
+	private static final String RESET = "0";
+	private static final String RUN = "2";
+	private static final String HOLD = "3";
+	private static final char STX = '\02';
+	private static final char ETX = '\03';
+	private static final char EOT = '\04';
+	private static final char ENQ = '\05';
+	private static final char ACK = '\06';
+	private static final char NAK = 21;
 
 	private String unit = "00";
 
@@ -85,8 +68,6 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	private int uid = 0;
 
 	private int gid = 0;
-
-	private String debugName;
 
 	private Serial serial;
 
@@ -121,7 +102,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	 */
 	private void checkReply(String reply) throws DeviceException {
 		int irep = reply.charAt(0);
-		logger.debug(debugName + " checkReply character: " + irep);
+		logger.debug("{} checkReply character: {}", getName(), irep);
 
 		if (reply.charAt(0) == NAK) {
 			throw new DeviceException("Negative Acknowledgement received from Eurotherm");
@@ -133,9 +114,9 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		logger.debug("Finding: " + serialDeviceName);
-		if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-			logger.error("Serial Device " + serialDeviceName + " not found");
+		logger.debug("Finding: {}", serialDeviceName);
+		if ((serial = Finder.getInstance().find(serialDeviceName)) == null) {
+			logger.error("Serial Device {} not found", serialDeviceName);
 		} else {
 			try {
 				serial.setBaudRate(baudRate);
@@ -242,7 +223,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 
 		if (buffer.charAt(++i) == bcc) {
 			response = buffer.substring(3, i - 1);
-			logger.debug("Reply from Eurotherm: " + response);
+			logger.debug("Reply from Eurotherm: {}", response);
 		} else {
 			throw new DeviceException("Eurotherm replied with checksum error");
 		}
@@ -319,7 +300,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	public double getCurrentTemperature() throws DeviceException {
 		String str = encode(MEASURED);
 		String reply = arw.sendCommandAndGetReply(str);
-		currentTemp = java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		currentTemp = Double.parseDouble(decodeReply(reply));
 		return currentTemp;
 	}
 
@@ -332,7 +313,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 		String str = encode(IDENTITY);
 		String reply = arw.sendCommandAndGetReply(str);
 		String identity = decodeReply(reply);
-		logger.debug("Eurotherm " + identity.substring(1) + " controller");
+		logger.debug("Eurotherm {} controller", identity.substring(1));
 
 		if (!identity.equals(">9020")) {
 			throw new DeviceException("Wrong type of controller");
@@ -349,7 +330,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	public double getTargetTemperature() throws DeviceException {
 		String str = encode(WORKING);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 	/**
 	 * Get to the Xp parameter
@@ -360,7 +341,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	private double getXp() throws DeviceException {
 		String str = encode(XPBAND);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 
 	/**
@@ -373,7 +354,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 		String str = encode(OPTSTAT);
 		String reply = arw.sendCommandAndGetReply(str);
 		String status = decodeReply(reply);
-		logger.debug("Optional status word" + status);
+		logger.debug("Optional status word {}", status);
 		str = encode(OPTSTAT, status.substring(0, 4) + HOLD);
 		reply = arw.sendCommandAndGetReply(str);
 		checkReply(reply);
@@ -402,7 +383,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 				startHoldTimer();
 			}
 
-			logger.debug("busy is " + busy);
+			logger.debug("busy is {}", busy);
 			if (busy)
 				stateString = (targetTemp > currentTemp) ? "Heating" : "Cooling";
 			else if (currentRamp > -1)
@@ -421,7 +402,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
-		logger.debug("Eurotherm notifying IObservers with " + ts);
+		logger.debug("Eurotherm notifying IObservers with {}", ts);
 		notifyIObservers(this, ts);
 
 		double outputPower = 0.0;
@@ -445,7 +426,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	private double getSetPoint() throws DeviceException {
 		String str = encode(SETPOINT);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 
 	/**
@@ -457,7 +438,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	private double getOutputPower() throws DeviceException {
 		String str = encode(OUTPOWER);
 		String reply = arw.sendCommandAndGetReply(str);
-		return java.lang.Double.valueOf(decodeReply(reply)).doubleValue();
+		return Double.parseDouble(decodeReply(reply));
 	}
 
 	/**
@@ -472,7 +453,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 		String str = encode(OPTSTAT);
 		String reply = arw.sendCommandAndGetReply(str);
 		String status = decodeReply(reply);
-		logger.debug("Optional status word" + status);
+		logger.debug("Optional status word {}", status);
 		str = encode(OPTSTAT, status.substring(0, 4) + RUN);
 		reply = arw.sendCommandAndGetReply(str);
 		checkReply(reply);
@@ -488,7 +469,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 		String str = encode(OPTSTAT);
 		String reply = arw.sendCommandAndGetReply(str);
 		String status = decodeReply(reply);
-		logger.debug("Optional status word" + status);
+		logger.debug("Optional status word {}", status);
 		str = encode(OPTSTAT, status.substring(0, 4) + RESET);
 		reply = arw.sendCommandAndGetReply(str);
 		checkReply(reply);
@@ -537,8 +518,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	@Override
 	public Object getAttribute(String name) throws DeviceException {
 		if (name.equalsIgnoreCase("Xp"))
-			return new Double(getXp());
-
+			return getXp();
 		return null;
 	}
 
@@ -609,7 +589,7 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 	@Override
 	protected void startNextRamp() throws DeviceException {
 		currentRamp++;
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			sendRamp(currentRamp);
 			sendStart();
@@ -647,7 +627,5 @@ public class Eurotherm900 extends TemperatureBase implements ReplyChecker {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 }

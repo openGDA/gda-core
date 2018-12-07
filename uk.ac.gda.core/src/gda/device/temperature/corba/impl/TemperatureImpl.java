@@ -21,6 +21,7 @@ package gda.device.temperature.corba.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.omg.CORBA.Any;
 
@@ -115,7 +116,7 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	@Override
 	public String[] getProbeNames() throws CorbaDeviceException {
 		try {
-			ArrayList<String> names = temperature.getProbeNames();
+			List<String> names = temperature.getProbeNames();
 			String[] result = new String[names.size()];
 			for (int i = 0; i < names.size(); i++)
 				result[i] = names.get(i);
@@ -129,7 +130,6 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	public void setProbe(String probeName) throws CorbaDeviceException {
 		try {
 			temperature.setProbe(probeName);
-			return;
 		} catch (DeviceException ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
@@ -211,7 +211,7 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	@Override
 	public void setRamps(CorbaTemperatureRamp[] ramps) throws CorbaDeviceException {
 		try {
-			ArrayList<TemperatureRamp> rampList = new ArrayList<TemperatureRamp>();
+			List<TemperatureRamp> rampList = new ArrayList<>();
 			for (int i = 0; i < ramps.length; i++) {
 				rampList.add(new TemperatureRamp(ramps[i].ramp, ramps[i].startTemp, ramps[i].endTemp, ramps[i].rate,
 						ramps[i].dwellTime, ramps[i].coolingSpeed));

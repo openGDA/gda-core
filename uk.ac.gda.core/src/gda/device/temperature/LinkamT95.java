@@ -19,7 +19,7 @@
 
 package gda.device.temperature;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,33 +39,33 @@ import gda.util.PollerEvent;
 public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(LinkamT95.class);
-	private final static double MAXTEMP = 900.0;
-	private final static double MINTEMP = -35.0;
-	private String debugName;
+	private static final double MAXTEMP = 900.0;
+	private static final double MINTEMP = -35.0;
+	private static final int COOLINGFAULT = 1;
+	private static final int OK = 128;
+
+	// Possible values of the status byte
+	private static final int STOPPED = 1;
+	private static final int HEATING = 16;
+	private static final int COOLING = 32;
+	private static final int HOLDINGLIMIT = 48;
+	private static final int HOLDINGTIME = 64;
+	private static final int HOLDINGTEMP = 80;
+
 	private int state;
 	private SerialReaderWriter serialReaderWriter = null;
 
 	private int startingRamp = 1;
-//	private double samplingTime; // DSC stage only
 
 	// Currently we either have or have not got a DSC stage. Dsc
 	// should be replaced with a more general Stage class if necessary later
 	private LinkamStage stage = null;
 
-	// Possible values of the status byte
-	private final int STOPPED = 1;
-	private final int HEATING = 16;
-	private final int COOLING = 32;
-	private final int HOLDINGLIMIT = 48;
-	private final int HOLDINGTIME = 64;
-	private final int HOLDINGTEMP = 80;
 
 	private String errorMessage = "";
 
-	private final int COOLINGFAULT = 1;
-	private final int OK = 128;
-	private String timeColumnName[] = {"time"};
-	private String timeAndDscColumnName[] = {"time", "dsc"};
+	private String[] timeColumnName = {"time"};
+	private String[] timeAndDscColumnName = {"time", "dsc"};
 
 	/**
 	 * Constructor
@@ -79,7 +79,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	@Override
 	public void configure() throws FactoryException {
-		longPolltime = 2000;
+		longPollTime = 2000;
 		super.configure();
 		try {
 			getCurrentTemperature();
@@ -87,6 +87,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		} catch (DeviceException e) {
 			throw new FactoryException("Error getting temperature while configuring " + getName(), e);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new FactoryException("Interupted while configuring " + getName(), e);
 		}
 		if ((stage = createStage()) != null) {
@@ -101,6 +102,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			setPumpAuto(true);
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new FactoryException("Interrupted while setting pump to auto " + getName(), e);
 		}
 		startPoller();
@@ -143,7 +145,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 * is configured.
 	 */
 	@Override
-	public void setProbeNames(ArrayList<String> probeNames) {
+	public void setProbeNames(List<String> probeNames) {
 	}
 
 	/**
@@ -151,8 +153,8 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 *            the new state
 	 */
 	private void changeState(int newState) {
-		logger.debug("state is " + state + " " + stateToString(state));
-		logger.debug("newState is " + newState + " " + stateToString(newState));
+		logger.debug("state is {} - {}", state, stateToString(state));
+		logger.debug("newState is {} - {}", newState, stateToString(newState));
 
 		if (newState != state) {
 			switch (state) {
@@ -163,7 +165,6 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 				if (newState == HOLDINGLIMIT) {
 					if (currentRamp == -1) {
 						sendHold();
-//						stop();
 					} else {
 						startHoldTimer();
 					}
@@ -187,11 +188,11 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 			// The cooling too fast fault is not fatal so just change
 			// message
 			errorMessage = " TOO FAST";
-			logger.error("Error detected in LinkamCI: errorMessage is " + errorMessage);
+			logger.error("Error detected in LinkamCI: errorMessage is {}", errorMessage);
 		} else if (errorByte != OK) {
 			// Other errors are treated as fatal until we know otherwise
 			errorMessage = " ERROR " + errorByte;
-			logger.error("Error detected in LinkamCI: errorMessage is " + errorMessage);
+			logger.error("Error detected in LinkamCI: errorMessage is {}", errorMessage);
 			stop();
 		} else {
 			errorMessage = "";
@@ -223,8 +224,8 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		// even though sensible error and status values have been returned so we
 		// catch the normally uncaught NumberFormatException to deal with this
 		catch (NumberFormatException nfe) {
-			logger.error("extractTemperature caught NumberFormatException " + nfe);
-			logger.error("                   string was " + string);
+			logger.error("extractTemperature caught NumberFormatException {}", nfe);
+			logger.error("                   string was {}", string);
 		}
 		return temperature;
 	}
@@ -268,6 +269,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 		sendLimit(temperatureRamp.getEndTemperature());
 	}
@@ -352,7 +354,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 * @param limit is the temperature limit to a resolution of 0.1degC, max value 99.9
 	 */
 	public void sendLimit(double limit) {
-		logger.debug("Linkam.sendLimit called " + limit);
+		logger.debug("Linkam.sendLimit called {}", limit);
 		String send = "L1" + (int) (limit * 10.0);
 		serialReaderWriter.handleCommand(send);
 	}
@@ -363,7 +365,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 * @param rate is the heating/cooling rate. The rate is 0.01degC/min. The maximum is 99.99degC/min.
 	 */
 	public void sendRate(double rate) {
-		logger.debug("Linkam.sendRate called " + rate);
+		logger.debug("Linkam.sendRate called {}", rate);
 		String send = "R1" + (int) (rate * 100);
 		serialReaderWriter.handleCommand(send);
 	}
@@ -392,23 +394,23 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 */
 	private LinkamStage createStage() {
 		String reply;
-		LinkamStage stage = null;
+		LinkamStage newStage = null;
 
 		try {
 			reply = serialReaderWriter.sendCommandAndGetReply("\u00efS");
-			logger.debug("createStage S reply was " + reply);
+			logger.debug("createStage S reply was {}", reply);
 			if (reply != null && reply.length() > 0) {
 				probeNameList.add(reply.substring(0, reply.length()-1).trim());
 				if (reply.indexOf("DSC") != -1) {
-					stage = new DscStageT95(this, serialReaderWriter);
+					newStage = new DscStageT95(this, serialReaderWriter);
 				} else {
-					stage = new DefaultStageT95(this);
+					newStage = new DefaultStageT95(this);
 				}
 			}
 		} catch (DeviceException de) {
 			logger.error("Error creating stage", de);
 		}
-		return stage;
+		return newStage;
 	}
 
 	@Override
@@ -424,7 +426,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		// signals to be sent e.g. to start a TFG
 		currentRamp++;
 
-		logger.debug("startNextRamp called currentRamp now " + currentRamp);
+		logger.debug("startNextRamp called currentRamp now {}", currentRamp);
 		if (currentRamp < rampList.size()) {
 			if (currentRamp == startingRamp) {
 				sendB();
@@ -486,12 +488,10 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	 *            the new value
 	 */
 	private void setPumpAuto(boolean value) {
-		if (value == true) {
+		if (value) {
 			serialReaderWriter.handleCommand("Pa0");
-//			poller.setPollTime(longPollTime);
 		} else {
 			serialReaderWriter.handleCommand("Pm0");
-//			poller.setPollTime(polltime);
 		}
 	}
 
@@ -580,7 +580,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	public void runRamp() throws DeviceException {
 	}
 
-	public ArrayList<double[]> getBufferedData() {
+	public List<double[]> getBufferedData() {
 		return bufferedData;
 	}
 
