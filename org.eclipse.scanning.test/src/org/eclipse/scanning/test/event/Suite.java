@@ -18,7 +18,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	SerializationTest.class,
 	ScanEventTest.class,
-	ConsumerTest.class,
 	SubmitterTest.class,
 	PauseTest.class,
 	MappingScanTest.class,
@@ -29,9 +28,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	SimpleConsumerTest.class,
 	ConsumerControlTest.class,
 	ConsumerProxyControlTest.class
-	// MConsumerTest.class  Takes too long! TODO Make shorter
 })
 public class Suite {
-
-
 }
