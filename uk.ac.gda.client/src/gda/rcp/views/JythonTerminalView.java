@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextListener;
@@ -46,11 +47,14 @@ import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
@@ -129,7 +133,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	private TextViewer outputTextViewer;
 
 	private String txtOutputLast; //copy of string sent to outputDoc.set()
-	private Text txtPrompt;
+	private Label txtPrompt;
 
 	private final Vector<String> cmdHistory = new Vector<>();
 	private int cmdHistoryIndex = 0;
@@ -184,8 +188,8 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	@Override
 	public void createPartControl(final Composite parent) {
 
-		Font font = new Font(parent.getDisplay(), "DejaVu Sans Mono", 10, SWT.NORMAL);
-		int tabSize = 4;
+		final Font font = new Font(parent.getDisplay(), "DejaVu Sans Mono", 10, SWT.NORMAL);
+		final int tabSize = 4;
 
 		{
 			root = new Composite(parent, SWT.NONE);
@@ -230,13 +234,18 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			inputHolder.setLayout(layout);
 
 			{
-				txtPrompt = new Text(inputHolder, SWT.None);
-				txtPrompt.setEditable(false);
+				txtPrompt = new Label(inputHolder, SWT.None);
 				txtPrompt.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-				txtPrompt.setLayoutData(new GridData(GridData.FILL_VERTICAL));
+				GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(2, 0).applyTo(txtPrompt);
 				txtPrompt.setText(NORMAL_PROMPT);
 				txtPrompt.setFont(font);
-				txtPrompt.setTabs(tabSize);
+				txtPrompt.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDown(MouseEvent e) {
+						// If you click the prompt put the cursor in the input box
+						txtInput.setFocus();
+					}
+				});
 			}
 			{
 				txtInput = new Text(inputHolder, SWT.NONE);
