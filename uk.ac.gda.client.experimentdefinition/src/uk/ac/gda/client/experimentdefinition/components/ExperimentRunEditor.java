@@ -57,7 +57,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -190,10 +189,12 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 			@Override
 			public void modify(Object item, String property, Object value) {
 				try {
-					if (item == null)
+					final Object element = tableViewer.getStructuredSelection().getFirstElement();
+					if (element == null) {
+						logger.warn("Can't update {} to {} - no item selected in table", property, value);
 						return;
-					final TableItem tableItem = (TableItem) item;
-					final Object element = tableItem.getData();
+					}
+
 					final Object existVal = getValue(element, property);
 					if (existVal != null && existVal.equals(value))
 						return; // No change
