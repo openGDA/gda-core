@@ -435,4 +435,9 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 	public void setSerialNumber(String serial) {
 		serialNumber = serial;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s(%s)", getClass().getSimpleName(), getName());
+	}
 }
