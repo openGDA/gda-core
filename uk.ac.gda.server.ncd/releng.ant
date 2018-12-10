@@ -7,27 +7,27 @@
 	</pathconvert>
 	<fail message="ERROR: Could not determine workspace.loc" unless="workspace.loc" />
 	<property name="workspace.git.loc" value="${workspace.loc}_git" />
-	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/common.ant" />
+	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/common.ant" />
 
 	<!-- ====================================================================
 		   CORBA
 		 ==================================================================== -->
 
-	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/corba-common.ant" />
+	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/corba-common.ant" />
 	<property name="corba.jar.name" value="gda-ncd-corba.jar" />
 
 	<!-- ====================================================================
 		   JUnit tests
 		 ==================================================================== -->
 
-	<import file="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/ant-headless/test-common.ant" />
+	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/test-common.ant" />
 	<target name="junit-tests" depends="set-test-base-GDA">
 		<junit-call description="${ant.project.name} Java JUnit tests">
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
-				<pathelement location="${workspace.git.loc}/diamond-releng.git/diamond.releng.tools/logging" />  <!-- to pick up logback-test.xml -->
+				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
