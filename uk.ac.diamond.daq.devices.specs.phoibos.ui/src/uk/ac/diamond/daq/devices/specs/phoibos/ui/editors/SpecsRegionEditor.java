@@ -3,6 +3,8 @@ package uk.ac.diamond.daq.devices.specs.phoibos.ui.editors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -26,8 +28,10 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -78,6 +82,10 @@ public class SpecsRegionEditor {
 	private Text estimatedTimeText;
 
 	private Spinner slicesSpinner;
+	private static final String REGEX_PATTERN = "[a-zA-Z_0-9 -]+";
+	private static Pattern regexPattern = Pattern.compile(REGEX_PATTERN);
+	final Color red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+	final Color black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
 
 	@Inject
 	public SpecsRegionEditor() {
@@ -112,6 +120,7 @@ public class SpecsRegionEditor {
 		nameLabel.setText("Region name");
 		nameText = new Text(child, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(nameText);
+
 
 		Label acquisitionModeLabel = new Label(child, SWT.NONE);
 		acquisitionModeLabel.setText("Acquisition mode");
@@ -250,7 +259,20 @@ public class SpecsRegionEditor {
 		// Region name
 		IObservableValue regionNameTarget = WidgetProperties.text(SWT.Modify).observe(nameText);
 		IObservableValue regionNameModel = BeanProperties.value("name").observe(regionEditingWrapper);
-		dbc.bindValue(regionNameTarget, regionNameModel);
+		UpdateValueStrategy regionNameStrategy = new UpdateValueStrategy();
+		regionNameStrategy.setBeforeSetValidator(value -> {
+			Matcher matcher = regexPattern.matcher((CharSequence) value);
+			if(!matcher.matches()) {
+				nameText.setForeground(red);
+				return ValidationStatus.error("Not a valid region name. Use alphanumeric characters, "
+						+ "hyphen, underscore and space only!");
+			}
+			nameText.setForeground(black);
+			return ValidationStatus.ok();
+		});
+		Binding regionNameBinding = dbc.bindValue(regionNameTarget, regionNameModel, regionNameStrategy,
+				new UpdateValueStrategy());
+		ControlDecorationSupport.create(regionNameBinding, SWT.TOP | SWT.LEFT);
 
 		IViewerObservableValue acquisitionModeTarget = ViewerProperties.singleSelection().observe(acquisitionModeCombo);
 		IObservableValue acquisitionModeModel = BeanProperties.value("acquisitionMode").observe(regionEditingWrapper);
