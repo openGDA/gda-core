@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import gda.device.detector.nxdetector.roi.RemoteRectangularROIsProvider;
 import gda.factory.FindableBase;
+import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
 
 /**
  * A class to be used to hold camera configuration for use with the LiveMJPEGView.

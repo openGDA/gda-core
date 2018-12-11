@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.live.stream.view;
+package uk.ac.gda.client.live.stream.view.customui;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.view.LiveStreamView;
 
 /**
  * <p>This interface allows you to define a custom UI class for use with an {@link LiveStreamView}.</p>

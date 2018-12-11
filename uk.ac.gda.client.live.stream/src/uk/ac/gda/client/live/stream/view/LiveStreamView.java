@@ -66,6 +66,7 @@ import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
+import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
 
 /**
  * A RCP view for connecting to and displaying a live MJPEG stream. The intention is to provide a easy way for cameras
