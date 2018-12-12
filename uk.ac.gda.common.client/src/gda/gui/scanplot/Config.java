@@ -18,9 +18,10 @@
 
 package gda.gui.scanplot;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ class Config {
 	private static final Logger logger = LoggerFactory.getLogger(Config.class);
 	int xAxisIndex;
 	String xAxisHeader;
-	Vector<ConfigLine> linesToAdd;
+	List<ConfigLine> linesToAdd;
 	private String id = "";
 	ScanPlotSettings scanPlotSettings;
 	private int numberOfScannables;
@@ -47,11 +48,11 @@ class Config {
 		return id.equals(pt.getUniqueName());
 	}
 
-	private boolean UsePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
-			Vector<String> namesOfVisibleLinesInPreviousScan, Vector<String> namesOfInVisibleLinesInPreviousScan) {
+	private boolean usePreviousScanLineSetting(Config prevConfig, int xAxisIndex, IScanDataPoint point,
+			List<String> namesOfVisibleLinesInPreviousScan, List<String> namesOfInVisibleLinesInPreviousScan) {
 		if( scanPlotSettings != null && !scanPlotSettings.isAllowUseOfPreviousScanSettings())
 			return false;
-		if (namesOfVisibleLinesInPreviousScan == null || namesOfVisibleLinesInPreviousScan.size() == 0
+		if (namesOfVisibleLinesInPreviousScan == null || namesOfVisibleLinesInPreviousScan.isEmpty()
 				|| namesOfInVisibleLinesInPreviousScan == null) {
 			return false;
 		}
@@ -69,14 +70,12 @@ class Config {
 			return false;
 		if (prevConfig.numberOfDetectors != numberOfDetectors)
 			return false;
-		if (prevConfig.scanPlotSettings != null) {
-			if (!prevConfig.scanPlotSettings.equals(scanPlotSettings)) {
-				return false;
-			}
+		if (prevConfig.scanPlotSettings != null && !prevConfig.scanPlotSettings.equals(scanPlotSettings)) {
+			return false;
 		}
-		Set<String> previousScan = new HashSet<String>(namesOfVisibleLinesInPreviousScan);
+		Set<String> previousScan = new HashSet<>(namesOfVisibleLinesInPreviousScan);
 		previousScan.addAll(namesOfInVisibleLinesInPreviousScan);
-		Set<String> currentScan = new HashSet<String>(point.getPositionHeader());
+		Set<String> currentScan = new HashSet<>(point.getPositionHeader());
 		currentScan.addAll(point.getDetectorHeader());
 		for (String scanName : previousScan) {
 			if (!currentScan.contains(scanName)) {
@@ -86,8 +85,8 @@ class Config {
 		return true;
 	}
 
-	Config(Config prevConfig, IScanDataPoint point, Vector<String> namesOfVisibleLinesInPreviousScan,
-			Vector<String> namesOfInVisibleLinesInPreviousScan) {
+	Config(Config prevConfig, IScanDataPoint point, List<String> namesOfVisibleLinesInPreviousScan,
+			List<String> namesOfInVisibleLinesInPreviousScan) {
 		numberOfScannables = point.getPositionHeader().size();
 		numberofChildScans = point.getNumberOfChildScans();
 		numberOfDetectors = point.getDetectorNames().size();
@@ -104,7 +103,7 @@ class Config {
 			if (point.getHasChild()) {
 				xAxisIndex = numberofChildScans;
 			}
-			Vector<String> positionHeader = point.getPositionHeader();
+			List<String> positionHeader = point.getPositionHeader();
 			if (positionHeader.isEmpty()) {
 				id = point.getUniqueName();
 				return; // do not plot anything
@@ -118,9 +117,9 @@ class Config {
 			xAxisIndex = point.getPositionHeader().indexOf(xAxisHeader);
 		}
 
-		if (UsePreviousScanLineSetting(prevConfig, xAxisIndex, point, namesOfVisibleLinesInPreviousScan,
+		if (usePreviousScanLineSetting(prevConfig, xAxisIndex, point, namesOfVisibleLinesInPreviousScan,
 				namesOfInVisibleLinesInPreviousScan)) {
-			Vector<String> axesNotToShow = new Vector<String>();
+			List<String> axesNotToShow = new ArrayList<>();
 			for (String s : namesOfInVisibleLinesInPreviousScan) {
 				axesNotToShow.add(s);
 			}
@@ -147,18 +146,18 @@ class Config {
 			}
 		}
 
-		linesToAdd = new Vector<ConfigLine>();
+		linesToAdd = new ArrayList<>();
 		int index = 0;
-		Vector<String> yAxesShown = null;
+		List<String> yAxesShown = null;
 		if (pointyAxesShown != null) {
-			yAxesShown = new Vector<String>();
+			yAxesShown = new ArrayList<>();
 			for (String yAxis : pointyAxesShown) {
 				yAxesShown.add(yAxis);
 			}
 		}
-		Vector<String> yAxesNotShown = null;
+		List<String> yAxesNotShown = null;
 		if (pointyAxesNotShown != null) {
-			yAxesNotShown = new Vector<String>();
+			yAxesNotShown = new ArrayList<>();
 			for (String yAxis : pointyAxesNotShown) {
 				yAxesNotShown.add(yAxis);
 			}
@@ -181,7 +180,7 @@ class Config {
 						.getDetectorHeader().get(j), index, xAxisIndex, unlistedBehaviour);
 			}
 		} else {
-			logger.warn("xAxis is not plottable for scan " + point.getUniqueName());
+			logger.warn("xAxis is not plottable for scan {}", point.getUniqueName());
 			xAxisHeader = "";
 		}
 		id = point.getUniqueName();
@@ -189,8 +188,8 @@ class Config {
 
 	// FIXME this logic lifted from from ScanDataPointPlotConfig to handle correct behaviour of 'unlisted' columns, but
 	// there seems to be some duplication here which needs resolving
-	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,
-			Vector<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex,
+	private void addIfWanted(List<ConfigLine> linesToAdd, Double val, List<String> yAxesShown,
+			List<String> yAxesNotShown, AxisSpecProvider axisSpecProvider, String name, int index, int xAxisIndex,
 			int defaultBehaviour) {
 		// do not add a line if we are unable to convert the string representation to a double
 		if (val == null)
