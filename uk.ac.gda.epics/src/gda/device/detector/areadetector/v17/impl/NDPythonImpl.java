@@ -28,19 +28,26 @@ import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBRType;
 
 public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBean {
 
-	private final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
-	private final Map<String, Channel> channelMap = new HashMap<String, Channel>();
+	private final Map<String, Channel> channelMap = new HashMap<>();
 
 	private Map<String, String> parameterMap = null;
 
 	private String basePVName;
 
+	private String pythonFilename;
+
+	private String pythonClassname;
+
+	private boolean propertiesSet = false;
+
 	private Channel getChannel(String pvSuffix) throws CAException, TimeoutException {
-		String pvName = getBasePVName() + pvSuffix;
+		final String pvName = getBasePVName() + pvSuffix;
 		Channel channel = channelMap.get(pvName);
 		if (channel == null) {
 			channel = EPICS_CONTROLLER.createChannel(pvName);
@@ -54,7 +61,7 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 	}
 
 	public void setBasePVName(String basePVName) {
-		this.basePVName = basePVName;
+		this.basePVName = basePVName.endsWith(":") ? basePVName : basePVName + ":";
 	}
 
 	@Override
@@ -79,8 +86,14 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 
 	@Override
 	public void setFilename(String filename) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(Filename), (filename + "\0").getBytes());
+		this.pythonFilename = filename;
+		if (propertiesSet) {
+			putFilenameToChannel();
+		}
+	}
 
+	private void putFilenameToChannel() throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(Filename), (pythonFilename + "\0").getBytes());
 	}
 
 	@Override
@@ -95,7 +108,14 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 
 	@Override
 	public void setClassname(String classname) throws Exception {
-		EPICS_CONTROLLER.caput(getChannel(Classname), (classname + "\0").getBytes());
+		pythonClassname = classname;
+		if (propertiesSet) {
+			putClassnameToChannel();
+		}
+	}
+
+	private void putClassnameToChannel() throws CAException, InterruptedException, TimeoutException {
+		EPICS_CONTROLLER.caput(getChannel(Classname), (pythonClassname + "\0").getBytes());
 	}
 
 	@Override
@@ -121,15 +141,23 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 		if (parameterMap == null) {
 			throw new IllegalArgumentException("'parameterMap' must be specified");
 		}
+		if (pythonFilename != null) {
+			putFilenameToChannel();
+		}
+		if (pythonClassname != null) {
+			putClassnameToChannel();
+		}
+		readFile();
+		propertiesSet = true;
 	}
 
 	@Override
 	public void putParam(String parameter, Object value) throws Exception {
-		Map<String, String> paramNames = getPythonParameters();
+		final Map<String, String> paramNames = getPythonParameters();
 		if (!paramNames.containsKey(parameter)) {
 			throw new IllegalArgumentException("Unrecognised parameter " + parameter);
 		}
-		Channel ch = getChannel(paramNames.get(parameter));
+		final Channel ch = getChannel(paramNames.get(parameter));
 		if (value instanceof byte[]) EPICS_CONTROLLER.caput(ch, (byte[]) value);
 		else if (value instanceof Byte) EPICS_CONTROLLER.caput(ch, (byte) value);
 		else if (value instanceof short[]) EPICS_CONTROLLER.caput(ch, (short[]) value);
@@ -152,4 +180,26 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 		return EPICS_CONTROLLER.caget(getChannel(getPythonParameters().get(parameter)));
 	}
 
+	@Override
+	public Object readParam(String parameter, DBRType type) throws Exception {
+		final Map<String, String> paramNames = getPythonParameters();
+		if (!paramNames.containsKey(parameter)) {
+			throw new IllegalArgumentException("Unrecognised parameter " + parameter);
+		}
+		final Channel ch = getChannel(paramNames.get(parameter));
+		if (type == DBRType.BYTE) {
+			return EPICS_CONTROLLER.cagetByteArray(ch);
+		} else if (type == DBRType.DOUBLE) {
+			return EPICS_CONTROLLER.cagetDoubleArray(ch);
+		} else if (type == DBRType.FLOAT) {
+			return EPICS_CONTROLLER.cagetFloatArray(ch);
+		} else if (type == DBRType.INT) {
+			return EPICS_CONTROLLER.cagetIntArray(ch);
+		} else if (type == DBRType.SHORT) {
+			return EPICS_CONTROLLER.cagetShortArray(ch);
+		} else if (type == DBRType.STRING) {
+			return EPICS_CONTROLLER.cagetStringArray(ch);
+		}
+		throw new IllegalArgumentException(String.format("Unhandled parameter type %s for parameter %s", type, parameter));
+	}
 }

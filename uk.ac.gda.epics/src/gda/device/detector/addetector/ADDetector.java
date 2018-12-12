@@ -52,6 +52,7 @@ import gda.device.detector.areadetector.NDStatsGroupFactory;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDPython;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
@@ -195,6 +196,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NDFile ndFile;
 
+	private NDPython ndPython;
+
 	private NXCollectionStrategyPlugin collectionStrategy;
 
 	private String description = "ADDetector";
@@ -246,6 +249,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public void setNdFile(NDFile ndFile) {
 		this.ndFile = ndFile;
+	}
+
+	public void setNdPython(NDPython ndPython) {
+		this.ndPython = ndPython;
 	}
 
 	public void setDescription(String description) {
@@ -303,6 +310,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public NDFile getNdFile() {
 		return ndFile;
+	}
+
+	public NDPython getNdPython() {
+		return ndPython;
 	}
 
 	public boolean isComputeStats() {
@@ -407,6 +418,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			createStatsGroups();
 			setInputNames(A);
 			configureExtraNamesAndOutputFormat();
+			checkPythonPlugin();
 			reset();
 		} catch (Exception e) {
 			logger.error("Configuring {} failed! Device may not work as expected", getName(), e);
@@ -430,6 +442,16 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 		if (getNdStats() != null) {
 			statsGroup = NDStatsGroupFactory.getStatsInstance(getNdStats());
 			centroidGroup = NDStatsGroupFactory.getCentroidInstance(getNdStats());
+		}
+	}
+
+	private void checkPythonPlugin() throws Exception {
+		if (ndPython != null) {
+			logger.info("Checking Python plugin for {}", getName());
+			final int status = ndPython.getStatus();
+			if (status != 0) {
+				throw new IllegalStateException(String.format("Python plugin is in error state %d", status));
+			}
 		}
 	}
 

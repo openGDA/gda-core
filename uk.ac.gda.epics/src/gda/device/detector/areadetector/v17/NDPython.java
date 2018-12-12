@@ -20,6 +20,8 @@ package gda.device.detector.areadetector.v17;
 
 import java.util.Map;
 
+import gov.aps.jca.dbr.DBRType;
+
 public interface NDPython extends GetPluginBaseAvailable {
 
 	static final String Filename = "Filename";
@@ -63,4 +65,16 @@ public interface NDPython extends GetPluginBaseAvailable {
 	 * @throws Exception
 	 */
 	public String readParam(String parameter) throws Exception;
+
+	/**
+	 * Returns the parameter as an array of the specified type
+	 *
+	 * @param parameter
+	 *            Name of parameter, as set by {@link #setPythonParameters(Map)}
+	 * @param type
+	 *            Type of array to return
+	 * @return value of the specified parameter
+	 * @throws Exception
+	 */
+	Object readParam(String parameter, DBRType type) throws Exception;
 }
