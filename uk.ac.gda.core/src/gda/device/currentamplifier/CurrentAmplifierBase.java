@@ -27,10 +27,12 @@ import org.python.core.PyString;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Base class for the CurrentAmplifier interface
  */
+@ServiceInterface(CurrentAmplifier.class)
 public abstract class CurrentAmplifierBase extends ScannableBase implements CurrentAmplifier {
 
 	protected final List<String> gainPositions = new ArrayList<>();
