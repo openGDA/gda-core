@@ -114,7 +114,10 @@ public class Application implements IApplication {
 
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE)) {
+				logger.debug("Using Scan Data Point Service");
 				createScanDataPointService();
+			} else {
+				logger.debug("Not using Scan Data Point Service");
 			}
 
 			fixVisitID();

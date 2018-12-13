@@ -70,6 +70,9 @@ public final class UIScanDataPointEventService {
 	 * present) it will need calling to connect once the InterfaceProvider has been set.
 	 */
 	private UIScanDataPointEventService() {
+		final int cacheSize = GDAClientActivator.getDefault().getPreferenceStore()
+				.getInt(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS);
+		logger.info("Starting UIScanDataPointEventService. Initial cache size is {}", cacheSize);
 
 		currentDataPoints = new ArrayList<IScanDataPoint>(89);
 		if (ClientManager.isClient())
