@@ -73,6 +73,7 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	private Map<Integer, Integer> outTTLs = new HashMap<>();
 	private Map<Integer, Boolean> ttlOutputStates = new HashMap<>();
 	private Map<Integer, Boolean> softInputSet = new HashMap<>();
+	private Map<Integer, Double> divDivisors = new HashMap<>();
 
 	//----------------------------------------------------------------------------------------------------
 
@@ -102,6 +103,7 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 		outTTLs.clear();
 		ttlOutputStates.clear();
 		softInputSet.clear();
+		divDivisors.clear();
 	}
 
 	public ZebraDummy() {
@@ -513,4 +515,14 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 		// Do nothing
 	}
 
+	@Override
+	public void setDivDivisor(int divId, double divisor) throws Exception {
+		divDivisors.put(divId, divisor);
+	}
+
+	@Override
+	public double getDivDivisor(int divId) throws Exception {
+		final Double divisor = divDivisors.get(divId);
+		return divisor == null ? 0.0 : divisor;
+	}
 }

@@ -759,4 +759,13 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 		return val;
 	}
 
+	@Override
+	public void setDivDivisor(int divId, double divisor) throws Exception {
+		pvFactory.getDoublePVValueCache("DIV" + divId + "_DIV").putWait(divisor);
+	}
+
+	@Override
+	public double getDivDivisor(int divId) throws Exception {
+		return pvFactory.getDoublePVValueCache("DIV" + divId + "_DIV").get();
+	}
 }

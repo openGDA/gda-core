@@ -254,4 +254,25 @@ public interface Zebra {
 	 * Applies a {@link LogicGateConfiguration} to the specified OR gate.
 	 */
 	void applyOrGateConfig(int gateNumber, LogicGateConfiguration config) throws IOException;
+
+	/**
+	 * Set Divisor on the DIV block
+	 *
+	 * @param divId
+	 *            id to identify the DIV block
+	 * @param divisor
+	 *            numerical value of divisor
+	 * @throws Exception
+	 */
+	void setDivDivisor(int divId, double divisor) throws Exception;
+
+	/**
+	 * Get Divisor for the specified DIV block
+	 *
+	 * @param divId
+	 *            id to identify the DIV block
+	 * @return numerical value of divisor (or null if not set)
+	 * @throws Exception
+	 */
+	double getDivDivisor(int divId) throws Exception;
 }
