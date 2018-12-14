@@ -18,11 +18,11 @@
 
 package uk.ac.gda.tomography.devices.p2r;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.motor.simplemotor.SimpleMotorController;
 import gda.io.BidiAsciiCommunicator;
-
-import org.springframework.beans.factory.InitializingBean;
 
 public class P2RMotorController implements SimpleMotorController, InitializingBean {
 
@@ -32,6 +32,7 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 	double m[] = new double[] { 0., 0., 0., 0. ,0.};
 	private int position_index = -1;
 	private int speed_index = -1;
+	private boolean checkReply = true;
 
 	@Override
 	public void stop() throws DeviceException {
@@ -54,14 +55,14 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 
 	private void sendAndCheckReply(String msg) throws DeviceException {
 		String reply = bidiAsciiCommunicator.send(msg);
-		if (!reply.equals(msg)) {
+		if (checkReply && !reply.equals(msg)) {
 			throw new DeviceException("Error sending moveTo command '" + msg + "' reply = '" + reply + "'");
 		}
 	}
 	/**
 	 * Send ST
 	 * Get
-	 * 
+	 *
 	 * [T|F],Displacement(0), Rotation(1), Force(2), Speed of displacement(3), Speed of rotation(4)
 	 * @throws DeviceException
 	 */
@@ -168,4 +169,11 @@ public class P2RMotorController implements SimpleMotorController, InitializingBe
 		this.speed_index = speed_index;
 	}
 
+	public boolean isCheckReply() {
+		return checkReply;
+	}
+
+	public void setCheckReply(boolean checkReply) {
+		this.checkReply = checkReply;
+	}
 }
