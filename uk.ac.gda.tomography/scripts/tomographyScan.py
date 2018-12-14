@@ -183,10 +183,10 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     # detector independent items
     nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS")
     
-    nxLinkCreator.setInstrument_detector_distance_target(default_placeholder_target)
+    #nxLinkCreator.setInstrument_detector_distance(default_placeholder_target)
     nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:SDS")
-    nxLinkCreator.setInstrument_detector_x_pixel_size_target(default_placeholder_target)
-    nxLinkCreator.setInstrument_detector_y_pixel_size_target(default_placeholder_target)
+    #nxLinkCreator.setInstrument_detector_x_pixel_size_target(default_placeholder_target)
+    #nxLinkCreator.setInstrument_detector_y_pixel_size_target(default_placeholder_target)
     
     nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
     
@@ -255,7 +255,7 @@ def reportJythonNamespaceMapping():
     msg += "\n Note that PRIMARY SETTINGS for the desired type of tomography scan should normally"
     msg += "\n not include any dummy objects because they are typically used only for testing."
     
-    print "******STEP-SCAN PRIMARY SETTINGS (essential for running a tomography step-scan)******"
+    print "\n ****** STEP-SCAN PRIMARY SETTINGS (essential for running a tomography step-scan) ******"
     idx=1
     for key, val in objectOfInterestSTEP.iteritems():
         name = "object undefined!"
@@ -263,9 +263,9 @@ def reportJythonNamespaceMapping():
             name = str(val.getName())
         print `idx` + "."+ key + ' = ' + name
         idx += 1
-    print msg
+    #print msg
     
-    print "******STEP-SCAN SECONDARY SETTINGS (for additional, per-scan-point data, ie NOT essential for running a tomography step-scan)******"
+    print "\n ****** STEP-SCAN SECONDARY SETTINGS (for additional, per-scan-point data, ie NOT essential for running a tomography step-scan) ******"
     idx=1
     for key, val in objectOfInterestSTEP_INFO.iteritems():
         name = "object undefined!"
@@ -273,9 +273,9 @@ def reportJythonNamespaceMapping():
             name = str(val.getName())
         print `idx` + "."+ key + ' = ' + name
         idx += 1
-    print msg
+    #print msg
     
-    print "******FLY-SCAN PRIMARY SETTINGS (essential for running a tomography fly-scan)******"
+    print "\n ****** FLY-SCAN PRIMARY SETTINGS (essential for running a tomography fly-scan) ******"
     idx=1
     for key, val in objectOfInterestFLY.iteritems():
         name = "object undefined!"
