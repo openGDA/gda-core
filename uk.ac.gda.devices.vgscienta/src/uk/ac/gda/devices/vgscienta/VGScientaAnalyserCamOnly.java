@@ -32,8 +32,6 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
 import gda.device.Scannable;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -44,15 +42,13 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(IVGScientaAnalyserRMI.class)
 public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
 

@@ -22,11 +22,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -37,8 +33,6 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  * @author James Mudd
  */
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
 @ServiceInterface(Scannable.class)
 public class EnergyScannable extends ScannableBase {
 

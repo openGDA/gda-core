@@ -2,23 +2,6 @@ package org.opengda.detector.electronanalyser.nxdetector;
 
 import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
-import gda.device.detector.NXDetector;
-import gda.device.detector.NexusDetector;
-import gda.device.scannable.PositionCallableProvider;
-import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-import gda.jython.accesscontrol.MethodAccessProtected;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +18,20 @@ import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.NXDetector;
+import gda.device.detector.NexusDetector;
+import gda.device.scannable.PositionCallableProvider;
+import gda.factory.FactoryException;
+import gda.jython.accesscontrol.MethodAccessProtected;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
 /**
  * a container class for VGScienta Electron Analyser, which takes a sequence file
  * defining a list of regions as input and collect analyser data - image, spectrum and external IO data -
@@ -43,8 +40,6 @@ import org.springframework.beans.factory.InitializingBean;
  * @author fy65
  *
  */
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
 public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider> {
 	/**
 	 *

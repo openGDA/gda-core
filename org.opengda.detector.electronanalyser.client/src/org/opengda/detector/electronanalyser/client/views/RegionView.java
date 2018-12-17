@@ -75,7 +75,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableStatus;
-import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 
@@ -1555,11 +1555,11 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	@Override
 	public void update(Object source, Object arg) {
 		// If the update is not from a ScannableAdapter and of type ScannableStatus return
-		if (!(source instanceof ScannableAdapter) || !(arg instanceof ScannableStatus)) {
+		if (arg instanceof ScannableStatus) {
 			return;
 		}
 		// Cast the update
-		ScannableAdapter adaptor = (ScannableAdapter) source;
+		Findable adaptor = (Findable) source; // Findable so we can getName
 		ScannableStatus status = (ScannableStatus) arg;
 
 		// Check if any move has just completed. If not return
