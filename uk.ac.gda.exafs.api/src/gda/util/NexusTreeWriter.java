@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xspress;
+package gda.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,6 +32,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
@@ -50,13 +52,12 @@ import org.slf4j.LoggerFactory;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.scan.datawriter.NexusDataWriter;
 import gda.jython.InterfaceProvider;
 
 /**
  * Class that can be used to take data stored in NexusTreeProvider[] and write it to a new or pre-existing Nexus file.
- * It is designed to be used to write Xspress2 data as returned by {@link Xspress2Detector#readout(int, int)}) into a nexus file.
- * See {@link Xspress2BufferedDetector#writeDetectorData(NexusTreeProvider[])} and {@link Xspress2BufferedDetector#readFrames(int, int)}.
+ * It is designed to be used to write Xspress2 data as returned by {Xspress2Detector#readout(int, int)}) into a nexus file.
+ * See {Xspress2BufferedDetector#writeDetectorData(NexusTreeProvider[])} and {Xspress2BufferedDetector#readFrames(int, int)}.
  * <p>
  * Flow of data between objects is :  {@code NexusTreeProvider[] --> Map<String, Dataset> dataToWrite--> List<LazyDatasets> lazyDatasetList -> nexusfile}
  *<p>
@@ -118,9 +119,21 @@ public class NexusTreeWriter {
 	private void createNexusDatasets(NexusFile nexusFile, List<ILazyWriteableDataset> lazyDatasets) throws NexusException {
 		logger.debug("Creating new datasets in Nexus file {}...", nexusFile.getFilePath());
 		String path = "/entry1/"+detectorName+"/";
+		int count = 0;
 		for(ILazyWriteableDataset dset : lazyDatasets) {
 			logger.debug("   dataset {}", dset.getName());
-			detectorNexusFile.createData(path, dset, compressionLevel, true);
+			GroupNode detGroup = detectorNexusFile.getGroup(path, true);
+			DataNode dataNode = detGroup.getDataNode(dset.getName());
+			if (dataNode != null) {
+				// Associate lazy dataset with data node already in nexus file
+				logger.debug("Using lazy dataset from existing data node {}/{}", path, dset.getName());
+				lazyDatasets.set(count, dataNode.getWriteableDataset());
+			} else {
+				// Create new data node in Nexus file
+				logger.debug("Making new data node at {}/{}", path, dset.getName());
+				detectorNexusFile.createData(path, dset, compressionLevel, true);
+			}
+			count++;
 		}
 	}
 
@@ -161,6 +174,10 @@ public class NexusTreeWriter {
 	 */
 	private void updateLazyDataset(ILazyWriteableDataset lazyDataset, Dataset dataset) throws DatasetException {
 		logger.debug("Updating lazy dataset {}", lazyDataset.getName());
+		if (lazyDataset.getShape().length != dataset.getShape().length) {
+			logger.warn("Skipping adding lazy dataset '{}' - shape length mismatch (lazy = {}, data = {})", lazyDataset.getName(), lazyDataset.getShape().length, dataset.getShape().length);
+			return;
+		}
 
 		// Append to existing lazy dataset
 		int[] lazyShape = lazyDataset.getShape();
@@ -174,6 +191,8 @@ public class NexusTreeWriter {
 		int[] stop = dataset.getShape();
 		stop[0] += currentLazyFrameNumber;
 
+		logger.info("data shape = {}, lazy slice start = {}, stop = {}", Arrays.toString(dataset.getShape()), Arrays.toString(start), Arrays.toString(stop));
+
 		lazyDataset.setSlice(null, dataset, start, stop, null);
 	}
 
@@ -185,12 +204,14 @@ public class NexusTreeWriter {
 	 * @return Map<node name, dataset>
 	 */
 	public Map<String, Dataset> getDatasetMap(List<NexusTreeProvider> nexusTreeArray) {
-		logger.debug("Extracting datasets from NexusTreeProvider array...");
 
 		// Get name of detector (first child node of tree)
 		detectorName = nexusTreeArray.get(0).getNexusTree().getChildNode(0).getName();
 
 		int numFrames = nexusTreeArray.size();
+
+		logger.debug("Extracting {} frames of data for detector {} from NexusTreeProvider array...", numFrames, detectorName);
+
 		int currentFrame = 0;
 
 		Map<String, Dataset> datasetMap = new LinkedHashMap<>(); // use linked hashmap to retain data in same detector order as in tree
@@ -204,6 +225,12 @@ public class NexusTreeWriter {
 			for (int i = 0; i < numChildNodes; i++) {
 
 				INexusTree childNode = nxTree.getChildNode(i);
+
+				if (childNode.getAttributes() != null && childNode.getAttributes().get("axis")!=null) {
+					// logger.debug("Not adding {} - this is axis data and not change during a scan", childNode.getName());
+					continue;
+				}
+
 				Dataset datasetFromTree = childNode.getData().toDataset().squeeze();
 
 				// Make new dataset to store data for this node for whole nexusTreeArray
@@ -215,6 +242,7 @@ public class NexusTreeWriter {
 					if (datasetFromTree.getDType() == Dataset.INT32 || datasetFromTree.getDType() == Dataset.INT64) {
 						classType = IntegerDataset.class;
 					}
+					logger.debug("Creating dataset to store {} data. Shape = {}", dataName, Arrays.toString(newShape));
 					Dataset dset =  DatasetFactory.zeros(classType, newShape);
 					dset.setName(dataName);
 					datasetMap.put(dataName, dset);
@@ -235,10 +263,11 @@ public class NexusTreeWriter {
 
 				// Store data in the dataset by setting slice
 				datasetFromMap.setSlice(datasetFromTree, start, stop, null);
-				logger.debug("   frame {}, dataset {} : shape = {}", currentFrame, childNode.getName(), ArrayUtils.toString(datasetFromTree.getShape()));
 			}
 			currentFrame++;
 		}
+		logger.debug("Finished extracting frames");
+
 		return datasetMap;
 	}
 
@@ -389,7 +418,7 @@ public class NexusTreeWriter {
 				detectorNexusFile.flush();
 				detectorNexusFile.close();
 			} catch (NexusException e) {
-				logger.error("Problem closing xspress2 nexus file {}", detectorNexusFile.getFilePath(),  e);
+				logger.error("Problem closing Nexus file {}", detectorNexusFile.getFilePath(),  e);
 			}
 		}
 	}
@@ -414,28 +443,27 @@ public class NexusTreeWriter {
 	}
 
 	/**
-	 * Remove child nodes in nexusTreeArray whose names match those in the current lazyDatasetList (i.e. datasets written to detector nexus file).
-	 * By removing these nodes, when {@link NexusDataWriter} processes the nexus tree, it doesn't write the data into the scan nexus file.
+	 * Remove child nodes in Nexus tree array. See {@link #removeNodesFromNexusTree(NexusTreeProvider)}.
 	 * @param nexusTreeArray
 	 */
 	public void removeNodesFromNexusTree(NexusTreeProvider[] nexusTreeArray) {
-		for(String datasetName : datasetNames) {
-			// Child Nodes must be removed from the Tree in same order as they were added, otherwise get infinite recursion and stack overflow...
-			removeNodeFromNexusTree(nexusTreeArray, datasetName);
+		for(NexusTreeProvider treeProvider : nexusTreeArray) {
+			removeNodesFromNexusTree(treeProvider);
 		}
 	}
 
 	/**
-	 * Remove named child node in detector group from nexusTreeArray items.
-	 * @param nexusTreeArray
-	 * @param nodeName
+	 * Remove child nodes in Nexus tree whose names match those in the current lazyDatasetList (i.e. datasets written to detector nexus file).
+	 * By removing these nodes, when {NexusDataWriter} processes the Nexus tree, it doesn't write the data into the scan nexus file.
+	 * @param nexusTreeProvider
 	 */
-	private void removeNodeFromNexusTree(NexusTreeProvider[] nexusTreeArray, String nodeName) {
-		for(NexusTreeProvider treeProvider : nexusTreeArray) {
-			NexusTreeNode treeNode = (NexusTreeNode) treeProvider.getNexusTree().getNode(detectorName);
-			NexusTreeNode childNode = treeNode.findNode(nodeName);
+	public void removeNodesFromNexusTree(NexusTreeProvider nexusTreeProvider) {
+		for(String datasetName : datasetNames) {
+			// Child Nodes must be removed from the Tree in same order as they were added, otherwise get infinite recursion and stack overflow...
+			NexusTreeNode treeNode = (NexusTreeNode) nexusTreeProvider.getNexusTree().getNode(detectorName);
+			NexusTreeNode childNode = treeNode.findNode(datasetName);
 			childNode.setParentNode(null);
-			treeProvider.getNexusTree().getNode(detectorName).removeChildNode(childNode);
+			nexusTreeProvider.getNexusTree().getNode(detectorName).removeChildNode(childNode);
 		}
 	}
 
