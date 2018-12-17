@@ -18,8 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
  uk.ac.gda.exafs.api,
  uk.ac.gda.devices.xmap;bundle-version="1.0.0",
- uk.ac.gda.devices.xspress3;bundle-version="1.0.0",
- uk.ac.diamond.org.jacorb;bundle-version="2.2.2"
+ uk.ac.gda.devices.xspress3;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: fr.esrf.Tango,
