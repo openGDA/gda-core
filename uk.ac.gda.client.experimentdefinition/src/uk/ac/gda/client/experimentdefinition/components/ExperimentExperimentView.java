@@ -55,6 +55,8 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -127,7 +129,29 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 			logger.error("Exception while starting ExperimentView",e);
 		}
 
+		addListenerToCloseEditors();
 
+	}
+
+	/**
+	 * Add listener to workbench to remove all XML editors if selected perspective changes
+	 * to something other than the 'Experiment' perspective.
+	 */
+	private void addListenerToCloseEditors() {
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().addPerspectiveListener( new IPerspectiveListener() {
+			@Override
+			public void perspectiveChanged(IWorkbenchPage page, IPerspectiveDescriptor perspective, String changeId) {
+			}
+
+			@Override
+			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
+				logger.debug("Perspective activated : {} ", perspective.getId());
+				if (!perspective.getId().equals(ExperimentPerspective.ID)) {
+					logger.debug("Closing all active XML editors in 'Experiment' perspective.");
+					ExperimentFactory.getExperimentEditorManager().closeAllEditors(true);
+				}
+			}
+		});
 	}
 
 	@Override
