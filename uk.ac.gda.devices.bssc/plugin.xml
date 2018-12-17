@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension
+        point="uk.ac.diamond.daq.jython.api.scriptLocations">
+     <location
+           folder="uk.ac.gda.devices.bssc/scripts"
+           name="Scripts: BSSC">
+     </location>
+  </extension>
+  <!--<extension
+        id="uk.ac.gda.devices.bssc.hideperspective"
+        name="Hide Perspective"
+        point="org.eclipse.ui.activities">
+     <activityPatternBinding
+           activityId="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           pattern="uk.ac.gda.pydev.extension/uk.ac.gda.pydev.extension.ui.JythonPerspective">
+     </activityPatternBinding>
+     <activity
+           id="uk.ac.gda.devices.bssc.hideScriptsPerspectiveActivity"
+           name="Hide Scripts Perspective">
+     </activity>
+  </extension>-->
+
+</plugin>

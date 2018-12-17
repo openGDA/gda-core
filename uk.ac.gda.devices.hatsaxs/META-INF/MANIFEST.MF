@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hatsaxs
+Bundle-SymbolicName: uk.ac.gda.devices.hatsaxs
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: gda.configuration.properties,
+ org.eclipse.core.resources,
+ org.osgi.framework;version="1.7.0",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
+Require-Bundle: uk.ac.gda.core,
+ uk.ac.gda.common,
+ org.eclipse.core.runtime;bundle-version="3.8.0"
+Export-Package: uk.ac.gda.devices.hatsaxs,
+ uk.ac.gda.devices.hatsaxs.beans;uses:="uk.ac.gda.beans,gda.factory"
+Bundle-ClassPath: .
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Bundle-Vendor: Diamond Light Source
