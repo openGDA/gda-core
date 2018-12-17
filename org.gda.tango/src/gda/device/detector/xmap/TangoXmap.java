@@ -18,11 +18,6 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.jython.InterfaceProvider;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +25,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -204,5 +203,15 @@ public class TangoXmap extends Xmap implements FluorescenceDetector {
 	public double readoutScalerData() throws DeviceException {
 		// This, IMHO, is a wrongly named method. Call the correctly named method!
 		return getFF();
+	}
+
+	@Override
+	public boolean isWriteHDF5Files() {
+		return false;
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		// do nothing
 	}
 }
