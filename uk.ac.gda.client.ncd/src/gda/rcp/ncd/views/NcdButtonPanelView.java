@@ -50,7 +50,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
@@ -81,10 +80,8 @@ public class NcdButtonPanelView extends ViewPart {
 	public NcdButtonPanelView() {
 		this.titleString = "";
 		titleList = new String[] {};
-		Findable find = Finder.getInstance().find(THICKNESS_METADATA);
-		if (find instanceof ScannableAdapter) {
-			thicknessScannable = ((Scannable) find);
-		} else {
+		thicknessScannable = Finder.getInstance().find(THICKNESS_METADATA);
+		if (thicknessScannable == null) {
 			logger.error("NCD Acquisition panel could not find thickness scannable");
 		}
 	}

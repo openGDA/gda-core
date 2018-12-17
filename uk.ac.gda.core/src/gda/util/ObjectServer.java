@@ -39,9 +39,6 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.corba.util.EventService;
-import gda.factory.corba.util.ImplFactory;
-import gda.factory.corba.util.NetService;
 import gda.util.logging.LogbackUtils;
 
 /**
@@ -56,8 +53,6 @@ public abstract class ObjectServer implements Runnable {
 
 	protected File xmlFile;
 
-	protected NetService netService;
-
 	protected boolean localObjectsOnly = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(ObjectServer.class);
@@ -66,13 +61,6 @@ public abstract class ObjectServer implements Runnable {
 	 * Complete list of factories that have been created for this object server.
 	 */
 	protected List<Factory> factories = new Vector<Factory>();
-
-
-	/**
-	 * All {@link ImplFactory}s that have been created by this object server
-	 * to make objects remotely accessible.
-	 */
-	protected List<ImplFactory> implFactories = new Vector<ImplFactory>();
 
 	/**
 	 * Creates an object server.
@@ -228,14 +216,6 @@ public abstract class ObjectServer implements Runnable {
 	 * @throws FactoryException
 	 */
 	public void configure() throws FactoryException {
-		if (!localObjectsOnly && !LocalProperties.isCorbaDisabled()) {
-			logger.info("Calling NetService.getInstance()");
-			netService = NetService.getInstance();
-			logger.info("Calling EventService.getInstance()");
-			EventService.getInstance();
-			logger.info("Completed EventService.getInstance()");
-		}
-
 		LocalProperties.checkForObsoleteProperties();
 		// Dump out all of the properties to the logging system at objectserver startup
 		LocalProperties.dumpProperties();
@@ -332,10 +312,7 @@ public abstract class ObjectServer implements Runnable {
 	 */
 	@Override
 	public void run() {
-		// server loop: never returns from this call!
-		if (!localObjectsOnly) {
-			netService.serverRun();
-		}
+		// FIXME what to do here?
 	}
 
 	/**
@@ -461,11 +438,6 @@ public abstract class ObjectServer implements Runnable {
 	 */
 	public void shutdown() {
 		logger.info("ObjectServer is shutting down");
-
-		// Shutdown ImplFactorys, to unbind CORBA names
-		for (ImplFactory implFactory : implFactories) {
-			implFactory.shutdown();
-		}
 	}
 
 	protected abstract void startServer() throws FactoryException;

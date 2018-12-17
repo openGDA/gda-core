@@ -33,7 +33,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.util.VisitPath;
-import gda.util.simpleServlet.corba.impl.SimpleServletAdapter;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 
 /**
@@ -292,8 +291,7 @@ public class UserOptions extends java.util.LinkedHashMap<String, UserOption> {
 	 */
 	public static UserOptions getUserOptionsFromConfigFromGUI(String configDirTemplate, String configNameTemplate,
 			String configDirValues, String configNameValues) throws DeviceException {
-		return (UserOptions) SimpleServletAdapter.runServlet(UserOptions.class.getName(), "__getUserOptionsFromConfig",
-				configDirTemplate + "&" + configNameTemplate + "&" + configDirValues + "&" + configNameValues);
+		throw new UnsupportedOperationException("This relies on Corba, reimplement this functionality");
 	}
 
 	/*
@@ -322,8 +320,7 @@ public class UserOptions extends java.util.LinkedHashMap<String, UserOption> {
 	 * @throws DeviceException
 	 */
 	public void saveValuesToConfigFromGUI(String configDirValues, String configNameValues) throws DeviceException {
-		SimpleServletAdapter.runServlet(UserOptions.class.getName(), "__saveValuesToConfig", configDirValues + "&"
-				+ configNameValues, this);
+		throw new UnsupportedOperationException("This relies on Corba, reimplement this functionality");
 	}
 
 	/*

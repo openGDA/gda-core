@@ -18,13 +18,12 @@
 
 package gda.spring.namespaces.gda;
 
-import gda.factory.Findable;
-import gda.factory.corba.util.CorbaUtils;
-import gda.jython.accesscontrol.RbacUtils;
-import gda.spring.BeanPostProcessorAdapter;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+
+import gda.factory.Findable;
+import gda.jython.accesscontrol.RbacUtils;
+import gda.spring.BeanPostProcessorAdapter;
 
 /**
  * A {@link BeanPostProcessor} instance that proxies devices.
@@ -39,11 +38,6 @@ public class RbacBeanPostProcessor extends BeanPostProcessorAdapter {
 			// Don't wrap the Findable if it is a cglib proxy
 			if (RbacUtils.objectIsCglibProxy(f)) {
 				return bean;
-			}
-
-			// Handle adapters, as done by AdapterFactory
-			else if (CorbaUtils.isCorbaAdapter(f)) {
-				bean = RbacUtils.buildProxy(f);
 			}
 
 			// Handle 'standard' objects, as done by ObjectFactory.buildProxies

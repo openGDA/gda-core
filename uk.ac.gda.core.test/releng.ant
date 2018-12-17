@@ -58,7 +58,6 @@
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis.plotserver/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
-				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->

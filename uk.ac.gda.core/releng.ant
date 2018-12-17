@@ -43,7 +43,6 @@
 				<pathelement location="${workspace.git.loc}/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-cbflib.git/uk.ac.diamond.CBFlib/bin" />
 				<pathelement location="${workspace.git.loc}/scisoft-cbflib.git/uk.ac.diamond.CBFlib/jars/*" />
-				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/jacorb.jar" />
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.python/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawnsci.boofcv/bin" />

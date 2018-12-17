@@ -19,19 +19,12 @@
 
 package gda.factory.corba.util;
 
-import org.omg.CosEventChannelAdmin.EventChannel;
-import org.omg.CosEventChannelAdmin.EventChannelHelper;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.InvalidName;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.events.jms.JmsEventDispatcher;
 import gda.events.jms.JmsEventReceiver;
-import gda.factory.FactoryException;
 
 /**
  * An event service class to allow dispatching of events to remote receivers using the event service.
@@ -44,19 +37,11 @@ public class EventService {
 	/** If JMS events is specifically requested or if Corba is disabled */
 	private final boolean usingJMS = LocalProperties.check(USE_JMS_EVENTS) || LocalProperties.isCorbaDisabled();
 
-	private org.omg.CORBA.ORB orb;
-
-	private NamingContextExt nc;
-
-	private EventChannel eventChannel = null;
-
-	private String eventChannelName = "eventchannel.example";
-
-	private static EventService instance = null;
-
 	private EventDispatcher eventDispatcher = null;
 
 	private EventReceiver eventReceiver = null;
+
+	private static EventService instance = null;
 
 	/**
 	 * Access method for the EventService singleton
@@ -74,21 +59,9 @@ public class EventService {
 		return instance;
 	}
 
-	private EventService() throws FactoryException, NotFound, CannotProceed, InvalidName {
+	private EventService() {
 		if (usingJMS) {
 			logger.info("Configured for JMS events");
-		}
-		else { // Using Corba events
-			String property;
-			if ((property = NameFilter.getEventChannelName()) != null) {
-				eventChannelName = property;
-			}
-			NetService netService = NetService.getInstance();
-			orb = netService.getOrb();
-			nc = netService.getNamingContextExt();
-			logger.info("Resolving EventService using name '{}'", eventChannelName);
-			eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
-			logger.info("Successfully configured EventService using name '{}'", eventChannelName);
 		}
 	}
 
@@ -103,12 +76,6 @@ public class EventService {
 			if (usingJMS) {
 				eventDispatcher = new JmsEventDispatcher();
 			}
-			else { // Using Corba
-				//To prevent threads calling publish being blocked as the client responses one can opt to
-				//put the events onto a separate thread in a threadpool.
-				//To opt for this set gda.factory.corba.util.CorbaEventDispatcher.threadPoolSize to rather than 0, e.g 10
-				eventDispatcher = new CorbaEventDispatcher(eventChannel, orb, LocalProperties.check("gda.factory.corba.util.CorbaEventDispatcher.allowBatchMode", true));
-			}
 		}
 		return eventDispatcher;
 	}
@@ -118,19 +85,16 @@ public class EventService {
 	 *
 	 * @param eventSubscriber
 	 *            the event subscriber
-	 * @param filter
-	 *            the event filter
+	 * @param objectName
+	 *            the name of the object to receive events from
 	 */
-	public void subscribe(EventSubscriber eventSubscriber, Filter filter) {
+	public void subscribe(EventSubscriber eventSubscriber, String objectName) {
 		if (eventReceiver == null) {
 			if(usingJMS) {
 				eventReceiver = new JmsEventReceiver();
 			}
-			else { // using Corba
-				eventReceiver = new CorbaEventReceiver(eventChannel, orb);
-			}
 		}
-		eventReceiver.subscribe(eventSubscriber, filter);
+		eventReceiver.subscribe(eventSubscriber, objectName);
 	}
 
 	/**

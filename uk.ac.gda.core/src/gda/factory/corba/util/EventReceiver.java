@@ -28,9 +28,9 @@ public interface EventReceiver {
 	 * Subscribes an object to events matching a filter.
 	 *
 	 * @param subscriber the subscriber object
-	 * @param filter the filter
+	 * @param name the name of the object to subscribe to
 	 */
-	public void subscribe(EventSubscriber subscriber, Filter filter);
+	public void subscribe(EventSubscriber subscriber, String name);
 
 	/**
 	 * Disconnects from the source of events.

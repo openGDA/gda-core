@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.corba.util.EventReceiver;
 import gda.factory.corba.util.EventSubscriber;
-import gda.factory.corba.util.Filter;
-import gda.factory.corba.util.NameFilter;
 import gda.util.Serializer;
 
 /**
@@ -78,12 +76,8 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	}
 
 	@Override
-	public void subscribe(final EventSubscriber eventSubscriber, final Filter filter) {
+	public void subscribe(final EventSubscriber eventSubscriber, final String name) {
 		try {
-			// TODO The only Filter type we have is NameFilter so this cast is definitely safe at the moment but maybe
-			// we should consider redesigning or removing this Filter system.
-			final NameFilter nf = (NameFilter) filter;
-			final String name = nf.getName();
 			final String topicName = TOPIC_PREFIX + name;
 			final Topic topic = session.createTopic(topicName);
 

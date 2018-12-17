@@ -53,7 +53,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jacorb.orb.Any;
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Dimensionless;
 import org.jscience.physics.quantities.Duration;
@@ -445,8 +444,6 @@ public class UnitsComponent implements PositionConvertor {
 			}
 		} else if (position instanceof Double) {
 			quantity = Quantity.valueOf((Double) position, targetUnit);
-		} else if (position instanceof Any) {
-			quantity = Quantity.valueOf(Double.valueOf(position.toString()), targetUnit);
 		} else if (position instanceof Integer) {
 			quantity = Quantity.valueOf((Integer) position, targetUnit);
 		} else if (position instanceof PyFloat) {

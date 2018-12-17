@@ -24,8 +24,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
-import gda.factory.corba.util.Filter;
-import gda.factory.corba.util.NameFilter;
 import gda.observable.ObservableComponent;
 
 /**
@@ -74,8 +72,7 @@ public class ClientSideEventReceiver implements InitializingBean {
 
 		// Register to receive events from the event system
 		final EventService eventService = EventService.getInstance();
-		Filter filter = new NameFilter(objectName, observableComponent);
-		eventService.subscribe(eventSubscriber, filter);
+		eventService.subscribe(eventSubscriber, objectName);
 		logger.debug("Now subscribed to events from '{}'", objectName);
 	}
 
