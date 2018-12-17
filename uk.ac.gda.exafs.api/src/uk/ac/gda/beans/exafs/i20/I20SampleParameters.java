@@ -30,8 +30,6 @@ import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class I20SampleParameters implements Serializable, ISampleParametersWithMotorPositions {
-	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat" };
-	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Room Temperature" };
 	static public final URL mappingURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xml");
 	static public final URL schemaURL = I20SampleParameters.class.getResource("I20SampleParametersMapping.xsd");
 	public static final String SAMPLE_WHEEL_NAME = "filterwheel";
@@ -39,13 +37,6 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 	private String name; // use as file prefix
 	private String sampleWheelPosition;
 	private Boolean useSampleWheel = false;
-	private String sampleEnvironment = "None";
-	private List<SampleStageParameters> roomTemperatureParameters;
-	private CryostatParameters cryostatParameters;
-	private FurnaceParameters furnaceParameters;
-	private MicroreactorParameters microreactorParameters;
-	private List<CustomXYZParameter> customXYZParameters;
-	private List<CustomParameter> customParameters;
 	private List<SampleParameterMotorPosition> sampleParameterMotorPositions = new ArrayList<>();
 	private boolean shouldValidate = true;
 
@@ -63,21 +54,11 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 	public void clear() {
 		if (descriptions != null)
 			descriptions.clear();
-		if (customParameters != null)
-			customParameters.clear();
-		if (customXYZParameters != null)
-			customXYZParameters.clear();
-		if (roomTemperatureParameters != null)
-			roomTemperatureParameters.clear();
-
 		sampleParameterMotorPositions.clear();
 	}
 
 	public I20SampleParameters() {
 		descriptions = new ArrayList<>(7);
-		customParameters = new ArrayList<>(7);
-		customXYZParameters = new ArrayList<>(7);
-		roomTemperatureParameters = new ArrayList<>(7);
 	}
 
 	@Override
@@ -128,68 +109,8 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 		this.sampleWheelPosition = sampleWheelPosition;
 	}
 
-	public List<SampleStageParameters> getRoomTemperatureParameters() {
-		return roomTemperatureParameters;
-	}
-
-	public void setRoomTemperatureParameters(List<SampleStageParameters> roomTemperatureParameters) {
-		this.roomTemperatureParameters = roomTemperatureParameters;
-	}
-
-	public void addRoomTemperatureParameter(SampleStageParameters roomTempParameter) {
-		roomTemperatureParameters.add(roomTempParameter);
-	}
-
-	public CryostatParameters getCryostatParameters() {
-		return cryostatParameters;
-	}
-
 	public NoneParameters getNoneParameters() {
 		return new NoneParameters();
-	}
-
-	public void setCryostatParameters(CryostatParameters cryostatParameters) {
-		this.cryostatParameters = cryostatParameters;
-	}
-
-	public FurnaceParameters getFurnaceParameters() {
-		return furnaceParameters;
-	}
-
-	public void setFurnaceParameters(FurnaceParameters furnaceParameters) {
-		this.furnaceParameters = furnaceParameters;
-	}
-
-	public void setMicroreactorParameters(MicroreactorParameters microreactorParameters) {
-		this.microreactorParameters = microreactorParameters;
-	}
-
-	public MicroreactorParameters getMicroreactorParameters() {
-		return microreactorParameters;
-	}
-
-	public List<CustomParameter> getCustomParameters() {
-		return customParameters;
-	}
-
-	public void addCustomParameter(CustomParameter customParameter) {
-		customParameters.add(customParameter);
-	}
-
-	public void setCustomParameters(List<CustomParameter> customParameters) {
-		this.customParameters = customParameters;
-	}
-
-	public List<CustomXYZParameter> getCustomXYZParameters() {
-		return customXYZParameters;
-	}
-
-	public void addCustomXYZParameter(CustomXYZParameter customParameter) {
-		customXYZParameters.add(customParameter);
-	}
-
-	public void setCustomXYZParameters(List<CustomXYZParameter> customParameters) {
-		this.customXYZParameters = customParameters;
 	}
 
 	@Override
@@ -199,14 +120,6 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 		} catch (Exception e) {
 			return e.getMessage();
 		}
-	}
-
-	public String getSampleEnvironment() {
-		return sampleEnvironment;
-	}
-
-	public void setSampleEnvironment(String sampleEnvironment) {
-		this.sampleEnvironment = sampleEnvironment;
 	}
 
 	public boolean isShouldValidate() {
@@ -229,15 +142,8 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cryostatParameters == null) ? 0 : cryostatParameters.hashCode());
-		result = prime * result + ((customParameters == null) ? 0 : customParameters.hashCode());
-		result = prime * result + ((customXYZParameters == null) ? 0 : customXYZParameters.hashCode());
 		result = prime * result + ((descriptions == null) ? 0 : descriptions.hashCode());
-		result = prime * result + ((furnaceParameters == null) ? 0 : furnaceParameters.hashCode());
-		result = prime * result + ((microreactorParameters == null) ? 0 : microreactorParameters.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((roomTemperatureParameters == null) ? 0 : roomTemperatureParameters.hashCode());
-		result = prime * result + ((sampleEnvironment == null) ? 0 : sampleEnvironment.hashCode());
 		result = prime * result + ((sampleWheelPosition == null) ? 0 : sampleWheelPosition.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		result = prime * result + ((useSampleWheel == null) ? 0 : useSampleWheel.hashCode());
@@ -254,64 +160,12 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 		if (getClass() != obj.getClass())
 			return false;
 		I20SampleParameters other = (I20SampleParameters) obj;
-		if (cryostatParameters == null) {
-			if (other.cryostatParameters != null)
-				return false;
-		}
-		else if (!cryostatParameters.equals(other.cryostatParameters))
-			return false;
-		if (customParameters == null) {
-			if (other.customParameters != null)
-				return false;
-		}
-		else if (!customParameters.equals(other.customParameters))
-			return false;
-		if (customXYZParameters == null) {
-			if (other.customXYZParameters != null)
-				return false;
-		}
-		else if (!customXYZParameters.equals(other.customXYZParameters))
-			return false;
 		if (descriptions == null) {
 			if (other.descriptions != null)
 				return false;
 		}
 		else if (!descriptions.equals(other.descriptions))
 			return false;
-		if (furnaceParameters == null) {
-			if (other.furnaceParameters != null)
-				return false;
-		}
-		else if (!furnaceParameters.equals(other.furnaceParameters))
-			return false;
-		if (microreactorParameters == null) {
-			if (other.microreactorParameters != null)
-				return false;
-		}
-		else if (!microreactorParameters.equals(other.microreactorParameters))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		}
-		else if (!name.equals(other.name))
-			return false;
-		if (roomTemperatureParameters == null) {
-			if (other.roomTemperatureParameters != null)
-				return false;
-		}
-		else if (!listEquals(roomTemperatureParameters, other.roomTemperatureParameters))
-			return false;
-		if (sampleEnvironment == null) {
-			if (other.sampleEnvironment != null)
-				return false;
-		}
-		else if (!sampleEnvironment.equals(other.sampleEnvironment))
-			return false;
-		if (sampleWheelPosition == null) {
-			if (other.sampleWheelPosition != null)
-				return false;
-		}
 		else if (!sampleWheelPosition.equals(other.sampleWheelPosition))
 			return false;
 		if (shouldValidate != other.shouldValidate)
@@ -327,15 +181,6 @@ public class I20SampleParameters implements Serializable, ISampleParametersWithM
 				return false;
 		} else if (!sampleParameterMotorPositions.equals(other.sampleParameterMotorPositions))
 			return false;
-		return true;
-	}
-
-	private boolean listEquals(List<?> list1, List<?> list2) {
-		if (list1.size() != list2.size())
-			return false;
-		for (int element = 0; element < list1.size(); element++)
-			if (!list1.get(element).equals(list2.get(element)))
-				return false;
 		return true;
 	}
 

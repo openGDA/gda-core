@@ -431,4 +431,14 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public FluorescenceDetectorParameters getConfigurationParameters() {
 		return xspress3Detector.getConfigurationParameters();
 	}
+
+	@Override
+	public boolean isWriteHDF5Files() {
+		return xspress3Detector.isWriteHDF5Files();
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		xspress3Detector.setWriteHDF5Files(writeHDF5Files);
+	}
 }

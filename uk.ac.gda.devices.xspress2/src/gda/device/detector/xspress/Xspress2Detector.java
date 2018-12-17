@@ -885,4 +885,17 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 	public FluorescenceDetectorParameters getConfigurationParameters() {
 		return settings.getParameters();
 	}
+
+	/**
+	 * Xspress2 does not produce HDF5 files.
+	 */
+	@Override
+	public boolean isWriteHDF5Files() {
+		return false;
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		// do nothing
+	}
 }

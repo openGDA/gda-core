@@ -658,10 +658,12 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		this.controller = controller;
 	}
 
+	@Override
 	public boolean isWriteHDF5Files() {
 		return writeHDF5Files;
 	}
 
+	@Override
 	public void setWriteHDF5Files(boolean writeHDF5Files) {
 		this.writeHDF5Files = writeHDF5Files;
 	}

@@ -19,9 +19,14 @@
 package uk.ac.gda.exafs.ui.data;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +45,14 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.preferences.PreferenceConstants;
+import uk.ac.gda.server.exafs.scan.ScanType;
 
 public final class ScanObjectManager extends ExperimentObjectManager implements IExperimentObjectManager, IObserver {
 	private static IScanParameters currentScan;
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
+	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");;
 	private static final String[] DEFAULT_SCAN_TAB_ORDER = { "Scan", "Detector", "Sample", "Output" };
 	private static final String DEFAULT_SELECTED_SCAN_TAB = "Scan";
 
@@ -63,6 +70,22 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 					logger.error("Error adding Observer to LoggingScriptController", e);
 				}
 			}
+		}
+
+		setInstancePreferences();
+	}
+
+	/**
+	 *  Set the instance scope scan preferences from values set at client startup plugin_customization.ini
+	 */
+	private void setInstancePreferences() {
+		Map<String, ScanType> prefStrings = new HashMap<>();
+		prefStrings.put(ExafsPreferenceConstants.XES_MODE_ENABLED, ScanType.XES_ONLY);
+		prefStrings.put(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, ScanType.QEXAFS_DEFAULT);
+		prefStrings.put(ExafsPreferenceConstants.XANES_IS_DEFAULT_SCAN_TYPE, ScanType.XANES_DEFAULT);
+		for(Entry<String, ScanType> entry : prefStrings.entrySet()) {
+			boolean isSelected = ExafsActivator.getDefault().getPreferenceStore().getBoolean(entry.getKey());
+			serverPrefs.putBoolean(entry.getValue().toString(), isSelected);
 		}
 	}
 
@@ -83,6 +106,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	public static void setXESOnlyMode(boolean onlyXESScans) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XES_MODE_ENABLED, onlyXESScans);
+		serverPrefs.putBoolean(ScanType.XES_ONLY.toString(), onlyXESScans);
 	}
 
 	public static boolean isQEXAFSDefaultScanType() {
@@ -91,6 +115,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	public static void setQEXAFSDefaultScanType(boolean qexafsIsDefault) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, qexafsIsDefault);
+		serverPrefs.putBoolean(ScanType.QEXAFS_DEFAULT.toString(), qexafsIsDefault);
 	}
 
 	public static boolean isXANESDefaultScanType() {
@@ -99,6 +124,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 
 	public static void setXANESDefaultScanType(boolean xanesIsDefault) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XANES_IS_DEFAULT_SCAN_TYPE, xanesIsDefault);
+		serverPrefs.putBoolean(ScanType.XANES_DEFAULT.toString(), xanesIsDefault);
 	}
 
 	/**

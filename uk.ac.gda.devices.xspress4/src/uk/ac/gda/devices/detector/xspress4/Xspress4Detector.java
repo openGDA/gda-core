@@ -149,34 +149,43 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			setAcquireTime(getCollectionTime());
 		}
 
-		// reset counter for total number of frames read out
-		xspress4Controller.resetFramesReadOut();
-
-		// Setup ROI binning to integrate over resolution grade bins if using
-		// Scalers/Scalers+MCA mode
-		boolean saveResGrades = parameters.getReadoutMode().equals(XspressParameters.READOUT_MODE_REGIONSOFINTEREST);
-		if (xspress4Controller.setSaveResolutionGradeData(saveResGrades)) {
-			getMCAData(500); // collect frame of data (so that new bin setting is picked up by hdf writer)
-		}
-
 		// Make sure detector is stopped first
 		xspress3Controller.doStop();
 
-		// Set hdf output directory, name :
-		String hdfDir = XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
-		// make any parent directories
-		File file = new File(filePath);
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		xspress3Controller.setFilePath(hdfDir);
-		xspress3Controller.setFilePrefix(XspressHelperMethods.getFilePrefix(filePrefix));
-		xspress3Controller.setNextFileNumber(0);
+		// reset counter for total number of frames read out
+		xspress4Controller.resetFramesReadOut();
 
-		// Set the number of frames to be collected
-		int numberOfFramesToCollect = XspressHelperMethods.getLengthOfEachScanLine();
+		int numberOfFramesToCollect = 0;
+		if (InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation() == null) {
+			// If there is no scan running, atScanStart was probably called by detector rate collection
+			// and need to collect a single frame.
+			numberOfFramesToCollect = 1;
+		} else {
+			// Set the number of frames to be collected from scan information
+			numberOfFramesToCollect = XspressHelperMethods.getLengthOfEachScanLine();
+		}
+
 		xspress3Controller.setNumFramesToAcquire(numberOfFramesToCollect);
+
 		if (writeHdfFiles) {
+
+			// Setup ROI binning to integrate over resolution grade bins if using
+			// Scalers/Scalers+MCA mode
+			boolean saveResGrades = parameters.getReadoutMode().equals(XspressParameters.READOUT_MODE_REGIONSOFINTEREST);
+			if (xspress4Controller.setSaveResolutionGradeData(saveResGrades)) {
+				getMCAData(500); // collect frame of data (so that new bin setting is picked up by hdf writer)
+			}
+
+			// Set hdf output directory, name :
+			String hdfDir = XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
+			// make any parent directories
+			File file = new File(filePath);
+			if (!file.exists()) {
+				file.mkdirs();
+			}
+			xspress3Controller.setFilePath(hdfDir);
+			xspress3Controller.setFilePrefix(XspressHelperMethods.getFilePrefix(filePrefix));
+			xspress3Controller.setNextFileNumber(0);
 			xspress3Controller.setHDFNumFramesToAcquire(numberOfFramesToCollect);
 		}
 	}
@@ -632,11 +641,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return xspress4Controller.getDeadtimeCorrectionEnergy();
 	}
 
-	public void setWriteHdfFiles(boolean writeHdfFiles) {
+	@Override
+	public void setWriteHDF5Files(boolean writeHdfFiles) {
 		this.writeHdfFiles = writeHdfFiles;
 	}
 
-	public boolean isWriteHdfFiles() {
+	@Override
+	public boolean isWriteHDF5Files() {
 		return writeHdfFiles;
 	}
 

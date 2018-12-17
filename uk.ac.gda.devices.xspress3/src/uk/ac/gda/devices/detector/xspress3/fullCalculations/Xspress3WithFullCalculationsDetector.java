@@ -244,5 +244,15 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 		return parameters;
 	}
 
+	@Override
+	public boolean isWriteHDF5Files() {
+		return false;
+	}
+
+	@Override
+	public void setWriteHDF5Files(boolean writeHDF5Files) {
+		// do nothing
+	}
+
 }
 

@@ -25,6 +25,8 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.richbeans.api.reflection.RichBeanUtils;
 
 import gda.exafs.scan.ExafsTimeEstimator;
@@ -39,6 +41,7 @@ import uk.ac.gda.beans.exafs.XesScanParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IXMLCommandHandler;
+import uk.ac.gda.server.exafs.scan.ScanType;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
@@ -53,18 +56,20 @@ public class ScanObject extends ExperimentObject {
 	public static final String OUTPUTBEANTYPE = "Output";
 	public static final String SAMPLEBEANTYPE = "Sample";
 	public static final String SCANBEANTYPE = "Scan";
+	private static final IEclipsePreferences scanPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");
+
 
 	@Override
 	public void createFilesFromTemplates(IXMLCommandHandler xmlCH) {
 		final IFolder folder = getFolder();
 
-		if (ScanObjectManager.isXESOnlyMode()) {
+		if (scanPrefs.getBoolean(ScanType.XES_ONLY.toString(), false)) {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "XES_Parameters.xml");
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
-		} else if (ScanObjectManager.isQEXAFSDefaultScanType()) {
+		} else if (scanPrefs.getBoolean(ScanType.QEXAFS_DEFAULT.toString(), false)) {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "QEXAFS_Parameters.xml");
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
-		} else if (ScanObjectManager.isXANESDefaultScanType()) {
+		} else if (scanPrefs.getBoolean(ScanType.XANES_DEFAULT.toString(), false)) {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "XANES_Parameters.xml");
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
 		} else {
@@ -75,7 +80,7 @@ public class ScanObject extends ExperimentObject {
 		IFile sampleFile = xmlCH.doTemplateCopy(folder, "Sample_Parameters.xml");
 		getTypeToFileMap().put(SAMPLEBEANTYPE, sampleFile.getName());
 
-		if (ScanObjectManager.isXESOnlyMode()) {
+		if (scanPrefs.getBoolean(ScanType.XES_ONLY.toString(), false)) {
 			IFile detFile = xmlCH.doTemplateCopy(folder, "XESDetector_Parameters.xml");
 			getTypeToFileMap().put(DETECTORBEANTYPE, detFile.getName());
 
