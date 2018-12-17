@@ -45,6 +45,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.jython.accesscontrol.MethodAccessProtected;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * A base implementation for a {@link Scannable} {@link Device}.
@@ -54,6 +55,7 @@ import gda.jython.accesscontrol.MethodAccessProtected;
  * and internalArraytoExternal should be overridden to provide automated support for things such as offsets and unit
  * conversion. By default they do nothing.
  */
+@ServiceInterface(Scannable.class)
 public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableBase.class);
