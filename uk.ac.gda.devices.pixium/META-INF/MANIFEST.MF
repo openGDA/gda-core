@@ -19,7 +19,7 @@ Export-Package: gda.device.detector.pixium,
  gda.device.detector.pixium.events,
  uk.ac.gda.devices.pixium
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
- uk.ac.diamond.org.jacorb, uk.ac.gda.api,
+ uk.ac.gda.api,
  uk.ac.diamond.org.springframework,
  uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
