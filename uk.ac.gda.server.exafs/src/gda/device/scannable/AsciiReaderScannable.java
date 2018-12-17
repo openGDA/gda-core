@@ -25,13 +25,10 @@ import java.util.ArrayList;
 import org.apache.commons.lang.ArrayUtils;
 
 import gda.device.DeviceException;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import gda.device.Scannable;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
+@ServiceInterface(Scannable.class)
 public class AsciiReaderScannable extends SimpleScannable {
 
 	private String[] columnHeadings;
