@@ -30,19 +30,15 @@ import gda.data.metadata.Metadata;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.detector.pilatus.TangoLimaDetector;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Mythen detectors interface.
  */
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoMythenDetector extends TangoLimaDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoMythenDetector.class);

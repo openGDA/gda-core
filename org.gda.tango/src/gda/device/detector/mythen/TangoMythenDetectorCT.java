@@ -19,25 +19,22 @@
 
 package gda.device.detector.mythen;
 
-import fr.esrf.Tango.DevFailed;
-import fr.esrf.TangoApi.DeviceData;
-import gda.device.DeviceException;
-import gda.device.TangoDeviceProxy;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
-import gda.device.detector.pilatus.TangoLimaDetector;
-import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.esrf.Tango.DevFailed;
+import fr.esrf.TangoApi.DeviceData;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.TangoDeviceProxy;
+import gda.device.detector.pilatus.TangoLimaDetector;
+import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Mythen counter timer detectors interface.
  */
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoMythenDetectorCT extends TangoLimaDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoMythenDetectorCT.class);

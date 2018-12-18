@@ -24,14 +24,10 @@ import fr.esrf.TangoApi.DeviceData;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoVCT6 extends gda.device.detector.DetectorBase {
 //	private static final Logger logger = LoggerFactory.getLogger(TangoVCT6.class);
 
@@ -50,8 +46,8 @@ public class TangoVCT6 extends gda.device.detector.DetectorBase {
 			// Do nothing for now
 		}
 	}
-	
-	public void reset() throws DevFailed {		
+
+	public void reset() throws DevFailed {
 		// Initialise the master channel
 		DeviceData argin = new DeviceData();
 		argin.insert(masterInitValues);
@@ -113,12 +109,12 @@ public class TangoVCT6 extends gda.device.detector.DetectorBase {
 			throw new DeviceException("failed to write collection time", e);
 		}
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTimeInSeconds) {
 		this.collectionTime = collectionTimeInSeconds;
 	}
-	
+
 	private void start() throws DeviceException {
 		deviceProxy.isAvailable();
 		try {

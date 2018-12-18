@@ -24,14 +24,10 @@ import fr.esrf.TangoApi.DeviceAttribute;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
-import gda.device.detector.countertimer.corba.impl.CountertimerAdapter;
-import gda.device.detector.countertimer.corba.impl.CountertimerImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(CountertimerAdapter.class)
-@CorbaImplClass(CountertimerImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoCounterTimer extends gda.device.detector.DetectorBase {
 //	private static final Logger logger = LoggerFactory.getLogger(TangoCounterTimer.class);
 
@@ -95,12 +91,12 @@ public class TangoCounterTimer extends gda.device.detector.DetectorBase {
 			throw new DeviceException("failed to write collection time", e);
 		}
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTimeInSeconds) {
 		this.collectionTime = collectionTimeInSeconds;
 	}
-	
+
 //	@Override
 	public void start() throws DeviceException {
 		deviceProxy.isAvailable();
@@ -212,7 +208,7 @@ public class TangoCounterTimer extends gda.device.detector.DetectorBase {
 			throw new DeviceException("failed to read noise value", e);
 		}
 	}
-	
+
 //	@Override
 //	public int getCurrentCycle() throws DeviceException {
 //		logger.debug("Not implemented");

@@ -30,14 +30,10 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoLimaDetector extends DetectorBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoLimaDetector.class);

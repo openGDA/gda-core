@@ -23,20 +23,17 @@ import org.slf4j.LoggerFactory;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.TangoApi.DeviceAttribute;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.TangoDeviceProxy;
 import gda.device.Timer;
 import gda.device.TimerStatus;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.timer.Tfg;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class TangoPilatusDetector extends TangoLimaDetector implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(TangoPilatusDetector.class);
