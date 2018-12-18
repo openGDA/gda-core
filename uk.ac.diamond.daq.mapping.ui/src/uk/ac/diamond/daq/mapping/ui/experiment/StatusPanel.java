@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
-class StatusPanel extends Composite {
+public class StatusPanel extends Composite {
 
 	private Label statusLabel;
 	private String message;
@@ -45,7 +47,7 @@ class StatusPanel extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
 
-	StatusPanel(Composite parent, int style, IMappingExperimentBean mappingBean) {
+	public StatusPanel(Composite parent, int style, IMappingExperimentBean mappingBean) {
 		super(parent, style);
 		this.mappingBean = mappingBean;
 		pointGeneratorService = ServiceHolder.getGeneratorService();
@@ -115,8 +117,7 @@ class StatusPanel extends Composite {
 		}
 
 		int points2d = get2DPoints();
-		int otherAxesPoints = mappingBean.getScanDefinition()
-								.getOuterScannables()
+		int otherAxesPoints = getOuterScannables()
 								.stream()
 								.filter(IScanModelWrapper<IScanPathModel>::isIncludeInScan)
 								.map(IScanModelWrapper<IScanPathModel>::getModel)
@@ -124,6 +125,10 @@ class StatusPanel extends Composite {
 								.reduce(1, (a, b) -> a * b);
 
 		return points2d * otherAxesPoints;
+	}
+
+	protected List<IScanModelWrapper<IScanPathModel>> getOuterScannables() {
+		return mappingBean.getScanDefinition().getOuterScannables();
 	}
 
 	private int calculatePathPoints(IScanPathModel outerPath) {

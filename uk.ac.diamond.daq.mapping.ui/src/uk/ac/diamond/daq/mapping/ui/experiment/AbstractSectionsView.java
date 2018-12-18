@@ -266,12 +266,16 @@ public abstract class AbstractSectionsView implements IAdaptable {
 
 	private void createStatusPanel(final Composite mainComposite) {
 		final IMappingExperimentBean mappingBean = mappingBeanProvider.getMappingExperimentBean();
-		statusPanel = new StatusPanel(mainComposite, SWT.NONE, mappingBean);
+		statusPanel = createStatusPanelComposite(mainComposite, SWT.NONE, mappingBean);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
 
 		if (mappingBean == null) {
 			statusPanel.setMessage("Error getting mapping experiment definition");
 		}
+	}
+
+	protected StatusPanel createStatusPanelComposite(Composite parent, int style, IMappingExperimentBean mappingBean) {
+		return new StatusPanel(parent, style, mappingBean);
 	}
 
 	@Inject
@@ -364,7 +368,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		return mappingBeanProvider.getMappingExperimentBean();
 	}
 
-	protected StatusPanel getStatusPanel() {
+	public StatusPanel getStatusPanel() {
 		return statusPanel;
 	}
 
