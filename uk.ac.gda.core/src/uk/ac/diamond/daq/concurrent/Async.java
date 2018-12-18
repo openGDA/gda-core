@@ -123,7 +123,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static void execute(Runnable target) {
-		execute(target, Thread.currentThread().getName());
+		checkRunnable(target);
+		THREAD_POOL.execute(target);
 	}
 
 
@@ -139,8 +140,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static void execute(Runnable target, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Runnable must not be null");
-		THREAD_POOL.submit(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
+		checkRunnable(target);
+		THREAD_POOL.execute(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
 	}
 
 	/**
@@ -157,7 +158,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static <T> Future<T> submit(Callable<T> target) {
-		return submit(target, Thread.currentThread().getName());
+		checkCallable(target);
+		return THREAD_POOL.submit(target);
 	}
 
 	/**
@@ -178,7 +180,7 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static <T> Future<T> submit(Callable<T> target, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Callable must not be null");
+		checkCallable(target);
 		return THREAD_POOL.submit(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target));
 	}
 
@@ -195,7 +197,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static Future<?> submit(Runnable target) {
-		return submit(target, Thread.currentThread().getName());
+		checkRunnable(target);
+		return THREAD_POOL.submit(target);
 	}
 
 	/**
@@ -215,7 +218,7 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static Future<?> submit(Runnable target, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Runnable must not be null");
+		checkRunnable(target);
 		return THREAD_POOL.submit(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
 	}
 
@@ -302,7 +305,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit) {
-		return scheduleAtFixedRate(target, delay, period, unit, Thread.currentThread().getName());
+		checkRunnable(target);
+		return SCHEDULER.scheduleAtFixedRate(target, delay, period, unit);
 	}
 
 	/**
@@ -327,7 +331,7 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Runnable must not be null");
+		checkRunnable(target);
 		return SCHEDULER.scheduleAtFixedRate(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
 	}
 
@@ -349,7 +353,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit) {
-		return scheduleWithFixedDelay(target, delay, period, unit, Thread.currentThread().getName());
+		checkRunnable(target);
+		return SCHEDULER.scheduleWithFixedDelay(target, delay, period, unit);
 	}
 
 	/**
@@ -375,7 +380,7 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Runnable must not be null");
+		checkRunnable(target);
 		return SCHEDULER.scheduleWithFixedDelay(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
 	}
 
@@ -394,7 +399,8 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit) {
-		return schedule(target, delay, unit, Thread.currentThread().getName());
+		checkRunnable(target);
+		return SCHEDULER.schedule(target, delay, unit);
 	}
 
 	/**
@@ -417,7 +423,7 @@ public final class Async {
 	 * @since 9.8
 	 */
 	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Runnable must not be null");
+		checkRunnable(target);
 		return SCHEDULER.schedule(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, unit);
 	}
 
@@ -436,7 +442,8 @@ public final class Async {
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
 	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit) {
-		return schedule(target, delay, unit, Thread.currentThread().getName());
+		checkCallable(target);
+		return SCHEDULER.schedule(target, delay, unit);
 	}
 
 	/**
@@ -459,7 +466,7 @@ public final class Async {
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
 	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit, String nameFormat, Object... args) {
-		Objects.requireNonNull(target, "Callable must not be null");
+		checkCallable(target);
 		return SCHEDULER.schedule(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target), delay, unit);
 	}
 
@@ -493,6 +500,14 @@ public final class Async {
 	 */
 	public static Future<?> call(Callable<?> target) {
 		return submit(target, "AsyncJython");
+	}
+
+	private static void checkRunnable(Runnable target) {
+		Objects.requireNonNull(target, "Runnable must not be null");
+	}
+
+	private static <T> void checkCallable(Callable<T> target) {
+		Objects.requireNonNull(target, "Callable must not be null");
 	}
 
 	/**
