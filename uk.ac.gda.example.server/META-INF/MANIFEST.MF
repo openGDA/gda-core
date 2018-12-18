@@ -7,15 +7,12 @@ Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Diamond Light Source Ltd
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: .,
- jars/gda-corba-example.jar
+Bundle-ClassPath: .
 Require-Bundle: uk.ac.gda.core;bundle-version="8.50.0"
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
 Export-Package: gda.example.scriptcontroller.logging,
  gda.org.myls,
  gda.org.myls.powersupply,
- gda.org.myls.powersupply.corba,
- gda.org.myls.powersupply.corba.impl,
  gda.org.myls.scannable,
  org.myls.powersupply
 Automatic-Module-Name: uk.ac.gda.example.server
