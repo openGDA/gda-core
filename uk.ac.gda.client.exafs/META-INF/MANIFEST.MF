@@ -7,7 +7,6 @@ Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,
- gda.device.corba,
  gda.device.detector.nxdetector.roi,
  gda.device.detector.xspress,
  gda.jscience.physics.quantities,
