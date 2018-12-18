@@ -502,7 +502,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int FIRST_YCHANNEL_EDEFAULT = 1;
+	protected static final int FIRST_YCHANNEL_EDEFAULT = 101;
 
 	/**
 	 * The cached value of the '{@link #getFirstYChannel() <em>First YChannel</em>}' attribute.
@@ -531,7 +531,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final int LAST_YCHANNEL_EDEFAULT = 900;
+	protected static final int LAST_YCHANNEL_EDEFAULT = 800;
 
 	/**
 	 * The cached value of the '{@link #getLastYChannel() <em>Last YChannel</em>}' attribute.
