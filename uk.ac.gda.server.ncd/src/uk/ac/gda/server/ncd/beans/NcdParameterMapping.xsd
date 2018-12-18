@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!--
+		N.B. this stuff breaks Xerlin
+		targetNamespace="http://www.dl.ac.uk/GDASchema"
+		xmlns="http://www.dl.ac.uk/GDASchema">
+	-->
+
+	<xsd:simpleType name="unitType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ns"/>
+			<xsd:enumeration value="usec"/>
+			<xsd:enumeration value="msec"/>
+			<xsd:enumeration value="sec"/>
+			<xsd:enumeration value="min"/>
+			<xsd:enumeration value="hour"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="signalType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Software"/>
+			<xsd:enumeration value="Rising BM Trigger"/>
+			<xsd:enumeration value="Rising ADC chan 0"/>
+			<xsd:enumeration value="Rising ADC chan 1"/>
+			<xsd:enumeration value="Rising ADC chan 2"/>
+			<xsd:enumeration value="Rising ADC chan 3"/>
+			<xsd:enumeration value="Rising ADC chan 4"/>
+			<xsd:enumeration value="Rising ADC chan 5"/>
+			<xsd:enumeration value="Rising TTL trig 0"/>
+			<xsd:enumeration value="Rising TTL trig 1"/>
+			<xsd:enumeration value="Rising TTL trig 2"/>
+			<xsd:enumeration value="Rising TTL trig 3"/>
+			<xsd:enumeration value="Rising LVDS Lemo"/>
+			<xsd:enumeration value="Rising TFG cable 1"/>
+			<xsd:enumeration value="Rising TFG cable 2"/>
+			<xsd:enumeration value="Rising TFG cable 3"/>
+			<xsd:enumeration value="Rising Var thrshld"/>
+			<xsd:enumeration value="Falling BM Trigger"/>
+			<xsd:enumeration value="Falling ADC chan 0"/>
+			<xsd:enumeration value="Falling ADC chan 1"/>
+			<xsd:enumeration value="Falling ADC chan 2"/>
+			<xsd:enumeration value="Falling ADC chan 3"/>
+			<xsd:enumeration value="Falling ADC chan 4"/>
+			<xsd:enumeration value="Falling ADC chan 5"/>
+			<xsd:enumeration value="Falling TTL trig 0"/>
+			<xsd:enumeration value="Falling TTL trig 1"/>
+			<xsd:enumeration value="Falling TTL trig 2"/>
+			<xsd:enumeration value="Falling TTL trig 3"/>
+			<xsd:enumeration value="Falling LVDS Lemo"/>
+			<xsd:enumeration value="Falling TFG cable 1"/>
+			<xsd:enumeration value="Falling TFG cable 2"/>
+			<xsd:enumeration value="Falling TFG cable 3"/>
+			<xsd:enumeration value="Falling Var thrshld"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="pauseType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="No Pause"/>
+			<xsd:enumeration value="Software"/>
+			<xsd:enumeration value="Rising BM Trigger"/>
+			<xsd:enumeration value="Rising ADC chan 0"/>
+			<xsd:enumeration value="Rising ADC chan 1"/>
+			<xsd:enumeration value="Rising ADC chan 2"/>
+			<xsd:enumeration value="Rising ADC chan 3"/>
+			<xsd:enumeration value="Rising ADC chan 4"/>
+			<xsd:enumeration value="Rising ADC chan 5"/>
+			<xsd:enumeration value="Rising TTL trig 0"/>
+			<xsd:enumeration value="Rising TTL trig 1"/>
+			<xsd:enumeration value="Rising TTL trig 2"/>
+			<xsd:enumeration value="Rising TTL trig 3"/>
+			<xsd:enumeration value="Rising LVDS Lemo"/>
+			<xsd:enumeration value="Rising TFG cable 1"/>
+			<xsd:enumeration value="Rising TFG cable 2"/>
+			<xsd:enumeration value="Rising TFG cable 3"/>
+			<xsd:enumeration value="Rising Var Thrshld"/>
+			<xsd:enumeration value="Falling BM Trigger"/>
+			<xsd:enumeration value="Falling ADC chan 0"/>
+			<xsd:enumeration value="Falling ADC chan 1"/>
+			<xsd:enumeration value="Falling ADC chan 2"/>
+			<xsd:enumeration value="Falling ADC chan 3"/>
+			<xsd:enumeration value="Falling ADC chan 4"/>
+			<xsd:enumeration value="Falling ADC chan 5"/>
+			<xsd:enumeration value="Falling TTL trig 0"/>
+			<xsd:enumeration value="Falling TTL trig 1"/>
+			<xsd:enumeration value="Falling TTL trig 2"/>
+			<xsd:enumeration value="Falling TTL trig 3"/>
+			<xsd:enumeration value="Falling LVDS Lemo"/>
+			<xsd:enumeration value="Falling TFG cable 1"/>
+			<xsd:enumeration value="Falling TFG cable 2"/>
+			<xsd:enumeration value="Falling TFG cable 3"/>
+			<xsd:enumeration value="Falling Var Thrshld"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="pulseType">
+		<xsd:restriction base="xsd:string">
+           <xsd:pattern value="[01][01][01][01][01][01][01][01]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+    <xsd:simpleType name='oneOrMore'>
+        <xsd:restriction base='xsd:integer'>
+           <xsd:minInclusive value='1'/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+ 	<xsd:complexType name="FrameSet">
+      <xsd:sequence>
+         <xsd:element name="nframes" type="oneOrMore" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="nwait" type="xsd:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="waitUnit" type="unitType" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="nrun" type="xsd:nonNegativeInteger" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="runUnit" type="unitType" maxOccurs="1" minOccurs="1"/>
+         <xsd:choice>
+            <xsd:sequence>
+         	   <xsd:element name="waitPause" type="pauseType" maxOccurs="1" minOccurs="1"/>
+         	   <xsd:element name="runPause" type="pauseType" maxOccurs="1" minOccurs="1"/>
+            </xsd:sequence>
+<!--            <xsd:sequence>
+         	   <xsd:element name="pause" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+            </xsd:sequence>-->
+         </xsd:choice>
+         <xsd:element name="waitPulse" type="pulseType" maxOccurs="1" minOccurs="1"/>
+         <xsd:element name="runPulse" type="pulseType"  maxOccurs="1" minOccurs="1"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="TimeProfile">
+      <xsd:sequence>
+         <xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="cycles" type="oneOrMore" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="repeat" type="oneOrMore" maxOccurs="1" minOccurs="0"/>
+         <xsd:choice>	
+            <xsd:sequence>
+               <xsd:element name="startMethod" type="signalType" maxOccurs="1" minOccurs="1"/>
+            </xsd:sequence>
+            <xsd:sequence>
+         	   <xsd:element name="softwareStart" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+         	   <xsd:element name="hardwareStart" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+         	   <xsd:element name="softStartHardTrigger" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
+            </xsd:sequence>
+         </xsd:choice>	
+         <xsd:element name="extInhibit" type="xsd:boolean" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="outputTriggerInversion" type="pulseType" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="outputTriggerDrive" type="pulseType" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="inputTriggerDebounce" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="inputTriggerThreshold" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="FrameSet" type="FrameSet" maxOccurs="unbounded" minOccurs="1"/>
+      </xsd:sequence>
+   </xsd:complexType>
+
+	<xsd:annotation>
+		<xsd:documentation>
+		   NcdParameters must be root of the Ncd instance document
+		</xsd:documentation>
+	</xsd:annotation>
+
+	<xsd:element name="FrameSet" type="FrameSet"/>
+	<xsd:element name="TimeProfile" type="TimeProfile"/>
+
+	<xsd:element name="NcdParameters">
+		<xsd:complexType>
+			<xsd:sequence>
+			   <xsd:element ref="TimeProfile" maxOccurs="unbounded" minOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

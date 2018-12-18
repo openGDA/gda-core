@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	
+	<class name="uk.ac.gda.server.ncd.beans.NcdParameters">
+		<map-to xml="NcdParameters"/>
+
+		<field name="timeProfileParameters" type="uk.ac.gda.server.ncd.beans.TimeProfileParameters"
+			collection="collection" set-method="addTimeProfileParameter" get-method="getTimeProfileParameters">
+			<bind-xml name="TimeProfile" node="element"/>
+		</field>
+
+	</class>
+	
+
+	<class name="uk.ac.gda.server.ncd.beans.TimeProfileParameters">
+		<map-to xml="profile" />
+		<field name="name" type="string">
+			<bind-xml name="name" node="element" />
+		</field>
+		<field name="cycles" type="integer">
+			<bind-xml name="cycles" node="element" />
+		</field>
+		<field name="repeat" type="integer">
+			<bind-xml name="repeat" node="element" />
+		</field>
+		<field name="startMethod" type="string">
+			<bind-xml name="startMethod" node="element" />
+		</field>
+		<field name="extInhibit" type="boolean">
+			<bind-xml name="extInhibit" node="element" />
+		</field>
+		<field name="softwareStart" type="boolean">
+			<bind-xml name="softwareStart" node="element" />
+		</field>
+		<field name="hardwareStart" type="boolean">
+			<bind-xml name="hardwareStart" node="element" />
+		</field>
+		<field name="softStartHardTrigger" type="boolean">
+			<bind-xml name="softStartHardTrigger" node="element" />
+		</field>
+		<field name="outputTriggerInversion" type="string">
+			<bind-xml name="outputTriggerInversion" node="element" />
+		</field>
+		<field name="outputTriggerDrive" type="string">
+			<bind-xml name="outputTriggerDrive" node="element" />
+		</field>
+		<field name="inputTriggerDebounce" type="string">
+			<bind-xml name="inputTriggerDebounce" node="element" />
+		</field>
+		<field name="inputTriggerThreshold" type="string">
+			<bind-xml name="inputTriggerThreshold" node="element" />
+		</field>
+		<field name="FrameSet" type="uk.ac.gda.server.ncd.beans.FrameSetParameters"
+			collection="collection" set-method="addFrameSetParameter" get-method="getFrameSetParameters">
+			<bind-xml name="FrameSet" node="element"/>
+		</field>
+	</class>
+	
+	<class name="uk.ac.gda.server.ncd.beans.FrameSetParameters">
+		<map-to xml="frameSet" />
+		<field name="nframes" type="integer">
+			<bind-xml name="nframes" node="element" />
+		</field>
+		<field name="nwait" type="integer">
+			<bind-xml name="nwait" node="element" />
+		</field>
+		<field name="waitUnit" type="string">
+			<bind-xml name="waitUnit" node="element" />
+		</field>
+		<field name="nrun" type="integer">
+			<bind-xml name="nrun" node="element" />
+		</field>
+		<field name="runUnit" type="string">
+			<bind-xml name="runUnit" node="element" />
+		</field>
+		<field name="waitPause" type="string">
+			<bind-xml name="waitPause" node="element" />
+		</field>
+		<field name="runPause" type="string">
+			<bind-xml name="runPause" node="element" />
+		</field>
+<!--		<field name="pause" type="string">
+			<bind-xml name="pause" node="element" />
+		</field>-->
+		<field name="waitPulse" type="string">
+			<bind-xml name="waitPulse" node="element" />
+		</field>
+		<field name="runPulse" type="string">
+			<bind-xml name="runPulse" node="element" />
+		</field>
+	</class>
+
+</mapping>

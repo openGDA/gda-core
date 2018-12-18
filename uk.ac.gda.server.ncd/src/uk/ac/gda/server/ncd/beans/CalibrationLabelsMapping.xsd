@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<xsd:complexType name="CalibLabel">
+		<xsd:sequence>
+			<xsd:element name="channel" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+			<xsd:element name="source"  type="xsd:string" maxOccurs="1" minOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="CalibrationLabels">
+		<xsd:complexType>
+			<xsd:sequence>
+        		<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+			    <xsd:element name="calibLabel" type="CalibLabel" maxOccurs="unbounded" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="gda.rcp.ncd.perspectives.NcdDetectorPerspective"
+            id="gda.rcp.ncd.perspectives.NcdDetectorPerspective"
+            name="Ncd Detectors">
+      </perspective>     
+      <perspective
+            class="gda.rcp.ncd.perspectives.SetupPerspective"
+            id="gda.rcp.ncd.perspectives.SetupPerspective"
+            name="Setup">
+      </perspective>
+      <perspective
+            class="gda.rcp.ncd.perspectives.SaxsPerspective"
+            id="gda.rcp.ncd.perspectives.SaxsPerspective"
+            name="Live Saxs Data">
+      </perspective>      
+      <perspective
+            class="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
+            id="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
+            name="Saxs Calibration">
+      </perspective>
+      <perspective
+            class="gda.rcp.ncd.perspectives.WaxsPerspective"
+            id="gda.rcp.ncd.perspectives.WaxsPerspective"
+            name="Live Waxs Data">
+      </perspective>
+      <perspective
+            class="gda.rcp.ncd.perspectives.GridScanPerspective"
+            id="gda.rcp.ncd.perspectives.GridScanPerspective"
+            name="Mapping Scan">
+      </perspective>
+            <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
+            icon="icons/application_view_gallery.png"
+            id="gda.rcp.ncd.perspectives.DataPerspective"
+            name="Ncd Data">
+      </perspective>
+      <perspective
+           class="gda.rcp.ncd.perspectives.SaxsWaxsPerspective"
+           id="gda.rcp.ncd.perspectives.SaxsWaxsPerspective"
+           name="Live Saxs/Waxs Data">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Data Acquisition - NCD"
+            id="gda.rcp.ncd">
+      </category>
+      <view
+            allowMultiple="true"
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdStatus"
+            icon="icons/sample.gif"
+            id="gda.rcp.ncd.views.NCDStatus"
+            name="Ncd Status">
+      </view>
+      <view
+           class="gda.rcp.ncd.views.SyringeControlView"
+           id="gda.rcp.ncd.views.SyringeControlView"
+           name="Syringe Control"
+           restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.WatchView"
+            icon="icons/sample.gif"
+            id="gda.rcp.ncd.views.WatchView"
+            name="Watch">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdRapidButtonView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.NcdRapidButtonPanelView"
+            name="Ncd Rapid Buttons"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdButtonPanelView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.NcdButtonPanelView"
+            name="Ncd Acquisition Buttons"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdTfgConfigure"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.NcdTfgConfigure"
+            name="Time Frame Generator Configure"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdCalibConfigure"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.calibconf"
+            name="Calibration Labels"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdDetectorView"
+            icon="icons/sample.gif"
+            id="gda.rcp.ncd.views.NcdDetectorView"
+            name="Ncd Detector Setting">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.waxsview"
+            name="Waxs Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.saxsview"
+            name="Saxs Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.gridcameraview"
+            name="Microscope View"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.ncd.plot.edge"
+            name="Edge Fit Plot"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.ncd.plot.twoedge"
+            name="Two Edge Plot"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.client.ncd.plot.peak"
+            name="Peak Fit Plot"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdDataSourceWaxs"
+            icon="icons/sample.gif"
+            id="gda.rcp.ncd.views.NcdDataSourceWaxs"
+            name="Waxs Data Source">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.NcdDataSourceSaxs"
+            icon="icons/sample.gif"
+            id="gda.rcp.ncd.views.NcdDataSourceSaxs"
+            name="Saxs Data Source">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.mappingthumb"
+            name="Mapping Grid"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.loadedthumb"
+            name="Thumbnail Grid"
+            restorable="true">
+      </view>
+      <view
+            name="Stats and Maths with Symmetry"
+            icon="icons/sample.gif"
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.StatsAndMathsWithSymmetry"
+            id="gda.rcp.ncd.views.StatsAndMathsWithSymmetry"
+            allowMultiple="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml">
+      </toc>
+      <toc
+            file="testToc.xml"
+            primary="true">
+      </toc>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="uk.ac.gda.client.scripting.JythonPerspective">
+          <view
+                id="gda.rcp.ncd.views.NCDStatus"
+                minimized="false"
+                ratio="0.05"
+                relationship="bottom"
+                relative="org.eclipse.ui.views.ContentOutline"
+                visible="true"/>
+         <view
+               id="uk.ac.gda.client.liveplotview"
+               minimized="false"
+               ratio="0.4"
+               relationship="stack"
+               relative="gda.rcp.ncd.views.NCDStatus"
+               visible="true">
+         </view>
+       <!--  <view
+               id="uk.ac.gda.exafs.ui.dashboardView"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view> -->
+      </perspectiveExtension>
+   </extension>
+      <extension
+            point="org.eclipse.dawnsci.plotting.api.toolPageAction">
+         <tool_page_action
+               action_type="TOOLBAR"
+               command_id="uk.ac.gda.client.ncd.gridrefreshimage"
+               id="uk.ac.gda.client.ncd.gridtool.gridrefreshimage"
+               label="Refresh Image"
+               tool_id="org.dawb.workbench.plotting.tools.gridTool">
+         </tool_page_action>
+         <tool_page_action
+               command_id="uk.ac.gda.client.ncd.gridstartscanall"
+               id="uk.ac.gda.client.ncd.gridtool.gridstartscanall"
+               label="Scan All"
+               tool_id="org.dawb.workbench.plotting.tools.gridTool">
+         </tool_page_action>
+      </extension>
+      <extension
+            point="org.eclipse.ui.commands">
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridImageRefresh"
+               id="uk.ac.gda.client.ncd.gridrefreshimage"
+               name="Refresh Image">
+         </command>
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridStartScan"
+               id="uk.ac.gda.client.ncd.gridstartscan"
+               name="Start Scan">
+         </command>
+         <command
+               defaultHandler="gda.rcp.ncd.sideplot.GridStartScanAll"
+               id="uk.ac.gda.client.ncd.gridstartscanall"
+               name="Scan All">
+		</command>
+      </extension>
+</plugin>
