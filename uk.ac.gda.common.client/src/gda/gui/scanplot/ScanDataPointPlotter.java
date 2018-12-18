@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.january.dataset.DoubleDataset;
-import org.jfree.data.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,12 +86,6 @@ public class ScanDataPointPlotter {
 		if (newConfig) {
 			plot.setXAxisLabel(config.xAxisHeader);
 			plot.setYAxisLabel("Various");
-			if (config.scanPlotSettings != null) {
-				if (config.scanPlotSettings.getXMax() != null && config.scanPlotSettings.getXMin() != null) {
-					Range range = new Range(config.scanPlotSettings.getXMin(), config.scanPlotSettings.getXMax());
-					plot.setDomainBounds(range);
-				}
-			}
 		}
 		String outerScannablePosition = "";
 		Vector<String> outerStepIdsStrings = null;

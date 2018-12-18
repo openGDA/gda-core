@@ -23,14 +23,12 @@ import java.awt.Color;
 import java.io.IOException;
 
 import org.eclipse.january.dataset.DoubleDataset;
-import org.jfree.data.Range;
 
 import gda.scan.AxisSpec;
 
 public interface XYDataHandler {
 	public void setXAxisLabel(String label);
 	public void setYAxisLabel(String label);
-	public void setDomainBounds(Range domainBounds);
 	public void archive(boolean all, String archiveFolder) throws IOException;
 	public void addPointToLine(int which, double x, double y) ;
 	public int getNextAvailableLine();
