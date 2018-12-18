@@ -26,14 +26,6 @@
             name="Powder Diffraction">
       </category>
       <view
-            category="uk.ac.gda.client.hrpd.views.hrpdCategory"
-            class="uk.ac.gda.client.hrpd.views.JythonConsoleView"
-            icon="icons/terminal_16.png"
-            id="uk.ac.gda.client.hrpd.views.JythonConsoleView"
-            name="GDA Client Console"
-            restorable="true">
-      </view>
-      <view
             name="Image Viewer"
             id="uk.ac.gda.client.hrpd.views.ImageView"
             category="uk.ac.gda.client.hrpd.views.hrpdCategory"
