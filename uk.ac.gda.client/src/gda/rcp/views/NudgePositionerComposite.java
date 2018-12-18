@@ -24,11 +24,14 @@ import java.text.DecimalFormat;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -265,6 +268,15 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	public void setUserUnits(String userUnits) {
 		this.userUnits = userUnits;
 	}
+
+	/**
+	 * Sets the description label for the composite to a bold font
+	 */
+	public void setLabelToBold() {
+    	FontDescriptor boldDescriptor = FontDescriptor.createFrom(displayNameLabel.getFont()).setStyle(SWT.BOLD);
+		Font boldFont = boldDescriptor.createFont(displayNameLabel.getDisplay());
+		displayNameLabel.setFont(boldFont);
+    }
 
 	private void determineScannableLimits() {
 		try {
