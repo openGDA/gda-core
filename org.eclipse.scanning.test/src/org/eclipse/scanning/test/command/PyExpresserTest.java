@@ -415,7 +415,7 @@ public class PyExpresserTest {
 		assertEquals(expected, mscan);
 
 		mscan = factory.pyExpress(request, true);
-		expected = "mscan(path=[grid(axes=('p', 'q'), start=(0, 1), stop=(10, 12), count=(2, 2), snake=False, continuous=False)], det=[detector('mandelbrot', 0.1, maxIterations=500, escapeRadius=10.0, columns=301, rows=241, points=1000, maxRealCoordinate=1.5, maxImaginaryCoordinate=1.2, realAxisName='p', imaginaryAxisName='q', enableNoise=False, noiseFreeExposureTime=5.0, saveImage=True, saveSpectrum=True, saveValue=True), detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=60000, numberOfCores=1, monitorForOverwrite=False)])";
+		expected = "mscan(path=[grid(axes=('p', 'q'), start=(0, 1), stop=(10, 12), count=(2, 2), snake=False, continuous=False)], det=[detector('mandelbrot', 0.1, maxIterations=500, escapeRadius=10.0, columns=301, rows=241, points=1000, maxRealCoordinate=1.5, maxImaginaryCoordinate=1.2, realAxisName='p', imaginaryAxisName='q', enableNoise=False, noiseFreeExposureTime=5.0, saveImage=True, saveSpectrum=True, saveValue=True), detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=600000, numberOfCores=1, monitorForOverwrite=False)])";
 		assertEquals(expected, mscan);
 	}
 
@@ -425,7 +425,7 @@ public class PyExpresserTest {
 		ClusterProcessingModel cmodel = new ClusterProcessingModel("processing", "mandelbrot", "/tmp/something.nxs");
 
 		String detector = factory.pyExpress(cmodel, true);
-		String expected = "detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=60000, numberOfCores=1, monitorForOverwrite=False)";
+		String expected = "detector('processing', -1.0, detectorName='mandelbrot', processingFilePath='/tmp/something.nxs', xmx='1024m', timeOut=600000, numberOfCores=1, monitorForOverwrite=False)";
 		assertEquals(expected, detector);
 	}
 
