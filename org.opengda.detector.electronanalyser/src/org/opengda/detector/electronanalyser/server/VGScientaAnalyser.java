@@ -37,20 +37,16 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ADDetector;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.vgscienta.VGScientaController;
 
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(IVGScientaAnalyser.class)
 public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser {
 
 	private static final long serialVersionUID = -2907729482321978030L;

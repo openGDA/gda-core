@@ -21,10 +21,7 @@ package uk.ac.gda.arpes.scannable;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This is a simple scannable to allow the ID to be moved to a new polarisation, as is the typical requirement of users.
@@ -35,8 +32,7 @@ import gda.factory.corba.util.CorbaImplClass;
  * 
  * @author James Mudd
  */
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class PolarisationScannable extends ScannableBase {
 
 	private Scannable pgm;

@@ -13,20 +13,14 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.scannable.ScannableBase;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-@CorbaImplClass(DeviceImpl.class)
-@CorbaAdapterClass(DeviceAdapter.class)
 public class RegionScannable extends ScannableBase implements Scannable {
 	private ObservableComponent oc = new ObservableComponent();
 	private Region region;
