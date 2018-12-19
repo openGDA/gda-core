@@ -29,7 +29,7 @@ public class LiveViewComposite extends Composite {
 
 		try {
 			plottingComposite = new LivePlottingComposite(this, SWT.NONE, "Live View", liveStreamConnection);
-			plottingComposite.setShowAxes(cameraConfiguration.getCameraCalibration() != null);
+			plottingComposite.setShowAxes(cameraConfiguration.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);
 			plottingComposite.connect();
 
