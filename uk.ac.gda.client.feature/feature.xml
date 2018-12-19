@@ -82,20 +82,6 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.diamond.com.artenum.arttk"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.diamond.com.artenum.jyconsole"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.aopalliance"
          download-size="0"
          install-size="0"
@@ -418,10 +404,6 @@
          install-size="0"
          version="0.0.0"/>
 
-   <!--
-   Jline and sshd are not "really" needed by the client as they provide ssh server access.
-   However they are required as the client depends on core which uses these plugins.
-   -->
    <plugin
          id="org.jline"
          download-size="0"
