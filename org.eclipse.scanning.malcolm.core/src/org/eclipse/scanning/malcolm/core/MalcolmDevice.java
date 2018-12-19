@@ -252,7 +252,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	protected void handleStepsCompleted(MalcolmMessage message) {
-		logger.debug("Received state change event with message: {}", message);
+		logger.debug("Received malcolm message on endpoint {}, message: {}", COMPLETED_STEPS_ENDPOINT, message);
 
 		Integer stepIndex = null;
 		Object value = message.getValue();
@@ -283,7 +283,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 	protected void handleStateChange(MalcolmMessage message) {
 		try {
-			logger.debug("Received malcolm state change with message: {}", message);
+			logger.debug("Received malcolm message on endpoint {}, message: {}", STATE_ENDPOINT, message);
 
 			final ChoiceAttribute attribute = (ChoiceAttribute) message.getValue();
 			final DeviceState newState = DeviceState.valueOf(attribute.getValue().toUpperCase());
