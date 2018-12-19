@@ -20,18 +20,9 @@ package gda.org.myls.scannable;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
 
-/**
- *
- */
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
 public class SimpleScannable extends ScannableBase {
 	String name;
 	Object position;
