@@ -18,23 +18,19 @@
 
 package uk.ac.gda.devices.bssc.scannable;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-
 import org.embl.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableBase;
+import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.bssc.BioSAXSSampleChanger;
 
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class BSSCScannable extends ScannableBase {
 	private static final Logger logger = LoggerFactory.getLogger(BSSCScannable.class);
 
@@ -45,9 +41,9 @@ public class BSSCScannable extends ScannableBase {
 	Object cachedPosition = null;
 
 	class Poller implements Runnable {
-		
+
 		Object lastUpdateSent = null;
-		
+
 		@Override
 		public void run() {
 			while (true) {

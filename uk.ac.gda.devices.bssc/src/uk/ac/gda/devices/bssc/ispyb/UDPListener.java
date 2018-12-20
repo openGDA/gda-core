@@ -24,20 +24,17 @@ import java.net.DatagramSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Device;
 import gda.device.DeviceBase;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
 	This class receives UDP datagrams containing a string of format prefix:message, which is
 	broadcast to objects observing this to inform then a table in ISPyB has been updated
 */
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(Device.class)
 public class UDPListener extends DeviceBase {
 	private static final Logger logger = LoggerFactory.getLogger(UDPListener.class);
 	boolean running = true;
