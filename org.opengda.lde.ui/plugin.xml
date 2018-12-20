@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="LDE"
+            id="org.opengda.lde.ui">
+      </category>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:childrenTableViewFactory"
+            icon="icons/table_edit.png"
+            id="org.opengda.lde.ui.views.ChildrenTableView"
+            name="Children List"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:statusViewFactory"
+            icon="icons/status.png"
+            id="uk.ac.gda.epics.client.views.StatusView"
+            name="Detector Status"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:imageviewfactory"
+            icon="icons/image_obj.gif"
+            id="org.opengda.lde.ui.views.liveimageview"
+            name="Pixium Image"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:dataplotviewfactory"
+            icon="icons/chart_curve.png"
+            id="org.opengda.lde.ui.views.reducdeddataplotview"
+            name="Reduced Data"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:pixiumViewFactory"
+            icon="icons/detector.png"
+            id="uk.ac.gda.epics.client.pixium.views.pixiumview"
+            name="Pixium Detector"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:dataCollectionStatusFactory"
+            id="org.opengda.lde.ui.views.dataCollectionStatusView"
+            name="Data Collection Status"
+            restorable="true">
+      </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:samplesViewFactory"
+            id="org.opengda.lde.ui.views.SampleGroupView"
+            name="Samples (server)"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+</plugin>
