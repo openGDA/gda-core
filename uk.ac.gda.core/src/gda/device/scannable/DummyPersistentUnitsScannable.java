@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 // TODO: Partially implemented class, does not extend
+@ServiceInterface(ScannableMotionUnits.class)
 public class DummyPersistentUnitsScannable extends DummyPersistentScannable implements ScannableMotionUnits {
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentUnitsScannable.class);
 
