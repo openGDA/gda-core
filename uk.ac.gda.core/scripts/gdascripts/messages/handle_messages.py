@@ -106,13 +106,13 @@ def constructMessage(msg, exceptionType=None, exception=None, traceback=None ):
 def log(controller, msg, exceptionType=None, exception=None, traceback=None, Raise=False, logger=logger):
     msg = str(msg)
     msg = constructMessage(msg, exceptionType, exception, None)
-    if controller != None:
+    if controller:
         controller.update(None, msg);
-    if exception != None:
-        msgFull = constructMessage(msg, exceptionType, exception, traceback)
-        logger.error(msgFull)
-    else:
-        logger.info(msg)
+    if logger:
+        if exception:
+            logger.error(constructMessage(msg, exceptionType, exception, traceback))
+        else:
+            logger.info(msg)
     InterfaceProvider.getTerminalPrinter().print(msg)
     if Raise:
         if isinstance(msg, Exception):
