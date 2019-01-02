@@ -19,22 +19,19 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.SimpleUDPServerScannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class DataReductionScannable extends DummyScannable implements IObserver {
 	private static final Logger logger=LoggerFactory.getLogger(DataReductionScannable.class);
 	private Scriptcontroller eventAdmin;

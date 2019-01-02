@@ -4,14 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class StringValueScannable extends ScannableBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(StringValueScannable.class);

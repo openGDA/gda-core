@@ -6,18 +6,16 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroup;
-import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupAdapter;
-import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-@CorbaAdapterClass(ScannablegroupAdapter.class)
-@CorbaImplClass(ScannablegroupImpl.class)
+import uk.ac.gda.api.remoting.ServiceInterface;
+
+@ServiceInterface(IScannableGroup.class)
 public class SampleStage extends ScannableGroup implements InitializingBean, Comparable<SampleStage> {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
-	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector 
+	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector
 	private double zPosition;
 	private boolean processed=false;
 
@@ -58,7 +56,7 @@ public class SampleStage extends ScannableGroup implements InitializingBean, Com
 			return isAtXPosition(sample.getSample_x_start()) && isAtYPosition(sample.getSample_y_start());
 		if (sample.getSample_x_start()!=Double.NaN && sample.getSample_y_start() == Double.NaN)
 			return isAtXPosition(sample.getSample_x_start());
-		
+
 		return true;
 	}
 	public boolean isParked() throws DeviceException {
