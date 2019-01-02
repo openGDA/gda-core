@@ -26,14 +26,17 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 
 import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
 import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * The gap of a two jaw slit.
  * <p>
  * Based on TwoJawSlitPosition.
  */
+@ServiceInterface(ScannableMotionUnits.class)
 public class TwoJawSlitGap extends TwoJawSlitPosition {
 
 	private String xmlparametersfilename = null;
