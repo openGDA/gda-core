@@ -15,42 +15,4 @@
 
 	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/corba-common.ant" />
 	<property name="corba.jar.name" value="gda-ncd-corba.jar" />
-
-	<!-- ====================================================================
-		   JUnit tests
-		 ==================================================================== -->
-
-	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/test-common.ant" />
-	<target name="junit-tests" depends="set-test-base-GDA">
-		<junit-call description="${ant.project.name} Java JUnit tests">
-			<formatter type="xml" />
-			<classpath>
-				<pathelement location="${junitjar.loc}" />
-				<pathelement location="${plugin.basedir}/bin" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
-				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
-				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
-				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.nexus/bin" />
-				<pathelement location="${workspace.git.loc}/january.git/org.eclipse.january/bin" />
-				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.api/bin" />
-				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
-				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.analysis.dataset/bin" />
-				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
-				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
-				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
-				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
-				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<path refid="tp.path" />  <!-- target platform -->
-			</classpath>
-			<batchtest todir="@{report.dir}">
-				<fileset dir="${plugin.basedir}/test">
-					<include name="**/*Test.java" />
-					<exclude name="**/*PluginTest.java" />
-				</fileset>
-			</batchtest>
-		</junit-call>
-	</target>
-
 </project>
