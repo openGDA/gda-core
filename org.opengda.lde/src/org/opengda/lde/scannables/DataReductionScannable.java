@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.fileregistrar.FileRegistrarHelper;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
@@ -239,8 +240,10 @@ public class DataReductionScannable extends DummyScannable implements IObserver 
 				if (fields[0].equalsIgnoreCase("OK")) {
 					InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+fields[1]);
 					logger.info("Plotting reduced data from file {}",fields[1]);
+					String reducedFilename = fields[1];
+					FileRegistrarHelper.registerFile(reducedFilename);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(sampleid, fields[1]));
+						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(sampleid, reducedFilename));
 					}
 				} else if (fields[0].equalsIgnoreCase("FAIL")) {
 					InterfaceProvider.getTerminalPrinter().print("Data reduction failed: "+fields[1]);
