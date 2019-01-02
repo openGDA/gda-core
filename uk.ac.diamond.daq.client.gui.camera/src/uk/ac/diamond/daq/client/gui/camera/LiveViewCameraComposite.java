@@ -1,5 +1,8 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -10,6 +13,8 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 
@@ -18,6 +23,7 @@ public class LiveViewCameraComposite extends Composite {
 	// (LiveViewComposite.class);
 
 	private LivePlottingComposite plottingComposite;
+	private boolean frozen = false;
 
 	public LiveViewCameraComposite(Composite parent, LiveStreamConnection liveStreamConnection,
 			CameraConfiguration cameraConfiguration, int style) throws Exception {
@@ -46,7 +52,31 @@ public class LiveViewCameraComposite extends Composite {
 		GridLayoutFactory.fillDefaults().numColumns(6).applyTo(roiPanel);
 
 		Button roiButton = new Button(roiPanel, SWT.TOGGLE);
-		roiButton.setText("ROI");
+		roiButton.setText("Pause");
+		roiButton.addListener(SWT.Selection, e -> {
+			try {
+				ITrace iTrace = plottingComposite.getITrace();
+				IPlottingSystem<Composite> plottingSystem = plottingComposite.getPlottingSystem();
+				if (!frozen /* liveStreamConnection.isConnected() */) {
+					final SnapshotData snapshotData = new SnapshotData("Snapshot", iTrace.getData().clone());
+					// liveStreamConnection.disconnect();
+					plottingSystem.clear();
+					plottingSystem.createPlot2D(snapshotData.getDataset(), null, "Snap!", new NullProgressMonitor());
+					plottingSystem.setTitle(snapshotData.getTitle());
+
+					roiButton.setText("Start");
+					frozen = true;
+				} else {
+					// liveStreamConnection.connect();
+					// plottingSystem.addTrace(iTrace);
+					plottingComposite.connect();
+					roiButton.setText("Pause");
+					frozen = false;
+				}
+			} catch (LiveStreamException e1) {
+				e1.printStackTrace();
+			}
+		});
 		GridDataFactory.swtDefaults().span(1, 2).applyTo(roiButton);
 
 		// expanding label
