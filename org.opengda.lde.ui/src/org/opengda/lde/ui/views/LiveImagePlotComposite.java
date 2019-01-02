@@ -68,13 +68,13 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private EpicsChannelManager controller;
 	private int xDimension;
 	private int yDimension;
-	private IPlottingSystem plottingSystem;
+	private IPlottingSystem<Composite> plottingSystem;
 
 	private String plotName;
 
 	private ImageDataListener dataListener;
-	private XSizeListener xSizeListener;
-	private YSizeListener ySizeListener;
+	private XSizeListener xSizeListener = new XSizeListener();
+	private YSizeListener ySizeListener = new YSizeListener();
 
 	@SuppressWarnings("unused")
 	private Channel dataChannel;
@@ -82,7 +82,6 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private Channel enableChanel;
 	private Channel xSizeChannel;
 	private Channel ySizeChannel;
-	private boolean first = false;
 
 
 	/**
@@ -124,13 +123,12 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 		dataListener = new ImageDataListener();
 		try {
 			createChannels();
-		} catch (CAException | TimeoutException e1) {
+		} catch (CAException e1) {
 			logger.error("failed to create required spectrum channels", e1);
 		}
 	}
 
-	public void createChannels() throws CAException, TimeoutException {
-		first = true;
+	public void createChannels() throws CAException {
 		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE, false);
 		enableChanel= controller.createChannel(arrayEnablePV, null, false, 1);
 		if (getxSizePV()!=null) {
@@ -162,70 +160,74 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 			}
 		});
 	}
-	private class XSizeListener implements MonitorListener {
 
+	private abstract class DbrListener implements MonitorListener {
+		private boolean first = true;
+		private String name;
+		protected DbrListener(String name) {
+			this.name = name;
+		}
 		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
+		public void monitorChanged(MonitorEvent arg0) {
 			if (first) {
+				logger.debug("{} listener initialised", name);
 				first = false;
-				logger.debug("X-Size listener connected.");
 				return;
 			}
 			DBR dbr = arg0.getDBR();
+			logger.trace("{} - new update: {}", name, dbr);
+			handleDbr(dbr);
+		}
+		protected abstract void handleDbr(DBR dbr);
+	}
+
+	private class XSizeListener extends DbrListener {
+		public XSizeListener() {
+			super("XSize");
+		}
+		@Override
+		protected void handleDbr(DBR dbr) {
 			if (dbr.isINT()) {
 				xDimension = ((DBR_Int) dbr).getIntValue()[0];
 			}
 		}
 	}
-	private class YSizeListener implements MonitorListener {
 
+	private class YSizeListener extends DbrListener {
+		public YSizeListener() {
+			super("YSize");
+		}
 		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first = false;
-				logger.debug("Y-Size listener connected.");
-				return;
-			}
-			DBR dbr = arg0.getDBR();
+		protected void handleDbr(DBR dbr) {
 			if (dbr.isINT()) {
 				yDimension = ((DBR_Int) dbr).getIntValue()[0];
 			}
 		}
 	}
 
-	private class ImageDataListener implements MonitorListener {
-
+	private class ImageDataListener extends DbrListener {
+		public ImageDataListener() {
+			super("Image data");
+		}
 		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first = false;
-				logger.debug("Image listener connected.");
-				return;
-			}
-			if (!getDisplay().isDisposed()) {
-				getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						DBR dbr = arg0.getDBR();
-						double[] value = null;
-						if (dbr.isDOUBLE()) {
-							value = ((DBR_Double) dbr).getDoubleValue();
-						}
+		protected void handleDbr(DBR dbr) {
+			if (dbr.isDOUBLE()) {
+				final double[] value = ((DBR_Double) dbr).getDoubleValue();
+				if (!getDisplay().isDisposed()) {
+					getDisplay().asyncExec(() -> {
 						IProgressMonitor monitor = new NullProgressMonitor();
 						try {
 							updateImagePlot(monitor, value);
 						} catch (Exception e) {
 							logger.error("exception caught preparing analyser live plot",e);
 						}
-					}
-				});
+					});
+				}
 			}
 		}
 	}
 
 	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
-
 		try {
 			int[] dims = new int[] { getyDimension(), getxDimension() };
 			int arraysize = dims[0] * dims[1];
@@ -233,20 +235,10 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-//			logger.warn("image size = {}", values.length);
 			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 			ds.setName("Intensity");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, null, monitor);
-//			if (!getDisplay().isDisposed()) {
-//				getDisplay().asyncExec(new Runnable() {
-//
-//					@Override
-//					public void run() {
-//						plottingSystem.autoscaleAxes();
-//					}
-//				});
-//			}
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot", e);
 		}
