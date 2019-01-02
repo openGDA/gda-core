@@ -1,6 +1,6 @@
 package org.opengda.lde.ui.views;
 
-import gda.device.Detector;
+import java.util.function.Supplier;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -8,6 +8,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.Detector;
 
 public class LiveImageView extends ViewPart {
 	public static final String ID = "org.opengda.lde.ui.views.liveimageview";
@@ -27,6 +29,8 @@ public class LiveImageView extends ViewPart {
 	private String arrayEnablePV;
 	private String xSizePV;
 	private String ySizePV;
+	private Supplier<String> titleProvider;
+
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -41,6 +45,7 @@ public class LiveImageView extends ViewPart {
 			imagePlotComposite.setArrayEnablePV(arrayEnablePV);
 			imagePlotComposite.setxSizePV(getxSizePV());
 			imagePlotComposite.setySizePV(getySizePV());
+			imagePlotComposite.setTitleProvider(getTitleProvider());
 			imagePlotComposite.initialise();
 		} catch (Exception e) {
 			logger.error("Cannot create image plot composite.", e);
@@ -90,7 +95,7 @@ public class LiveImageView extends ViewPart {
 
 	public void setArrayEnablePV(String arrayEnablePV) {
 		this.arrayEnablePV=arrayEnablePV;
-		
+
 	}
 
 	public String getxSizePV() {
@@ -107,5 +112,13 @@ public class LiveImageView extends ViewPart {
 
 	public void setySizePV(String ySizePV) {
 		this.ySizePV = ySizePV;
+	}
+
+	public Supplier<String> getTitleProvider() {
+		return titleProvider;
+	}
+
+	public void setTitleProvider(Supplier<String> titleProvider) {
+		this.titleProvider = titleProvider;
 	}
 }

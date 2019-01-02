@@ -19,6 +19,7 @@
 package org.opengda.lde.ui.views;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -83,6 +84,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private Channel xSizeChannel;
 	private Channel ySizeChannel;
 
+	private Supplier<String> titleProvider = () -> "Intensity";
 
 	/**
 	 * @param parent
@@ -236,7 +238,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 			final Dataset ds = DatasetFactory.createFromObject(values, dims);
-			ds.setName("Intensity");
+			ds.setName(titleProvider.get());
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, null, monitor);
 		} catch (Exception e) {
@@ -301,5 +303,13 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 	public void setySizePV(String ySizePV) {
 		this.ySizePV = ySizePV;
+	}
+
+	public Supplier<String> getTitleProvider() {
+		return titleProvider;
+	}
+
+	public void setTitleProvider(Supplier<String> titleProvider) {
+		this.titleProvider = titleProvider;
 	}
 }
