@@ -24,7 +24,6 @@ Require-Bundle: uk.ac.gda.api,
  org.eclipse.dawnsci.nexus,
  org.eclipse.january
 Import-Package: org.apache.commons.io,
- org.jacorb.config,
  org.springframework.beans.factory
 Export-Package: uk.ac.gda.devices.detector.xspress4
 Automatic-Module-Name: uk.ac.gda.devices.xspress4
