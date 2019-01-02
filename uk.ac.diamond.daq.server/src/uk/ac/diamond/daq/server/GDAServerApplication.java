@@ -1,8 +1,6 @@
 package uk.ac.diamond.daq.server;
 
-import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.EVENT;
 import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
-import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.NAME;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -39,7 +37,6 @@ public class GDAServerApplication implements IApplication {
 	private static final Logger logger = LoggerFactory.getLogger(GDAServerApplication.class);
 
 	private static IGDAConfigurationService configurationService;
-	private static int SERVER_WAIT_MILLIS = 4000;
 
 	private final Map<ServerType, Process> processes = new HashMap<>();
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -67,16 +64,6 @@ public class GDAServerApplication implements IApplication {
 			try {
 				processes.put(LOG, configurationService.getLogServerCommand().execute());
 				logger.info("Log server starting");
-				if (isCorbaEnabled()) {
-					processes.put(NAME, configurationService.getNameServerCommand().execute());
-					logger.info("Name server starting");
-					processes.put(EVENT, configurationService.getEventServerCommand().execute());
-					logger.info("Channel/Event server starting");
-					// TODO: find some kind of interactive "channel server is ready" check otherwise you get a corba exception
-					Thread.sleep(SERVER_WAIT_MILLIS);
-				} else {
-					logger.info("Corba is disabled");
-				}
 			}
 			catch (Exception subEx) {
 				String[] failedServer = {"Log", "Name", "Event"};
@@ -112,11 +99,6 @@ public class GDAServerApplication implements IApplication {
 			logger.info("GDA server application ended");
 		}
 		return IApplication.EXIT_OK;
-	}
-
-	private boolean isCorbaEnabled() {
-		// TODO Here use the PropertyService for now but once backed by sys properties will not be needed.
-		return !getPropertyService().getAsBoolean("gda.remoting.disableCorba", false);
 	}
 
 	/**

@@ -26,18 +26,14 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	@Override
 	public void loadConfiguration() {
 		try {
-			final String corba_classpath = resolvePath("uk.ac.diamond.org.jacorb/jars", true);
 			final String log_server_classpath = String.join(File.pathSeparator,
 					String.join(File.separator, System.getProperty("osgi.syspath"), "*"),
 					resolvePath("uk.ac.diamond.org.springframework/jars", true),
 					resolvePath("uk.ac.gda.api", false),
 					resolvePath("uk.ac.gda.common", false),
 					resolvePath("uk.ac.gda.core", false));
-			final String channel_server_classpath = String.join(File.pathSeparator, log_server_classpath, corba_classpath);
 
-			commands.put(ServerType.NAME, new SubProcessCommand(buildNameServerCommand(), corba_classpath));
 			commands.put(ServerType.LOG, new SubProcessCommand(buildLogServerCommand(), log_server_classpath));
-			commands.put(ServerType.EVENT, new SubProcessCommand(buildChannelServerCommand(), channel_server_classpath));
 		} catch (IOException e) {
 			throw new RuntimeException("Could not locate subprocess server classpath component:", e);
 		}
