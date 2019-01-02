@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -513,7 +514,7 @@ public class NexusDataWriter extends DataWriterBase {
 
 	private void writeMeasurementGroup() {
 		try {
-			Set<String> headers = getHeaders(); // May throw if the header contains duplicated names
+			List<String> headers = getHeaders(); // May throw if the header contains duplicated names
 
 			List<Double> data = Arrays.asList(thisPoint.getAllValuesAsDoubles());
 			Iterator<Double> dataIterator = data.iterator();
@@ -1016,7 +1017,7 @@ public class NexusDataWriter extends DataWriterBase {
 	private void makeMeasurementGroup() throws NexusException {
 		logger.debug("Making 'measurement' group");
 		try {
-			final Set<String> headers = getHeaders();
+			final LinkedList<String> headers = getHeaders();
 			final GroupNode measurementGroup = getMeasurementGroup();
 
 			final int[] dataDimensions = generateDataDim(true, scanDimensions, null);
@@ -1027,7 +1028,15 @@ public class NexusDataWriter extends DataWriterBase {
 				lazyWriteableDataset.setFillValue(getFillValue(Dataset.FLOAT64));
 				file.createData(measurementGroup, lazyWriteableDataset); // Makes the dataset
 			}
-			writingMeasurementGroup = true; // Set to true if creating the group succeeds
+
+			// Add NXData metadata
+			NexusUtils.writeAttribute(file, measurementGroup, "@signal", headers.getLast());
+			// This should be 1D as we are not writing complex detector data here just values
+			String[] axis = new String[] {headers.getFirst()}; // Assume the first scannable is the x axis
+			NexusUtils.writeAttribute(file, measurementGroup, "@axis", axis);
+
+			// Set to true if creating the group succeeds
+			writingMeasurementGroup = true;
 		} catch (IllegalStateException e) {
 			logger.error("Not writing measurement data group", e);
 		}
@@ -1041,17 +1050,18 @@ public class NexusDataWriter extends DataWriterBase {
 	private GroupNode getMeasurementGroup() throws NexusException {
 		final StringBuilder groupPath = new StringBuilder();
 		NexusUtils.addToAugmentPath(groupPath, entryName, NexusExtractor.NXEntryClassName); // /entry1/
-		NexusUtils.addToAugmentPath(groupPath, "measurement", NexusExtractor.NXCollectionClassName);// /entry1/measurement/
+		NexusUtils.addToAugmentPath(groupPath, "measurement", NexusExtractor.NXDataClassName);// /entry1/measurement/
 		return file.getGroup(groupPath.toString(), true); // Makes the group if it doesn't exist
 	}
 
 	/**
-	 * @return A set of combined position and detector headers
+	 * @return An ordered list of combined position and detector headers
 	 */
-	private Set<String> getHeaders() {
+	private LinkedList<String> getHeaders() {
 		final List<String> positionHeaders = thisPoint.getPositionHeader();
 		final List<String> detectorHeaders = thisPoint.getDetectorHeader();
 
+		// Create a set first to detect duplicates
 		Set<String> headers = new LinkedHashSet<>();
 		headers.addAll(positionHeaders);
 		headers.addAll(detectorHeaders);
@@ -1059,7 +1069,8 @@ public class NexusDataWriter extends DataWriterBase {
 			logger.error("Duplicates in position and detector headers: {} & {}", positionHeaders, detectorHeaders);
 			throw new IllegalStateException("Duplicates in position and detector headers");
 		}
-		return headers;
+		// Convert to a list
+		return new LinkedList<>(headers);
 	}
 
 	private void makeMetadata() {
