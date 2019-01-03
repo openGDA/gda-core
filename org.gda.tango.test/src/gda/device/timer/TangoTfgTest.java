@@ -18,8 +18,10 @@
 
 package gda.device.timer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import fr.esrf.Tango.DevFailed;
@@ -28,96 +30,97 @@ import fr.esrf.TangoApi.DeviceData;
 import gda.device.TangoDeviceProxy;
 import gda.device.impl.DummyTangoDeviceImpl;
 
+@Ignore("DAQ-1322 This test requires Jacorb need to resolve dependencies following Corba removal")
 public class TangoTfgTest {
 
-	public enum tfout { 
-		 mask_width(1<<0), enb_ext_veto(1<<1), ext_veto_high(1<<2), ttl_drive1(1<<3), ttl_drive2(1<<4), ttl_drive3(1<<5), 
-		 veto2_inv(1<<6), xfer2_inv(1<<7), veto3_inv(1<<8), xfer3_inv(1<<9), s1_mux(1<<10), s2_mux(1<<11), enb_tf3(1<<12), 
+	public enum tfout {
+		 mask_width(1<<0), enb_ext_veto(1<<1), ext_veto_high(1<<2), ttl_drive1(1<<3), ttl_drive2(1<<4), ttl_drive3(1<<5),
+		 veto2_inv(1<<6), xfer2_inv(1<<7), veto3_inv(1<<8), xfer3_inv(1<<9), s1_mux(1<<10), s2_mux(1<<11), enb_tf3(1<<12),
 		 lvds1_hotwaxs(1<<13), lvds2_hotwaxs(1<<14);
-		
+
 		private int value;
-		
+
 		private tfout(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
 	}
 
-	public enum cc_mode { 
-		all (1<<0), scaler64 (1<<1), adcs6 (1<<2), shortmixed (1<<3), shortscalers (1<<4), adcs8 (1<<5); 
-		
+	public enum cc_mode {
+		all (1<<0), scaler64 (1<<1), adcs6 (1<<2), shortmixed (1<<3), shortscalers (1<<4), adcs8 (1<<5);
+
 		private int value;
-		
+
 		private cc_mode(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
  	}
 
-	public enum cc_chan { 
+	public enum cc_chan {
 		level (1<<0), edge (1<<1), inv_level (1<<2), debounce (1<<3), vetoed_level (1<<4), vetoed_edge (1<<5),
 		time_veto (1<<6), vetoed_debounce (1<<7), ignore_veto (1<<8), alternate(1<<9), extra_veto (1<<10),
 		now (1<<11), silent (1<<12);
-		
+
 		private int value;
-		
+
 		private cc_chan(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
  	}
 
-	public enum cc_extra_veto { 
+	public enum cc_extra_veto {
 		chan0_3 (1<<0), chan4_7 (1<<1), veto_scal (1<<2), veto_trig (1<<3), veto_tf3 (1<<4), inv_veto (1<<5),
-		now (1<<6), silent (1<<7); 
-		
+		now (1<<6), silent (1<<7);
+
 		private int value;
-		
+
 		private cc_extra_veto(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
  	}
-	
-	public enum veto { 
+
+	public enum veto {
 		veto0_inv (1<<0), veto1_inv (1<<1), veto2_inv (1<<2), fzero0_inv (1<<3), fzero1_inv (1<<4),
 		xfer0_inv (1<<5), xfer1_inv (1<<6), veto0_drive (1<<7), veto1_drive (1<<8), veto2_drive (1<<9),
 		fzero0_drive (1<<10), fzero1_drive (1<<11), xfer0_drive (1<<12), xfer1_drive (1<<13),
 		lvds_veto_inv (1<<14), lvds_fzero_inv (1<<15), lvds_xfer_inv (1<<16), leds_on_lemos (1<<17);
-		
+
 		private int value;
-		
+
 		private veto(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
  	}
 
-	public enum group { 
+	public enum group {
 		help(1<<0), ext_start(1<<1), ext_inh(1<<2), cycles(1<<3), file(1<<4), no_min_20us(1<<5), silent(1<<6),
 		sequence(1<<7), auto_rearm(1<<8), ext_falling(1<<9);
-		
+
 		private int value;
-		
+
 		private group(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
@@ -127,15 +130,15 @@ public class TangoTfgTest {
 		raw(1<<8), alternate(1<<9);
 
 		private int value;
-				
+
 		private trig(int value) {
 			this.value = value;
 		}
-		
+
 		public int getValue() {
 			return value;
 		}
-		
+
 		public int or(trig ... argin) {
 			int result = value;
 			for (int i=0; i<argin.length; i++) {
@@ -146,7 +149,7 @@ public class TangoTfgTest {
 	}
 
 	private TangoDeviceProxy dev;
-	
+
 	public TangoTfgTest() {
 		{ // dummy Tango proxy implementation
 			dev = new TangoDeviceProxy( new DummyTangoDeviceImpl("tango::2345"));

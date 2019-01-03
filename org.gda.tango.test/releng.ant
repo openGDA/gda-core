@@ -26,7 +26,6 @@
 				<pathelement location="${plugin.host.basedir}/bin" />
 				<pathelement location="${plugin.host.basedir}/jars/*" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
-				<pathelement location="${workspace.git.loc}/diamond-jacorb.git/uk.ac.diamond.org.jacorb/jars/*" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
