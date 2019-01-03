@@ -75,7 +75,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private Resource resource;
 	private Composite rootComposite;
 	private CustomisedAdapterFactoryContentProvider contentprovider;
-	
+
 	private ISelectionListener selectionListener;
 	protected ComposedAdapterFactory adapterFactory;
 	protected TableViewerColumn progressColumn;
@@ -97,7 +97,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 	/**
 	 * Create contents of the view part.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -106,7 +106,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		plainComposite=new Composite(pageBook, SWT.None);
 		plainComposite.setLayout(new FillLayout());
 		new Label(plainComposite, SWT.None).setText("Children are not avaialable.");
-		 
+
 		rootComposite = new Composite(pageBook,SWT.None);
 		rootComposite.setLayout(new GridLayout());
 
@@ -118,7 +118,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		table.setLayoutData(gd_table);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		String name = getResUtil().getFileName();
 		try {
@@ -133,17 +133,17 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 		createColumns(viewer, contentprovider.getPropertySource(((ExperimentDefinition)eObject).getExperiment().get(0)), contentprovider);
 
 		viewer.setInput(eObject);
-		
+
 		initialisation();
 
 		// register as selection listener of sample editor if exist
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selectionListener);
 	}
-	
+
 	/**
 	 * Create table columns using property descriptors and
 	 * AdapterFactoryContentProvider
-	 * 
+	 *
 	 * @param tableViewer
 	 * @param propertyDescriptors
 	 * @param adapterFactoryContentProvider
@@ -184,24 +184,24 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 					});
 		}
 	}
-	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
-			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
-			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
+	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE,
+			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP,
+			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP,
 			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.DATA_FILE,
-			SampleTableConstants.VISIT_ID, SampleTableConstants.CELL_ID, SampleTableConstants.CALIBRANT_NAME, 
+			SampleTableConstants.VISIT_ID, SampleTableConstants.CELL_ID, SampleTableConstants.CALIBRANT_NAME,
 			SampleTableConstants.CALIBRANT_X, SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SPIN,
-			SampleTableConstants.ENV_SCANNABLE_NAMES, SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.ENV_SCANNABLE_NAMES, SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE,
 			SampleTableConstants.CALIBRATION_FILE, SampleTableConstants.STAGE_ID, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z
 			};
 
 	private ColumnWeightData sampleColumnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),
-			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), 
-			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),	
+			new ColumnWeightData(80, 110, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 300, true), new ColumnWeightData(50, 300, true), new ColumnWeightData(50, 300, true),
-			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 110, true), 
+			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 110, true),
 			new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true),
 			new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true),
-			new ColumnWeightData(50, 300, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true) 
+			new ColumnWeightData(50, 300, true), new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 80, true)
 			};
 
 	/**
@@ -226,7 +226,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 	private void initialisation() {
 
 		selectionListener= new INullSelectionListener() {
-			
+
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 				if (part instanceof LDEExperimentsEditor) {
@@ -237,7 +237,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 						Table oldtable = viewer.getTable();
 						Composite parent=oldtable.getParent();
 						oldtable.dispose();
-						
+
 						viewer=new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 						Table table = viewer.getTable();
 						GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
@@ -316,7 +316,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 							pageBook.showPage(rootComposite);
 						} else if (firstElement instanceof Sample) {
 							createColumns(viewer, sampleColumnHeaders,sampleColumnLayouts);
-							
+
 							viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 							viewer.setLabelProvider(new SampleGroupViewLabelProvider());
 							IFile file = getViewSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
@@ -343,7 +343,7 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 			}
 		};
 	}
-	
+
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();
@@ -378,6 +378,6 @@ public class ChildrenTableView extends ViewPart implements IEditingDomainProvide
 
 
 	public void setViewPartName(String viewPartName) {
-		setPartName(viewPartName);		
+		setPartName(viewPartName);
 	}
 }

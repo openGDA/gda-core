@@ -122,7 +122,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 	private Sample currentSample;
 	private long totalNumberOfPoints;
 	protected long currentPointNumber;
-	
+
 	protected AdapterFactoryEditingDomain editingDomain;
 	protected ComposedAdapterFactory adapterFactory;
 	protected Viewer currentViewer;
@@ -133,7 +133,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 	public DataCollectionStatus() {
 		setTitleToolTip("Display data collection processing status on GDA server.");
 		setPartName("Data Collection Status");
-		
+
 		adapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
 		adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
@@ -143,7 +143,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 	/**
 	 * Create contents of the view part.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -153,7 +153,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		form.setText("Server Data Collection Status Report");
 		TableWrapLayout layout = new TableWrapLayout();
 		form.getBody().setLayout(layout);
-		 
+
 		layout.numColumns = 2;
 	    Section section1=toolkit.createSection(form.getBody(),  Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
 		TableWrapData td = new TableWrapData(TableWrapData.FILL);
@@ -167,10 +167,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		});
 		section1.setText("Experiment Setup");
 		section1.setDescription("Dispaly summary information on samples being processed on the server after start.");
-		
+
 		Composite section1Client=toolkit.createComposite(section1);
 		section1Client.setLayout(new GridLayout(4,false));
-		
+
 		Label label=toolkit.createLabel(section1Client,"Sample configuration file: ");
 		GridData gd=new GridData();
 		gd.horizontalSpan=1;
@@ -184,18 +184,18 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		label=toolkit.createLabel(section1Client,"Number of Active Samples: ");
 		txtActivesamples = toolkit.createText(section1Client,"0", SWT.READ_ONLY);
 		txtActivesamples.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		label=toolkit.createLabel(section1Client,"Number of Calibrations: ");
 		txtNumberCalibrations = toolkit.createText(section1Client, "0", SWT.READ_ONLY);
 		txtNumberCalibrations.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		label=toolkit.createLabel(section1Client,"Total Number of Collections: ");
 		txtTotalNumberCollections = toolkit.createText(section1Client,"0", SWT.READ_ONLY);
 		txtTotalNumberCollections.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		section1.setClient(section1Client);
 		toolkit.paintBordersFor(section1Client);
-		
+
 		Section section=toolkit.createSection(form.getBody(), Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
 		td = new TableWrapData(TableWrapData.FILL);
 		td.colspan = 2;
@@ -211,7 +211,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 		Composite sectionClient = toolkit.createComposite(section);
 		sectionClient.setLayout(new GridLayout(4, false));
-		
+
 		label=toolkit.createLabel(sectionClient, "Data file to collect: ");
 		gd=new GridData();
 		gd.horizontalSpan=1;
@@ -225,7 +225,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		label=toolkit.createLabel(sectionClient,"Acquisition Progress: ");
 		gd=new GridData();
 		gd.horizontalSpan=1;
-		label.setLayoutData(gd);		
+		label.setLayoutData(gd);
 		progressBar = new ProgressBar(sectionClient, SWT.NONE);
 		gd=new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan=3;
@@ -234,17 +234,17 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
 		progressBar.setData(FormToolkit.KEY_DRAW_BORDER,FormToolkit.TEXT_BORDER);
-		
+
 		label=toolkit.createLabel(sectionClient,"Progress Message: ");
 		gd=new GridData();
 		gd.horizontalSpan=1;
-		label.setLayoutData(gd);		
+		label.setLayoutData(gd);
 		txtProgressMessage = toolkit.createText(sectionClient,"Display server data collection progress messages here.", SWT.READ_ONLY|SWT.WRAP);
 		gd=new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan=3;
 		gd.grabExcessHorizontalSpace=true;
 		txtProgressMessage.setLayoutData(gd);
-		
+
 		label=toolkit.createLabel(sectionClient,"Current Scan Number: ");
 		txtScanNumber = toolkit.createText(sectionClient,"Display current scan number", SWT.READ_ONLY);
 		txtScanNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -256,15 +256,15 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		label=toolkit.createLabel(sectionClient,"Current Sample: ");
 		txtSamplename = toolkit.createText(sectionClient,"Display current sample name", SWT.READ_ONLY);
 		txtSamplename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		label=toolkit.createLabel(sectionClient,"Current Cell: ");
 		txtCellname =  toolkit.createText(sectionClient,"Display current cell name", SWT.READ_ONLY);
 		txtCellname.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		label=toolkit.createLabel(sectionClient,"Current Stage: ");
 		txtStagename = toolkit.createText(sectionClient,"Display current stage name", SWT.READ_ONLY);
 		txtStagename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		label=toolkit.createLabel(sectionClient,"Current Collection: ");
 		txtCollectionNumber = toolkit.createText(sectionClient,"0/0", SWT.READ_ONLY);
 		txtCollectionNumber.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -272,7 +272,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 		section.setClient(sectionClient);
 		toolkit.paintBordersFor(sectionClient);
-		
+
 		initialisation();
 		// register as selection listener of sample editor if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
@@ -282,7 +282,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 		updateActionIconsState();
 	}
-	
+
 	private void initialisation() {
 		try {
 			editingDomain=(AdapterFactoryEditingDomain) getResUtil().getEditingDomain();
@@ -312,11 +312,11 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		if (getResUtil() != null) {
 			txtSamplesfile.setText(getResUtil().getFileName());
 		}
-		
+
 		updateNumberActiveSamples();
 		updateNumberOfCalibrations();
 		updateTotalNumberOfCollections();
-		
+
 		if (getEventAdminName()!=null) {
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
 			if (eventAdmin!=null) {
@@ -335,7 +335,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 			}
 		}
 	}
-	
+
 
 	@Override
 	public void update(Object source, Object arg) {
@@ -364,7 +364,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 					}
 				});
-				
+
 			} else if (arg instanceof ScanEndEvent) {
 				Display.getDefault().asyncExec(new Runnable() {
 
@@ -404,7 +404,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
 				final int currentCalibrationNumber = event.getCurrentCalibrationNumber();
 				final int totalNumberCalibrations = event.getTotalNumberCalibrations();
-				
+
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
@@ -423,7 +423,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 						txtProgressMessage.setText(message);
 					}
 				});
-				
+
 			} else if (arg instanceof NewDataFileEvent) {
 				NewDataFileEvent event = ((NewDataFileEvent)arg);
 				String sampleID = event.getSampleID();
@@ -445,7 +445,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 			}
 		}
 	}
-	
+
 	private void updateCollectionNumber(int currentCollectionNumber,int totalNumberOfCollections) {
 		txtCollectionNumber.setText(String.valueOf(currentCollectionNumber) + '/'+ String.valueOf(totalNumberOfCollections));
 	}
@@ -476,7 +476,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		txtActivesamples.setText(String.format("%d", numActives));
 		this.numActiveSamples=numActives;
 	}
-	
+
 	private void updateNumberOfCalibrations() {
 		int numCalibrations=0;
 		for (Cell cell : cells) {
@@ -508,7 +508,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		Job job = new Job("Send users email") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				
+
 				try{
 					final String subject = LocalProperties.get("org.opengda.mail.subject","Data now available to download and view");
 					final EList<String> usersEmail=sample.getCell().getEmail();
@@ -526,21 +526,21 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
 					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getCell().getVisitID()+"\n";
 					final String from = String.format("%s <%s>", senderName, senderEmail);
-					
+
 					final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown");
 					final String mailSubject = String.format("[LDE Notification - %s] %s", beamlineName.toUpperCase(), subject);
-					
+
 					final String smtpHost = LocalProperties.get("org.opengda.mail.smtp.host","localhost");
-					
+
 					JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 					mailSender.setHost(smtpHost);
-					
+
 					SimpleMailMessage message = new SimpleMailMessage();
 					message.setFrom(from);
 					message.setTo(recipients);
 					message.setSubject(mailSubject);
 					message.setText(description);
-					
+
 					mailSender.send(message);
 					return Status.OK_STATUS;
 				} catch(Exception ex){
@@ -548,7 +548,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 				}
 			}
 		};
-		
+
 		job.schedule();
 	}
 
@@ -573,7 +573,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 					if (activeEditor.isDirty()) {
 						activeEditor.doSave(new NullProgressMonitor());
 					}
-					
+
 					IFile file = activeEditor.getEditorInput().getAdapter(IFile.class);
 					if (file==null) throw new FileNotFoundException();
 
@@ -594,7 +594,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 							InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+filename+")");
 							//update experiment setup info in Data collection status view
 							Display.getDefault().asyncExec(new Runnable() {
-								
+
 								@Override
 								public void run() {
 									txtSamplesfile.setText(filename);
@@ -603,7 +603,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 									updateTotalNumberOfCollections();
 								}
 							});
-							
+
 							//update Samples view to display the new sample configuration to to the server.
 							IViewPart showView = getSite().getWorkbenchWindow().getActivePage().showView(SampleGroupView.ID);
 							if (showView instanceof SampleGroupView) {
@@ -621,7 +621,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		startAction.setText("Start");
 		startAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
 		startAction.setToolTipText("Start data collection for the active samples on GDA server");
-		
+
 		stopAction= new Action() {
 
 			@Override
@@ -641,7 +641,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		stopAction.setText("Stop");
 		stopAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
 		stopAction.setToolTipText("Stop data collection immediately on GDA server");
-		
+
 		pauseAction= new Action() {
 
 			@Override
@@ -661,7 +661,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		pauseAction.setText("Pause");
 		pauseAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_PAUSE));
 		pauseAction.setToolTipText("Pause data collection on GDA server");
-		
+
 		resumeAction= new Action() {
 
 			@Override
@@ -683,7 +683,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		resumeAction.setText("Resume");
 		resumeAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_RESUME));
 		resumeAction.setToolTipText("Resume data collection on GDA server");
-		
+
 		skipAction= new Action() {
 
 			@Override
@@ -701,7 +701,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		skipAction.setText("Skip");
 		skipAction.setImageDescriptor(Activator.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
 		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
-		
+
 
 	}
 
@@ -746,7 +746,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 			if (paused) {
 				pauseAction.setEnabled(false);
 				resumeAction.setEnabled(true);
-				
+
 			} else {
 				pauseAction.setEnabled(true);
 				resumeAction.setEnabled(false);
@@ -781,7 +781,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		toolkit.dispose();
 		super.dispose();
 	}
-	
+
 	public LDEResourceUtil getResUtil() {
 		return resUtil;
 	}
@@ -809,10 +809,10 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 
 	@Override
 	public void setFocus() {
-		form.setFocus();		
+		form.setFocus();
 	}
 
 	public void setViewPartName(String viewPartName) {
-		setPartName(viewPartName);		
+		setPartName(viewPartName);
 	}
 }
