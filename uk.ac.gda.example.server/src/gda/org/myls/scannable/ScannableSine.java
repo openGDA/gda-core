@@ -19,16 +19,7 @@
 package gda.org.myls.scannable;
 
 import gda.device.DeviceException;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 
-/**
- *
- */
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
 public class ScannableSine extends SimpleScannable {
 	SineWave sineWave;
 	// explicit properties (not wrapped in SineWave objcet)

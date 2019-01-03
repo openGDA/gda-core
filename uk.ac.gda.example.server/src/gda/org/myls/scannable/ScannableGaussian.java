@@ -20,16 +20,7 @@ package gda.org.myls.scannable;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 
-/**
- *
- */
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
 public class ScannableGaussian extends SimpleScannable {
 	double centre, width, height, noise;
 	Gaussian gaussian;

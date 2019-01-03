@@ -21,6 +21,19 @@ package gda.jython.server.shell;
 import static java.util.Objects.requireNonNull;
 import static org.jline.keymap.KeyMap.alt;
 import static org.jline.keymap.KeyMap.ctrl;
+import static org.jline.reader.LineReader.ACCEPT_LINE;
+import static org.jline.reader.LineReader.DOWN_HISTORY;
+import static org.jline.reader.LineReader.DOWN_LINE;
+import static org.jline.reader.LineReader.ERRORS;
+import static org.jline.reader.LineReader.HISTORY_FILE;
+import static org.jline.reader.LineReader.KILL_WHOLE_LINE;
+import static org.jline.reader.LineReader.LINE_OFFSET;
+import static org.jline.reader.LineReader.MENU_COMPLETE;
+import static org.jline.reader.LineReader.SECONDARY_PROMPT_PATTERN;
+import static org.jline.reader.LineReader.UP_HISTORY;
+import static org.jline.reader.LineReader.UP_LINE;
+import static org.jline.reader.LineReader.WORDCHARS;
+import static org.jline.reader.LineReader.YANK;
 import static org.jline.utils.AttributedString.stripAnsi;
 
 import java.io.BufferedReader;
@@ -92,6 +105,10 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 * This enables the full input to be submitted from any point.
 	 */
 	private static final String ACCEPT_BUFFER = "accept-full-buffer";
+	/** Widget reference to move current line down in buffer - {@link #moveLineDown()} */
+	private static final String MOVE_LINE_DOWN = "move-line-down";
+	/** Widget reference to move current line up in buffer - {@link #moveLineUp()} */
+	private static final String MOVE_LINE_UP = "move-line-up";
 	/** Template to use for title. The shell number should be added for each instance*/
 	private static final String TITLE_TEMPLATE;
 	/** Counter to give shells a unique id (per server session) */
@@ -145,12 +162,13 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 				.completer(new GdaJythonCompleter())
 				.parser(new JythonShellParser(GDAJythonInterpreter::translateScriptToGDA))
 				.highlighter(Highlighters.getHighlighter(theme))
-				.variable(LineReader.HISTORY_FILE, historyFile)
-				.variable(LineReader.SECONDARY_PROMPT_PATTERN, PS2)
-				.variable(LineReader.ERRORS, 40)
+				.variable(HISTORY_FILE, historyFile)
+				.variable(SECONDARY_PROMPT_PATTERN, PS2)
+				.variable(LINE_OFFSET, 1) // number lines from 1 not 0
+				.variable(ERRORS, 40)
 					// ^^^ hack to work around jline hardcoded completion handling
 					// https://github.com/jline/jline3/issues/147
-				.variable(LineReader.WORDCHARS, "") // Split words on everything (except alphanum)
+				.variable(WORDCHARS, "") // Split words on everything (except alphanum)
 				.build();
 		read.unsetOpt(Option.HISTORY_REDUCE_BLANKS); // keep tabs/indents in history
 		read.setOpt(Option.MENU_COMPLETE); // Show completion options as menu
@@ -221,12 +239,18 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private void setupKeybindings() {
 		KeyMap<Binding> mainKeyMap = read.getKeyMaps().get(LineReader.MAIN);
 		// Ctrl-space autocompletes
-		mainKeyMap.bind(new Reference(LineReader.MENU_COMPLETE), ctrl(' '));
+		mainKeyMap.bind(new Reference(MENU_COMPLETE), KeyMap.ctrl(' '));
 
 		// Ctrl-up/down should scroll through history. If each 'line' of history is multiple lines,
 		// scrolling one at a time is not ideal.
-		mainKeyMap.bind(new Reference(LineReader.UP_HISTORY), "\033[1;5A"); // ctrl-up
-		mainKeyMap.bind(new Reference(LineReader.DOWN_HISTORY), "\033[1;5B"); // ctrl-down
+		mainKeyMap.bind(new Reference(UP_HISTORY), "\033[1;5A"); // ctrl-up
+		mainKeyMap.bind(new Reference(DOWN_HISTORY), "\033[1;5B"); // ctrl-down
+
+		// Alt-up/down should move the current line up and down in the current command - similar to eclipse
+		read.getWidgets().put(MOVE_LINE_UP, this::moveLineUp);
+		read.getWidgets().put(MOVE_LINE_DOWN, this::moveLineDown);
+		mainKeyMap.bind(new Reference(MOVE_LINE_UP), "\033[1;3A"); // alt-up
+		mainKeyMap.bind(new Reference(MOVE_LINE_DOWN), "\033[1;3B"); // alt-down
 
 		// Alt-Enter should accept the full buffer even if the cursor is part way through
 		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt(ctrl('M')));
@@ -246,9 +270,59 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		try {
 			logger.trace("Accepting full buffer");
 			read.getBuffer().cursor(read.getBuffer().length());
-			read.callWidget(LineReader.ACCEPT_LINE);
+			read.callWidget(ACCEPT_LINE);
 			return true;
 		} catch (IllegalStateException ise) {
+			return false;
+		}
+	}
+
+	/**
+	 * Move the current line of a multiline buffer up one line
+	 * @return true if successful
+	 */
+	private boolean moveLineUp() {
+		if (read.getBuffer().toString().contains("\n")) {
+			// kill whole line doesn't work correctly if the cursor is on the last line
+			// As a work around, add a new line at the end of buffer if we're on the last line
+			int cursor = read.getBuffer().cursor();
+			if (!read.getBuffer().substring(cursor).contains("\n")) {
+				int length = read.getBuffer().length();
+				read.getBuffer().cursor(length);
+				read.getBuffer().write('\n');
+				read.getBuffer().cursor(cursor);
+			}
+			read.callWidget(KILL_WHOLE_LINE);
+			read.callWidget(UP_LINE);
+			read.callWidget(YANK); // pastes the line that was killed above
+			read.callWidget(UP_LINE);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Move the current line of a multiline buffer down one line
+	 * @return true if successful
+	 */
+	private boolean moveLineDown() {
+		if (read.getBuffer().toString().contains("\n")) {
+			// kill whole line doesn't work correctly if the cursor is on the last line
+			// As a work around, add a new line at the end of buffer if we're on the last line
+			int cursor = read.getBuffer().cursor();
+			if (!read.getBuffer().substring(cursor).contains("\n")) {
+				int length = read.getBuffer().length();
+				read.getBuffer().cursor(length);
+				read.getBuffer().write('\n');
+				read.getBuffer().cursor(cursor);
+			}
+			read.callWidget(KILL_WHOLE_LINE);
+			read.callWidget(DOWN_LINE);
+			read.callWidget(YANK); // pastes the line that was killed above
+			read.callWidget(UP_LINE);
+			return true;
+		} else {
 			return false;
 		}
 	}
