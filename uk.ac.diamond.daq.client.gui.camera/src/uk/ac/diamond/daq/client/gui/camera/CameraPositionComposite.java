@@ -31,14 +31,14 @@ public class CameraPositionComposite extends Composite {
 		units.add(SI.MILLI(SI.METER));
 		units.add(SI.METER);
 
-		NumberAndUnitsComposite<Length> xLength = new NumberAndUnitsComposite<>(this, SWT.None, SI.METER, units);
+		NumberAndUnitsComposite<Length> xLength = new NumberAndUnitsComposite<>(this, SWT.NONE, SI.METER, units);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(xLength);
 
 		label = new Label(this, SWT.LEFT);
 		label.setText("Y:");
 		GridDataFactory.swtDefaults().applyTo(label);
 
-		NumberAndUnitsComposite<Length> yLength = new NumberAndUnitsComposite<>(this, SWT.None, SI.METER, units);
+		NumberAndUnitsComposite<Length> yLength = new NumberAndUnitsComposite<>(this, SWT.NONE, SI.METER, units);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(yLength);
 	}
 }

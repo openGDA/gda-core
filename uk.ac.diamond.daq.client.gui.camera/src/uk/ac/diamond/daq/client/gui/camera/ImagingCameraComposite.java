@@ -16,7 +16,7 @@ import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 
-public class ImagingCameraComposite extends Composite implements DiadConfigurationListener<DiadConfigurationModel> {
+public class ImagingCameraComposite extends Composite {
 	public ImagingCameraComposite(Composite parent, CameraConfiguration cameraConfiguration, int style)
 			throws Exception {
 		super(parent, style);
@@ -27,10 +27,10 @@ public class ImagingCameraComposite extends Composite implements DiadConfigurati
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
 		LiveViewComposite imagingPanel = new LiveViewComposite(this, liveStreamConnection, cameraConfiguration,
-				SWT.None);
+				SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(imagingPanel);
 
-		HistogramComposite histogramPanel = new HistogramComposite(this, imagingPanel.getPlottingComposite(), SWT.None);
+		HistogramComposite histogramPanel = new HistogramComposite(this, imagingPanel.getPlottingComposite(), SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(histogramPanel);
 
 		Composite sensorROIPanel = createSensorROIPanel();
@@ -39,7 +39,7 @@ public class ImagingCameraComposite extends Composite implements DiadConfigurati
 		Composite adjustPanel = createAdjustPanel();
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(adjustPanel);
 
-		Composite buttonPanel = new DiadConfigurationComposite<>(this, this, SWT.None);
+		Composite buttonPanel = new DialogLoadSaveComposite(this, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.END).applyTo(buttonPanel);
 	}
 
@@ -115,7 +115,7 @@ public class ImagingCameraComposite extends Composite implements DiadConfigurati
 			positionDialog.setText("Camera Position");
 			positionDialog.setSize(250, 130);
 			GridLayoutFactory.swtDefaults().numColumns(1).applyTo(positionDialog);
-			CameraPositionComposite dialogPanel = new CameraPositionComposite(positionDialog, SWT.None);
+			CameraPositionComposite dialogPanel = new CameraPositionComposite(positionDialog, SWT.NONE);
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(dialogPanel);
 
 			positionDialog.open();
@@ -123,17 +123,5 @@ public class ImagingCameraComposite extends Composite implements DiadConfigurati
 		RowDataFactory.swtDefaults().applyTo(cameraPositionButton);
 
 		return panel;
-	}
-
-	@Override
-	public DiadConfigurationModel getModel() {
-		return new DiadConfigurationModel("Camera", "0.1") {
-		};
-	}
-
-	@Override
-	public void setModel(DiadConfigurationModel data) {
-		// TODO Auto-generated method stub
-
 	}
 }

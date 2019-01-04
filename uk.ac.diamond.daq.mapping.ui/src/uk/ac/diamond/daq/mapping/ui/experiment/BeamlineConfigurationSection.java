@@ -41,17 +41,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Finder;
-import uk.ac.diamond.daq.client.gui.camera.ImagingCameraConfigurationComposite;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanWizard;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 
 /**
  * A section to edit the beamline configuration, i.e. the positions that certain
@@ -98,24 +94,6 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 			configureFocusButton.setText("Configure Focus"); // TODO use image
 			configureFocusButton.addListener(SWT.Selection, event -> configureFocus());
 		}
-
-		Button demoDiadCameraConfigButton = new Button(beamlineConfigComposite, SWT.PUSH);
-		demoDiadCameraConfigButton.setText ("Demo");
-		demoDiadCameraConfigButton.addListener(SWT.Selection, event -> {
-			Shell shell = new Shell(beamlineConfigComposite.getDisplay());
-			shell.setText("Camera Demo");
-			shell.setSize(500, 600);
-
-			GridLayoutFactory.fillDefaults().numColumns(1).applyTo(shell);
-
-			CameraConfiguration cameraConfiguration = Finder.getInstance().find("sim_cam");
-
-			ImagingCameraConfigurationComposite cameraConfigurationComposite = new ImagingCameraConfigurationComposite(shell,
-					cameraConfiguration, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraConfigurationComposite);
-
-			shell.open();
-		});
 
 		updateConfiguredScannableSummary();
 	}

@@ -37,8 +37,7 @@ Require-Bundle: org.eclipse.ui,
  com.fasterxml.jackson.core.jackson-core,
  uk.ac.gda.client,
  uk.ac.diamond.org.jscience,
- com.google.guava,
- uk.ac.diamond.daq.client.gui.camera;bundle-version="1.0.0"
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.e4.core.contexts,
@@ -48,8 +47,7 @@ Import-Package: org.eclipse.e4.core.contexts,
  org.eclipse.e4.ui.di,
  org.eclipse.e4.ui.services,
  org.eclipse.richbeans.widgets.shuffle,
- org.slf4j;version="1.7.6",
- uk.ac.gda.client.live.stream.view
+ org.slf4j;version="1.7.6"
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui.experiment,

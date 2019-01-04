@@ -8,46 +8,47 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class AbsorptionConfigurationComposite extends Composite {
+	private static final int BOX_SIZE = 15;
+	private static final int LABEL_WIDTH = 50;
 
 	public AbsorptionConfigurationComposite(Composite parent, int style) {
 		super(parent, style);
 
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
-		StaticViewComposite staticViewComposite = new StaticViewComposite(this, SWT.NONE);
-		staticViewComposite.setBackground(new Color(this.getDisplay(), 255, 0, 0));
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(staticViewComposite);
-
 		Composite staticViewROIStatisticsComposite = getStaticViewROIStatisticsComposite(this);
-		staticViewROIStatisticsComposite.setBackground(new Color(this.getDisplay(), 0, 255, 0));
 		GridDataFactory.fillDefaults().applyTo(staticViewROIStatisticsComposite);
 
-		BinningComposite binningComposite = new BinningComposite(this, SWT.NONE);
-		binningComposite.setBackground(new Color(this.getDisplay(), 255, 0, 0));
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(binningComposite);
-
 		Label spacer1 = new Label(this, SWT.NONE);
-		spacer1.setText("Spacer 1");
-		spacer1.setBackground(new Color(this.getDisplay(), 0, 0, 255));
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).grab(true, true).applyTo(spacer1);
-
-		SensorROIComposite sensorROIComposite = new SensorROIComposite(this, SWT.NONE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).applyTo(sensorROIComposite);
-
-		Label spacer2 = new Label(this, SWT.NONE);
-		spacer2.setText("Spacer 2");
-		spacer2.setBackground(new Color(this.getDisplay(), 255, 0, 255));
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.END).grab(true, true).applyTo(spacer2);
 	}
 
 	private Composite getStaticViewROIStatisticsComposite(Composite parent) {
 		Composite panel = new Composite(parent, SWT.NONE);
 
-		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(panel);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(panel);
 
-		Label label = new Label(panel, SWT.NONE);
-		label.setText("Static View\nROI Statistics");
-		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(label);
+		RegionBox box1 = new RegionBox(panel, new Color(parent.getDisplay(), 255, 128, 128),
+				new Color(parent.getDisplay(), 255, 0, 0), 2);
+		GridDataFactory.swtDefaults().hint(BOX_SIZE, BOX_SIZE).align(SWT.CENTER, SWT.CENTER).applyTo(box1);
+
+		Label regionValue1 = new Label(panel, SWT.RIGHT);
+		regionValue1.setText("65535");
+		GridDataFactory.swtDefaults().hint(LABEL_WIDTH, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER)
+				.applyTo(regionValue1);
+
+		Label ratioLabel = new Label(panel, SWT.None);
+		ratioLabel.setText("Radio: 0.5");
+		GridDataFactory.swtDefaults().span(0, 2).align(SWT.CENTER, SWT.CENTER).applyTo(ratioLabel);
+
+		RegionBox box2 = new RegionBox(panel, new Color(parent.getDisplay(), 128, 255, 128),
+				new Color(parent.getDisplay(), 0, 255, 0), 2);
+		GridDataFactory.swtDefaults().hint(BOX_SIZE, BOX_SIZE).align(SWT.CENTER, SWT.CENTER).applyTo(box2);
+
+		Label regionValue2 = new Label(panel, SWT.RIGHT);
+		regionValue2.setText("32768");
+		GridDataFactory.swtDefaults().hint(LABEL_WIDTH, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER)
+				.applyTo(regionValue2);
 
 		return panel;
 	}
