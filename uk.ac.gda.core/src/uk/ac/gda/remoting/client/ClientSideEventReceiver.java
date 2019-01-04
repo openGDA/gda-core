@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import gda.factory.corba.util.EventService;
-import gda.factory.corba.util.EventSubscriber;
+import gda.events.EventService;
+import gda.events.EventSubscriber;
 import gda.observable.ObservableComponent;
 
 /**

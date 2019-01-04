@@ -33,8 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.corba.util.EventReceiver;
-import gda.factory.corba.util.EventSubscriber;
+import gda.events.EventReceiver;
+import gda.events.EventSubscriber;
 import gda.util.Serializer;
 
 /**

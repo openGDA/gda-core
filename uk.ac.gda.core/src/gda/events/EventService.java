@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.factory.corba.util;
+package gda.events;
 
 import gda.events.jms.JmsEventDispatcher;
 import gda.events.jms.JmsEventReceiver;

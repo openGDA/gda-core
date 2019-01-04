@@ -1,6 +1,6 @@
 /*-
  * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Facilities Council Daresbury Laboratory
  *
  * This file is part of GDA.
  *
@@ -17,20 +17,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.factory.corba.util;
+package gda.events;
 
 /**
- * Interface to be implemented by objects that can dispatch events.
+ * A class can implement the Subscriber interface when it wants to be informed of events by the EventService
  */
 @FunctionalInterface
-public interface EventDispatcher {
-
+public interface EventSubscriber {
 	/**
-	 * Dispatches a message.
+	 * Informs the Subscriber of an event
 	 *
-	 * @param sourceName name of the source of the message
 	 * @param message the message
 	 */
-	public void publish(String sourceName, Object message);
-
+	public void inform(Object message);
 }
