@@ -409,7 +409,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			configureExtraNamesAndOutputFormat();
 			reset();
 		} catch (Exception e) {
-			logger.error("Configuring {} failed! Device may not work as expected", getName());
+			logger.error("Configuring {} failed! Device may not work as expected", getName(), e);
 		}
 	}
 
