@@ -48,9 +48,6 @@ public enum ConfigurationDefaults {
 	INI_FILE_PROFILE_PROPERTY("eclipse.p2.profile"),
 	INI_FILE_INSTALL_AREA_PROPERTY("osgi.install.area"),
 	LOG_SERVER_CLASS("gda.util.LogServer"),
-	NAME_SERVER_CLASS("org.jacorb.naming.NameServer"),
-	NAME_SERVER_PORT("6700"),
-	CHANNEL_SERVER_CLASS("gda.factory.corba.util.ChannelServer"),
 	OBJECT_SERVER_CLASS("gda.util.ObjectServer"),
 	WORKSPACE_LOCATION(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()),	// read in from -data option
 
@@ -121,10 +118,6 @@ public enum ConfigurationDefaults {
 	JACORB_CONFIG_DIR(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "jacorb"))),
 	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR));
 
-	private static final int GDA_PREFIX_LENGTH = 4;
-
-	private static final String GDA_EVENT_CHANNEL_NAME = "gda.eventChannelName";
-
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 
 	private static final String[] BASIC_VM_ARGS =  {"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
@@ -142,22 +135,9 @@ public enum ConfigurationDefaults {
 	private static final String[] OBJECT_SERVER_VM_ARGS =  {"-Dgov.aps.jca.JCALibrary.properties=" + APP_JCA_LIBRARY_FILE,
 															"-Dderby.stream.error.field=uk.ac.diamond.daq.persistence.jythonshelf.LocalObjectShelfManager.DerbyLogStream"};
 
-	private static final String[] NAME_SERVER_VM_ARGS = {	APP_JACORB_VM_ARGS.value,
-															"-Dgda.install.workspace.loc=" + combine(APP_PATHS_ROOT, GDA_WORKSPACE_NAME),
-															"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
-															"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
-															"-DOAPort=" + getHierarchicalValueWithDefault(NAME_SERVER_PORT)};
-
 	private static final String[] LOGSERVER_LOCAL_PROPERTY_KEYS = {	"gda.logserver.xml",
 																	"gda.logserver.port",
 																	"gda.server.logging.port"};
-
-	private static final String[] CHANNEL_SERVER_LOCAL_PROPERTY_KEYS = {"gda.server.logging.xml",
-																		"gda.ORBClass",
-																		"gda.ORBSingletonClass",
-																		GDA_EVENT_CHANNEL_NAME,
-																		"gda.objectserver.initialisationCompleteFolder",
-																		"gda.factory.corba.util.MyEventChannelImpl.threadPoolSize"};
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationDefaults.class);
 
@@ -219,56 +199,6 @@ public enum ConfigurationDefaults {
 			}
 		}
 		return buildCommand(arrayOf(LOG_SERVER_CLASS.value), standardBasicArgs(), logServerArgs);
-	}
-
-	/**
-	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
-	 * {@link org.jacorb.naming.NameServer}. Supplies all the required parameters as System properties for the VM that runs it.
-	 *
-	 * @return		The required composite command array including all the above elements.
-	 */
-	public static String[] buildNameServerCommand() {
-		return buildCommand(arrayOf(NAME_SERVER_CLASS.value), concat(APP_JAVA_OPTS, NAME_SERVER_VM_ARGS, String.class), arrayOf());
-	}
-
-	/**
-	 * Build composite command array for use by {@link ProcessBuilder#ProcessBuilder(String... command)} when starting the
-	 * {@link gda.factory.corba.util.ChannelServer}. Supplies the event channel name as an argument to the ChannelServer
-	 *  class and all other required parameters as System properties for the VM that runs it.
-	 *
-	 * @return		The required composite command array including all the above elements.
-	 */
-	public static String[] buildChannelServerCommand(final String... optionalVMArgs) {
-		String[] channelServerArgs = ArrayUtils.isNotEmpty(optionalVMArgs) ? optionalVMArgs: OPTIONAL_VM_ARGS;
-		String[] serverClassPlusOptionalEventChannel = {CHANNEL_SERVER_CLASS.value};
-		for (String key : CHANNEL_SERVER_LOCAL_PROPERTY_KEYS) {
-			if (LocalProperties.contains(key)) {
-				if (key.equals(GDA_EVENT_CHANNEL_NAME)) {
-					serverClassPlusOptionalEventChannel = concat(serverClassPlusOptionalEventChannel, LocalProperties.get(key));
-				} else {
-					channelServerArgs = (String[])ArrayUtils.add(channelServerArgs, String.format("-D%s=%s", substituteORBKeys(key), LocalProperties.get(key)));
-				}
-			} else {
-				if (!key.equals(GDA_EVENT_CHANNEL_NAME) && !"gda.factory.corba.util.MyEventChannelImpl.threadPoolSize".equals(key)) {
-					logger.warn("{} property not specified, Channel/Event Server may not start correctly", key);
-				} else {
-					final String tail = key.substring(key.lastIndexOf('.') + 1);
-					logger.info("Channel/Event Server will start with default {}", tail);
-				}
-			}
-		}
-		final String[] vmArgs = concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value);
-		return buildCommand(serverClassPlusOptionalEventChannel, vmArgs, channelServerArgs);
-	}
-
-	/**
-	 * Substitute org.omg.CORBA for the gda prefix in keys referring to the ORB
-	 *
-	 * @param key		The LocalProperties key prefixed with gda
-	 * @return			The modified key prefixes with org.omg.CORBA
-	 */
-	private static String substituteORBKeys(String key) {
-		return key.contains("ORB") ? String.format("org.omg.CORBA.%s", key.substring(GDA_PREFIX_LENGTH)) : key;
 	}
 
 	/**
