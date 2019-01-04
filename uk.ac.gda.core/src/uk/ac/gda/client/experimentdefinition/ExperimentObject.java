@@ -60,7 +60,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 	protected transient IFolder containingFolder;
 	protected String folderName;
 	protected String multiScanName; // name of IExperimentObjectManager
-	protected HashMap<String,String> typeToFileMap = new HashMap<String,String>();
+	protected HashMap<String,String> typeToFileMap = new HashMap<>();
 	protected String runName;
 
 	@Override
@@ -101,7 +101,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 	public List<IFile> getFiles() {
 		HashMap<String,String> typeToFiles = getTypeToFileMap();
 
-		List<IFile> files = new ArrayList<IFile>(typeToFiles.size());
+		List<IFile> files = new ArrayList<>(typeToFiles.size());
 		for (Object fileName : typeToFiles.values()) {
 			files.add(getFolder().getFile((String) fileName));
 		}
@@ -111,7 +111,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 	@Override
 	public Map<String, IFile> getFilesWithTypes() {
 		HashMap<String,String> typeToFiles = getTypeToFileMap();
-		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
+		Map<String, IFile> targetFiles = new HashMap<>(typeToFiles.size());
 		for (Object fileType : typeToFiles.keySet()) {
 			IFile file = getFolder().getFile(typeToFiles.get(fileType));
 			targetFiles.put((String) fileType, file);
@@ -176,13 +176,13 @@ public abstract class ExperimentObject implements IExperimentObject {
 	public List<XMLRichBean> getParameters() throws Exception {
 
 		List<IFile> files = getFiles();
-		List<XMLRichBean> params = new ArrayList<XMLRichBean>(files.size());
+		List<XMLRichBean> params = new ArrayList<>(files.size());
 
 		for (IFile file : files) {
 			try {
 				params.add(XMLHelpers.getBean(file.getLocation().toFile()));
 			} catch (Exception e) {
-				logger.warn("File not found: " + file);
+				logger.warn("File not found: {}", file);
 				params.add(null);
 			}
 		}
@@ -214,15 +214,6 @@ public abstract class ExperimentObject implements IExperimentObject {
 		List<IFile> files = getFiles();
 		return files.contains(xmlFile);
 	}
-
-//	protected void notifyListeners(String propertyName) {
-//		final ExperimentObjectEvent evt = new ExperimentObjectEvent(this);
-//		evt.setPropertyName(propertyName);
-//		evt.setError(isError);
-//
-//		if (getRunFileManager() != null)
-//			this.getRunFileManager().notifyExperimentObjectListeners(evt);
-//	}
 
 	@Override
 	public void renameFile(String from, String to) {
@@ -258,7 +249,6 @@ public abstract class ExperimentObject implements IExperimentObject {
 	@Override
 	public void setNumberRepetitions(Integer numRuns) {
 		this.numberRepetitions = numRuns;
-//		notifyListeners("NumberRepetitions");
 	}
 
 	@Override
@@ -266,7 +256,6 @@ public abstract class ExperimentObject implements IExperimentObject {
 		if (runName.indexOf(' ') > -1)
 			throw new RuntimeException("Run name cannot contain a space.");
 		this.runName = runName;
-//		notifyListeners("RunName");
 	}
 
 	@Override
@@ -291,15 +280,17 @@ public abstract class ExperimentObject implements IExperimentObject {
 		if (getId() == null) {
 			if (other.getId() != null)
 				return false;
-		} else if (!getId().equals(other.getId()))
+		} else if (!getId().equals(other.getId())) {
 			return false;
+		}
 		if (numberRepetitions != other.numberRepetitions)
 			return false;
 		if (runName == null) {
 			if (other.runName != null)
 				return false;
-		} else if (!runName.equals(other.runName))
+		} else if (!runName.equals(other.runName)) {
 			return false;
+		}
 		return true;
 	}
 
