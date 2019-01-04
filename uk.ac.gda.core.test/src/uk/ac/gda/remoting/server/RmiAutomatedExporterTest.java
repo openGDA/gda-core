@@ -18,7 +18,6 @@
 
 package uk.ac.gda.remoting.server;
 
-import static gda.factory.corba.util.EventService.USE_JMS_EVENTS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -71,7 +70,6 @@ public class RmiAutomatedExporterTest {
 
 	@BeforeClass
 	public static void setupClass() throws Exception {
-		LocalProperties.set(USE_JMS_EVENTS, "true"); // Test using JMS events, prevents Corba exceptions
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter
@@ -98,7 +96,6 @@ public class RmiAutomatedExporterTest {
 
 	@AfterClass
 	public static void tearDownClass() {
-		LocalProperties.clearProperty(USE_JMS_EVENTS);
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 	}
 

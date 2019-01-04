@@ -19,29 +19,18 @@
 
 package gda.factory.corba.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gda.configuration.properties.LocalProperties;
 import gda.events.jms.JmsEventDispatcher;
 import gda.events.jms.JmsEventReceiver;
 
 /**
  * An event service class to allow dispatching of events to remote receivers using the event service.
  */
-public class EventService {
-	private static final Logger logger = LoggerFactory.getLogger(EventService.class);
+public enum EventService {
+	INSTANCE;
 
-	public static final String USE_JMS_EVENTS = "gda.events.useJMS";
+	private final EventDispatcher eventDispatcher = new JmsEventDispatcher();
 
-	/** If JMS events is specifically requested or if Corba is disabled */
-	private final boolean usingJMS = LocalProperties.check(USE_JMS_EVENTS) || LocalProperties.isCorbaDisabled();
-
-	private EventDispatcher eventDispatcher = null;
-
-	private EventReceiver eventReceiver = null;
-
-	private static EventService instance = null;
+	private final EventReceiver eventReceiver = new JmsEventReceiver();
 
 	/**
 	 * Access method for the EventService singleton
@@ -49,22 +38,8 @@ public class EventService {
 	 * @return the EventService
 	 */
 	public static synchronized EventService getInstance() {
-		if( instance == null){
-			try {
-				instance = new EventService();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return instance;
+		return INSTANCE;
 	}
-
-	private EventService() {
-		if (usingJMS) {
-			logger.info("Configured for JMS events");
-		}
-	}
-
 
 	/**
 	 * Associate a dispatcher with the event channel
@@ -72,11 +47,6 @@ public class EventService {
 	 * @return the event dispatcher
 	 */
 	public synchronized EventDispatcher getEventDispatcher() {
-		if (eventDispatcher == null) {
-			if (usingJMS) {
-				eventDispatcher = new JmsEventDispatcher();
-			}
-		}
 		return eventDispatcher;
 	}
 
@@ -89,21 +59,7 @@ public class EventService {
 	 *            the name of the object to receive events from
 	 */
 	public void subscribe(EventSubscriber eventSubscriber, String objectName) {
-		if (eventReceiver == null) {
-			if(usingJMS) {
-				eventReceiver = new JmsEventReceiver();
-			}
-		}
 		eventReceiver.subscribe(eventSubscriber, objectName);
 	}
 
-	/**
-	 * Disconnect an event subscriber from an event channel
-	 */
-	public void unsubscribe() {
-		if (eventReceiver != null) {
-			eventReceiver.disconnect();
-			eventReceiver = null;
-		}
-	}
 }

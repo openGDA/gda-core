@@ -18,7 +18,6 @@
 
 package uk.ac.gda.remoting;
 
-import static gda.factory.corba.util.EventService.USE_JMS_EVENTS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.isA;
@@ -72,7 +71,6 @@ public class RmiRemotingIntegrationTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		LocalProperties.set(USE_JMS_EVENTS, "true"); // Test using JMS events, prevents Corba exceptions
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
@@ -86,7 +84,6 @@ public class RmiRemotingIntegrationTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		// Cleanup properties set
-		LocalProperties.clearProperty(USE_JMS_EVENTS);
 		LocalProperties.unsetActiveMQBrokerURI();
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty("gda.server.host");
