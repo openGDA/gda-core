@@ -427,7 +427,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
         <dirset  dir="${plugins.path}" id="jacorbDirId" >
             <include name="uk.ac.diamond.org.jacorb_*"/>
         </dirset>
-        <property name= "jacorb.dir.name" refid= "jacorbDirId" />
         <dirset  dir="${plugins.path}" id="springDirId" >
             <include name="uk.ac.diamond.org.springframework_*"/>
         </dirset>
@@ -446,7 +445,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
         <property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
 
         <!-- Add the links to cope with hard coded paths in the codebase -->
-        <symlink link="${jacorb.link}" resource="${jacorb.dir.name}" />
         <symlink link="${spring.framework.link}" resource="${spring.dir.name}" />
 
         <!-- Copy list of target platform bundles (which may include bundles that are in the workspace but not part of the server) -->
