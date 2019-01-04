@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DIAD UI
+Bundle-SymbolicName: uk.ac.diamond.daq.experiment.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.ui,
+ uk.ac.gda.api,
+ uk.ac.gda.client,
+ org.eclipse.e4.core.contexts,
+ javax.inject,
+ org.eclipse.richbeans.widgets,
+ org.eclipse.scanning.api,
+ org.eclipse.scanning.device.ui,
+ org.eclipse.dawnsci.plotting.api,
+ org.eclipse.january,
+ uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0",
+ org.eclipse.core.runtime;bundle-version="3.13.0",
+ org.eclipse.e4.core.di;bundle-version="1.6.100"
+Export-Package: uk.ac.diamond.daq.experiment.ui.driver,
+ uk.ac.diamond.daq.experiment.ui.plan
+Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.diamond.daq.experiment.ui

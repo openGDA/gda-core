@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: uk.ac.diamond.daq.experiment.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.diamond.daq.experiment
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit,
+ uk.ac.gda.test.helpers;bundle-version="1.0.0",
+ org.mockito.mockito-core;bundle-version="1.10.19",
+ org.objenesis;bundle-version="2.2.0",
+ org.hamcrest.library;bundle-version="1.3.0"
+Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.diamond.daq.experiment.test
