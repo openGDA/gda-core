@@ -28,7 +28,6 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
-import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.After;
@@ -50,8 +49,6 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	}
 
 	private WaitingAnswer<Void> waitingAnswer;
-
-	private IBeanListener<StatusBean> statusTopicListener;
 
 	private IBeanListener<QueueCommandBean> commandTopicListener;
 
@@ -83,13 +80,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 
 		startConsumer();
 
-		// capture the status topic listener
-		// TODO: remove as part of DAQ-1724 when ConsumerImpl no longer listens to the status topic
-		ArgumentCaptor<IBeanListener<StatusBean>> statusTopicListenerCaptor =
-				(ArgumentCaptor<IBeanListener<StatusBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
-		verify(statusTopicSubscriber).addListener(statusTopicListenerCaptor.capture());
-		statusTopicListener = statusTopicListenerCaptor.getValue();
-
+		// capture the command topic listener
 		ArgumentCaptor<IBeanListener<QueueCommandBean>> commandTopicListenerCaptor =
 				(ArgumentCaptor<IBeanListener<QueueCommandBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
 		verify(commandTopicSubscriber).addListener(commandTopicListenerCaptor.capture());
@@ -104,25 +95,6 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 	@After
 	public void tearDown() {
 		waitingAnswer.resume();
-	}
-
-	@Test
-	public void testPauseResumeProcessOld() throws Exception {
-		bean.setStatus(Status.REQUEST_PAUSE);
-		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
-		verify(process).pause();
-
-		bean.setStatus(Status.REQUEST_RESUME);
-		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
-		verify(process).resume();
-	}
-
-	@Test
-	public void testTerminateProcessOld() throws Exception {
-		// TODO remove this old test - it uses the status topic to broadcast the event
-		bean.setStatus(Status.REQUEST_TERMINATE);
-		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
-		verify(process).terminate();
 	}
 
 	private void sendCommandBean(Command command) {
