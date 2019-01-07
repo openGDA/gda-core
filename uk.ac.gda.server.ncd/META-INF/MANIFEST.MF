@@ -38,6 +38,7 @@ Export-Package: uk.ac.gda.server.ncd,
  uk.ac.gda.server.ncd.plotting,
  uk.ac.gda.server.ncd.scannable,
  uk.ac.gda.server.ncd.subdetector,
+ uk.ac.gda.server.ncd.subdetector.eiger,
  uk.ac.gda.server.ncd.timing,
  uk.ac.gda.server.ncd.timing.data
 Eclipse-RegisterBuddy: uk.ac.gda.core,
