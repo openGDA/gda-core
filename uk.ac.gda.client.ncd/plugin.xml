@@ -98,6 +98,14 @@
       </view>
       <view
             category="gda.rcp.ncd"
+            class="gda.rcp.ncd.views.SimpleTimerView"
+            icon="icons/sample.gif"
+            id="uk.ac.gda.client.ncd.SimpleTimerView"
+            name="Timer Configuration"
+            restorable="true">
+      </view>
+      <view
+            category="gda.rcp.ncd"
             class="gda.rcp.ncd.views.NcdCalibConfigure"
             icon="icons/sample.gif"
             id="uk.ac.gda.client.ncd.calibconf"
