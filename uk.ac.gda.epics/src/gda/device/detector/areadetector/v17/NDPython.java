@@ -58,9 +58,9 @@ public interface NDPython extends GetPluginBaseAvailable {
 	/**
 	 * Returns the parameter as a String, regardless of the actual type
 	 *
-	 * @param paramter
+	 * @param parameter
 	 * @return String value for parameter
 	 * @throws Exception
 	 */
-	public String readParam(String paramter) throws Exception;
+	public String readParam(String parameter) throws Exception;
 }

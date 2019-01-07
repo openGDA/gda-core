@@ -148,8 +148,8 @@ public class NDPythonImpl extends NDBaseImpl implements NDPython, InitializingBe
 	}
 
 	@Override
-	public String readParam(String paramter) throws Exception {
-		return EPICS_CONTROLLER.caget(getChannel(getPythonParameters().get(paramter)));
+	public String readParam(String parameter) throws Exception {
+		return EPICS_CONTROLLER.caget(getChannel(getPythonParameters().get(parameter)));
 	}
 
 }
