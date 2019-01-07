@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -63,7 +62,7 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(consumer.getStatusSetName(), is(EventConstants.STATUS_SET));
 		assertThat(consumer.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
 		assertThat(consumer.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
-		assertThat(consumer.getConsumerStatusTopicName(), is(nullValue()));
+		assertThat(consumer.getConsumerStatusTopicName(), is(EventConstants.CONSUMER_STATUS_TOPIC));
 		assertThat(consumer.getName(), is(equalTo("Test Consumer")));
 		assertThat(consumer.getConsumerId(), is(any(UUID.class)));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
