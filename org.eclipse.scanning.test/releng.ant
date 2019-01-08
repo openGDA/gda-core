@@ -75,6 +75,8 @@
 					<include name="org/eclipse/scanning/test/event/AcquireRequestTest.java" />
 					<include name="org/eclipse/scanning/test/event/QueueManagementTest.java" />
 					<include name="org/eclipse/scanning/test/event/SimpleConsumerTest.java" />
+					<include name="org/eclipse/scanning/test/event/ConsumerControlTest.java" />
+					<include name="org/eclipse/scanning/test/event/ConsumerProxyControlTest.java" />
 					<include name="org/eclipse/scanning/test/event/ProcessManagementTest.java" />
 
 					<include name="org/eclipse/scanning/test/fakespring/*Test.java" />
