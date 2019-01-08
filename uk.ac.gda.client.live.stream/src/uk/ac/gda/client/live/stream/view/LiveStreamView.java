@@ -290,6 +290,7 @@ public class LiveStreamView extends ViewPart {
 		customUi.setImageTrace(plottingComposite.getITrace());
 		customUi.setActionBars(actionBars);
 		customUi.createUi(parent);
+		logger.debug("Using custom UI class '{}'", customUi.getClass().getCanonicalName());
 	}
 
 	private void configureActionBars(IActionBars actionBars) {
