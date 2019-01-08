@@ -238,23 +238,23 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Initiali
 
 	/**
 	 * Create required channels from a given base PV. Assumes standard suffixes
-	 * @param basePv The PV up to (but not including the final ':')
+	 * @param basePv The PV up to (but not including) the final ':'
 	 * @throws FactoryException if any channel can't be created
 	 */
 	private void createChannelAccess(String basePv) throws FactoryException {
 		try {
 			eraseStartChannel = channelManager.createChannel(basePv + ":EraseStart", false);
-			eraseChannel = channelManager.createChannel(basePv + "EraseAll", false);
-			startChannel = channelManager.createChannel(basePv + "StartAll", false);
-			stopChannel = channelManager.createChannel(basePv + "StopAll", false);
-			nbinsChannel = channelManager.createChannel(basePv + "NuseAll", false);
-			readrateChannel = channelManager.createChannel(basePv + "ReadAll.SCAN", false);
-			trealChannel = channelManager.createChannel(basePv + "ElapsedReal", rtimelistener, false);
-			acqChannel = channelManager.createChannel(basePv + "Acquiring", acqlistener, false);
-			tacqChannel = channelManager.createChannel(basePv + "PresetReal", false);
-			tdwellChannel = channelManager.createChannel(basePv + "Dwell", false);
-			binadvChannel = channelManager.createChannel(basePv + "ChannelAdvance", false);
-			extpreChannel = channelManager.createChannel(basePv + "Prescale", false);
+			eraseChannel = channelManager.createChannel(basePv + ":EraseAll", false);
+			startChannel = channelManager.createChannel(basePv + ":StartAll", false);
+			stopChannel = channelManager.createChannel(basePv + ":StopAll", false);
+			nbinsChannel = channelManager.createChannel(basePv + ":NuseAll", false);
+			readrateChannel = channelManager.createChannel(basePv + ":ReadAll.SCAN", false);
+			trealChannel = channelManager.createChannel(basePv + ":ElapsedReal", rtimelistener, false);
+			acqChannel = channelManager.createChannel(basePv + ":Acquiring", acqlistener, false);
+			tacqChannel = channelManager.createChannel(basePv + ":PresetReal", false);
+			tdwellChannel = channelManager.createChannel(basePv + ":Dwell", false);
+			binadvChannel = channelManager.createChannel(basePv + ":ChannelAdvance", false);
+			extpreChannel = channelManager.createChannel(basePv + ":Prescale", false);
 
 			try {
 				data = rangeClosed(1, 32)
