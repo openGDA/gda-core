@@ -78,6 +78,12 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 	private final String serviceUrlPrefix = "rmi://" + serverHost + ":" + rmiPort + "/"
 			+ AUTO_EXPORT_RMI_PREFIX;
 
+	/**
+	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * import any class Spring has instantiated.
+	 */
+	private static final ClassLoader SPRING_BUNDLE_LOADER = InitializingBean.class.getClassLoader();
+
 	// Factories currently need to be named (DAQ-1264). So name using the class name.
 	private final String name = RmiProxyFactory.class.getSimpleName();
 
@@ -133,7 +139,9 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 				// This cast should be ok because we are looking at objects exported using Springs RMI Exporter
 				final RmiInvocationHandler remote = (RmiInvocationHandler) rmiRegistry
 						.lookup(AUTO_EXPORT_RMI_PREFIX + objectName);
-				final Class<?> serviceInterface = Class.forName(remote.getTargetInterfaceName());
+
+				// Use the Spring bundle loader which should be able to see all the needed classes
+				final Class<?> serviceInterface = Class.forName(remote.getTargetInterfaceName(), true, SPRING_BUNDLE_LOADER);
 
 				// Make the proxy factory
 				final GdaRmiProxyFactoryBean bean = new GdaRmiProxyFactoryBean();
