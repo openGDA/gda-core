@@ -791,7 +791,6 @@ public final class LocalProperties {
 
 	static {
 		obsoletePropertyToReason.put("gda.objectDelimiter", "it is not used any more");
-		obsoletePropertyToReason.put("gda.eventreceiver.purge", "CorbaEventReceiver does not purge events any more");
 		obsoletePropertyToReason.put("gda.users", "this property was used ambiguously and should not be used any more");
 		obsoletePropertyToReason.put("gda.jython.gdaScriptDir", "script paths are defined in the Spring configuration for the command_server");
 		obsoletePropertyToReason.put("gda.jython.userScriptDir", "script paths are defined in the Spring configuration for the command_server");
@@ -803,6 +802,12 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.epics.interface.schema", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 		obsoletePropertyToReason.put("gda.epics.SimulatedEpicsDeviceFactory", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 		obsoletePropertyToReason.put("gda.epics.interface.xml", "this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		// Corba DAQ-1322
+		obsoletePropertyToReason.put("gda.eventreceiver.purge", "Corba related removed in GDA 9.11 - see DAQ-1322");
+		obsoletePropertyToReason.put("gda.ORBClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
+		obsoletePropertyToReason.put("gda.ORBSingletonClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
+		obsoletePropertyToReason.put("gda.eventChannelName", "Corba related removed in GDA 9.11 - see DAQ-1322");
+		obsoletePropertyToReason.put("jacorb.config.dir", "Corba related removed in GDA 9.11 - see DAQ-1322");
 	}
 
 	public static void checkForObsoleteProperties() {
