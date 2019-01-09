@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.event;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyLong;
@@ -31,7 +32,6 @@ import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
@@ -180,13 +180,19 @@ public abstract class AbstractNewConsumerTest {
 	}
 
 	protected List<StatusBean> setupBeans(String... names) throws Exception {
-		List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(Collectors.toList());
 		TextMessage message = mock(TextMessage.class);
 		when(messageConsumer.receive(anyLong())).thenReturn(message);
 		String jsonMessage = "jsonMessage";
 		when(message.getText()).thenReturn(jsonMessage);
+
+		final List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(toList());
+		final StatusBean firstValue = beans.get(0);
+
+		// beans two, three, ..., last, null. The last value is null, as that is the returned for all subsequent calls
+		final StatusBean[] remainingValues = beans.subList(1, beans.size()).toArray(new StatusBean[beans.size()]);
+
 		when(eventConnectorService.unmarshal(jsonMessage, StatusBean.class)).thenReturn(
-				beans.get(0), beans.subList(1, beans.size()).toArray(new StatusBean[beans.size() - 1]));
+				firstValue, remainingValues);
 		return beans;
 	}
 
