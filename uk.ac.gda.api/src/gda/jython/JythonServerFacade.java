@@ -438,14 +438,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void addIObserver(IObserver anIObserver) {
 		myIObservers.addIObserver(anIObserver);
 
-		// put all Terminals in a separate list as well as they will want extra output
-		if (anIObserver instanceof Terminal) {
-			if (addOutputTerminal((Terminal)anIObserver)) {
-				// TODO: This will be removed after the release of 9.7
-				logger.warn("addIObserver should not be relied on for adding Terminals - add via addOutputTerminal");
-			}
-		}
-
 		// objects wishing to see SDPs
 		if (anIObserver instanceof INamedScanDataPointObserver) {
 			namedSDPObservers.add((INamedScanDataPointObserver) anIObserver);
