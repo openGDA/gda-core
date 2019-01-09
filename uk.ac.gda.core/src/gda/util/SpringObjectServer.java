@@ -57,8 +57,6 @@ import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.corba.util.AdapterFactory;
-import gda.factory.corba.util.ImplFactory;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import uk.ac.gda.remoting.client.RmiProxyMarker;
 
@@ -291,32 +289,13 @@ public class SpringObjectServer extends ObjectServer {
 	@Override
 	public void shutdown() {
 		super.shutdown();
-
-		if (!LocalProperties.isCorbaDisabled()) {
-			// Get the root ImplFactory Bean started by Jacorb/Spring by name
-			ImplFactory root = applicationContext.getBean("ImplFactory#0", ImplFactory.class);
-			if (root != null) {
-				root.shutdown();
-			}
-		}
 	}
 
 	@Override
 	protected void startServer() throws FactoryException {
 		addSpringBackedFactoryToFinder(applicationContext);
-		/*
-		 * We need to add the adapterFactory to the finder if present in the applicationContext to allow remote objects to
-		 * be found during subsequent configureAllFindablesInApplicationContext.
-		 * The adapterFactory must be added after the spring backed objects as the latter may include those from corba:import. If
-		 * the order was otherwise we would duplicate adapters for remote objects.
-		 * This change is in anticipation of future changes to corba:import to only import named objects rather than all.
-		 */
-		addAdapterFactoryToFinder();
+
 		configureAllConfigurablesInApplicationContext(applicationContext);
-		if (!LocalProperties.isCorbaDisabled()) {
-			startOrbRunThread();
-			logger.warn("Server is using Corba. This is deprecated and will be removed in a future release (DAQ-1168)");
-		}
 	}
 
 
@@ -327,16 +306,6 @@ public class SpringObjectServer extends ObjectServer {
 		SpringApplicationContextBasedObjectFactory springObjectFactory = new SpringApplicationContextBasedObjectFactory(applicationContext);
 		factories.add(springObjectFactory);
 		Finder.getInstance().addFactory(springObjectFactory);
-	}
-
-	private void addAdapterFactoryToFinder() {
-		Map<String,AdapterFactory> adapterFactories = applicationContext.getBeansOfType(AdapterFactory.class);
-		for (Map.Entry<String, AdapterFactory> entry : adapterFactories.entrySet()) {
-			String name = entry.getKey();
-			AdapterFactory adapterFactory = entry.getValue();
-			logger.info("Adding AdapterFactory '{}' (namespace '{}') to finder", name, adapterFactory.getName());
-			Finder.getInstance().addFactory(adapterFactory);
-		}
 	}
 
 	private void configureAllConfigurablesInApplicationContext(ApplicationContext applicationContext)

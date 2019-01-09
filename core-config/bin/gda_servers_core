@@ -42,7 +42,7 @@ function cleanup {
     export ABORTING=true
     # if in dummy mode just kill the processes, otherwise initiate a stop on the remote machine
     if [[ "${GDA_MODE}" != "live" ]]; then
-        readarray -t servers_arr < <(ps -ef | grep -E '\-name [G]da-server|org.jacorb.naming.[N]ameServer|gda.factory.corba.util.[C]hannelServer|gda.util.[L]ogServer')
+        readarray -t servers_arr < <(ps -ef | grep -E '\-name [G]da-server|gda.util.[L]ogServer')
         for server_proc in "${servers_arr[@]}"; do
             pid=$(awk '{ print $2 }' <<< $server_proc)
             kill -SIGKILL $pid

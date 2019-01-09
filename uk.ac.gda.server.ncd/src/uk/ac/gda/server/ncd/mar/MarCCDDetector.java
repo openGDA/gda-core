@@ -29,17 +29,13 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.corba.impl.DetectorImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Controls the MarCCD Mosaic detector.
  */
-@CorbaAdapterClass(DetectorAdapter.class)
-@CorbaImplClass(DetectorImpl.class)
+@ServiceInterface(Detector.class)
 public class MarCCDDetector extends DetectorBase implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MarCCDDetector.class);

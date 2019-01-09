@@ -20,15 +20,9 @@ package gda.data.fileregistrar;
 
 import gda.device.Device;
 import gda.device.DeviceBase;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
 @ServiceInterface(Device.class)
 public class ClientFileAnnouncer extends DeviceBase {
 	@Override

@@ -28,13 +28,10 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This is a compound scannable that operates on a bragg (wavelength determining) scannable and a
@@ -42,8 +39,7 @@ import gda.observable.IObserver;
  *
  * It is also used as metadata provider for images plotted
  */
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class EnergyScannable extends ScannableBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(EnergyScannable.class);

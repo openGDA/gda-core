@@ -25,17 +25,11 @@ import org.springframework.beans.factory.InitializingBean;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.displayscaleprovider.DisplayScaleProvider;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaImplClass(ScannableImpl.class)
-@CorbaAdapterClass(ScannableAdapter.class)
 @ServiceInterface(Scannable.class)
 public class CameraXYScannable extends ScannableBase implements InitializingBean {
 	// private static final Logger logger = LoggerFactory.getLogger(CameraXYScannable.class);

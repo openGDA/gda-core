@@ -23,32 +23,28 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class ScaledScannable extends ScannableBase {
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(ScaledScannable.class);
-	
+
 	private Scannable scannable;
-	
+
 	public void setScannable(Scannable scannable) {
 		this.scannable = scannable;
 	}
-	
+
 	private double scalingFactor;
-	
+
 	public void setScalingFactor(double scalingFactor) {
 		this.scalingFactor = scalingFactor;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		scannable.addIObserver(new IObserver() {
@@ -64,24 +60,24 @@ public class ScaledScannable extends ScannableBase {
 			}
 		});
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return scannable.isBusy();
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		final double actualPos = ScannableUtils.getCurrentPositionArray(scannable)[0];
 		final double convertedPos = actualPos * scalingFactor;
 		return convertedPos;
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
 		final Double[] convertedPos = ScannableUtils.objectToArray(externalPosition);
 		final double actualPos = convertedPos[0] / scalingFactor;
 		scannable.asynchronousMoveTo(actualPos);
 	}
-	
+
 }

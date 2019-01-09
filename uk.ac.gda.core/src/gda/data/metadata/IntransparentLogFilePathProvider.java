@@ -21,15 +21,12 @@ package gda.data.metadata;
 import gda.data.ObservablePathProvider;
 import gda.data.PathChanged;
 import gda.data.PathConstructor;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.device.corba.impl.DeviceImpl;
+import gda.device.Device;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(DeviceAdapter.class)
-@CorbaImplClass(DeviceImpl.class)
+@ServiceInterface(Device.class)
 public class IntransparentLogFilePathProvider extends MetadataBlaster implements ObservablePathProvider {
 
 	private String pathTemplate;

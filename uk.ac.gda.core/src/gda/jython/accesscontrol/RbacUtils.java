@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
-import gda.device.corba.impl.DeviceAdapter;
 import gda.factory.Findable;
-import gda.factory.corba.util.NetService;
-import gda.factory.corba.util.RbacEnabledAdapter;
 
 /**
  * Contains methods that handle wrapping of objects to enable role-based access control (RBAC).
@@ -68,30 +65,6 @@ public class RbacUtils {
 			logger.warn("Exception while trying to wrap {} with interceptor", findable.getName(), e);
 		}
 		return findable;
-	}
-
-	public static Findable buildProxy(final Findable findable) {
-
-		if (!(findable instanceof RbacEnabledAdapter)) {
-			return findable;
-		}
-
-		final RbacEnabledAdapter adapter = (RbacEnabledAdapter) findable;
-
-		final org.omg.CORBA.Object corbaObject = adapter.getCorbaObject();
-		final String name = findable.getName();
-		final NetService netService = adapter.getNetService();
-
-		return buildProxy(findable, corbaObject, name, netService);
-	}
-
-	private static Findable buildProxy(Findable theFindable, org.omg.CORBA.Object theDevice, String name, NetService netService) {
-		// rebuild every device object inside an RBACProxy
-		if (theFindable instanceof DeviceAdapter) {
-			return DeviceInterceptor.newDeviceAdapterInstance((DeviceAdapter) theFindable, theDevice,
-					name, netService);
-		}
-		return theFindable;
 	}
 
 	/**

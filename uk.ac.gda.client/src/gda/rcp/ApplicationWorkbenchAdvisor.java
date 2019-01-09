@@ -68,7 +68,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.factory.corba.util.EventService;
 import gda.gui.RCPController;
 import gda.gui.RCPControllerImpl;
 import gda.gui.RCPOpenPerspectiveCommand;
@@ -82,7 +81,6 @@ import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
-import gda.util.ObjectServer;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.closeactions.UserOptionsOnCloseDialog;
 import uk.ac.gda.client.liveplot.LivePlotViewManager;
@@ -453,15 +451,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			}
 
 		} finally {
-			// if running GDA in distributed mode then unsubscribe from
-			// eventservice
-			if (!ObjectServer.isLocal()) {
-				EventService eventService = EventService.getInstance();
-				if (eventService != null) {
-					eventService.unsubscribe();
-				}
-			}
-
 			// tell JythonServerFacade to disconnect from JythonServer
 			JythonServerFacade.disconnect();
 		}

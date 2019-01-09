@@ -26,10 +26,7 @@ import org.python.core.PyObject;
 import org.springframework.context.ApplicationContext;
 
 import gda.device.Device;
-import gda.device.corba.impl.DeviceAdapter;
-import gda.factory.corba.util.NetService;
 import gda.jython.JythonServer.JythonServerThread;
-import gda.jython.JythonServerFacade;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -75,37 +72,6 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 		((Factory) proxyObject).setCallback(0, interceptor);
 
 		return (Device) proxyObject;
-	}
-
-	/**
-	 * Factory method to create a DeviceAdapter wrapped in a CGLIB proxy for method interception.
-	 *
-	 * @param theCorbaDevice
-	 * @param theDevice
-	 * @param name
-	 * @param netService
-	 * @return DeviceAdapter
-	 */
-	public static DeviceAdapter newDeviceAdapterInstance(DeviceAdapter theDevice, org.omg.CORBA.Object theCorbaDevice,
-			String name, NetService netService) {
-
-		MethodInterceptor interceptor = new DeviceInterceptor(theDevice);
-
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(theDevice.getClass());
-		enhancer.setCallback(interceptor);
-
-		// As we are creating DeviceAdapters we know that they all have the same form of constructor:
-		// org.omg.CORBA.Object obj, String name, NetService netService
-
-		Object[] args = new Object[] { theCorbaDevice, name, netService };
-		Class<?>[] parameterTypes = new Class<?>[] { org.omg.CORBA.Object.class, String.class, NetService.class };
-
-		Object proxyObject = enhancer.create(parameterTypes, args);
-
-		((Factory) proxyObject).setCallback(0, interceptor);
-
-		return (DeviceAdapter) proxyObject;
 	}
 
 	/**
@@ -180,21 +146,6 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 			if (Thread.currentThread() instanceof JythonServerThread) {
 				return callProtectedMethodInJythonServerThread(theObject, method, args);
 			}
-
-			if (theObject instanceof DeviceAdapter) {
-				// else get authorisation from JythonServerFacade
-				if (JythonServerFacade.getInstance().getAuthorisationLevel() >= theObject.getProtectionLevel()) {
-					return InterceptorUtils.invokeMethod(method, theObject, args);
-				}
-
-				// throw exception telling user that there's not enough permissions
-				if (JythonServerFacade.getInstance().getAuthorisationLevel() == 0) {
-					throw new AccessDeniedException(AccessDeniedException.NOBATON_EXCEPTION_MESSAGE);
-				}
-				throw new AccessDeniedException("You need a permission level of " + theObject.getProtectionLevel()
-						+ " to perform this operation. Your current level is "
-						+ JythonServerFacade.getInstance().getAuthorisationLevel() + ".");
-			}
 		}
 		// else simply call the method
 		return InterceptorUtils.invokeMethod(method, theObject, args);
@@ -209,11 +160,6 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 		if (obj == this) {
 			return true;
 		}
-
-		if (theObject instanceof DeviceAdapter && !(obj instanceof net.sf.cglib.proxy.Factory)) {
-			return this.theObject.equals(obj);
-		}
-
 		if (!(obj instanceof net.sf.cglib.proxy.Factory)) {
 			return false;
 		}
@@ -226,16 +172,6 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 
 		DeviceInterceptor otherDevInterceptor = (DeviceInterceptor) callback;
 		return theObject.equals(otherDevInterceptor.theObject);
-	}
-
-	@Override
-	public int hashCode() {
-		if (theObject instanceof DeviceAdapter) {
-			// base on wrapped object
-			return theObject.hashCode();
-		}
-
-		return super.hashCode();
 	}
 
 }

@@ -132,7 +132,7 @@ fi
 readonly MY_NAME=$(basename "$(readlink -e "$0")")         # The name of this script
 
 readonly ALL_RUNNING_GDA_OSGI_SERVERS='\-name [G]da-server'
-readonly ALL_RUNNING_SUBORDINATE_SERVERS='org.jacorb.naming.[N]ameServer|gda.factory.corba.util.[C]hannelServer|gda.util.[L]ogServer'
+readonly ALL_RUNNING_SUBORDINATE_SERVERS='gda.util.[L]ogServer'
 
 readonly START_ONLY_PATTERN="\bstart\b"
 readonly RESTART_OR_STOP_PATTERN="\brestart\b|\bstop\b"
@@ -144,7 +144,7 @@ if [[ "$ARGS_IN" =~ $START_ONLY_PATTERN  ]]; then
         exit_servers_to_kill "GDA"
     fi
     if [[ -n "$(ps -ef | grep -E "$ALL_RUNNING_SUBORDINATE_SERVERS")" ]]; then
-        exit_servers_to_kill "Name, Channel and/or Log"
+        exit_servers_to_kill "Log"
     fi
 
 # If "--restart" or "--stop" were specified only proceed if the GDA server and Name/Channel/Log
@@ -158,7 +158,7 @@ elif [[ "$ARGS_IN" =~ $RESTART_OR_STOP_PATTERN ]]; then
     find_pids_to_kill
     OSGI_SERVER_PIDS_TO_KILL=$pids_to_kill
     # repeat above for Name/Channel/Log servers via my_servers_arr
-    check_running_servers_ownership "$ALL_RUNNING_SUBORDINATE_SERVERS" "Name, Channel and/or Log"
+    check_running_servers_ownership "$ALL_RUNNING_SUBORDINATE_SERVERS" "Log"
     find_pids_to_kill
     for pid in $OSGI_SERVER_PIDS_TO_KILL; do
         kill_with_SIGKILL_if_necessary "$pid" "7" "Shutting down"

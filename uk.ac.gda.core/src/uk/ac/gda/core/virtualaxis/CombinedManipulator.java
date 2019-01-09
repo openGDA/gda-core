@@ -25,20 +25,11 @@ import java.util.Vector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.FactoryException;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.api.virtualaxis.IVirtualAxisCombinedCalculator;
 
-/**
- *
- */
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
 @ServiceInterface(Scannable.class)
 public class CombinedManipulator extends ScannableBase implements IObserver {
 

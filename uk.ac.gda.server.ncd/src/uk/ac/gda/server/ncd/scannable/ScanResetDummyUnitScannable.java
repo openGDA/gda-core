@@ -22,28 +22,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gda.scan.Scan.ScanStatus;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
-@CorbaAdapterClass(ScannableAdapter.class)
-@CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements IObserver {
 
 	private double resetValue = Double.NaN;
 	private boolean scanRunning = false;
 	private static final Logger logger = LoggerFactory.getLogger(ScanResetDummyUnitScannable.class);
-	
+
 	public ScanResetDummyUnitScannable() {
 		super();
 	}
-	
+
 	@Override
 	public void configure() {
 		super.configure();
@@ -55,7 +52,7 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 		}
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 	}
-	
+
 	@Override
 	public Double getPosition() throws DeviceException {
 		double raw = (Double)super.getPosition();
@@ -74,7 +71,7 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 		super.asynchronousMoveTo(externalPosition);
 		notifyIObservers(this, new ScannablePositionChangeEvent(getPosition()));
 	}
-	
+
 	public void setResetValue(double reset) {
 		resetValue = reset;
 	}
@@ -82,7 +79,7 @@ public class ScanResetDummyUnitScannable extends DummyUnitsScannable  implements
 	public void reset() throws DeviceException {
 		moveTo(resetValue);
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScanStatus) {

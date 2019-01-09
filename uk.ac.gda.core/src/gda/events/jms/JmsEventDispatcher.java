@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.corba.util.EventDispatcher;
+import gda.events.EventDispatcher;
 import gda.util.Serializer;
 
 /**

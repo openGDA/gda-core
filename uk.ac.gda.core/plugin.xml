@@ -8,13 +8,7 @@
             name="gda.beamline.beam">
          </package>
          <package
-            name="gda.beamline.beam.corba.impl">
-         </package>
-         <package
             name="gda.beamline.beamline">
-         </package>
-         <package
-            name="gda.beamline.beamline.corba.impl">
          </package>
          <package
             name="gda.beamline.video">
@@ -38,22 +32,13 @@
             name="gda.data.fileregistrar">
          </package>
          <package
-            name="gda.data.fileregistrar.corba.impl">
-         </package>
-         <package
             name="gda.data.generalfilereaders">
          </package>
          <package
             name="gda.data.generic">
          </package>
          <package
-            name="gda.data.generic.corba.impl">
-         </package>
-         <package
             name="gda.data.metadata">
-         </package>
-         <package
-            name="gda.data.metadata.corba.impl">
          </package>
          <package
             name="gda.data.metadata.icat">
@@ -77,13 +62,7 @@
             name="gda.device.adc">
          </package>
          <package
-            name="gda.device.adc.corba.impl">
-         </package>
-         <package
             name="gda.device.amplifier">
-         </package>
-         <package
-            name="gda.device.amplifier.corba.impl">
          </package>
          <package
             name="gda.device.auxiliary">
@@ -92,25 +71,13 @@
             name="gda.device.bpm">
          </package>
          <package
-            name="gda.device.bpm.corba.impl">
-         </package>
-         <package
             name="gda.device.continuouscontroller">
          </package>
          <package
             name="gda.device.controlpoint">
          </package>
          <package
-            name="gda.device.controlpoint.corba.impl">
-         </package>
-         <package
-            name="gda.device.corba.impl">
-         </package>
-         <package
             name="gda.device.currentamplifier">
-         </package>
-         <package
-            name="gda.device.currentamplifier.corba.impl">
          </package>
          <package
             name="gda.device.detector">
@@ -119,40 +86,19 @@
             name="gda.device.detector.analyser">
          </package>
          <package
-            name="gda.device.detector.analyser.corba.impl">
-         </package>
-         <package
             name="gda.device.detector.cobolddetector">
-         </package>
-         <package
-            name="gda.device.detector.cobolddetector.corba.impl">
-         </package>
-         <package
-            name="gda.device.detector.corba.impl">
          </package>
          <package
             name="gda.device.detector.countertimer">
          </package>
          <package
-            name="gda.device.detector.countertimer.corba.impl">
-         </package>
-         <package
             name="gda.device.detector.datalogger">
-         </package>
-         <package
-            name="gda.device.detector.datalogger.corba.impl">
          </package>
          <package
             name="gda.device.detector.edxd">
          </package>
          <package
-            name="gda.device.detector.etldetector.corba.impl">
-         </package>
-         <package
             name="gda.device.detector.hardwaretriggerable">
-         </package>
-         <package
-            name="gda.device.detector.mar345.corba.impl">
          </package>
          <package
             name="gda.device.detector.multichannelscaler">
@@ -170,9 +116,6 @@
             name="gda.device.detector.odccd">
          </package>
          <package
-            name="gda.device.detector.odccd.corba.impl">
-         </package>
-         <package
             name="gda.device.detector.pco4000">
          </package>
          <package
@@ -188,58 +131,31 @@
             name="gda.device.digitalio">
          </package>
          <package
-            name="gda.device.digitalio.corba.impl">
-         </package>
-         <package
             name="gda.device.displayscaleprovider">
          </package>
          <package
             name="gda.device.enumpositioner">
          </package>
          <package
-            name="gda.device.enumpositioner.corba.impl">
-         </package>
-         <package
             name="gda.device.filterarray">
-         </package>
-         <package
-            name="gda.device.filterarray.corba.impl">
          </package>
          <package
             name="gda.device.gpib">
          </package>
          <package
-            name="gda.device.gpib.corba.impl">
-         </package>
-         <package
             name="gda.device.memory">
-         </package>
-         <package
-            name="gda.device.memory.corba.impl">
          </package>
          <package
             name="gda.device.modulator">
          </package>
          <package
-            name="gda.device.modulator.corba.impl">
-         </package>
-         <package
             name="gda.device.monitor">
-         </package>
-         <package
-            name="gda.device.monitor.corba.impl">
          </package>
          <package
             name="gda.device.motor">
          </package>
          <package
-            name="gda.device.motor.corba.impl">
-         </package>
-         <package
             name="gda.device.motor.simplemotor">
-         </package>
-         <package
-            name="gda.device.robot.corba.impl">
          </package>
          <package
             name="gda.device.scannable">
@@ -248,40 +164,19 @@
             name="gda.device.scannable.component">
          </package>
          <package
-            name="gda.device.scannable.corba.impl">
-         </package>
-         <package
             name="gda.device.scannable.scannablegroup">
-         </package>
-         <package
-            name="gda.device.scannable.scannablegroup.corba.impl">
          </package>
          <package
             name="gda.device.serial">
          </package>
          <package
-            name="gda.device.serial.corba.impl">
-         </package>
-         <package
             name="gda.device.shear">
-         </package>
-         <package
-            name="gda.device.shear.corba.impl">
-         </package>
-         <package
-            name="gda.device.spin.corba.impl">
          </package>
          <package
             name="gda.device.temperature">
          </package>
          <package
-            name="gda.device.temperature.corba.impl">
-         </package>
-         <package
             name="gda.device.timer">
-         </package>
-         <package
-            name="gda.device.timer.corba.impl">
          </package>
          <package
             name="gda.events.jms">
@@ -290,16 +185,10 @@
             name="gda.factory">
          </package>
          <package
-            name="gda.factory.corba.util">
-         </package>
-         <package
             name="gda.function">
          </package>
          <package
             name="gda.function.lookup">
-         </package>
-         <package
-            name="gda.function.lookup.corba.impl">
          </package>
          <package
             name="gda.icons">
@@ -338,16 +227,10 @@
             name="gda.jython.commands">
          </package>
          <package
-            name="gda.jython.corba.impl">
-         </package>
-         <package
             name="gda.jython.externalclients">
          </package>
          <package
             name="gda.jython.scriptcontroller">
-         </package>
-         <package
-            name="gda.jython.scriptcontroller.corba.impl">
          </package>
          <package
             name="gda.jython.scriptcontroller.event">
@@ -377,9 +260,6 @@
             name="gda.spring">
          </package>
          <package
-            name="gda.spring.namespaces.corba">
-         </package>
-         <package
             name="gda.spring.namespaces.gda">
          </package>
          <package
@@ -404,16 +284,10 @@
             name="gda.util.findableHashtable">
          </package>
          <package
-            name="gda.util.findableHashtable.corba.impl">
-         </package>
-         <package
             name="gda.util.osgi">
          </package>
          <package
             name="gda.util.simpleServlet">
-         </package>
-         <package
-            name="gda.util.simpleServlet.corba.impl">
          </package>
          <package
             name="gda.util.userOptions">

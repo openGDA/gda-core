@@ -18,7 +18,7 @@
 
 package uk.ac.gda.remoting.client;
 
-import gda.factory.corba.util.EventSubscriber;
+import gda.events.EventSubscriber;
 import gda.observable.ObservableComponent;
 
 /**
