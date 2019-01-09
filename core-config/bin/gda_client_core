@@ -12,13 +12,6 @@ VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" # gda.logs.dir should be read fr
 VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties ${VMARGS}"
 VMARGS="-Dgda.config=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS" #Adding this here is a better place to set gda.config than in the gda-xx.ini
 
-jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/jacorb
-if [ -d "${jacorb_config_dir}" ]; then
-    VMARGS="-Djacorb.config.dir=${jacorb_config_dir} $VMARGS"
-else
-    bashlog warn "gda_client_core" "Can't find jacorb directory ${jacorb_config_dir}. This is OK if you're running without Corba."
-fi
-
 jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/JCALibrary.properties
 if [ -r "${jca_properties_file}" ]; then
     VMARGS="-Dgov.aps.jca.JCALibrary.properties=${jca_properties_file} $VMARGS"
