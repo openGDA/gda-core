@@ -113,10 +113,7 @@ public enum ConfigurationDefaults {
 	APP_SPRING_XML_FILE_PATHS(getFromApplicationArgsUsingKeySetWithDefault(GDA_SPRING_XML_FILE_PATHS, "-f")),
 
 	APP_PROPERTIES_FILE(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, APP_MODE + "_instance_java.properties"))),
-	APP_JCA_LIBRARY_FILE(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "JCALibrary.properties"))),
-
-	JACORB_CONFIG_DIR(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "jacorb"))),
-	APP_JACORB_VM_ARGS("-Djacorb.config.dir=" + getSystemPropertyWithDefault(JACORB_CONFIG_DIR));
+	APP_JCA_LIBRARY_FILE(combine(APP_INSTANCE_PROPERTIES, combine(APP_MODE, "JCALibrary.properties")));
 
 	private static final String[] APP_JAVA_OPTS = JAVA_OPTS.value.split(" ");
 
@@ -158,7 +155,7 @@ public enum ConfigurationDefaults {
 	 * of Local Properties so that they are available to subsequent code including the buildXXCommand methods below.
 	 */
 	static {
-		final String[] basicArgs = concat(concat(standardBasicArgs(), APP_JACORB_VM_ARGS.value), OBJECT_SERVER_VM_ARGS, String.class);
+		final String[] basicArgs = concat(standardBasicArgs(), OBJECT_SERVER_VM_ARGS, String.class);
 		final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
 		final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
 		final Properties properties = System.getProperties();
@@ -228,10 +225,6 @@ public enum ConfigurationDefaults {
 		final String name = format != null ? CaseFormat.UPPER_UNDERSCORE.to(format, instance.name()): instance.name();
 		final String loaded = System.getenv(name);
 		return loaded != null ? loaded : instance.value;
-	}
-
-	private static String getSystemPropertyWithDefault(final ConfigurationDefaults instance) {
-		return getSystemPropertyWithDefault(instance, instance.value);
 	}
 
 	private static String getSystemPropertyWithDefault(final ConfigurationDefaults instance, final String defaultValue) {
