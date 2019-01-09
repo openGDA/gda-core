@@ -19,19 +19,21 @@ import org.eclipse.swt.widgets.Text;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Finder;
 import gda.rcp.views.NudgePositionerComposite;
 
 public class CalibrationPage extends WizardPage {
 
-	private Scannable demoScannable;
+	private Scannable scannable;
 	private ScheduledExecutorService executorService;
 	
 	private GridDataFactory stretch = GridDataFactory.fillDefaults().grab(true, false);
 	
 	CalibrationPage() {
 		super("Calibration");
-		demoScannable = Finder.getInstance().find("stagex");
+	}
+	
+	public void setScannable(Scannable scannable) {
+		this.scannable = scannable;
 	}
 
 	@Override
@@ -56,7 +58,6 @@ public class CalibrationPage extends WizardPage {
 		
 		executorService = Executors.newSingleThreadScheduledExecutor();
 		executorService.scheduleAtFixedRate(()->Display.getDefault().asyncExec(this::refreshReadout), 100, 100, TimeUnit.MILLISECONDS);
-		
 	}
 	
 	private void createMotionControl(Composite parent) {
@@ -67,7 +68,7 @@ public class CalibrationPage extends WizardPage {
 		
 		new Label(motionControl, SWT.NONE).setText("Position");
 		NudgePositionerComposite positioner = new NudgePositionerComposite(motionControl, SWT.NONE);
-		positioner.setScannable(demoScannable);
+		positioner.setScannable(scannable);
 		stretch.applyTo(positioner);
 		
 		// This is clearly not right, but needed because NudgePositionerComposite is naughty
@@ -128,7 +129,7 @@ public class CalibrationPage extends WizardPage {
 	private void refreshReadout() {
 		// completely arbitrary, for demo
 		try {
-			double position = (double) demoScannable.getPosition();
+			double position = (double) scannable.getPosition();
 			double offset = offsetBox.isEnabled() ? Double.valueOf(offsetBox.getText()) : 0;
 			
 			String load = String.valueOf((position * 0.3265 + offset)-loadCal);

@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.api.driver;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,16 +17,16 @@ import java.util.Set;
  */
 public class ExperimentDriverModel {
 	
-	private MultiSegmentModel profile;
+	private List<DriverProfileSection> profile;
 	private Double maxLimit;
 	private Double minLimit;
 	private Set<AbortCondition> abortConditions;
 	
-	public MultiSegmentModel getProfile() {
+	public List<DriverProfileSection> getProfile() {
 		return profile;
 	}
 	
-	public void setProfile(MultiSegmentModel profile) {
+	public void setProfile(List<DriverProfileSection> profile) {
 		this.profile = profile;
 	}
 	

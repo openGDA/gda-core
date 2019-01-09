@@ -1,10 +1,10 @@
-package uk.ac.diamond.daq.experiment.ui.widget;
+package uk.ac.diamond.daq.experiment.api.ui;
 
 import java.beans.PropertyChangeListener;
 
 /**
  * Implementors of this interface will be compatible with
- * {@link ListWithCustomEditor} and {@link ElementEditor}.
+ * ListWithCustomEditor ElementEditor.
  *
  */
 public interface EditableWithListWidget {

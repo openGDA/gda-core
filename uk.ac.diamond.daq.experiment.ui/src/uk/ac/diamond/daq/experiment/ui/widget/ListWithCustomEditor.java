@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+
 /**
  * This widget will show a list of {@link EditableWithListWidget} items, each represented by a single String.
  * Elements can be added, removed, and reordered by interacting with the buttons under the table.
@@ -44,7 +46,11 @@ public class ListWithCustomEditor {
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-	private PropertyChangeListener elementChangeListener = e -> viewer.refresh();
+	private PropertyChangeListener elementChangeListener = e -> {
+		viewer.refresh();
+		listChanged();
+	};
+	
 	private ISelectionChangedListener selectionChangedListener;
 	
 	public void setList(List<EditableWithListWidget> list) {

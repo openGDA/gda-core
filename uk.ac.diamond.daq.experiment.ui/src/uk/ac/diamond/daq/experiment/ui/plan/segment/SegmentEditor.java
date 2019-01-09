@@ -19,9 +19,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerListEditor;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
-import uk.ac.diamond.daq.experiment.ui.widget.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
 public class SegmentEditor implements ElementEditor {
