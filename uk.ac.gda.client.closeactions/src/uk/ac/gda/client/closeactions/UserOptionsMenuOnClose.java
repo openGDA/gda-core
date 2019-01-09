@@ -38,39 +38,43 @@ public class UserOptionsMenuOnClose extends Composite {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
 		this.niceWidth = niceWidth;
 
-		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(this);
+		GridLayoutFactory.fillDefaults().applyTo(this);
 
 		// radial button group
 		Composite selectionGroup = new Composite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(selectionGroup);
-		GridDataFactory.swtDefaults().hint(niceWidth, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(selectionGroup);
+		GridLayoutFactory.swtDefaults().margins(15, 0).applyTo(selectionGroup);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(selectionGroup);
+		
+		Composite buttonComposite = new Composite(selectionGroup, SWT.NONE);
+		GridLayoutFactory.swtDefaults().spacing(5, 10).numColumns(2).applyTo(buttonComposite);
+		GridDataFactory.swtDefaults().grab(true, false).applyTo(buttonComposite);
 
-		final Button option1 = optionButton(selectionGroup, "I'm finished for now - but I or a colleague will be back soon (no action)", niceWidth);
+		final Button option1 = optionButton(buttonComposite, "I'm finished for now - but I or a colleague will be back soon (no action)");
 		option1.addSelectionListener(createListener(ClientCloseOption.TEMP_ABSENCE, false));
 
-		final Button option2 = optionButton(selectionGroup, "I need to restart the client (Please tell us why)", niceWidth);
+		final Button option2 = optionButton(buttonComposite, "I need to restart the client (Please tell us why)");
 		option2.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT, true));
 
-		final Button option3 = optionButton(selectionGroup, "I need to restart the client and the server (Please tell us why)", niceWidth);
+		final Button option3 = optionButton(buttonComposite, "I need to restart the client and the server (Please tell us why)");
 		option3.addSelectionListener(createListener(ClientCloseOption.RESTART_CLIENT_AND_SERVER, true));
 
-		final Button option4 = optionButton(selectionGroup,
-				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.",
-				niceWidth);
+		final Button option4 = optionButton(buttonComposite,
+				"I'm finished for this visit, the hutch is searched and locked (if on-site) and I have or am about to inform the EHC on +44 1235 77 87 87.");
 		option4.addSelectionListener(createListener(ClientCloseOption.FINISHED, false));
 
 		feedback = new Text(selectionGroup, SWT.MULTI | SWT.BORDER);
-		GridDataFactory.swtDefaults().hint(niceWidth - 25, 60).indent(15, 0).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(feedback);
+		GridDataFactory.fillDefaults().hint(niceWidth, 200).grab(true, true).applyTo(feedback);
 
 		Composite nameGroup = new Composite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(nameGroup);
+		GridLayoutFactory.fillDefaults().margins(15, 10).applyTo(nameGroup);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(nameGroup);
 
 		Label nameLabel = new Label(nameGroup, SWT.WRAP);
 		nameLabel.setText("Please tell us who you are in case we need to contact you for more details. This will help us improve our software.");
-		GridDataFactory.swtDefaults().hint(niceWidth -25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(nameLabel);
+		GridDataFactory.fillDefaults().hint(niceWidth, SWT.DEFAULT).grab(true, false).applyTo(nameLabel);
 		
 		name = new Text(nameGroup, SWT.MULTI | SWT.BORDER);
-		GridDataFactory.swtDefaults().hint(niceWidth - 25, SWT.DEFAULT).indent(15, 0).grab(true, true).applyTo(name);
+		GridDataFactory.fillDefaults().hint(niceWidth, SWT.DEFAULT).grab(true, false).applyTo(name);
 
 		option1.setSelection(true);
 		feedback.setEnabled(false);
@@ -92,10 +96,14 @@ public class UserOptionsMenuOnClose extends Composite {
 		});
 	}
 
-	private Button optionButton(Composite parent, String text, int width) {
-		Button button = new Button(parent, SWT.WRAP | SWT.RADIO);
-		GridDataFactory.swtDefaults().hint(width, SWT.DEFAULT).grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(button);
-		button.setText(text);
+	private Button optionButton(Composite parent, String text) {
+		Button button = new Button(parent, SWT.RADIO);
+		GridDataFactory.swtDefaults().applyTo(button);
+		
+		Label label = new Label(parent, SWT.WRAP);
+		GridDataFactory.swtDefaults().grab(true, false).applyTo(label);
+		label.setText(text);
+		
 		return button;
 	}
 
