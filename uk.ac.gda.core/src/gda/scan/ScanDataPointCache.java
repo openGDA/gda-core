@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,11 @@ public class ScanDataPointCache extends DataPointCache {
 		// Get all the scannable and detector positions
 		final List<Double> positions = Arrays.asList(sdp.getAllValuesAsDoubles());
 		if (positions.size() != cache.size()) {
-			throw new IllegalArgumentException("Cache won't work SDP contains different number of positions than expected");
+			throw new IllegalArgumentException("Cache won't work SDP contains different number of positions than expected."
+					+ " cacheSize=" + cache.size()
+					+ " pointSize=" + positions.size()
+					+ " cacheNames=" + cache.keySet()
+					+ " pointNames" + Arrays.toString(ArrayUtils.addAll(sdp.getScannableHeader(), sdp.getDetectorHeader().toArray())));
 		}
 
 		final Iterator<Double> positionIterator = positions.iterator();
