@@ -424,9 +424,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
             <include name="uk.ac.gda.core_*"/>
         </dirset>
         <property name= "core.dir.name" refid= "coreDirId" />
-        <dirset  dir="${plugins.path}" id="jacorbDirId" >
-            <include name="uk.ac.diamond.org.jacorb_*"/>
-        </dirset>
         <dirset  dir="${plugins.path}" id="springDirId" >
             <include name="uk.ac.diamond.org.springframework_*"/>
         </dirset>
@@ -441,7 +438,6 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
     <target name="create.product" depends="set.action.datetime, install-product, lib-copy, jre-copy, find.bundle.names">
         <!-- Links for sub process classpath entries -->
         <property.expand property="core.link" definition="../../../../../plugins/${core.dir.name}"/>
-        <property.expand property="jacorb.link" definition="${plugins.path}/uk.ac.diamond.org.jacorb"/>
         <property.expand property="spring.framework.link" definition="${plugins.path}/uk.ac.diamond.org.springframework"/>
 
         <!-- Add the links to cope with hard coded paths in the codebase -->
