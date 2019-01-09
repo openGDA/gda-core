@@ -350,7 +350,7 @@ public class SpringObjectServer extends ObjectServer {
 
 		// Analyse and log stats
 		configureStopwatch.stop();
-		logger.info("Finished configuring objects. Confgured {} objects in {} seconds", configuredCounter,
+		logger.info("Finished configuring objects. Configured {} objects in {} seconds", configuredCounter,
 				configureStopwatch.elapsed(SECONDS));
 	}
 
