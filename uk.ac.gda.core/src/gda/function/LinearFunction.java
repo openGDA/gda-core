@@ -67,8 +67,8 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 		this.slope = slope;
 		this.intercept = intercept;
 
-		logger.debug("LinearFunction: slope is " + this.slope);
-		logger.debug("LinearFunction: intercept is " + this.intercept);
+		logger.debug("LinearFunction: slope is {}", this.slope);
+		logger.debug("LinearFunction: intercept is {}", this.intercept);
 	}
 
 	/**
@@ -127,16 +127,15 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 
 	@Override
 	public Quantity apply(Quantity xValue) {
-		// slope = slopeNumerator.divide(slopeDenominator);
 		slope = slopeNumerator.times(slopeDenominator.reciprocal());
 
-		logger.debug("LinearFunction.evaluate: xValue is " + xValue.toString());
-		logger.debug("LinearFunction.evaluate: slope is " + slope.toString());
-		logger.debug("LinearFunction.evaluate: intercept is " + intercept.toString());
+		logger.debug("LinearFunction.evaluate: xValue is {}", xValue);
+		logger.debug("LinearFunction.evaluate: slope is {}", slope);
+		logger.debug("LinearFunction.evaluate: intercept is {}", intercept);
 
 		Quantity interim = xValue.times(slope).plus(intercept);
 
-		logger.debug("LinearFunction.evaluate: interim is " + interim.toString());
+		logger.debug("LinearFunction.evaluate: interim is {}", interim);
 
 		// The return value required from this method must have the same
 		// subclass as the intercept field. Interim, has the correct
@@ -144,7 +143,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 		// and the class of its units field is Unit. DOFs all expect to be
 		// given Quantities of a particular subclass and with units of a
 		// particular subclass of Unit.
-		return interim; // QuantityFactory.createFromString(interim.toString());
+		return interim;
 	}
 
 	@Override
