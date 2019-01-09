@@ -808,6 +808,10 @@ public final class LocalProperties {
 		obsoletePropertyToReason.put("gda.ORBSingletonClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("gda.eventChannelName", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("jacorb.config.dir", "Corba related removed in GDA 9.11 - see DAQ-1322");
+		// Cairo
+		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.cairoGraphics", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
+		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.useCairo", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
+
 	}
 
 	public static void checkForObsoleteProperties() {
