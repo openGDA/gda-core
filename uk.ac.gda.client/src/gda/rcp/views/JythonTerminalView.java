@@ -36,6 +36,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextListener;
@@ -226,12 +227,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			Composite inputHolder = new Composite(root, SWT.None);
 			inputHolder.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			inputHolder.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			GridLayout layout = new GridLayout(2, false);
-			layout.horizontalSpacing = 0;
-			layout.verticalSpacing = 0;
-			layout.marginWidth = 0;
-			layout.marginHeight = 0;
-			inputHolder.setLayout(layout);
+			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(inputHolder);
 
 			{
 				txtPrompt = new Label(inputHolder, SWT.None);
@@ -248,7 +244,13 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				});
 			}
 			{
-				txtInput = new Text(inputHolder, SWT.NONE);
+				if(isGTK3()) {
+					// For RHEL7
+					txtInput = new Text(inputHolder, SWT.BORDER);
+				} else {
+					// for REHL6
+					txtInput = new Text(inputHolder, SWT.NONE);
+				}
 				txtInput.setFont(font);
 				txtInput.setTabs(tabSize);
 				txtInput.addListener(SWT.DefaultSelection, e -> textInputActionPerformed());
@@ -269,6 +271,11 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			}
 		}
 		setHelpContextIDS();
+	}
+
+	private boolean isGTK3() {
+		String gtkVerProp = System.getProperty("org.eclipse.swt.internal.gtk.version");
+		return gtkVerProp.regionMatches(0, "3", 0, 1);
 	}
 
 	private void setHelpContextIDS() {
