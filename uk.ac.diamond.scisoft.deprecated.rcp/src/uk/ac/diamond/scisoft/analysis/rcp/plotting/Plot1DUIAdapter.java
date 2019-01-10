@@ -131,11 +131,11 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 							String viewName) {
 	
 		this.parent = parent;
-		this.plotter = plotter;
+		Plot1DUIAdapter.plotter = plotter;
 		this.viewName = viewName;
 		createAllActions();
 		readAndSetPreferences();
-		this.plotter.registerUI(this);
+		Plot1DUIAdapter.plotter.registerUI(this);
 	}
 
 	/**
