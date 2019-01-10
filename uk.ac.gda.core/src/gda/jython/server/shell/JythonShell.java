@@ -282,24 +282,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 * @return true if successful
 	 */
 	private boolean moveLineUp() {
-		if (read.getBuffer().toString().contains("\n")) {
-			// kill whole line doesn't work correctly if the cursor is on the last line
-			// As a work around, add a new line at the end of buffer if we're on the last line
-			int cursor = read.getBuffer().cursor();
-			if (!read.getBuffer().substring(cursor).contains("\n")) {
-				int length = read.getBuffer().length();
-				read.getBuffer().cursor(length);
-				read.getBuffer().write('\n');
-				read.getBuffer().cursor(cursor);
-			}
-			read.callWidget(KILL_WHOLE_LINE);
-			read.callWidget(UP_LINE);
-			read.callWidget(YANK); // pastes the line that was killed above
-			read.callWidget(UP_LINE);
-			return true;
-		} else {
-			return false;
-		}
+		return moveLine(UP_LINE);
 	}
 
 	/**
@@ -307,6 +290,15 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 * @return true if successful
 	 */
 	private boolean moveLineDown() {
+		return moveLine(DOWN_LINE);
+	}
+
+	/**
+	 * Move the current line of a multiline buffer one line
+	 * @param moveReference the move to make between deleting the line and rewriting it
+	 * @return true if successful
+	 */
+	private boolean moveLine(String moveReference) {
 		if (read.getBuffer().toString().contains("\n")) {
 			// kill whole line doesn't work correctly if the cursor is on the last line
 			// As a work around, add a new line at the end of buffer if we're on the last line
@@ -318,7 +310,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 				read.getBuffer().cursor(cursor);
 			}
 			read.callWidget(KILL_WHOLE_LINE);
-			read.callWidget(DOWN_LINE);
+			read.callWidget(moveReference);
 			read.callWidget(YANK); // pastes the line that was killed above
 			read.callWidget(UP_LINE);
 			return true;
