@@ -45,6 +45,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
@@ -155,7 +156,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		form.getBody().setLayout(layout);
 
 		layout.numColumns = 2;
-	    Section section1=toolkit.createSection(form.getBody(),  Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+	    Section section1=toolkit.createSection(form.getBody(),  Section.DESCRIPTION|ExpandableComposite.TITLE_BAR|ExpandableComposite.TWISTIE|ExpandableComposite.EXPANDED);
 		TableWrapData td = new TableWrapData(TableWrapData.FILL);
 		td.colspan = 2;
 		section1.setLayoutData(td);
@@ -196,7 +197,7 @@ public class DataCollectionStatus extends ViewPart implements IEditingDomainProv
 		section1.setClient(section1Client);
 		toolkit.paintBordersFor(section1Client);
 
-		Section section=toolkit.createSection(form.getBody(), Section.DESCRIPTION|Section.TITLE_BAR|Section.TWISTIE|Section.EXPANDED);
+		Section section=toolkit.createSection(form.getBody(), Section.DESCRIPTION|ExpandableComposite.TITLE_BAR|ExpandableComposite.TWISTIE|ExpandableComposite.EXPANDED);
 		td = new TableWrapData(TableWrapData.FILL);
 		td.colspan = 2;
 		section.setLayoutData(td);
