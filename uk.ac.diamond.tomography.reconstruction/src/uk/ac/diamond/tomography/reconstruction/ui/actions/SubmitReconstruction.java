@@ -35,6 +35,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.event.ui.view.EventConnectionView;
 import org.eclipse.scanning.event.ui.view.StatusQueueView;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
@@ -81,7 +82,7 @@ public class SubmitReconstruction implements IWorkbenchWindowActionDelegate {
 
 			submitter.submit(tBean);
 
-			final String secondId = StatusQueueView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE",
+			final String secondId = EventConnectionView.createSecondaryId("org.dawnsci.commandserver.tomo", TomoBean.class.getName(), "scisoft.tomo.STATUS_QUEUE",
 					"scisoft.tomo.STATUS_TOPIC", "scisoft.tomo.SUBMISSION_QUEUE");
 			EclipseUtils.getPage().showView(StatusQueueView.ID, secondId, IWorkbenchPage.VIEW_VISIBLE);
 
