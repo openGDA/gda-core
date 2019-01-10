@@ -3,7 +3,9 @@ package uk.ac.diamond.daq.experiment.api.driver;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-public class LinearSegment {
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+
+public class DriverProfileSection implements EditableWithListWidget {
 	
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -36,11 +38,36 @@ public class LinearSegment {
 		pcs.firePropertyChange("duration", old, duration);
 	}
 	
+	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
+	
+	@Override
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+	
+	@Override
+	public String getLabel() {
+		String description;
+		if (start < stop) {
+			description = "Rise";
+		} else if (start > stop) {
+			description = "Fall";
+		} else {
+			description = "Hold";
+		}
+		return description + " (" + duration + " min)";
+	}
+	
+	@Override
+	public EditableWithListWidget createDefault() {
+		DriverProfileSection defaultSection = new DriverProfileSection();
+		defaultSection.setStart(0.0);
+		defaultSection.setStop(1.0);
+		defaultSection.setDuration(1.0);
+		return defaultSection;
 	}
 
 }

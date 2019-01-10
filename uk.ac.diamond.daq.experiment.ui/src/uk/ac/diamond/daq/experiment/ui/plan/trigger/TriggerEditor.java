@@ -15,9 +15,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Mode;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
-import uk.ac.diamond.daq.experiment.ui.widget.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
 public class TriggerEditor implements ElementEditor {

@@ -2,6 +2,8 @@ package uk.ac.diamond.daq.experiment.ui.widget;
 
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+
 /**
  * Interface for custom editors to use with {@link ListWithCustomEditor}
  */

@@ -3,7 +3,7 @@ package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import uk.ac.diamond.daq.experiment.ui.widget.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
 public class TriggerDescriptor implements EditableWithListWidget {
 	

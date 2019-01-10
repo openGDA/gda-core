@@ -10,7 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.ui.widget.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
 public class TriggerListEditor {

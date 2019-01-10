@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.experiment.ui.driver;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -11,39 +12,47 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.device.ui.model.TypeEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 
-import uk.ac.diamond.daq.experiment.api.driver.LinearSegment;
-import uk.ac.diamond.daq.experiment.api.driver.MultiSegmentModel;
+import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
+import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
-public abstract class CustomProfileEditor implements ProfileEditor, IModelProvider<MultiSegmentModel> {
+public abstract class CustomProfileEditor implements ProfileEditor {
 	
-	private MultiSegmentModel model;
-	private TypeEditor<MultiSegmentModel> editor;
+	private ListWithCustomEditor sections = new ListWithCustomEditor();
+	private DriverProfileSectionEditor section = new DriverProfileSectionEditor();
+	
 	private PropertyChangeListener modelChanged = event -> updatePlot();
 	
 	private IPlottingSystem<Composite> plottingSystem;
 	
 	@Override
 	public void createControl(Composite parent) {
-		final Composite composite = new Composite(parent, SWT.NONE);
 		
+		Composite composite = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
+		composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		composite.setBackgroundMode(SWT.INHERIT_FORCE);
 		
-		editor = new TypeEditor<>(this, composite, SWT.NONE);
+		Composite listEditorComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).applyTo(listEditorComposite);
+		GridLayoutFactory.swtDefaults().applyTo(listEditorComposite);
 		
-		try {
-			editor.setModel(getModel());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	
-		((MultiSegmentComposite) getUI()).setUnits(getQuantityUnits());
+		new Label(listEditorComposite, SWT.NONE).setText("Sections");
+		
+		sections.setMinimumElements(1);
+		sections.setListHeight(150);
+		sections.setTemplate(new DriverProfileSection());
+
+		sections.setElementEditor(section);
+		sections.create(listEditorComposite);
+		section.setUnits(getQuantityUnits());
 		
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
@@ -53,31 +62,16 @@ public abstract class CustomProfileEditor implements ProfileEditor, IModelProvid
 		}
 		plottingSystem.createPlotPart(composite, "profile", null, PlotType.XY, null);
 		plottingSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-	}
-
-	@Override
-	public MultiSegmentModel getModel() throws Exception {
-		if (model == null) {
-			model = new MultiSegmentModel();
-			model.addPropertyChangeListener(modelChanged);
-		}
-		return model;
-	}
-	
-	@Override
-	public void updateModel(MultiSegmentModel model) throws Exception {
-		// Don't throw
-	}
-	
-	Object getUI() {
-		return editor.getUI();
+		
+		sections.addListListener(modelChanged);
+		updatePlot();
 	}
 	
 	private void updatePlot() {
 		plottingSystem.clear();
 		
 		// create dataset from model
-		List<LinearSegment> segments = model.getSegments();
+		List<DriverProfileSection> segments = getDriverProfile();
 		if (segments.isEmpty()) return;
 		
 		double[] x = new double[segments.size()+1];
@@ -101,6 +95,14 @@ public abstract class CustomProfileEditor implements ProfileEditor, IModelProvid
 		plottingSystem.clearAnnotations();
 		plottingSystem.setTitle("");
 		plottingSystem.setShowLegend(false);
+	}
+	
+	public List<DriverProfileSection> getDriverProfile() {
+		return sections.getList().stream().map(DriverProfileSection.class::cast).collect(Collectors.toList());
+	}
+	
+	public void setDriverProfile(List<DriverProfileSection> profile) {
+		sections.setList(profile.stream().map(EditableWithListWidget.class::cast).collect(Collectors.toList()));
 	}
 	
 	abstract String getQuantityName();

@@ -7,15 +7,25 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.graphics.Point;
 
+import gda.factory.Finder;
+
 public class TR6ConfigurationWizard extends Wizard {
 	
 	@Inject
 	private IEclipseContext injectionContext;
 	
+	private String calibrationScannableName;
+	
+	public void setCalibrationScannableName(String name) {
+		this.calibrationScannableName = name;
+	}
+	
 	@Override
 	public void addPages() {
 		setWindowTitle("Configuring TR6");
-		addPage(ContextInjectionFactory.make(CalibrationPage.class, injectionContext));
+		CalibrationPage calibrationPage = ContextInjectionFactory.make(CalibrationPage.class, injectionContext);
+		calibrationPage.setScannable(Finder.getInstance().find(calibrationScannableName));
+		addPage(calibrationPage);
 		addPage(ContextInjectionFactory.make(ProfileSetupPage.class, injectionContext));
 		addPage(ContextInjectionFactory.make(AbortConditionsPage.class, injectionContext));
 	}

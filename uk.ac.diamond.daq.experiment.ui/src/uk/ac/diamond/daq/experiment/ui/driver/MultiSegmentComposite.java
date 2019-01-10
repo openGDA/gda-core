@@ -5,12 +5,12 @@ import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.diamond.daq.experiment.api.driver.LinearSegment;
+import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 
 
 public class MultiSegmentComposite extends Composite {
 	
-	private VerticalListEditor<LinearSegment> segments;
+	private VerticalListEditor<DriverProfileSection> segments;
 	private LinearSegmentComposite segmentComposite;
 	
 	public MultiSegmentComposite(Composite parent, int style) {
@@ -22,7 +22,7 @@ public class MultiSegmentComposite extends Composite {
 		segments = new VerticalListEditor<>(composite, SWT.NONE);
 		segments.setMinItems(1);
 		segments.setMaxItems(1000000);
-		segments.setEditorClass(LinearSegment.class);
+		segments.setEditorClass(DriverProfileSection.class);
 		segments.setBeanConfigurator((bean, previous, context)->contiguous(bean, previous));
 		segments.setTemplateName("Segment");
 		
@@ -34,13 +34,13 @@ public class MultiSegmentComposite extends Composite {
 		GridLayoutFactory.swtDefaults().applyTo(segmentComposite);
 	}
 
-	private void contiguous(LinearSegment bean, LinearSegment previous) {
+	private void contiguous(DriverProfileSection bean, DriverProfileSection previous) {
 		bean.setStart(previous == null ? 0 : previous.getStop());
 		if (previous == null) bean.setStop(1);
 		bean.setDuration(previous == null ? 1 : previous.getDuration());
 	}
 	
-	public VerticalListEditor<LinearSegment> getSegments() {
+	public VerticalListEditor<DriverProfileSection> getSegments() {
 		return segments;
 	}
 	
