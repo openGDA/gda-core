@@ -115,7 +115,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	public void disconnect() throws EventException {
 		if (!isConnected)
 			return; // Nothing to disconnect
-		consumer.disconnect();
+		eventService.disposeConsumers();
 	}
 
 	public IConsumer<T> getConsumer() {

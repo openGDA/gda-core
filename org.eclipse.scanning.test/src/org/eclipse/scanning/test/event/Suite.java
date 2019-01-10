@@ -27,7 +27,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	QueueManagementTest.class,
 	SimpleConsumerTest.class,
 	ConsumerControlTest.class,
-	ConsumerProxyControlTest.class
+	ConsumerProxyControlTest.class,
+	EventServiceTest.class
 })
 public class Suite {
 }
