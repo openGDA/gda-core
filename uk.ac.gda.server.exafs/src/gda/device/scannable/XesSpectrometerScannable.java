@@ -18,14 +18,10 @@
 
 package uk.ac.gda.beamline.i20.scannable;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyPersistentScannable;
 import gda.device.scannable.ScannableMotionUnitsBase;
