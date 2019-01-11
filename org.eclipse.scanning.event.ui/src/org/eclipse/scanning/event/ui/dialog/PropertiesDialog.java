@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class PropertiesDialog extends Dialog {
 
