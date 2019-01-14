@@ -16,3 +16,4 @@ Export-Package: uk.ac.gda.devices.hatsaxs,
 Bundle-ClassPath: .
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.gda.devices.hatsaxs

@@ -43,3 +43,4 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core,
  uk.ac.diamond.org.springframework
 Bundle-Vendor: Diamond Light Source
+Automatic-Module-Name: uk.ac.gda.devices.hplc.ui
