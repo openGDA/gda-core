@@ -17,13 +17,13 @@ public class MockSEV implements ISampleEnvironmentVariable {
 	private double signal;
 	private List<SEVListener> listeners = new ArrayList<>();
 	private boolean enabled;
-	
+
 	@Override
 	public void addListener(SEVListener listener) {
 		if (!listeners.contains(listener)) {
 			listeners.add(listener);
 			if (!enabled) enabled = true;
-		}			
+		}
 	}
 
 	@Override
@@ -48,14 +48,14 @@ public class MockSEV implements ISampleEnvironmentVariable {
 	public double read() {
 		return signal;
 	}
-	
+
 	public void broadcast(double signal) {
 		this.signal = signal;
-		for (SEVListener listener : listeners.toArray(new SEVListener[listeners.size()])) { 
+		for (SEVListener listener : listeners.toArray(new SEVListener[listeners.size()])) {
 			listener.signalChanged(signal);
 		}
 	}
-	
+
 	public void ramp(double target, double increment) {
 		if (increment == 0) throw new IllegalArgumentException("increment is 0");
 		if (increment > 0) {
