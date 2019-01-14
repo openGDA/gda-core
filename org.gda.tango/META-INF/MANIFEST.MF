@@ -40,3 +40,4 @@ Bundle-ClassPath: jars/TangORB-7.0.3.jar,
  .
 Bundle-Vendor: ESRF & Daresbury
 Eclipse-RegisterBuddy: uk.ac.gda.core, uk.ac.diamond.org.springframework
+Automatic-Module-Name: org.gda.tango
