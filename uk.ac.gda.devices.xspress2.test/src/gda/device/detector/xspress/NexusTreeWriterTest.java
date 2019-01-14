@@ -40,6 +40,7 @@ import gda.TestHelpers;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
+import gda.util.NexusTreeWriter;
 
 public class NexusTreeWriterTest extends Xspress2TestBase {
 
