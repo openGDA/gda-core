@@ -18,11 +18,6 @@
 
 package gda.swing.ncd;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.rcp.ncd.NcdController;
-
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -42,9 +37,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.rcp.ncd.NcdController;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
-import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
 
 /**
  * An implementation of a calibration channel panel. It only records labels for the RAPID scaler inputs. The whole
@@ -130,7 +128,7 @@ public class CalibPanel extends JPanel implements TableModelListener {
 
 	/**
 	 * Configure the panel
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void configure() throws DeviceException {
 		JPanel panel = new JPanel();
@@ -139,11 +137,11 @@ public class CalibPanel extends JPanel implements TableModelListener {
 		calibDetector = (INcdSubDetector) Finder.getInstance().find(name);
 
 		int[] dims = calibDetector.getDataDimensions();
-		
+
 		calibSlots = dims[0] * dims[1];
-		
+
 		calibLabels = new String[calibSlots];
-		
+
 		load();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -168,7 +166,7 @@ public class CalibPanel extends JPanel implements TableModelListener {
 		// set extra header lines when user finished editing
 		try {
 			String description = StringUtils.join(calibLabels, "\r\n");
-			calibDetector.setAttribute(NcdWireDetector.descriptionLabel, description);
+			calibDetector.setAttribute(INcdSubDetector.descriptionLabel, description);
 		} catch (DeviceException e1) {
 			logger.error("could not set ExtraHeaders: ", e1.getMessage());
 		}
