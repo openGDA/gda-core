@@ -35,7 +35,6 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableStatus;
 import gda.device.scannable.ScannableUtils;
-import gda.observable.IObserver;
 import uk.ac.gda.beans.ObservableModel;
 import uk.ac.gda.client.observablemodels.ScannableWrapper;
 import uk.ac.gda.example.mvcexample.MvcExampleItem;
@@ -94,21 +93,17 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 			TimerTask task = new TimerTask() {
 				@Override
 				public void run() {
-					Display.getDefault().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							if(items.size()< 20)
-								items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
-							for( int i=0; i < items.size(); i++) {
-								MyMvcExampleItem item = items.get(i);
-								double value = item.getValue();
-								if( value > 15) {
-								}else {
-									item.setValue(value+1);
-								}
+					Display.getDefault().asyncExec(() -> {
+						if(items.size()< 20)
+							items.add(new MyMvcExampleItem( (new Date()).toString(), 0.));
+						for( int i=0; i < items.size(); i++) {
+							MyMvcExampleItem item = items.get(i);
+							double value = item.getValue();
+							if( value > 15) {
+								item.setValue(value+1);
 							}
-					}});
+						}
+});
 				}
 			};
 			timer.scheduleAtFixedRate(task, 0, 1000);
@@ -118,31 +113,25 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		if( scannable == null)
-			throw new Exception("scannable == null");
-		scannable.addIObserver(new IObserver() {
+	public void afterPropertiesSet() {
+		scannable.addIObserver((source, arg) -> {
+			if( arg instanceof ScannablePositionChangeEvent) {
 
-			@Override
-			public void update(Object source, Object arg) {
-				if( arg instanceof ScannablePositionChangeEvent) {
+				Serializable newPosition1 = ((ScannablePositionChangeEvent)arg).newPosition;
+				firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
+						newPosition1, newPosition1);
+			}
+			else if( arg instanceof ScannableStatus) {
 
-					Serializable newPosition = ((ScannablePositionChangeEvent)arg).newPosition;
+				try {
+					Double newPosition2;
+					newPosition2 = getPosition();
 					firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
-							newPosition, newPosition);
-				}
-				else if( arg instanceof ScannableStatus) {
-
-					try {
-						Double newPosition;
-						newPosition = getPosition();
-						firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
-								null, newPosition);
-						firePropertyChange(MvcExampleModel.SELECTED_PROPERTY_NAME,
-								null, (newPosition > SELECTED_BOUNDARY));
-					} catch (DeviceException e) {
-						logger.error("Error handling Scannable Status from "+scannable.getName() , e);
-					}
+							null, newPosition2);
+					firePropertyChange(MvcExampleModel.SELECTED_PROPERTY_NAME,
+							null, (newPosition2 > SELECTED_BOUNDARY));
+				} catch (DeviceException e) {
+					logger.error("Error handling Scannable Status from "+scannable.getName() , e);
 				}
 			}
 		});
@@ -164,8 +153,9 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 
 
 	public void setValue(double newVal){
-		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,
-				this.value, this.value = newVal);
+		double oldVal = this.value;
+		this.value = newVal;
+		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME, oldVal, newVal);
 	}
 
 	String name;
