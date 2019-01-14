@@ -308,7 +308,7 @@ public class LiveStreamView extends ViewPart {
 
 		// Remove all ToolBar contributions with Ids which are either undefined or not required
 		Arrays.stream(toolBarManager.getItems())
-			.filter(ci -> ci.getId() == null || !requiredToolBarIds.contains(ci.getId()))
+			.filter(ci -> ci.getId() == null || requiredToolBarIds.stream().noneMatch(ci.getId()::contains))
 			.forEach(toolBarManager::remove);
 			// If getId() returns null then the match will not be performed as the || short circuits it, this
 			// also prevents the NPE which would result from trying to match on a null Id.
