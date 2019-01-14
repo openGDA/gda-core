@@ -1,7 +1,6 @@
 package uk.ac.diamond.daq.experiment.driver;
 
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.driver.ExperimentDriverBase;
 
 /**
  * Implementation for tests which only Base logic
@@ -23,9 +22,9 @@ public class NoImplDriver extends ExperimentDriverBase {
 
 	@Override
 	protected void doAbort() { /*do nothing*/ }
-	
+
 	void setState(DriverState state) {
 		this.state = state;
 	}
-	
+
 }

@@ -15,32 +15,32 @@ import org.junit.Test;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 
 public class ExperimentDriverStateTest {
-	
+
 	private NoImplDriver driver;
-	
+
 	/////////////// TESTING VALID STATES ///////////////
-	
+
 	@Test
 	public void startValidFromIdle() {
 		assertThat(driver.getState(), is(IDLE));
 		driver.start();
 		assertThat(driver.getState(), is(RUNNING));
 	}
-	
+
 	@Test
 	public void pauseValidFromRunning() {
 		driver.setState(RUNNING);
 		driver.pause();
 		assertThat(driver.getState(), is(PAUSED));
 	}
-	
+
 	@Test
 	public void resumeValidFromPaused() {
 		driver.setState(PAUSED);
 		driver.resume();
 		assertThat(driver.getState(), is(RUNNING));
 	}
-	
+
 	@Test
 	public void abortValidFromRunningAndPause() {
 		for (DriverState validState : Arrays.asList(RUNNING, PAUSED)) {
@@ -49,10 +49,10 @@ public class ExperimentDriverStateTest {
 			assertThat(driver.getState(), is(IDLE));
 		}
 	}
-	
-	
+
+
 	////////////// TESTING INVALID STATES //////////////
-	
+
 	@Test
 	public void startInvalidStates() {
 		for (DriverState invalidState : Arrays.asList(RUNNING, PAUSED)) {
@@ -65,7 +65,7 @@ public class ExperimentDriverStateTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void pauseInvalidStates() {
 		for (DriverState invalidState : Arrays.asList(IDLE, PAUSED)) {
@@ -78,7 +78,7 @@ public class ExperimentDriverStateTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void resumeInvalidStates() {
 		for (DriverState invalidState : Arrays.asList(IDLE, RUNNING)) {
@@ -91,12 +91,12 @@ public class ExperimentDriverStateTest {
 			}
 		}
 	}
-	
+
 	@Test (expected = IllegalStateException.class)
 	public void abortInvalidFromIdle() {
 		driver.abort();
 	}
-	
+
 	@Before
 	public void initDriver() {
 		driver = new NoImplDriver();

@@ -11,18 +11,16 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
-import uk.ac.diamond.daq.experiment.plan.Plan;
-import uk.ac.diamond.daq.experiment.plan.SEVSegment;
 
 public class SegmentTest {
 	private SEVSegment segment;
-	
-	
+
+
 	@Before
 	public void setUp() {
 		segment = new SEVSegment(mock(Plan.class), mock(ISampleEnvironmentVariable.class), signal -> signal < 0);
 	}
-	
+
 	@Test
 	public void testActivationLogic() {
 		assertFalse(segment.isActivated());
@@ -30,7 +28,7 @@ public class SegmentTest {
 		assertTrue(activeAfterSignalChange(5));
 		assertFalse(activeAfterSignalChange(-1));
 	}
-	
+
 	@Test
 	public void controllingTriggers() {
 		ITrigger enabledTP = mock(ITrigger.class);
@@ -40,10 +38,10 @@ public class SegmentTest {
 		verify(enabledTP, times(1)).setEnabled(true); // on activate()
 		verify(enabledTP, times(1)).setEnabled(false); // at segment end
 	}
-	
+
 	private boolean activeAfterSignalChange(double signal) {
 		segment.signalChanged(signal);
 		return segment.isActivated();
 	}
-	
+
 }
