@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.experiment.api.driver.DriverState;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
@@ -33,6 +35,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
 
@@ -312,6 +315,28 @@ public class PlanTest {
 
 		assertThat(plan.isRunning(), is(false));
 		assertThat(trigger.getTriggerCount(), is(1));
+	}
+
+	@Test
+	public void startingPlanShouldStartDriverIfIncluded() {
+		// An experimental plan is a passive or reactive system
+		// i.e. it responds to signals but does not drive them (natively).
+		// The driving is done by the ExperimentDriver.
+		// If one is included, calling start() on the plan
+		// should also start the driver.
+
+		IExperimentDriver experimentDriver = getExperimentDriver();
+		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
+		plan.setDriver(experimentDriver);
+		plan.addSegment(SEGMENT1_NAME, sev -> false);
+
+		plan.start();
+
+		assertThat(experimentDriver.getState(), is(DriverState.RUNNING));
+	}
+
+	private IExperimentDriver getExperimentDriver() {
+		return new NoImplDriver();
 	}
 
 	/**

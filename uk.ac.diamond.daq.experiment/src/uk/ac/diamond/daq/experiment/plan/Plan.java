@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
@@ -30,6 +32,7 @@ public class Plan implements IPlan, IPlanRegistrar {
 	
 	private String name;
 	private final List<ISegment> segments = new LinkedList<>();
+	private Optional<IExperimentDriver> experimentDriver = Optional.empty();
 	
 	private Queue<ISegment> segmentChain;
 	private ISegment activeSegment;
@@ -71,6 +74,10 @@ public class Plan implements IPlan, IPlanRegistrar {
 		printBanner("Plan '" + getName() + "' execution started");
 		
 		activateNextSegment();
+		
+		if (experimentDriver.isPresent()) {
+			experimentDriver.get().start();
+		}
 	}
 	
 	private void validatePlan() {
@@ -169,6 +176,11 @@ public class Plan implements IPlan, IPlanRegistrar {
 	@Override
 	public void setRegistrar(IPlanRegistrar registrar) {
 		throw new IllegalStateException("For internal use only");
+	}
+	
+	@Override
+	public void setDriver(IExperimentDriver experimentDriver) {
+		this.experimentDriver = Optional.of(experimentDriver);
 	}
 	
 	@Override
