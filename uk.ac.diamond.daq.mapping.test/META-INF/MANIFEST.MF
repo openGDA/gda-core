@@ -14,3 +14,4 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  org.mockito.mockito-core;bundle-version="1.10.19",
  org.objenesis;bundle-version="2.6.0"
 Import-Package: org.osgi.framework
+Automatic-Module-Name: uk.ac.diamond.daq.mapping.test

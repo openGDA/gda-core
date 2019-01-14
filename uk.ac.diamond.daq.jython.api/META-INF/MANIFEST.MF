@@ -5,3 +5,4 @@ Bundle-SymbolicName: uk.ac.diamond.daq.jython.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: uk.ac.diamond.daq.jython.api

@@ -53,3 +53,4 @@ Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui.experiment,
  uk.ac.diamond.daq.mapping.ui.experiment.focus
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
+Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui

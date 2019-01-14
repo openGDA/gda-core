@@ -170,3 +170,4 @@ Import-Package: javax.jms,
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: uk.ac.gda.core.GDACoreActivator
+Automatic-Module-Name: uk.ac.gda.core

@@ -10,3 +10,4 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  org.mockito.mockito-core;bundle-version="1.10.19",
  org.objenesis;bundle-version="2.6.0",
  uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)"
+Automatic-Module-Name: uk.ac.gda.api.test

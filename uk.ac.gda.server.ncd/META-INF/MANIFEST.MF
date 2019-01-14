@@ -48,3 +48,4 @@ Import-Package: Jama,
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.diamond.daq.msgbus,
  uk.ac.diamond.daq.scm.api.events
+Automatic-Module-Name: uk.ac.gda.server.ncd
