@@ -29,9 +29,11 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
+@ServiceInterface(Scannable.class)
 public class ScaledScannable extends ScannableBase {
 	
 	@SuppressWarnings("unused")
