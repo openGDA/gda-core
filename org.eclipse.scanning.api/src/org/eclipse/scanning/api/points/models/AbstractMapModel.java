@@ -26,6 +26,10 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	@FieldDescriptor(label="Slow Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the slow direction, for instance 'stage_y'.")
 	private String      slowAxisName = "stage_y";
 
+	private String fastAxisUnits = "mm";
+
+	private String slowAxisUnits = "mm";
+
 	@FieldDescriptor(label="Continuous", hint="Whether the motors should move continuously or stop at each point in the scan to take an image")
 	private boolean continuous = false;
 
@@ -62,6 +66,26 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		String oldValue = this.slowAxisName;
 		this.slowAxisName = newValue;
 		this.pcs.firePropertyChange("slowAxisName", oldValue, newValue);
+	}
+
+	@Override
+	public String getFastAxisUnits() {
+		return fastAxisUnits;
+	}
+
+	@Override
+	public void setFastAxisUnits(String fastAxisUnits) {
+		this.fastAxisUnits = fastAxisUnits;
+	}
+
+	@Override
+	public String getSlowAxisUnits() {
+		return slowAxisUnits;
+	}
+
+	@Override
+	public void setSlowAxisUnits(String slowAxisUnits) {
+		this.slowAxisUnits = slowAxisUnits;
 	}
 
 	@Override
