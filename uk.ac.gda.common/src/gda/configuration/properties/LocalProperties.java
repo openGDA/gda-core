@@ -392,9 +392,6 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_DATASERVER_PORT = "gda.dataserver.port";
 
-	/** Property to disable Corba and use RMI for RPC and JMS for events */
-	public static final String CORBA_DISABLED = "gda.remoting.disableCorba";
-
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system
@@ -811,7 +808,6 @@ public final class LocalProperties {
 		// Cairo
 		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.cairoGraphics", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
 		obsoletePropertyToReason.put("org.eclipse.swt.internal.gtk.useCairo", "MXGDA-3174 This issue has been fixed, and setting this now may result in flickering");
-
 	}
 
 	public static void checkForObsoleteProperties() {
@@ -826,8 +822,4 @@ public final class LocalProperties {
 		return propConfig.getStringArray(propertyName);
 	}
 
-	public static boolean isCorbaDisabled() {
-		return check(CORBA_DISABLED);
-
-	}
 }
