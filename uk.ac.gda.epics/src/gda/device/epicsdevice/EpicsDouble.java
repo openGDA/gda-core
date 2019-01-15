@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.device.scannable.ScannableUtils;
@@ -39,12 +40,14 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * An object that provides read/write access to an EPICS DOUBLE.
  */
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
+@ServiceInterface(Scannable.class)
 public class EpicsDouble extends ScannableBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDouble.class);
