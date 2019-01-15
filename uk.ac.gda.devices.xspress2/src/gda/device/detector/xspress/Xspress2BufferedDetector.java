@@ -36,6 +36,7 @@ import gda.device.detector.BufferedDetector;
 import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
+import gda.util.NexusTreeWriter;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**

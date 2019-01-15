@@ -4,7 +4,8 @@ Bundle-Name: Exafs API
 Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: org.eclipse.dawnsci.analysis.api.tree,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
  gda.exafs.mucal;uses:="uk.ac.gda.beans.exafs",
  gda.exafs.scan;uses:="uk.ac.gda.beans.exafs,org.python.core",
@@ -27,6 +28,10 @@ Require-Bundle: uk.ac.gda.common,
  org.apache.commons.lang,
  org.apache.commons.beanutils,
  uk.ac.diamond.org.jscience;bundle-version="2.0.2",
- com.github.tschoonj.xraylib
+ com.github.tschoonj.xraylib,
+ org.eclipse.january,
+ org.eclipse.dawnsci.nexus,
+ org.eclipse.dawnsci.hdf5,
+ uk.ac.gda.nexus
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.exafs.api
