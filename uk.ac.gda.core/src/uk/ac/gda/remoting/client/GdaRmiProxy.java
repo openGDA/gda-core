@@ -81,7 +81,7 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 		object = getRmiProxyFactory().getFindable(name);
 		// If it can't be imported throw
 		Objects.requireNonNull(object,
-				String.format("Could not import '%s', are you sure its exported from the server?", name));
+				String.format("Could not import '%s' - are you sure it is exported from the server?", name));
 
 		logger.debug("Imported '{}' (Proxy={})", name, object);
 	}
