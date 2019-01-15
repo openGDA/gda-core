@@ -35,7 +35,9 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 	@Override
 	public ScanPointIterator iteratorFromValidModel() {
 		final String xName = model.getFastAxisName();
+		final String xUnits = model.getFastAxisUnits();
 		final String yName = model.getSlowAxisName();
+		final String yUnits = model.getSlowAxisUnits();
 		final double width = model.getBoundingBox().getFastAxisLength();
 		final double height = model.getBoundingBox().getSlowAxisLength();
 
@@ -48,7 +50,7 @@ public class LissajousGenerator extends AbstractGenerator<LissajousModel> {
 									model.getBoundingBox().getSlowAxisStart() + height / 2});
 
         final PyList names =  new PyList(Arrays.asList(xName, yName));
-        final PyList units = new PyList(Arrays.asList("mm", "mm"));
+        final PyList units = new PyList(Arrays.asList(xUnits, yUnits));
         final int numLobes = (int) (model.getA() / model.getB());
         final int numPoints = model.getPoints();
 

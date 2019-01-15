@@ -45,7 +45,9 @@ class GridGenerator extends AbstractGenerator<GridModel> {
 		final int columns = model.getFastAxisPoints();
 		final int rows = model.getSlowAxisPoints();
 		final String xName = model.getFastAxisName();
+		final String xUnits = model.getFastAxisUnits();
 		final String yName = model.getSlowAxisName();
+		final String yUnits = model.getSlowAxisUnits();
 		final double xStep = model.getBoundingBox().getFastAxisLength() / columns;
 		final double yStep = model.getBoundingBox().getSlowAxisLength() / rows;
 		final double minX = model.getBoundingBox().getFastAxisStart() + xStep / 2;
@@ -54,10 +56,10 @@ class GridGenerator extends AbstractGenerator<GridModel> {
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		final ScanPointIterator outerLine = lineGeneratorFactory.createObject(
-				yName, "mm", minY, minY + (rows - 1) * yStep, rows, model.isSnake());
+				yName, yUnits, minY, minY + (rows - 1) * yStep, rows, model.isSnake());
 
 		final ScanPointIterator innerLine = lineGeneratorFactory.createObject(
-				xName, "mm", minX, minX + (columns - 1) * xStep, columns, model.isSnake());
+				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, model.isSnake());
 
         final Iterator<?>[] generators = { outerLine, innerLine };
 

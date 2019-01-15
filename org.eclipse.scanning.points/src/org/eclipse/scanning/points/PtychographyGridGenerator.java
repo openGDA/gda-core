@@ -63,19 +63,21 @@ public class PtychographyGridGenerator extends AbstractGenerator<PtychographyGri
 		int xPoints = (int) Math.floor(xLength/xStep + 1);
 
 		String xName = model.getFastAxisName();
+		String xUnits = model.getFastAxisUnits();
 		String yName = model.getSlowAxisName();
+		String yUnits = model.getSlowAxisUnits();
 
 		JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		ScanPointIterator outerLine = lineGeneratorFactory.createObject(
-				yName, "mm",
+				yName, yUnits,
 				model.getBoundingBox().getSlowAxisStart(),
 				model.getBoundingBox().getSlowAxisStart() + (yPoints - 1) * yStep,
 				yPoints,
 				model.isSnake());
 
 		ScanPointIterator innerLine = lineGeneratorFactory.createObject(
-				xName, "mm",
+				xName, xUnits,
 				model.getBoundingBox().getFastAxisStart(),
 				model.getBoundingBox().getFastAxisStart() + (xPoints - 1) * xStep,
 				xPoints,

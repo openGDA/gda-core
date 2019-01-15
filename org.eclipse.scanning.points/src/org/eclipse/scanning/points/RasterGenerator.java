@@ -51,7 +51,9 @@ class RasterGenerator extends AbstractGenerator<RasterModel> {
 		final double xStep = model.getFastAxisStep();
 		final double yStep = model.getSlowAxisStep();
 		final String xName = model.getFastAxisName();
+		final String xUnits = model.getFastAxisUnits();
 		final String yName = model.getSlowAxisName();
+		final String yUnits = model.getSlowAxisUnits();
 		final double minX = model.getBoundingBox().getFastAxisStart();
 		final double minY = model.getBoundingBox().getSlowAxisStart();
 		final int columns = (int) Math.floor(model.getBoundingBox().getFastAxisLength() / xStep + 1);
@@ -60,9 +62,9 @@ class RasterGenerator extends AbstractGenerator<RasterModel> {
 		final JythonObjectFactory<ScanPointIterator> lineGeneratorFactory = ScanPointGeneratorFactory.JLineGenerator1DFactory();
 
 		final ScanPointIterator outerLine = lineGeneratorFactory.createObject(
-				yName, "mm", minY, minY + (rows - 1) * yStep, rows);
+				yName, yUnits, minY, minY + (rows - 1) * yStep, rows);
 		final ScanPointIterator innerLine = lineGeneratorFactory.createObject(
-				xName, "mm", minX, minX + (columns - 1) * xStep, columns, model.isSnake());
+				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, model.isSnake());
 
         final Iterator<?>[] generators = {outerLine, innerLine};
         final String[] axisNames = new String[] { xName, yName };
