@@ -2,6 +2,10 @@
 
 # get standard configurations settings
 import os
+import recommonmark
+from recommonmark.transform import AutoStructify
+
+
 conf_common_path = os.path.join(os.path.dirname(__file__), '..', '..', 'common', 'conf_common.py')
 if not os.path.isfile(conf_common_path):
     raise Exception, 'File %s not found' % (conf_common_path,)
@@ -17,3 +21,16 @@ latex_documents = [
    _author_diamond, 'manual'),
 ]
 
+# Add the markdown parser
+source_parsers = {
+   '.md': 'recommonmark.parser.CommonMarkParser',
+}
+
+# The suffix of source filenames - add markdown.
+source_suffix = ['.rst','.md']
+
+def setup(app):
+    app.add_config_value('recommonmark_config', {
+            'enable_eval_rst': True,
+            }, True)
+    app.add_transform(AutoStructify)
