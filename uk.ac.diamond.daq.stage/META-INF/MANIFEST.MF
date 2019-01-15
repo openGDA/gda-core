@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Stage
+Bundle-SymbolicName: uk.ac.diamond.daq.stage
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.stage
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: uk.ac.diamond.daq.stage,
+ uk.ac.diamond.daq.stage.event
+Import-Package: gda.device,
+ gda.device.scannable,
+ gda.observable,
+ org.slf4j;version="1.7.25",
+ uk.ac.gda.api.remoting
+Require-Bundle: uk.ac.gda.core,
+ uk.ac.diamond.org.springframework;bundle-version="4.0.6"
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, uk.ac.gda.core

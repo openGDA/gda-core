@@ -18,6 +18,9 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.core.runtime;bundle-version="3.13.0",
  uk.ac.gda.epics,
  uk.ac.gda.nexus,
- uk.ac.diamond.org.springframework
-Export-Package: uk.ac.diamond.daq.client.gui.camera
+ uk.ac.diamond.org.springframework,
+ uk.ac.gda.core,
+ uk.ac.diamond.daq.stage;bundle-version="1.0.0"
+Export-Package: uk.ac.diamond.daq.client.gui.camera,
+ uk.ac.diamond.daq.client.gui.camera.samplealignment
 Automatic-Module-Name: uk.ac.diamond.daq.client.gui.camera

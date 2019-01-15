@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -19,8 +19,7 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 
 public class LiveViewCameraComposite extends Composite {
-	// private static final Logger log = LoggerFactory.getLogger
-	// (LiveViewComposite.class);
+	// private static final Logger log = LoggerFactory.getLogger(LiveViewComposite.class);
 
 	private LivePlottingComposite plottingComposite;
 	private boolean frozen = false;
