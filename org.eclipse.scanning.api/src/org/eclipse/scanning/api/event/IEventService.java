@@ -143,6 +143,16 @@ public interface IEventService {
 						                                        String commandTopicName,
 						                                        String commandAckTopicName) throws EventException;
 
+
+	/**
+	 * <em>For server-side code only! Client-side code should use {@link #createConsumerProxy(URI, String)}.</em>
+	 *
+	 * @param queueName
+	 * @return the consumer for the given queue name
+	 * @throws EventException thrown if no consumer exists for the given queue name.
+	 */
+	public IConsumer<? extends StatusBean> getConsumer(String queueName) throws EventException;
+
 	/**
 	 * Create a proxy for the consumer for the given submission queue, using the default
 	 * command and command acknowledgement topics.
@@ -167,6 +177,12 @@ public interface IEventService {
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumerProxy(URI uri, String submissionQueueName,
 			String commandTopicName, String commandAckTopicName) throws EventException;
+
+	/**
+	 * Disconnect all consumers and unregister them from this service
+	 * @throws EventException
+	 */
+	public void disposeConsumers() throws EventException;
 
 	/**
 	 * A poster encapsulates sending and receiving a reply. For instance request a list of

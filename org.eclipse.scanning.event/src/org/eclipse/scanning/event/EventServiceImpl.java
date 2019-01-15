@@ -48,6 +48,8 @@ public class EventServiceImpl implements IEventService {
 
 	private static IEventConnectorService eventConnectorService;
 
+	private final Map<String, IConsumer<? extends StatusBean>> consumers = new HashMap<>();
+
 	public EventServiceImpl() {
 		System.out.println("Started "+IEventService.class.getSimpleName());
 	}
@@ -101,8 +103,20 @@ public class EventServiceImpl implements IEventService {
 			String statusTopicName, String consumerStatusTopicName, String commandTopicName, String commandAckTopicName) throws EventException {
 		logger.trace("createConsumer({}, {}, {}, {}, {}, {}, {}) using {} and {}", uri, submissionQName, statusQueueName, statusTopicName,
 				consumerStatusTopicName, commandTopicName, commandAckTopicName, eventConnectorService, this);
-		return new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, consumerStatusTopicName,
+		if (consumers.containsKey(submissionQName)) {
+			throw new EventException("A consumer for queue '" + submissionQName + "' has already been created!");
+		}
+		final IConsumer<U> consumer = new ConsumerImpl<>(uri, submissionQName, statusQueueName, statusTopicName, consumerStatusTopicName,
 				commandTopicName, commandAckTopicName, eventConnectorService, this);
+		consumers.put(submissionQName, consumer);
+		return consumer;
+	}
+
+	@Override
+	public IConsumer<? extends StatusBean> getConsumer(String queueName) throws EventException {
+		IConsumer<? extends StatusBean> consumer = consumers.get(queueName);
+		if (consumer == null) throw new EventException("No consumer exists for queue '" + queueName + "'");
+		return consumer;
 	}
 
 	@Override
@@ -117,6 +131,14 @@ public class EventServiceImpl implements IEventService {
 		logger.trace("createConsumerProxy({}, {}, {}, {}) using {} and {}", uri, submissionQueueName,
 				commandTopicName, commandAckTopicName, eventConnectorService, this);
 		return new ConsumerProxy<>(uri, submissionQueueName, commandTopicName, commandAckTopicName, eventConnectorService, this);
+	}
+
+	@Override
+	public void disposeConsumers() throws EventException {
+		for (IConsumer<? extends StatusBean> consumer : consumers.values()) {
+			consumer.disconnect();
+		}
+		consumers.clear();
 	}
 
 	@Override
