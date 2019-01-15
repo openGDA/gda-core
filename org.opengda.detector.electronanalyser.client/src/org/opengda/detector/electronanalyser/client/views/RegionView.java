@@ -724,8 +724,10 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private void initialisation() {
 		try {
 			// I09-137 Remove Transmission mode from UI
+			// I09-203 Remove Angular60 mode from UI
 			List<String> modes = new ArrayList<>(Arrays.asList(getAnalyser().getLensModes()));
 			modes.remove("Transmission");
+			modes.remove("Angular60");
 			lensMode.setItems(modes.toArray(new String[] {}));
 		} catch (DeviceException e) {
 			logger.error("Cannot get lens mode list from analyser.", e);
