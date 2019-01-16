@@ -70,6 +70,8 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	private boolean useNewEpicsInterface = false;
 
+	private boolean useErasePv = true;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -119,7 +121,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	@Override
 	public void doStart() throws DeviceException {
 		try {
-			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
+			doErase();
 
 			if (pvProvider.getUseNewEpicsInterface()) {
 				// call 'Erase/Start' on SCAS time series data for each channel/detector element
@@ -188,6 +190,10 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	@Override
 	public void doErase() throws DeviceException {
+		if (!useErasePv) {
+			logger.debug("doErase called but not sending to Epics");
+			return;
+		}
 		try {
 			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
 		} catch (IOException e) {
@@ -1028,5 +1034,13 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		} catch (IOException e) {
 			throw new DeviceException("Error encountered while toggling HDF position mode", e);
 		}
+	}
+
+	public boolean isUseErasePv() {
+		return useErasePv;
+	}
+
+	public void setUseErasePv(boolean useErasePv) {
+		this.useErasePv = useErasePv;
 	}
 }

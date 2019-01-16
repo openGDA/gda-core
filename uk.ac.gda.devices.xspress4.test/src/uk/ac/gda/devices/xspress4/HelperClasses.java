@@ -49,8 +49,16 @@ public class HelperClasses {
 	 */
 	public static IDataset getDataset(String nexusFilename, String groupName, String dataName)
 			throws NexusException {
-		try (NexusFile file = NexusFileHDF5.openNexusFileReadOnly(nexusFilename)) {
-			GroupNode group = file.getGroup("/entry1/" + groupName, false);
+		//NexusFileHDF5.openNexusFileReadOnly(nexusFilename);
+		try (NexusFile file = new NexusFileHDF5(nexusFilename, true)) {
+			file.openToRead();
+			GroupNode group = null;
+			try {
+				group = file.getGroup("/entry1/" + groupName, false);
+			}catch(Exception e) {
+				System.out.println("Ignoring first getGroup exception...");
+			}
+			group = file.getGroup("/entry1/" + groupName, false);
 			DataNode d = file.getData(group, dataName);
 			return d.getDataset().getSlice(null, null, null);
 		} catch (NexusException|DatasetException e) {

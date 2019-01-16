@@ -168,4 +168,19 @@ public interface Xspress4Controller {
 	 * @param numChannels
 	 */
 	void setNumMcaChannels(int numChannels);
+
+	/**
+	 * Return time series array of the scaler values for detector element
+	 * @param element
+	 * @param numValues number of values to read
+	 * @return array of values [num scalers][numValues]
+	 * @throws DeviceException
+	 */
+	double[][] getScalerTimeseries(int element, int startFrame, int endFrame) throws DeviceException;
+
+	void startTimeSeries() throws DeviceException;
+
+	void stopTimeSeries() throws DeviceException;
+
+	int getTimeSeriesNumPoints() throws DeviceException;
 }

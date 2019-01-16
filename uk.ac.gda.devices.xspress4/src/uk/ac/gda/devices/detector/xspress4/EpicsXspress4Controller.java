@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -77,6 +78,16 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	private static final String DTC_ENERGY_KEV = ":DTC_ENERGY";
 	private PV<Double> pvDtcEnergyKev = null;
 
+	// Time series value for detector element, scaler .
+	private static final String SCA_TIMESERIES_TEMPLATE = ":C%d_SCAS:%d:TSArrayValue"; // detectorElement, sca number
+	private ReadOnlyPV<Double[]>[][] pvScalerTimeSeries = null; // [detectorElement][scalerNumber].scalerNumber=0...7
+
+	private static final String SCA_TIMESERIES_ACQUIRE_TEMPLATE = ":C%d_SCAS:TS:TSAcquire"; // detectorElement
+	private PV<Integer>[] pvScalerTimeSeriesAcquire = null; // [detectorElement]
+
+	private static final String SCA_TIMESERIES_CURRENTPOINT_TEMPLATE = ":C%d_SCAS:TS:TSCurrentPoint"; // detectorElement
+	private ReadOnlyPV<Integer>[] pvScalerTimeSeriesCurrentPoint = null; // [detectorElement]
+
 	private double caClientTimeoutSecs = 10.0; // Timeout for CACLient put operations (seconds)
 	private long pollIntervalMillis = 50;
 
@@ -115,6 +126,26 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + DTC_FACTORS);
 		pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + ROI_RES_GRADE_BIN);
 		pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + DTC_ENERGY_KEV);
+
+		createTimeSeriesPVs();
+	}
+
+	private void createTimeSeriesPVs() {
+		pvScalerTimeSeries = new ReadOnlyPV[numElements][numScalers];
+		pvScalerTimeSeriesAcquire = new PV[numElements];
+		pvScalerTimeSeriesCurrentPoint = new ReadOnlyPV[numElements];
+		for (int element = 0; element < numElements; element++) {
+			for (int sca = 0; sca < numScalers; sca++) {
+				// scaler numbering for time series arrays starts at 1 not zero!
+				String pvTimeSeriesName = pvBase + String.format(SCA_TIMESERIES_TEMPLATE, element + 1, sca + 1);
+				pvScalerTimeSeries[element][sca] = LazyPVFactory.newDoubleArrayPV(pvTimeSeriesName);
+			}
+			String pvTimeSeriesAcquireName = pvBase + String.format(SCA_TIMESERIES_ACQUIRE_TEMPLATE, element + 1);
+			pvScalerTimeSeriesAcquire[element] = LazyPVFactory.newIntegerPV(pvTimeSeriesAcquireName);
+
+			String pvTimeSeriesCurrentPointName = pvBase + String.format(SCA_TIMESERIES_CURRENTPOINT_TEMPLATE, element + 1);
+			pvScalerTimeSeriesCurrentPoint[element] = LazyPVFactory.newIntegerPV(pvTimeSeriesCurrentPointName);
+		}
 	}
 
 	public double getCaClientTimeout() {
@@ -136,6 +167,15 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			throw new DeviceException(e);
 		}
 	}
+
+	private double[] getArray(ReadOnlyPV<Double[]> pv, int numValues) throws DeviceException {
+		try {
+			return ArrayUtils.toPrimitive(pv.get(numValues));
+		}catch(IOException e) {
+			throw new DeviceException(e);
+		}
+	}
+
 	private <T> T getValue(ReadOnlyPV<T> pv) throws DeviceException {
 		try {
 			return pv.get();
@@ -151,6 +191,15 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 			throw new DeviceException(e);
 		}
 	}
+
+	private <T> void putValueNoWait(PV<T> pv, T value) throws DeviceException {
+		try {
+			pv.putNoWait(value);
+		}catch(IOException e) {
+			throw new DeviceException(e);
+		}
+	}
+
 	@Override
 	public double getScalerValue(int element, int scalerNumber) throws DeviceException {
 		return getValue(pvForScalerValue[element][scalerNumber]);
@@ -159,6 +208,63 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	@Override
 	public double[] getScalerArray(int element) throws DeviceException {
 		return getArray(pvForScalerArray[element]);
+	}
+
+	@Override
+	public double[][] getScalerTimeseries(int element, int startFrame, int endFrame) throws DeviceException {
+		updateArrays();
+		double[][] values = new double[numScalers][];
+		for(int i=0; i<numScalers; i++) {
+			double[] vals = getArray(pvScalerTimeSeries[element][i], endFrame+1);
+			values[i] = Arrays.copyOfRange(vals, startFrame, vals.length);
+		}
+		return values;
+	}
+
+	/**
+	 * Find index of first element in the array with value <= 0
+	 * @param vals
+	 * @return
+	 */
+	private int findIndexOfFirstZero(double[] vals) {
+		int maxIndex = 0;
+		while (maxIndex < vals.length && vals[maxIndex] > 0) {
+			maxIndex++;
+		}
+		return maxIndex;
+	}
+
+	@Override
+	public int getTimeSeriesNumPoints() throws DeviceException {
+		// Read 'scaler 0' array values for all detector elements (i.e. the time frame lengths) and
+		// find the number of available data points from the number of leading non-zero elements
+		// (Time series arrays seem to not always be filled with number of data points reported by TSCurrentPoint...)
+		int maxLength = Integer.MAX_VALUE;
+		for(ReadOnlyPV<Double[]>[] pv : pvScalerTimeSeries) {
+			double[] ar = getArray(pv[0]);
+			maxLength = Math.min(maxLength, findIndexOfFirstZero(ar));
+		}
+		return maxLength;
+//
+//		int minNumPoints = Integer.MAX_VALUE;
+//		for(ReadOnlyPV<Integer> pv : pvScalerTimeSeriesCurrentPoint) {
+//			minNumPoints = Math.min(minNumPoints, getValue(pv));
+//		}
+//		return minNumPoints;
+	}
+
+	@Override
+	public void startTimeSeries() throws DeviceException {
+		for(int i=0; i<numElements; i++) {
+			putValueNoWait(pvScalerTimeSeriesAcquire[i], 1);
+		}
+	}
+
+	@Override
+	public void stopTimeSeries() throws DeviceException {
+		for(int i=0; i<numElements; i++) {
+			putValueNoWait(pvScalerTimeSeriesAcquire[i], 0);
+		}
 	}
 
 	@Override
@@ -237,7 +343,11 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
-		return getArray(pvDtcFactors);
+		// DTC_FACTORS pv is missing from Epics. Return dummy values instead. 22/8/2019
+		double[] dummyValues = new double[numElements];
+		Arrays.fill(dummyValues, 1.0);
+		return dummyValues;
+		// return getArray(pvDtcFactors);
 	}
 
 	public String getBasePv() {
