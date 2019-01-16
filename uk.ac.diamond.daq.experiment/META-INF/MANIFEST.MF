@@ -8,8 +8,7 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.diamond.daq.experiment.driver,
  uk.ac.diamond.daq.experiment.plan
-Require-Bundle: org.eclipse.scanning.api,
- uk.ac.gda.api,
+Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.common,
  uk.ac.diamond.daq.experiment.api
 Import-Package: org.slf4j,
