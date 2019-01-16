@@ -1,7 +1,6 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,17 +28,15 @@ public class Plan implements IPlan, IPlanRegistrar {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 	
-	private IPlanFactory factory;
-	
 	private String name;
-	private List<ISampleEnvironmentVariable> sevs = new ArrayList<>();
-	private List<ISegment> segments = new LinkedList<>();
-	private List<ITrigger> triggers = new ArrayList<>();
+	private final List<ISegment> segments = new LinkedList<>();
 	
 	private Queue<ISegment> segmentChain;
 	private ISegment activeSegment;
 	private ExperimentRecord record;
-	private boolean running;
+	
+	private IPlanFactory factory;	
+	private ISampleEnvironmentVariable lastDefinedSev;
 	
 	private String dataDirBeforeExperiment;
 	private String experimentDataDir;
@@ -68,7 +65,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 		experimentDataDir = Paths.get(dataDirBeforeExperiment, validName(getName())).toString();
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, experimentDataDir);
 		
-		running = true;
 		record = new ExperimentRecord();
 		
 		logger.info("Plan '{}' execution started", getName());
@@ -86,8 +82,13 @@ public class Plan implements IPlan, IPlanRegistrar {
 		if (segments.size() != uniqueSegmentNames) throw new IllegalStateException("Segments should have unique names!");
 		
 		// Ensure all triggers have unique names
+		List<ITrigger> triggers = getTriggers();
 		long uniqueTriggerNames = triggers.stream().map(Findable::getName).distinct().count();
 		if (triggers.size() != uniqueTriggerNames) throw new IllegalStateException("Triggers should have unique names!");
+	}
+	
+	private List<ITrigger> getTriggers() {
+		return segments.stream().map(ISegment::getTriggers).flatMap(List::stream).distinct().collect(Collectors.toList());
 	}
 	
 	private void activateNextSegment() {
@@ -101,7 +102,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}	
 	
 	private void terminateExperiment() {
-		running = false;
 		String summary = record.summary();
 		logger.info("End of experiment'{}'", getName());
 		logger.info(summary);
@@ -126,7 +126,7 @@ public class Plan implements IPlan, IPlanRegistrar {
 	
 	@Override
 	public boolean isRunning() {
-		return running;
+		return segments.stream().anyMatch(ISegment::isActivated);
 	}	
 	
 	@Override
@@ -174,7 +174,7 @@ public class Plan implements IPlan, IPlanRegistrar {
 	@Override
 	public ISampleEnvironmentVariable addSEV(SEVSignal signalProvider) {
 		ISampleEnvironmentVariable sev = factory.addSEV(signalProvider);
-		sevs.add(sev);
+		lastDefinedSev = sev;
 		return sev;
 	}
 	
@@ -182,7 +182,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, LimitCondition limit, ITrigger... triggers) {
 		ISegment segment = factory.addSegment(name, sev, limit, triggers);
 		segments.add(segment);
-		addTriggers(triggers);
 		return segment;
 	}
 	
@@ -190,30 +189,23 @@ public class Plan implements IPlan, IPlanRegistrar {
 	public ISegment addSegment(String name, long duration, ITrigger... triggers) {
 		ISegment segment = factory.addSegment(name, duration, triggers);
 		segments.add(segment);
-		addTriggers(triggers);
 		return segment;
 	}
 	
 	@Override
 	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable, double triggerInterval) {
-		ITrigger trigger = factory.addTrigger(name, sev, runnable, triggerInterval);
-		triggers.add(trigger);
-		return trigger;
+		return factory.addTrigger(name, sev, runnable, triggerInterval);
 	}
 	
 	@Override
 	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable,
 			double triggerSignal, double tolerance) {
-		ITrigger trigger = factory.addTrigger(name, sev, runnable, triggerSignal, tolerance);
-		triggers.add(trigger);
-		return trigger;
+		return factory.addTrigger(name, sev, runnable, triggerSignal, tolerance);
 	}
 	
 	@Override
 	public ITrigger addTimerTrigger(String name, Runnable runnable, long period) {
-		ITrigger trigger = factory.addTimerTrigger(name, runnable, period);
-		triggers.add(trigger);
-		return trigger;
+		return factory.addTimerTrigger(name, runnable, period);
 	}
 	
 	@Override
@@ -234,17 +226,9 @@ public class Plan implements IPlan, IPlanRegistrar {
 		return addTrigger(name, sev, runnable, triggerSignal, tolerance);
 	}
 	
-	private void addTriggers(ITrigger... trigs) {
-		for (ITrigger trigger : trigs) {
-			if (!triggers.contains(trigger)) {
-				triggers.add(trigger);
-			}
-		}
-	}
-	
 	private ISampleEnvironmentVariable lastDefinedSEV() {
-		if (sevs.isEmpty()) throw new IllegalArgumentException("No SEVs defined!");
-		return sevs.get(sevs.size()-1);
+		if (lastDefinedSev == null) throw new IllegalArgumentException("No SEVs defined!");
+		return lastDefinedSev;
 	}
 	
 	@Override
@@ -255,9 +239,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 
 	@Override
 	public String toString() {
-		return "Plan [name=" + name + ", sevs=" + sevs + ", segments=" + segments + ", triggers=" + triggers
-				+ ", running=" + running + "]";
+		return "Plan [name=" + name + ", segments=" + segments + "]";
 	}
-	
-	
 }

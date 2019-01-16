@@ -37,7 +37,8 @@ public abstract class AbstractSegment implements ISegment {
 		return activated;
 	}
 	
-	protected List<ITrigger> getEnabledTriggers() {
+	@Override
+	public List<ITrigger> getTriggers() {
 		return enabledTriggers;
 	}
 	

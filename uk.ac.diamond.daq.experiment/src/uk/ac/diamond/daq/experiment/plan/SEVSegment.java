@@ -53,7 +53,7 @@ public class SEVSegment extends AbstractSegment implements SEVListener {
 
 	@Override
 	public String toString() {
-		return "SEVSegment [SEV="+getSEV()+", enables="+getEnabledTriggers()+", limitCondition=" + limitCondition + "]";
+		return "SEVSegment [SEV="+getSEV()+", enables="+getTriggers()+", limitCondition=" + limitCondition + "]";
 	}
 	
 	protected ISampleEnvironmentVariable getSEV() {
