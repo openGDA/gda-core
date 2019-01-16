@@ -392,6 +392,11 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_DATASERVER_PORT = "gda.dataserver.port";
 
+	/**
+	 * Property to set the initial length units for fields (xStart, fastAxisStep etc) in the Mapping GUI
+	 */
+	public static final String GDA_INITIAL_LENGTH_UNITS = "uk.ac.gda.client.defaultUnits";
+
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system
