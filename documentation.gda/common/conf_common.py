@@ -131,7 +131,7 @@ html_theme_options = { # only for classic?
 # of the sidebar.
 html_logo = os.path.abspath(os.path.join( os.path.dirname(conf_common_path), 'images/gda200.png'))
 if not os.path.isfile(html_logo):
-        raise Exception, 'GDA html logo file %s not found' % (html_logo,)
+        raise Exception('GDA html logo file %s not found' % (html_logo,))
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

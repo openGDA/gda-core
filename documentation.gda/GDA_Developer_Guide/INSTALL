@@ -1,0 +1,29 @@
+====================================
+  Building the GDA Developer Guide
+====================================
+
+Building the document requires both Sphinx and the Python module 'recommonmark'. These must be installed and set up in a Python virtual environment.
+
+
+1) To create a virtual environmnet in Python 2 use the command:
+    $ virtualenv gda_doc_venv
+
+  For Python 3 instead use:
+    $ python -m venv gda_doc_venv
+
+2) Activate this virtual environment:
+    $ source gda_doc_venv/bin/activate
+
+3) Install Sphinx Within the virtual environment:
+    $ pip install -U sphinx
+
+
+4) Install the 'recommonmark' module into the same virtual environment ($ source gda_doc_venv/bin/activate):
+    $ pip install recommonmark
+
+5) Now build:
+  	$ cd workspace_git/gda-core.git/documentation.gda/GDA_Developer_Guide
+  	$ make html
+  
+
+* Whenever building the documentation, remember to source the Python environment otherwise it will fail.
