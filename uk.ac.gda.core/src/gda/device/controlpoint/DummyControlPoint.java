@@ -19,16 +19,18 @@
 
 package gda.device.controlpoint;
 
+import org.python.core.PyString;
+
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotionBase;
 import gda.device.scannable.ScannablePositionChangeEvent;
-
-import org.python.core.PyString;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * The Class DummyControlPoint.
  */
+@ServiceInterface(ControlPoint.class)
 public class DummyControlPoint extends ScannableMotionBase implements ControlPoint {
 	double latestValue;
 
