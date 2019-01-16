@@ -39,6 +39,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
@@ -57,9 +58,26 @@ import uk.ac.gda.client.NumberAndUnitsComposite;
 public abstract class AbstractModelEditor<T> {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractModelEditor.class);
 
+	protected static final String X_POSITION = "xPosition";
+	protected static final String Y_POSITION = "yPosition";
+
+	protected static final String X_START = "xStart";
+	protected static final String Y_START = "yStart";
+	protected static final String X_STOP = "xStop";
+	protected static final String Y_STOP = "yStop";
+
+	protected static final String X_CENTRE = "xCentre";
+	protected static final String Y_CENTRE = "yCentre";
+	protected static final String X_RANGE = "xRange";
+	protected static final String Y_RANGE = "yRange";
+
+	protected static final String RADIUS = "radius";
+
+	protected static final String FAST_AXIS_STEP = "fastAxisStep";
+	protected static final String SLOW_AXIS_STEP = "slowAxisStep";
+
 	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
 	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
-	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
 
 	private T model;
 	private Composite composite;
@@ -70,6 +88,11 @@ public abstract class AbstractModelEditor<T> {
 	@Inject
 	private IEventService eventService;
 	private IScannableDeviceService scannableDeviceService;
+
+	/**
+	 * Service to get initial length units - may be null
+	 */
+	private final InitialLengthUnits lengthUnitsService = PlatformUI.getWorkbench().getService(InitialLengthUnits.class);
 
 	/**
 	 * Apply to a control to make it fill horizontal space
@@ -167,11 +190,19 @@ public abstract class AbstractModelEditor<T> {
 	 * <p>
 	 * This defaults to millimetres but can be set in a property
 	 *
+	 * @param pathPropertyName
+	 *            Name of the path property for which we are getting the unit
+	 *
 	 * @return the initial units
 	 */
 	@SuppressWarnings("unchecked")
-	public static Unit<Length> getInitialLengthUnit() {
-		final String unitString = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
+	private Unit<Length> getInitialLengthUnit(String pathPropertyName) {
+		final String unitString;
+		if (lengthUnitsService == null) {
+			unitString = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
+		} else {
+			unitString = lengthUnitsService.getDefaultUnit(pathPropertyName);
+		}
 		try {
 			final Unit<?> unit = Unit.valueOf(unitString);
 			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
@@ -192,8 +223,8 @@ public abstract class AbstractModelEditor<T> {
 	 *            composite
 	 * @return a {@link NumberAndUnitsComposite} initialised for length
 	 */
-	protected static NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent) {
-		return new NumberAndUnitsComposite<>(parent, SWT.NONE, MODEL_LENGTH_UNIT, LENGTH_UNITS, INITIAL_LENGTH_UNIT);
+	protected NumberAndUnitsComposite<Length> createNumberAndUnitsLengthComposite(Composite parent, String pathPropertyName) {
+		return new NumberAndUnitsComposite<>(parent, SWT.NONE, MODEL_LENGTH_UNIT, LENGTH_UNITS, getInitialLengthUnit(pathPropertyName));
 	}
 
 }

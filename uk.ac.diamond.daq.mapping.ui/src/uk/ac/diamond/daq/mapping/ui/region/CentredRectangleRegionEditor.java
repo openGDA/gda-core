@@ -38,23 +38,23 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite, X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Range");
-		NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsLengthComposite(composite, X_RANGE);
 		grabHorizontalSpace.applyTo(xRange);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite, Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Range");
-		NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsLengthComposite(composite, Y_RANGE);
 		grabHorizontalSpace.applyTo(yRange);
 
-		createValidatedBindings(getFastAxisName(), xCentre, "xCentre", xRange, "xRange");
-		createValidatedBindings(getSlowAxisName(), yCentre, "yCentre", yRange, "yRange");
+		createValidatedBindings(getFastAxisName(), xCentre, X_CENTRE, xRange, X_RANGE);
+		createValidatedBindings(getSlowAxisName(), yCentre, Y_CENTRE, yRange, Y_RANGE);
 
 		return composite;
 	}

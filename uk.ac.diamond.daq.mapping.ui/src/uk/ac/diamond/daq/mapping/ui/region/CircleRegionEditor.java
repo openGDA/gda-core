@@ -34,20 +34,20 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsLengthComposite(composite, X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Centre");
-		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsLengthComposite(composite, Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText("Radius");
-		NumberAndUnitsComposite<Length> radius = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> radius = createNumberAndUnitsLengthComposite(composite, RADIUS);
 		grabHorizontalSpace.applyTo(radius);
 
-		binder.bind(xCentre, "xCentre", getModel());
-		binder.bind(yCentre, "yCentre", getModel());
-		binder.bind(radius, "radius", getModel());
+		binder.bind(xCentre, X_CENTRE, getModel());
+		binder.bind(yCentre, Y_CENTRE, getModel());
+		binder.bind(radius, RADIUS, getModel());
 
 		ControlDecorationSupport.create(createGreaterThanZeroValidator(radius), SWT.LEFT);
 		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xCentre, radius), SWT.LEFT);

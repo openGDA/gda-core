@@ -40,19 +40,19 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Start");
-		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsLengthComposite(composite, X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Start");
-		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsLengthComposite(composite, Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsLengthComposite(composite, X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Stop");
-		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsLengthComposite(composite, Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
 		validateAndBind(xStart, yStart, xStop, yStop);
@@ -64,10 +64,10 @@ public class LineRegionEditor extends AbstractRegionEditor {
 								 NumberAndUnitsComposite<Length> xStop,
 								 NumberAndUnitsComposite<Length> yStop) {
 
-		binder.bind(xStart, "xStart", getModel());
-		binder.bind(yStart, "yStart", getModel());
-		binder.bind(xStop,  "xStop",  getModel());
-		binder.bind(yStop,  "yStop",  getModel());
+		binder.bind(xStart, X_START, getModel());
+		binder.bind(yStart, Y_START, getModel());
+		binder.bind(xStop,  X_STOP,  getModel());
+		binder.bind(yStop,  Y_STOP,  getModel());
 
 		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStart), SWT.LEFT);
 		ControlDecorationSupport.create(createLimitsValidator(getFastAxisName(), xStop), SWT.LEFT);

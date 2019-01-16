@@ -35,16 +35,16 @@ public class RasterPathEditor extends AbstractPathEditor {
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getFastAxisName() + " Step");
-		NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsLengthComposite(composite, FAST_AXIS_STEP);
 		grabHorizontalSpace.applyTo(xStep);
 
-		binder.bind(xStep, "fastAxisStep", getModel(), GREATER_THAN_ZERO);
+		binder.bind(xStep, FAST_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
 
 		new Label(composite, SWT.NONE).setText(getSlowAxisName() + " Step");
-		NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsLengthComposite(composite);
+		NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsLengthComposite(composite, SLOW_AXIS_STEP);
 		grabHorizontalSpace.applyTo(yStep);
 
-		binder.bind(yStep, "slowAxisStep", getModel(), GREATER_THAN_ZERO);
+		binder.bind(yStep, SLOW_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
 
 		makeSnakeControl(composite, getModel());
 		makeContinuousControl(composite, getModel());
