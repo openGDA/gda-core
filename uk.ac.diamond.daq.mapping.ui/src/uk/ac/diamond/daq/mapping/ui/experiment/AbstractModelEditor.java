@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MICRO;
 import static org.jscience.physics.units.SI.MILLI;
@@ -59,8 +60,6 @@ public abstract class AbstractModelEditor<T> {
 	private static final Unit<Length> MODEL_LENGTH_UNIT = MILLI(METER);
 	private static final List<Unit<Length>> LENGTH_UNITS = ImmutableList.of(MILLI(METER), MICRO(METER), NANO(METER));
 	private static final Unit<Length> INITIAL_LENGTH_UNIT = getInitialLengthUnit();
-
-	private static final String DEFAULT_UNITS_PROPERTY = "uk.ac.gda.client.defaultUnits";
 
 	private T model;
 	private Composite composite;
@@ -172,16 +171,16 @@ public abstract class AbstractModelEditor<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Unit<Length> getInitialLengthUnit() {
-		final String unitString = LocalProperties.get(DEFAULT_UNITS_PROPERTY, "mm").toLowerCase();
+		final String unitString = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, "mm").toLowerCase();
 		try {
 			final Unit<?> unit = Unit.valueOf(unitString);
 			if (unit.isCompatible(MODEL_LENGTH_UNIT)) {
 				return (Unit<Length>) unit;
 			}
-			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
+			logger.warn("Value '{}' of property '{}' is not a valid length unit: assuming millimetres", unitString, GDA_INITIAL_LENGTH_UNITS);
 			return MODEL_LENGTH_UNIT;
 		} catch (Exception e) {
-			logger.warn("Cannot parse value '{}' of property '{}': assuming millimetres", unitString, DEFAULT_UNITS_PROPERTY);
+			logger.warn("Cannot parse value '{}' of property '{}': assuming millimetres", unitString, GDA_INITIAL_LENGTH_UNITS);
 			return MODEL_LENGTH_UNIT;
 		}
 	}
