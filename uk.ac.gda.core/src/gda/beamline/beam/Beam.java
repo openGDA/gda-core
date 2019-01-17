@@ -37,6 +37,7 @@ import gda.factory.Finder;
 import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * This class describes the photon beam properties of a Beamline or Station, including
@@ -46,6 +47,7 @@ import gda.observable.ObservableComponent;
  * </ul>
  *
  */
+@ServiceInterface(BeamInfo.class)
 public class Beam extends ConfigurableBase implements BeamInfo, Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(Beam.class);
 	private String name = "beam";
