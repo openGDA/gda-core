@@ -70,7 +70,6 @@ import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ScanProcessTest {
@@ -299,7 +298,6 @@ public class ScanProcessTest {
 		}
 	}
 
-	@Ignore("Got broken by scisoft change...")
 	@Test
 	public void testMalcolmValidation() throws Exception {
 		// Arrange
