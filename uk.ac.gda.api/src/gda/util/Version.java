@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Version {
 
-	private static final String RELEASE_VER = "9.11.0";
+	private static final String RELEASE_VER = "9.12.0pre";
 
 	/**
 	 * Returns the release version as a String
