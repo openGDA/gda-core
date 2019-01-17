@@ -22,4 +22,5 @@ Export-Package: uk.ac.diamond.daq.detectors.addetector
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Automatic-Module-Name: uk.ac.diamond.daq.detectors.addetector
 

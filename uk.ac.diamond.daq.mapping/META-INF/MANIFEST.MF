@@ -17,3 +17,4 @@ Export-Package: uk.ac.diamond.daq.mapping.impl,
  uk.ac.diamond.daq.mapping.region
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Automatic-Module-Name: uk.ac.diamond.daq.mapping

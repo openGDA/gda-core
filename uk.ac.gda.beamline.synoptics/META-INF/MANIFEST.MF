@@ -44,3 +44,4 @@ Export-Package: uk.ac.gda.beamline.synoptics;uses:="org.eclipse.jface.resource,o
    org.eclipse.ui.part,
    org.eclipse.swt.widgets,
    org.dawnsci.plotting.api.trace"
+Automatic-Module-Name: uk.ac.gda.beamline.synoptics
