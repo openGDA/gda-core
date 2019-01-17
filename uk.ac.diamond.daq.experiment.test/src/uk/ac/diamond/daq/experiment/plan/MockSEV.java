@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
@@ -15,7 +15,7 @@ import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
 public class MockSEV implements ISampleEnvironmentVariable {
 
 	private double signal;
-	private List<SEVListener> listeners = new ArrayList<>();
+	private Set<SEVListener> listeners = new CopyOnWriteArraySet<>();
 	private boolean enabled;
 
 	@Override
@@ -35,7 +35,7 @@ public class MockSEV implements ISampleEnvironmentVariable {
 	}
 
 	@Override
-	public List<SEVListener> getListeners() {
+	public Set<SEVListener> getListeners() {
 		return listeners;
 	}
 
@@ -51,9 +51,7 @@ public class MockSEV implements ISampleEnvironmentVariable {
 
 	public void broadcast(double signal) {
 		this.signal = signal;
-		for (SEVListener listener : listeners.toArray(new SEVListener[listeners.size()])) {
-			listener.signalChanged(signal);
-		}
+		listeners.forEach(listener -> listener.signalChanged(signal));
 	}
 
 	public void ramp(double target, double increment) {

@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ISampleEnvironmentVariable {
 
@@ -17,7 +17,7 @@ public interface ISampleEnvironmentVariable {
 	 */
 	void removeListener(SEVListener listener);
 	
-	List<SEVListener> getListeners();
+	Set<SEVListener> getListeners();
 
 	boolean isEnabled();
 
