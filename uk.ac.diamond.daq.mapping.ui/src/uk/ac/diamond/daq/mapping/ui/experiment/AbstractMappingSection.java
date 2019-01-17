@@ -62,7 +62,7 @@ public abstract class AbstractMappingSection {
 	 */
 	private static final int HORIZONTAL_DIALOG_UNIT_PER_CHAR = 4;
 
-	private static FontMetrics fontMetrics = null;
+	private FontMetrics fontMetrics = null;
 
 	private AbstractSectionsView mappingView;
 
@@ -136,7 +136,7 @@ public abstract class AbstractMappingSection {
 		button.setLayoutData(data);
 	}
 
-	public int convertHorizontalDLUsToPixels(int dlus) {
+	private int convertHorizontalDLUsToPixels(int dlus) {
 		if (fontMetrics == null) {
 			GC gc = new GC(mappingView.getMainComposite());
 			gc.setFont(JFaceResources.getDialogFont());
