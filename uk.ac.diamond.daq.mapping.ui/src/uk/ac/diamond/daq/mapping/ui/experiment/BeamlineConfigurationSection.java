@@ -162,7 +162,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		updateConfiguredScannableSummary();
 	}
 }

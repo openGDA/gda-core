@@ -110,7 +110,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 
 	private IRunnableDeviceService runnableDeviceService;
 
-	private final ClassToInstanceMap<AbstractMappingSection> sections = MutableClassToInstanceMap.create();
+	private final ClassToInstanceMap<IMappingSection> sections = MutableClassToInstanceMap.create();
 
 	protected AbstractSectionsView(IMappingExperimentBeanProvider beanProvider) {
 		if (beanProvider == null) {
@@ -191,12 +191,12 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	/**
 	 * These sections will be created on a scrollable composite (not always visible)
 	 */
-	protected abstract List<AbstractMappingSection> getScrolledSections();
+	protected abstract List<IMappingSection> getScrolledSections();
 
 	/**
 	 * These sections are always visible
 	 */
-	protected abstract List<AbstractMappingSection> getUnscrolledSections();
+	protected abstract List<IMappingSection> getUnscrolledSections();
 
 	private void loadPreviousState(MPart part) {
 		// Restore mapping bean unless it has been set by another view
@@ -227,13 +227,13 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		}
 
 		// Now save any other persistent data that is outside the mapping bean
-		for (AbstractMappingSection section : sections.values()) {
+		for (IMappingSection section : sections.values()) {
 			section.saveState(part.getPersistedState());
 		}
 	}
 
-	private void createSections(Composite parent, List<AbstractMappingSection> sectionsToCreate, Map<String, String> persistedState) {
-		for (AbstractMappingSection section : sectionsToCreate) {
+	private void createSections(Composite parent, List<IMappingSection> sectionsToCreate, Map<String, String> persistedState) {
+		for (IMappingSection section : sectionsToCreate) {
 			section.initialize(this);
 			sections.put(section.getClass(), section);
 
@@ -258,7 +258,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		plotter.dispose();
 		beamPositionPlotter.dispose();
 
-		for (AbstractMappingSection section : sections.values()) {
+		for (IMappingSection section : sections.values()) {
 			section.dispose();
 		}
 	}
@@ -343,7 +343,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	}
 
 	public void updateControls() {
-		for (AbstractMappingSection section : sections.values()) {
+		for (IMappingSection section : sections.values()) {
 			if (section.shouldShow()) {
 				section.updateControls();
 			}
@@ -351,7 +351,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		relayout();
 	}
 
-	public AbstractMappingSection getSection(Class<? extends AbstractMappingSection> sectionClass) {
+	public IMappingSection getSection(Class<? extends AbstractMappingSection> sectionClass) {
 		return sections.get(sectionClass);
 	}
 

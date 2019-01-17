@@ -280,7 +280,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		// Update the section controls to reflect the new bean
 		// Any additional processing chains in the scan request are added at the end of the list
 		// No existing processing chains are deleted, instead they are just deselected

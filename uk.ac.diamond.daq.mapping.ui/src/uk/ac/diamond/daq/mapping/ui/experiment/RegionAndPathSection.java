@@ -145,7 +145,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
 
 	@Override
-	protected void initialize(AbstractSectionsView mappingView) {
+	public void initialize(AbstractSectionsView mappingView) {
 		super.initialize(mappingView);
 		plotter = getService(PlottingController.class);
 		mappingRegionManager = getService(IMappingRegionManager.class);
@@ -316,7 +316,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		IMappingScanRegion mappingScanRegion = getMappingBean().getScanDefinition().getMappingScanRegion();
 		scanRegion = mappingScanRegion.getRegion();
 		scanPathModel = mappingScanRegion.getScanPath();
@@ -422,7 +422,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void saveState(Map<String, String> persistedState) {
+	public void saveState(Map<String, String> persistedState) {
 		final IMarshallerService marshaller = getService(IMarshallerService.class);
 		final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
 		try {
@@ -433,7 +433,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void loadState(Map<String, String> persistedState) {
+	public void loadState(Map<String, String> persistedState) {
 		String json = persistedState.get(MAPPING_STAGE_KEY_JSON);
 		if (json == null || json.isEmpty()) return;
 		IMarshallerService marshaller = getService(IMarshallerService.class);

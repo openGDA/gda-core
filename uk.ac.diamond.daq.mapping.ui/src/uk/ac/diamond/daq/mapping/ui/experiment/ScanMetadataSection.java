@@ -73,7 +73,7 @@ public class ScanMetadataSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		// Note: the sample metadata object may be a new one, so we
 		final IObservableValue sampleNameTextValue = (IObservableValue) sampleNameBinding.getTarget();
 		dataBindingContext.removeBinding(sampleNameBinding);

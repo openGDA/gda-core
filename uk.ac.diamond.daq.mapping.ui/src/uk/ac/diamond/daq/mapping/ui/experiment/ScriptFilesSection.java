@@ -106,7 +106,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		updateSummaryText();
 	}
 

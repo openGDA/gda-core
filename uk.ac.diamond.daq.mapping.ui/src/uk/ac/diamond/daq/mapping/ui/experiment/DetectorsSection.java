@@ -373,7 +373,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		// add any detectors in the bean to the list of chosen detectors if not present
 		// first create a map of detectors in the mapping bean keyed by name
 		final Map<String, IScanModelWrapper<IDetectorModel>> wrappersByName =
@@ -399,7 +399,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	@Override
-	protected void saveState(Map<String, String> persistedState) {
+	public void saveState(Map<String, String> persistedState) {
 		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
 			List<String> chosenDetectorNames = visibleDetectors.stream().
@@ -413,7 +413,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void loadState(Map<String, String> persistedState) {
+	public void loadState(Map<String, String> persistedState) {
 		String json = persistedState.get(DETECTOR_SELECTION_KEY_JSON);
 		if (json == null || json.isEmpty()) { // This happens when client is reset || if no detectors are configured.
 			return;

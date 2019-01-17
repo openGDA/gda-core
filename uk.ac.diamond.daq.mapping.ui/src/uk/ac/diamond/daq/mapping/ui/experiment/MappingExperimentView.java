@@ -39,7 +39,7 @@ public class MappingExperimentView extends AbstractSectionsView {
 	}
 
 	@Override
-	protected List<AbstractMappingSection> getScrolledSections() {
+	protected List<IMappingSection> getScrolledSections() {
 		return Arrays.asList(
 			// a section for configuring scannables to be moved to a particular position at the start of a scan
 			new BeamlineConfigurationSection(),
@@ -58,7 +58,7 @@ public class MappingExperimentView extends AbstractSectionsView {
 	}
 
 	@Override
-	protected List<AbstractMappingSection> getUnscrolledSections() {
+	protected List<IMappingSection> getUnscrolledSections() {
 		return Arrays.asList(
 			// a section for submitting the scan to the queue
 			new SubmitScanSection());

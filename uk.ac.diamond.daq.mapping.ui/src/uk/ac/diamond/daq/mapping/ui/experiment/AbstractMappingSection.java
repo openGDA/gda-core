@@ -46,7 +46,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 
-public abstract class AbstractMappingSection {
+public abstract class AbstractMappingSection implements IMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMappingSection.class);
 
 	/**
@@ -68,7 +67,8 @@ public abstract class AbstractMappingSection {
 
 	protected DataBindingContext dataBindingContext;
 
-	protected void initialize(AbstractSectionsView mappingView) {
+	@Override
+	public void initialize(AbstractSectionsView mappingView) {
 		this.mappingView = mappingView;
 	}
 
@@ -101,20 +101,22 @@ public abstract class AbstractMappingSection {
 		return mappingView.getEclipseContext();
 	}
 
+	@Override
 	public boolean shouldShow() {
 		return true;
 	}
 
+	@Override
 	public boolean createSeparator() {
 		return true;
 	}
 
-	public abstract void createControls(Composite parent);
-
-	protected void setFocus() {
+	@Override
+	public void setFocus() {
 		// do nothing, subclasses may override
 	}
 
+	@Override
 	public void dispose() {
 		// do nothing, subclasses may override
 	}
@@ -152,26 +154,29 @@ public abstract class AbstractMappingSection {
 	/**
 	 * Updates this section based on the mapping bean.
 	 */
-	protected void updateControls() {
+	@Override
+	public void updateControls() {
 		// Default implementation does nothing. Subclasses may override.
 	}
 
 	/**
 	 * Default implementation does nothing since most data is saved through the mapping bean
 	 */
-	protected void saveState(@SuppressWarnings("unused") Map<String, String> persistedState) {
+	@Override
+	public void saveState(@SuppressWarnings("unused") Map<String, String> persistedState) {
 
 	}
 
 	/**
 	 * Default implementation does nothing since most data is loaded through the mapping bean
 	 */
-	protected void loadState(@SuppressWarnings("unused") Map<String, String> persistedState) {
+	@Override
+	public void loadState(@SuppressWarnings("unused") Map<String, String> persistedState) {
 
 	}
 
 	/**
-	 * Remove all existing bindings in {@link AbstractMappingSection#dataBindingContext}
+	 * Remove all existing bindings in {@link #dataBindingContext}
 	 */
 	protected void removeOldBindings() {
 		if (dataBindingContext == null) {
