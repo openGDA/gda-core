@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Default mapping view. Beamlines can use an alternative bean if they wish to customise the view -->
+	<bean id="mappingViewConfiguration" class="uk.ac.diamond.daq.mapping.ui.experiment.MappingViewConfiguration">
+		<property name="scrolledSections">
+			<list>
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.BeamlineConfigurationSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ScriptFilesSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ScanMetadataSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ProcessingSection" />
+			</list>
+		</property>
+		<property name="unscrolledSections">
+			<list>
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- Register as an OSGi service -->
+	<bean class="gda.util.osgi.OSGiServiceRegister">
+		<property name="class" value="uk.ac.diamond.daq.mapping.ui.experiment.MappingViewConfiguration" />
+		<property name="service" ref="mappingViewConfiguration" />
+	</bean>
+
+</beans>
