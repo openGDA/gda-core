@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
 /**
- * Subclasses {#link uk.ac.diamond.daq.mapping.ui.experiment.AbstractSectionsView} to show the standard set of views
+ * Subclasses {@link AbstractSectionsView} to show the standard set of views
  * required for a mapping scan.
  */
 public class MappingExperimentView extends AbstractSectionsView {
@@ -39,29 +39,29 @@ public class MappingExperimentView extends AbstractSectionsView {
 	}
 
 	@Override
-	protected List<Class<? extends AbstractMappingSection>> getScrolledSectionClasses() {
+	protected List<AbstractMappingSection> getScrolledSections() {
 		return Arrays.asList(
 			// a section for configuring scannables to be moved to a particular position at the start of a scan
-			BeamlineConfigurationSection.class,
+			new BeamlineConfigurationSection(),
 			// a section for configuring scripts to be run before and after a scan
-			ScriptFilesSection.class,
+			new ScriptFilesSection(),
 			// a section for configuring outer scannables (i.e. in addition to the inner map)
-			OuterScannablesSection.class,
+			new OuterScannablesSection(),
 			// a section for choosing the detectors (or malcolm device) to include in the scan
-			DetectorsSection.class,
+			new DetectorsSection(),
 			// a section for configuring the path of the mapping scan
-			RegionAndPathSection.class,
+			new RegionAndPathSection(),
 			// a section for configuring metadata to add to the scan
-			ScanMetadataSection.class,
+			new ScanMetadataSection(),
 			// a section for configuring live processing to run
-			ProcessingSection.class);
+			new ProcessingSection());
 	}
 
 	@Override
-	protected List<Class<? extends AbstractMappingSection>> getUnscrolledSectionClasses() {
+	protected List<AbstractMappingSection> getUnscrolledSections() {
 		return Arrays.asList(
 			// a section for submitting the scan to the queue
-			SubmitScanSection.class);
+			new SubmitScanSection());
 	}
 
 	@Override

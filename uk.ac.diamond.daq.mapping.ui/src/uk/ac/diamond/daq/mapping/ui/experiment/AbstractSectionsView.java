@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +64,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.MutableClassToInstanceMap;
+
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
@@ -80,7 +82,7 @@ import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
  * or running in an OSGi framework.
  * <p>
  * The class contains most of the code formerly in {@link MappingExperimentView}. It can be subclassed by implementing
- * {{@link #getScrolledSectionClasses()} and {{@link #getUnscrolledSectionClasses()} to include the sections required to
+ * {{@link #getScrolledSections()} and {{@link #getUnscrolledSections()} to include the sections required to
  * be shown.
  */
 public abstract class AbstractSectionsView implements IAdaptable {
@@ -108,7 +110,7 @@ public abstract class AbstractSectionsView implements IAdaptable {
 
 	private IRunnableDeviceService runnableDeviceService;
 
-	private Map<Class<? extends AbstractMappingSection>, AbstractMappingSection> sections;
+	private final ClassToInstanceMap<AbstractMappingSection> sections = MutableClassToInstanceMap.create();
 
 	protected AbstractSectionsView(IMappingExperimentBeanProvider beanProvider) {
 		if (beanProvider == null) {
@@ -177,8 +179,8 @@ public abstract class AbstractSectionsView implements IAdaptable {
 			logger.error("Error getting mapping configuration, no mapping bean set");
 		} else {
 			// create the controls for sections that should be shown
-			createSections(mainComposite, getScrolledSectionClasses(), part.getPersistedState());
-			createSections(alwaysVisible, getUnscrolledSectionClasses(), part.getPersistedState());
+			createSections(mainComposite, getScrolledSections(), part.getPersistedState());
+			createSections(alwaysVisible, getUnscrolledSections(), part.getPersistedState());
 			recalculateMinimumSize();
 		}
 
@@ -187,14 +189,14 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	}
 
 	/**
-	 * These classes will be created on a scrollable composite (not always visible)
+	 * These sections will be created on a scrollable composite (not always visible)
 	 */
-	protected abstract List<Class<? extends AbstractMappingSection>> getScrolledSectionClasses();
+	protected abstract List<AbstractMappingSection> getScrolledSections();
 
 	/**
-	 * These classes are always visible
+	 * These sections are always visible
 	 */
-	protected abstract List<Class<? extends AbstractMappingSection>> getUnscrolledSectionClasses();
+	protected abstract List<AbstractMappingSection> getUnscrolledSections();
 
 	private void loadPreviousState(MPart part) {
 		// Restore mapping bean unless it has been set by another view
@@ -230,26 +232,19 @@ public abstract class AbstractSectionsView implements IAdaptable {
 		}
 	}
 
-	private void createSections(Composite parent, List<Class<? extends AbstractMappingSection>> classes, Map<String, String> persistedState) {
-		if (sections==null) sections = new HashMap<>();
-		for (Class<? extends AbstractMappingSection> sectionClass : classes) {
-			AbstractMappingSection section;
-			try {
-				section = sectionClass.newInstance();
-				section.initialize(this);
-				sections.put(sectionClass, section);
+	private void createSections(Composite parent, List<AbstractMappingSection> sectionsToCreate, Map<String, String> persistedState) {
+		for (AbstractMappingSection section : sectionsToCreate) {
+			section.initialize(this);
+			sections.put(section.getClass(), section);
 
-				if (section.shouldShow()) {
-					// create separator if this section should have one, unless its the first section
-					if (section.createSeparator() && sections.size() > 1) {
-						GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
-								new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL));
-					}
-					section.loadState(persistedState);
-					section.createControls(parent);
+			if (section.shouldShow()) {
+				// create separator if this section should have one, unless its the first section
+				if (section.createSeparator() && sections.size() > 1) {
+					GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
+							new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL));
 				}
-			} catch (InstantiationException | IllegalAccessException e) {
-				logger.error("Could not create section " + sectionClass.getSimpleName(), e);
+				section.loadState(persistedState);
+				section.createControls(parent);
 			}
 		}
 	}
