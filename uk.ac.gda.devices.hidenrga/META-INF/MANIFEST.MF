@@ -20,3 +20,4 @@ Require-Bundle: uk.ac.gda.epics,
 Export-Package: gda.device.hidenrga,
  uk.ac.gda.devices.hidenrga.ui.handlers,
  uk.ac.gda.devices.hidenrga.ui.views
+Automatic-Module-Name: uk.ac.gda.devices.hidenrga

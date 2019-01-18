@@ -18,3 +18,4 @@ Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework,
  uk.ac.gda.core
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.devices.detector.xspress3
+Automatic-Module-Name: uk.ac.gda.devices.xspress3.epics
