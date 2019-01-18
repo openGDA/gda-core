@@ -20,6 +20,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Arrays;
@@ -40,8 +46,13 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IDeviceController;
+import org.eclipse.scanning.api.device.IDeviceWatchdogService;
+import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -64,11 +75,13 @@ import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.points.RepeatedPointIterator;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.ScanProcess;
+import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -161,6 +174,42 @@ public class ScanProcessTest {
 
 		// Assert
 
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testTerminateScan() throws Exception {
+		// Arrange
+		ScanBean scanBean = new ScanBean();
+		ScanRequest<?> scanRequest = new ScanRequest<>();
+		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+		scanBean.setScanRequest(scanRequest);
+		ScanProcess process = new ScanProcess(scanBean, null, true);
+
+		// Note: this test method uses Mockito rather than hand-written mock objects as it is newer that the other test methods in this class
+		IDeviceWatchdogService mockWatchdogService = mock(IDeviceWatchdogService.class);
+		IDeviceController mockDeviceController = mock(IDeviceController.class);
+		IRunnableDeviceService mockRunnableDeviceService = mock(IRunnableDeviceService.class);
+		IPausableDevice mockDevice = mock(IPausableDevice.class);
+		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
+		new Services().setWatchdogService(mockWatchdogService);
+		new Services().setRunnableDeviceService(mockRunnableDeviceService);
+		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
+		when(mockWatchdogService.create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
+
+		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
+		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
+		doAnswer(waitingAnswer).when(mockDevice).run(null);
+
+		// Act
+		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
+		new Thread(() -> { try { process.execute(); } catch (EventException e) { }}).start();
+		waitingAnswer.waitUntilCalled();
+		process.terminate();
+
+		// Assert
+		verify(mockDeviceController).abort(process.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
+		waitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
 	}
 
 	@Test
