@@ -257,6 +257,10 @@ public abstract class AbstractSectionsView implements IAdaptable {
 	protected void disposeInternal() {
 		plotter.dispose();
 		beamPositionPlotter.dispose();
+
+		for (AbstractMappingSection section : sections.values()) {
+			section.dispose();
+		}
 	}
 
 	private void createStatusPanel(final Composite mainComposite) {
