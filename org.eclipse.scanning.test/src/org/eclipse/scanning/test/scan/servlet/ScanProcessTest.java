@@ -186,7 +186,7 @@ public class ScanProcessTest {
 		scanBean.setScanRequest(scanRequest);
 		ScanProcess process = new ScanProcess(scanBean, null, true);
 
-		// Note: this test method uses Mockito rather than hand-written mock objects as it is newer that the other test methods in this class
+		// Note: this test method uses Mockito instead of hand-written mock objects as it is newer than the other test methods in this class
 		IDeviceWatchdogService mockWatchdogService = mock(IDeviceWatchdogService.class);
 		IDeviceController mockDeviceController = mock(IDeviceController.class);
 		IRunnableDeviceService mockRunnableDeviceService = mock(IRunnableDeviceService.class);
@@ -210,6 +210,50 @@ public class ScanProcessTest {
 		// Assert
 		verify(mockDeviceController).abort(process.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
 		waitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
+	}
+
+	@Test
+	public void testTerminateScript() throws Exception {
+		// Arrange
+		ScanBean scanBean = new ScanBean();
+		ScanRequest<?> scanRequest = new ScanRequest<>();
+		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+
+		ScriptRequest before = new ScriptRequest();
+		before.setFile("/path/to/before.py");
+		before.setLanguage(ScriptLanguage.PYTHON);
+		scanRequest.setBefore(before);
+
+		scanBean.setScanRequest(scanRequest);
+
+		// Note: this test method uses Mockito instead of hand-written mock objects as it is newer than the other test methods in this class
+		// TODO: this code is duplicated, re-use it insteaad
+		IDeviceWatchdogService mockWatchdogService = mock(IDeviceWatchdogService.class);
+		IDeviceController mockDeviceController = mock(IDeviceController.class);
+		IRunnableDeviceService mockRunnableDeviceService = mock(IRunnableDeviceService.class);
+		IPausableDevice mockDevice = mock(IPausableDevice.class);
+		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
+		ScanModel mockScanModel = mock(ScanModel.class);
+		when(mockDevice.getModel()).thenReturn(mockScanModel); // prevents an NPE in ScanProcess.runScript
+
+		new Services().setWatchdogService(mockWatchdogService);
+		new Services().setRunnableDeviceService(mockRunnableDeviceService);
+		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
+		when(mockWatchdogService.create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
+
+		IScriptService mockScriptService = mock(IScriptService.class);
+		new Services().setScriptService(mockScriptService);
+		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
+		doAnswer(waitingAnswer).when(mockScriptService).execute(before);
+
+		// Act
+		// we need to run the scanProcess in another thread, so that we can call terminate in this thread
+		ScanProcess process = new ScanProcess(scanBean, null, true);
+		new Thread(() -> { try { process.execute(); } catch (EventException e) { }}).start();
+		waitingAnswer.waitUntilCalled();
+		process.terminate();
+		verify(mockScriptService).abortScripts(); // verify that scriptService.abortScripts was called by scanProcess
+		waitingAnswer.resume(); // resume the answer to allow scriptService.execute and then scanProcess.execute to finish
 	}
 
 	@Test

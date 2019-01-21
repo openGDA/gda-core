@@ -72,18 +72,18 @@ import org.slf4j.LoggerFactory;
 public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanProcess.class);
-	protected final ScanBean               bean;
-	protected final IPublisher<ScanBean>   publisher;
+	protected final ScanBean bean;
+	protected final IPublisher<ScanBean> publisher;
 
 	// Services
-	private IPositioner                positioner;
-	private IScriptService             scriptService;
+	private IPositioner positioner;
+	private IScriptService scriptService;
 
-	private IDeviceController          controller;
-	private boolean                    blocking;
+	private IDeviceController controller;
+	private boolean blocking;
+	private volatile boolean scriptRunning = false;
 
 	public ScanProcess(ScanBean scanBean, IPublisher<ScanBean> response, boolean blocking) throws EventException {
-
 		this.bean = scanBean;
 		this.publisher = response;
 		this.blocking = blocking;
@@ -135,7 +135,12 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 		if (bean.getStatus()==Status.COMPLETE) return; // Nothing to terminate.
 		try {
-			if (controller!=null) controller.abort(getClass().getName());
+			if (controller!=null) {
+				controller.abort(getClass().getName());
+			}
+			if (scriptRunning) {
+				scriptService.abortScripts();
+			}
 		} catch (ScanningException | InterruptedException e) {
 			throw new EventException(e);
 		}
@@ -349,7 +354,13 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_MODEL, scanModel);
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPositionIterable());
 
-		ScriptResponse<?> res = scriptService.execute(req);
+		scriptRunning = true;
+		ScriptResponse<?> res = null;
+		try {
+			res = scriptService.execute(req);
+		} finally {
+			scriptRunning = false;
+		}
 		logger.debug("Script ran with response {}.", res);
 		cons.accept(res);
 	}

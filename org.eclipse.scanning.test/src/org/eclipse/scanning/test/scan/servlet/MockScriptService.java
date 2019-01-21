@@ -54,4 +54,9 @@ public final class MockScriptService implements IScriptService {
 		return namedValues.get(name);
 	}
 
+	@Override
+	public void abortScripts() {
+		// do nothing, not used in tests
+	}
+
 }

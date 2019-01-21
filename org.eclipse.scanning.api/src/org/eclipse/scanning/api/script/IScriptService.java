@@ -53,4 +53,10 @@ public interface IScriptService {
 	 * @throws ScriptExecutionException if an error occurred running the script
 	 */
 	ScriptResponse<?> execute(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException;
+
+	/**
+	 * Aborts any currently executing scripts.
+	 */
+	void abortScripts();
+
 }
