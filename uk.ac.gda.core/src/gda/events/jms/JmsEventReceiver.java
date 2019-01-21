@@ -19,6 +19,7 @@
 
 package gda.events.jms;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -138,7 +139,13 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 				return; // We can't handle this case
 			}
 			// Deserialize back to the actual message object - Using the GDA serializer which can see the classes
-			final Object messageObject = Serializer.toObject((byte[]) serializedObject);
+			Object messageObject;
+			try {
+				messageObject = Serializer.toObject((byte[]) serializedObject);
+			} catch (ClassNotFoundException | IOException e) {
+				logger.error("Error deserializing received message: '{}' on topic '{}'", message, topic, e);
+				return; // We can't handle this case
+			}
 
 			// Warn about receiving old messages. This suggests a communication issue or very high message rate.
 			final long messageAgeMillis = System.currentTimeMillis() - sendingTimestamp;

@@ -19,18 +19,24 @@
 
 package gda.scan;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.PlottableDetectorData;
 import gda.data.PlottableDetectorDataClone;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.util.Serializer;
 
-import java.io.Serializable;
-import java.util.Vector;
-
 /**
  * Token passed between instances of ScanDataPointServer and ScanDataPointClient
  */
 public class ScanDataPointVar implements Serializable {
+	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointVar.class);
+
 	private ScanDataPointToken token;
 	private byte[] stepIds;
 
@@ -59,7 +65,11 @@ public class ScanDataPointVar implements Serializable {
 		}
 		if (point.getStepIds() != null && point.getStepIds().size() > 0) {
 			Object[] dt = point.getStepIds().toArray(new Object[0]);
-			stepIds = Serializer.toByte(dt);
+			try {
+				stepIds = Serializer.toByte(dt);
+			} catch (IOException e) {
+				logger.error("Error serializing step IDs", e);
+			}
 		}
 
 	}

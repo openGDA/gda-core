@@ -19,6 +19,7 @@
 
 package gda.scan;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -159,9 +160,14 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 		Vector<IScanStepId> stepIds = new Vector<>();
 		if (sdpt.getStepIds() != null) {
-			Object[] dt = (Object[]) Serializer.toObject(sdpt.getStepIds());
-			for (Object obj : dt) {
-				stepIds.add((IScanStepId) obj);
+			Object[] dt;
+			try {
+				dt = (Object[]) Serializer.toObject(sdpt.getStepIds());
+				for (Object obj : dt) {
+					stepIds.add((IScanStepId) obj);
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				logger.error("Error deserializing step IDs", e);
 			}
 		}
 		this.stepIds = stepIds;

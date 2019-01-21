@@ -32,6 +32,8 @@ import static org.jscience.physics.units.SI.RADIAN;
 import static org.jscience.physics.units.SI.SECOND;
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import org.jscience.physics.quantities.Quantity;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -53,40 +55,40 @@ public class SerializerQuantityTest {
 	// Test with a selection of SI units
 	//----------------------------------
 	@Test
-	public void testSerializeMetres() {
+	public void testSerializeMetres() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(5.82, METER));
 	}
 
 	@Test
-	public void testSerializeMillimetres() {
+	public void testSerializeMillimetres() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(1.0, MILLI(METER)));
 	}
 
 	@Test
-	public void testSerializeSeconds() {
+	public void testSerializeSeconds() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(45, SECOND));
 	}
 
 	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
-	public void testSerializeRadians() {
+	public void testSerializeRadians() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(2.74, RADIAN));
 	}
 
 	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
-	public void testSerializeHertz() {
+	public void testSerializeHertz() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(1.3, HERTZ));
 	}
 
 	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
-	public void testSerializeJoule() {
+	public void testSerializeJoule() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(0.35, JOULE));
 	}
 
 	@Test
-	public void testSerializeKilogram() {
+	public void testSerializeKilogram() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(1.9, KILOGRAM));
 	}
 
@@ -95,27 +97,27 @@ public class SerializerQuantityTest {
 	//--------------------------------------
 	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
-	public void testSerializeElectronVolts() {
+	public void testSerializeElectronVolts() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(3.22, ELECTRON_VOLT));
 	}
 
 	@Test
-	public void testSerializeDecibels() {
+	public void testSerializeDecibels() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(65, DECIBEL));
 	}
 
 	@Test
-	public void testSerializeMinutes() {
+	public void testSerializeMinutes() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(3.6, MINUTE));
 	}
 
 	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
-	public void testSerializeFaradays() {
+	public void testSerializeFaradays() throws ClassNotFoundException, IOException {
 		testSerializer(Quantity.valueOf(963, FARADAY));
 	}
 
-	private void testSerializer(Quantity origObject) {
+	private void testSerializer(Quantity origObject) throws ClassNotFoundException, IOException {
 		final byte[] origBuffer = Serializer.toByte(origObject);
 		logger.debug("Object {} serialized ({} bytes)", origObject, origBuffer.length);
 

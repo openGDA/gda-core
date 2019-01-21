@@ -19,8 +19,6 @@
 
 package gda.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,15 +26,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A class to serialize/de-serialize an object into a byte array. Initially written to pass an object over the CORBA
  * event service. The object must implement the java.io.Serializable interface.
+ *
+ * @since GDA 9.12 considerable rewrite to simplify logic
  */
 public final class Serializer {
-	private static final Logger logger = LoggerFactory.getLogger(Serializer.class);
+
+	private static final byte[] SERIALIZED_NULL_OBJECT;
+
+	static {
+		try {
+			SERIALIZED_NULL_OBJECT = toByte(new NullObject());
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to contruct serialized NullObject", e);
+		}
+	}
 
 	private Serializer() {
 		// Prevent instances being created
@@ -48,27 +54,20 @@ public final class Serializer {
 	 * @param object
 	 *            the object to serialize
 	 * @return a byte array containing the serialized object
+	 * @throws IOException If any error occurs during the serialization
 	 */
-	public static byte[] toByte(final Serializable object) {
-		byte[] byteData = null;
-
-		if (object != null) {
-			try {
-				final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-				final ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
-				os.flush();
-				os.writeObject(object);
-				os.flush();
-				byteData = byteStream.toByteArray();
-				os.close();
-			} catch (IOException e) {
-				logger.error("Serialization failure of {}", object, e);
-			}
-		} else {
-			byteData = new byte[1];
-			byteData[0] = 0;
+	public static byte[] toByte(final Serializable object) throws IOException {
+		if (object == null) {
+			return SERIALIZED_NULL_OBJECT;
 		}
-		return byteData;
+
+		// Try with resources to close the streams
+		try (final ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
+				final ObjectOutputStream os = new ObjectOutputStream(byteStream);) {
+			os.writeObject(object);
+			os.flush();
+			return byteStream.toByteArray();
+		}
 	}
 
 	/**
@@ -77,22 +76,22 @@ public final class Serializer {
 	 * @param byteData
 	 *            a byte array containing the serialized object.
 	 * @return the de-serialized object.
+	 * @throws IOException If any error occurs during the de-serialization
+	 * @throws ClassNotFoundException Class of a serialized object cannot be found.
 	 */
-	public static Object toObject(final byte[] byteData) {
-		Object object = null;
-
-		if (byteData.length > 1 && byteData[0] != 0) {
-			try {
-				final ByteArrayInputStream byteStream = new ByteArrayInputStream(byteData);
-				final ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
-				object = is.readObject();
-				is.close();
-			} catch (IOException e) {
-				logger.error("DeSerialization failure", e);
-			} catch (ClassNotFoundException e) {
-				logger.error("Class not found", e);
+	public static Object toObject(final byte[] byteData) throws ClassNotFoundException, IOException {
+		// Try with resources to close the streams
+		try (final ByteArrayInputStream byteStream = new ByteArrayInputStream(byteData);
+				final ObjectInputStream is = new ObjectInputStream(byteStream);) {
+			Object object = is.readObject();
+			if (object instanceof NullObject) {
+				return null;
+			} else {
+				return object;
 			}
 		}
-		return object;
 	}
+
+	/** Special class to represent null being sent */
+	private static class NullObject implements Serializable {}
 }

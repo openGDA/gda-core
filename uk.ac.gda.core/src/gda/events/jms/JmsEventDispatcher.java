@@ -21,6 +21,7 @@ package gda.events.jms;
 
 import static javax.jms.DeliveryMode.NON_PERSISTENT;
 
+import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
@@ -199,7 +200,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 				// It's a RuntimeExceptions that's NOT wrapping a JMSException so just rethrow it.
 				throw e;
 			}
-		} catch (JMSException e) {
+		} catch (JMSException | IOException e) {
 			logger.error("Unable to dispatch message from sourceName: {}", sourceName, e);
 		}
 	}
