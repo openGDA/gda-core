@@ -124,11 +124,11 @@ public abstract class AbstractMappingSection implements IMappingSection {
 	}
 
 	protected void updateStatusLabel() {
-		mappingView.getStatusPanel().updateStatusLabel();
+		mappingView.updateStatusLabel();
 	}
 
 	protected void setStatusMessage(String message) {
-		mappingView.getStatusPanel().setMessage(message);
+		mappingView.setStatusMessage(message);
 	}
 
 	protected void setButtonLayoutData(Button button) {

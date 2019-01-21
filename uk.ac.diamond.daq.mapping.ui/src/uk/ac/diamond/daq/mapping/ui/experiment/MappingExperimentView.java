@@ -145,6 +145,12 @@ public class MappingExperimentView implements IAdaptable {
 
 		loadPreviousState(part);
 
+		final IMappingExperimentBean mappingBean = mappingBeanProvider.getMappingExperimentBean();
+		if (mappingBean == null) {
+			showError("No mapping bean", "Error getting mapping configuration, no mapping bean set");
+			return;
+		}
+
 		logger.trace("Starting to build the mapping experiment view");
 
 		GridLayoutFactory.fillDefaults().applyTo(parent);
@@ -173,20 +179,26 @@ public class MappingExperimentView implements IAdaptable {
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
 				new Label(alwaysVisible, SWT.SEPARATOR | SWT.HORIZONTAL));
 
-		// Make the status bar label
-		createStatusPanel(alwaysVisible);
+		// create the controls for sections that should be shown
+		createSections(mainComposite, getScrolledSections(), part.getPersistedState());
+		createSections(alwaysVisible, getUnscrolledSections(), part.getPersistedState());
+		recalculateMinimumSize();
 
-		if (mappingBeanProvider.getMappingExperimentBean() == null) {
-			logger.error("Error getting mapping configuration, no mapping bean set");
-		} else {
-			// create the controls for sections that should be shown
-			createSections(mainComposite, getScrolledSections(), part.getPersistedState());
-			createSections(alwaysVisible, getUnscrolledSections(), part.getPersistedState());
-			recalculateMinimumSize();
+		// Check that there is a status panel
+		statusPanel = getSection(StatusPanel.class);
+		if (statusPanel == null) {
+			showError("No status panel", "No status panel defined for this view");
+			return;
 		}
+		statusPanel.setMappingBean(mappingBean);
 
 		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
+	}
+
+	private void showError(String title, String message) {
+		logger.error(message);
+		MessageDialog.openError(getShell(), title, message);
 	}
 
 	/**
@@ -266,20 +278,6 @@ public class MappingExperimentView implements IAdaptable {
 		for (IMappingSection section : sections.values()) {
 			section.dispose();
 		}
-	}
-
-	private void createStatusPanel(final Composite mainComposite) {
-		final IMappingExperimentBean mappingBean = mappingBeanProvider.getMappingExperimentBean();
-		statusPanel = createStatusPanelComposite(mainComposite, SWT.NONE, mappingBean);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusPanel);
-
-		if (mappingBean == null) {
-			statusPanel.setMessage("Error getting mapping experiment definition");
-		}
-	}
-
-	protected StatusPanel createStatusPanelComposite(Composite parent, int style, IMappingExperimentBean mappingBean) {
-		return new StatusPanel(parent, style, mappingBean);
 	}
 
 	@Inject
@@ -373,8 +371,16 @@ public class MappingExperimentView implements IAdaptable {
 		return mappingBeanProvider.getMappingExperimentBean();
 	}
 
-	public StatusPanel getStatusPanel() {
-		return statusPanel;
+	public void updateStatusLabel() {
+		if (statusPanel != null) {
+			statusPanel.updateStatusLabel();
+		}
+	}
+
+	public void setStatusMessage(String message) {
+		if (statusPanel != null) {
+			statusPanel.setMessage(message);
+		}
 	}
 
 	protected void recalculateMinimumSize() {

@@ -18,9 +18,10 @@
 		</property>
 		<property name="unscrolledSections">
 			<list>
-				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection">
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.StatusPanel">
 					<property name="createSeparator" value="false" />
 				</bean>
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection" />
 			</list>
 		</property>
 	</bean>

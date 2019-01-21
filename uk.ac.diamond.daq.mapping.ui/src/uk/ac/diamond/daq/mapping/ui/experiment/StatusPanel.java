@@ -37,34 +37,35 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
-public class StatusPanel extends Composite {
+public class StatusPanel extends AbstractMappingSection {
 
 	private Label statusLabel;
 	private String message;
 	private PathInfo pathInfo;
-	private final IMappingExperimentBean mappingBean;
+	private IMappingExperimentBean mappingBean;
 	private final IPointGeneratorService pointGeneratorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
 
-	public StatusPanel(Composite parent, int style, IMappingExperimentBean mappingBean) {
-		super(parent, style);
-		this.mappingBean = mappingBean;
+	public StatusPanel() {
 		pointGeneratorService = ServiceHolder.getGeneratorService();
+	}
 
-		GridLayoutFactory.fillDefaults().applyTo(this);
+	@Override
+	public void createControls(Composite parent) {
+		final Composite sectionComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
+		GridLayoutFactory.fillDefaults().applyTo(sectionComposite);
 
-		statusLabel = new Label(parent, SWT.NONE);
+		statusLabel = new Label(sectionComposite, SWT.NONE);
 		statusLabel.setText(" \n "); // to make sure height is allocated correctly
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(statusLabel);
-
-		Label separator = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(separator);
 
 		updateStatusLabel();
 	}
 
-	void updateStatusLabel() {
+	@Override
+	protected void updateStatusLabel() {
 		if (statusLabel.isDisposed()) {
 			logger.warn("Attempt to update Status label when disposed");
 			return;
@@ -109,7 +110,7 @@ public class StatusPanel extends Composite {
 	}
 
 	private int getScanPoints() {
-		if (mappingBean.getScanDefinition().getMappingScanRegion().getScanPath() == null) {
+		if (mappingBean == null || mappingBean.getScanDefinition().getMappingScanRegion().getScanPath() == null) {
 			// When starting the client from a fresh workspace,
 			// the mapping view won't have been fully initialised at this point.
 			// We'll return zero now; this method will be called again when the scan path is set.
@@ -154,6 +155,10 @@ public class StatusPanel extends Composite {
 	void setMessage(String message) {
 		this.message = message;
 		updateStatusLabel();
+	}
+
+	void setMappingBean(IMappingExperimentBean mappingBean) {
+		this.mappingBean = mappingBean;
 	}
 
 	private double getPointExposureTime() {
