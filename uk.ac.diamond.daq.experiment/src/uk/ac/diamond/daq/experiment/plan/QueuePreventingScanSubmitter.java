@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -13,11 +14,15 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 
 /**
@@ -63,8 +68,24 @@ public class QueuePreventingScanSubmitter {
 	public void submitImportantScan(ScanBean scanBean) throws EventException {
 		if (!queueIsEmpty()) {
 			abortRunningScanAndClearQueue();
+			waitWhileScannablesAreBusy(scanBean);
 		}
 		getSubmitter().submit(scanBean);
+	}
+
+	private void waitWhileScannablesAreBusy(ScanBean scanBean) {
+		scanBean.getScanRequest().getCompoundModel().getModels().stream()
+			.filter(IScanPathModel.class::isInstance).map(IScanPathModel.class::cast)
+			.map(IScanPathModel::getScannableNames).flatMap(List::stream)
+			.distinct().map(Finder.getInstance()::find)
+			.filter(Scannable.class::isInstance).map(Scannable.class::cast)
+			.forEach(scannable -> {
+				try {
+					scannable.waitWhileBusy();
+				} catch (DeviceException | InterruptedException e) {
+					logger.error("Error encountered while waiting while busy", e);
+				}
+			});
 	}
 
 	private void abortRunningScanAndClearQueue() throws EventException {
@@ -76,6 +97,7 @@ public class QueuePreventingScanSubmitter {
 		Optional<ScanBean> running = getConsumer().getRunningAndCompleted().stream()
 					.filter(bean -> bean.getStatus() == Status.RUNNING || bean.getStatus() == Status.PAUSED).findAny();
 		if (running.isPresent()) getConsumer().terminateJob(running.get());
+		
 	}
 	
 	private boolean queueIsEmpty() {

@@ -7,6 +7,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
 	
@@ -34,22 +35,22 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable,	double triggerInterval) {
-		ITrigger trigger = new PositionTrigger(registrar, sev, runnable, triggerInterval);
+	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
+		ITrigger trigger = new PositionTrigger(registrar, sev, triggerable, triggerInterval);
 		trigger.setName(name);
 		return trigger;
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable,	double triggerSignal, double tolerance) {
-		ITrigger trigger = new SingleFireTrigger(registrar, sev, runnable, triggerSignal, tolerance);
+	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,	double triggerSignal, double tolerance) {
+		ITrigger trigger = new SingleFireTrigger(registrar, sev, triggerable, triggerSignal, tolerance);
 		trigger.setName(name);
 		return trigger;
 	}
 
 	@Override
-	public ITrigger addTimerTrigger(String name, Runnable runnable, long period) {
-		ITrigger trigger = new TimedTrigger(registrar, runnable, period);
+	public ITrigger addTimerTrigger(String name, Triggerable triggerable, long period) {
+		ITrigger trigger = new TimedTrigger(registrar, triggerable, period);
 		trigger.setName(name);
 		return trigger;
 	}

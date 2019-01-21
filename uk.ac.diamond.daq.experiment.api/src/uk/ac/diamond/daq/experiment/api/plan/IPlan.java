@@ -57,7 +57,7 @@ public interface IPlan extends IPlanFactory, Findable {
 	 * @param triggerInterval
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Runnable runnable, double triggerInterval);
+	ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval);
 
 
 	/**
@@ -69,6 +69,6 @@ public interface IPlan extends IPlanFactory, Findable {
 	 * @param tolerance
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Runnable runnable, double triggerSignal, double tolerance);
+	ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance);
 
 }

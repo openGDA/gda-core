@@ -5,14 +5,15 @@ import java.math.RoundingMode;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PositionTrigger extends SEVTrigger {
 	
 	private double triggerInterval;
 	private double previousTrigger;
 
-	PositionTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Runnable runnable, double triggerInterval) {
-		super(registrar, sev, runnable);
+	PositionTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
+		super(registrar, sev, triggerable);
 		this.triggerInterval = triggerInterval;
 	}
 
@@ -33,7 +34,7 @@ public class PositionTrigger extends SEVTrigger {
 	
 	@Override
 	public String toString() {
-		return "PositionTrigger [SEV="+getSEV()+", runnable="+getRunnable()+", triggerInterval="+triggerInterval+"]";
+		return "PositionTrigger [SEV="+getSEV()+", runnable="+getTriggerable()+", triggerInterval="+triggerInterval+"]";
 	}
 
 }

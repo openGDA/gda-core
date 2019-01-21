@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public abstract class SEVTrigger extends TriggerBase implements SEVListener {
 	
@@ -13,8 +14,8 @@ public abstract class SEVTrigger extends TriggerBase implements SEVListener {
 	
 	private ExecutorService executorService;
 	
-	SEVTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Runnable runnable) {
-		super(registrar, runnable);
+	SEVTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable) {
+		super(registrar, triggerable);
 		this.sev = sev;
 	}
 	
@@ -35,7 +36,7 @@ public abstract class SEVTrigger extends TriggerBase implements SEVListener {
 		if (evaluateTriggerCondition(signal)) {
 			executorService.execute(()->{
 				registrar.triggerOccurred(this, signal);
-				runnable.run();
+				triggerable.trigger();
 			});
 		}
 	}
@@ -44,8 +45,8 @@ public abstract class SEVTrigger extends TriggerBase implements SEVListener {
 		return sev;
 	}
 	
-	protected Runnable getRunnable() {
-		return runnable;
+	protected Triggerable getTriggerable() {
+		return triggerable;
 	}
 	
 	/**

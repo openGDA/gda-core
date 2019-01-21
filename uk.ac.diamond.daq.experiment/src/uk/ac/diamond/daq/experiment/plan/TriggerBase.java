@@ -2,18 +2,19 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public abstract class TriggerBase implements ITrigger {
 	
 	private String name;
 
-	protected final Runnable runnable;
+	protected final Triggerable triggerable;
 	protected IPlanRegistrar registrar;
 	
 	protected boolean enabled;
 
-	TriggerBase(IPlanRegistrar registrar, Runnable runnable) {
-		this.runnable = runnable;
+	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable) {
+		this.triggerable = triggerable;
 		this.registrar = registrar;
 	}
 	

@@ -11,7 +11,8 @@ Export-Package: uk.ac.diamond.daq.experiment.driver,
 Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.common,
  uk.ac.diamond.daq.experiment.api,
- org.eclipse.scanning.api
+ org.eclipse.scanning.api,
+ org.eclipse.osgi
 Import-Package: org.slf4j,
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Bundle-Vendor: Diamond Light Source

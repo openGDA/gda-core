@@ -35,6 +35,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
@@ -411,7 +412,7 @@ public class PlanTest {
 		}
 
 		@Override
-		public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable operation,
+		public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,
 				double triggerInterval) {
 			ITrigger trigger = new DummySEVTrigger(name, getRegistrar(), triggerInterval);
 			trigger.setName(name);

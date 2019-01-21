@@ -25,6 +25,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class Plan implements IPlan, IPlanRegistrar {
 	
@@ -205,19 +206,19 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}
 	
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable, double triggerInterval) {
-		return factory.addTrigger(name, sev, runnable, triggerInterval);
+	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
+		return factory.addTrigger(name, sev, triggerable, triggerInterval);
 	}
 	
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable,
+	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,
 			double triggerSignal, double tolerance) {
-		return factory.addTrigger(name, sev, runnable, triggerSignal, tolerance);
+		return factory.addTrigger(name, sev, triggerable, triggerSignal, tolerance);
 	}
 	
 	@Override
-	public ITrigger addTimerTrigger(String name, Runnable runnable, long period) {
-		return factory.addTimerTrigger(name, runnable, period);
+	public ITrigger addTimerTrigger(String name, Triggerable triggerable, long period) {
+		return factory.addTimerTrigger(name, triggerable, period);
 	}
 	
 	@Override
@@ -227,15 +228,15 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}
 	
 	@Override
-	public ITrigger addTrigger(String name, Runnable runnable, double triggerInterval) {
+	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval) {
 		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, runnable, triggerInterval);
+		return addTrigger(name, sev, triggerable, triggerInterval);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Runnable runnable, double triggerSignal, double tolerance) {
+	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance) {
 		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, runnable, triggerSignal, tolerance);
+		return addTrigger(name, sev, triggerable, triggerSignal, tolerance);
 	}
 	
 	private ISampleEnvironmentVariable lastDefinedSEV() {

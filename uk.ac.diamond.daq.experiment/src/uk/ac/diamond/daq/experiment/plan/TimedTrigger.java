@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 
 /**
@@ -22,8 +23,8 @@ public class TimedTrigger extends TriggerBase {
 	 * @param runnable to trigger periodically
 	 * @param period in ms
 	 */
-	TimedTrigger(IPlanRegistrar registrar, Runnable runnable, long period) {
-		super(registrar, runnable);
+	TimedTrigger(IPlanRegistrar registrar, Triggerable triggerable, long period) {
+		super(registrar, triggerable);
 		this.period = period;
 	}
 	
@@ -40,7 +41,7 @@ public class TimedTrigger extends TriggerBase {
 		executorService.scheduleAtFixedRate(()->{
 			double triggeringTime = System.currentTimeMillis()- startTime;
 			registrar.triggerOccurred(this, triggeringTime);
-			runnable.run();
+			triggerable.trigger();
 		}, period, period, TimeUnit.MILLISECONDS);
 	}
 	
@@ -51,7 +52,7 @@ public class TimedTrigger extends TriggerBase {
 	
 	@Override
 	public String toString() {
-		return "TimedTrigger [runnable = "+runnable+", triggerInterval = "+period+" ms]";
+		return "TimedTrigger [runnable = "+triggerable+", triggerInterval = "+period+" ms]";
 	}
 
 }

@@ -17,6 +17,7 @@ import org.junit.Test;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class TriggerTest {
 
@@ -118,8 +119,8 @@ public class TriggerTest {
 	 */
 	class OneShotWithMemory extends SingleFireTrigger {
 
-		OneShotWithMemory(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Runnable runnable, double triggerSignal, double tolerance) {
-			super(registrar, sev, runnable, triggerSignal, tolerance);
+		OneShotWithMemory(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerSignal, double tolerance) {
+			super(registrar, sev, triggerable, triggerSignal, tolerance);
 		}
 
 		double triggeringSignal;

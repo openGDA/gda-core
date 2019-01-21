@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 /**
  * Will trigger only once; when SEV signal is at triggerSignal ± tolerance. 
@@ -23,8 +24,8 @@ public class SingleFireTrigger extends SEVTrigger {
 	 * @param triggerSignal signal from sev which should trigger us
 	 * @param tolerance
 	 */
-	SingleFireTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Runnable runnable, double triggerSignal, double tolerance) {
-		super(registrar, sev, runnable);
+	SingleFireTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerSignal, double tolerance) {
+		super(registrar, sev, triggerable);
 		BigDecimal position = BigDecimal.valueOf(triggerSignal);
 		BigDecimal positiveTolerance = BigDecimal.valueOf(tolerance).abs();
 		lowerLimit = position.subtract(positiveTolerance);
@@ -41,7 +42,7 @@ public class SingleFireTrigger extends SEVTrigger {
 	
 	@Override
 	public String toString() {
-		return "SingleFireTrigger [SEV="+getSEV()+", runnable="+getRunnable()
+		return "SingleFireTrigger [SEV="+getSEV()+", runnable="+getTriggerable()
 			+", triggering when "+lowerLimit.doubleValue()+" <= signal <= "+upperLimit.doubleValue()+"]";
 	}
 
