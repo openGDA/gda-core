@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.epics.CAClient;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -41,6 +42,7 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Represents and controls a PV. Unlike gda.device.controlpoint classes, this operates a single pv.
@@ -51,6 +53,7 @@ import gov.aps.jca.event.PutListener;
  * <p>
  * There is also a canMove flag to restrict changes to the PV.
  */
+@ServiceInterface(Scannable.class)
 public class PVScannable extends ScannableBase implements MonitorListener, InitializationListener, PutListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(PVScannable.class);

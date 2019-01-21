@@ -29,6 +29,7 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
+import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -43,6 +44,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_STS_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.PutEvent;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * Similar to EpicsValve, except looks at a single pv which can only have positions 0 or 1.<br>
@@ -50,6 +52,7 @@ import gov.aps.jca.event.PutEvent;
  * <p>
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
+@ServiceInterface(EnumPositioner.class)
 public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
