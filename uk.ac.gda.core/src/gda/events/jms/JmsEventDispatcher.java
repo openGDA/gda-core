@@ -143,7 +143,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 			throw new IllegalArgumentException(new NotSerializableException(message.getClass().getName()));
 		}
 		// Queue the message for dispatch
-		outgoingMessageQueue.add(new OutgoingEvent(sourceName, message));
+		outgoingMessageQueue.add(new OutgoingEvent(sourceName, (Serializable) message));
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 	private void sendEvent(final OutgoingEvent event) {
 		// Unwrap the OutgoingEvent
 		final String sourceName = event.getSourceName();
-		final Object message = event.getMessage();
+		final Serializable message = event.getMessage();
 		final long timestamp = event.getTimestamp();
 		long delay;
 
@@ -246,10 +246,10 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 	 */
 	private final class OutgoingEvent {
 		private final String sourceName;
-		private final Object message;
+		private final Serializable message;
 		private final long timestamp;
 
-		public OutgoingEvent(String sourceName, Object message) {
+		public OutgoingEvent(String sourceName, Serializable message) {
 			this.sourceName = sourceName;
 			this.message = message;
 			this.timestamp = System.currentTimeMillis();
@@ -259,7 +259,7 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 			return sourceName;
 		}
 
-		public Object getMessage() {
+		public Serializable getMessage() {
 			return message;
 		}
 		public long getTimestamp() {
