@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,6 +193,11 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}
 	
 	@Override
+	public ISampleEnvironmentVariable addTimer() {
+		return factory.addTimer();
+	}
+	
+	@Override
 	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, LimitCondition limit, ITrigger... triggers) {
 		ISegment segment = factory.addSegment(name, sev, limit, triggers);
 		segments.add(segment);
@@ -203,35 +209,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 		ISegment segment = factory.addSegment(name, sev, duration, triggers);
 		segments.add(segment);
 		return segment;
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
-		return factory.addTrigger(name, sev, triggerable, triggerInterval);
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,
-			double triggerSignal, double tolerance) {
-		return factory.addTrigger(name, sev, triggerable, triggerSignal, tolerance);
-	}
-	
-	@Override
-	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addSegment(name, sev, limit, triggers);
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, triggerable, triggerInterval);
-	}
-
-	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, triggerable, triggerSignal, tolerance);
 	}
 	
 	private ISampleEnvironmentVariable lastDefinedSEV() {
@@ -248,5 +225,57 @@ public class Plan implements IPlan, IPlanRegistrar {
 	@Override
 	public String toString() {
 		return "Plan [name=" + name + ", segments=" + segments + "]";
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, triggerable, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, scanRequest, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double target, double tolerance) {
+		return factory.addTrigger(name, scanRequest, importantScan, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, triggerable, sev, interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev,
+			double interval) {
+		return factory.addTrigger(name, scanRequest, sev, interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, scanRequest, importantScan, sev, interval);
+	}
+
+	@Override
+	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
+		ISegment segment = factory.addSegment(name, lastDefinedSEV(), limit, triggers);
+		segments.add(segment);
+		return segment;
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval) {
+		return factory.addTrigger(name, triggerable, lastDefinedSEV(), triggerInterval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance) {
+		return factory.addTrigger(name, triggerable, lastDefinedSEV(), triggerSignal, tolerance);
 	}
 }

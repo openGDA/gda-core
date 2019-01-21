@@ -306,7 +306,7 @@ public class PlanTest {
 		// if the next sev signal to be broadcast could both cause a segment transition *and* trigger activation,
 		// the segment should terminate first which means the trigger should *not* fire
 
-		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, sev, null, 5);
+		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, sev, 5);
 		plan.addSegment(SEGMENT1_NAME, x -> x >= 10, trigger);
 
 		plan.start();
@@ -416,7 +416,7 @@ public class PlanTest {
 		}
 
 		@Override
-		public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,
+		public ITrigger addTrigger(String name, Triggerable triggerable,ISampleEnvironmentVariable sev,
 				double triggerInterval) {
 			ITrigger trigger = new DummySEVTrigger(name, getRegistrar(), triggerInterval);
 			trigger.setName(name);

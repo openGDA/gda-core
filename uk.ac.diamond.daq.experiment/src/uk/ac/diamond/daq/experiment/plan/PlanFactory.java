@@ -1,5 +1,8 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
@@ -11,11 +14,21 @@ import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
 	
+	private static IEventService eventService;
+
 	private IPlanRegistrar registrar;
+	
+	private ISampleEnvironmentVariable timer;
 
 	@Override
 	public ISampleEnvironmentVariable addSEV(SEVSignal signalProvider) {
 		return new SampleEnvironmentVariable(signalProvider);
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addTimer() {
+		if (timer == null) timer = new SampleEnvironmentVariable(new SystemTimerSignal());
+		return timer;
 	}
 
 	@Override
@@ -35,17 +48,49 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
-		ITrigger trigger = new RepeatingTrigger(registrar, sev, triggerable, triggerInterval);
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target,	double tolerance) {
+		ITrigger trigger;
+		if (sev.equals(timer)) {
+			trigger = new SingleTimeBasedTrigger(registrar, sev, triggerable, target, tolerance);
+		} else {
+			trigger = new SingleTrigger(registrar, sev, triggerable, target, tolerance);
+		}
 		trigger.setName(name);
 		return trigger;
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,	double triggerSignal, double tolerance) {
-		ITrigger trigger = new SingleTrigger(registrar, sev, triggerable, triggerSignal, tolerance);
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance) {
+		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
+		return addTrigger(name, triggerable, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double target, double tolerance) {
+		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
+		return addTrigger(name, triggerable, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
+		ITrigger trigger = new RepeatingTrigger(registrar, sev, triggerable, interval);
 		trigger.setName(name);
 		return trigger;
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev,
+			double interval) {
+		Triggerable triggerable = new TriggerableScan(scanRequest, false, eventService);
+		return addTrigger(name, triggerable, sev, interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double interval) {
+		Triggerable triggerable = new TriggerableScan(scanRequest, importantScan, eventService);
+		return addTrigger(name, triggerable, sev, interval);
 	}
 
 	@Override
@@ -56,5 +101,8 @@ public class PlanFactory implements IPlanFactory {
 	public IPlanRegistrar getRegistrar() {
 		return registrar;
 	}
-
+	
+	public void setEventService(IEventService service) {
+		eventService = service;
+	}
 }
