@@ -51,13 +51,12 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="false"
             category="uk.ac.gda.client.exafs.category"
-            id="uk.ac.gda.exafs.ui.views.scalersmonitor"
-            class="uk.ac.gda.exafs.ui.views.scalersmonitor.XspressMonitorView"
+            id="uk.ac.gda.exafs.ui.views.detectors.DetectorRateView"
+            class="uk.ac.gda.exafs.ui.views.detectors.DetectorRateView"
             icon="icons/control_play_blue.png"
             name="Detector Rates"
-            restorable="true">
+            restorable="false">
       </view>
       <view
             category="uk.ac.gda.client.exafs.category"
@@ -93,15 +92,6 @@
             id="uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView"
             name="Fluorescence Detector Configuration"
             restorable="false">
-      </view>
-      <view
-            allowMultiple="false"
-            category="uk.ac.gda.client.exafs.category"
-            class="uk.ac.gda.exafs.ui.views.scalersmonitor.IonChambersMonitorView"
-            icon="icons/control_play_blue.png"
-            id="uk.ac.gda.exafs.ui.views.ionchambersmonitor"
-            name="Ion Chamber Rates"
-            restorable="true">
       </view>
    </extension>
    <extension

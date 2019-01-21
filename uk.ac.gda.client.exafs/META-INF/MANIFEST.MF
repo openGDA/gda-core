@@ -116,6 +116,7 @@ Export-Package: gda.exafs.scan,
  uk.ac.gda.exafs.ui.plot,
  uk.ac.gda.exafs.ui.preferences,
  uk.ac.gda.exafs.ui.views.amplifier,
+ uk.ac.gda.exafs.ui.views.detectors,
  uk.ac.gda.exafs.ui.views.scalersmonitor,
  uk.ac.gda.exafs.util
 Bundle-ClassPath: .

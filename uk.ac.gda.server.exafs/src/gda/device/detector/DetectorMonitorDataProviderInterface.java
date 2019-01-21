@@ -18,22 +18,16 @@
 
 package gda.device.detector;
 
-import gda.device.DeviceException;
-import gda.device.detector.DetectorMonitorDataProvider.COLLECTION_TYPES;
-import gda.factory.Findable;
-import gda.observable.IObservable;
+import java.util.List;
 
-public interface DetectorMonitorDataProviderInterface extends Findable, IObservable {
+import gda.device.DeviceException;
+import gda.device.Scannable;
+
+public interface DetectorMonitorDataProviderInterface extends Scannable {
 
 	public double getCollectionTime();
 
 	public void setCollectionTime(double collectionTime);
-
-	public Double[] getIonChamberValues(COLLECTION_TYPES type) throws Exception;
-
-	public Double[] getFluoDetectorCountRatesAndDeadTimes(COLLECTION_TYPES type) throws DeviceException;
-
-	public int getNumElements(COLLECTION_TYPES type) throws DeviceException;
 
 	boolean getCollectionAllowed();
 
@@ -41,10 +35,10 @@ public interface DetectorMonitorDataProviderInterface extends Findable, IObserva
 
 	public boolean getCollectionIsRunning();
 
-	public void setCollectionIsRunning(boolean collectionIsRunning);
+	public List<String> getOutputFields(List<String> detectors);
 
-	public String[] getIonChambersExtraNames();
+	public List<String> collectData(List<String> detectors) throws DeviceException, InterruptedException;
 
-	public String[] getIonChambersOutputFormats();
+	boolean isScriptOrScanIsRunning();
 
 }
