@@ -67,16 +67,19 @@ public class SerializerQuantityTest {
 		testSerializer(Quantity.valueOf(45, SECOND));
 	}
 
+	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
 	public void testSerializeRadians() {
 		testSerializer(Quantity.valueOf(2.74, RADIAN));
 	}
 
+	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
 	public void testSerializeHertz() {
 		testSerializer(Quantity.valueOf(1.3, HERTZ));
 	}
 
+	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
 	public void testSerializeJoule() {
 		testSerializer(Quantity.valueOf(0.35, JOULE));
@@ -90,6 +93,7 @@ public class SerializerQuantityTest {
 	//--------------------------------------
 	// Test with a selection of non-SI units
 	//--------------------------------------
+	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
 	public void testSerializeElectronVolts() {
 		testSerializer(Quantity.valueOf(3.22, ELECTRON_VOLT));
@@ -105,6 +109,7 @@ public class SerializerQuantityTest {
 		testSerializer(Quantity.valueOf(3.6, MINUTE));
 	}
 
+	@Test
 	@Ignore("Fails with NPE with JScience2 needs JScience4: see DAQ-1840")
 	public void testSerializeFaradays() {
 		testSerializer(Quantity.valueOf(963, FARADAY));
