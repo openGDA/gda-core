@@ -170,7 +170,7 @@ public class GDAServerApplication implements IApplication {
 
 		if (objectServers.size() > 0) {
 
-			// Shutdown using the SpringObjectServer shutdown which waits for Corba unbind
+			// Shutdown using the SpringObjectServer shutdown
 			// TODO: Refactor command class so we can lose the cast
 			for (Map.Entry<String, ObjectServer> entry : objectServers.entrySet()) {
 				((SpringObjectServer)entry.getValue()).shutdown();
