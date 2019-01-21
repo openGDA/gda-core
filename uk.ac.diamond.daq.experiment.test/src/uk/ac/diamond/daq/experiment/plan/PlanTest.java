@@ -33,7 +33,6 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegmentAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
-import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
@@ -344,10 +343,10 @@ public class PlanTest {
 	 * Works like PositionTrigger but without executor service.
 	 * No triggerable job but triggering signals increment trigger count (getTriggerCount())
 	 */
-	class DummySEVTrigger extends TriggerBase implements SEVListener {
+	class DummySEVTrigger extends TriggerBase {
 
 		private DummySEVTrigger(String name, IPlanRegistrar registrar, double positionInterval) {
-			super(registrar, () -> {});
+			super(registrar, () -> {}, sev);
 			setName(name);
 			this.thesev = sev;
 			this.positionInterval = positionInterval;
@@ -397,6 +396,11 @@ public class PlanTest {
 
 		public int getTriggerCount() {
 			return triggerCount;
+		}
+
+		@Override
+		protected boolean evaluateTriggerCondition(double signal) {
+			return false;
 		}
 
 	}

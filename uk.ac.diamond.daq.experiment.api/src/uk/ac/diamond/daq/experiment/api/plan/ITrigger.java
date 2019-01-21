@@ -7,9 +7,9 @@ import gda.factory.Findable;
  * Should be enabled/disabled by {@link ISegment}s.
  *
  */
-public interface ITrigger extends Findable {
-	
+public interface ITrigger extends SEVListener, Findable {
+
 	void setEnabled(boolean enabled);
 	boolean isEnabled();
-	
+
 }

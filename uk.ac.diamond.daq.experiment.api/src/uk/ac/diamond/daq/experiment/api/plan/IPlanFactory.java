@@ -26,11 +26,11 @@ public interface IPlanFactory {
 	 * Creates a time-based segment with a given duration
 	 *
 	 * @param name
-	 * @param duration in ms
+	 * @param duration in seconds
 	 * @param triggers
 	 * @return reference to the created segment
 	 */
-	ISegment addSegment(String name, long duration, ITrigger... triggers);
+	ISegment addSegment(String name, ISampleEnvironmentVariable sev, double duration, ITrigger... triggers);
 
 
 	/**
@@ -55,16 +55,6 @@ public interface IPlanFactory {
 	 * @return reference to the created trigger
 	 */
 	ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerSignal, double tolerance);
-
-
-	/**
-	 * Creates a trigger that triggers its {@link TriggerableOperation} with a given period.
-	 *
-	 * @param runnable
-	 * @param period in ms
-	 * @return reference to the created trigger
-	 */
-	ITrigger addTimerTrigger(String name, Triggerable triggerable, long period);
 
 
 	/**

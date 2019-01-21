@@ -199,8 +199,8 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}
 	
 	@Override
-	public ISegment addSegment(String name, long duration, ITrigger... triggers) {
-		ISegment segment = factory.addSegment(name, duration, triggers);
+	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, double duration, ITrigger... triggers) {
+		ISegment segment = factory.addSegment(name, sev, duration, triggers);
 		segments.add(segment);
 		return segment;
 	}
@@ -214,11 +214,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,
 			double triggerSignal, double tolerance) {
 		return factory.addTrigger(name, sev, triggerable, triggerSignal, tolerance);
-	}
-	
-	@Override
-	public ITrigger addTimerTrigger(String name, Triggerable triggerable, long period) {
-		return factory.addTimerTrigger(name, triggerable, period);
 	}
 	
 	@Override

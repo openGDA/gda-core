@@ -9,7 +9,7 @@ import gda.factory.Findable;
  * When active, each one enables and/or disables {@link ITrigger}s
  *
  */
-public interface ISegment extends Findable {
+public interface ISegment extends SEVListener, Findable {
 
 	/**
 	 * Enables the given trigger when the segment is activated

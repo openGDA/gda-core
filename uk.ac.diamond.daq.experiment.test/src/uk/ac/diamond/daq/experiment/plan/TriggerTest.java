@@ -2,16 +2,12 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
@@ -49,7 +45,7 @@ public class TriggerTest {
 	@Test
 	public void testPositionTrigger() throws InterruptedException {
 		TriggerCounter triggerCounter = new TriggerCounter(10);
-		SEVTrigger trigger = new PositionTrigger(ep, getDummySEV(1.0), triggerCounter::eventTriggered, 0.1);
+		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(1.0), triggerCounter::eventTriggered, 0.1);
 
 		trigger.setEnabled(true);
 
@@ -65,7 +61,7 @@ public class TriggerTest {
 	public void testPositionTriggerAwkwardValues() throws InterruptedException {
 		TriggerCounter triggerCounter = new TriggerCounter(6);
 
-		SEVTrigger trigger = new PositionTrigger(ep, getDummySEV(1.94), triggerCounter::eventTriggered, 0.16);
+		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(1.94), triggerCounter::eventTriggered, 0.16);
 
 		double[] signals = new double[] {1.94, // initial value
 										 1.74, // delta = 0.2 - trigger!
@@ -117,7 +113,7 @@ public class TriggerTest {
 	/**
 	 * Same as SingleFireTrigger, but recording the triggering signal
 	 */
-	class OneShotWithMemory extends SingleFireTrigger {
+	class OneShotWithMemory extends SingleTrigger {
 
 		OneShotWithMemory(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerSignal, double tolerance) {
 			super(registrar, sev, triggerable, triggerSignal, tolerance);
@@ -139,7 +135,7 @@ public class TriggerTest {
 		// When a segment ends, it disables the trigger
 		// a later segment should be able to reenable the same trigger
 		TriggerCounter triggerCounter = new TriggerCounter(3);
-		SEVTrigger trigger = new PositionTrigger(ep, getDummySEV(0), triggerCounter::eventTriggered, 2);
+		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(0), triggerCounter::eventTriggered, 2);
 
 		trigger.setEnabled(true);
 		for (int i=1;i<7;i++) trigger.signalChanged(i);
@@ -157,46 +153,15 @@ public class TriggerTest {
 
 	@Test
 	public void enabledTriggerShouldIgnoreEnableCall() {
-		ITrigger trigger = new PositionTrigger(ep, getDummySEV(0), ()-> {}, 9);
+		ITrigger trigger = new RepeatingTrigger(ep, getDummySEV(0), ()-> {}, 9);
 		trigger.setEnabled(true);
 		trigger.setEnabled(true);
 	}
 
 	@Test
 	public void disabledTriggerShouldIgnoreDisableCall() {
-		ITrigger trigger = new TimedTrigger(ep, ()->{}, 1); // disabled on instantiation
+		ITrigger trigger = new RepeatingTrigger(ep, null, ()->{}, 1);
 		trigger.setEnabled(false);
-	}
-
-	@Test
-	public void timedTriggerShouldStopWhenDisabled() throws InterruptedException {
-		TriggerCounter triggerCounter = new TriggerCounter(3);
-		ITrigger trigger = new TimedTrigger(ep, triggerCounter::eventTriggered, 15);
-
-		trigger.setEnabled(true);
-		boolean eventsDetectedWhileTriggerEnabled = triggerCounter.await();
-		trigger.setEnabled(false);
-		triggerCounter.reset(1);
-		boolean eventsDetectedWhileTriggerDisabled = triggerCounter.await();
-		assertThat(eventsDetectedWhileTriggerEnabled, is(true));
-		assertThat(eventsDetectedWhileTriggerDisabled, is(false));
-	}
-
-	@Test
-	@Ignore("Was useful for TDD but not reliable enough for CI tests")
-	public void timedTriggerHasReasonableDuration() throws InterruptedException {
-		TriggerCounter triggerCounter = new TriggerCounter(2);
-		ITrigger timedTrigger = new TimedTrigger(ep, triggerCounter::eventTriggered, 50);
-		Instant startTime = Instant.now();
-		timedTrigger.setEnabled(true);
-		boolean expectedEventsCaputured = triggerCounter.await();
-		Duration duration = Duration.between(startTime, Instant.now());
-		double durationInMilliSeconds = duration.toMillis();
-
-		assertAllEventsCaptured(expectedEventsCaputured);
-
-		// 2 events at 20 Hz (50 ms/event) +/- 15% = 100 ms +/- 15 ms
-		assertThat(durationInMilliSeconds, is(closeTo(100, 15)));
 	}
 
 	private void assertAllEventsCaptured(boolean allCaptured) {

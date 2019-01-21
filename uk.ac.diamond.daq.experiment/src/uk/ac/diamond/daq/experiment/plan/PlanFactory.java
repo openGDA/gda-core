@@ -19,8 +19,8 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ISegment addSegment(String name, long duration, ITrigger... triggers) {
-		ISegment segment = new TimedSegment(registrar, duration);
+	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, double duration, ITrigger... triggers) {
+		ISegment segment = new FixedDurationSegment(registrar, sev, duration);
 		segment.setName(name);
 		for (ITrigger trigger : triggers) segment.enable(trigger);
 		return segment;
@@ -28,7 +28,7 @@ public class PlanFactory implements IPlanFactory {
 	
 	@Override
 	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, LimitCondition limit, ITrigger... triggers) {
-		ISegment segment = new SEVSegment(registrar, sev, limit);
+		ISegment segment = new SimpleSegment(registrar, sev, limit);
 		segment.setName(name);
 		for (ITrigger trigger : triggers) segment.enable(trigger);
 		return segment;
@@ -36,21 +36,14 @@ public class PlanFactory implements IPlanFactory {
 
 	@Override
 	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable, double triggerInterval) {
-		ITrigger trigger = new PositionTrigger(registrar, sev, triggerable, triggerInterval);
+		ITrigger trigger = new RepeatingTrigger(registrar, sev, triggerable, triggerInterval);
 		trigger.setName(name);
 		return trigger;
 	}
 
 	@Override
 	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Triggerable triggerable,	double triggerSignal, double tolerance) {
-		ITrigger trigger = new SingleFireTrigger(registrar, sev, triggerable, triggerSignal, tolerance);
-		trigger.setName(name);
-		return trigger;
-	}
-
-	@Override
-	public ITrigger addTimerTrigger(String name, Triggerable triggerable, long period) {
-		ITrigger trigger = new TimedTrigger(registrar, triggerable, period);
+		ITrigger trigger = new SingleTrigger(registrar, sev, triggerable, triggerSignal, tolerance);
 		trigger.setName(name);
 		return trigger;
 	}

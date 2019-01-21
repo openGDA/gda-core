@@ -1,21 +1,27 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
+import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public abstract class TriggerBase implements ITrigger {
 	
 	private String name;
-
-	protected final Triggerable triggerable;
-	protected IPlanRegistrar registrar;
+	private final Triggerable triggerable;
+	private final ISampleEnvironmentVariable sev;	
+	private final IPlanRegistrar registrar;
 	
-	protected boolean enabled;
+	private ExecutorService executorService;	
+	private boolean enabled;
 
-	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable) {
-		this.triggerable = triggerable;
+	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable, ISampleEnvironmentVariable sev) {
 		this.registrar = registrar;
+		this.triggerable = triggerable;
+		this.sev = sev;
 	}
 	
 	@Override
@@ -48,7 +54,39 @@ public abstract class TriggerBase implements ITrigger {
 		return enabled;
 	}
 	
-	protected abstract void enable();
-	protected abstract void disable();
+	protected void enable() {
+		executorService = Executors.newSingleThreadExecutor();
+		sev.addListener(this);
+	}
+	
+	protected void disable() {
+		sev.removeListener(this);
+		executorService.shutdownNow();
+	}
+	
+	protected ISampleEnvironmentVariable getSEV() {
+		return sev;
+	}
+	
+	protected Triggerable getTriggerable() {
+		return triggerable;
+	}
+	
+	@Override
+	public void signalChanged(double signal) {
+		if (evaluateTriggerCondition(signal)) {
+			executorService.execute(()->{
+				registrar.triggerOccurred(this, signal);
+				triggerable.trigger();
+			});
+		}
+	}
+	
+	/**
+	 * Decide whether the signal spat out by the SEV should trigger us.
+	 * @param signal
+	 * @return
+	 */
+	protected abstract boolean evaluateTriggerCondition(double signal);
 
 }
