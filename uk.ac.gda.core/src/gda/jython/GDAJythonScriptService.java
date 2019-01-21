@@ -29,6 +29,8 @@ import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 
+import gda.factory.Finder;
+
 /**
  * Implementation of {@link IScriptService} for GDA. Runs scripts via the {@link ICommandRunner}
  * interface (i.e. {@link JythonServerFacade}). The language supported is
@@ -73,6 +75,14 @@ public class GDAJythonScriptService implements IScriptService {
 	@Override
 	public void setNamedValue(String name, Object value) {
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, value);
+	}
+
+	@Override
+	public void abortScripts() {
+		// JythonServer.abortCommands() calls the private method interruptThreads(),
+		// which calls Thread.stop() on every thread running a jython script that the
+		// JythonServer knows about
+		Finder.getInstance().findSingleton(JythonServer.class).abortCommands(null);
 	}
 
 }
