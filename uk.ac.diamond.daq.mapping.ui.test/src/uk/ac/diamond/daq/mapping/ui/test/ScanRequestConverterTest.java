@@ -30,6 +30,8 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +60,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import gda.device.ScannableMotionUnits;
+import gda.factory.Factory;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
@@ -78,6 +83,9 @@ public class ScanRequestConverterTest {
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 	private static final String Z_AXIS_NAME = "testing_z_axis";
 
+	private static final String X_AXIS_UNITS = "mm";
+	private static final String Y_AXIS_UNITS = "mdeg";
+
 	private ScanRequestConverter scanRequestConverter;
 	private MappingStageInfo mappingStageInfo;
 	private MappingExperimentBean mappingBean;
@@ -91,6 +99,21 @@ public class ScanRequestConverterTest {
 		mappingStageInfo = new MappingStageInfo();
 		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
 		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
+
+
+		// Prepare the Finder
+		Factory testFactory = mock(Factory.class);
+
+		ScannableMotionUnits xAxis = mock(ScannableMotionUnits.class);
+		when(xAxis.getHardwareUnitString()).thenReturn(X_AXIS_UNITS);
+
+		ScannableMotionUnits yAxis = mock(ScannableMotionUnits.class);
+		when(yAxis.getHardwareUnitString()).thenReturn(Y_AXIS_UNITS);
+
+		when(testFactory.getFindable(X_AXIS_NAME)).thenReturn(xAxis);
+		when(testFactory.getFindable(Y_AXIS_NAME)).thenReturn(yAxis);
+
+		Finder.getInstance().addFactory(testFactory);
 
 		scanRequestConverter = new ScanRequestConverter();
 		scanRequestConverter.setMappingStageInfo(mappingStageInfo);
@@ -117,6 +140,7 @@ public class ScanRequestConverterTest {
 	public void tearDown() throws Exception {
 		mappingStageInfo = null;
 		scanRequestConverter = null;
+		Finder.getInstance().removeAllFactories();
 	}
 
 	@Test
@@ -235,6 +259,14 @@ public class ScanRequestConverterTest {
 		assertThat(scanPath.getSlowAxisName(), is(equalTo(Y_AXIS_NAME)));
 
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, newMappingBean);
+	}
+
+	@Test
+	public void testStageUnitsAreSetCorrectly() throws Exception {
+		scanRequestConverter.convertToScanRequest(mappingBean);
+
+		assertThat(scanPath.getFastAxisUnits(), is(equalTo(X_AXIS_UNITS)));
+		assertThat(scanPath.getSlowAxisUnits(), is(equalTo(Y_AXIS_UNITS)));
 	}
 
 	@Test

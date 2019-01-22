@@ -56,6 +56,8 @@ import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -199,11 +201,19 @@ public class ScanRequestConverter {
 		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
 		if (mappingStageInfo != null) {
 			// If the mapping stage is set, use these axis, and update the default map path with them
-			mapPath.setFastAxisName(mappingStageInfo.getActiveFastScanAxis());
-			mapPath.setSlowAxisName(mappingStageInfo.getActiveSlowScanAxis());
+			String xAxisName = mappingStageInfo.getActiveFastScanAxis();
+			String yAxisName = mappingStageInfo.getActiveSlowScanAxis();
+			mapPath.setFastAxisName(xAxisName);
+			mapPath.setSlowAxisName(yAxisName);
+
+			ScannableMotionUnits xAxis = Finder.getInstance().find(xAxisName);
+			mapPath.setFastAxisUnits(xAxis.getHardwareUnitString());
+
+			ScannableMotionUnits yAxis = Finder.getInstance().find(yAxisName);
+			mapPath.setSlowAxisUnits(yAxis.getHardwareUnitString());
 		} else {
 			// Otherwise we use the default axis in the map path model
-			logger.warn("No mapping axis manager is set - the scan request will use default axis names!");
+			logger.warn("No mapping axis manager is set - the scan request will use default axis names and uni!");
 		}
 
 		return mapPath;
