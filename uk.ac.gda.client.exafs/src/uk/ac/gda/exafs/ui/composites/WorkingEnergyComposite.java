@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.util.Element;
+import gda.util.exafs.Element;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;

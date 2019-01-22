@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import gda.rcp.util.ScanDataPointEvent;
 import gda.rcp.views.scan.AbstractCachedScanPlotView;
 import gda.scan.IScanDataPoint;
-import gda.util.Element;
+import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;

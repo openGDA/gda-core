@@ -24,7 +24,7 @@ import gda.device.scannable.ScannableUtils;
 import gda.exafs.xes.XesUtils;
 import gda.exafs.xes.XesUtils.XesMaterial;
 import gda.factory.Finder;
-import gda.util.Element;
+import gda.util.exafs.Element;
 
 import java.io.File;
 import java.util.HashMap;

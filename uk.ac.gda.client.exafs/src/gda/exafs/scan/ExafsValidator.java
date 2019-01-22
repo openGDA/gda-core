@@ -33,7 +33,7 @@ import gda.data.PathConstructor;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.util.Element;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;

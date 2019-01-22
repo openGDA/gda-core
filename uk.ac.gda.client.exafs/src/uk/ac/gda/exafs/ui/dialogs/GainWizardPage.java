@@ -18,7 +18,7 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import gda.util.Element;
+import gda.util.exafs.Element;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

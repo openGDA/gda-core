@@ -19,7 +19,7 @@
 package gda.exafs.scan;
 
 import gda.util.Converter;
-import gda.util.Element;
+import gda.util.exafs.Element;
 
 import java.util.ArrayList;
 

@@ -18,7 +18,7 @@
 
 package gda.exafs.scan;
 
-import gda.util.Element;
+import gda.util.exafs.Element;
 
 /**
  * Utility class to help calculate energies of scan regions in an Exafs scan

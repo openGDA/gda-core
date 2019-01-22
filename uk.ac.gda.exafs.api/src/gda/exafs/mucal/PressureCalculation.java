@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.github.tschoonj.xraylib.Xraylib;
 
 import gda.configuration.properties.LocalProperties;
-import gda.util.Element;
+import gda.util.exafs.Element;
 import gda.util.OSCommandRunner;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.util.OSUtils;
