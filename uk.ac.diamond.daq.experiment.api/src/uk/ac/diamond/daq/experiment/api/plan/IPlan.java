@@ -36,39 +36,4 @@ public interface IPlan extends IPlanFactory, Findable {
 	 */
 	void setFactory(IPlanFactory factory);
 
-
-	// Convenience factory methods for SEV-based components
-
-	/**
-	 * Creates the next segment in the experiment (segments are executed in order of creation).
-	 *
-	 * @param limit The {@link LimitCondition} which will terminate this segment once met. Signal provided by the last
-	 * {@link ISampleEnvironmentVariable} added to this plan.
-	 * @return reference to the created segment
-	 */
-	ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers);
-
-
-	/**
-	 * Creates a trigger which will execute the given operation in specified intervals of signal from last defined
-	 * {@link ISampleEnvironmentVariable}
-	 *
-	 * @param runnable which this trigger will perform
-	 * @param triggerInterval
-	 * @return reference to the created trigger
-	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval);
-
-
-	/**
-	 * Create an {@link ITrigger} that will trigger an {@code operation} only once,
-	 * when signal from {@code sev} = {@code triggerSignal} ± {@code tolerance}
-	 *
-	 * @param runnable
-	 * @param triggerSignal
-	 * @param tolerance
-	 * @return reference to the created trigger
-	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance);
-
 }

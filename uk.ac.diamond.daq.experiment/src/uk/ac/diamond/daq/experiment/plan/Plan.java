@@ -17,6 +17,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
@@ -28,7 +29,7 @@ import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
-public class Plan implements IPlan, IPlanRegistrar {
+public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 	
@@ -264,18 +265,42 @@ public class Plan implements IPlan, IPlanRegistrar {
 
 	@Override
 	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
-		ISegment segment = factory.addSegment(name, lastDefinedSEV(), limit, triggers);
-		segments.add(segment);
-		return segment;
+		return addSegment(name, lastDefinedSEV(), limit, triggers);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerInterval) {
-		return factory.addTrigger(name, triggerable, lastDefinedSEV(), triggerInterval);
+	public ISegment addSegment(String name, double duration, ITrigger... triggers) {
+		return addSegment(name, lastDefinedSEV(), duration, triggers);
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double triggerSignal, double tolerance) {
-		return factory.addTrigger(name, triggerable, lastDefinedSEV(), triggerSignal, tolerance);
+	public ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double target, double tolerance) {
+		return addTrigger(name, scanRequest, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double target,
+			double tolerance) {
+		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double interval) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double interval) {
+		return addTrigger(name, scanRequest, lastDefinedSEV(), interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double interval) {
+		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), interval);
 	}
 }
