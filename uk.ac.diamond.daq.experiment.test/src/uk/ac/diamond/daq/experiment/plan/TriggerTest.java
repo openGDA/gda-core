@@ -31,7 +31,7 @@ public class TriggerTest {
 		}
 
 		public boolean await() throws InterruptedException {
-			return countdown.await(target*50, TimeUnit.MILLISECONDS);
+			return countdown.await(target*500, TimeUnit.MILLISECONDS);
 		}
 
 		public void reset(int target) {
