@@ -8,13 +8,11 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.scanning.api,
  org.eclipse.scanning.malcolm.core,
  org.eclipse.dawnsci.analysis.api,
- org.eclipse.scanning.points;bundle-version="1.0.0",
- org.epics.pvaccess;bundle-version="5.1.1",
- org.epics.pvaclient;bundle-version="4.3.2",
- org.epics.pvdata;bundle-version="6.1.1",
- org.epics.pvdatabase;bundle-version="4.3.1",
- org.epics.ntypes;bundle-version="0.3.2",
- org.epics.util;bundle-version="1.0.0"
+ org.eclipse.scanning.points,
+ org.epics.pvaccess,
+ org.epics.pvaclient,
+ org.epics.pvdata,
+ org.epics.pvdatabase
 Import-Package: org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.dataset.roi,
  org.eclipse.january.dataset,
