@@ -176,7 +176,53 @@ public class ScanProcessTest {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/**
+	 * A simple class wrapping a map from classes to the Mockito mock instance of that class.
+	 * Wrapping the map in a such a class like this allows the get method to by type safe, removing the need for casts.
+	 */
+	private static class Mocks {
+
+		private final Map<Class<?>, Object> map = new HashMap<>();
+
+		Mocks(Class<?>... klasses) {
+			for (Class<?> klass : klasses) {
+				map.put(klass, mock(klass));
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> T get(Class<T> klass) {
+			return (T) map.get(klass);
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private Mocks setupMocks() throws Exception {
+		Mocks mocks = new Mocks(IDeviceWatchdogService.class, IDeviceController.class,
+				IRunnableDeviceService.class, IPausableDevice.class, IPausableDevice.class,
+				ScanModel.class, IScriptService.class);
+
+		// assign the mocks used more than once to local variables for ease of reading
+		IDeviceController mockDeviceController = mocks.get(IDeviceController.class);
+		@SuppressWarnings("rawtypes")
+		IPausableDevice mockDevice = mocks.get(IPausableDevice.class);
+		IRunnableDeviceService mockRunnableDeviceService = mocks.get(IRunnableDeviceService.class);
+
+		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
+		when(mockDevice.getModel()).thenReturn(mocks.get(ScanModel.class)); // prevents an NPE in ScanProcess.runScript
+
+		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
+		when(mocks.get(IDeviceWatchdogService.class).create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
+
+		Services services = new Services(); // the set methods of Services actually set a static field
+		services.setWatchdogService(mocks.get(IDeviceWatchdogService.class));
+		services.setRunnableDeviceService(mockRunnableDeviceService);
+		services.setScriptService(mocks.get(IScriptService.class));
+
+		return mocks;
+	}
+
 	@Test
 	public void testTerminateScan() throws Exception {
 		// Arrange
@@ -186,20 +232,11 @@ public class ScanProcessTest {
 		scanBean.setScanRequest(scanRequest);
 		ScanProcess process = new ScanProcess(scanBean, null, true);
 
-		// Note: this test method uses Mockito instead of hand-written mock objects as it is newer than the other test methods in this class
-		IDeviceWatchdogService mockWatchdogService = mock(IDeviceWatchdogService.class);
-		IDeviceController mockDeviceController = mock(IDeviceController.class);
-		IRunnableDeviceService mockRunnableDeviceService = mock(IRunnableDeviceService.class);
-		IPausableDevice mockDevice = mock(IPausableDevice.class);
-		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
-		new Services().setWatchdogService(mockWatchdogService);
-		new Services().setRunnableDeviceService(mockRunnableDeviceService);
-		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
-		when(mockWatchdogService.create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
+		Mocks mocks = setupMocks();
 
 		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		doAnswer(waitingAnswer).when(mockDevice).run(null);
+		doAnswer(waitingAnswer).when(mocks.get(IPausableDevice.class)).run(null);
 
 		// Act
 		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
@@ -208,7 +245,7 @@ public class ScanProcessTest {
 		process.terminate();
 
 		// Assert
-		verify(mockDeviceController).abort(process.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
+		verify(mocks.get(IDeviceController.class)).abort(process.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
 		waitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
 	}
 
@@ -226,24 +263,9 @@ public class ScanProcessTest {
 
 		scanBean.setScanRequest(scanRequest);
 
-		// Note: this test method uses Mockito instead of hand-written mock objects as it is newer than the other test methods in this class
-		// TODO: this code is duplicated, re-use it insteaad
-		IDeviceWatchdogService mockWatchdogService = mock(IDeviceWatchdogService.class);
-		IDeviceController mockDeviceController = mock(IDeviceController.class);
-		IRunnableDeviceService mockRunnableDeviceService = mock(IRunnableDeviceService.class);
-		IPausableDevice mockDevice = mock(IPausableDevice.class);
-		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
-		ScanModel mockScanModel = mock(ScanModel.class);
-		when(mockDevice.getModel()).thenReturn(mockScanModel); // prevents an NPE in ScanProcess.runScript
-
-		new Services().setWatchdogService(mockWatchdogService);
-		new Services().setRunnableDeviceService(mockRunnableDeviceService);
-		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
-		when(mockWatchdogService.create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
-
-		IScriptService mockScriptService = mock(IScriptService.class);
-		new Services().setScriptService(mockScriptService);
+		Mocks mocks = setupMocks();
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
+		IScriptService mockScriptService = mocks.get(IScriptService.class);
 		doAnswer(waitingAnswer).when(mockScriptService).execute(before);
 
 		// Act
