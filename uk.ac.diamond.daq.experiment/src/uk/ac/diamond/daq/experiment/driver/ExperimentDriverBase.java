@@ -65,9 +65,8 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		checkValidState("start", IDLE);
 		
 		getModel().getAbortConditions().forEach(AbortCondition::activate);
-		
-		doStart();
 		state = RUNNING;
+		doStart();
 	}
 
 	@Override
