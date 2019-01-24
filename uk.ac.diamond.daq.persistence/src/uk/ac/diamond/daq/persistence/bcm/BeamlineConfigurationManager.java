@@ -617,9 +617,6 @@ public class BeamlineConfigurationManager extends ConfigurableBase implements Fi
 
 	private final class InactiveModeBcmException extends BcmException {
 
-		private InactiveModeBcmException() {
-		}
-
 		protected InactiveModeBcmException(final String modeName) {
 			super(String.format("Mode %s is not active.", modeName));
 		}
