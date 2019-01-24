@@ -23,7 +23,7 @@ public abstract class SegmentBase implements ISegment {
 	
 	private IPlanRegistrar registrar;
 	protected final ISampleEnvironmentVariable sev;
-	protected boolean activated;
+	private volatile boolean activated;
 	
 	SegmentBase(IPlanRegistrar registrar, ISampleEnvironmentVariable sev) {
 		this.registrar = registrar;
@@ -49,6 +49,7 @@ public abstract class SegmentBase implements ISegment {
 	
 	@Override
 	public void activate() {
+		activated = true;
 		double startingSignal = sev.read();
 		if (shouldTerminate(startingSignal)) {
 			logger.warn("Skipping Segment {} as limit condition met on activation", getName());
@@ -56,7 +57,7 @@ public abstract class SegmentBase implements ISegment {
 		} else {
 			logger.info("Segment '{}' activated", getName());
 			sev.addListener(this);
-			activated = true;
+			
 			enabledTriggers.forEach(tp -> tp.setEnabled(true));
 		}
 	}
@@ -74,10 +75,14 @@ public abstract class SegmentBase implements ISegment {
 		registrar.segmentComplete(this, terminatingSignal);
 	}
 	
-	private void terminateSegment(double signal) {
-		logger.info("Segment '{}' terminated", getName());
-		sev.removeListener(this);
-		deactivate(signal);
+	private synchronized void terminateSegment(double signal) {
+		if (activated) {
+			logger.info("Segment '{}' terminated", getName());
+			sev.removeListener(this);
+			deactivate(signal);
+		} else {
+			logger.debug("Ignoring terminating signal because segment '{}' is already terminated", getName());
+		}
 	}
 	
 	@Override

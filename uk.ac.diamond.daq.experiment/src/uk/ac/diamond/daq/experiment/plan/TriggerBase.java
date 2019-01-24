@@ -3,12 +3,17 @@ package uk.ac.diamond.daq.experiment.plan;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public abstract class TriggerBase implements ITrigger {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TriggerBase.class);
 	
 	private String name;
 	private final Triggerable triggerable;
@@ -72,20 +77,31 @@ public abstract class TriggerBase implements ITrigger {
 		return triggerable;
 	}
 	
+	private volatile boolean evaluating;
+	
 	@Override
-	public void signalChanged(double signal) {
-		if (evaluateTriggerCondition(signal)) {
-			executorService.execute(()->{
-				registrar.triggerOccurred(this, signal);
-				triggerable.trigger();
-			});
+	public synchronized void signalChanged(double signal) {
+		if (evaluating) {
+			logger.debug("Signal {} ignored by trigger '{}' because it is currently evaluating a previous one", signal, getName());
+		} else {
+			evaluating = true;
+			try {
+				if (evaluateTriggerCondition(signal)) { // FIXME all implementations should be purely functional
+														// to move this outside synchronised method
+					executorService.execute(()->{
+						registrar.triggerOccurred(this, signal);
+						triggerable.trigger();
+					});
+				}
+			} finally {
+				evaluating = false;
+			}
 		}
 	}
 	
 	/**
-	 * Decide whether the signal spat out by the SEV should trigger us.
-	 * @param signal
-	 * @return
+	 * Determine whether the broadcasted signal should trigger us. 
+	 * Called from a synchronised method so it should be fast.
 	 */
 	protected abstract boolean evaluateTriggerCondition(double signal);
 
