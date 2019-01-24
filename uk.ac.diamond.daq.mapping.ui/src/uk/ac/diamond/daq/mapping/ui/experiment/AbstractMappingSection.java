@@ -67,6 +67,8 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	protected DataBindingContext dataBindingContext;
 
+	private boolean createSeparator = true;
+
 	@Override
 	public void initialize(AbstractSectionsView mappingView) {
 		this.mappingView = mappingView;
@@ -108,7 +110,7 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	@Override
 	public boolean createSeparator() {
-		return true;
+		return createSeparator;
 	}
 
 	@Override
@@ -236,5 +238,9 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
 		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
 		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
+	}
+
+	public void setCreateSeparator(boolean createSeparator) {
+		this.createSeparator = createSeparator;
 	}
 }
