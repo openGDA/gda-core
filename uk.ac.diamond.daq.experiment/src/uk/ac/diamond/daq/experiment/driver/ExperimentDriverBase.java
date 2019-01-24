@@ -19,7 +19,7 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	
 	private String name;
 	
-	private Map<String, SEVSignal> sensors;
+	private Map<String, SEVSignal> readouts;
 	private ExperimentDriverModel model = new ExperimentDriverModel();
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
@@ -45,13 +45,13 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		return model;
 	}
 	
-	public void setSensors(Map<String, SEVSignal> sensors) {
-		this.sensors = sensors;
+	public void setReadouts(Map<String, SEVSignal> readouts) {
+		this.readouts = readouts;
 	}
 
 	@Override
-	public Map<String, SEVSignal> getSensors() {
-		return sensors;
+	public Map<String, SEVSignal> getReadouts() {
+		return readouts;
 	}
 	
 	@Override

@@ -154,7 +154,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	@Override
 	public IWizardPage getNextPage() {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
-		if (useDriver.getSelection()) nextPage.setSevs(selectedDriver.getSensors());
+		if (useDriver.getSelection()) nextPage.setSevs(selectedDriver.getReadouts());
 		return nextPage;
 	}
 
