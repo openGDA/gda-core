@@ -8,11 +8,11 @@ import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 /**
- * Will trigger only once: when SEV signal is at triggerSignal ± tolerance. 
+ * Will trigger only once per segment: when SEV signal is at triggerSignal ± tolerance. 
  */
 public class SingleTrigger extends TriggerBase {
 	
-	private boolean hasTriggered = false;
+	private boolean hasTriggered;
 	private BigDecimal lowerLimit;
 	private BigDecimal upperLimit;
 
@@ -31,6 +31,12 @@ public class SingleTrigger extends TriggerBase {
 		BigDecimal positiveTolerance = BigDecimal.valueOf(tolerance).abs();
 		lowerLimit = position.subtract(positiveTolerance);
 		upperLimit = position.add(positiveTolerance);
+	}
+	
+	@Override
+	protected void enable() {
+		hasTriggered = false;
+		super.enable();
 	}
 
 	@Override

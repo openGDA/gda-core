@@ -22,6 +22,7 @@ public abstract class TriggerBase implements ITrigger {
 	
 	private ExecutorService executorService;	
 	private boolean enabled;
+	private volatile boolean evaluating;
 
 	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable, ISampleEnvironmentVariable sev) {
 		this.registrar = registrar;
@@ -77,8 +78,6 @@ public abstract class TriggerBase implements ITrigger {
 		return triggerable;
 	}
 	
-	private volatile boolean evaluating;
-	
 	@Override
 	public synchronized void signalChanged(double signal) {
 		if (evaluating) {
@@ -88,6 +87,7 @@ public abstract class TriggerBase implements ITrigger {
 			try {
 				if (evaluateTriggerCondition(signal)) { // FIXME all implementations should be purely functional
 														// to move this outside synchronised method
+					logger.debug("Trigger '{}' now triggering due to signal {}", getName(), signal);
 					executorService.execute(()->{
 						registrar.triggerOccurred(this, signal);
 						triggerable.trigger();
