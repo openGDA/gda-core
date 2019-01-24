@@ -20,6 +20,7 @@ package gda.images.camera;
 
 import java.awt.Dimension;
 import java.util.LinkedHashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,7 +39,7 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 
 	protected Dimension imageSize = new Dimension(1024, 768);
 
-	private Set<ImageListener<T>> listeners = new LinkedHashSet<ImageListener<T>>();
+	private Set<ImageListener<T>> listeners = new LinkedHashSet<>();
 
 	/**
 	 * Sets the desired frame rate. (The default is 10fps.)
@@ -94,8 +95,10 @@ public abstract class DummyVideoReceiverBase<T> extends ConfigurableBase impleme
 		logger.info("Starting");
 
 		createBlankImage();
-		circleX = (int) (Math.random() * imageSize.width);
-		circleY = (int) (Math.random() * imageSize.height);
+
+		Random r = new Random();
+		circleX = r.nextInt(imageSize.width);
+		circleY = r.nextInt(imageSize.height);
 
 		TimerTask creationTask = createTimerTask();
 		final int period = 1000 / desiredFrameRate;
