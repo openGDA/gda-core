@@ -145,7 +145,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
 
 	@Override
-	public void initialize(AbstractSectionsView mappingView) {
+	public void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
 		plotter = getService(PlottingController.class);
 		mappingRegionManager = getService(IMappingRegionManager.class);

@@ -23,7 +23,7 @@ import java.util.Map;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * Interface for a section of an {@link AbstractSectionsView}
+ * Interface for a section of an {@link MappingExperimentView}
  */
 public interface IMappingSection {
 
@@ -33,7 +33,7 @@ public interface IMappingSection {
 	 * @param mappingView
 	 *            the parent view of this section
 	 */
-	void initialize(AbstractSectionsView mappingView);
+	void initialize(MappingExperimentView mappingView);
 
 	/**
 	 * Create the controls for this section

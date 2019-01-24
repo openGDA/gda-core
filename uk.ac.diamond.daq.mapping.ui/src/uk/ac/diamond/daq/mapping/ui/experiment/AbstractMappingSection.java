@@ -63,14 +63,14 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	private FontMetrics fontMetrics = null;
 
-	private AbstractSectionsView mappingView;
+	private MappingExperimentView mappingView;
 
 	protected DataBindingContext dataBindingContext;
 
 	private boolean createSeparator = true;
 
 	@Override
-	public void initialize(AbstractSectionsView mappingView) {
+	public void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
 	}
 
@@ -90,7 +90,7 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		return mappingView.getBean();
 	}
 
-	protected AbstractSectionsView getMappingView() {
+	protected MappingExperimentView getMappingView() {
 		return mappingView;
 	}
 
