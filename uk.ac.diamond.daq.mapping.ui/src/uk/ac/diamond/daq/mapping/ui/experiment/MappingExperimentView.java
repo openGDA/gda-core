@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static java.util.Arrays.asList;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
@@ -34,16 +36,24 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.menu.MDirectToolItem;
+import org.eclipse.e4.ui.model.application.ui.menu.MMenuFactory;
+import org.eclipse.e4.ui.model.application.ui.menu.MToolBar;
+import org.eclipse.e4.ui.model.application.ui.menu.MToolBarElement;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -62,6 +72,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,6 +203,12 @@ public class MappingExperimentView implements IAdaptable {
 		}
 		statusPanel.setMappingBean(mappingBean);
 
+		// If there is a SubmitScanSelector section, allow the user to switch between submit sections
+		final SubmitScanSelector submitScanSelector = getSection(SubmitScanSelector.class);
+		if (submitScanSelector != null && submitScanSelector.getNumberOfSections() > 1) {
+			addSubmitSectionSelectionButton(part, submitScanSelector);
+		}
+
 		mainComposite.pack();
 		logger.trace("Finished building the mapping experiment view");
 	}
@@ -199,6 +216,70 @@ public class MappingExperimentView implements IAdaptable {
 	private void showError(String title, String message) {
 		logger.error(message);
 		MessageDialog.openError(getShell(), title, message);
+	}
+
+	/**
+	 * Create a button on the toolbar to display a dialog that allows the user to choose a submit section
+	 *
+	 * @param part
+	 *            the view part on which to create the button
+	 * @param submitScanSelector
+	 *            the selector containing the submit sections that the user can choose
+	 */
+	private void addSubmitSectionSelectionButton(MPart part, SubmitScanSelector submitScanSelector) {
+		final String buttonId = "selectionSelectorId";
+		final String iconUri = "platform:/plugin/uk.ac.diamond.daq.mapping.ui/icons/map--pencil.png";
+		final String dialogDescription = "Choose scan type";
+
+		// Create toolbar if necessary
+		MToolBar toolBar = part.getToolbar();
+		if (toolBar == null) {
+			toolBar = MMenuFactory.INSTANCE.createToolBar();
+			part.setToolbar(toolBar);
+		}
+
+		// Remove any existing buttons for this function
+		final List<MToolBarElement> toolbarChildren = toolBar.getChildren();
+		toolbarChildren.removeIf(e -> e.getElementId().equals(buttonId));
+
+		// Create button to pop up a dialog so the user can select a submit section
+		final MDirectToolItem element = MMenuFactory.INSTANCE.createDirectToolItem();
+		element.setElementId(buttonId);
+		element.setIconURI(iconUri);
+		element.setLabel(dialogDescription);
+		element.setTooltip(dialogDescription);
+		element.setObject(new SelectionHandler(submitScanSelector));
+		toolbarChildren.add(element);
+	}
+
+	/**
+	 * Class to show a dialog where the user can select a submit section, and to display the selected section
+	 */
+	private class SelectionHandler {
+		private final SubmitScanSelector submitScanSelector;
+
+		public SelectionHandler(SubmitScanSelector submitScanSelector) {
+			this.submitScanSelector = submitScanSelector;
+		}
+
+		@Execute
+		public void execute(Shell shell) {
+			final List<String> descriptions = submitScanSelector.getDescriptions();
+			final int currentSelection = submitScanSelector.getCurrentSectionIndex();
+
+			final ListDialog dialog = new ListDialog(shell);
+			dialog.setTitle("Choose the scan type");
+			dialog.setContentProvider(new ArrayContentProvider());
+			dialog.setLabelProvider(new LabelProvider());
+			dialog.setInput(submitScanSelector.getDescriptions());
+			// Select the name of the section that is currently visible
+			dialog.setInitialElementSelections(asList(descriptions.get(currentSelection)));
+
+			if (dialog.open() == Window.OK) {
+				final Object[] result = dialog.getResult();
+				submitScanSelector.showSection(descriptions.indexOf(result[0]));
+			}
+		}
 	}
 
 	/**

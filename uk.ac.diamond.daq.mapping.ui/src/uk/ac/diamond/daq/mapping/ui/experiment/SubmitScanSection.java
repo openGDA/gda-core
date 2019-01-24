@@ -63,6 +63,12 @@ public class SubmitScanSection extends AbstractMappingSection {
 	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
 	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSection.class);
 
+	private Composite composite;
+
+	private String description = "Mapping scan";
+
+	private String buttonText = "Queue Scan";
+
 	@Override
 	public boolean createSeparator() {
 		return false;
@@ -71,13 +77,13 @@ public class SubmitScanSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		final Composite composite = new Composite(parent, SWT.NONE);
+		composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
 		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(composite);
 
 		// Button to submit a scan to the queue
 		final Button submitScanButton = new Button(composite, SWT.PUSH);
-		submitScanButton.setText("Queue Scan");
+		submitScanButton.setText(buttonText);
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
 		submitScanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -214,4 +220,64 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 	}
 
+	/**
+	 * Called when this section is shown
+	 * <p>
+	 * This can be used for example to show controls allowing the user to define parameters specific to this submit
+	 * section.
+	 */
+	protected void onShow() {
+		// Nothing to do in this class: subclasses may override
+	}
+
+	/**
+	 * Called when this section is no longer visible
+	 * <p>
+	 * This can be used for example to hide the controls made visible by {@link #onShow()}
+	 */
+	protected void onHide() {
+		// Nothing to do in this class: subclasses may override
+	}
+
+	/**
+	 * Return the composite created by this section
+	 *
+	 * @return the section composite
+	 */
+	Composite getComposite() {
+		return composite;
+	}
+
+	/**
+	 * Set the text to be shown on the Submit button<br>
+	 * Typically set in Spring configuration
+	 *
+	 * @param buttonText
+	 *            Text to be shown on the button
+	 */
+	public void setButtonText(String buttonText) {
+		this.buttonText = buttonText;
+	}
+
+	/**
+	 * Gets a user-friendly name for the section
+	 *
+	 * @return a description of the section
+	 */
+	String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Set a user-friendly description for the section
+	 * <p>
+	 * Typically set in Spring and can be used for example in a list to give the user a choice of different Submit
+	 * sections to give the user a choice of
+	 *
+	 * @param description
+	 *            a description of this section e.g. "Mapping scan"
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }
