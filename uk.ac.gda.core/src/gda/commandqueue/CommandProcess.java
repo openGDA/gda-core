@@ -42,7 +42,8 @@ public class CommandProcess extends AbstractLockingPausableProcess<CommandBean> 
 	protected CommandProcess(CommandBean bean, IPublisher<CommandBean> publisher) {
 		super(bean, publisher);
 		command = bean.getCommand();
-		setBeanStatus(Status.QUEUED);
+		setBeanStatus(bean.getStatus());
+		setBeanStatus(Status.PREPARING);
 		broadcast(bean);
 	}
 
