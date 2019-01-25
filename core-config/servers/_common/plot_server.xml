@@ -8,7 +8,7 @@
 	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd">
 
 	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase">
-		<property name="local" value="true" /> <!-- To prevent Corba from exporting this -->
+		<property name="local" value="true" />
 	</bean>
 
 	<gda:rmi-export
