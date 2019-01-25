@@ -141,7 +141,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// Status and DeviceState changes should be. Then the code should be refactored and fixed to pass the updated test
 		assertThat(beans, hasSize(2));
 		assertThat(beans.get(0), is(equalTo(createExpectedStateChangeBean(DeviceState.CONFIGURING, null, Status.SUBMITTED, null))));
-		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(DeviceState.ARMED, DeviceState.CONFIGURING, Status.QUEUED, Status.SUBMITTED))));
+		assertThat(beans.get(1), is(equalTo(createExpectedStateChangeBean(DeviceState.ARMED, DeviceState.CONFIGURING, Status.PREPARING, Status.SUBMITTED))));
 		// TODO replace with assertThat collection contains?
 
 		// Arrange: set up the malcolm connection to respond to the run message with a WaitingAnswer
@@ -161,7 +161,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		ScanBean bean = beanCaptor.getValue();
 		scanBean.setSize(200); // AcquisitionDevice has now set scan size and start time in the ScanBean
 		scanBean.setStartTime(bean.getStartTime());
-		assertThat(bean, is(equalTo(createExpectedStateChangeBean(DeviceState.RUNNING, DeviceState.ARMED, Status.RUNNING, Status.QUEUED))));
+		assertThat(bean, is(equalTo(createExpectedStateChangeBean(DeviceState.RUNNING, DeviceState.ARMED, Status.RUNNING, Status.PREPARING))));
 
 		// Send some updates to the completed steps listener and check an updated ScanBean is published
 		checkCompletedSteps(beanCaptor);

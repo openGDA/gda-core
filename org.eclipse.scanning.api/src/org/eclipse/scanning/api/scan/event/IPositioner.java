@@ -52,6 +52,8 @@ public interface IPositioner extends IPositionListenable {
 	 * @return
 	 * @return false if the position could not be reached. Normally an exception will be thrown if this is the case.
 	 * @throws ScanningException
+	 * @throws InterruptedException if the move was aborted by a call to {@link #abort()} in another thread (not guaranteed)
+	 *
 	 */
 	boolean setPosition(IPosition position) throws ScanningException, InterruptedException;
 

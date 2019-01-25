@@ -12,8 +12,6 @@
 package org.eclipse.scanning.server.servlet;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,6 +64,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Object for running a scan.
  *
+ * TODO: DAQ-1960 - make ScanProcess solely responsible for updating the ScanBean
+ * at present this is split between ScanProcess and AcquisitionDevice
+ *
  * @author Matthew Gerring
  *
  */
@@ -81,7 +82,10 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	private IDeviceController controller;
 	private boolean blocking;
+
 	private volatile boolean scriptRunning = false;
+	private volatile boolean terminated = false;
+	private volatile boolean settingPosition = false;
 
 	public ScanProcess(ScanBean scanBean, IPublisher<ScanBean> response, boolean blocking) throws EventException {
 		this.bean = scanBean;
@@ -98,15 +102,22 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 		this.scriptService = Services.getScriptService();
 
-		bean.setPreviousStatus(Status.SUBMITTED);
-		bean.setStatus(Status.QUEUED);
+		updateBean(Status.PREPARING, null);
+	}
 
-		final Instant startTime = Instant.now();
+	private void updateBean(Status newStatus, String message) throws EventException {
+		if (newStatus == null) {
+			bean.setPreviousStatus(bean.getStatus()); // not a status change
+		} else if (newStatus != bean.getStatus()) {
+			bean.setPreviousStatus(bean.getStatus());
+			bean.setStatus(newStatus);
+		}
+
+		if (message != null) {
+			bean.setMessage(message);
+		}
 
 		broadcast(bean);
-
-		final Instant timeNow = Instant.now();
-		if (Duration.between(startTime, timeNow).toMillis() > 100) { logger.warn("ScanProcess() took {}ms to run broadcast(bean);", Duration.between(startTime, timeNow).toMillis()); }
 	}
 
 	@Override
@@ -134,12 +145,16 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.trace("terminate() {} with controller {}", bean, controller);
 
 		if (bean.getStatus()==Status.COMPLETE) return; // Nothing to terminate.
+		terminated = true;
 		try {
-			if (controller!=null) {
+			if (controller != null) {
 				controller.abort(getClass().getName());
 			}
 			if (scriptRunning) {
 				scriptService.abortScripts();
+			}
+			if (settingPosition) {
+				positioner.abort();
 			}
 		} catch (ScanningException | InterruptedException e) {
 			throw new EventException(e);
@@ -150,48 +165,42 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	public void execute() throws EventException {
 		try {
 			logger.debug("Starting to run : {}", bean);
-			setFilePath(bean);
-			IPointGenerator<?> gen = getGenerator(bean.getScanRequest());
-			initializeMalcolmDevice(bean, gen);
 
-			checkMonitors(gen);
-			validateRequest(bean);
+			// some initial tasks to possibly tweak and validate the scan bean and request
+			setFilePath(bean);
+			IPointGenerator<?> pointGenerator = createPointGenerator();
+			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
+			validateScanRequest();
+			final ScanModel scanModel = createScanModel(pointGenerator);
 
 			// Move to a position if they set one
 			setPosition(bean.getScanRequest().getStart(), "start");
 
-			this.controller = createRunnableDevice(bean, gen);
-
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getBefore(), bean.getScanRequest()::setBeforeResponse);
+			runScript(bean.getScanRequest().getBefore(), scanModel, bean.getScanRequest()::setBeforeResponse);
 
-			if (blocking) { // Normally the case
-				executeBlocking(controller, bean);
-			} else {
-				executeNonBlocking(controller);
-			}
+			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
+			runScan(scanModel);
 
-			if (!bean.getStatus().isFinal()) { // don't overwrite a final status, e.g. ABORTED or FAILED
-				bean.setPreviousStatus(bean.getStatus());
-				bean.setStatus(Status.COMPLETE);
-			}
-			// set the scan to 100% only if the scan completed normally
-			if (bean.getStatus() == Status.COMPLETE) {
+			if (!bean.getStatus().isFinal() || bean.getStatus() == Status.COMPLETE) {
+				// set status to COMPLETE and percent complete to 100, unless status was a final status other than COMPLETE
 				bean.setPercentComplete(100);
+				updateBean(Status.COMPLETE, "Scan Complete");
 			}
-			broadcast(bean);
 			logger.debug("Completed run normally : {}", bean);
 		} catch (Exception e) {
 			logger.error("Cannot execute run {} {}", getBean().getName(), getBean().getUniqueId(), e);
-			bean.setPreviousStatus(bean.getStatus());
-			bean.setStatus(Status.FAILED);
-			bean.setMessage(e.getMessage());
-			broadcast(bean);
-
+			updateBean(Status.FAILED, e.getMessage());
 			// rethrow the exception as an EventException
 			if (e instanceof EventException) throw (EventException)e;
 			throw new EventException(e);
 		}
+	}
+
+	private void checkTerminated() throws InterruptedException {
+		// Don't continue to run the scan if it has been terminated from another thread
+		// This is a back-up incase any part of the scan doesn't itself throw an InterruptedException
+		if (terminated) throw new InterruptedException("Scan terminated by user");
 	}
 
 	@Override
@@ -204,8 +213,21 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		}
 	}
 
-	private void executeNonBlocking(IDeviceController controller) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
+	private void runScan(final ScanModel scanModel) throws ScanningException, EventException, InterruptedException,
+			TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
+		checkTerminated();
 
+		initializeMalcolmDevice(bean, (IPointGenerator<?>) scanModel.getPositionIterable());
+		this.controller = createRunnableDevice(scanModel);
+
+		if (blocking) { // Normally the case
+			runScanBlocking(controller, scanModel);
+		} else {
+			runScanNonBlocking(controller);
+		}
+	}
+
+	private void runScanNonBlocking(IDeviceController controller) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
 		logger.debug("Running non-blocking device {}", controller.getDevice().getName());
 		controller.getDevice().start(null);
 
@@ -217,29 +239,43 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.warn("Cannot perform end position when scan is async. (Scan has not been cancelled, end has been ignored.)");
 	}
 
-	private void executeBlocking(IDeviceController controller, ScanBean bean) throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
-
+	private void runScanBlocking(IDeviceController controller, ScanModel scanModel)
+			throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException, EventException {
 		logger.debug("Running blocking controller {}", controller.getName());
+		updateBean(Status.RUNNING, "Starting scan");
 		controller.getDevice().run(null); // Runs until done
 
-		// Run a script, if any has been requested
-		runScript(bean.getScanRequest().getAfter(), bean.getScanRequest()::setAfterResponse);
-		setPosition(bean.getScanRequest().getEnd(), "end");
+		if (bean.getScanRequest().getAfter() != null || bean.getScanRequest().getEnd() != null) {
+			updateBean(Status.FINISHING, null);
+			// Run a script, if any has been requested
+			runScript(bean.getScanRequest().getAfter(), scanModel, bean.getScanRequest()::setAfterResponse);
+			// move to the end position, if one is set
+			setPosition(bean.getScanRequest().getEnd(), "end");
+		}
 	}
 
-	private void setPosition(IPosition pos, String location) throws ScanningException, InterruptedException {
+	private void setPosition(IPosition pos, String location) throws ScanningException, InterruptedException, EventException {
 		if (pos!=null) {
-			positioner.setPosition(pos);
+			checkTerminated();
+
+			updateBean(null, String.format("Moving to %s position", location));
+			settingPosition = true;
+			try {
+				positioner.setPosition(pos);
+			} finally {
+				settingPosition = false;
+			}
+
 			logger.debug("The {} position {} is reached.", location, pos);
 		}
 	}
 
-	private void validateRequest(ScanBean bean) throws InstantiationException, IllegalAccessException {
+	private void validateScanRequest() throws InstantiationException, IllegalAccessException {
 		if (!Boolean.getBoolean("org.eclipse.scanning.server.servlet.scanProcess.disableValidate")) {
 			logger.debug("Validating run : {}", bean);
-			final ScanRequest<?> sr = bean.getScanRequest();
-			if (sr.getDetectors()!=null && sr.getDetectors().isEmpty()) sr.setDetectors(null);
-			Services.getValidatorService().validate(sr);
+			final ScanRequest<?> scanRequest = bean.getScanRequest();
+			if (scanRequest.getDetectors()!=null && scanRequest.getDetectors().isEmpty()) scanRequest.setDetectors(null);
+			Services.getValidatorService().validate(scanRequest);
 			logger.debug("Validating passed : {}", bean);
 		} else {
 			logger.warn("The run {} has validation switched off.", bean);
@@ -252,7 +288,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	 * @param gen point generator
 	 * @throws Exception
 	 */
-	private void checkMonitors(IPointGenerator<?> gen) {
+	private void checkAndFixMonitors(IPointGenerator<?> gen) {
 		Collection<String> monitorNamesPerPoint = bean.getScanRequest().getMonitorNamesPerPoint();
 		Collection<String> monitorNamesPerScan = bean.getScanRequest().getMonitorNamesPerScan();
 
@@ -344,13 +380,16 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Malcolm device(s) initialized");
 	}
 
-	private void runScript(ScriptRequest req, Consumer<ScriptResponse<?>> cons) throws UnsupportedLanguageException, ScriptExecutionException {
+	private void runScript(ScriptRequest req, ScanModel scanModel, Consumer<ScriptResponse<?>> cons) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
 		if (req==null) return; // Nothing to do
 		if (scriptService==null) throw new ScriptExecutionException("No script service is available, cannot run script request "+req);
+		checkTerminated();
+
+		String scriptName = new File(req.getFile()).getName();
+		updateBean(null, String.format("Running script %s", scriptName));
 
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_BEAN, bean);
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST, bean.getScanRequest());
-		final ScanModel scanModel = ((ScanModel) controller.getDevice().getModel());
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_MODEL, scanModel);
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPositionIterable());
 
@@ -365,33 +404,13 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		cons.accept(res);
 	}
 
-	private IDeviceController createRunnableDevice(ScanBean bean, IPointGenerator<?> generator) throws ScanningException, EventException {
+	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {
 
 		ScanRequest<?> req = bean.getScanRequest();
 		if (req==null) throw new ScanningException("There must be a scan request to run a scan!");
 
 		try {
-			final ScanModel scanModel = new ScanModel();
-			scanModel.setPositionIterable(generator);
-
-			ScanEstimator estimator = new ScanEstimator(Services.getGeneratorService(), bean.getScanRequest());
-			bean.setSize(estimator.getSize());
-			scanModel.setFilePath(bean.getFilePath());
-
-			scanModel.setDetectors(getDetectors(req.getDetectors()));
-
-			// Note: no need to set the scannables as AcquisitionDevice can determine them from the point generator
-			scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
-			scanModel.setMonitorsPerScan(getScannables(req.getMonitorNamesPerScan()));
-			scanModel.setScanMetadata(req.getScanMetadata());
-			scanModel.setBean(bean);
-
-			ScanInformation scanInfo = new ScanInformation(estimator);
-			scanInfo.setFilePath(bean.getFilePath());
-			scanInfo.setScannableNames(getScannableNames(generator));
-			scanModel.setScanInformation(scanInfo);
-
-			configureDetectors(req.getDetectors(), scanModel, generator);
+			configureDetectors(req.getDetectors(), scanModel);
 
 			IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
 			IDeviceController theController = Services.getWatchdogService().create(device, bean);
@@ -403,15 +422,39 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			return theController;
 
 		} catch (Exception e) {
-			bean.setStatus(Status.FAILED);
-			bean.setMessage(e.getMessage());
-			broadcast(bean);
+			updateBean(Status.FAILED, e.getMessage());
 			if (e instanceof EventException) throw (EventException)e;
 			throw new EventException(e);
 		}
 	}
 
-	private void configureDetectors(Map<String, Object> dmodels, ScanModel model, IPointGenerator<?> generator) throws Exception {
+	private ScanModel createScanModel(IPointGenerator<?> generator)
+			throws GeneratorException, EventException {
+		// converts the ScanBean to a ScanModel
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setPositionIterable(generator);
+
+		ScanEstimator estimator = new ScanEstimator(Services.getGeneratorService(), bean.getScanRequest());
+		bean.setSize(estimator.getSize());
+		scanModel.setFilePath(bean.getFilePath());
+
+		ScanRequest<?> req = bean.getScanRequest();
+		scanModel.setDetectors(getDetectors(req.getDetectors()));
+
+		// Note: no need to set the scannables as AcquisitionDevice can determine them from the point generator
+		scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
+		scanModel.setMonitorsPerScan(getScannables(req.getMonitorNamesPerScan()));
+		scanModel.setScanMetadata(req.getScanMetadata());
+		scanModel.setBean(bean);
+
+		ScanInformation scanInfo = new ScanInformation(estimator);
+		scanInfo.setFilePath(bean.getFilePath());
+		scanInfo.setScannableNames(getScannableNames(generator));
+		scanModel.setScanInformation(scanInfo);
+		return scanModel;
+	}
+
+	private void configureDetectors(Map<String, Object> dmodels, ScanModel model) throws Exception {
 
 		if (dmodels==null) {
 			logger.debug("No detectors to configure");
@@ -430,6 +473,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			if (!dmodels.containsKey(odevice.getName())) continue; // Nothing to configure
 			Object dmodel = dmodels.get(odevice.getName());
 
+			IPointGenerator<?> generator = (IPointGenerator<?>) model.getPositionIterable();
 			manager.invoke(PreConfigure.class, dmodel, generator, model, bean, publisher);
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
@@ -449,16 +493,17 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		return names;
 	}
 
-	private IPointGenerator<?> getGenerator(ScanRequest<?> req) throws GeneratorException {
+	private IPointGenerator<?> createPointGenerator() throws GeneratorException {
 		IPointGeneratorService service = Services.getGeneratorService();
-		if (req.getDetectors() != null) {
+		ScanRequest<?> scanRequest = bean.getScanRequest();
+		if (scanRequest.getDetectors() != null) {
 			// if theres a malcolm device, set the duration of the compound model to its exposure time
-			req.getDetectors().values().stream()
+			scanRequest.getDetectors().values().stream()
 				.filter(IMalcolmModel.class::isInstance).map(IMalcolmModel.class::cast)
-				.findFirst().ifPresent(model -> req.getCompoundModel().setDuration(model.getExposureTime()));
+				.findFirst().ifPresent(model -> scanRequest.getCompoundModel().setDuration(model.getExposureTime()));
 		}
 
-		return service.createCompoundGenerator(req.getCompoundModel());
+		return service.createCompoundGenerator(scanRequest.getCompoundModel());
 	}
 
 	private List<IRunnableDevice<?>> getDetectors(Map<String, ?> detectors) throws EventException {

@@ -270,10 +270,11 @@ public final class ScanBean extends StatusBean {
 	}
 
 	/**
-	 * @return whether the scan has just started, i.e. transitioned from a QUEUED state to a RUNNING state.
+	 * @return whether the scan has just started, i.e. transitioned from a {@link Status#PREPARING} state
+	 * 		to a {@link Status#RUNNING} state.
 	 */
 	public boolean scanStart() {
-		return Status.QUEUED ==previousStatus && Status.RUNNING==status;
+		return Status.PREPARING == previousStatus && Status.RUNNING == status;
 	}
 
 	/**

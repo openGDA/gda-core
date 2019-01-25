@@ -240,8 +240,8 @@ public class StatusQueueView extends EventConnectionView {
 
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection,     null);
-		warnIfListContainsStatus("queued status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.QUEUED);
-		warnIfListContainsStatus("queued status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.QUEUED);
+		warnIfListContainsStatus("queued status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.PREPARING);
+		warnIfListContainsStatus("queued status found in runList:       ", runList,       org.eclipse.scanning.api.event.status.Status.PREPARING);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {

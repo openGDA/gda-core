@@ -221,8 +221,8 @@ public abstract class AbstractServletTest extends BrokerTest {
 						startEvents.add(evt.getBean()); // Should be just one
 					}
 	                if (evt.getBean().scanEnd()) {
-				endEvents.add(evt.getBean());
-				latch.countDown();
+	                	endEvents.add(evt.getBean());
+	                	latch.countDown();
 	                }
 				}
 			});

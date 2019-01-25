@@ -23,8 +23,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -32,6 +37,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -55,18 +63,24 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
+import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -84,6 +98,7 @@ import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 
 public class ScanProcessTest {
 
@@ -197,85 +212,281 @@ public class ScanProcessTest {
 
 	}
 
+	/**
+	 * A simple wrapper around running a {@link ScanProcess} is another thread and
+	 * waiting for it to finish
+	 */
+	private static class ScanTask {
+
+		private final ExecutorService executor = Executors.newSingleThreadExecutor();
+		private final ScanProcess process;
+
+		private ScanTask(ScanProcess p) {
+			process = p;
+		}
+
+		private void start() {
+			Runnable r = () -> {
+				try {
+					process.execute();
+				} catch (EventException e) {
+					throw new RuntimeException(e);
+				}
+			};
+			executor.execute(r);
+		}
+
+		public void awaitCompletion() throws InterruptedException {
+			executor.shutdown();
+			boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
+			assertThat("Timed out waiting for ScanProcess.execute", terminated, is(true));
+		}
+
+	}
+
 	@SuppressWarnings("unchecked")
 	private Mocks setupMocks() throws Exception {
+		// only used for the newer mockito based test methods in this class
 		Mocks mocks = new Mocks(IDeviceWatchdogService.class, IDeviceController.class,
-				IRunnableDeviceService.class, IPausableDevice.class, IPausableDevice.class,
-				ScanModel.class, IScriptService.class);
+				IRunnableDeviceService.class, IPausableDevice.class,
+				IPointGeneratorService.class, IPointGenerator.class, ScanPointIterator.class,
+				IPositioner.class, ScanModel.class, IScriptService.class);
 
 		// assign the mocks used more than once to local variables for ease of reading
 		IDeviceController mockDeviceController = mocks.get(IDeviceController.class);
 		@SuppressWarnings("rawtypes")
 		IPausableDevice mockDevice = mocks.get(IPausableDevice.class);
 		IRunnableDeviceService mockRunnableDeviceService = mocks.get(IRunnableDeviceService.class);
+		IPointGenerator mockPointGen = mocks.get(IPointGenerator.class);
+		ScanPointIterator mockScanPointIterator = mocks.get(ScanPointIterator.class);
 
 		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
 		when(mockDevice.getModel()).thenReturn(mocks.get(ScanModel.class)); // prevents an NPE in ScanProcess.runScript
 
 		when(mockRunnableDeviceService.createRunnableDevice(any(ScanModel.class), any(IPublisher.class), eq(false))).thenReturn(mockDevice);
 		when(mocks.get(IDeviceWatchdogService.class).create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
+		when(mockRunnableDeviceService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
+		when(mocks.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(mockPointGen);
+		when(mockPointGen.size()).thenReturn(100); // these three lines required by ScanEstimator constructor
+		when(mockPointGen.iterator()).thenReturn(mockScanPointIterator);
+		when(mockScanPointIterator.next()).thenReturn(new Scalar<>("xNex", 0, 0));
 
 		Services services = new Services(); // the set methods of Services actually set a static field
 		services.setWatchdogService(mocks.get(IDeviceWatchdogService.class));
 		services.setRunnableDeviceService(mockRunnableDeviceService);
 		services.setScriptService(mocks.get(IScriptService.class));
+		services.setGeneratorService(mocks.get(IPointGeneratorService.class));
 
 		return mocks;
 	}
 
-	@Test
-	public void testTerminateScan() throws Exception {
-		// Arrange
+	private ScanBean createScanBean() {
+		// only used for the newer mockito based test methods in this class
 		ScanBean scanBean = new ScanBean();
 		ScanRequest<?> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
 		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
+		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
+
+		ScriptRequest beforeScript = new ScriptRequest();
+		beforeScript.setFile("/path/to/before.py");
+		beforeScript.setLanguage(ScriptLanguage.PYTHON);
+		scanRequest.setBefore(beforeScript);
+
+		ScriptRequest afterScript = new ScriptRequest();
+		afterScript.setFile("/path/to/after.py");
+		afterScript.setLanguage(ScriptLanguage.PYTHON);
+		scanRequest.setAfter(afterScript);
+
+		final MapPosition startPosition = new MapPosition();
+		startPosition.put("z", 0);
+		scanRequest.setStart(startPosition);
+
+		final MapPosition endPosition = new MapPosition();
+		endPosition.put("z", 10.0);
+		scanRequest.setEnd(endPosition);
+
+		return scanBean;
+	}
+
+	@Test
+	public void testTerminateMovingPosition() throws Exception {
+		// Arrange
+		ScanBean scanBean = createScanBean();
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		Mocks mocks = setupMocks();
-
-		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
-		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		doAnswer(waitingAnswer).when(mocks.get(IPausableDevice.class)).run(null);
+		IPositioner mockPositioner = mocks.get(IPositioner.class);
+		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
+		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
 
 		// Act
-		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
-		new Thread(() -> { try { process.execute(); } catch (EventException e) { }}).start();
-		waitingAnswer.waitUntilCalled();
-		process.terminate();
+		ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
+		ScanTask task = new ScanTask(scanProcess);
+		task.start();
+		startPositionAnswer.waitUntilCalled();
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart());
+		scanProcess.terminate();
+		startPositionAnswer.resume();
+		task.awaitCompletion();
 
 		// Assert
-		verify(mocks.get(IDeviceController.class)).abort(process.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
-		waitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
+		verify(mocks.get(IPositioner.class)).abort();
+		verify(mocks.get(IScriptService.class), never()).execute(any(ScriptRequest.class)); // no scripts run (before or after)
+		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
 	}
 
 	@Test
 	public void testTerminateScript() throws Exception {
 		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
-		scanRequest.setCompoundModel(new CompoundModel<>(new StepModel("xNex", 0, 9, 1)));
-
-		ScriptRequest before = new ScriptRequest();
-		before.setFile("/path/to/before.py");
-		before.setLanguage(ScriptLanguage.PYTHON);
-		scanRequest.setBefore(before);
-
-		scanBean.setScanRequest(scanRequest);
+		ScanBean scanBean = createScanBean();
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		Mocks mocks = setupMocks();
-		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<ScriptResponse<?>> waitingAnswer = new WaitingAnswer<>(new ScriptResponse<>());
 		IScriptService mockScriptService = mocks.get(IScriptService.class);
-		doAnswer(waitingAnswer).when(mockScriptService).execute(before);
+		when(mockScriptService.execute(scanRequest.getBefore())).thenAnswer(waitingAnswer);
 
 		// Act
 		// we need to run the scanProcess in another thread, so that we can call terminate in this thread
 		ScanProcess process = new ScanProcess(scanBean, null, true);
-		new Thread(() -> { try { process.execute(); } catch (EventException e) { }}).start();
+		ScanTask task = new ScanTask(process);
+		task.start();
 		waitingAnswer.waitUntilCalled();
+
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
+		verify(mockScriptService).execute(scanRequest.getBefore()); // before script was called
+
 		process.terminate();
 		verify(mockScriptService).abortScripts(); // verify that scriptService.abortScripts was called by scanProcess
 		waitingAnswer.resume(); // resume the answer to allow scriptService.execute and then scanProcess.execute to finish
+		task.awaitCompletion();
+
+		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
+		verify(mockScriptService, never()).execute(scanRequest.getAfter()); // after script not called
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
+	}
+
+	@Test
+	public void testTerminateScan() throws Exception {
+		// Arrange
+		ScanBean scanBean = createScanBean();
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+
+		Mocks mocks = setupMocks();
+
+		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
+		WaitingAnswer<Void> runScanWaitingAnswer = new WaitingAnswer<>(null);
+		doAnswer(runScanWaitingAnswer).when(mocks.get(IPausableDevice.class)).run(null);
+
+		// Act
+		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
+		ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
+		ScanTask task = new ScanTask(scanProcess);
+		task.start();
+		runScanWaitingAnswer.waitUntilCalled();
+
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
+		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBefore()); // before script was called
+		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
+		scanProcess.terminate();
+
+		// Assert
+		verify(mocks.get(IDeviceController.class)).abort(scanProcess.getClass().getName()); // verify that deviceController.abort was called by the scanProcess
+		runScanWaitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
+		task.awaitCompletion(); // wait for end of scan
+
+		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfter()); // after script not called
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
+	}
+
+	/**
+	 * Tests that ScanProcess.execute changes the state of
+	 * @throws Exception
+	 */
+	@Test
+	public void testStateChanges() throws Exception {
+		// Arrange
+		final ScanBean scanBean = createScanBean();
+		final ScanRequest scanRequest = scanBean.getScanRequest();
+
+		// the waiting answers for before/after script, start/stop position and running the scan
+		// allow us to verify the state of the scan being at each point in the scan
+		Mocks mocks = setupMocks();
+		WaitingAnswer<ScriptResponse<?>> beforeScriptAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
+		WaitingAnswer<Void> runScanAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<ScriptResponse<?>> afterScriptAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<Boolean> endPositionAnswer = new WaitingAnswer<>(true);
+
+		IScriptService mockScriptService = mocks.get(IScriptService.class);
+		IPositioner mockPositioner = mocks.get(IPositioner.class);
+		IPausableDevice<ScanModel> mockDevice = mocks.get(IPausableDevice.class);
+		IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
+		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
+		when(mockPositioner.setPosition(scanRequest.getEnd())).thenAnswer(endPositionAnswer);
+		when(mockScriptService.execute(scanRequest.getBefore())).thenAnswer(beforeScriptAnswer);
+		when(mockScriptService.execute(scanRequest.getAfter())).thenAnswer(afterScriptAnswer);
+		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
+		InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
+
+		// Act
+		ScanProcess process = new ScanProcess(scanBean, mockPublisher, true); // Create the ScanProcess
+		verify(mockPublisher).broadcast(scanBean); // verify the bean was broadcast with status PREPARING
+		assertThat(scanBean.getStatus(), is(Status.PREPARING));
+		assertThat(scanBean.getMessage(), is(nullValue()));
+
+		// run the scan in another thread
+		ScanTask scanTask = new ScanTask(process);
+		scanTask.start();
+
+		// checks while moving to start position
+		startPositionAnswer.waitUntilCalled();
+		inOrder.verify(mockPositioner).setPosition(scanRequest.getStart());
+		verify(mockPublisher, times(2)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.PREPARING));
+		assertThat(scanBean.getMessage(), is("Moving to start position"));
+		startPositionAnswer.resume();
+
+		// checks while running before script
+		beforeScriptAnswer.waitUntilCalled();
+		inOrder.verify(mockScriptService).execute(scanRequest.getBefore());
+		verify(mockPublisher, times(3)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.PREPARING));
+		assertThat(scanBean.getMessage(), is(equalTo("Running script before.py")));
+		beforeScriptAnswer.resume();
+
+		// checks while scan is running
+		runScanAnswer.waitUntilCalled();
+		verify(mockPublisher, times(4)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.RUNNING));
+		assertThat(scanBean.getMessage(), is(equalTo("Starting scan")));
+		verify(mockDevice).configure(any(ScanModel.class)); // TODO doesn't work with inOrder, why not?
+		inOrder.verify(mockDevice).run(null);
+		runScanAnswer.resume();
+
+		// checks while running after script
+		afterScriptAnswer.waitUntilCalled();
+		inOrder.verify(mockScriptService).execute(scanRequest.getAfter());
+		verify(mockPublisher, times(6)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.FINISHING));
+		assertThat(scanBean.getMessage(), is(equalTo("Running script after.py")));
+		afterScriptAnswer.resume();
+
+		// checks while moving to end position
+		endPositionAnswer.waitUntilCalled();
+		inOrder.verify(mockPositioner).setPosition(scanRequest.getEnd());
+		verify(mockPublisher, times(7)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.FINISHING));
+		assertThat(scanBean.getMessage(), is(equalTo("Moving to end position")));
+		endPositionAnswer.resume();
+
+		// check after ScanProcess.execute has finished
+		verify(mockPublisher, timeout(200).times(8)).broadcast(scanBean);
+		assertThat(scanBean.getStatus(), is(Status.COMPLETE));
+		assertThat(scanBean.getMessage(), is(equalTo("Scan Complete")));
+
+		scanTask.awaitCompletion();
 	}
 
 	@Test

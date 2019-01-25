@@ -88,13 +88,13 @@ public class MappingScanTest extends BrokerTest{
 		bean.setUserName("Joe Bloggs");
 		bean.setDeviceState(DeviceState.READY);
 		bean.setPreviousStatus(Status.SUBMITTED);
-		bean.setStatus(Status.QUEUED);
+		bean.setStatus(Status.PREPARING);
 		bean.setFilePath("/dls/tmp/fred.h5");
 		bean.setDatasetPath("/entry/data");
 		publisher.broadcast(bean);
 
 		// Tell them we started it.
-		bean.setPreviousStatus(Status.QUEUED);
+		bean.setPreviousStatus(Status.PREPARING);
 		bean.setStatus(Status.RUNNING);
 		publisher.broadcast(bean);
 

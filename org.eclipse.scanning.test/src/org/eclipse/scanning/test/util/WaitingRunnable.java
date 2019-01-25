@@ -18,6 +18,10 @@
 
 package org.eclipse.scanning.test.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -35,6 +39,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * as part of it.
  */
 public class WaitingRunnable implements Runnable {
+
+	private static final int TIMEOUT_SECONDS = 60;
 
 	private final Lock lock = new ReentrantLock();
 
@@ -67,7 +73,9 @@ public class WaitingRunnable implements Runnable {
 
 		try {
 			while (predicate.get() == false) {
-				condition.await();
+				// much better to have an assertion failure than a hanging test, especially on jenkins
+				boolean timedOut = !condition.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+				assertThat("Timed out waiting for condition", timedOut, is(false));
 			}
 		} finally {
 			lock.unlock();

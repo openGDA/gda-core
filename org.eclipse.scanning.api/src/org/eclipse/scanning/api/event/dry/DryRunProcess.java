@@ -67,7 +67,7 @@ public class DryRunProcess<T extends StatusBean> extends AbstractLockingPausable
 	private void run()  throws EventException {
 
 		this.thread = Thread.currentThread();
-		getBean().setPreviousStatus(Status.QUEUED);
+		getBean().setPreviousStatus(getBean().getStatus());
 		getBean().setStatus(Status.RUNNING);
 		getBean().setPercentComplete(0d);
 		getPublisher().broadcast(getBean());

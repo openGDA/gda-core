@@ -56,6 +56,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
@@ -85,6 +86,12 @@ import org.slf4j.LoggerFactory;
  * The levels of the scannables at the position will be taken into
  * account and the position reached using an IPositioner then the
  * scanners run.
+ *
+ * An {@link AcquisitionDevice} instance is created by <code>ScanProcess</code>
+ * to run the scan defined by a {@link ScanRequest}. <code>ScanProcess</code>
+ * has overall responsiblity for the scan. In particular some tasks may need
+ * to be performed by <code>ScanProcess</code> after {@link AcquisitionDevice} has
+ * finished the scan, such as running an after script.
  *
  * @author Matthew Gerring
  */
@@ -186,7 +193,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		setDeviceState(DeviceState.CONFIGURING);
 		setModel(model);
 		getScanBean().setPreviousStatus(getScanBean().getStatus());
-		getScanBean().setStatus(Status.QUEUED);
+		getScanBean().setStatus(Status.PREPARING);
 		malcolmDevice = findMalcolmDevice(model);
 
 		// set the scannables on the scan model if not already set
@@ -225,7 +232,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			}
 		}
 
-		// notify that the device is now armed
+		// notify that the device is now armed, this publishes the scan bean
 		setDeviceState(DeviceState.ARMED);
 
 		// record the time taken to configure the device
@@ -570,9 +577,9 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	private void fireEnd(IPosition lastPosition) throws ScanningException {
 		logger.debug("updating and publishing scan bean for scan end");
 
-		// Setup the bean to sent
-		getScanBean().setPreviousStatus(getScanBean().getStatus());
-		getScanBean().setStatus(Status.COMPLETE);
+		// Setup the bean to show the scan is finished.
+		// Note: we don't set the scan state to COMPLETED as ScanProcess may have
+		// to perform some final tasks, e.g. an 'after scan' script
 		getScanBean().setPercentComplete(100);
 		getScanBean().setMessage("Scan Complete");
 
@@ -582,7 +589,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
 			throw new ScanningException(e);
 		}
-		setDeviceState(DeviceState.ARMED); // Fires!
+		setDeviceState(DeviceState.ARMED); // publishes the scan bean
 
 	}
 

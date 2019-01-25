@@ -17,9 +17,22 @@ package org.eclipse.scanning.api.event.status;
  * @author Matthew Gerring
  *
  */
-public enum Status { // TODO Should this be called QueueStatus or JobStatus to avoid confusion?
+public enum Status {
 
-	SUBMITTED, QUEUED, RUNNING, REQUEST_PAUSE, PAUSED, REQUEST_RESUME, RESUMED, REQUEST_TERMINATE, TERMINATED, FAILED, COMPLETE, UNFINISHED, NONE;
+	SUBMITTED,
+	PREPARING,
+	RUNNING,
+	REQUEST_PAUSE,
+	PAUSED,
+	REQUEST_RESUME,
+	RESUMED,
+	REQUEST_TERMINATE,
+	TERMINATED,
+	FAILED,
+	FINISHING,
+	COMPLETE,
+	UNFINISHED,
+	NONE;
 
 	/**
 	 *
@@ -34,7 +47,7 @@ public enum Status { // TODO Should this be called QueueStatus or JobStatus to a
 	}
 
 	public boolean isRunning() {
-		return this==RUNNING || this==RESUMED;
+		return this==RUNNING || this==RESUMED || this==PREPARING || this==Status.FINISHING;
 	}
 
 	public boolean isRequest() {
