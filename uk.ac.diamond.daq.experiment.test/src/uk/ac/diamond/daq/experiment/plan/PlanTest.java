@@ -23,7 +23,8 @@ import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.experiment.api.plan.IPlan;
+import uk.ac.diamond.daq.experiment.api.driver.DriverState;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
@@ -31,8 +32,9 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegmentAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
-import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
 
@@ -82,7 +84,7 @@ public class PlanTest {
 
 	@Test (expected = IllegalArgumentException.class)
 	public void convenienceMethodsThrowIfNoSEVFound() {
-		IPlan badPlan = new Plan("Ill-defined");
+		Plan badPlan = new Plan("Ill-defined");
 		badPlan.addSegment("ShouldFail", x -> x > 5);
 	}
 
@@ -162,8 +164,8 @@ public class PlanTest {
 	@Test (expected=IllegalStateException.class)
 	public void triggerNamesShouldBeUnique() {
 		plan.addSegment(SEGMENT1_NAME, s -> s > 5,
-				plan.addTrigger(TRIGGER1_NAME, null, 0),
-				plan.addTrigger(TRIGGER1_NAME, null, 5));
+				plan.addTrigger(TRIGGER1_NAME, this::someJob, 0),
+				plan.addTrigger(TRIGGER1_NAME, this::someJob, 5));
 		plan.start();
 	}
 
@@ -303,7 +305,7 @@ public class PlanTest {
 		// if the next sev signal to be broadcast could both cause a segment transition *and* trigger activation,
 		// the segment should terminate first which means the trigger should *not* fire
 
-		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, sev, null, 5);
+		DummySEVTrigger trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, sev, 5);
 		plan.addSegment(SEGMENT1_NAME, x -> x >= 10, trigger);
 
 		plan.start();
@@ -314,14 +316,36 @@ public class PlanTest {
 		assertThat(trigger.getTriggerCount(), is(1));
 	}
 
+	@Test
+	public void startingPlanShouldStartDriverIfIncluded() {
+		// An experimental plan is a passive or reactive system
+		// i.e. it responds to signals but does not drive them (natively).
+		// The driving is done by the ExperimentDriver.
+		// If one is included, calling start() on the plan
+		// should also start the driver.
+
+		IExperimentDriver experimentDriver = getExperimentDriver();
+		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
+		plan.setDriver(experimentDriver);
+		plan.addSegment(SEGMENT1_NAME, sev -> false);
+
+		plan.start();
+
+		assertThat(experimentDriver.getState(), is(DriverState.RUNNING));
+	}
+
+	private IExperimentDriver getExperimentDriver() {
+		return new NoImplDriver();
+	}
+
 	/**
 	 * Works like PositionTrigger but without executor service.
 	 * No triggerable job but triggering signals increment trigger count (getTriggerCount())
 	 */
-	class DummySEVTrigger extends TriggerBase implements SEVListener {
+	class DummySEVTrigger extends TriggerBase {
 
 		private DummySEVTrigger(String name, IPlanRegistrar registrar, double positionInterval) {
-			super(registrar, () -> {});
+			super(registrar, () -> {}, sev);
 			setName(name);
 			this.thesev = sev;
 			this.positionInterval = positionInterval;
@@ -373,6 +397,11 @@ public class PlanTest {
 			return triggerCount;
 		}
 
+		@Override
+		protected boolean evaluateTriggerCondition(double signal) {
+			return false;
+		}
+
 	}
 
 	/**
@@ -386,7 +415,7 @@ public class PlanTest {
 		}
 
 		@Override
-		public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable operation,
+		public ITrigger addTrigger(String name, Triggerable triggerable,ISampleEnvironmentVariable sev,
 				double triggerInterval) {
 			ITrigger trigger = new DummySEVTrigger(name, getRegistrar(), triggerInterval);
 			trigger.setName(name);

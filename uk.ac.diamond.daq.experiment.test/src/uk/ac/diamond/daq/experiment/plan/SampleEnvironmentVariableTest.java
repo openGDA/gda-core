@@ -54,7 +54,7 @@ public class SampleEnvironmentVariableTest {
 	}
 
 	private void removeListeners() {
-		for (SEVListener listener : sev.getListeners().toArray(new SEVListener[sev.getListeners().size()])) sev.removeListener(listener);
+		sev.getListeners().forEach(listener -> sev.removeListener(listener));
 	}
 
 	double sensorSignal = 0;

@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +24,7 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	private static final Logger logger = LoggerFactory.getLogger(SampleEnvironmentVariable.class);
 	
 	private SEVSignal signalProvider;
-	private List<SEVListener> listeners;
+	private Set<SEVListener> listeners;
 	private boolean enabled;
 	private double lastPosition;
 	private double tolerance;
@@ -59,10 +59,7 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 		executorService.scheduleAtFixedRate(()->{
 			double newPosition = signalProvider.read();
 			if (Math.abs(lastPosition - newPosition) >= tolerance) {
-				// listeners.toArray to prevent concurrency issues
-				for (SEVListener listener : listeners.toArray(new SEVListener[listeners.size()])) { 
-					listener.signalChanged(newPosition);
-				}
+				listeners.forEach(listener -> listener.signalChanged(newPosition));
 				lastPosition = newPosition;
 			}
 		}, 0, 1, TimeUnit.MILLISECONDS);
@@ -100,12 +97,12 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	}
 	
 	@Override
-	public List<SEVListener> getListeners() {
+	public Set<SEVListener> getListeners() {
 		return listeners;
 	}
 	
 	private void clear() {
-		listeners = new ArrayList<>();
+		listeners = new CopyOnWriteArraySet<>();
 		setEnabled(false);
 	}
 

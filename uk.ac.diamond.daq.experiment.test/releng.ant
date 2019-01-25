@@ -26,6 +26,7 @@
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.experiment.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
+				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
 				<pathelement location="${plugin.host.basedir}/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->

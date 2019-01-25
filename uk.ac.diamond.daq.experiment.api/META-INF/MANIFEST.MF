@@ -7,6 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.diamond.daq.experiment.api.driver,
  uk.ac.diamond.daq.experiment.api.plan,
  uk.ac.diamond.daq.experiment.api.ui
-Require-Bundle: uk.ac.gda.api
+Require-Bundle: uk.ac.gda.api,
+ org.eclipse.scanning.api
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api

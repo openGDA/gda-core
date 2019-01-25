@@ -1,20 +1,23 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
@@ -24,22 +27,22 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
-public class Plan implements IPlan, IPlanRegistrar {
+public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 	
-	private IPlanFactory factory;
-	
 	private String name;
-	private List<ISampleEnvironmentVariable> sevs = new ArrayList<>();
-	private List<ISegment> segments = new LinkedList<>();
-	private List<ITrigger> triggers = new ArrayList<>();
+	private final List<ISegment> segments = new LinkedList<>();
+	private Optional<IExperimentDriver> experimentDriver = Optional.empty();
 	
 	private Queue<ISegment> segmentChain;
 	private ISegment activeSegment;
 	private ExperimentRecord record;
-	private boolean running;
+	
+	private IPlanFactory factory;	
+	private ISampleEnvironmentVariable lastDefinedSev;
 	
 	private String dataDirBeforeExperiment;
 	private String experimentDataDir;
@@ -68,13 +71,16 @@ public class Plan implements IPlan, IPlanRegistrar {
 		experimentDataDir = Paths.get(dataDirBeforeExperiment, validName(getName())).toString();
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, experimentDataDir);
 		
-		running = true;
 		record = new ExperimentRecord();
 		
 		logger.info("Plan '{}' execution started", getName());
 		printBanner("Plan '" + getName() + "' execution started");
 		
 		activateNextSegment();
+		
+		if (experimentDriver.isPresent()) {
+			experimentDriver.get().start();
+		}
 	}
 	
 	private void validatePlan() {
@@ -86,8 +92,13 @@ public class Plan implements IPlan, IPlanRegistrar {
 		if (segments.size() != uniqueSegmentNames) throw new IllegalStateException("Segments should have unique names!");
 		
 		// Ensure all triggers have unique names
+		List<ITrigger> triggers = getTriggers();
 		long uniqueTriggerNames = triggers.stream().map(Findable::getName).distinct().count();
 		if (triggers.size() != uniqueTriggerNames) throw new IllegalStateException("Triggers should have unique names!");
+	}
+	
+	private List<ITrigger> getTriggers() {
+		return segments.stream().map(ISegment::getTriggers).flatMap(List::stream).distinct().collect(Collectors.toList());
 	}
 	
 	private void activateNextSegment() {
@@ -101,7 +112,6 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}	
 	
 	private void terminateExperiment() {
-		running = false;
 		String summary = record.summary();
 		logger.info("End of experiment'{}'", getName());
 		logger.info(summary);
@@ -126,7 +136,7 @@ public class Plan implements IPlan, IPlanRegistrar {
 	
 	@Override
 	public boolean isRunning() {
-		return running;
+		return segments.stream().anyMatch(ISegment::isActivated);
 	}	
 	
 	@Override
@@ -172,79 +182,39 @@ public class Plan implements IPlan, IPlanRegistrar {
 	}
 	
 	@Override
+	public void setDriver(IExperimentDriver experimentDriver) {
+		this.experimentDriver = Optional.of(experimentDriver);
+	}
+	
+	@Override
 	public ISampleEnvironmentVariable addSEV(SEVSignal signalProvider) {
 		ISampleEnvironmentVariable sev = factory.addSEV(signalProvider);
-		sevs.add(sev);
+		lastDefinedSev = sev;
 		return sev;
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addTimer() {
+		return factory.addTimer();
 	}
 	
 	@Override
 	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, LimitCondition limit, ITrigger... triggers) {
 		ISegment segment = factory.addSegment(name, sev, limit, triggers);
 		segments.add(segment);
-		addTriggers(triggers);
 		return segment;
 	}
 	
 	@Override
-	public ISegment addSegment(String name, long duration, ITrigger... triggers) {
-		ISegment segment = factory.addSegment(name, duration, triggers);
+	public ISegment addSegment(String name, ISampleEnvironmentVariable sev, double duration, ITrigger... triggers) {
+		ISegment segment = factory.addSegment(name, sev, duration, triggers);
 		segments.add(segment);
-		addTriggers(triggers);
 		return segment;
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable, double triggerInterval) {
-		ITrigger trigger = factory.addTrigger(name, sev, runnable, triggerInterval);
-		triggers.add(trigger);
-		return trigger;
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, ISampleEnvironmentVariable sev, Runnable runnable,
-			double triggerSignal, double tolerance) {
-		ITrigger trigger = factory.addTrigger(name, sev, runnable, triggerSignal, tolerance);
-		triggers.add(trigger);
-		return trigger;
-	}
-	
-	@Override
-	public ITrigger addTimerTrigger(String name, Runnable runnable, long period) {
-		ITrigger trigger = factory.addTimerTrigger(name, runnable, period);
-		triggers.add(trigger);
-		return trigger;
-	}
-	
-	@Override
-	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addSegment(name, sev, limit, triggers);
-	}
-	
-	@Override
-	public ITrigger addTrigger(String name, Runnable runnable, double triggerInterval) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, runnable, triggerInterval);
-	}
-
-	@Override
-	public ITrigger addTrigger(String name, Runnable runnable, double triggerSignal, double tolerance) {
-		ISampleEnvironmentVariable sev = lastDefinedSEV();
-		return addTrigger(name, sev, runnable, triggerSignal, tolerance);
-	}
-	
-	private void addTriggers(ITrigger... trigs) {
-		for (ITrigger trigger : trigs) {
-			if (!triggers.contains(trigger)) {
-				triggers.add(trigger);
-			}
-		}
 	}
 	
 	private ISampleEnvironmentVariable lastDefinedSEV() {
-		if (sevs.isEmpty()) throw new IllegalArgumentException("No SEVs defined!");
-		return sevs.get(sevs.size()-1);
+		if (lastDefinedSev == null) throw new IllegalArgumentException("No SEVs defined!");
+		return lastDefinedSev;
 	}
 	
 	@Override
@@ -255,9 +225,82 @@ public class Plan implements IPlan, IPlanRegistrar {
 
 	@Override
 	public String toString() {
-		return "Plan [name=" + name + ", sevs=" + sevs + ", segments=" + segments + ", triggers=" + triggers
-				+ ", running=" + running + "]";
+		return "Plan [name=" + name + ", segments=" + segments + "]";
 	}
-	
-	
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, triggerable, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, scanRequest, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double target, double tolerance) {
+		return factory.addTrigger(name, scanRequest, importantScan, sev, target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, triggerable, sev, interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev,
+			double interval) {
+		return factory.addTrigger(name, scanRequest, sev, interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan,
+			ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, scanRequest, importantScan, sev, interval);
+	}
+
+	@Override
+	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
+		return addSegment(name, lastDefinedSEV(), limit, triggers);
+	}
+
+	@Override
+	public ISegment addSegment(String name, double duration, ITrigger... triggers) {
+		return addSegment(name, lastDefinedSEV(), duration, triggers);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double target, double tolerance) {
+		return addTrigger(name, scanRequest, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double target,
+			double tolerance) {
+		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double interval) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double interval) {
+		return addTrigger(name, scanRequest, lastDefinedSEV(), interval);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double interval) {
+		return addTrigger(name, scanRequest, importantScan, lastDefinedSEV(), interval);
+	}
 }

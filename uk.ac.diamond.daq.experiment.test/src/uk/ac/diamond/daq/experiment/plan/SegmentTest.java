@@ -13,12 +13,12 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 
 public class SegmentTest {
-	private SEVSegment segment;
+	private SegmentBase segment;
 
 
 	@Before
 	public void setUp() {
-		segment = new SEVSegment(mock(Plan.class), mock(ISampleEnvironmentVariable.class), signal -> signal < 0);
+		segment = new SimpleSegment(mock(Plan.class), mock(ISampleEnvironmentVariable.class), signal -> signal < 0);
 	}
 
 	@Test

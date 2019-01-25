@@ -1,20 +1,33 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
+import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public abstract class TriggerBase implements ITrigger {
 	
-	private String name;
-
-	protected final Runnable runnable;
-	protected IPlanRegistrar registrar;
+	private static final Logger logger = LoggerFactory.getLogger(TriggerBase.class);
 	
-	protected boolean enabled;
+	private String name;
+	private final Triggerable triggerable;
+	private final ISampleEnvironmentVariable sev;	
+	private final IPlanRegistrar registrar;
+	
+	private ExecutorService executorService;	
+	private boolean enabled;
+	private volatile boolean evaluating;
 
-	TriggerBase(IPlanRegistrar registrar, Runnable runnable) {
-		this.runnable = runnable;
+	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable, ISampleEnvironmentVariable sev) {
 		this.registrar = registrar;
+		this.triggerable = triggerable;
+		this.sev = sev;
 	}
 	
 	@Override
@@ -47,7 +60,49 @@ public abstract class TriggerBase implements ITrigger {
 		return enabled;
 	}
 	
-	protected abstract void enable();
-	protected abstract void disable();
+	protected void enable() {
+		executorService = Executors.newSingleThreadExecutor();
+		sev.addListener(this);
+	}
+	
+	protected void disable() {
+		sev.removeListener(this);
+		executorService.shutdownNow();
+	}
+	
+	protected ISampleEnvironmentVariable getSEV() {
+		return sev;
+	}
+	
+	protected Triggerable getTriggerable() {
+		return triggerable;
+	}
+	
+	@Override
+	public synchronized void signalChanged(double signal) {
+		if (evaluating) {
+			logger.debug("Signal {} ignored by trigger '{}' because it is currently evaluating a previous one", signal, getName());
+		} else {
+			evaluating = true;
+			try {
+				if (evaluateTriggerCondition(signal)) { // FIXME all implementations should be purely functional
+														// to move this outside synchronised method
+					logger.debug("Trigger '{}' now triggering due to signal {}", getName(), signal);
+					executorService.execute(()->{
+						registrar.triggerOccurred(this, signal);
+						triggerable.trigger();
+					});
+				}
+			} finally {
+				evaluating = false;
+			}
+		}
+	}
+	
+	/**
+	 * Determine whether the broadcasted signal should trigger us. 
+	 * Called from a synchronised method so it should be fast.
+	 */
+	protected abstract boolean evaluateTriggerCondition(double signal);
 
 }

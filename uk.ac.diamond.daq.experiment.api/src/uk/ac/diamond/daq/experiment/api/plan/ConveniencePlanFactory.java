@@ -2,57 +2,35 @@ package uk.ac.diamond.daq.experiment.api.plan;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
-public interface IPlanFactory {
-
-
-	/* ~~~~~~~~~~~~  Sample Environment Variables  ~~~~~~~~~~~~ */
-
-
-	/**
-	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link SEVSignal}.
-	 *
-	 * @param signalProvider
-	 * @return reference to created sev
-	 */
-	ISampleEnvironmentVariable addSEV(SEVSignal signalProvider);
-
-
-	/**
-	 * Gets a timer to use as an {@link ISampleEnvironmentVariable}.
-	 */
-	ISampleEnvironmentVariable addTimer();
-
-
-	/* ~~~~~~~~~~~~~~~~~~~~~~  Segments  ~~~~~~~~~~~~~~~~~~~~~~ */
-
+/**
+ * Factory methods for {@link ISegment}s and {@link ITrigger}s which do not specify {@link ISampleEnvironmentVariable}s.
+ * The implementation caches the last {@link ISampleEnvironmentVariable} registered to an {@link IPlan}
+ * and assumes you want to use that one with the methods here.
+ */
+public interface ConveniencePlanFactory {
 
 	/**
 	 * Creates the next segment in the experiment (segments are executed in order of creation).
 	 *
 	 * @param name				The name of this segment.
-	 * @param sev 				The {@link ISampleEnvironmentVariable} acting as source for the limiting signal
 	 * @param limit 			The {@link LimitCondition} which will terminate this segment once met.
 	 * @param triggers			The triggers which should be enabled during this segment
 	 *
 	 * @return 					Reference to the created segment
 	 */
-	ISegment addSegment(String name, ISampleEnvironmentVariable sev, LimitCondition limit, ITrigger... triggers);
+	ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers);
 
 
 	/**
 	 * Creates the next time-based segment with the given duration
 	 *
 	 * @param name				The name of this segment.
-	 * @param sev 				The {@link ISampleEnvironmentVariable} acting as source for the limiting signal
 	 * @param duration			The duration in seconds of this segment
 	 * @param triggers			The triggers which should be enabled during this segment
 	 *
 	 * @return Reference to the created segment
 	 */
-	ISegment addSegment(String name, ISampleEnvironmentVariable sev, double duration, ITrigger... triggers);
-
-
-	/* ~~~~~~~~~~~~~~~~~~~~~~  Triggers  ~~~~~~~~~~~~~~~~~~~~~~ */
+	ISegment addSegment(String name, double duration, ITrigger... triggers);
 
 
 	/**
@@ -61,13 +39,12 @@ public interface IPlanFactory {
 	 *
 	 * @param name 				Name of this trigger
 	 * @param triggerable		Triggered job
-	 * @param sev 				The {@link ISampleEnvironmentVariable} used as triggering signal source
 	 * @param target			The optimal triggering signal
 	 * @param tolerance			The acceptable tolerance around the target signal
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance);
 
 
 	/**
@@ -76,13 +53,12 @@ public interface IPlanFactory {
 	 *
 	 * @param name 				Name of this trigger
 	 * @param scanRequest		Scan request to submit
-	 * @param sev 				The {@link ISampleEnvironmentVariable} used as triggering signal source
 	 * @param target			The optimal triggering signal
 	 * @param tolerance			The acceptable tolerance around the target signal
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double target, double tolerance);
 
 
 	/**
@@ -96,13 +72,12 @@ public interface IPlanFactory {
 	 * 							If {@code false}, the scan submission request will be logged and ignored
 	 * 							allowing the uninterrupted execution of the previous scan.<br>
 	 * 							Default is {@code false}
-	 * @param sev 				The {@link ISampleEnvironmentVariable} used as triggering signal source
 	 * @param target			The optimal triggering signal
 	 * @param tolerance			The acceptable tolerance around the target signal
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double target, double tolerance);
 
 
 	/**
@@ -110,12 +85,11 @@ public interface IPlanFactory {
 	 *
 	 * @param name of this trigger
 	 * @param runnable which this trigger will perform
-	 * @param sev the {@link ISampleEnvironmentVariable} this trigger will listen to
 	 * @param interval or period between triggers
 	 *
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval);
+	ITrigger addTrigger(String name, Triggerable triggerable, double interval);
 
 
 	/**
@@ -123,12 +97,11 @@ public interface IPlanFactory {
 	 *
 	 * @param name of this trigger
 	 * @param scanRequest scan request to submit
-	 * @param sev the {@link ISampleEnvironmentVariable} this trigger will listen to
 	 * @param interval the period between triggers
 	 *
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, ISampleEnvironmentVariable sev, double interval);
+	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, double interval);
 
 
 	/**
@@ -141,18 +114,10 @@ public interface IPlanFactory {
 	 * 							If {@code false}, the scan submission request will be logged and ignored
 	 * 							allowing the uninterrupted execution of the previous scan.<br>
 	 * 							Default is {@code false}
-	 * @param sev 				The {@link ISampleEnvironmentVariable} used as triggering signal source
 	 * @param interval 			The period between triggers
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, ISampleEnvironmentVariable sev, double interval);
-
-
-	/**
-	 * The registrar is used for creating components which need to report their events.
-	 * @param registrar
-	 */
-	void setRegistrar(IPlanRegistrar registrar);
+	ITrigger addTrigger(String name, ScanRequest<?> scanRequest, boolean importantScan, double interval);
 
 }

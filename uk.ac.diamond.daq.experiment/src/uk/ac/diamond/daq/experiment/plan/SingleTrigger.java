@@ -4,31 +4,39 @@ import java.math.BigDecimal;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
+import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 /**
- * Will trigger only once; when SEV signal is at triggerSignal ± tolerance. 
- *
+ * Will trigger only once per segment: when SEV signal is at triggerSignal ± tolerance. 
  */
-public class SingleFireTrigger extends SEVTrigger {
+public class SingleTrigger extends TriggerBase {
 	
-	private boolean hasTriggered = false;
+	private boolean hasTriggered;
 	private BigDecimal lowerLimit;
 	private BigDecimal upperLimit;
 
 	/**
-	 * Create an ITriggeringPoint that will trigger an {@code runnable} only once,
+	 * Create an {@link ITrigger} that will trigger a {@code Triggerable} only once,
 	 * when signal from {@code sev} = {@code triggerSignal} ± {@code tolerance}
-	 * @param sev whose sampled signal this trigger listens to
-	 * @param runnable 
-	 * @param triggerSignal signal from sev which should trigger us
+	 * @param registrar to report to
+	 * @param sev providing the triggering signal source
+	 * @param triggerable to trigger 
+	 * @param target signal from sev which should trigger us
 	 * @param tolerance
 	 */
-	SingleFireTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Runnable runnable, double triggerSignal, double tolerance) {
-		super(registrar, sev, runnable);
-		BigDecimal position = BigDecimal.valueOf(triggerSignal);
+	SingleTrigger(IPlanRegistrar registrar, ISampleEnvironmentVariable sev, Triggerable triggerable, double target, double tolerance) {
+		super(registrar, triggerable, sev);
+		BigDecimal position = BigDecimal.valueOf(target);
 		BigDecimal positiveTolerance = BigDecimal.valueOf(tolerance).abs();
 		lowerLimit = position.subtract(positiveTolerance);
 		upperLimit = position.add(positiveTolerance);
+	}
+	
+	@Override
+	protected void enable() {
+		hasTriggered = false;
+		super.enable();
 	}
 
 	@Override
@@ -41,7 +49,7 @@ public class SingleFireTrigger extends SEVTrigger {
 	
 	@Override
 	public String toString() {
-		return "SingleFireTrigger [SEV="+getSEV()+", runnable="+getRunnable()
+		return "SingleTrigger [SEV="+getSEV()+", runnable="+getTriggerable()
 			+", triggering when "+lowerLimit.doubleValue()+" <= signal <= "+upperLimit.doubleValue()+"]";
 	}
 
