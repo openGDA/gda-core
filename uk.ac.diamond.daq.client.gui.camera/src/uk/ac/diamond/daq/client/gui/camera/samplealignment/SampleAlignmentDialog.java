@@ -39,6 +39,7 @@ public class SampleAlignmentDialog {
 			Button closeButton = new Button(buttonComposite, 0);
 			closeButton.setText("Close");
 			closeButton.addListener(SWT.Selection, e -> {
+				plottingComposite.disconnect();
 				instance.close();
 				instance = null;
 			});

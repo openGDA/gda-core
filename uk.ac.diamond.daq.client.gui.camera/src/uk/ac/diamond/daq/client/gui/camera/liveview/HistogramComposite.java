@@ -1,9 +1,10 @@
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import java.util.Collection;
 
 import org.dawnsci.plotting.histogram.ImageHistogramProvider;
 import org.dawnsci.plotting.histogram.ui.HistogramViewer;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -18,7 +19,7 @@ public class HistogramComposite extends Composite {
 
 	private HistogramViewer histogram;
 
-	public HistogramComposite(Composite parent, LivePlottingComposite plottingComposite, int style) {
+	public HistogramComposite(Composite parent, @SuppressWarnings("rawtypes") IPlottingSystem plottingSystem, int style) {
 		super(parent, style);
 
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
@@ -26,7 +27,7 @@ public class HistogramComposite extends Composite {
 		try {
 
 			histogram = new HistogramViewer(this);
-			Collection<ITrace> traces = plottingComposite.getPlottingSystem().getTraces(IPaletteTrace.class);
+			Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);
 			histogram.setContentProvider(new ImageHistogramProvider());
 			histogram.setInput(traces.iterator().next());
 			histogram.refresh();

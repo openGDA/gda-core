@@ -20,6 +20,7 @@ package uk.ac.gda.api.camera;
 
 import gda.device.DeviceException;
 import gda.factory.Findable;
+import gda.observable.IObservable;
 
 /**
  * An interface allowing access to basic camera operations
@@ -27,7 +28,7 @@ import gda.factory.Findable;
  * It was originally written to allow clients to control camera functions without having to export large objects such as
  * area detectors over RMI.
  */
-public interface CameraControl extends Findable {
+public interface CameraControl extends Findable, IObservable {
 
 	/**
 	 * Get acquire (exposure) time
@@ -38,7 +39,7 @@ public interface CameraControl extends Findable {
 	double getAcquireTime() throws DeviceException;
 
 	/**
-	 * Set acquire (exposire) time
+	 * Set acquire (exposure) time
 	 *
 	 * @param acquiretime
 	 *            in seconds
@@ -67,4 +68,34 @@ public interface CameraControl extends Findable {
 	 * @throws DeviceException
 	 */
 	CameraState getAcquireState() throws DeviceException;
+
+	/**
+	 * Return binning format of the camera e.g 1x1
+	 *
+	 * @return binning format
+	 */
+	BinningFormat getBinningPixels () throws DeviceException;
+
+	/**
+	 * The amount of
+	 * @param binningFormat
+	 */
+	void setBinningPixels (BinningFormat binningFormat) throws DeviceException;
+
+	/**
+	 * Get the current region of interest.
+	 * @return region of interest or <code>null</code> if none is set
+	 */
+	CameraRegionOfInterest getRegionOfInterest () throws DeviceException;
+
+	/**
+	 *
+	 * @param region
+	 */
+	void setRegionOfInterest (CameraRegionOfInterest region) throws DeviceException;
+
+	/**
+	 * Clear
+	 */
+	void clearRegionOfInterest () throws DeviceException;
 }

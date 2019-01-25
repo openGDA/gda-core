@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.diamond.daq.client.gui.camera.exposure;
 
 import java.util.ArrayList;
 import java.util.List;

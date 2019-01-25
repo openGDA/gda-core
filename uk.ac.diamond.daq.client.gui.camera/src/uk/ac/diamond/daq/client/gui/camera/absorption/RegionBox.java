@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
