@@ -75,6 +75,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		dataBindingContext = new DataBindingContext();
 		Composite processingComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(processingComposite);

@@ -70,6 +70,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
 		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(composite);

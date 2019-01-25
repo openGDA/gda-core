@@ -7,7 +7,9 @@
 	<bean id="mappingViewConfiguration" class="uk.ac.diamond.daq.mapping.ui.experiment.MappingViewConfiguration">
 		<property name="scrolledSections">
 			<list>
-				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.BeamlineConfigurationSection" />
+				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.BeamlineConfigurationSection">
+					<property name="createSeparator" value="false" />
+				</bean>
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.ScriptFilesSection" />
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection" />
 				<bean class="uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection" />

@@ -44,6 +44,7 @@ public class ScanMetadataSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		IMappingExperimentBean mappingBean = getMappingBean();
 		Composite essentialParametersComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);

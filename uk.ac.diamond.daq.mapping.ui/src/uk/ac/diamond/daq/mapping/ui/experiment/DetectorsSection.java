@@ -92,6 +92,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		sectionComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);

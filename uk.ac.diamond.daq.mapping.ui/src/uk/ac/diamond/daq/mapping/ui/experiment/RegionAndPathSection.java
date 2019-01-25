@@ -183,6 +183,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		// Make a custom section for handling the mapping region
 		regionAndPathComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);

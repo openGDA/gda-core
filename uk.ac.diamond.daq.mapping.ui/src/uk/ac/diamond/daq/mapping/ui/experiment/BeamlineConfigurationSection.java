@@ -62,6 +62,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		try {
 			scannableDeviceService = getMappingView().getScannableDeviceService();
 		} catch (Exception e) {

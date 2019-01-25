@@ -255,11 +255,6 @@ public class MappingExperimentView implements IAdaptable {
 			sections.put(section.getClass(), section);
 
 			if (section.shouldShow()) {
-				// create separator if this section should have one, unless its the first section
-				if (section.createSeparator() && sections.size() > 1) {
-					GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(
-							new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL));
-				}
 				section.loadState(persistedState);
 				section.createControls(parent);
 			}

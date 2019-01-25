@@ -31,6 +31,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
@@ -46,6 +47,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
@@ -65,6 +68,8 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	private MappingExperimentView mappingView;
 
+	private Label separator;
+
 	protected DataBindingContext dataBindingContext;
 
 	private boolean createSeparator = true;
@@ -72,6 +77,15 @@ public abstract class AbstractMappingSection implements IMappingSection {
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
+	}
+
+	@Override
+	public void createControls(Composite parent) {
+		// Create the separator if required
+		if (createSeparator) {
+			separator = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
+			GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(separator);
+		}
 	}
 
 	protected Shell getShell() {
@@ -175,6 +189,21 @@ public abstract class AbstractMappingSection implements IMappingSection {
 	@Override
 	public void loadState(@SuppressWarnings("unused") Map<String, String> persistedState) {
 
+	}
+
+	/**
+	 * Show or hide the separator (if there is one)
+	 * <p>
+	 * You may have to call {@link #relayoutMappingView()} after doing this
+	 *
+	 * @param visible
+	 *            true if the separator is to be shown, false if it is to be hidden
+	 */
+	protected void setSeparatorVisibility(boolean visible) {
+		if (separator != null) {
+			separator.setVisible(visible);
+			((GridData) separator.getLayoutData()).exclude = !visible;
+		}
 	}
 
 	/**

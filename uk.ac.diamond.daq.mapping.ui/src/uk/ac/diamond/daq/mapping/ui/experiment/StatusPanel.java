@@ -53,6 +53,7 @@ public class StatusPanel extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		final Composite sectionComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
 		GridLayoutFactory.fillDefaults().applyTo(sectionComposite);

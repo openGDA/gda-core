@@ -124,6 +124,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		sectionComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);

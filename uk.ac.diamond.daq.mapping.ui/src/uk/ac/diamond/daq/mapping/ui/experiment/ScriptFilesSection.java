@@ -49,6 +49,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		super.createControls(parent);
 		final Composite scriptsComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(scriptsComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
