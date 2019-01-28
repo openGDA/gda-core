@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -51,6 +52,10 @@ public class SegmentEditor implements ElementEditor {
 	private TriggerListEditor triggers;
 	
 	private List<String> sevs;
+	
+	public SegmentEditor(ExperimentService experimentService, String experimentId) {
+		triggers = new TriggerListEditor(experimentService, experimentId);
+	}
 
 	@Override
 	public void createControl(Composite parent) {
@@ -85,8 +90,6 @@ public class SegmentEditor implements ElementEditor {
 		if (limitingSource == null) limitingSource = SignalSource.POSITION;
 		
 		updateLimitControl();
-		
-		triggers = new TriggerListEditor();
 		
 		// FIXME this doesn't look right
 		// it is weird that we are creating a new composite on top of parent.getParent()

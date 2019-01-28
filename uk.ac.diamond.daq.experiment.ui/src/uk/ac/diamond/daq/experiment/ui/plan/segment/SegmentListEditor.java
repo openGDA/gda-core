@@ -9,6 +9,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
@@ -16,8 +17,8 @@ import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 public class SegmentListEditor {
 	private SegmentEditor segmentEditor;
 	
-	public SegmentListEditor() {
-		segmentEditor = new SegmentEditor();
+	public SegmentListEditor(ExperimentService experimentService, String experimentId) {
+		segmentEditor = new SegmentEditor(experimentService, experimentId);
 	}
 	
 	public Composite createEditorPart(Composite parent) {

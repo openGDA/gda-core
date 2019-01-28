@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -37,6 +38,14 @@ public class TriggerEditor implements ElementEditor {
 	
 	private Button sevSourceButton, timeSourceButton, oneShotButton, periodicButton;
 	
+	private final ExperimentService experimentService;
+	private final String experimentId;
+	
+	public TriggerEditor(ExperimentService experimentService, String experimentId) {
+		this.experimentService = experimentService;
+		this.experimentId = experimentId;
+	}
+	
 	@Override
 	public void createControl(Composite parent) {
 		composite = new Composite(parent, SWT.NONE);
@@ -55,8 +64,8 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		executable = new Combo(composite, SWT.READ_ONLY); // temporary...
-		executable.setItems("radiog_5ms", "diffr_5ms");
+		executable = new Combo(composite, SWT.READ_ONLY);
+		executable.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
 		
 		STRETCH.copy().applyTo(executable);
 		
@@ -101,8 +110,6 @@ public class TriggerEditor implements ElementEditor {
 		
 		
 		updateDetailControl();
-		
-		nameText.setFocus();
 	}
 	
 	private void removeListener(Widget widget, int type) {
@@ -200,8 +207,6 @@ public class TriggerEditor implements ElementEditor {
 		detailControl.update(detailComposite, source, mode, model);
 
 		composite.layout(true);
-		
-		detailComposite.setFocus();
 	}
 	
 	public void setSevNames(List<String> sevs) {
