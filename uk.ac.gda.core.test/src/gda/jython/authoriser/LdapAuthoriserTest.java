@@ -71,7 +71,7 @@ public class LdapAuthoriserTest {
 		assertEquals(1,authoriser.getAuthorisationLevel("testUserNotInLdap"));
 		assertEquals(2,authoriser.getAuthorisationLevel("testStaffNotInLdap"));
 		assertEquals(3,authoriser.getAuthorisationLevel("mzp47"));
-		assertEquals(5,authoriser.getAuthorisationLevel("bmn54829"));
+		assertEquals(5,authoriser.getAuthorisationLevel("rbl46502"));
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class LdapAuthoriserTest {
 		assertFalse(authoriser.isLocalStaff("testUserNotInLdap"));
 		assertTrue(authoriser.isLocalStaff("testStaffNotInLdap"));
 		assertFalse(authoriser.isLocalStaff("mzp47"));
-		assertTrue(authoriser.isLocalStaff("bmn54829"));
+		assertTrue(authoriser.isLocalStaff("rbl46502"));
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class LdapAuthoriserTest {
 		assertTrue(authoriser.hasAuthorisationLevel("testUserNotInLdap"));
 		assertTrue(authoriser.hasAuthorisationLevel("testStaffNotInLdap"));
 		assertTrue(authoriser.hasAuthorisationLevel("mzp47"));
-		assertTrue(authoriser.hasAuthorisationLevel("bmn54829"));
+		assertTrue(authoriser.hasAuthorisationLevel("rbl46502"));
 		assertFalse(authoriser.hasAuthorisationLevel("a_username_in_xml_or_ldap"));
 	}
 
