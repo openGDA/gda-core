@@ -107,7 +107,7 @@ class OuterScannablesSection extends AbstractMappingSection {
 	private List<String> availableScannables;
 
 	@Override
-	public void initialize(AbstractSectionsView mappingView) {
+	public void initialize(MappingExperimentView mappingView) {
 		super.initialize(mappingView);
 		List<String> defaultScannables = getMappingBean().getScanDefinition().getDefaultOuterScannables();
 		if (defaultScannables == null || defaultScannables.isEmpty()) {
