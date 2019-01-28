@@ -18,10 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
+
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 
@@ -33,34 +35,22 @@ public class MappingExperimentView extends AbstractSectionsView {
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
 
+	private final MappingViewConfiguration mappingViewConfiguration;
+
 	@Inject
 	public MappingExperimentView(IMappingExperimentBeanProvider beanProvider) {
 		super(beanProvider);
+		mappingViewConfiguration = PlatformUI.getWorkbench().getService(MappingViewConfiguration.class);
+		Objects.requireNonNull(mappingViewConfiguration, "Cannot get MappingViewConfiguration");
 	}
 
 	@Override
 	protected List<IMappingSection> getScrolledSections() {
-		return Arrays.asList(
-			// a section for configuring scannables to be moved to a particular position at the start of a scan
-			new BeamlineConfigurationSection(),
-			// a section for configuring scripts to be run before and after a scan
-			new ScriptFilesSection(),
-			// a section for configuring outer scannables (i.e. in addition to the inner map)
-			new OuterScannablesSection(),
-			// a section for choosing the detectors (or malcolm device) to include in the scan
-			new DetectorsSection(),
-			// a section for configuring the path of the mapping scan
-			new RegionAndPathSection(),
-			// a section for configuring metadata to add to the scan
-			new ScanMetadataSection(),
-			// a section for configuring live processing to run
-			new ProcessingSection());
+		return mappingViewConfiguration.getScrolledSections();
 	}
 
 	@Override
 	protected List<IMappingSection> getUnscrolledSections() {
-		return Arrays.asList(
-			// a section for submitting the scan to the queue
-			new SubmitScanSection());
+		return mappingViewConfiguration.getUnscrolledSections();
 	}
 }
