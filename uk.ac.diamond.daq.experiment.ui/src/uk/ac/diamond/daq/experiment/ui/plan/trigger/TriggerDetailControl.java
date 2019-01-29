@@ -10,12 +10,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Mode;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
+import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
+import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 
 public class TriggerDetailControl {
 	
 	private static final GridDataFactory STRETCH = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).grab(true, false);
+	
+	private static final double TIME_TOLERANCE = 0.1;
 	
 	private Composite composite;
 	
@@ -28,20 +31,20 @@ public class TriggerDetailControl {
 		this.sevs = sevs;
 	}
 	
-	public Composite update(Composite parent, Source source, Mode mode, TriggerDescriptor model) {
+	public Composite update(Composite parent, SignalSource source, ExecutionPolicy mode, TriggerDescriptor model) {
 		
 		prepareComposite(parent);
 		
-		if (source == Source.SEV) {
-			if (mode == Mode.SINGLE) {
+		if (source == SignalSource.POSITION) {
+			if (mode == ExecutionPolicy.SINGLE) {
 				return sevSingle(model);
-			} else if (mode == Mode.PERIODIC) {
+			} else if (mode == ExecutionPolicy.REPEATING) {
 				return sevPeriodic(model);
 			}
-		} else if (source == Source.TIME) {
-			if (mode == Mode.SINGLE) {
+		} else if (source == SignalSource.TIME) {
+			if (mode == ExecutionPolicy.SINGLE) {
 				return timeSingle(model);
-			} else if (mode == Mode.PERIODIC) {
+			} else if (mode == ExecutionPolicy.REPEATING) {
 				return timePeriodic(model);
 			}
 		}
@@ -99,7 +102,10 @@ public class TriggerDetailControl {
 		target.addListener(SWT.Modify, e -> {
 			if (model != null) model.setTarget(Double.parseDouble(target.getText()));
 		});
-		if (model != null) target.setText(String.valueOf(model.getTarget()));
+		if (model != null) {
+			target.setText(String.valueOf(model.getTarget()));
+			model.setTolerance(TIME_TOLERANCE);
+		}
 		STRETCH.applyTo(target);
 		
 		return composite;
@@ -133,14 +139,14 @@ public class TriggerDetailControl {
 		if (sevs != null) {
 			sevCombo.setItems(sevs.toArray(new String[0]));
 			if (model != null) {
-				sevCombo.select(sevs.indexOf(model.getSevName()));
+				sevCombo.select(sevs.indexOf(model.getSampleEnvironmentVariableName()));
 			} else {
 				sevCombo.select(0);
 			}
 		}
 
 		sevCombo.addListener(SWT.Selection, e -> {
-			if (model != null) model.setSevName(sevCombo.getText());
+			if (model != null) model.setSampleEnvironmentVariableName(sevCombo.getText());
 		});
 		
 		STRETCH.applyTo(sevCombo);
