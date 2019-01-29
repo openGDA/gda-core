@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.diamond.daq.experiment.api.remote.Inequality;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
