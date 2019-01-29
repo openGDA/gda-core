@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="proxy1" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy2" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy3" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy4" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy5" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy6" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy7" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy8" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy9" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+	<bean id="proxy10" class="uk.ac.gda.remoting.client.GdaRmiProxy" />
+
+</beans>

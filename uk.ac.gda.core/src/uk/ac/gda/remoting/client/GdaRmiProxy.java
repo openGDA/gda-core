@@ -72,7 +72,7 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 	}
 
 	@Override
-	public void afterPropertiesSet() throws FactoryException {
+	public void afterPropertiesSet() throws Exception {
 		// Check state, should be ensured by Spring
 		Objects.requireNonNull(applicationContext, "applicationContext not set");
 		Objects.requireNonNull(name, "name not set");
@@ -87,17 +87,18 @@ public class GdaRmiProxy implements ApplicationContextAware, BeanNameAware, Fact
 	}
 
 	/**
-	 * Gets the rmiProxyFactory from the context, and ensures only one is present. It also ensures the rmiProxyFactory
+	 * Gets the {@link RmiProxyFactory} from the context, and ensures only one is present. It also ensures the RmiProxyFactory
 	 * is configured before returning it.
 	 *
-	 * @return the rmiProxyFactory
+	 * @return the RmiProxyFactory
 	 * @throws FactoryException
-	 *             If configuring the rmiProxyFactory fails
+	 *             If configuring the RmiProxyFactory fails
 	 */
 	private RmiProxyFactory getRmiProxyFactory() throws FactoryException {
-		final Map<String, RmiProxyFactory> rmiProxyFactories = applicationContext.getBeansOfType(RmiProxyFactory.class);
+		// DAQ-1945 Don't allow allow eager initialisation when searching the context for the RmiProxyFactory
+		final Map<String, RmiProxyFactory> rmiProxyFactories = applicationContext.getBeansOfType(RmiProxyFactory.class, false, false);
 		if (rmiProxyFactories.size() != 1) {
-			throw new IllegalStateException("No RmiProxyFactory is avaliable. Is one created in your config?");
+			throw new IllegalStateException("No " + RmiProxyFactory.class.getSimpleName() + " is avaliable. Is one created in your config?");
 		}
 		// Only one thing in the map and we don't care about the id.
 		final RmiProxyFactory rmiProxyFactory = rmiProxyFactories.values().iterator().next();

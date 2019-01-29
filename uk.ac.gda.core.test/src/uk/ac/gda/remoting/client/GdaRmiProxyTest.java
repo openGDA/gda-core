@@ -34,8 +34,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import gda.device.Scannable;
 
@@ -87,7 +89,7 @@ public class GdaRmiProxyTest {
 
 		final Map<String, RmiProxyFactory> appContextMap = new HashMap<>();
 		appContextMap.put("rmiProxyFactoryName", rmiProxyFactory);
-		when(applicationContext.getBeansOfType(RmiProxyFactory.class)).thenReturn(appContextMap);
+		when(applicationContext.getBeansOfType(RmiProxyFactory.class, false, false)).thenReturn(appContextMap);
 
 		final Scannable mockScannable = mock(Scannable.class);
 		when(rmiProxyFactory.getFindable("test")).thenReturn(mockScannable);
@@ -113,5 +115,13 @@ public class GdaRmiProxyTest {
 	@Test
 	public void testIsSingletonReturnsFalse() throws Exception {
 		assertThat(gdaRmiProxy.isSingleton(), is(false));
+	}
+
+	// This should throw within the timeout as this context cannot be resolved
+	@Test(expected=BeanCreationException.class, timeout=10000)
+	public void testDaq1945NoInfinteLoopResolvingContext() throws Exception {
+		// Try to resolve a context containing 10 GdaRmiProxy but no RmiProxyFactory. Use this class to class load with
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("testSpringContext.xml", GdaRmiProxyTest.class);
+		context.close();
 	}
 }
