@@ -39,7 +39,6 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 
 	private final List<String> elementNames;
 	private final List<T> elementValues;
-	private final List<String> elementUnits;
 
 	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues) {
 		if (elementNames.size() != elementValues.size()) {
@@ -48,17 +47,6 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 		}
 		this.elementNames = elementNames;
 		this.elementValues = elementValues;
-		this.elementUnits=null;
-	}
-
-	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues, @SuppressWarnings("unused") List<String> elementUnits) {
-		if (elementNames.size() != elementValues.size()) {
-			throw new IllegalArgumentException(MessageFormat.format(
-					"Length of elementNames[{0}] != elementValues[{1}]", elementNames.size(), elementValues.size()));
-		}
-		this.elementNames = elementNames;
-		this.elementValues = elementValues;
-		this.elementUnits=null;
 	}
 
 	@Override
@@ -67,16 +55,12 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 			String name = elementNames.get(i);
 			INexusTree valdata = null;
 			T t = elementValues.get(i);
-			String unit=null;
-			if (elementUnits != null && !elementUnits.isEmpty()) {
-				unit=elementUnits.get(i);
-			}
 			if( t instanceof Double){
 				data.setPlottableValue(name, (Double)t);
-				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), unit, null, null, true);
+				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), null, null, null, true);
 			} else if( t instanceof Integer){
 				data.setPlottableValue(name, ((Integer)t).doubleValue());
-				valdata = data.addData(detectorName, name, new NexusGroupData((Integer) t), unit, null, null, true);
+				valdata = data.addData(detectorName, name, new NexusGroupData((Integer) t), null, null, null, true);
 			}
 			if(valdata ==null)
 				throw new RuntimeException("Only Double or Integer currently supported by NXDetectorDataTAppender");
@@ -90,7 +74,6 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 		int result = 1;
 		result = prime * result + ((elementNames == null) ? 0 : elementNames.hashCode());
 		result = prime * result + ((elementValues == null) ? 0 : elementValues.hashCode());
-		result = prime * result + ((elementUnits == null) ? 0 : elementUnits.hashCode());
 		return result;
 	}
 
@@ -114,23 +97,18 @@ public class NXDetectorDataTAppender <T extends Number> implements NXDetectorDat
 				return false;
 		} else if (!elementValues.equals(other.elementValues))
 			return false;
-		if (elementUnits == null) {
-			if (other.elementUnits != null)
-				return false;
-		} else if (!elementUnits.equals(other.elementUnits))
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		String str = "NXDetectorDataDoubleAppender:";
+		StringBuilder str = new StringBuilder("NXDetectorDataDoubleAppender:");
 		for (int i = 0; i < elementNames.size(); i++) {
-			String name = elementNames.get(i);
-			T value = elementValues.get(i);
-			String unit = elementUnits.get(i);
-			str = str + " " + name + ":" + value+unit;
+			str.append(" ");
+			str.append(elementNames.get(i));
+			str.append(":");
+			str.append(elementValues.get(i));
 		}
-		return str;
+		return str.toString();
 	}
 }

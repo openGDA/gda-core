@@ -17,17 +17,23 @@
  */
 
 package gda.device.detector.nxdata;
-
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NXDetectorDataDoubleAppender extends NXDetectorDataTAppender<Double> {
 
+	private static final Logger logger = LoggerFactory.getLogger(NXDetectorDataDoubleAppender.class);
+
 	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues) {
-		super(elementNames, elementValues, null);
+		super(elementNames, elementValues);
 	}
 
-	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues,  List<String> elementUnits) {
-		super(elementNames, elementValues, elementUnits);
+	@Deprecated
+	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues, List<String> elementUnits) {
+		super(elementNames, elementValues);
+		logger.warn("Units not supported, ignoring elementUnits: {}", elementUnits);
 	}
 
 }
