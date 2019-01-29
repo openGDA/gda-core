@@ -68,6 +68,7 @@ import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.logging.JythonLogHandler;
+import gda.jython.logging.PythonException;
 import gda.jython.translator.Translator;
 import uk.ac.gda.common.util.EclipseUtils;
 
@@ -675,10 +676,7 @@ public class GDAJythonInterpreter {
 			PyObject result = interactiveConsole.eval(command);
 			output = result.toString();
 		} catch (PyException e) {
-			// simplify what is logged for namespace errors - otherwise too much information is sent to users
-			if (!e.type.toString().contains("exceptions.NameError")) {
-				logger.error("Error evaluating command: {}", command, e);
-			}
+			logger.error("Error evaluating command: {}", command, PythonException.from(e));
 		}
 		return output;
 	}
