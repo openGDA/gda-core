@@ -109,7 +109,6 @@ import org.slf4j.LoggerFactory;
  * @author Matthew Gerring
  *
  */
-@SuppressWarnings({"squid:S1192", "squid:S1659"})
 public class StatusQueueView extends EventConnectionView {
 
 	private static final String RERUN_HANDLER_EXTENSION_POINT_ID = "org.eclipse.scanning.api.rerunHandler";
@@ -1101,7 +1100,6 @@ public class StatusQueueView extends EventConnectionView {
 		logger.debug("updateQueue() scheduled as thread {}", queueJob.getThread());
 	}
 
-	@SuppressWarnings("squid:S3776")
 	private void createColumns() {
 
 		final TableViewerColumn name = new TableViewerColumn(viewer, SWT.LEFT);

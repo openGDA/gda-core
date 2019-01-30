@@ -227,7 +227,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		this.supportedScanModes = supportedScanModes;
 	}
 
-	@SuppressWarnings({"squid:S3776", "squid:S00115"})
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -255,7 +254,6 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		return result;
 	}
 
-	@SuppressWarnings("squid:S3776")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

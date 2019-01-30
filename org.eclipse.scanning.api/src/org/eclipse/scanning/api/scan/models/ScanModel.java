@@ -135,7 +135,6 @@ public class ScanModel {
 		return result;
 	}
 
-	@SuppressWarnings("squid:S3776")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -202,7 +201,6 @@ public class ScanModel {
 		this.positionIterable = positionIterator;
 	}
 
-	@SuppressWarnings("squid:S1452")
 	public List<IScannable<?>> getScannables() {
 		return scannables;
 	}
@@ -211,7 +209,6 @@ public class ScanModel {
 		this.scannables = scannables;
 	}
 
-	@SuppressWarnings("squid:S1452")
 	public List<IRunnableDevice<?>> getDetectors() {
 		if (detectors == null) {
 			return Collections.emptyList();
@@ -227,7 +224,6 @@ public class ScanModel {
 		this.detectors = Arrays.asList(detectors);
 	}
 
-	@SuppressWarnings("squid:S1452")
 	public List<IScannable<?>> getMonitorsPerPoint() {
 		if (monitorsPerPoint == null) {
 			return Collections.emptyList();
@@ -248,7 +244,6 @@ public class ScanModel {
 		}
 	}
 
-	@SuppressWarnings("squid:S1452")
 	public List<IScannable<?>> getMonitorsPerScan() {
 		if (monitorsPerScan == null) {
 			return Collections.emptyList();
@@ -295,7 +290,6 @@ public class ScanModel {
 		this.scanMetadata.add(scanMetadata);
 	}
 
-	@SuppressWarnings("squid:S1452")
 	public List<?> getAnnotationParticipants() {
 		if (annotationParticipants == null) {
 			return Collections.emptyList();

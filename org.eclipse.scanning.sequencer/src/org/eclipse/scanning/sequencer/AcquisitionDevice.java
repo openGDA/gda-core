@@ -454,7 +454,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	@SuppressWarnings("squid:S1163")
 	private void close(boolean errorFound, IPosition last) throws ScanningException {
 		try {
 			try {

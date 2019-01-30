@@ -283,7 +283,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 
 	}
 
-	@SuppressWarnings("squid:S1141")
 	protected void submit() {
 		final String submitQueueName = EventConstants.SUBMISSION_QUEUE;
 		try (ISubmitter<ScanBean> submitter = ServiceHolder.getEventService().createSubmitter(
@@ -345,7 +344,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	 * @throws Exception
 			// TODO Use IScanBuilderService
 	 */
-	@SuppressWarnings({"squid:S2681", "squid:S3776"})
 	private ScanRequest<IROI> createScanRequest(boolean lookForScanRequest) throws Exception {
 
 		if (lookForScanRequest) {
@@ -446,7 +444,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	 * Thread safe method for getting the string with should be shown to the user about the scan.
 	 * @param monitor
 	 */
-	@SuppressWarnings({"squid:S2681", "squid:S3776", "squid:S1141"})
 	private void update(IProgressMonitor monitor) {
 
 		try {
@@ -602,7 +599,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		setThreadSafeText(text, new StyledString(string));
 	}
 
-	@SuppressWarnings("squid:S1604")
 	private void setThreadSafeText(StyledText text, StyledString styledString) {
 		if (text.isDisposed()) { return; }
 	text.getDisplay().syncExec(new Runnable() {
@@ -615,7 +611,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	});
     }
 
-	@SuppressWarnings("squid:S1604")
 	private void setThreadSafeLabel(Label label, String message) {
 		if (label.isDisposed()) return;
 		label.getDisplay().syncExec(new Runnable() {
@@ -641,7 +636,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 	return "None";
 	}
 
-	@SuppressWarnings("squid:S00112")
 	private String getDetectorNames() throws Exception {
 		final Collection<DetectorScanUIElement<?>> elements = getDetectorElements();
 		final StringBuilder buf = new StringBuilder();
@@ -681,7 +675,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		return Collections.emptyList();
 	}
 
-	@SuppressWarnings("squid:S00112")
 	private Collection<MonitorScanUIElement> getMonitors() throws Exception {
 		final IViewReference monitorViewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
 		if (monitorViewRef == null) return Collections.emptyList();

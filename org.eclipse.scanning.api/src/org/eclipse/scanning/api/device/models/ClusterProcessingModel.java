@@ -138,7 +138,6 @@ public class ClusterProcessingModel implements INameable, IReflectedModel {
 	}
 
 	@Override
-	@SuppressWarnings("squid:S3776")
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
