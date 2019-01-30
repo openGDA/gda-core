@@ -73,6 +73,20 @@ public class DefaultMultipleStagePositioningServiceTest {
 	}
 	
 	@Test
+	public void initalise_withNoStageGroupService () {
+		StageGroupEvent event = new StageGroupEvent(NO_STAGE_GROUP);
+		service = new DefaultMultipleStagePositioningService(stageGroupA);
+		
+		assertSame("Current Stage Group Before", STAGE_GROUP_A_NAME, service.getStageGroup());
+		service.stageGroupChanged(event);
+		assertSame("Current Stage Group After", STAGE_GROUP_A_NAME, service.getStageGroup());
+
+		ArgumentCaptor<Object> source = ArgumentCaptor.forClass(Object.class);
+		ArgumentCaptor<StageGroupEvent> arg = ArgumentCaptor.forClass(StageGroupEvent.class);
+		verify(observer, times(0)).update(source.capture(), arg.capture());
+	}
+	
+	@Test
 	public void stageGroupChanged_stageGroupNotInService () throws StageException {
 		StageGroupEvent event = new StageGroupEvent(NO_STAGE_GROUP);
 		

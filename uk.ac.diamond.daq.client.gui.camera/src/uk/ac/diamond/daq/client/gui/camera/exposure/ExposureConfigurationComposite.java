@@ -14,7 +14,10 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
 import gda.device.DeviceException;
+import gda.factory.Finder;
+import uk.ac.diamond.daq.client.gui.camera.PositionValueControlComposite;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
 
 public class ExposureConfigurationComposite extends Composite {
 	public ExposureConfigurationComposite(Composite parent, CameraConfigurationController controller, int style) throws DeviceException {
@@ -55,8 +58,13 @@ public class ExposureConfigurationComposite extends Composite {
 			positionDialog.setText("Camera Position");
 			positionDialog.setSize(250, 130);
 			GridLayoutFactory.swtDefaults().numColumns(1).applyTo(positionDialog);
-			CameraPositionComposite dialogPanel = new CameraPositionComposite(positionDialog, SWT.NONE);
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(dialogPanel);
+			
+			MultipleStagePositioningService multipleStagePositioningService = 
+					Finder.getInstance().find("cameraPositionMultipleStagePositioningService");
+			PositionValueControlComposite dialComposite = new PositionValueControlComposite(positionDialog, 
+					multipleStagePositioningService, SWT.NONE);
+			
+			GridDataFactory.fillDefaults().grab(true, true).applyTo(dialComposite);
 
 			positionDialog.open();
 		});

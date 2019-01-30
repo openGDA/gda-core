@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.client.gui.camera.samplealignment;
+package uk.ac.diamond.daq.client.gui.camera;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,6 @@ import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 
 public class PositionValueControlComposite extends Composite {
@@ -90,6 +89,8 @@ public class PositionValueControlComposite extends Composite {
 					text.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
 					log.error("Error moving axis " + axisName, e);
 				}
+			} else {
+				lastValidValue = position;
 			}
 		}
 
@@ -144,11 +145,12 @@ public class PositionValueControlComposite extends Composite {
 	private Composite positionComposite;
 	private String stageGroupName;
 
-	public PositionValueControlComposite(Composite parent, int style) {
+	public PositionValueControlComposite(Composite parent, 
+			MultipleStagePositioningService multipleStagePositioningService, int style) {
 		super(parent, style);
 
 		listerner = new MultipleStagePositioningServiceListerner();
-		multipleStagePositioningService = Finder.getInstance().find("diadMultipleStagePositioningService");
+		this.multipleStagePositioningService = multipleStagePositioningService;
 		multipleStagePositioningService.addIObserver(listerner);
 
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
