@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -10,6 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.segment.SegmentListEditor;
 
 public class SegmentsAndTriggersPage extends WizardPage {
@@ -37,6 +39,10 @@ public class SegmentsAndTriggersPage extends WizardPage {
 	
 	public void setSevs(Map<String, SEVSignal> sevs) {
 		segments.setSevs(sevs);
+	}
+
+	public List<SegmentDescriptor> getSegments() {
+		return segments.getSegments();
 	}
 
 }

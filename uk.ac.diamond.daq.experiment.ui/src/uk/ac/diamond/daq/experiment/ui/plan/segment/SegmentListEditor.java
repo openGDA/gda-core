@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,8 @@ import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
 public class SegmentListEditor {
+	
+	private ListWithCustomEditor listEditor;
 	private SegmentEditor segmentEditor;
 	
 	public SegmentListEditor(ExperimentService experimentService, String experimentId) {
@@ -28,7 +31,7 @@ public class SegmentListEditor {
 		
 		new Label(composite, SWT.NONE).setText("Segments");
 		
-		ListWithCustomEditor listEditor = new ListWithCustomEditor();
+		listEditor = new ListWithCustomEditor();
 		listEditor.setMinimumElements(1);
 		listEditor.setListHeight(150);
 		listEditor.setTemplate(new SegmentDescriptor());
@@ -43,6 +46,10 @@ public class SegmentListEditor {
 	
 	public void setSevs(Map<String, SEVSignal> sevs) {
 		segmentEditor.setSevNames(sevs.keySet().stream().collect(Collectors.toList()));
+	}
+	
+	public List<SegmentDescriptor> getSegments() {
+		return listEditor.getList().stream().map(SegmentDescriptor.class::cast).collect(Collectors.toList());
 	}
 	
 	
