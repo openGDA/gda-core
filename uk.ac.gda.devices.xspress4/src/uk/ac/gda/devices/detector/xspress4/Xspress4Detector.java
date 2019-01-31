@@ -382,6 +382,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return currentSettings.getOutputFormat();
 	}
 
+	@Override
+	public void setOutputFormat(String[] outputFormat) {
+		currentSettings.setDefaultOutputFormat(outputFormat);
+	}
+
 	public int getMcaGrades() {
 		return currentSettings.getMcaGrades();
 	}
