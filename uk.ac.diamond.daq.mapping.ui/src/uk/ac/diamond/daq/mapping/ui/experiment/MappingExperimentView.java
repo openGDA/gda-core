@@ -356,8 +356,9 @@ public class MappingExperimentView implements IAdaptable {
 		relayout();
 	}
 
-	public IMappingSection getSection(Class<? extends AbstractMappingSection> sectionClass) {
-		return sections.get(sectionClass);
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractMappingSection> T getSection(Class<T> sectionClass) {
+		return (T) sections.get(sectionClass);
 	}
 
 	public IEclipseContext getEclipseContext() {
