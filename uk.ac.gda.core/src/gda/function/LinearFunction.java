@@ -147,6 +147,11 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	}
 
 	@Override
+	public String getAsString() {
+		return toString();
+	}
+
+	@Override
 	public String toString() {
 		return "LinearFunction [interception=" + interception + ", slopeDividend=" + slopeDividend + ", slopeDivisor=" + slopeDivisor
 				+ ", slope=" + slope + ", slopeNumerator=" + slopeNumerator + ", slopeDenominator=" + slopeDenominator + ", intercept=" + intercept + "]";

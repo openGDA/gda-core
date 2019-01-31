@@ -90,6 +90,7 @@ public class EnergyFocusFunctionDisplay {
 			energyFocusFunction.setSlopeDividend(getValueAsString(slopeDividendComposite));
 			energyFocusFunction.setInterception(getValueAsString(interceptionComposite));
 			energyFocusFunction.setSlopeDivisor(getValueAsString(slopeDivisorComposite));
+			logger.debug("Updated energy focus function: {}", energyFocusFunction.getAsString());
 		} catch (Exception e) {
 			displayError("Error updating energy focus function", e.getMessage(), logger);
 		}

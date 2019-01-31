@@ -37,4 +37,13 @@ public interface ILinearFunction extends Findable, Function<Quantity, Quantity> 
 	String getSlopeDivisor();
 
 	void setSlopeDivisor(String slopeDivisor);
+
+	/**
+	 * Allow client to get the string value through an RMI proxy
+	 * <p>
+	 * Calls to toStrng() are captured by the proxy
+	 *
+	 * @return the function as a String
+	 */
+	String getAsString();
 }
