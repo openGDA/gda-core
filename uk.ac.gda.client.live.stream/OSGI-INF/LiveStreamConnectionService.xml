@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="LiveStreamConnectionService">
+   <service>
+      <provide interface="uk.ac.gda.client.live.stream.api.ILiveStreamConnectionService"/>
+   </service>
+   <implementation class="uk.ac.gda.client.live.stream.LiveStreamConnectionManager"/>
+</scr:component>

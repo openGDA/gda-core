@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.ui,
  com.fasterxml.jackson.core.jackson-core,
  uk.ac.gda.client,
  uk.ac.diamond.org.jscience,
- com.google.guava
+ com.google.guava,
+ uk.ac.gda.client.live.stream
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.e4.core.contexts,
