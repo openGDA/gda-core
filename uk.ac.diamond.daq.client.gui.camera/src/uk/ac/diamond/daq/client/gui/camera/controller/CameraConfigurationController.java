@@ -17,7 +17,7 @@ public class CameraConfigurationController implements IObserver {
 	private CameraConfigurationMode cameraConfigurationMode;
 	
 	public CameraConfigurationController () {
-		cameraControl = Finder.getInstance().findSingleton(CameraControl.class);
+		cameraControl = Finder.getInstance().find("imaging_camera_control");
 		cameraControl.addIObserver(this);
 	}
 	
