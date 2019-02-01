@@ -28,6 +28,8 @@ import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
 
@@ -37,6 +39,8 @@ import gda.factory.Finder;
  * {@link ScriptLanguage#SPEC_PASTICHE}.
  */
 public class GDAJythonScriptService implements IScriptService {
+
+	private static final Logger logger = LoggerFactory.getLogger(GDAJythonScriptService.class);
 
 	@Override
 	public ScriptLanguage[] supported() {
@@ -66,6 +70,7 @@ public class GDAJythonScriptService implements IScriptService {
 		}
 
 		// run the script - blocks
+		logger.info("Running script file {}", scriptFile);
 		commandRunner.evaluateCommand("run '" + scriptFileStr + "'");
 
 		// return a new script response. As runScript returns void, we have nothing to set
@@ -82,6 +87,7 @@ public class GDAJythonScriptService implements IScriptService {
 		// JythonServer.abortCommands() calls the private method interruptThreads(),
 		// which calls Thread.stop() on every thread running a jython script that the
 		// JythonServer knows about
+		logger.info("Aborting running jython scripts");
 		Finder.getInstance().findSingleton(JythonServer.class).abortCommands(null);
 	}
 
