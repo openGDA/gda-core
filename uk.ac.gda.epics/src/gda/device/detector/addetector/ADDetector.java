@@ -52,6 +52,7 @@ import gda.device.detector.areadetector.NDStatsGroupFactory;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
+import gda.device.detector.areadetector.v17.NDOverlaySimple;
 import gda.device.detector.areadetector.v17.NDPython;
 import gda.device.detector.areadetector.v17.NDStats;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -198,6 +199,8 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NDPython ndPython;
 
+	private List<NDOverlaySimple> ndOverlays;
+
 	private NXCollectionStrategyPlugin collectionStrategy;
 
 	private String description = "ADDetector";
@@ -253,6 +256,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public void setNdPython(NDPython ndPython) {
 		this.ndPython = ndPython;
+	}
+
+	public void setNdOverlays(List<NDOverlaySimple> ndOverlays) {
+		this.ndOverlays = ndOverlays;
 	}
 
 	public void setDescription(String description) {
@@ -314,6 +321,10 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	public NDPython getNdPython() {
 		return ndPython;
+	}
+
+	public List<NDOverlaySimple> getNdOverlays() {
+		return ndOverlays;
 	}
 
 	public boolean isComputeStats() {
