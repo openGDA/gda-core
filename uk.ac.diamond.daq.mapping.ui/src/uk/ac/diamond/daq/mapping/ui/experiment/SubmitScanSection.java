@@ -38,6 +38,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -69,6 +71,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private String buttonText = "Queue Scan";
 
+	private RGB buttonColour = null;
+
 	@Override
 	public boolean createSeparator() {
 		return false;
@@ -84,6 +88,9 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// Button to submit a scan to the queue
 		final Button submitScanButton = new Button(composite, SWT.PUSH);
 		submitScanButton.setText(buttonText);
+		if (buttonColour != null) {
+			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
+		}
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
 		submitScanButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -279,5 +286,17 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	/**
+	 * Set the colour of the submit button
+	 * <p>
+	 * This can for example be used to make it more obvious to the user which type of scan they are about to submit.
+	 *
+	 * @param buttonColour
+	 *            RGB value of the required colour
+	 */
+	protected void setButtonColour(RGB buttonColour) {
+		this.buttonColour = buttonColour;
 	}
 }
