@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
 
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -38,13 +39,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
+import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -62,11 +63,11 @@ public class RmiRemotingIntegrationTest {
 	private static int portForTesting;
 
 	@Mock
-	private ApplicationContext appContext;
+	private Factory mockFactory;
 
 	// Under test
 	private RmiAutomatedExporter rmiAutoExporter;
-	// Also under test
+
 	private RmiProxyFactory rmiProxyFactory;
 
 	@BeforeClass
@@ -89,12 +90,21 @@ public class RmiRemotingIntegrationTest {
 		LocalProperties.clearProperty("gda.server.host");
 	}
 
+	@SuppressWarnings("unused") // As the RmiProxyFactory adds itself to the Finder
 	@Before
 	public void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+		when(mockFactory.isLocal()).thenReturn(true);
+
 		// Make objects under test
 		rmiAutoExporter = new RmiAutomatedExporter();
+
+		// Making this add itself to the Finder
 		rmiProxyFactory = new RmiProxyFactory();
-		MockitoAnnotations.initMocks(this);
+
+		// Add the mockFactory second this is dubious and relies on the actual set implementation in the Finder being
+		// ordered
+		Finder.getInstance().addFactory(mockFactory);
 	}
 
 	@After
@@ -106,16 +116,8 @@ public class RmiRemotingIntegrationTest {
 
 	@Test
 	public void testObjectCanBeExportedAndImported() throws Exception {
-		Map<String, Findable> objects = new HashMap<>();
-		objects.put("testObj", new TestScannable("testObj"));
-		when(appContext.getBeansOfType(Findable.class)).thenReturn(objects);
-
-		rmiAutoExporter.setApplicationContext(appContext);
-		// Do the exports
-		rmiAutoExporter.afterPropertiesSet();
-
-		// Do the imports
-		rmiProxyFactory.afterPropertiesSet();
+		Findable testObj = new TestScannable("testObj");
+		when(mockFactory.getFindable("testObj")).thenReturn(testObj);
 
 		final Scannable foundScannable = Finder.getInstance().find("testObj");
 		assertThat(foundScannable, is(notNullValue()));
@@ -124,38 +126,34 @@ public class RmiRemotingIntegrationTest {
 
 	@Test
 	public void testObjectCanBeFoundByType() throws Exception {
-		Map<String, Findable> objects = new HashMap<>();
-		objects.put("testObj", new TestScannable("testObj"));
-		when(appContext.getBeansOfType(Findable.class)).thenReturn(objects);
+		Scannable testObj = new TestScannable("testObj");
+		Map<String, Scannable> objects = new HashMap<>();
+		objects.put("testObj", testObj);
+		when(mockFactory.getFindablesOfType(Scannable.class)).thenReturn(objects);
+		when(mockFactory.getFindable("testObj")).thenReturn(testObj);
 
-		rmiAutoExporter.setApplicationContext(appContext);
-		// Do the exports
-		rmiAutoExporter.afterPropertiesSet();
+		// Reorder the finder so the rmi factory is last
+		Finder.getInstance().removeAllFactories();
+		Finder.getInstance().addFactory(mockFactory);
+		Finder.getInstance().addFactory(rmiProxyFactory);
 
-		// Do the imports
-		rmiProxyFactory.afterPropertiesSet();
-
+		// Note this is dubious it works only because the RmiProxyFactory is "last" in the finder so the proxy it
+		// returns replaces the direct mock returned by the mockFactory
 		final Map<String, Scannable> foundScannables = Finder.getInstance().getFindablesOfType(Scannable.class);
 		assertThat(foundScannables.size(), is(equalTo(1)));
 		assertThat(foundScannables.get("testObj"), is(notNullValue()));
+		// Check we have got the RMI proxy
+		assertThat(Proxy.isProxyClass(foundScannables.get("testObj").getClass()), is(true));
 	}
 
 	@Test
 	public void testEventsCanBeReceivedByClientProxies() throws Exception {
-		Map<String, Findable> objects = new HashMap<>();
-
-		final TestScannable testScannable = new TestScannable("testScannable");
-		objects.put("testScannable", testScannable);
-		when(appContext.getBeansOfType(Findable.class)).thenReturn(objects);
-
-		rmiAutoExporter.setApplicationContext(appContext);
-		// Do the exports
-		rmiAutoExporter.afterPropertiesSet();
-
-		// Do the imports
-		rmiProxyFactory.afterPropertiesSet();
+		TestScannable testScannable = new TestScannable("testScannable");
+		when(mockFactory.getFindable("testScannable")).thenReturn(testScannable);
 
 		final Scannable foundScannable = Finder.getInstance().find("testScannable");
+		// Check we have got the RMI proxy
+		assertThat(Proxy.isProxyClass(foundScannable.getClass()), is(true));
 
 		// Latch to ensure the observer is notified before the test ends.
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -163,7 +161,7 @@ public class RmiRemotingIntegrationTest {
 		foundScannable.addIObserver((source, arg) -> {
 			// The source you have here is actually the proxy so the "real" source is lost.
 			// Not sure if this is a problem
- 			assertThat(arg , is(equalTo("event")));
+			assertThat(arg, is(equalTo("event")));
 			latch.countDown();
 		});
 
@@ -171,7 +169,8 @@ public class RmiRemotingIntegrationTest {
 		testScannable.sendEvent("source", "event");
 
 		// Wait for the observer to be notified
-		assertThat("No event was received in 5 seconds", latch.await(5, SECONDS)); // If not done in 5 sec the test will fail
+		assertThat("No event was received in 5 seconds", latch.await(5, SECONDS)); // If not done in 5 sec the test will
+																					// fail
 	}
 
 	@ServiceInterface(Scannable.class)

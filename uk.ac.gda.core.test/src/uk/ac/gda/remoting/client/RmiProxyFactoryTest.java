@@ -18,18 +18,22 @@
 
 package uk.ac.gda.remoting.client;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.AUTO_EXPORT_RMI_PREFIX;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
@@ -38,6 +42,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,6 +59,9 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.gda.remoting.server.RmiAutomatedExporter;
+import uk.ac.gda.remoting.server.RmiObjectInfo;
+import uk.ac.gda.remoting.server.RmiRemoteObjectProvider;
 
 /**
  * This test automated RMI importing by actually importing services locally then checking they can be found and use.
@@ -70,6 +80,10 @@ public class RmiProxyFactoryTest {
 	private RmiProxyFactory rmiProxyFactory;
 
 	private RmiServiceExporter exporter;
+
+	private RmiRemoteObjectProvider mockRemoteObjectProvider;
+
+	private Set<String> exportedNames;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -98,12 +112,20 @@ public class RmiProxyFactoryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		// Make object under test
-		rmiProxyFactory = new RmiProxyFactory();
-
 		// Setup an exporter
 		exporter = new RmiServiceExporter();
 		exporter.setRegistry(registry);
+
+		// Start with new empty set of exported names
+		exportedNames = new HashSet<>();
+
+		// Setup mock remote object provider
+		mockRemoteObjectProvider = mock(RmiRemoteObjectProvider.class);
+		exportObject(mockRemoteObjectProvider, RmiAutomatedExporter.REMOTE_OBJECT_PROVIDER, RmiRemoteObjectProvider.class);
+
+		// Make object under test
+		rmiProxyFactory = new RmiProxyFactory();
+		rmiProxyFactory.configure();
 	}
 
 	@After
@@ -122,6 +144,15 @@ public class RmiProxyFactoryTest {
 		exporter.setServiceName(AUTO_EXPORT_RMI_PREFIX + name);
 		exporter.setServiceInterface(serviceInterface);
 		exporter.afterPropertiesSet(); // Do the export
+
+		// Build RmiObjectInfo
+		RmiObjectInfo info = new RmiObjectInfo(name, AUTO_EXPORT_RMI_PREFIX + name, serviceInterface.getCanonicalName(), true);
+		when(mockRemoteObjectProvider.getRemoteObject(name)).thenReturn(info);
+
+		if(Findable.class.isAssignableFrom(serviceInterface)) {
+			exportedNames.add(name);
+		}
+		when(mockRemoteObjectProvider.getRemoteObjectNamesImplementingType(anyString())).thenReturn(exportedNames);
 	}
 
 	@Test
@@ -130,12 +161,12 @@ public class RmiProxyFactoryTest {
 		when(mockScannable.getName()).thenReturn("mockScannable");
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
-
 		final Scannable foundMockScannable = rmiProxyFactory.getFindable("mockScannable");
 		assertThat(foundMockScannable, is(notNullValue()));
 		assertThat(foundMockScannable.getName(), is(equalTo("mockScannable")));
+
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable");
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
@@ -144,23 +175,31 @@ public class RmiProxyFactoryTest {
 		when(mockScannable.getName()).thenReturn("mockScannable");
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
-
 		assertThat(rmiProxyFactory.getFindableNames(), contains("mockScannable"));
+
+		verify(mockRemoteObjectProvider).getRemoteObjectNamesImplementingType(Findable.class.getCanonicalName());
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
 	public void testGettingAllFindables() throws Exception {
-		Scannable mockScannable = mock(Scannable.class);
-		when(mockScannable.getName()).thenReturn("mockScannable");
-		exportObject(mockScannable, "mockScannable", Scannable.class);
+		Scannable mockScannable1 = mock(Scannable.class);
+		when(mockScannable1.getName()).thenReturn("mockScannable1");
+		exportObject(mockScannable1, "mockScannable1", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
+		Scannable mockScannable2 = mock(Scannable.class);
+		when(mockScannable2.getName()).thenReturn("mockScannable2");
+		exportObject(mockScannable2, "mockScannable2", Scannable.class);
 
-		assertThat(rmiProxyFactory.getFindables(), hasSize(1));
-		assertThat(rmiProxyFactory.getFindables().iterator().next().getName(), is("mockScannable"));
+		List<Findable> findables = rmiProxyFactory.getFindables();
+		assertThat(findables, hasSize(2));
+		assertThat(findables.stream().map(Findable::getName).collect(toList()), containsInAnyOrder("mockScannable1", "mockScannable2"));
+
+		// Verify mock interactions
+		verify(mockRemoteObjectProvider).getRemoteObjectNamesImplementingType(Findable.class.getCanonicalName());
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable1");
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable2");
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
@@ -169,13 +208,14 @@ public class RmiProxyFactoryTest {
 		when(mockScannable.getName()).thenReturn("mockScannable");
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
-
 		// Also check through the finder
 		final Scannable foundMockScannable = Finder.getInstance().find("mockScannable");
 		assertThat(foundMockScannable, is(notNullValue()));
 		assertThat(foundMockScannable.getName(), is(equalTo("mockScannable")));
+
+		// Verify mock interactions
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable");
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
@@ -187,8 +227,6 @@ public class RmiProxyFactoryTest {
 
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
 		Scannable remoteScannable = rmiProxyFactory.getFindable("mockScannable");
 
 		// Check methods calls work
@@ -199,6 +237,10 @@ public class RmiProxyFactoryTest {
 		// Check the right number of calls were made
 		verify(mockScannable, times(1)).getPosition();
 		verify(mockScannable, times(1)).isBusy();
+
+		// Verify mock interactions with mockRemoteObjectProvider
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable");
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
@@ -208,8 +250,6 @@ public class RmiProxyFactoryTest {
 
 		exportObject(mockScannable, "mockScannable", Scannable.class);
 
-		// Auto import
-		rmiProxyFactory.afterPropertiesSet();
 		Scannable remoteScannable = rmiProxyFactory.getFindable("mockScannable");
 
 		// Make IObservable method calls which should be intercepted on the client side
@@ -222,40 +262,32 @@ public class RmiProxyFactoryTest {
 		verify(mockScannable, never()).addIObserver(anyObject());
 		verify(mockScannable, never()).deleteIObserver(anyObject());
 		verify(mockScannable, never()).deleteIObservers();
+
+		// Verify mock interactions with mockRemoteObjectProvider
+		verify(mockRemoteObjectProvider).getRemoteObject("mockScannable");
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
 	public void testContainsExportableObjectsReturnsFalse() throws Exception {
 		assertThat(rmiProxyFactory.containsExportableObjects(), is(equalTo(false)));
+
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test
 	public void testIsLocalReturnsFalse() throws Exception {
 		assertThat(rmiProxyFactory.isLocal(), is(equalTo(false)));
-	}
 
-	@Test(expected=IllegalStateException.class)
-	public void testGetFindableThrowsWhenNotConfigured() throws Exception {
-		// Should throw
-		rmiProxyFactory.getFindable("anything");
-	}
-
-	@Test(expected=IllegalStateException.class)
-	public void testGetFindableNamesThrowsWhenNotConfigured() throws Exception {
-		// Should throw
-		rmiProxyFactory.getFindableNames();
-	}
-
-	@Test(expected=IllegalStateException.class)
-	public void testGetFindablesThrowsWhenNotConfigured() throws Exception {
-		// Should throw
-		rmiProxyFactory.getFindables();
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 	@Test(expected=UnsupportedOperationException.class)
 	public void testAddFindableThrows() throws Exception {
 		// Should throw you can't add objects
 		rmiProxyFactory.addFindable(mock(Findable.class));
+
+		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
 }

@@ -18,33 +18,30 @@
 
 package uk.ac.gda.remoting.server;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.remoting.rmi.RmiServiceExporter;
-
-import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
-import gda.factory.Localizable;
+import gda.factory.Finder;
 import gda.observable.IObservable;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * This class will automatically create RMI exports for beans defined in Spring which define a service interface via the
- * {@link ServiceInterface} annotation, and do not declare themselves local using the {@link Localizable} interface. In
- * addition it will setup events dispatching if the objects supports events by being {@link IObservable}.
+ * This class will automatically create RMI exports when requested via the {@link RmiRemoteObjectProvider} interface.
+ * Objects will be exported using the service interface via the {@link ServiceInterface} annotation. In addition it will
+ * setup events dispatching if the service interface extends {@link IObservable}.
  * <p>
  * To use this add the following to the server Spring XML configuration:
  *
@@ -56,10 +53,16 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  * @author James Mudd
  * @since GDA 9.7
+ * @since GDA 9.12 - Converted to be dynamic (DAQ-1264)
  */
-public class RmiAutomatedExporter implements ApplicationContextAware, InitializingBean {
+public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
+
 	private static final Logger logger = LoggerFactory.getLogger(RmiAutomatedExporter.class);
 
+	/** The name used for this object when exported over RMI */
+	public static final String REMOTE_OBJECT_PROVIDER = RmiAutomatedExporter.class.getSimpleName();
+
+	/** Namespace under which all auto-exported URLs are made */
 	public static final String AUTO_EXPORT_RMI_PREFIX = "gda-auto-export/";
 
 	/** Property that allows the RMI port to be changed. it defaults to 1099 the default RMI port */
@@ -72,75 +75,50 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
 	 * export any class Spring has instantiated.
 	 */
-	private static final ClassLoader SPRING_BUNDLE_LOADER = ApplicationContext.class.getClassLoader();
-
-	private ApplicationContext applicationContext;
+	private static final ClassLoader SPRING_BUNDLE_LOADER = RmiServiceExporter.class.getClassLoader();
 
 	/** List of all the exporters this is to allow them to be unbound at shutdown */
 	private final List<RmiServiceExporter> exporters = new ArrayList<>();
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+	private final ConcurrentMap<String, RmiObjectInfo> exportedObjects = new ConcurrentHashMap<>();
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// Spring will call this automatically after setting up properties.
-		exportAll();
-	}
+	public RmiAutomatedExporter() throws RemoteException {
+		final RmiServiceExporter serviceExporter = new RmiServiceExporter();
+		serviceExporter.setRegistryPort(rmiPort);
+		serviceExporter.setServicePort(rmiPort);
+		serviceExporter.setService(this);
+		serviceExporter.setServiceName(AUTO_EXPORT_RMI_PREFIX + REMOTE_OBJECT_PROVIDER);
+		serviceExporter.setServiceInterface(RmiRemoteObjectProvider.class);
+		serviceExporter.setReplaceExistingBinding(false); // Try to be safe there shouldn't be an existing binding
 
-	/**
-	 * This is the method that inspects the {@link #applicationContext} and will automatically export all the qualifying
-	 * beans.
-	 */
-	private void exportAll() {
-		logger.info("Starting automated RMI exports...");
-		final Stopwatch exportsTimer = Stopwatch.createStarted();
-
-		logger.debug("RMI services on port '{}' with prefix '{}'", rmiPort, AUTO_EXPORT_RMI_PREFIX);
-
-		final Map<String, Findable> findableBeans = applicationContext.getBeansOfType(Findable.class);
-
-		// Cache the existing TCCL to be switched back after exporting
+		// We need to switch the TCCL to the Spring bundle loader here as the first time and RMI registry is created it uses it to load classes.
 		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-
 		try {
-			// Switch the TCCL to the Spring bundle loader which should be able to see all the needed classes
 			Thread.currentThread().setContextClassLoader(SPRING_BUNDLE_LOADER);
-
-			for (Entry<String, Findable> entry : findableBeans.entrySet()) {
-				final String name = entry.getKey();
-				final Findable bean = entry.getValue();
-
-				final Class<?> beanClass = bean.getClass();
-				final ServiceInterface serviceInterface = beanClass.getAnnotation(ServiceInterface.class);
-				if (serviceInterface == null) {
-					logger.trace("Not exporting {} as it has no @ServiceInterface annotation", name);
-				} else if (isLocal(entry)) {
-					logger.trace("Not exporting {} as it is local", name);
-				} else {
-					export(name, bean, serviceInterface.value());
-				}
-			}
-
-		} finally {
-			// Restore the original TCCL
+			// Actually export the service here
+			serviceExporter.prepare();
+			logger.debug("Enabled remote object RMI requests");
+		}
+		finally {
 			Thread.currentThread().setContextClassLoader(tccl);
 		}
 
-		logger.info("Completed RMI exports. Exported {} objects, in {} ms", exporters.size(),
-				exportsTimer.elapsed(MILLISECONDS));
+		// Add to list of exporters for unbinding at shutdown
+		exporters.add(serviceExporter);
 	}
 
 	/**
 	 * Export the object over RMI, this includes setting up events if needed.
 	 *
-	 * @param name The name of the object to be exported
-	 * @param bean The object itself
-	 * @param serviceInterface The interface to expose over RMI
+	 * @param name
+	 *            The name of the object to be exported
+	 * @param bean
+	 *            The object itself
+	 * @param serviceInterface
+	 *            The interface to expose over RMI
+	 * @return <code>true</code> if events are supported by this object <code>false</code> otherwise
 	 */
-	private void export(String name, Findable bean, Class<?> serviceInterface) {
+	private boolean export(String name, Findable bean, Class<?> serviceInterface) {
 		logger.trace("Exporting '{}' with interface '{}'...", name, serviceInterface.getName());
 		final RmiServiceExporter serviceExporter = new RmiServiceExporter();
 		serviceExporter.setRegistryPort(rmiPort);
@@ -154,39 +132,35 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 			serviceExporter.prepare();
 			logger.debug("Exported '{}' with interface '{}'", name, serviceInterface.getName());
 
-			setupEventDispatchIfSupported(bean);
 			// Add to list of exporters for unbinding at shutdown
 			exporters.add(serviceExporter);
+
+			// If the service interface extends IObservable then setup events forwarding
+			if (IObservable.class.isAssignableFrom(serviceInterface)) {
+				setupEventDispatch(name, (IObservable) bean);
+				return true;
+			} else {
+				logger.debug(
+						"No events support added for '{}' as it's service interface '{}' does not implement IObservable",
+						name, serviceInterface.getName());
+				return false;
+			}
 		} catch (RemoteException e) {
 			logger.error("Exception exporting '{}' with interface '{}'", name, serviceInterface.getName(), e);
+			return false;
 		}
 	}
 
-	private void setupEventDispatchIfSupported(Findable toBeExported) {
-		if (toBeExported instanceof IObservable) {
-			final IObservable observable = (IObservable) toBeExported;
-
-			ServerSideEventDispatcher observer = new ServerSideEventDispatcher();
-			observer.setSourceName(toBeExported.getName());
-			observer.setObject(observable);
-
-			try {
-				observer.afterPropertiesSet();
-			} catch (Exception e) {
-				logger.error("Failed to setup events dispatching for: {}", toBeExported.getName(), e);
-			}
-		} else {
-			logger.debug("No events support added for '{}' as it does not implement IObservable",
-					toBeExported.getName());
+	private void setupEventDispatch(String name, IObservable observable) {
+		ServerSideEventDispatcher observer = new ServerSideEventDispatcher();
+		observer.setSourceName(name);
+		observer.setObject(observable);
+		try {
+			observer.afterPropertiesSet();
+			logger.debug("Setup events dispatch fo '{}'", name);
+		} catch (Exception e) {
+			logger.error("Failed to setup event dispatching for '{}' no events will be sent to the client", e);
 		}
-	}
-
-	private boolean isLocal(Entry<String, Findable> entry) {
-		final Findable bean = entry.getValue();
-		if (bean instanceof Localizable) {
-			return ((Localizable) bean).isLocal();
-		}
-		return false;
 	}
 
 	/**
@@ -200,5 +174,71 @@ public class RmiAutomatedExporter implements ApplicationContextAware, Initializi
 				logger.error("Failed to unbind RMI service: {}", exporter, e);
 			}
 		}
+	}
+
+	@Override
+	public RmiObjectInfo getRemoteObject(String name) {
+		logger.info("Request received for '{}'", name);
+		return exportedObjects.computeIfAbsent(name, this::findAndExport);
+	}
+
+	private RmiObjectInfo findAndExport(String name) {
+		// Find using local we are about to export something so it should not be remote already
+		final Findable object = Finder.getInstance().findLocal(name);
+		if (object == null) { // there is no object available in the server with this name
+			logger.debug("No object with name '{}' found", name);
+			return null;
+		}
+		final Class<?> beanClass = object.getClass();
+		final ServiceInterface serviceInterface = beanClass.getAnnotation(ServiceInterface.class);
+		if (serviceInterface == null) {
+			logger.error("Not exporting '{}' as it has no @ServiceInterface annotation", name);
+			return null;
+		} else {
+			boolean eventsSupported = export(name, object, serviceInterface.value());
+			return new RmiObjectInfo(name, AUTO_EXPORT_RMI_PREFIX + name, serviceInterface.value().getCanonicalName(),
+					eventsSupported);
+		}
+	}
+
+	@Override
+	public Set<String> getRemoteObjectNamesImplementingType(String clazz) {
+		try {
+			Class<?> type = SPRING_BUNDLE_LOADER.loadClass(clazz);
+			if (Findable.class.isAssignableFrom(type)) {
+				@SuppressWarnings("unchecked") // It will extend Findable here we just checked
+				Class<? extends Findable> findableType = (Class<? extends Findable>) type;
+				Map<String, ? extends Findable> findablesOfType = Finder.getInstance().getLocalFindablesOfType(findableType);
+
+				return findablesOfType.entrySet().stream()
+						.filter(this::hasServiceInterfaceAnnotation) // Remove objects which can't be exported
+						.map(Entry::getKey) // Just get the names
+						.collect(Collectors.toSet()); // Put into a set
+			} else {
+				throw new IllegalArgumentException("clazz must extend Findable was: " + clazz);
+			}
+		} catch (ClassNotFoundException e) {
+			logger.error("'{}' could not be loaded by the server", clazz, e);
+			throw new IllegalArgumentException("clazz must be visiable to the server", e);
+		}
+	}
+
+	/**
+	 * Checks the objects class to see if it has a {@link ServiceInterface} annotation.
+	 *
+	 * @param entry
+	 *            {@link Entry} of name to {@link Findable}
+	 * @return <code>true</code> if the object has a {@link ServiceInterface} annotation <code>false</code> otherwise
+	 */
+	private boolean hasServiceInterfaceAnnotation(Entry<String, ? extends Findable> entry) {
+		Class<?> type = entry.getValue().getClass();
+		final boolean serviceInterfaceAnnotationDeclared = type.isAnnotationPresent(ServiceInterface.class);
+
+		if (!serviceInterfaceAnnotationDeclared) {
+			logger.trace("'{}' not exported as '{}' class doesn't have @ServiceInterface annotation", entry.getKey(),
+					type.getName());
+			return false; // No @ServiceInterface on class
+		}
+		return true;
 	}
 }

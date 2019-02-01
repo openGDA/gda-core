@@ -18,27 +18,21 @@
 
 package uk.ac.gda.remoting.client;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.AUTO_EXPORT_RMI_PREFIX;
+import static uk.ac.gda.remoting.server.RmiAutomatedExporter.REMOTE_OBJECT_PROVIDER;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
 
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.remoting.rmi.RmiInvocationHandler;
-import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
-
-import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableBase;
@@ -48,6 +42,8 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
+import uk.ac.gda.remoting.server.RmiObjectInfo;
+import uk.ac.gda.remoting.server.RmiRemoteObjectProvider;
 
 /**
  * This is a {@link Factory} for making auto-exported RMI objects available via the {@link Finder}. Auto-exported
@@ -68,8 +64,9 @@ import uk.ac.gda.remoting.server.RmiAutomatedExporter;
  * @see RmiAutomatedExporter
  * @author James Mudd
  * @since GDA 9.8
+ * @since GDA 9.12 made importing dynamic DAQ-1904
  */
-public class RmiProxyFactory extends ConfigurableBase implements Factory, InitializingBean {
+public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	private static final Logger logger = LoggerFactory.getLogger(RmiProxyFactory.class);
 
 	/** The location of the GDA server */
@@ -86,86 +83,42 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 	 */
 	private static final ClassLoader SPRING_BUNDLE_LOADER = InitializingBean.class.getClassLoader();
 
-	/**
-	 * This {@link Map} holds the {@link Findable}s this Factory can provide. It is filled by the
-	 * {@link #configure()} method.
-	 */
-	private final Map<String, Findable> nameToFindable = new ConcurrentHashMap<>();
+	/** This {@link Map} caches the {@link Object}s this factory has imported */
+	private final ConcurrentMap<String, Object> importedObjects = new ConcurrentHashMap<>();
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// Spring will call this before configure is called on all objects.
-		// Needs to be configured early because the configure() method of other objects may use the Finder.
-		configure();
-	}
+	/** This is the server side object that is asked to provide remote objects */
+	private final RmiRemoteObjectProvider remoteObjectProvider;
 
-	@Override
-	public void configure() throws FactoryException {
-		if(isConfigured()) {
-			return; // Already configured so do nothing
-		}
-		logger.info("Configuring RmiProxyFactory...");
-		// Time how long doing the importing takes
-		final Stopwatch stopwatch = Stopwatch.createStarted();
 
-		// Get the available objects from the server RMI registry
-		final List<String> availableRmiObjectsUrls;
-		final Registry rmiRegistry;
+	public RmiProxyFactory() throws FactoryException {
+		logger.info("Creating RmiProxyFactory...");
+
 		try {
-			final RmiRegistryFactoryBean rrfb = new RmiRegistryFactoryBean();
-			rrfb.setHost(serverHost);
-			rrfb.setPort(rmiPort);
-			rrfb.afterPropertiesSet();
-			logger.debug("Connected to RMI registry at: {}", serviceUrlPrefix);
-			rmiRegistry = rrfb.getObject();
-			availableRmiObjectsUrls = Arrays.asList(rmiRegistry.list());
-			logger.debug("RMI registry contains {} objects", availableRmiObjectsUrls.size());
+			remoteObjectProvider = createProxy(REMOTE_OBJECT_PROVIDER, RmiRemoteObjectProvider.class);
+			logger.debug("Connected to server remote object provider");
 		} catch (Exception e) {
-			logger.error("Error connecting to RMI registry at '{}:{}'", serverHost, rmiPort, e);
-			throw new FactoryException("Error connecting to RMI registry at:" + serverHost + ":" + rmiPort, e);
-		}
-
-		// Filter out RMI exported objects which are not auto exported
-		final List<String> objectNames = availableRmiObjectsUrls.stream()
-				.filter(a -> a.startsWith(AUTO_EXPORT_RMI_PREFIX)) // Remove objects not auto exported
-				.map(a -> a.substring(AUTO_EXPORT_RMI_PREFIX.length())) // Recover name by stripping off prefix
-				.collect(toList());
-
-		logger.debug("Auto importing {} objects", objectNames.size());
-
-		for (String objectName : objectNames) {
-			try {
-				// This cast should be ok because we are looking at objects exported using Springs RMI Exporter
-				final RmiInvocationHandler remote = (RmiInvocationHandler) rmiRegistry
-						.lookup(AUTO_EXPORT_RMI_PREFIX + objectName);
-
-				// Use the Spring bundle loader which should be able to see all the needed classes
-				final Class<?> serviceInterface = Class.forName(remote.getTargetInterfaceName(), true, SPRING_BUNDLE_LOADER);
-
-				// Make the proxy factory
-				final GdaRmiProxyFactoryBean bean = new GdaRmiProxyFactoryBean();
-				bean.setServiceUrl(serviceUrlPrefix + objectName);
-				bean.setServiceInterface(serviceInterface);
-				bean.setRefreshStubOnConnectFailure(true);
-				bean.setObjectName(objectName);
-				bean.afterPropertiesSet(); // This is where we actually import
-
-				// Use the factory to get the object. We know it's Findable because to be auto-exported it must be.
-				// See @ServiceInterface
-				final Findable proxyObject = (Findable) bean.getObject();
-
-				nameToFindable.put(objectName, proxyObject);
-				logger.debug("Imported '{}' with interface '{}'", objectName, serviceInterface.getName());
-			} catch (Exception e) {
-				logger.error("Failed to import '{}'", objectName, e);
-			}
+			throw new FactoryException("Failed to connect to server remote object provider", e);
 		}
 
 		// Register as a factory with the finder
 		Finder.getInstance().addFactory(this);
-		logger.info("Finished importing. {} RMI objects have been imported", nameToFindable.size());
-		logger.debug("Importing all objects took {} ms", stopwatch.elapsed(MILLISECONDS));
+
+		// Its already configured at this point but we have to implement Configurable because of Factory
 		setConfigured(true);
+		logger.info("Finished creation");
+	}
+
+	@SuppressWarnings("unchecked") // Will be safe the proxy will implement the service interface
+	private <T> T createProxy(String name, Class<T> serviceInterface) throws Exception {
+		final GdaRmiProxyFactoryBean proxyFactory = new GdaRmiProxyFactoryBean();
+		proxyFactory.setObjectName(name);
+		proxyFactory.setServiceUrl(serviceUrlPrefix + name);
+		proxyFactory.setServiceInterface(serviceInterface);
+		proxyFactory.setRefreshStubOnConnectFailure(true);
+		proxyFactory.afterPropertiesSet(); // This is where we actually import
+
+		// Use the factory to get the proxy. Cast it to the service interface type
+		return (T) proxyFactory.getObject();
 	}
 
 	@Override
@@ -176,41 +129,64 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 
 	@Override
 	public List<Findable> getFindables() {
-		checkConfigured();
-		return new ArrayList<>(nameToFindable.values());
+		logger.warn("Getting ALL remote findables. This will cause all possible server objects to be exported");
+		List<String> findableNames = getFindableNames();
+		List<Findable> findables = new ArrayList<>();
+		for (String name : findableNames) {
+			try {
+				findables.add(getFindable(name));
+			} catch (FactoryException e) {
+				logger.error("Failed getting findable '{}'", name, e);
+			}
+		}
+		return findables;
 	}
 
 	@Override
 	public List<String> getFindableNames() {
-		checkConfigured();
-		return new ArrayList<>(nameToFindable.keySet());
+		// Just get everything implementing Findable
+		return new ArrayList<>(remoteObjectProvider.getRemoteObjectNamesImplementingType(Findable.class.getCanonicalName()));
 	}
 
 	@SuppressWarnings("unchecked") // We don't know what type the caller is expecting so this might throw!
 	@Override
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
-		checkConfigured();
-		return (T) nameToFindable.get(name);
+		// If importObject fails somehow it will return null and no mapping will be made.
+		return (T) importedObjects.computeIfAbsent(name, this::importObject);
 	}
 
-	@SuppressWarnings("unchecked") // This is safe because we have just ensured the object is an instance of T
+	private Object importObject(String name) {
+		try {
+			logger.debug("Asking server for '{}'...", name);
+			RmiObjectInfo remoteObject = remoteObjectProvider.getRemoteObject(name);
+			if (remoteObject != null) {
+				logger.debug("Importing '{}'", name);
+				Class<?> serviceInterface = SPRING_BUNDLE_LOADER.loadClass(remoteObject.getServiceInterface());
+				Object proxy = createProxy(name, serviceInterface);
+				logger.info("Sucessfully imported '{}', '{}'", name, proxy);
+				return proxy;
+			} else {
+				logger.debug("No remote obejct avaliable called '{}'", name);
+				return null;
+			}
+		} catch (Exception e) {
+			logger.error("Failed to import remote object '{}'", name, e);
+			return null;
+		}
+	}
+
 	@Override
 	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
-		checkConfigured();
-		return nameToFindable.entrySet().stream()
-		.filter(entry -> clazz.isInstance(entry.getValue()))
-		.collect(toMap(Entry::getKey, entry -> (T) entry.getValue()));
-	}
-
-	/**
-	 * Ensures this is configured and throws an exception if not
-	 *
-	 * @throws IllegalStateException if not configured
-	 */
-	private void checkConfigured() {
-		if(!isConfigured()) {
-			throw new IllegalStateException("RmiProxyFactory is not yet configured");
+		Map<String, T> findables = new HashMap<>();
+		Set<String> remoteObjectNamesImplementingType = remoteObjectProvider.getRemoteObjectNamesImplementingType(clazz.getCanonicalName());
+		for (String name : remoteObjectNamesImplementingType) {
+			try {
+				findables.put(name, getFindable(name));
+			} catch (FactoryException e) {
+				logger.error("Failed to import '{}'", name, e);
+			}
 		}
+		return findables;
 	}
 
 	@Override
