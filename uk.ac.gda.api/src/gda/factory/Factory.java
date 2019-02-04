@@ -25,8 +25,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 
 /**
- * An interface class used to instantiate findable objects, with Castor, via the object server. The factory
- * <ObjectFactory> should be the root tag in the XML file with the factory name as an element within the enclosing tags.
+ * An interface class used to provide findable objects.
+ * <p>
+ * {@link Factory}s are used by the {@link Finder} to find objects they act as different object sources.
  *
  * Adding beans directly to a Spring application context is now the
  * preferred method for instantiating objects. Encapsulating objects within a
@@ -37,10 +38,9 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 public interface Factory extends Configurable {
 
 	/**
-	 * Used by Castor to add the constructed findable object to a list of instantiated objects.
+	 * Used to add the {@link Findable}s to this factory
 	 *
-	 * @param findable
-	 *            the object as described in the XML file.
+	 * @param findable the object to add.
 	 */
 	public void addFindable(Findable findable);
 
@@ -59,12 +59,12 @@ public interface Factory extends Configurable {
 	public List<String> getFindableNames();
 
 	/**
-	 * Return a named object from the list of Castor instantiated objects.
+	 * Return a named object from the factory or null if this factory can't provide the object.
 	 *
-	 * @param <T>
+	 * @param <T> The type of the object to find
 	 * @param name
-	 *            the name of the object as known by Castor from the XML.
-	 * @return the named object of type {@link gda.factory.Findable}
+	 *            the name of the object as defined by the {@link Findable} interface.
+	 * @return the named object or <code>null</code> if this factory can't provide it.
 	 * @throws FactoryException
 	 */
 	public <T extends Findable> T getFindable(String name) throws FactoryException;
