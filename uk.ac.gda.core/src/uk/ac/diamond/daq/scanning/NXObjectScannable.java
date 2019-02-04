@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2018 Diamond Light Source Ltd.
+ * Copyright © 2019 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,44 +19,37 @@
 package uk.ac.diamond.daq.scanning;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
-import org.eclipse.dawnsci.nexus.NXsample;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Where NXSampleSCannable is currently used, NXObjectScannable may now be used, since the generic form
- * works with any kind of NXobject, not just NXsample.
- *
- * For example:
- *
- *   xpdfNxSample = NXSampleScannable("xpdfNxSample","sample",self.sample.getNexus())
- *
- * can be replaced with
- *
- *   xpdfNxSample = NXObjectScannable("xpdfNxSample","sample",self.sample.getNexus())
- *
- */
-@Deprecated
-public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsample> {
+public class NXObjectScannable<T extends NXobject> implements IScannable<Object>, INexusDevice<T> {
+
+	private static final Logger logger = LoggerFactory.getLogger(NXObjectScannable.class);
 
 	private String scannableName;
-	private NXObjectProvider<NXsample> provider;
+	private NXObjectProvider<T> provider;
 
-	public NXSampleScannable(String scannableName, String sampleName, NXsample sampleNode) {
+	public NXObjectScannable(String scannableName, String objectName, T objectNode) {
 		this.scannableName = scannableName;
-		provider = new NXObjectProvider<NXsample>(sampleName, sampleNode);
+		provider = new NXObjectProvider<T>(objectName, objectNode);
+		logger.trace("NXObjectScannable({}, {}, {}), provider={}", scannableName, objectName, objectNode, provider);
 	}
 
-	public void updateNode(String sampleName, NXsample sampleNode) {
-		provider = new NXObjectProvider<NXsample>(sampleName, sampleNode);
+	public void updateNode(String objectName, T objectNode) {
+		provider = new NXObjectProvider<T>(objectName, objectNode);
+		logger.trace("updateNode({}, {}), provider={} for {}", objectName, objectNode, provider, this.scannableName);
 	}
 
 	@Override
 	public void setLevel(int level) {
+		logger.trace("setLevel({}) ignoring for {}", level, this.scannableName);
 		//level does nothing here
 	}
 
@@ -73,11 +66,11 @@ public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsam
 	@Override
 	public void setName(String name) {
 		this.scannableName = name;
-
 	}
 
 	@Override
-	public NexusObjectProvider<NXsample> getNexusProvider(NexusScanInfo info) throws NexusException {
+	public NexusObjectProvider<T> getNexusProvider(NexusScanInfo info) throws NexusException {
+		logger.trace("getNexusProvider({}) returning {} for {}", info, provider, this.scannableName);
 		return provider;
 	}
 
@@ -88,6 +81,7 @@ public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsam
 
 	@Override
 	public Object setPosition(Object value, IPosition position) throws ScanningException {
+		logger.trace("setPosition({}, {}) ignoring for {}", value, position, this.scannableName);
 		return null;
 	}
 }
