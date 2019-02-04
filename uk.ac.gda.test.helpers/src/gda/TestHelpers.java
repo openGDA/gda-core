@@ -19,11 +19,14 @@
 
 package gda;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
@@ -901,6 +904,14 @@ class TestFactory implements Factory {
 	@Override
 	public List<Findable> getFindables() {
 		return new ArrayList<>(findables.values());
+	}
+
+	@SuppressWarnings("unchecked") // This is safe because we have just ensured the object is an instance of T
+	@Override
+	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
+		return findables.entrySet().stream()
+		.filter(entry -> clazz.isInstance(entry.getValue()))
+		.collect(toMap(Entry::getKey, entry -> (T) entry.getValue()));
 	}
 
 	@Override
