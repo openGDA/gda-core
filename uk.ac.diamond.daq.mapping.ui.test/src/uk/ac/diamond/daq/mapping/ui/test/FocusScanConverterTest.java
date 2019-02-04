@@ -144,8 +144,8 @@ public class FocusScanConverterTest {
 		assertNull(scanRequest.getSampleData());
 		assertNull(scanRequest.getScanMetadata());
 
-		assertNull(scanRequest.getAfter());
-		assertNull(scanRequest.getBefore());
+		assertNull(scanRequest.getAfterScript());
+		assertNull(scanRequest.getBeforeScript());
 
 		assertNull(scanRequest.getStart());
 		assertNull(scanRequest.getEnd());
