@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public final class Serializer {
 	 *            the object to serialize
 	 * @return a byte array containing the serialized object
 	 */
-	public static byte[] toByte(final Object object) {
+	public static byte[] toByte(final Serializable object) {
 		byte[] byteData = null;
 
 		if (object != null) {
