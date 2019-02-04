@@ -387,8 +387,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		ret.setEnd(pos[1]);
 
 		ScriptRequest[] req = modelAdaptable.getAdapter(ScriptRequest[].class);
-		ret.setBefore(req[0]);
-		ret.setAfter(req[1]);
+		ret.setBeforeScript(req[0]);
+		ret.setAfterScript(req[1]);
 
 		final Collection<MonitorScanUIElement> monitors = getMonitors();
 		ret.setMonitorNamesPerPoint(getMonitorNamesByRole(monitors, MonitorScanRole.PER_POINT));
@@ -482,7 +482,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 					styledString.append("\nStart: "+start);
 			        }
 
-			        ScriptRequest before = req.getBefore();
+			        ScriptRequest before = req.getBeforeScript();
 			        if (before!=null) {
 						if (monitor.isCanceled()) return;
 					styledString.append("\nBefore: ");
@@ -493,7 +493,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 				styledString.append("\nScan: ");
 				styledString.append(getModelNames(cm), StyledString.DECORATIONS_STYLER);
 
-			        ScriptRequest after = req.getAfter();
+			        ScriptRequest after = req.getAfterScript();
 			        if (after!=null) {
 						if (monitor.isCanceled()) return;
 					styledString.append("\nAfter: ");

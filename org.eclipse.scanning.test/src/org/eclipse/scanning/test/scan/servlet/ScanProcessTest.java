@@ -137,12 +137,12 @@ public class ScanProcessTest {
 		ScriptRequest before = new ScriptRequest();
 		before.setFile("/path/to/before.py");
 		before.setLanguage(ScriptLanguage.PYTHON);
-		scanRequest.setBefore(before);
+		scanRequest.setBeforeScript(before);
 
 		ScriptRequest after = new ScriptRequest();
 		after.setFile("/path/to/after.py");
 		after.setLanguage(ScriptLanguage.PYTHON);
-		scanRequest.setAfter(after);
+		scanRequest.setAfterScript(after);
 
 		scanBean.setScanRequest(scanRequest);
 		ScanProcess process = new ScanProcess(scanBean, null, true);
@@ -290,12 +290,12 @@ public class ScanProcessTest {
 		ScriptRequest beforeScript = new ScriptRequest();
 		beforeScript.setFile("/path/to/before.py");
 		beforeScript.setLanguage(ScriptLanguage.PYTHON);
-		scanRequest.setBefore(beforeScript);
+		scanRequest.setBeforeScript(beforeScript);
 
 		ScriptRequest afterScript = new ScriptRequest();
 		afterScript.setFile("/path/to/after.py");
 		afterScript.setLanguage(ScriptLanguage.PYTHON);
-		scanRequest.setAfter(afterScript);
+		scanRequest.setAfterScript(afterScript);
 
 		final MapPosition startPosition = new MapPosition();
 		startPosition.put("z", 0);
@@ -345,7 +345,7 @@ public class ScanProcessTest {
 		Mocks mocks = setupMocks();
 		WaitingAnswer<ScriptResponse<?>> waitingAnswer = new WaitingAnswer<>(new ScriptResponse<>());
 		IScriptService mockScriptService = mocks.get(IScriptService.class);
-		when(mockScriptService.execute(scanRequest.getBefore())).thenAnswer(waitingAnswer);
+		when(mockScriptService.execute(scanRequest.getBeforeScript())).thenAnswer(waitingAnswer);
 
 		// Act
 		// we need to run the scanProcess in another thread, so that we can call terminate in this thread
@@ -355,7 +355,7 @@ public class ScanProcessTest {
 		waitingAnswer.waitUntilCalled();
 
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
-		verify(mockScriptService).execute(scanRequest.getBefore()); // before script was called
+		verify(mockScriptService).execute(scanRequest.getBeforeScript()); // before script was called
 
 		process.terminate();
 		verify(mockScriptService).abortScripts(); // verify that scriptService.abortScripts was called by scanProcess
@@ -363,7 +363,7 @@ public class ScanProcessTest {
 		task.awaitCompletion();
 
 		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
-		verify(mockScriptService, never()).execute(scanRequest.getAfter()); // after script not called
+		verify(mockScriptService, never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
 	}
 
@@ -387,7 +387,7 @@ public class ScanProcessTest {
 		runScanWaitingAnswer.waitUntilCalled();
 
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
-		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBefore()); // before script was called
+		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
 		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
 		scanProcess.terminate();
 
@@ -396,7 +396,7 @@ public class ScanProcessTest {
 		runScanWaitingAnswer.resume(); // resume the answer to allow deviceController.run and then scanProcess.execute to finish
 		task.awaitCompletion(); // wait for end of scan
 
-		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfter()); // after script not called
+		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
 	}
 
@@ -425,8 +425,8 @@ public class ScanProcessTest {
 		IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
 		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
 		when(mockPositioner.setPosition(scanRequest.getEnd())).thenAnswer(endPositionAnswer);
-		when(mockScriptService.execute(scanRequest.getBefore())).thenAnswer(beforeScriptAnswer);
-		when(mockScriptService.execute(scanRequest.getAfter())).thenAnswer(afterScriptAnswer);
+		when(mockScriptService.execute(scanRequest.getBeforeScript())).thenAnswer(beforeScriptAnswer);
+		when(mockScriptService.execute(scanRequest.getAfterScript())).thenAnswer(afterScriptAnswer);
 		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
 		InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
 
@@ -450,7 +450,7 @@ public class ScanProcessTest {
 
 		// checks while running before script
 		beforeScriptAnswer.waitUntilCalled();
-		inOrder.verify(mockScriptService).execute(scanRequest.getBefore());
+		inOrder.verify(mockScriptService).execute(scanRequest.getBeforeScript());
 		verify(mockPublisher, times(3)).broadcast(scanBean);
 		assertThat(scanBean.getStatus(), is(Status.PREPARING));
 		assertThat(scanBean.getMessage(), is(equalTo("Running script before.py")));
@@ -467,7 +467,7 @@ public class ScanProcessTest {
 
 		// checks while running after script
 		afterScriptAnswer.waitUntilCalled();
-		inOrder.verify(mockScriptService).execute(scanRequest.getAfter());
+		inOrder.verify(mockScriptService).execute(scanRequest.getAfterScript());
 		verify(mockPublisher, times(6)).broadcast(scanBean);
 		assertThat(scanBean.getStatus(), is(Status.FINISHING));
 		assertThat(scanBean.getMessage(), is(equalTo("Running script after.py")));

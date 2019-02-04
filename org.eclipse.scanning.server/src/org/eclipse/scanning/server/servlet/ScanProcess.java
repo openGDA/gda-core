@@ -177,7 +177,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			setPosition(bean.getScanRequest().getStart(), "start");
 
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getBefore(), scanModel, bean.getScanRequest()::setBeforeResponse);
+			runScript(bean.getScanRequest().getBeforeScript(), scanModel, bean.getScanRequest()::setBeforeScriptResponse);
 
 			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
 			runScan(scanModel);
@@ -245,10 +245,10 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		updateBean(Status.RUNNING, "Starting scan");
 		controller.getDevice().run(null); // Runs until done
 
-		if (bean.getScanRequest().getAfter() != null || bean.getScanRequest().getEnd() != null) {
+		if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEnd() != null) {
 			updateBean(Status.FINISHING, null);
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getAfter(), scanModel, bean.getScanRequest()::setAfterResponse);
+			runScript(bean.getScanRequest().getAfterScript(), scanModel, bean.getScanRequest()::setAfterScriptResponse);
 			// move to the end position, if one is set
 			setPosition(bean.getScanRequest().getEnd(), "end");
 		}

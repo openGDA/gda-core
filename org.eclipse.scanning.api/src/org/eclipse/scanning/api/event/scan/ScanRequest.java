@@ -92,8 +92,8 @@ public class ScanRequest<T> implements Serializable {
 	/**
 	 * The script run before the data collection but after the start position has been set.
 	 */
-	private ScriptRequest     before;
-	private ScriptResponse<?> beforeResponse;
+	private ScriptRequest     beforeScript;
+	private ScriptResponse<?> beforeScriptResponse;
 
 	/**
 	 * The end position or null if there is no start position to move to.
@@ -104,8 +104,8 @@ public class ScanRequest<T> implements Serializable {
 	/**
 	 * The script run after the data collection but before the end position has been set.
 	 */
-	private ScriptRequest after;
-	private ScriptResponse<?> afterResponse;
+	private ScriptRequest afterScript;
+	private ScriptResponse<?> afterScriptResponse;
 
 	/**
 	 * Set to ignore processing of this request if the request has been
@@ -173,10 +173,10 @@ public class ScanRequest<T> implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((after == null) ? 0 : after.hashCode());
-		result = prime * result + ((afterResponse == null) ? 0 : afterResponse.hashCode());
-		result = prime * result + ((before == null) ? 0 : before.hashCode());
-		result = prime * result + ((beforeResponse == null) ? 0 : beforeResponse.hashCode());
+		result = prime * result + ((afterScript == null) ? 0 : afterScript.hashCode());
+		result = prime * result + ((afterScriptResponse == null) ? 0 : afterScriptResponse.hashCode());
+		result = prime * result + ((beforeScript == null) ? 0 : beforeScript.hashCode());
+		result = prime * result + ((beforeScriptResponse == null) ? 0 : beforeScriptResponse.hashCode());
 		result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
 		result = prime * result + ((end == null) ? 0 : end.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
@@ -198,25 +198,25 @@ public class ScanRequest<T> implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ScanRequest<?> other = (ScanRequest<?>) obj;
-		if (after == null) {
-			if (other.after != null)
+		if (afterScript == null) {
+			if (other.afterScript != null)
 				return false;
-		} else if (!after.equals(other.after))
+		} else if (!afterScript.equals(other.afterScript))
 			return false;
-		if (afterResponse == null) {
-			if (other.afterResponse != null)
+		if (afterScriptResponse == null) {
+			if (other.afterScriptResponse != null)
 				return false;
-		} else if (!afterResponse.equals(other.afterResponse))
+		} else if (!afterScriptResponse.equals(other.afterScriptResponse))
 			return false;
-		if (before == null) {
-			if (other.before != null)
+		if (beforeScript == null) {
+			if (other.beforeScript != null)
 				return false;
-		} else if (!before.equals(other.before))
+		} else if (!beforeScript.equals(other.beforeScript))
 			return false;
-		if (beforeResponse == null) {
-			if (other.beforeResponse != null)
+		if (beforeScriptResponse == null) {
+			if (other.beforeScriptResponse != null)
 				return false;
-		} else if (!beforeResponse.equals(other.beforeResponse))
+		} else if (!beforeScriptResponse.equals(other.beforeScriptResponse))
 			return false;
 		if (detectors == null) {
 			if (other.detectors != null)
@@ -303,38 +303,38 @@ public class ScanRequest<T> implements Serializable {
 		this.ignorePreprocess = ignorePreprocess;
 	}
 
-	public ScriptRequest getBefore() {
-		return before;
+	public ScriptRequest getBeforeScript() {
+		return beforeScript;
 	}
 
-	public void setBefore(ScriptRequest before) {
-		this.before = before;
+	public void setBeforeScript(ScriptRequest before) {
+		this.beforeScript = before;
 	}
 
-	public ScriptRequest getAfter() {
-		return after;
+	public ScriptRequest getAfterScript() {
+		return afterScript;
 	}
 
-	public void setAfter(ScriptRequest after) {
-		this.after = after;
-	}
-
-	@SuppressWarnings("squid:S1452")
-	public ScriptResponse<?> getBeforeResponse() {
-		return beforeResponse;
-	}
-
-	public void setBeforeResponse(ScriptResponse<?> beforeResponse) {
-		this.beforeResponse = beforeResponse;
+	public void setAfterScript(ScriptRequest afterScript) {
+		this.afterScript = afterScript;
 	}
 
 	@SuppressWarnings("squid:S1452")
-	public ScriptResponse<?> getAfterResponse() {
-		return afterResponse;
+	public ScriptResponse<?> getBeforeScriptResponse() {
+		return beforeScriptResponse;
 	}
 
-	public void setAfterResponse(ScriptResponse<?> afterResponse) {
-		this.afterResponse = afterResponse;
+	public void setBeforeScriptResponse(ScriptResponse<?> beforeScriptResponse) {
+		this.beforeScriptResponse = beforeScriptResponse;
+	}
+
+	@SuppressWarnings("squid:S1452")
+	public ScriptResponse<?> getAfterScriptResponse() {
+		return afterScriptResponse;
+	}
+
+	public void setAfterScriptResponse(ScriptResponse<?> afterScriptResponse) {
+		this.afterScriptResponse = afterScriptResponse;
 	}
 
 	public List<ScanMetadata> getScanMetadata() {
