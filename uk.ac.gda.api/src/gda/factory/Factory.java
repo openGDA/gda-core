@@ -27,7 +27,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 /**
  * An interface class used to instantiate findable objects, with Castor, via the object server. The factory
  * <ObjectFactory> should be the root tag in the XML file with the factory name as an element within the enclosing tags.
- * 
+ *
  * Adding beans directly to a Spring application context is now the
  * preferred method for instantiating objects. Encapsulating objects within a
  * {@link Factory} results in objects that cannot be referenced from the
@@ -35,25 +35,10 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
  * {@link BeanDefinitionParser} to create Spring {@link BeanDefinition}s.
  */
 public interface Factory extends Configurable {
-	/**
-	 * Set or change the name of the factory (as defined in XML).
-	 * 
-	 * @param name
-	 *            the factory name
-	 */
-	public void setName(String name);
-
-	/**
-	 * Get the factory name. Used by Castor to check if the factory name has been set before calling the
-	 * {@link #setName(String)} method.
-	 * 
-	 * @return a String containing the factory name.
-	 */
-	public String getName();
 
 	/**
 	 * Used by Castor to add the constructed findable object to a list of instantiated objects.
-	 * 
+	 *
 	 * @param findable
 	 *            the object as described in the XML file.
 	 */
@@ -61,21 +46,21 @@ public interface Factory extends Configurable {
 
 	/**
 	 * Returns the findable objects held in this factory.
-	 * 
+	 *
 	 * @return the list of objects.
 	 */
 	public List<Findable> getFindables();
-	
+
 	/**
 	 * Returns a list of the names of all findable objects held in this factory.
-	 * 
+	 *
 	 * @return a list of findable names
 	 */
 	public List<String> getFindableNames();
 
 	/**
 	 * Return a named object from the list of Castor instantiated objects.
-	 * 
+	 *
 	 * @param <T>
 	 * @param name
 	 *            the name of the object as known by Castor from the XML.
@@ -83,21 +68,21 @@ public interface Factory extends Configurable {
 	 * @throws FactoryException
 	 */
 	public <T extends Findable> T getFindable(String name) throws FactoryException;
-	
+
 	/**
 	 * Indicates whether this factory contains objects that should be made
 	 * remotely accessible.
-	 * 
+	 *
 	 * @return whether objects in this factory should be remotely accessible
 	 */
 	public boolean containsExportableObjects();
-	
+
 	/**
 	 * Indicates whether this factory contains objects that have been
 	 * instantiated locally.
-	 * 
+	 *
 	 * @return whether this factory contains local objects
 	 */
 	public boolean isLocal();
-	
+
 }
