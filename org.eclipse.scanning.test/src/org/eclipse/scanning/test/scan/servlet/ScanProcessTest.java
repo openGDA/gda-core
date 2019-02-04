@@ -298,7 +298,7 @@ public class ScanProcessTest {
 
 		final MapPosition startPosition = new MapPosition();
 		startPosition.put("z", 0);
-		scanRequest.setStart(startPosition);
+		scanRequest.setStartPosition(startPosition);
 
 		final MapPosition endPosition = new MapPosition();
 		endPosition.put("z", 10.0);
@@ -316,14 +316,14 @@ public class ScanProcessTest {
 		Mocks mocks = setupMocks();
 		IPositioner mockPositioner = mocks.get(IPositioner.class);
 		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
-		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
+		when(mockPositioner.setPosition(scanRequest.getStartPosition())).thenAnswer(startPositionAnswer);
 
 		// Act
 		ScanProcess scanProcess = new ScanProcess(scanBean, null, true);
 		ScanTask task = new ScanTask(scanProcess);
 		task.start();
 		startPositionAnswer.waitUntilCalled();
-		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart());
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition());
 		scanProcess.terminate();
 		startPositionAnswer.resume();
 		task.awaitCompletion();
@@ -332,7 +332,7 @@ public class ScanProcessTest {
 		verify(mocks.get(IPositioner.class)).abort();
 		verify(mocks.get(IScriptService.class), never()).execute(any(ScriptRequest.class)); // no scripts run (before or after)
 		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
-		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 	}
 
 	@Test
@@ -353,7 +353,7 @@ public class ScanProcessTest {
 		task.start();
 		waitingAnswer.waitUntilCalled();
 
-		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
 		verify(mockScriptService).execute(scanRequest.getBeforeScript()); // before script was called
 
 		process.terminate();
@@ -363,7 +363,7 @@ public class ScanProcessTest {
 
 		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
 		verify(mockScriptService, never()).execute(scanRequest.getAfterScript()); // after script not called
-		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 	}
 
 	@Test
@@ -385,7 +385,7 @@ public class ScanProcessTest {
 		task.start();
 		runScanWaitingAnswer.waitUntilCalled();
 
-		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStart()); // start position was moved to
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
 		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
 		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
 		scanProcess.terminate();
@@ -396,7 +396,7 @@ public class ScanProcessTest {
 		task.awaitCompletion(); // wait for end of scan
 
 		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
-		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEnd()); // end position not moved to
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 	}
 
 	/**
@@ -422,8 +422,8 @@ public class ScanProcessTest {
 		IPositioner mockPositioner = mocks.get(IPositioner.class);
 		IPausableDevice<ScanModel> mockDevice = mocks.get(IPausableDevice.class);
 		IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
-		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
-		when(mockPositioner.setPosition(scanRequest.getEnd())).thenAnswer(endPositionAnswer);
+		when(mockPositioner.setPosition(scanRequest.getStartPosition())).thenAnswer(startPositionAnswer);
+		when(mockPositioner.setPosition(scanRequest.getEndPosition())).thenAnswer(endPositionAnswer);
 		doAnswer(beforeScriptAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
 		doAnswer(afterScriptAnswer).when(mockScriptService).execute(scanRequest.getAfterScript());
 		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
@@ -441,7 +441,7 @@ public class ScanProcessTest {
 
 		// checks while moving to start position
 		startPositionAnswer.waitUntilCalled();
-		inOrder.verify(mockPositioner).setPosition(scanRequest.getStart());
+		inOrder.verify(mockPositioner).setPosition(scanRequest.getStartPosition());
 		verify(mockPublisher, times(2)).broadcast(scanBean);
 		assertThat(scanBean.getStatus(), is(Status.PREPARING));
 		assertThat(scanBean.getMessage(), is("Moving to start position"));
@@ -474,7 +474,7 @@ public class ScanProcessTest {
 
 		// checks while moving to end position
 		endPositionAnswer.waitUntilCalled();
-		inOrder.verify(mockPositioner).setPosition(scanRequest.getEnd());
+		inOrder.verify(mockPositioner).setPosition(scanRequest.getEndPosition());
 		verify(mockPublisher, times(7)).broadcast(scanBean);
 		assertThat(scanBean.getStatus(), is(Status.FINISHING));
 		assertThat(scanBean.getMessage(), is(equalTo("Moving to end position")));
@@ -592,7 +592,7 @@ public class ScanProcessTest {
 		start.put("p", 1.0);
 		start.put("q", 2.0);
 		start.put("r", 3.0);
-		scanRequest.setStart(start);
+		scanRequest.setStartPosition(start);
 
 		final MapPosition end = new MapPosition();
 		end.put("p", 6.0);

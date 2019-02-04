@@ -383,7 +383,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		ret.setCompoundModel(cm);
 
 		IPosition[] pos = modelAdaptable.getAdapter(IPosition[].class);
-		ret.setStart(pos[0]);
+		ret.setStartPosition(pos[0]);
 		ret.setEnd(pos[1]);
 
 		ScriptRequest[] req = modelAdaptable.getAdapter(ScriptRequest[].class);
@@ -476,7 +476,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			styledString.append(getMotorNames(gen), FontStyler.BOLD);
 
 			if (Activator.getDefault().getPreferenceStore().getBoolean(DevicePreferenceConstants.SHOW_SCAN_INFO)) {
-			        IPosition start = req.getStart();
+			        IPosition start = req.getStartPosition();
 			        if (start!=null) {
 						if (monitor.isCanceled()) return;
 					styledString.append("\nStart: "+start);
@@ -499,7 +499,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 					styledString.append("\nAfter: ");
 					styledString.append(after.toString(), StyledString.DECORATIONS_STYLER);
 			        }
-			        IPosition end = req.getEnd();
+			        IPosition end = req.getEndPosition();
 			        if (end!=null) {
 						if (monitor.isCanceled()) return;
 					styledString.append("\nEnd: "+end);

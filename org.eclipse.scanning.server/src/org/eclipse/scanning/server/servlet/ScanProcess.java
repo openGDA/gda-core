@@ -90,7 +90,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		this.publisher = response;
 		this.blocking = blocking;
 
-		if (bean.getScanRequest().getStart()!=null || bean.getScanRequest().getEnd()!=null) {
+		if (bean.getScanRequest().getStartPosition()!=null || bean.getScanRequest().getEndPosition()!=null) {
 			try {
 				this.positioner = Services.getRunnableDeviceService().createPositioner(this.getClass().getSimpleName());
 			} catch (ScanningException e) {
@@ -172,7 +172,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			final ScanModel scanModel = createScanModel(pointGenerator);
 
 			// Move to a position if they set one
-			setPosition(bean.getScanRequest().getStart(), "start");
+			setPosition(bean.getScanRequest().getStartPosition(), "start");
 
 			// Run a script, if any has been requested
 			runScript(bean.getScanRequest().getBeforeScript(), scanModel);
@@ -243,12 +243,12 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		updateBean(Status.RUNNING, "Starting scan");
 		controller.getDevice().run(null); // Runs until done
 
-		if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEnd() != null) {
+		if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEndPosition() != null) {
 			updateBean(Status.FINISHING, null);
 			// Run a script, if any has been requested
 			runScript(bean.getScanRequest().getAfterScript(), scanModel);
 			// move to the end position, if one is set
-			setPosition(bean.getScanRequest().getEnd(), "end");
+			setPosition(bean.getScanRequest().getEndPosition(), "end");
 		}
 	}
 

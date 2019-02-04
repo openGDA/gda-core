@@ -86,7 +86,7 @@ public class ScanRequest<T> implements Serializable {
 	/**
 	 * The start position or null if there is no start position to move to.
 	 */
-	private IPosition start;
+	private IPosition startPosition;
 
 	/**
 	 * The script run before the data collection but after the start position has been set.
@@ -96,7 +96,7 @@ public class ScanRequest<T> implements Serializable {
 	/**
 	 * The end position or null if there is no start position to move to.
 	 */
-	private IPosition end;
+	private IPosition endPosition;
 
 
 	/**
@@ -173,13 +173,13 @@ public class ScanRequest<T> implements Serializable {
 		result = prime * result + ((afterScript == null) ? 0 : afterScript.hashCode());
 		result = prime * result + ((beforeScript == null) ? 0 : beforeScript.hashCode());
 		result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
-		result = prime * result + ((end == null) ? 0 : end.hashCode());
+		result = prime * result + ((endPosition == null) ? 0 : endPosition.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + (ignorePreprocess ? 1231 : 1237);
 		result = prime * result + ((monitorNamesPerPoint == null) ? 0 : monitorNamesPerPoint.hashCode());
 		result = prime * result + ((monitorNamesPerScan == null) ? 0 : monitorNamesPerScan.hashCode());
 		result = prime * result + ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
-		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
 		return result;
 	}
 
@@ -208,10 +208,10 @@ public class ScanRequest<T> implements Serializable {
 				return false;
 		} else if (!detectors.equals(other.detectors))
 			return false;
-		if (end == null) {
-			if (other.end != null)
+		if (endPosition == null) {
+			if (other.endPosition != null)
 				return false;
-		} else if (!end.equals(other.end))
+		} else if (!endPosition.equals(other.endPosition))
 			return false;
 		if (filePath == null) {
 			if (other.filePath != null)
@@ -235,10 +235,10 @@ public class ScanRequest<T> implements Serializable {
 				return false;
 		} else if (!scanMetadata.equals(other.scanMetadata))
 			return false;
-		if (start == null) {
-			if (other.start != null)
+		if (startPosition == null) {
+			if (other.startPosition != null)
 				return false;
-		} else if (!start.equals(other.start))
+		} else if (!startPosition.equals(other.startPosition))
 			return false;
 		return true;
 	}
@@ -248,7 +248,7 @@ public class ScanRequest<T> implements Serializable {
 		return "ScanRequest [model=" + compoundModel + ", detectors=" + detectors +
 				", monitorNamesPerPoint=" + monitorNamesPerPoint +
 				", monitorNamesPerScan=" + monitorNamesPerScan +
-				", filePath=" + filePath + ", start=" + start + ", end=" + end + "]";
+				", filePath=" + filePath + ", startPosition=" + startPosition + ", endPosition=" + endPosition + "]";
 	}
 
 	public Map<String, Object> getDetectors() {
@@ -264,20 +264,20 @@ public class ScanRequest<T> implements Serializable {
 		detectors.put(name, dmodel);
 	}
 
-	public IPosition getStart() {
-		return start;
+	public IPosition getStartPosition() {
+		return startPosition;
 	}
 
-	public void setStart(IPosition start) {
-		this.start = start;
+	public void setStartPosition(IPosition startPosition) {
+		this.startPosition = startPosition;
 	}
 
-	public IPosition getEnd() {
-		return end;
+	public IPosition getEndPosition() {
+		return endPosition;
 	}
 
-	public void setEnd(IPosition end) {
-		this.end = end;
+	public void setEnd(IPosition endPosition) {
+		this.endPosition = endPosition;
 	}
 
 	public boolean isIgnorePreprocess() {
