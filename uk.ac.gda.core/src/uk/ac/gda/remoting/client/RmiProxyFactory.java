@@ -84,9 +84,6 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 	 */
 	private static final ClassLoader SPRING_BUNDLE_LOADER = InitializingBean.class.getClassLoader();
 
-	// Factories currently need to be named (DAQ-1264). So name using the class name.
-	private final String name = RmiProxyFactory.class.getSimpleName();
-
 	/**
 	 * This {@link Map} holds the {@link Findable}s this Factory can provide. It is filled by the
 	 * {@link #configure()} method.
@@ -167,16 +164,6 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 		logger.info("Finished importing. {} RMI objects have been imported", nameToFindable.size());
 		logger.debug("Importing all objects took {} ms", stopwatch.elapsed(MILLISECONDS));
 		setConfigured(true);
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		// No-op don't allow the name to be changed
 	}
 
 	@Override

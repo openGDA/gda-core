@@ -39,8 +39,6 @@ import gda.factory.Findable;
  */
 public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 
-	private String name;
-
 	/** Cache of findables known about by Spring including aliases */
 	private final Map<String, Findable> nameToFindable;
 
@@ -57,16 +55,6 @@ public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 
 		// Add the aliases to the findables
 		nameToFindable.putAll(aliases);
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override
