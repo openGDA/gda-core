@@ -352,7 +352,7 @@ public class ScanRequestConverterTest {
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		final IPosition startPos = scanRequest.getStart();
+		final IPosition startPos = scanRequest.getStartPosition();
 		assertThat(startPos.getNames().size(), is(equalTo(beamlineConfiguration.size())));
 		for (String scannableName : beamlineConfiguration.keySet()) {
 			assertThat(startPos.get(scannableName), is(equalTo(beamlineConfiguration.get(scannableName))));

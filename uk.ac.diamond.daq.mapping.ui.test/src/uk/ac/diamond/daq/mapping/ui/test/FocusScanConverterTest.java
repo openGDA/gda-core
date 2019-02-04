@@ -147,8 +147,8 @@ public class FocusScanConverterTest {
 		assertNull(scanRequest.getAfterScript());
 		assertNull(scanRequest.getBeforeScript());
 
-		assertNull(scanRequest.getStart());
-		assertNull(scanRequest.getEnd());
+		assertNull(scanRequest.getStartPosition());
+		assertNull(scanRequest.getEndPosition());
 		assertNull(scanRequest.getFilePath());
 	}
 

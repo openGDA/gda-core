@@ -146,7 +146,7 @@ public class ScanRequestConverter {
 		// set the scan start position (scannables not in the scan that are set to a certain value before the scan starts)
 		final Map<String, Object> beamlineConfiguration = mappingBean.getBeamlineConfiguration();
 		if (beamlineConfiguration != null) {
-			scanRequest.setStart(new MapPosition(beamlineConfiguration));
+			scanRequest.setStartPosition(new MapPosition(beamlineConfiguration));
 		}
 
 		// add the required detectors to the scan
@@ -285,8 +285,8 @@ public class ScanRequestConverter {
 		scanRegion.setRegion(shape);
 
 		// recreate the beamline configuration from the scan start position
-		if (scanRequest.getStart() != null) {
-			mappingBean.setBeamlineConfiguration(new LinkedHashMap<>(scanRequest.getStart().getValues()));
+		if (scanRequest.getStartPosition() != null) {
+			mappingBean.setBeamlineConfiguration(new LinkedHashMap<>(scanRequest.getStartPosition().getValues()));
 		}
 
 		// recreate the detector models and processing steps (included in the same map of detectors in the scan request)
