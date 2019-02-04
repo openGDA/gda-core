@@ -168,11 +168,20 @@ public class TestHelpers {
 	}
 
 	/**
-	 * @param name
+	 * @param name - Not used
+	 * @return Factory implementation that can be used for testing - simply add findables and add to Finder instance
+	 * @deprecated replace with {@link #createTestFactory()} i.e. no name specified
+	 */
+	@Deprecated
+	public static Factory createTestFactory(@SuppressWarnings("unused") String name) {
+		return new TestFactory();
+	}
+
+	/**
 	 * @return Factory implementation that can be used for testing - simply add findables and add to Finder instance
 	 */
-	public static Factory createTestFactory(String name) {
-		return new TestFactory(name);
+	public static Factory createTestFactory() {
+		return new TestFactory();
 	}
 }
 
@@ -867,11 +876,6 @@ class Data extends NexusGroupData {
 
 class TestFactory implements Factory {
 	private final Map<String, Findable> findables = new HashMap<>();
-	private String name;
-
-	public TestFactory(String name) {
-		setName(name);
-	}
 
 	@Override
 	public void addFindable(Findable findable) {
@@ -900,18 +904,8 @@ class TestFactory implements Factory {
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
 	public boolean isLocal() {
 		return true;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
