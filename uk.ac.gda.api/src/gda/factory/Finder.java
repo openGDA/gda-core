@@ -389,11 +389,7 @@ public enum Finder {
 			if (local && !factory.isLocal()) {
 				continue;
 			}
-			for (Findable findable : factory.getFindables()) {
-				if (clazz.isAssignableFrom(findable.getClass())) {
-					findables.put(findable.getName(), clazz.cast(findable));
-				}
-			}
+			findables.putAll(factory.getFindablesOfType(clazz));
 		}
 		return findables;
 	}
