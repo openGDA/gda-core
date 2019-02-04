@@ -20,6 +20,7 @@
 package gda.factory;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -68,6 +69,16 @@ public interface Factory extends Configurable {
 	 * @throws FactoryException
 	 */
 	public <T extends Findable> T getFindable(String name) throws FactoryException;
+
+	/**
+	 * Return all objects of the requested type from this factory.
+	 *
+	 * @param <T> The type of the object to find
+	 * @param clazz the type of the objects to be found
+	 * @return a map of name to requested objects that can be provided from this factory or an empty map if none can be provided
+	 */
+	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz);
+
 
 	/**
 	 * Indicates whether this factory contains objects that should be made
