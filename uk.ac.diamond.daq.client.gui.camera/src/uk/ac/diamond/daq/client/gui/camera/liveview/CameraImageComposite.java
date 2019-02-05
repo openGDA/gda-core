@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationMode;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamException;
@@ -39,7 +39,7 @@ public class CameraImageComposite extends Composite {
 	
 	private static final String IMAGE_DIMENSION_FORMAT = "%6.2fmm";
 
-	private CameraConfigurationController controller;
+	private AbstractCameraConfigurationController controller;
 	private LivePlottingComposite plottingComposite;
 	private IPlottingSystem<Composite> plottingSystem;
 	private boolean frozen = false;
@@ -235,7 +235,7 @@ public class CameraImageComposite extends Composite {
 		}
 	}
 	
-	public CameraImageComposite(Composite parent, CameraConfigurationController controller,
+	public CameraImageComposite(Composite parent, AbstractCameraConfigurationController controller,
 			LiveStreamConnection liveStreamConnection, CameraConfiguration cameraConfiguration, 
 			int style) throws Exception {
 		super(parent, style);

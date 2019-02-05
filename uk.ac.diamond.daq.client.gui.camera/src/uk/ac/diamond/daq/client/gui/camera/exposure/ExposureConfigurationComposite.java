@@ -10,23 +10,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Slider;
-import org.eclipse.swt.widgets.Text;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.PositionValueControlComposite;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
 
 public class ExposureConfigurationComposite extends Composite {
-	public ExposureConfigurationComposite(Composite parent, CameraConfigurationController controller, int style) throws DeviceException {
+	public ExposureConfigurationComposite(Composite parent, AbstractCameraConfigurationController controller, int style) throws DeviceException {
 		super(parent, style);
 
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
-		Composite exposurePanel = createExposureComposit();
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(exposurePanel);
+		ExposureLengthComposite exposureLengthComposite = new ExposureLengthComposite(this, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).applyTo(exposureLengthComposite);
 		
 		Composite binningComposite = new BinningComposite(this, controller, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(binningComposite);
@@ -70,30 +68,6 @@ public class ExposureConfigurationComposite extends Composite {
 		});
 		RowDataFactory.swtDefaults().applyTo(cameraPositionButton);
 
-		return panel;
-	}
-	
-	private Composite createExposureComposit () {
-		Label label;
-		
-		Composite panel = new Composite(this, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(panel);
-
-		label = new Label(panel, SWT.LEFT);
-		label.setText("Exposure:");
-		GridDataFactory.swtDefaults().applyTo(label);
-
-		Slider exposureSlider = new Slider(panel, SWT.HORIZONTAL);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(exposureSlider);
-
-		Text exposureText = new Text(panel, SWT.RIGHT | SWT.BORDER);
-		exposureText.setText("0");
-		GridDataFactory.swtDefaults().hint(25, -1).applyTo(exposureText);
-
-		label = new Label(panel, SWT.LEFT);
-		label.setText("ms");
-		GridDataFactory.swtDefaults().applyTo(label);
-		
 		return panel;
 	}
 }
