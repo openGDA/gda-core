@@ -25,7 +25,6 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +92,6 @@ public class ScanRequest<T> implements Serializable {
 	 * The script run before the data collection but after the start position has been set.
 	 */
 	private ScriptRequest     beforeScript;
-	private ScriptResponse<?> beforeScriptResponse;
 
 	/**
 	 * The end position or null if there is no start position to move to.
@@ -105,7 +103,6 @@ public class ScanRequest<T> implements Serializable {
 	 * The script run after the data collection but before the end position has been set.
 	 */
 	private ScriptRequest afterScript;
-	private ScriptResponse<?> afterScriptResponse;
 
 	/**
 	 * Set to ignore processing of this request if the request has been
@@ -174,9 +171,7 @@ public class ScanRequest<T> implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((afterScript == null) ? 0 : afterScript.hashCode());
-		result = prime * result + ((afterScriptResponse == null) ? 0 : afterScriptResponse.hashCode());
 		result = prime * result + ((beforeScript == null) ? 0 : beforeScript.hashCode());
-		result = prime * result + ((beforeScriptResponse == null) ? 0 : beforeScriptResponse.hashCode());
 		result = prime * result + ((detectors == null) ? 0 : detectors.hashCode());
 		result = prime * result + ((end == null) ? 0 : end.hashCode());
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
@@ -203,20 +198,10 @@ public class ScanRequest<T> implements Serializable {
 				return false;
 		} else if (!afterScript.equals(other.afterScript))
 			return false;
-		if (afterScriptResponse == null) {
-			if (other.afterScriptResponse != null)
-				return false;
-		} else if (!afterScriptResponse.equals(other.afterScriptResponse))
-			return false;
 		if (beforeScript == null) {
 			if (other.beforeScript != null)
 				return false;
 		} else if (!beforeScript.equals(other.beforeScript))
-			return false;
-		if (beforeScriptResponse == null) {
-			if (other.beforeScriptResponse != null)
-				return false;
-		} else if (!beforeScriptResponse.equals(other.beforeScriptResponse))
 			return false;
 		if (detectors == null) {
 			if (other.detectors != null)
@@ -317,24 +302,6 @@ public class ScanRequest<T> implements Serializable {
 
 	public void setAfterScript(ScriptRequest afterScript) {
 		this.afterScript = afterScript;
-	}
-
-	@SuppressWarnings("squid:S1452")
-	public ScriptResponse<?> getBeforeScriptResponse() {
-		return beforeScriptResponse;
-	}
-
-	public void setBeforeScriptResponse(ScriptResponse<?> beforeScriptResponse) {
-		this.beforeScriptResponse = beforeScriptResponse;
-	}
-
-	@SuppressWarnings("squid:S1452")
-	public ScriptResponse<?> getAfterScriptResponse() {
-		return afterScriptResponse;
-	}
-
-	public void setAfterScriptResponse(ScriptResponse<?> afterScriptResponse) {
-		this.afterScriptResponse = afterScriptResponse;
 	}
 
 	public List<ScanMetadata> getScanMetadata() {

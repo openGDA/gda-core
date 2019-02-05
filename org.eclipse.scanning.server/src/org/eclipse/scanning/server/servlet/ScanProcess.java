@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.IScannable;
@@ -177,7 +176,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			setPosition(bean.getScanRequest().getStart(), "start");
 
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getBeforeScript(), scanModel, bean.getScanRequest()::setBeforeScriptResponse);
+			runScript(bean.getScanRequest().getBeforeScript(), scanModel);
 
 			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
 			runScan(scanModel);
@@ -248,7 +247,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEnd() != null) {
 			updateBean(Status.FINISHING, null);
 			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getAfterScript(), scanModel, bean.getScanRequest()::setAfterScriptResponse);
+			runScript(bean.getScanRequest().getAfterScript(), scanModel);
 			// move to the end position, if one is set
 			setPosition(bean.getScanRequest().getEnd(), "end");
 		}
@@ -380,7 +379,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		logger.debug("Malcolm device(s) initialized");
 	}
 
-	private void runScript(ScriptRequest req, ScanModel scanModel, Consumer<ScriptResponse<?>> cons) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
+	private void runScript(ScriptRequest req, ScanModel scanModel) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {
 		if (req==null) return; // Nothing to do
 		if (scriptService==null) throw new ScriptExecutionException("No script service is available, cannot run script request "+req);
 		checkTerminated();
@@ -400,8 +399,8 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		} finally {
 			scriptRunning = false;
 		}
+		// TODO - what should we want to do with the response?
 		logger.debug("Script ran with response {}.", res);
-		cons.accept(res);
 	}
 
 	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {
