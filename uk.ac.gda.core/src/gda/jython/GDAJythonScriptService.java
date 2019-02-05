@@ -26,7 +26,6 @@ import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class GDAJythonScriptService implements IScriptService {
 	}
 
 	@Override
-	public ScriptResponse<?> execute(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException {
+	public void execute(ScriptRequest req) throws UnsupportedLanguageException, ScriptExecutionException {
 		if (req.getLanguage() != SPEC_PASTICHE) {
 			throw new UnsupportedLanguageException();
 		}
@@ -72,9 +71,6 @@ public class GDAJythonScriptService implements IScriptService {
 		// run the script - blocks
 		logger.info("Running script file {}", scriptFile);
 		commandRunner.evaluateCommand("run '" + scriptFileStr + "'");
-
-		// return a new script response. As runScript returns void, we have nothing to set
-		return new ScriptResponse<>();
 	}
 
 	@Override
