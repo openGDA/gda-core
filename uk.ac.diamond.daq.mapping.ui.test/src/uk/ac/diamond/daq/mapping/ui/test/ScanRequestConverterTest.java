@@ -320,11 +320,11 @@ public class ScanRequestConverterTest {
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		final ScriptRequest beforeScriptReq = scanRequest.getBefore();
+		final ScriptRequest beforeScriptReq = scanRequest.getBeforeScript();
 		assertThat(beforeScriptReq, is(notNullValue()));
 		assertThat(beforeScriptReq.getLanguage(), is(SPEC_PASTICHE));
 		assertThat(beforeScriptReq.getFile(), is(equalTo(beforeScanScript)));
-		final ScriptRequest afterScriptReq = scanRequest.getAfter();
+		final ScriptRequest afterScriptReq = scanRequest.getAfterScript();
 		assertThat(afterScriptReq, is(notNullValue()));
 		assertThat(afterScriptReq.getLanguage(), is(SPEC_PASTICHE));
 		assertThat(afterScriptReq.getFile(), is(equalTo(afterScanScript)));

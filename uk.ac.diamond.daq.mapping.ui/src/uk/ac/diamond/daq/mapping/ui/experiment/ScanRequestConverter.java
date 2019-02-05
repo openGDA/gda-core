@@ -177,8 +177,8 @@ public class ScanRequestConverter {
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
 			final IScriptFiles scriptFiles = mappingBean.getScriptFiles();
-			scanRequest.setBefore(createScriptRequest(scriptFiles.getBeforeScanScript()));
-			scanRequest.setAfter(createScriptRequest(scriptFiles.getAfterScanScript()));
+			scanRequest.setBeforeScript(createScriptRequest(scriptFiles.getBeforeScanScript()));
+			scanRequest.setAfterScript(createScriptRequest(scriptFiles.getAfterScanScript()));
 		}
 
 		// add the sample metadata
@@ -293,13 +293,13 @@ public class ScanRequestConverter {
 		mergeDetectorAndProcessing(scanRequest, mappingBean);
 
 		// recreate the scripts to run before and after the scan, if any
-		if (scanRequest.getBefore() != null || scanRequest.getAfter() != null) {
+		if (scanRequest.getBeforeScript() != null || scanRequest.getAfterScript() != null) {
 			ScriptFiles scriptFiles = new ScriptFiles();
-			if (scanRequest.getBefore() != null) {
-				scriptFiles.setBeforeScanScript(scanRequest.getBefore().getFile());
+			if (scanRequest.getBeforeScript() != null) {
+				scriptFiles.setBeforeScanScript(scanRequest.getBeforeScript().getFile());
 			}
-			if (scanRequest.getAfter() != null) {
-				scriptFiles.setAfterScanScript(scanRequest.getAfter().getFile());
+			if (scanRequest.getAfterScript() != null) {
+				scriptFiles.setAfterScanScript(scanRequest.getAfterScript().getFile());
 			}
 			mappingBean.setScriptFiles(scriptFiles);
 		}
