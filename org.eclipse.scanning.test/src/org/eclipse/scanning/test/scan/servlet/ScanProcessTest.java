@@ -80,7 +80,6 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
@@ -343,9 +342,9 @@ public class ScanProcessTest {
 		ScanRequest<?> scanRequest = scanBean.getScanRequest();
 
 		Mocks mocks = setupMocks();
-		WaitingAnswer<ScriptResponse<?>> waitingAnswer = new WaitingAnswer<>(new ScriptResponse<>());
+		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
 		IScriptService mockScriptService = mocks.get(IScriptService.class);
-		when(mockScriptService.execute(scanRequest.getBeforeScript())).thenAnswer(waitingAnswer);
+		doAnswer(waitingAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
 
 		// Act
 		// we need to run the scanProcess in another thread, so that we can call terminate in this thread
@@ -413,10 +412,10 @@ public class ScanProcessTest {
 		// the waiting answers for before/after script, start/stop position and running the scan
 		// allow us to verify the state of the scan being at each point in the scan
 		Mocks mocks = setupMocks();
-		WaitingAnswer<ScriptResponse<?>> beforeScriptAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<Void> beforeScriptAnswer = new WaitingAnswer<>(null);
 		WaitingAnswer<Boolean> startPositionAnswer = new WaitingAnswer<>(true);
 		WaitingAnswer<Void> runScanAnswer = new WaitingAnswer<>(null);
-		WaitingAnswer<ScriptResponse<?>> afterScriptAnswer = new WaitingAnswer<>(null);
+		WaitingAnswer<Void> afterScriptAnswer = new WaitingAnswer<>(null);
 		WaitingAnswer<Boolean> endPositionAnswer = new WaitingAnswer<>(true);
 
 		IScriptService mockScriptService = mocks.get(IScriptService.class);
@@ -425,8 +424,8 @@ public class ScanProcessTest {
 		IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
 		when(mockPositioner.setPosition(scanRequest.getStart())).thenAnswer(startPositionAnswer);
 		when(mockPositioner.setPosition(scanRequest.getEnd())).thenAnswer(endPositionAnswer);
-		when(mockScriptService.execute(scanRequest.getBeforeScript())).thenAnswer(beforeScriptAnswer);
-		when(mockScriptService.execute(scanRequest.getAfterScript())).thenAnswer(afterScriptAnswer);
+		doAnswer(beforeScriptAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
+		doAnswer(afterScriptAnswer).when(mockScriptService).execute(scanRequest.getAfterScript());
 		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
 		InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
 

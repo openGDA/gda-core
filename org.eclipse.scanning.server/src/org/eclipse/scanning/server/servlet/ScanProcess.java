@@ -54,7 +54,6 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 import org.eclipse.scanning.server.application.Activator;
 import org.slf4j.Logger;
@@ -393,14 +392,11 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPositionIterable());
 
 		scriptRunning = true;
-		ScriptResponse<?> res = null;
 		try {
-			res = scriptService.execute(req);
+			scriptService.execute(req);
 		} finally {
 			scriptRunning = false;
 		}
-		// TODO - what should we want to do with the response?
-		logger.debug("Script ran with response {}.", res);
 	}
 
 	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {

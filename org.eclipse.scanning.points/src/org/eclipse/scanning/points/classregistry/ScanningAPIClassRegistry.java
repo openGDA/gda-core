@@ -61,7 +61,6 @@ import org.eclipse.scanning.api.scan.ui.ControlTree;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 
 /**
  *
@@ -139,7 +138,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		// script
 		registerClass(tmp, ScriptLanguage.class);
 		registerClass(tmp, ScriptRequest.class);
-		registerClass(tmp, ScriptResponse.class);
 
 		idToClassMap = tmp;
 	}

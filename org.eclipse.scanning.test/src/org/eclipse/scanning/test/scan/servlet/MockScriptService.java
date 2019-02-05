@@ -20,7 +20,6 @@ import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 
 public final class MockScriptService implements IScriptService {
@@ -35,10 +34,9 @@ public final class MockScriptService implements IScriptService {
 	}
 
 	@Override
-	public ScriptResponse<?> execute(ScriptRequest req)
+	public void execute(ScriptRequest req)
 			throws UnsupportedLanguageException, ScriptExecutionException {
 		scriptRequests.add(req);
-		return new ScriptResponse<>();
 	}
 
 	public List<ScriptRequest> getScriptRequests() {
