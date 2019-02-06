@@ -17,7 +17,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.gda.api.camera.CameraRegionOfInterest;
 
 public class SensorROIComposite extends Composite {
@@ -51,7 +51,7 @@ public class SensorROIComposite extends Composite {
 	private DataModel dataModel = new DataModel ();
 	
 	private DataBindingContext dbc = new DataBindingContext();
-	private CameraConfigurationController controller;
+	private AbstractCameraConfigurationController controller;
 	
 	private Text topText;
 	private Text leftText;
@@ -59,7 +59,7 @@ public class SensorROIComposite extends Composite {
 	private Text heightText;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public SensorROIComposite(Composite parent, CameraConfigurationController controller, int style) {
+	public SensorROIComposite(Composite parent, AbstractCameraConfigurationController controller, int style) {
 		super(parent, style);
 
 		this.controller = controller;

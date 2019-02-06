@@ -134,8 +134,11 @@ public class DummyEnumPositioner extends EditableEnumPositionerBase {
 			}
 
 			if (!stopRequested) {
+				logger.debug("{} moved to {}", getName(), positionString);
 				currentPositionIndex = getPositionIndex(positionString);
 				inPos = true;
+			} else {
+				logger.debug("{} stopped whilst moving to {}", getName(), positionString);
 			}
 		}
 		setStatus(IDLE);

@@ -11,13 +11,13 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraRegionOfInterest;
 
-public class CameraConfigurationController implements IObserver {
+public abstract class AbstractCameraConfigurationController implements IObserver {
 	private List<CameraConfigurationListener> listeners = new ArrayList<>();
 	private CameraControl cameraControl;
 	private CameraConfigurationMode cameraConfigurationMode;
 	
-	public CameraConfigurationController () {
-		cameraControl = Finder.getInstance().find("imaging_camera_control");
+	public AbstractCameraConfigurationController (String findableInstance) {
+		cameraControl = Finder.getInstance().find(findableInstance);
 		cameraControl.addIObserver(this);
 	}
 	

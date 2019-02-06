@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.stage.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,6 +30,12 @@ public class DefaultMultipleStagePositioningService
 
 	private StageGroup currentStageGroup;
 	private List<StageGroup> stageGroups;
+
+	public DefaultMultipleStagePositioningService(StageGroup stageGroup) {
+		stageGroups = new ArrayList<>();
+		stageGroups.add(stageGroup);
+		currentStageGroup = stageGroup;
+	}
 
 	public DefaultMultipleStagePositioningService(StageGroupService stageGroupService, List<StageGroup> stageGroups)
 			throws StageException {

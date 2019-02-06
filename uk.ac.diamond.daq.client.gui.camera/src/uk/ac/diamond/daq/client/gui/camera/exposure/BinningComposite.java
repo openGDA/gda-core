@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 import uk.ac.gda.api.camera.BinningFormat;
 
 public class BinningComposite extends Composite {
@@ -38,9 +38,9 @@ public class BinningComposite extends Composite {
 	}
 
 	private BinningButton[] binningButtons;
-	private CameraConfigurationController controller;
+	private AbstractCameraConfigurationController controller;
 
-	public BinningComposite(Composite parent, CameraConfigurationController controller, int style) throws DeviceException {
+	public BinningComposite(Composite parent, AbstractCameraConfigurationController controller, int style) throws DeviceException {
 		super(parent, style);
 
 		this.controller = controller;

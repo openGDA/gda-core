@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationAdapter;
-import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationController;
+import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfigurationController;
 
 public class AbsorptionConfigurationComposite extends Composite {
 	private static final int BOX_SIZE = 15;
@@ -29,7 +29,7 @@ public class AbsorptionConfigurationComposite extends Composite {
 		}
 	}
 
-	public AbsorptionConfigurationComposite(Composite parent, CameraConfigurationController controller, int style) {
+	public AbsorptionConfigurationComposite(Composite parent, AbstractCameraConfigurationController controller, int style) {
 		super(parent, style);
 		
 		RatioListener ratioListener = new RatioListener();
