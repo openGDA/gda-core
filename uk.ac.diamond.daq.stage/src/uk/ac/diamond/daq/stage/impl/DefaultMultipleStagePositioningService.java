@@ -10,19 +10,17 @@ import gda.device.DeviceException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
-import uk.ac.diamond.daq.stage.StageConfiguration;
+import uk.ac.diamond.daq.stage.Stage;
 import uk.ac.diamond.daq.stage.StageException;
 import uk.ac.diamond.daq.stage.StageGroup;
 import uk.ac.diamond.daq.stage.StageGroupListener;
 import uk.ac.diamond.daq.stage.StageGroupService;
-import uk.ac.diamond.daq.stage.StageListener;
-import uk.ac.diamond.daq.stage.event.StageEvent;
 import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(MultipleStagePositioningService.class)
 public class DefaultMultipleStagePositioningService
-		implements MultipleStagePositioningService, StageGroupListener, StageListener {
+		implements MultipleStagePositioningService, StageGroupListener {
 	private static final Logger log = LoggerFactory.getLogger(DefaultMultipleStagePositioningService.class);
 
 	private String name;
@@ -58,11 +56,7 @@ public class DefaultMultipleStagePositioningService
 		if (nextStageGroup == null) {
 			throw new StageException("Unkown stage group - " + stageGroupName);
 		}
-		if (currentStageGroup != null) {
-			currentStageGroup.removeStageListener(this);
-		}
 		currentStageGroup = nextStageGroup;
-		currentStageGroup.addStageListener(this);
 		if (stageGroupEvent != null) {
 			observableComponent.notifyIObservers(this, stageGroupEvent);
 		}
@@ -92,25 +86,10 @@ public class DefaultMultipleStagePositioningService
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
 	}
-
+	
 	@Override
-	public boolean isStageEnabled(String stageName) {
-		return currentStageGroup.contains(stageName);
-	}
-
-	@Override
-	public List<StageConfiguration> getCurrentPositions() throws DeviceException {
-		return currentStageGroup.getCurrentPositions();
-	}
-
-	@Override
-	public Object getPosition(String stageName) throws DeviceException, StageException {
-		return currentStageGroup.getPosition(stageName);
-	}
-
-	@Override
-	public void setPosition(String stageName, Object position) throws DeviceException, StageException {
-		currentStageGroup.setPosition(stageName, position);
+	public List<Stage> getCurrentStages() throws DeviceException {
+		return currentStageGroup.getStages();
 	}
 
 	@Override
@@ -125,10 +104,5 @@ public class DefaultMultipleStagePositioningService
 		} catch (StageException e) {
 			log.error("Unable to update group", e);
 		}
-	}
-
-	@Override
-	public void stageStatusChanged(StageEvent stageEvent) {
-		observableComponent.notifyIObservers(this, stageEvent);
 	}
 }

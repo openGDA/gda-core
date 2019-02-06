@@ -6,108 +6,22 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.stage.MultipleStagePositioningService;
-import uk.ac.diamond.daq.stage.StageConfiguration;
-import uk.ac.diamond.daq.stage.StageException;
-import uk.ac.diamond.daq.stage.event.StageEvent;
+import uk.ac.diamond.daq.stage.Stage;
 import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 
-import com.swtdesigner.SWTResourceManager;
-
 import gda.device.DeviceException;
+import gda.factory.Finder;
 import gda.observable.IObserver;
+import gda.rcp.views.NudgePositionerComposite;
 
 public class PositionValueControlComposite extends Composite {
 	private static final Logger log = LoggerFactory.getLogger(PositionValueControlComposite.class);
-
-	private class PositionValueComponentGroup {
-		private String axisName;
-		private double lastValidValue;
-		private Label label;
-		private Button minusButton;
-		private Text text;
-		private Button plusButton;
-
-		private PositionValueComponentGroup(String axisName, Object position, Object incrementValue) {
-			this.axisName = axisName;
-
-			label = new Label(positionComposite, SWT.NONE);
-			label.setText(axisName + ":");
-			GridDataFactory.fillDefaults().applyTo(label);
-
-			minusButton = new Button(positionComposite, SWT.ARROW | SWT.LEFT);
-			minusButton.addListener(SWT.Selection, event -> {
-				lastValidValue -= (Double)incrementValue;
-				setPosition(lastValidValue, true);
-			});
-			GridDataFactory.fillDefaults().applyTo(minusButton);
-
-			text = new Text(positionComposite, SWT.RIGHT);
-			text.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-			text.addListener(SWT.FocusOut, event -> {
-				try {
-					lastValidValue = Double.parseDouble(text.getText());
-					setPosition(lastValidValue, true);
-				} catch (NumberFormatException e) {
-					text.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-				}
-			});
-			GridDataFactory.fillDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(text);
-
-			plusButton = new Button(positionComposite, SWT.ARROW | SWT.RIGHT);
-			plusButton.addListener(SWT.Selection, event -> {
-				lastValidValue += (Double)incrementValue;
-				setPosition(lastValidValue, true);
-			});
-			GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(plusButton);
-
-			if (position instanceof Double) {
-				setPosition((Double) position, false);
-			} else {
-				text.setText(position.toString());
-				text.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-				setEnabled(false);
-			}
-		}
-
-		private void setPosition(double position, boolean updateMotor) {
-			text.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-			text.setText(String.format("%.2f", position));
-
-			if (updateMotor) {
-				try {
-					multipleStagePositioningService.setPosition(axisName, position);
-				} catch (DeviceException | StageException e) {
-					text.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
-					log.error("Error moving axis " + axisName, e);
-				}
-			} else {
-				lastValidValue = position;
-			}
-		}
-
-		private void dispose() {
-			label.dispose();
-			minusButton.dispose();
-			text.dispose();
-			plusButton.dispose();
-		}
-
-		private void setEnabled(boolean enabled) {
-			label.setEnabled(enabled);
-			minusButton.setEnabled(enabled);
-			text.setEnabled(enabled);
-			plusButton.setEnabled(enabled);
-		}
-	}
 
 	private class MultipleStagePositioningServiceListerner implements IObserver {
 		@Override
@@ -120,20 +34,12 @@ public class PositionValueControlComposite extends Composite {
 						return;
 					}
 					log.debug("Moving from Stage Group ({}) to Stage Group ({})", stageGroupName, newStageGroupName);
-					for (PositionValueComponentGroup axis : positions) {
-						axis.dispose();
+					for (NudgePositionerComposite positioner : positioners) {
+						positioner.dispose();
 					}
-					positions.clear();
+					positioners.clear();
 					log.debug("Rebuilding Sample Positions Axis GUI components");
 					rebuildAxises();
-				} else if (arg instanceof StageEvent) {
-					StageEvent event = (StageEvent) arg;
-					for (PositionValueComponentGroup axis : positions) {
-						if (axis.axisName.equals(event.getStageName())) {
-							axis.setPosition(event.getPosition(), false);
-							axis.setEnabled(!event.isMoving());
-						}
-					}
 				}
 			});
 		}
@@ -141,9 +47,10 @@ public class PositionValueControlComposite extends Composite {
 
 	private MultipleStagePositioningService multipleStagePositioningService;
 	private MultipleStagePositioningServiceListerner listerner;
-	private List<PositionValueComponentGroup> positions = new ArrayList<>();
 	private Composite positionComposite;
 	private String stageGroupName;
+	
+	private List<NudgePositionerComposite> positioners;
 
 	public PositionValueControlComposite(Composite parent, 
 			MultipleStagePositioningService multipleStagePositioningService, int style) {
@@ -152,11 +59,13 @@ public class PositionValueControlComposite extends Composite {
 		listerner = new MultipleStagePositioningServiceListerner();
 		this.multipleStagePositioningService = multipleStagePositioningService;
 		multipleStagePositioningService.addIObserver(listerner);
+		
+		positioners = new ArrayList<>();
 
 		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(this);
 
 		positionComposite = new Composite(this, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(positionComposite);
+		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(positionComposite);
 		rebuildAxises();
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(positionComposite);
@@ -167,10 +76,13 @@ public class PositionValueControlComposite extends Composite {
 	private void rebuildAxises() {
 		try {
 			stageGroupName = multipleStagePositioningService.getStageGroup();
-			List<StageConfiguration> axisValues = multipleStagePositioningService.getCurrentPositions();
-			for (StageConfiguration stageConfiguration : axisValues) {
-				positions.add(new PositionValueComponentGroup(stageConfiguration.getStageName(), 
-						stageConfiguration.getInitalValue(), stageConfiguration.getIncrementAmount()));
+			List<Stage> stages = multipleStagePositioningService.getCurrentStages();
+			for (Stage stage : stages) {
+				NudgePositionerComposite positioner = new NudgePositionerComposite(positionComposite, SWT.HORIZONTAL);
+				positioner.setScannable(Finder.getInstance().find(stage.getScannableName()));
+				positioner.setDisplayName(stage.getName());
+				positioners.add(positioner);
+				GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(positioner);
 			}
 			positionComposite.layout(true, true);
 		} catch (DeviceException e) {
