@@ -21,7 +21,6 @@ package gda.jython;
 import static org.eclipse.scanning.api.script.ScriptLanguage.GROOVY;
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +30,6 @@ import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.api.script.ScriptResponse;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +61,7 @@ public class GDAJythonScriptServiceTest {
 
 		ScriptRequest scriptRequest = new ScriptRequest(testFilePath, SPEC_PASTICHE);
 
-		ScriptResponse<?> response = scriptService.execute(scriptRequest);
-		assertNotNull(response);
+		scriptService.execute(scriptRequest);
 
 		verify(mockCommandRunner).evaluateCommand("run '" + testFilePath + "'");
 	}
@@ -78,8 +75,7 @@ public class GDAJythonScriptServiceTest {
 
 		ScriptRequest scriptRequest = new ScriptRequest("test.py", SPEC_PASTICHE);
 
-		ScriptResponse<?> response = scriptService.execute(scriptRequest);
-		assertNotNull(response);
+		scriptService.execute(scriptRequest);
 
 		verify(mockCommandRunner).evaluateCommand("run '" + testFilePath + "'");
 	}
