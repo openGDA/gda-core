@@ -11,6 +11,7 @@ Export-Package: uk.ac.diamond.daq.experiment.api,
  uk.ac.diamond.daq.experiment.api.ui
 Require-Bundle: uk.ac.gda.api,
  org.eclipse.scanning.api,
- org.eclipse.dawnsci.analysis.api
+ org.eclipse.dawnsci.analysis.api,
+ org.eclipse.dawnsci.analysis.dataset
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api
