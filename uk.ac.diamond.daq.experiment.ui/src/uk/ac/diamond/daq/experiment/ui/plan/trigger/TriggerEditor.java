@@ -15,9 +15,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
+import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Mode;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
 public class TriggerEditor implements ElementEditor {
@@ -31,10 +33,18 @@ public class TriggerEditor implements ElementEditor {
 	private Text nameText;
 	private Combo executable;
 	
-	private TriggerDescriptor.Source source = Source.SEV;
-	private TriggerDescriptor.Mode mode = Mode.SINGLE;
+	private SignalSource source = SignalSource.POSITION;
+	private ExecutionPolicy mode = ExecutionPolicy.SINGLE;
 	
 	private Button sevSourceButton, timeSourceButton, oneShotButton, periodicButton;
+	
+	private final ExperimentService experimentService;
+	private final String experimentId;
+	
+	public TriggerEditor(ExperimentService experimentService, String experimentId) {
+		this.experimentService = experimentService;
+		this.experimentId = experimentId;
+	}
 	
 	@Override
 	public void createControl(Composite parent) {
@@ -54,8 +64,8 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		executable = new Combo(composite, SWT.READ_ONLY); // temporary...
-		executable.setItems("radiog_5ms", "diffr_5ms");
+		executable = new Combo(composite, SWT.READ_ONLY);
+		executable.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
 		
 		STRETCH.copy().applyTo(executable);
 		
@@ -74,12 +84,12 @@ public class TriggerEditor implements ElementEditor {
 		
 		sevSourceButton = new Button(sourceGroup, SWT.RADIO);
 		sevSourceButton.setText("Environment variable");
-		sevSourceButton.addListener(SWT.Selection, e -> sourceSwitched(Source.SEV));
+		sevSourceButton.addListener(SWT.Selection, e -> sourceSwitched(SignalSource.POSITION));
 		sevSourceButton.setSelection(true);
 		
 		timeSourceButton = new Button(sourceGroup, SWT.RADIO);
 		timeSourceButton.setText("Time");
-		timeSourceButton.addListener(SWT.Selection, e -> sourceSwitched(Source.TIME));
+		timeSourceButton.addListener(SWT.Selection, e -> sourceSwitched(SignalSource.TIME));
 		
 		
 		//////// MODE ////////
@@ -91,17 +101,15 @@ public class TriggerEditor implements ElementEditor {
 		
 		oneShotButton = new Button(modeGroup, SWT.RADIO);
 		oneShotButton.setText("Single");
-		oneShotButton.addListener(SWT.Selection, e -> modeSwitched(Mode.SINGLE));
+		oneShotButton.addListener(SWT.Selection, e -> modeSwitched(ExecutionPolicy.SINGLE));
 		oneShotButton.setSelection(true);
 		
 		periodicButton = new Button(modeGroup, SWT.RADIO);
 		periodicButton.setText("Periodic");
-		periodicButton.addListener(SWT.Selection, e -> modeSwitched(Mode.PERIODIC));
+		periodicButton.addListener(SWT.Selection, e -> modeSwitched(ExecutionPolicy.REPEATING));
 		
 		
 		updateDetailControl();
-		
-		nameText.setFocus();
 	}
 	
 	private void removeListener(Widget widget, int type) {
@@ -123,22 +131,22 @@ public class TriggerEditor implements ElementEditor {
 		
 		removeListener(executable, SWT.Selection);
 		
-		if (model.getExecutable()== null || model.getExecutable().isEmpty()) {
+		if (model.getScanName()== null || model.getScanName().isEmpty()) {
 			executable.deselectAll();
 		} else {
-			executable.select(Arrays.asList(executable.getItems()).indexOf(model.getExecutable()));
+			executable.select(Arrays.asList(executable.getItems()).indexOf(model.getScanName()));
 		}
 		
 		executable.addListener(SWT.Selection, e -> {
 			if (model != null) {
-				model.setExecutable(executable.getText());
+				model.setScanName(executable.getText());
 			}
 		});
 		
-		source = model.getSource();
-		mode = model.getMode();
+		source = model.getSignalSource();
+		mode = model.getExecutionPolicy();
 		
-		if (source == Source.SEV) {
+		if (source == SignalSource.POSITION) {
 			sevSourceButton.setSelection(true);
 			timeSourceButton.setSelection(false);
 		} else {
@@ -146,7 +154,7 @@ public class TriggerEditor implements ElementEditor {
 			timeSourceButton.setSelection(true);
 		}
 		
-		if (mode == Mode.PERIODIC) {
+		if (mode == ExecutionPolicy.REPEATING) {
 			periodicButton.setSelection(true);
 			oneShotButton.setSelection(false);
 		} else {
@@ -163,24 +171,24 @@ public class TriggerEditor implements ElementEditor {
 		removeListener(nameText, SWT.Modify);
 		nameText.setText("");
 		executable.deselectAll();
-		source = Source.TIME;
-		mode = Mode.SINGLE;
+		source = SignalSource.TIME;
+		mode = ExecutionPolicy.SINGLE;
 		updateDetailControl();
 		detailControl.getTarget().setText("0");
 	}
 	
-	private void sourceSwitched(Source source) {
+	private void sourceSwitched(SignalSource source) {
 		this.source = source;
 		if (model!= null) {
-			model.setSource(source);
+			model.setSignalSource(source);
 		}
 		updateDetailControl();
 	}
 	
-	private void modeSwitched(Mode mode) {
+	private void modeSwitched(ExecutionPolicy mode) {
 		this.mode = mode;
 		if (model != null) {
-			model.setMode(mode);
+			model.setExecutionPolicy(mode);
 		}
 		updateDetailControl();
 	}
@@ -199,8 +207,6 @@ public class TriggerEditor implements ElementEditor {
 		detailControl.update(detailComposite, source, mode, model);
 
 		composite.layout(true);
-		
-		detailComposite.setFocus();
 	}
 	
 	public void setSevNames(List<String> sevs) {

@@ -1,13 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Api
+Bundle-Name: Experiment API
 Bundle-SymbolicName: uk.ac.diamond.daq.experiment.api
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: uk.ac.diamond.daq.experiment.api.driver,
+Export-Package: uk.ac.diamond.daq.experiment.api,
+ uk.ac.diamond.daq.experiment.api.driver,
  uk.ac.diamond.daq.experiment.api.plan,
+ uk.ac.diamond.daq.experiment.api.remote,
  uk.ac.diamond.daq.experiment.api.ui
 Require-Bundle: uk.ac.gda.api,
- org.eclipse.scanning.api
+ org.eclipse.scanning.api,
+ org.eclipse.dawnsci.analysis.api
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api

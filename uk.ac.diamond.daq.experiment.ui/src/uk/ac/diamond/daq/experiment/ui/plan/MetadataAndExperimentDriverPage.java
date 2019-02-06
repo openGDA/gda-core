@@ -5,6 +5,7 @@ import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -51,8 +52,6 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	private GridLayoutFactory containerLayout = GridLayoutFactory.swtDefaults().margins(20, 20);
 	private GridDataFactory fill = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true);
 	
-	private Text planName;
-	
 	private void createMetadataSection(Composite parent) {
 		Group composite = new Group(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
@@ -63,21 +62,28 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		Label textLabel = new Label(composite, SWT.NONE);
 		textLabel.setText("Plan name");
 		
-		planName = new Text(composite, SWT.BORDER);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(planName);
-		planName.addListener(SWT.Modify, e -> setPageComplete(isPageComplete()));
+		Text planNameText = new Text(composite, SWT.BORDER);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(planNameText);
+		planNameText.addListener(SWT.Modify, e -> {
+			planName = planNameText.getText();
+			setPageComplete(isPageComplete());
+		});
 		
 		new Label(composite, SWT.NONE); // space
 		
 		new Label(composite, SWT.NONE).setText("Description");
 		
-		Text planDescription = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 40).applyTo(planDescription);
+		Text planDescriptionText = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+		planDescriptionText.addListener(SWT.Modify, e -> planDescription = planDescriptionText.getText());
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, 40).applyTo(planDescriptionText);
 	}
 	
 	private Button useDriver;
 	private Combo config;
-	private IExperimentDriver selectedDriver;
+	
+	private String planName;
+	private String planDescription;
+	private Optional<IExperimentDriver> selectedDriver = Optional.empty();
 	
 	
 	private void createExperimentDriverSection(Composite parent) {
@@ -92,7 +98,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		
 		useDriver = new Button(controls, SWT.CHECK);
 		useDriver.setText("Use experiment driver");
-		useDriver.setSelection(true);
+		useDriver.setSelection(!experimentDriverConfigurations.isEmpty());
 		
 		new Label(controls, SWT.NONE); // space
 		List<Button> driverButtons = new ArrayList<>();
@@ -101,7 +107,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 			button.setText(experimentDriver.getKey().getName());
 			
 			button.addListener(SWT.Selection, e -> {
-				selectedDriver = experimentDriver.getKey();
+				selectedDriver = Optional.of(experimentDriver.getKey());
 				config.setItems(experimentDriver.getValue().toArray(new String[0]));
 				setPageComplete(isPageComplete());
 			});
@@ -136,13 +142,14 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 			boolean used = useDriver.getSelection();
 			config.setEnabled(used);
 			driverButtons.forEach(button -> button.setEnabled(used));
+			if (!used) selectedDriver = Optional.empty();
 			setPageComplete(!used);
 		}));
 	}
 	
 	@Override
 	public boolean isPageComplete() {
-		return (planName.getText() != null && !planName.getText().isEmpty()) && (!useDriver.getSelection() || !config.getText().isEmpty());
+		return (planName != null && !planName.isEmpty()) && (!useDriver.getSelection() || !config.getText().isEmpty());
 	}
 	
 	private Map<IExperimentDriver, List<String>> experimentDriverConfigurations;
@@ -154,8 +161,26 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	@Override
 	public IWizardPage getNextPage() {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
-		if (useDriver.getSelection()) nextPage.setSevs(selectedDriver.getReadouts());
+		if (selectedDriver.isPresent()) {
+			nextPage.setSevs(selectedDriver.get().getReadouts());
+		}
 		return nextPage;
+	}
+
+	public String getPlanName() {
+		return planName;
+	}
+	
+	public String getPlanDescription() {
+		return planDescription;
+	}
+	
+	public String getExperimentDriverName() {
+		if (selectedDriver.isPresent()) {
+			return selectedDriver.get().getName();
+		} else {
+			return null;
+		}
 	}
 
 }

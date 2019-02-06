@@ -1,30 +1,34 @@
-package uk.ac.diamond.daq.experiment.ui.plan.trigger;
+package uk.ac.diamond.daq.experiment.api.plan;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
+import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
-public class TriggerDescriptor implements EditableWithListWidget {
-	
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	
-	public enum Source {SEV, TIME}
-	public enum Mode {SINGLE, PERIODIC}
-	
-	private String name;
-	
-	private String executable;
+public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest {
 
-	private Source source = Source.TIME;
-	private Mode mode = Mode.SINGLE;
-	
+
+	private static final long serialVersionUID = 1545993638702697236L;
+
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+	private String name;
+
+	private String scanName;
+
+	private SignalSource source = SignalSource.TIME;
+	private ExecutionPolicy policy = ExecutionPolicy.SINGLE;
+
 	private String sevName;
 	private double target;
 	private double tolerance;
 	private double interval;
-	
-	
+
+
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -33,48 +37,54 @@ public class TriggerDescriptor implements EditableWithListWidget {
 		this.name = name;
 		pcs.firePropertyChange("name", oldName, this.name);
 	}
-	public String getExecutable() {
-		return executable;
+	@Override
+	public String getScanName() {
+		return scanName;
 	}
-	public void setExecutable(String executable) {
-		this.executable = executable;
+	public void setScanName(String executable) {
+		this.scanName = executable;
 	}
-	public String getSevName() {
+	@Override
+	public String getSampleEnvironmentVariableName() {
 		return sevName;
 	}
-	public void setSevName(String sevName) {
+	public void setSampleEnvironmentVariableName(String sevName) {
 		this.sevName = sevName;
 	}
+	@Override
 	public double getTarget() {
 		return target;
 	}
 	public void setTarget(double target) {
 		this.target = target;
 	}
+	@Override
 	public double getTolerance() {
 		return tolerance;
 	}
 	public void setTolerance(double tolerance) {
 		this.tolerance = tolerance;
 	}
+	@Override
 	public double getInterval() {
 		return interval;
 	}
 	public void setInterval(double interval) {
 		this.interval = interval;
 	}
-	
-	public Source getSource() {
+	@Override
+	public SignalSource getSignalSource() {
 		return source;
 	}
-	public void setSource(Source source) {
+	public void setSignalSource(SignalSource source) {
 		this.source = source;
 	}
-	public Mode getMode() {
-		return mode;
+	@Override
+	public ExecutionPolicy getExecutionPolicy() {
+		return policy;
 	}
-	public void setMode(Mode mode) {
-		this.mode = mode;
+	public void setExecutionPolicy(ExecutionPolicy policy) {
+		this.policy = policy;
 	}
 	@Override
 	public String getLabel() {

@@ -10,13 +10,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
 public class TriggerListEditor {
 	
 	private ListWithCustomEditor triggers = new ListWithCustomEditor();
-	private TriggerEditor triggerEditor = new TriggerEditor();
+	private TriggerEditor triggerEditor;
+	
+	public TriggerListEditor(ExperimentService experimentService, String experimentId) {
+		triggerEditor = new TriggerEditor(experimentService, experimentId);
+	}
 
 	public Composite createEditorPart(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);

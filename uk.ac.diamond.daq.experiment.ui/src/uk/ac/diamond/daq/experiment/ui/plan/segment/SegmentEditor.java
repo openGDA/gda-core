@@ -19,9 +19,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
+import uk.ac.diamond.daq.experiment.api.remote.Inequality;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerListEditor;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
 public class SegmentEditor implements ElementEditor {
@@ -35,7 +38,7 @@ public class SegmentEditor implements ElementEditor {
 	private Button sevSource;
 	private Button timeSource;
 	
-	private Source limitingSource;
+	private SignalSource limitingSource;
 	
 	// sev-based segment
 	private Combo sevCombo;
@@ -49,6 +52,10 @@ public class SegmentEditor implements ElementEditor {
 	private TriggerListEditor triggers;
 	
 	private List<String> sevs;
+	
+	public SegmentEditor(ExperimentService experimentService, String experimentId) {
+		triggers = new TriggerListEditor(experimentService, experimentId);
+	}
 
 	@Override
 	public void createControl(Composite parent) {
@@ -68,23 +75,21 @@ public class SegmentEditor implements ElementEditor {
 		sevSource = new Button(composite, SWT.RADIO);
 		sevSource.setText("Environment variable");
 		sevSource.setSelection(true);
-		sevSource.addListener(SWT.Selection, e -> changeLimitingSource(Source.SEV));
+		sevSource.addListener(SWT.Selection, e -> changeLimitingSource(SignalSource.POSITION));
 		
 		STRETCH.applyTo(sevSource);
 		
 		timeSource = new Button(composite, SWT.RADIO);
 		timeSource.setText("Time");
-		timeSource.addListener(SWT.Selection, e -> changeLimitingSource(Source.TIME));
+		timeSource.addListener(SWT.Selection, e -> changeLimitingSource(SignalSource.TIME));
 		
 		STRETCH.applyTo(timeSource);
 		
 		new Label(composite, SWT.NONE); // space
 		
-		if (limitingSource == null) limitingSource = Source.SEV;
+		if (limitingSource == null) limitingSource = SignalSource.POSITION;
 		
 		updateLimitControl();
-		
-		triggers = new TriggerListEditor();
 		
 		// FIXME this doesn't look right
 		// it is weird that we are creating a new composite on top of parent.getParent()
@@ -107,22 +112,22 @@ public class SegmentEditor implements ElementEditor {
 		model = (SegmentDescriptor) element;
 		name.setText(model.getName());
 		
-		limitingSource = model.getSource();
+		limitingSource = model.getSignalSource();
 		updateLimitControl();
 		
-		if (limitingSource == Source.SEV) {
+		if (limitingSource == SignalSource.POSITION) {
 			
 			sevSource.setSelection(true);
 			timeSource.setSelection(false);
 			
 			
 			
-			int index = Arrays.asList(sevCombo.getItems()).indexOf(model.getSevName());
+			int index = Arrays.asList(sevCombo.getItems()).indexOf(model.getSampleEnvironmentVariableName());
 			sevCombo.select(index);
 			
-			inequality.setSelection(new StructuredSelection(model.getIneq()));
+			inequality.setSelection(new StructuredSelection(model.getInequality()));
 			
-			predicateArgument.setText(String.valueOf(model.getIneqRef()));
+			predicateArgument.setText(String.valueOf(model.getInequalityArgument()));
 		} else {
 			timeSource.setSelection(true);
 			sevSource.setSelection(false);
@@ -137,12 +142,12 @@ public class SegmentEditor implements ElementEditor {
 	public void clear() {
 		name.setText("");
 		timeSource.setEnabled(true);
-		limitingSource = Source.TIME;
+		limitingSource = SignalSource.TIME;
 		updateLimitControl();
 	}
 	
-	private void changeLimitingSource(Source source) {
-		if (model != null) model.setSource(source);
+	private void changeLimitingSource(SignalSource source) {
+		if (model != null) model.setSignalSource(source);
 		limitingSource = source;
 		updateLimitControl();
 		limitComposite.setFocus();
@@ -158,7 +163,7 @@ public class SegmentEditor implements ElementEditor {
 		GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.CENTER).grab(true, true).applyTo(limitComposite);
 		
 		switch (limitingSource) {
-		case SEV:
+		case POSITION:
 			GridLayoutFactory.fillDefaults().numColumns(3).applyTo(limitComposite);
 			sevCombo = new Combo(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 			

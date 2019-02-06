@@ -1,21 +1,25 @@
-package uk.ac.diamond.daq.experiment.ui.plan.segment;
+package uk.ac.diamond.daq.experiment.api.plan;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import uk.ac.diamond.daq.experiment.api.remote.Inequality;
+import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
+import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor;
-import uk.ac.diamond.daq.experiment.ui.plan.trigger.TriggerDescriptor.Source;
 
-public class SegmentDescriptor implements EditableWithListWidget {
+public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest {
 	
-	private String name = "";
-	private Source source = Source.SEV;
+	private static final long serialVersionUID = 4022241468104721756L;
+	private String name;
+	private SignalSource source;
 	
-	private String sevName = "";
-	private Inequality ineq = Inequality.LESS_THAN;
+	private String sevName;
+	private Inequality ineq;
 	private double ineqRef;
 	
 	private double duration;
@@ -24,6 +28,7 @@ public class SegmentDescriptor implements EditableWithListWidget {
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -34,7 +39,8 @@ public class SegmentDescriptor implements EditableWithListWidget {
 		pcs.firePropertyChange("name", oldName, this.name);
 	}
 
-	public String getSevName() {
+	@Override
+	public String getSampleEnvironmentVariableName() {
 		return sevName;
 	}
 
@@ -42,7 +48,8 @@ public class SegmentDescriptor implements EditableWithListWidget {
 		this.sevName = sevName;
 	}
 
-	public Inequality getIneq() {
+	@Override
+	public Inequality getInequality() {
 		return ineq;
 	}
 
@@ -50,7 +57,8 @@ public class SegmentDescriptor implements EditableWithListWidget {
 		this.ineq = ineq;
 	}
 
-	public double getIneqRef() {
+	@Override
+	public double getInequalityArgument() {
 		return ineqRef;
 	}
 
@@ -58,6 +66,7 @@ public class SegmentDescriptor implements EditableWithListWidget {
 		this.ineqRef = ineqRef;
 	}
 
+	@Override
 	public double getDuration() {
 		return duration;
 	}
@@ -66,16 +75,24 @@ public class SegmentDescriptor implements EditableWithListWidget {
 		this.duration = duration;
 	}
 
-	public Source getSource() {
+	@Override
+	public SignalSource getSignalSource() {
 		return source;
 	}
 
-	public void setSource(Source source) {
+	public void setSignalSource(SignalSource source) {
 		this.source = source;
 	}
 
 	public List<TriggerDescriptor> getTriggers() {
 		return triggers;
+	}
+	
+	@Override
+	public List<TriggerRequest> getTriggerRequests() {
+		return triggers.stream()
+					.map(TriggerRequest.class::cast)
+					.collect(Collectors.toList());
 	}
 
 	public void setTriggers(List<TriggerDescriptor> triggers) {
@@ -90,9 +107,8 @@ public class SegmentDescriptor implements EditableWithListWidget {
 	@Override
 	public EditableWithListWidget createDefault() {
 		SegmentDescriptor model = new SegmentDescriptor();
-		model.setName("New segment");
-		model.setSource(Source.TIME);
-		model.setDuration(5);
+		model.setName("Unnamed segment");
+		model.setSignalSource(SignalSource.TIME);
 		return model;
 	}
 
