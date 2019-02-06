@@ -231,7 +231,7 @@ public class ScanFinishedTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 
 		// Create a file to scan into.
 		File output = File.createTempFile("test_abort_nexus", ".nxs");
@@ -248,7 +248,7 @@ public class ScanFinishedTest {
 		// Create a scan and run it without publishing events
 		IScanDevice scanner = (IScanDevice) dservice.createRunnableDevice(smodel, null);
 
-		final IPointGenerator<?> fgen = (IPointGenerator<?>)smodel.getPositionIterable();
+		final IPointGenerator<?> fgen = (IPointGenerator<?>)smodel.getPointGenerator();
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME;
@@ -21,7 +22,6 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_RANK;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_START_TIME;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
@@ -39,8 +39,8 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -65,14 +65,17 @@ import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.LazyDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.io.ILazySaver;
-import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.MapPosition;
-import org.eclipse.scanning.api.points.StaticPosition;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.nexus.SolsticeScanMonitor;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -204,6 +207,13 @@ public class SolsticeScanMonitorTest {
 
 	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
+	private IPointGeneratorService pointGenService;
+
+	@Before
+	public void setUp() {
+		pointGenService = new PointGeneratorService();
+	}
+
 	@Test
 	public void testCreateNexusObject() throws Exception {
 		testCreateNexusObject(false);
@@ -228,8 +238,10 @@ public class SolsticeScanMonitorTest {
 		}
 
 		ScanModel scanModel = new ScanModel();
-		Iterable<IPosition> positions = Collections.nCopies(25, new StaticPosition());
-		ScanEstimator scanEstimator = new ScanEstimator(positions, null, 100);
+		StaticModel model = new StaticModel(25);
+		IPointGenerator<StaticModel> gen = pointGenService.createGenerator(model);
+
+		ScanEstimator scanEstimator = new ScanEstimator(gen, (Map<String, Object>) null, 100);
 		scanModel.setScanInformation(new ScanInformation(scanEstimator));
 		SolsticeScanMonitor solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
 		solsticeScanMonitor.setNexusObjectProviders(nexusObjectProviders);
@@ -380,8 +392,10 @@ public class SolsticeScanMonitorTest {
 		}
 
 		ScanModel scanModel = new ScanModel();
-		Iterable<IPosition> positions = Collections.nCopies(25, new StaticPosition());
-		ScanEstimator scanEstimator = new ScanEstimator(positions, null, 100);
+		StaticModel model = new StaticModel(25);
+		IPointGenerator<?> pointGen = pointGenService.createGenerator(model);
+
+		ScanEstimator scanEstimator = new ScanEstimator(pointGen, (Map<String, Object>) null, 100);
 		scanModel.setScanInformation(new ScanInformation(scanEstimator));
 		SolsticeScanMonitor solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
 		solsticeScanMonitor.setNexusObjectProviders(nexusObjectProviders);

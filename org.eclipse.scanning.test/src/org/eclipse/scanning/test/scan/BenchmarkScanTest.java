@@ -331,7 +331,7 @@ public class BenchmarkScanTest extends BrokerTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 
 		// Create a scan and run it without publishing events

@@ -109,7 +109,7 @@ public class ScanOperationPipelineTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 
 		// Create a file to scan into.
 		smodel.setFilePath(output.getAbsolutePath());

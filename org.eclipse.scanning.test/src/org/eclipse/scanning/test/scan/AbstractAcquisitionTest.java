@@ -154,7 +154,7 @@ public abstract class AbstractAcquisitionTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
         smodel.setFilePath(filePath);
 
 		if (device==null) device = (IRunnableDevice<T>)detector;

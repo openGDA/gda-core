@@ -264,7 +264,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 			}
 
 			// Check axes
-			final IPosition pos = mod.getPositionIterable().iterator().next();
+			final IPosition pos = mod.getPointGenerator().iterator().next();
 			final Collection<String> names = pos.getNames();
 
 			// Append _value_demand to each name in list, then add detector axis fields to result
@@ -336,7 +336,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 
 		// Create a file to scan into.

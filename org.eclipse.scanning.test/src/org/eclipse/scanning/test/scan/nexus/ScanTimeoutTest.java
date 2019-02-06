@@ -112,7 +112,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		assertEquals(21, gen.size());
 
 		ScanModel smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(device);
 		smodel.setFilePath(output.getCanonicalPath());
 

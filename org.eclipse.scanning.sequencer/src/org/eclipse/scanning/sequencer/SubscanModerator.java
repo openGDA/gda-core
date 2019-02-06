@@ -37,20 +37,25 @@ import org.eclipse.scanning.api.scan.ScanningException;
  */
 public class SubscanModerator {
 
-	private Iterable<IPosition>    outerIterable;
-	private Iterable<IPosition>    innerIterable;
-	private IPointGeneratorService gservice;
-	private CompoundModel<?>       compoundModel;
+	private final IPointGeneratorService pointGenService;
+	private final IPointGenerator<?> pointGen;
 
-	private List<Object> outer;
-	private List<Object> inner;
+	private IPointGenerator<?> outerPointGenerator;
+	private IPointGenerator<?> innerPointGenerator;
 
-	public SubscanModerator(Iterable<IPosition> generator, List<IRunnableDevice<?>> detectors, IPointGeneratorService gservice) throws ScanningException {
+	private CompoundModel<?> compoundModel;
+	private List<Object> outerModels;
+	private List<Object> innerModels;
+
+	public SubscanModerator(IPointGenerator<?> generator, List<IRunnableDevice<?>> detectors,
+			IPointGeneratorService gservice) throws ScanningException {
 		this(generator, null, detectors, gservice);
 	}
 
-	public SubscanModerator(Iterable<IPosition> generator, CompoundModel<?> cmodel, List<IRunnableDevice<?>> detectors, IPointGeneratorService gservice) throws ScanningException {
-		this.gservice = gservice;
+	public SubscanModerator(IPointGenerator<?> generator, CompoundModel<?> cmodel, List<IRunnableDevice<?>> detectors,
+			IPointGeneratorService gservice) throws ScanningException {
+		this.pointGenService = gservice;
+		this.pointGen = generator;
 		this.compoundModel   = cmodel!=null ? cmodel : getModel(generator);
 		try {
 			moderate(generator, detectors);
@@ -59,29 +64,24 @@ public class SubscanModerator {
 		}
 	}
 
-	private CompoundModel<?> getModel(Iterable<IPosition> it) {
-		if (it instanceof IPointGenerator<?>) {
-			IPointGenerator<?> gen = (IPointGenerator<?>)it;
-			Object model = gen.getModel();
-			if (model instanceof CompoundModel) {
-				return (CompoundModel<?>) model;
-			}
-			return new CompoundModel<>(model);
+	private CompoundModel<?> getModel(IPointGenerator<?> pointGenerator) {
+		Object model = pointGenerator.getModel();
+		if (model instanceof CompoundModel) {
+			return (CompoundModel<?>) model;
 		}
-		return null;
+		return new CompoundModel<>(model);
 	}
 
-	private void moderate(Iterable<IPosition> generator, List<IRunnableDevice<?>> detectors) throws GeneratorException, ScanningException {
+	private boolean isMalcolmScan(List<IRunnableDevice<?>> detectors) {
+		return detectors != null && !detectors.isEmpty() &&
+				detectors.stream().map(IRunnableDevice::getRole).anyMatch(role -> role == DeviceRole.MALCOLM);
+	}
 
-		outerIterable = generator; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
-		if (detectors==null || detectors.isEmpty()) {
-			return;
-		}
-		if (detectors.stream().noneMatch(d -> d.getRole() == DeviceRole.MALCOLM)) {
-			return;
-		}
+	private void moderate(IPointGenerator<?> generator, List<IRunnableDevice<?>> detectors) throws GeneratorException, ScanningException {
+		outerPointGenerator = generator; // We will reassign it to the outer scan if there is one, otherwise it is the full scan.
 
-		if (!(generator instanceof IPointGenerator<?>)) {
+		if (!isMalcolmScan(detectors)) {
+			this.outerModels = compoundModel.getModels();
 			return;
 		}
 
@@ -89,42 +89,42 @@ public class SubscanModerator {
 		List<Object> orig   = compoundModel.getModels();
 		if (orig.isEmpty()) throw new ScanningException("No models are provided in the compound model!");
 
-		this.outer = new ArrayList<>();
-		this.inner = new ArrayList<>();
+		this.outerModels = new ArrayList<>();
+		this.innerModels = new ArrayList<>();
 
 		final List<String> axes = getAxes(detectors);
 		boolean reachedOuterScan = false;
 		for (int i = orig.size()-1; i > -1; i--) {
 			Object model = orig.get(i);
 			if (!reachedOuterScan) {
-				IPointGenerator<?> g = gservice.createGenerator(model);
+				IPointGenerator<?> g = pointGenService.createGenerator(model);
 				IPosition first = g.iterator().next();
 				List<String> names = first.getNames();
 				if (axes.containsAll(names)) {// These will be deal with by malcolm
-					inner.add(0, model);
+					innerModels.add(0, model);
 					continue; // The device will deal with it.
 				}
 			}
 			reachedOuterScan = true; // As soon as we reach one outer scan all above are outer.
-			outer.add(0, model);
+			outerModels.add(0, model);
 		}
 
-		if (inner.isEmpty()) {
+		if (innerModels.isEmpty()) {
 			// if the inner scan is empty, we need a single empty point for each point of the outer scan
-			this.innerIterable = gservice.createGenerator(new StaticModel(1));
+			this.innerPointGenerator = pointGenService.createGenerator(new StaticModel(1));
 		} else {
 			// otherwise we create a new compound generator with the inner models and the same
 			// mutators, regions, duration, etc. as the overall scan
-			this.innerIterable = gservice.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, inner));
+			this.innerPointGenerator = pointGenService.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, innerModels));
 		}
 
-		if (outer.isEmpty()) {
+		if (outerModels.isEmpty()) {
 			// if the outer scan is empty, we need a single empty point so that we perform the inner scan once
-			this.outerIterable = gservice.createGenerator(new StaticModel(1));
+			this.outerPointGenerator = pointGenService.createGenerator(new StaticModel(1));
 			return;
 		}
 
-		this.outerIterable = gservice.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, outer));
+		this.outerPointGenerator = pointGenService.createCompoundGenerator(CompoundModel.copyAndSetModels(compoundModel, outerModels));
 	}
 
 	private List<String> getAxes(List<IRunnableDevice<?>> detectors) throws ScanningException {
@@ -150,21 +150,21 @@ public class SubscanModerator {
 	}
 
 	/**
-	 * Returns an iterable over the outer points of the scan.
+	 * Returns the point generator for the outer points of the scan.
 	 * The outer iterable will not be <code>null</code> normally. Even if
 	 * all of the scan is deal with by malcolm the outer scan will still
 	 * be a static generator of one point. If there are no subscan devices,
 	 * then the outer scan is the full scan.
 	 * @return an iterator over the outer scan
 	 */
-	public Iterable<IPosition> getOuterIterable() {
-		return outerIterable;
+	public IPointGenerator<?> getOuterPointGenerator() {
+		return outerPointGenerator;
 	}
 
 	/**
-	 * Returns an iterable over the inner points of the scan. For any scan
-	 * that contains a malcolm device the inner iterable will not be <code>null</code>.
-	 * Even if all of the scan is dealt with outside the malcolm device.
+	 * Returns the point generator for the over the inner points of the scan. For any scan
+	 * that contains a malcolm device the inner point generator will not be <code>null</code>,
+	 * even if all of the scan is dealt with outside the malcolm device.
 	 *
 	 * Note that this method is only used in <i>dummy</i> mode, for example by
 	 * a <code>DummyMalcolmDevice</code>. The real malcolm device is passed
@@ -173,16 +173,29 @@ public class SubscanModerator {
 	 *
 	 * @return an iterator over the inner scan
 	 */
-	public Iterable<IPosition> getInnerIterable() {
-		return innerIterable;
+	public IPointGenerator<?> getInnerPointGenerator() {
+		return innerPointGenerator;
 	}
 
 	public List<Object> getOuterModels() {
-		return outer;
+		return outerModels;
 	}
 
 	public List<Object> getInnerModels() {
-		return inner;
+		return innerModels;
+	}
+
+	public int getInnerScanSize() throws GeneratorException {
+		if (innerPointGenerator == null) return 0; // the inner point generator can be null
+		return innerPointGenerator.size();
+	}
+
+	public int getOuterScanSize() throws GeneratorException {
+		return outerPointGenerator.size(); // the outer point generator can't be null
+	}
+
+	public int getTotalScanSize() throws GeneratorException {
+		return pointGen.size();
 	}
 
 }

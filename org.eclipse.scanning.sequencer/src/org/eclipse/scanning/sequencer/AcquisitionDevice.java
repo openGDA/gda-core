@@ -245,7 +245,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (scannables == null) {
 			final List<String> malcolmControlledAxisNames =
 					malcolmDevice.isPresent() ? malcolmDevice.get().getAvailableAxes() : Collections.emptyList();
-			final List<String> allScannableNames = getScannableNames(model.getPositionIterable());
+			final List<String> allScannableNames = getScannableNames(model.getPointGenerator());
 			final List<String> scannableNames = allScannableNames.stream()
 					.filter(axisName -> !malcolmControlledAxisNames.contains(axisName))
 					.collect(toList());
@@ -300,7 +300,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		createScanLatch();
 
 		ScanModel model = getModel();
-		if (model.getPositionIterable()==null) throw new ScanningException("The model must contain some points to scan!");
+		if (model.getPointGenerator()==null) throw new ScanningException("The model must contain some points to scan!");
 
 		annotationManager.addContext(getScanBean());
 		annotationManager.addContext(model);
@@ -539,7 +539,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (scanInfo == null) {
 			ScanEstimator estimator;
 			try {
-				estimator = new ScanEstimator(model.getPositionIterable(), model.getDetectors());
+				estimator = new ScanEstimator(model.getPointGenerator(), model.getDetectors());
 			} catch (GeneratorException e) {
 				logger.error("Could not create scan estimator", e);
 				throw new ScanningException("Could not create scan estimator", e);
@@ -547,8 +547,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 			scanInfo = new ScanInformation(estimator);
 			scanInfo.setSize(size);
-			scanInfo.setRank(getScanRank(getModel().getPositionIterable()));
-			scanInfo.setScannableNames(getScannableNames(getModel().getPositionIterable()));
+			scanInfo.setRank(estimator.getRank());
+			scanInfo.setScannableNames(getScannableNames(getModel().getPointGenerator()));
 			scanInfo.setFilePath(getModel().getFilePath());
 
 			getModel().setScanInformation(scanInfo);
@@ -866,23 +866,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			return ((IDeviceDependentIterable)gen).getScannableNames();
 		}
 
-		return model.getPositionIterable().iterator().next().getNames();
-	}
-
-	private int getScanRank(Iterable<IPosition> gen) {
-		int scanRank = -1;
-		if (gen instanceof IDeviceDependentIterable) {
-			scanRank = ((IDeviceDependentIterable)gen).getScanRank();
-
-		}
-		if (scanRank < 0) {
-			scanRank = gen.iterator().next().getScanRank();
-		}
-		if (scanRank < 0) {
-			scanRank = 1;
-		}
-
-		return scanRank;
+		return model.getPointGenerator().iterator().next().getNames();
 	}
 
 	@Override

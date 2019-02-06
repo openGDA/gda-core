@@ -43,6 +43,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -64,7 +65,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 
 	private IPosition outerPoint = null;
 
-	private Iterable<IPosition> innerPointsIterable;
+	private IPointGenerator<?> innerPointGenerator;
 
 	private Iterator<IPosition> innerPointsIterator;
 
@@ -108,7 +109,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 
 	@ScanStart
 	public void scanStart(ScanBean scanBean, SubscanModerator subscanModerator) throws ScanningException {
-		this.innerPointsIterable = subscanModerator.getInnerIterable();
+		this.innerPointGenerator = subscanModerator.getInnerPointGenerator();
 
 		// We need to get the malcolm device so that we can listen to it as a position listener
 		// this simulates receving hardware triggers, so a real hardware triggered detector doesn't
@@ -135,7 +136,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 		lineSize = -1;
 		currentLineData = null;
 		currentLineIndex = null;
-		innerPointsIterable = null;
+		innerPointGenerator = null;
 		innerPointsIterator = null;
 		outerPoint = null;
 		data = null;
@@ -152,7 +153,7 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 	public void pointStart(IPosition outerPoint) {
 		this.outerPoint = outerPoint;
 		pointsInLineCount = 0;
-		innerPointsIterator = innerPointsIterable.iterator();
+		innerPointsIterator = innerPointGenerator.iterator();
 		currentLineData = new IDataset[lineSize];
 		currentLineIndex = new double[lineSize];
 	}

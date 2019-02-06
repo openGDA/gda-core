@@ -294,7 +294,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		final IPointGenerator<?> gen = pointGenService.createCompoundGenerator(stepGen, gridGen);
 
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPositionIterable(gen);
+		scanModel.setPointGenerator(gen);
 		scanModel.setDetectors(malcolmDevice);
 
 		// Create and configure the scanner (AcquisitionDevice) this calls some method on MalcolmDevice which in turn

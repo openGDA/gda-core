@@ -139,7 +139,7 @@ public class ScanExecutionTest extends BrokerTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 
 		// Create a file to scan into.

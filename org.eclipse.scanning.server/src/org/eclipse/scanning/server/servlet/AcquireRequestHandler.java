@@ -89,7 +89,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		final ScanModel scanModel = new ScanModel();
 
 		IPointGenerator<?> gen = pointGenService.createGenerator(new StaticModel());
-		scanModel.setPositionIterable(gen);
+		scanModel.setPointGenerator(gen);
 		scanModel.setFilePath(getOutputFilePath(request));
 		IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
 		scanModel.setDetectors(detector);

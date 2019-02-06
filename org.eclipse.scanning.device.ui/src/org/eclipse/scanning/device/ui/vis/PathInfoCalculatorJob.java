@@ -24,6 +24,7 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
@@ -99,10 +100,10 @@ class PathInfoCalculatorJob extends Job {
 				return Status.CANCEL_STATUS;// No path to draw.
 			}
 
-			final Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPathModel, rois);
+			final IPointGenerator<?> pointGen = pointGeneratorFactory.createGenerator(scanPathModel, rois);
 			double lastX = Double.NaN;
 			double lastY = Double.NaN;
-			for (IPosition point : pointIterable) {
+			for (IPosition point : pointGen) {
 
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
@@ -110,7 +111,6 @@ class PathInfoCalculatorJob extends Job {
 				pathInfo.pointCount++;
 
 				double[] pnt = new double[]{point.getValue(xAxisName), point.getValue(yAxisName)};
-				//pnt = controller.getPointInImageCoordinates(pnt);
 
 				if (pathInfo.pointCount > 1) {
 					double thisXStep = Math.abs(pnt[0] - lastX);

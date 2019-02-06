@@ -685,7 +685,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		// get an iterator over the inner scan positions
 		final SubscanModerator moderator = new SubscanModerator(pointGenerator,
 				Arrays.asList(this), Services.getPointGeneratorService());
-		Iterable<IPosition> innerScanPositions = moderator.getInnerIterable(); // should never be null
+		IPointGenerator<?> innerScanPositions = moderator.getInnerPointGenerator(); // should never be null
 
 		// get each dummy device to write its position at each inner scan position
 		for (IPosition innerScanPosition : innerScanPositions) {

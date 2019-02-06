@@ -149,7 +149,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 
 		// Create a file to scan into.
 		smodel.setFilePath(file.getAbsolutePath());
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events

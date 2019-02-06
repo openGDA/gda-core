@@ -46,7 +46,7 @@ import org.eclipse.scanning.api.scan.event.IPositionerService;
  * // Now use the parser to create a generator<br>
  * IPointGeneratorService gservice = ...// OSGi<br>
  * StepModel model = parser.getModel("x");<br>
- * Iterable<IPosition>    gen = gservice.createGenerator(model)<br>
+ * IPointGenerator<?>    gen = gservice.createGenerator(model)<br>
  * <br>
  * // Now scan the point iterator<br>
  * IDeviceService sservice = ...// OSGi<br>

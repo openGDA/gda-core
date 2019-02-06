@@ -234,7 +234,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 				}
 
 				// Check axes
-				final IPosition pos = scanModel.getPositionIterable().iterator().next();
+				final IPosition pos = scanModel.getPointGenerator().iterator().next();
 				final Collection<String> axisNames = pos.getNames();
 
 				// Append _value_set to each name in list, then add detector axes fields to result

@@ -76,7 +76,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 		    scanner.latch(100, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 			scanner.pause();
 
-			IPosition first   = scanner.getModel().getPositionIterable().iterator().next();
+			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
 			IPosition current = scanner.getPositioner().getPosition();
 			assertNotNull(current);
 			assertNotEquals(first, current);
@@ -123,7 +123,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 			current = scanner.getPositioner().getPosition();
 			assertNotNull(current);
 
-			IPosition check   = seek(seekPosition, scanner.getModel().getPositionIterable().iterator());
+			IPosition check   = seek(seekPosition, scanner.getModel().getPointGenerator().iterator());
 			assertEquals(check.getStepIndex(), current.getStepIndex());
 
 			// Run to end
@@ -188,7 +188,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 			assertFalse(ok);
 			scanner.pause();
 
-			IPosition first   = scanner.getModel().getPositionIterable().iterator().next();
+			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
 			IPosition stopped = scanner.getPositioner().getPosition();
 			assertNotNull(stopped);
 			assertNotEquals(first, stopped);
@@ -244,7 +244,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 			scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 			scanner.pause();
 
-			IPosition first   = scanner.getModel().getPositionIterable().iterator().next();
+			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
 			IPosition current = scanner.getPositioner().getPosition();
 			assertNotNull(current);
 			assertNotEquals(first, current);
@@ -268,7 +268,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 			scanner.latch(200, TimeUnit.MILLISECONDS); // Latch onto the scan, breaking before it is finished.
 			scanner.pause();
 
-			IPosition first   = scanner.getModel().getPositionIterable().iterator().next();
+			IPosition first   = scanner.getModel().getPointGenerator().iterator().next();
 			IPosition current = scanner.getPositioner().getPosition();
 			assertNotNull(current);
 			assertNotEquals(first, current);

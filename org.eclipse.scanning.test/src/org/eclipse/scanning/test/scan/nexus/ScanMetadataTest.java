@@ -154,7 +154,7 @@ public class ScanMetadataTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 		smodel.setScanMetadata(scanMetadata);
 
@@ -283,7 +283,7 @@ public class ScanMetadataTest extends NexusTest {
 			}
 
 			// Check axes
-			final IPosition pos = scanModel.getPositionIterable().iterator().next();
+			final IPosition pos = scanModel.getPointGenerator().iterator().next();
 			final Collection<String> scannableNames = pos.getNames();
 
 			// Append _value_demand to each name in list, then add detector axis fields to result

@@ -20,7 +20,6 @@ import java.util.Set;
 import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -74,24 +73,6 @@ public interface IScannableDeviceService {
 	 * @throws ScanningException if no scannable with the given name could be found
 	 */
 	<T> IScannable<T> getScannable(String name) throws ScanningException;
-
-	/**
-	 * Returns a list of the scannables for the given {@link Iterable} over {@link IPosition}s.
-	 * @param positionIterable an iterator over positions
-	 * @return list of scannables for the given position iterable
-	 * @throws ScanningException if one or more of the scannables cannot be found
-	 */
-	default List<IScannable<?>> getScannables(Iterable<IPosition> positionIterable) throws ScanningException {
-		List<String> names = null;
-		if (positionIterable instanceof IDeviceDependentIterable) {
-			names = ((IDeviceDependentIterable) positionIterable).getScannableNames();
-		}
-		if (names == null) {
-			names = positionIterable.iterator().next().getNames();
-		}
-
-		return getScannables(names);
-	}
 
 	/**
 	 * Returns a list of the scannables for the given {@link IPosition}s.

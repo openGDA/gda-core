@@ -194,7 +194,7 @@ public class PosDetectorScanTest extends NexusTest {
 		}
 
 		// Check axes
-		final IPosition pos = scanModel.getPositionIterable().iterator().next();
+		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final List<String> scannableNames = pos.getNames();
 		assertEquals(sizes.length, scannableNames.size());
 

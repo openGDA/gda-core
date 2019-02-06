@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,9 @@ public class ScanModel {
 	private String filePath;
 
 	/**
-	 * Normally this is a generator for the scan points
-	 * of the scan. IPointGenerator implements Iterable
+	 * The point generator to use to generate the points of the scan.
 	 */
-	private Iterable<IPosition> positionIterable;
+	private IPointGenerator<?> pointGenerator;
 
 	/**
 	 * This is the set of detectors which should be collected
@@ -73,7 +72,7 @@ public class ScanModel {
 	 * scan scannables will be retrieved from by {@link IScannableDeviceService}
 	 * by calling {@link IScannableDeviceService#getScannable(String)} for
 	 * each scannable name as returned by calling
-	 * {@code getPositionIterable().iterator().next().getNames()}.
+	 * {@code getPointGenerator().iterator().next().getNames()}.
 	 */
 	private List<IScannable<?>> scannables;
 
@@ -105,12 +104,13 @@ public class ScanModel {
 		this(null);
 	}
 
-	public ScanModel(Iterable<IPosition> positionIterator, IRunnableDevice<?>... detectors) {
-		this.positionIterable = positionIterator;
+	public ScanModel(IPointGenerator<?> positionIterator, IRunnableDevice<?>... detectors) {
+		this.pointGenerator = positionIterator;
 		if (detectors!=null && detectors.length>0) this.detectors = Arrays.asList(detectors);
 	}
-	public ScanModel(Iterable<IPosition> positionIterator, File file) {
-		this.positionIterable = positionIterator;
+
+	public ScanModel(IPointGenerator<?> positionIterator, File file) {
+		this.pointGenerator = positionIterator;
 		this.filePath = file.getAbsolutePath();
 	}
 
@@ -129,7 +129,7 @@ public class ScanModel {
 				+ ((monitorsPerScan == null) ? 0 : monitorsPerScan.hashCode());
 		result = prime
 				* result
-				+ ((positionIterable == null) ? 0 : positionIterable.hashCode());
+				+ ((pointGenerator == null) ? 0 : pointGenerator.hashCode());
 		result = prime * result
 				+ ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
 		return result;
@@ -175,10 +175,10 @@ public class ScanModel {
 				return false;
 		} else if (!scanMetadata.equals(other.scanMetadata))
 			return false;
-		if (positionIterable == null) {
-			if (other.positionIterable != null)
+		if (pointGenerator == null) {
+			if (other.pointGenerator != null)
 				return false;
-		} else if (!positionIterable.equals(other.positionIterable))
+		} else if (!pointGenerator.equals(other.pointGenerator))
 			return false;
 		return true;
 	}
@@ -190,16 +190,12 @@ public class ScanModel {
 	}
 
 
-	public Iterable<IPosition> getPositionIterable() {
-		if (positionIterable == null) {
-			return Collections.emptyList();
-		}
-
-		return positionIterable;
+	public IPointGenerator<?> getPointGenerator() {
+		return pointGenerator;
 	}
 
-	public void setPositionIterable(Iterable<IPosition> positionIterator) {
-		this.positionIterable = positionIterator;
+	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
+		this.pointGenerator = pointGenerator;
 	}
 
 	@SuppressWarnings("squid:S1452")
@@ -317,7 +313,7 @@ public class ScanModel {
 
 	@Override
 	public String toString() {
-		return "ScanModel [filePath=" + filePath + ", positionIterable=" + positionIterable + ", detectors=" + detectors
+		return "ScanModel [filePath=" + filePath + ", pointGenerator=" + pointGenerator + ", detectors=" + detectors
 				+ ", bean=" + bean + ", scannables=" + scannables + ", monitorsPerPoint=" + monitorsPerPoint
 				+ ", monitorsPerScan=" + monitorsPerScan + ", scanMetadata=" + scanMetadata +
 				", annotationParticipants=" + annotationParticipants + ", scanInformation=" + scanInformation + "]";

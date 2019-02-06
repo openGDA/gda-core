@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -68,10 +69,15 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
+		IPointGenerator<?> outerPointGen = moderator.getOuterPointGenerator();
+		IPointGenerator<?> innerPointGen = moderator.getInnerPointGenerator();
 
-		assertEquals(6, moderated.size());
+		assertEquals(6, outerPointGen.size());
+		assertEquals(6, moderator.getOuterScanSize());
 		assertEquals(1, moderator.getInnerModels().size());
+		assertEquals(25, moderator.getInnerScanSize());
+		assertEquals(25, innerPointGen.size());
+		assertEquals(150, moderator.getTotalScanSize());
 	}
 
 	@Test
@@ -94,13 +100,28 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
-
-		assertEquals(150, moderated.size());
-		assertEquals(2, moderator.getOuterModels().size());
-		assertEquals(0, moderator.getInnerModels().size());
+		checkModeratedScanSizes(moderator, 150, 150, 1);
+		checkModeratedModels(moderator, 2, 0);
 	}
 
+	private void checkModeratedScanSizes(SubscanModerator moderator, int expectedTotalSize,
+			int expectedOuterSize, int expectedInnerSize) throws GeneratorException {
+		assertEquals(expectedTotalSize, moderator.getTotalScanSize());
+		assertEquals(expectedOuterSize, moderator.getOuterScanSize());
+		assertEquals(expectedOuterSize, moderator.getOuterPointGenerator().size());
+		assertEquals(expectedInnerSize, moderator.getInnerScanSize());
+		if (expectedInnerSize == 0) {
+			assertNull(moderator.getInnerPointGenerator());
+		} else {
+			assertEquals(expectedInnerSize, moderator.getInnerPointGenerator().size());
+		}
+	}
+
+	private void checkModeratedModels(SubscanModerator moderator, int outerModels, int innerModels) {
+		moderator.getOuterModels();
+		assertEquals(innerModels, moderator.getInnerModels() == null ? 0 : moderator.getInnerModels().size());
+		assertEquals(outerModels, moderator.getOuterModels() == null ? 0 : moderator.getOuterModels().size());
+	}
 
 	@Test
 	public void testSubscanOnlyScan() throws Exception {
@@ -122,11 +143,8 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
-
-		assertEquals(1, moderated.size());
-		assertEquals(0, moderator.getOuterModels().size());
-		assertEquals(1, moderator.getInnerModels().size());
+		checkModeratedScanSizes(moderator, 25, 1, 25);
+		checkModeratedModels(moderator, 0, 1);
 	}
 
 	@Test
@@ -148,11 +166,8 @@ public class SubscanModeratorTest {
 		det.setModel(mmodel);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
-
-		assertEquals(25, moderated.size());
-		assertNull(moderator.getOuterModels());
-		assertNull(moderator.getInnerModels());
+		checkModeratedScanSizes(moderator, 25, 25, 0);
+		checkModeratedModels(moderator, 1, 0);
 	}
 
 	@Test
@@ -174,11 +189,9 @@ public class SubscanModeratorTest {
 		det.setModel(mmodel);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> moderated = (IPointGenerator<?>)moderator.getOuterIterable();
-
-		assertEquals(150, moderated.size());
-		assertNull(moderator.getOuterModels());
-		assertNull(moderator.getInnerModels());
+		IPointGenerator<?> moderated = moderator.getOuterPointGenerator();
+		checkModeratedScanSizes(moderator, 150, 150, 0);
+		checkModeratedModels(moderator, 2, 0);
 	}
 
 
@@ -202,20 +215,18 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
+		checkModeratedScanSizes(moderator, 25, 25, 1);
+		checkModeratedModels(moderator, 1, 0);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
+	}
 
-		assertEquals(1, moderator.getOuterModels().size());
-		assertEquals(0, moderator.getInnerModels().size());
-
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
-		assertEquals(25, outer.size());
-
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+	private void checkHasSingleStaticPosition(IPointGenerator<?> pointGen) {
+		Iterator<IPosition> iter = pointGen.iterator();
+		assertTrue(iter.hasNext());
+		IPosition pos = iter.next();
+		assertTrue(pos.getNames().isEmpty());
+		assertTrue(pos.getValues().isEmpty());
+		assertFalse(iter.hasNext());
 	}
 
 	@Test
@@ -238,20 +249,9 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
-		assertEquals(150, outer.size());
-
-		assertEquals(2, moderator.getOuterModels().size());
-		assertEquals(0, moderator.getInnerModels().size());
-
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 150, 150, 1);
+		checkModeratedModels(moderator, 2, 0);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 	@Test
@@ -274,21 +274,9 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
-		assertEquals(150, outer.size());
-
-		assertEquals(2, moderator.getOuterModels().size());
-		assertEquals(0, moderator.getInnerModels().size());
-
-		// check that the inner iterator has a single static point
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 150, 150, 1);
+		checkModeratedModels(moderator, 2, 0);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 	@Test
@@ -311,21 +299,9 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"x", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
-		assertEquals(150, outer.size());
-
-		assertEquals(2, moderator.getOuterModels().size());
-		assertEquals(0, moderator.getInnerModels().size());
-
-		// check that the inner has a single static position
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 150, 150, 1);
+		checkModeratedModels(moderator, 2, 0);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 	@Test
@@ -349,18 +325,12 @@ public class SubscanModeratorTest {
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
 
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
+		IPointGenerator<?> outer = moderator.getOuterPointGenerator();
 		assertEquals(1, outer.size());
 
 		assertEquals(0, moderator.getOuterModels().size());
 		assertEquals(2, moderator.getInnerModels().size());
-
-		// check that the outer iterator has a single static position
-		Iterator<IPosition> outerIter = outer.iterator();
-		IPosition outerPos = outerIter.next();
-		assertTrue(outerPos.getNames().isEmpty());
-		assertTrue(outerPos.getValues().isEmpty());
-		assertFalse(outerIter.hasNext());
+		checkHasSingleStaticPosition(moderator.getOuterPointGenerator());
 	}
 
 	@Test
@@ -382,11 +352,8 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[]{"p", "y"});
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-		IPointGenerator<?> outer = (IPointGenerator<?>)moderator.getOuterIterable();
-		assertEquals(6, outer.size());
-
-		assertEquals(1, moderator.getOuterModels().size());
-		assertEquals(1, moderator.getInnerModels().size());
+		checkModeratedScanSizes(moderator, 24, 6, 4);
+		checkModeratedModels(moderator, 1, 1);
 	}
 
 	@Test
@@ -405,26 +372,10 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[0]);
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		assertEquals(0, moderator.getOuterModels().size());
-		assertEquals(1, moderator.getInnerModels().size());
-
-		IPointGenerator<?> outer = (IPointGenerator<?>) moderator.getOuterIterable();
-		assertEquals(1, outer.size());
-		Iterator<IPosition> outerIter = outer.iterator();
-		IPosition outerPos = outerIter.next();
-		assertTrue(outerPos.getNames().isEmpty());
-		assertTrue(outerPos.getValues().isEmpty());
-		assertFalse(outerIter.hasNext());
-
-		// check that the inner iterator has a single static position
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 1, 1, 1);
+		checkModeratedModels(moderator, 0, 1);
+		checkHasSingleStaticPosition(moderator.getOuterPointGenerator());
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 	@Test
@@ -444,23 +395,10 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		IPointGenerator<?> outer = (IPointGenerator<?>) moderator.getOuterIterable();
-		assertEquals(1, outer.size());
-		Iterator<IPosition> outerIter = outer.iterator();
-		IPosition outerPos = outerIter.next();
-		assertTrue(outerPos.getNames().isEmpty());
-		assertTrue(outerPos.getValues().isEmpty());
-		assertFalse(outerIter.hasNext());
-
-		// check that the inner iterator has a single static position
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 1, 1, 1);
+		checkModeratedModels(moderator, 0, 1);
+		checkHasSingleStaticPosition(moderator.getOuterPointGenerator());
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 	@Test
@@ -480,18 +418,9 @@ public class SubscanModeratorTest {
 		det.setAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES, new String[] { "x", "y" });
 
 		SubscanModerator moderator = new SubscanModerator(gen, Arrays.asList(det), gservice);
-
-		IPointGenerator<?> outer = (IPointGenerator<?>) moderator.getOuterIterable();
-		assertEquals(6, outer.size());
-
-		// check that the inner iterator has a single static position
-		IPointGenerator<?> inner = (IPointGenerator<?>) moderator.getInnerIterable();
-		assertEquals(1, inner.size());
-		Iterator<IPosition> innerIter = inner.iterator();
-		IPosition innerPos = innerIter.next();
-		assertTrue(innerPos.getNames().isEmpty());
-		assertTrue(innerPos.getValues().isEmpty());
-		assertFalse(innerIter.hasNext());
+		checkModeratedScanSizes(moderator, 6, 6, 1);
+		checkModeratedModels(moderator, 1, 1);
+		checkHasSingleStaticPosition(moderator.getInnerPointGenerator());
 	}
 
 }

@@ -56,7 +56,6 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -130,7 +129,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 
 		this.model = model;
 
-		final List<String> scannableNames = getScannableNames(model.getPositionIterable());
+		final List<String> scannableNames = getScannableNames(model.getPointGenerator());
 		addLegacyPerScanMonitors(model, scannableNames);
 
 		this.scanInfo = createScanInfo(model, scannableNames);
@@ -369,7 +368,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 			names = ((IDeviceDependentIterable)gen).getScannableNames();
 		}
 		if (names==null) {
-			names = model.getPositionIterable().iterator().next().getNames();
+			names = model.getPointGenerator().iterator().next().getNames();
 		}
 		return names;
 	}
@@ -377,8 +376,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	private NexusScanInfo createScanInfo(ScanModel scanModel, List<String> scannableNames) throws ScanningException {
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo(scannableNames);
 
-		final int scanRank = getScanRank(scanModel);
-		nexusScanInfo.setRank(scanRank);
+		nexusScanInfo.setRank(getScanRank(scanModel));
 		nexusScanInfo.setShape(scanModel.getScanInformation().getShape());
 
 		nexusScanInfo.setDetectorNames(getDeviceNames(scanModel.getDetectors()));
@@ -394,27 +392,8 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	}
 
 	protected int getScanRank(ScanModel model) throws ScanningException {
-		return getScanRank(model.getPositionIterable());
-	}
-
-	protected int getScanRank(Iterable<IPosition> gen) {
-		int scanRank = -1;
-		if (gen instanceof IDeviceDependentIterable) {
-			scanRank = ((IDeviceDependentIterable)gen).getScanRank();
-		}
-		if (scanRank < 0) {
-			Iterator<IPosition> iter = gen.iterator();
-			if (iter instanceof ScanPointIterator) {
-				scanRank = ((ScanPointIterator) iter).getRank();
-			} else {
-				scanRank = iter.next().getScanRank();
-			}
-		}
-		if (scanRank < 0) {
-			scanRank = 1;
-		}
-
-		return scanRank;
+		// we have a method for this as it needs to be overriden by MalcolmNexusScanFileManager
+		return model.getScanInformation().getRank();
 	}
 
 	private Set<String> getDeviceNames(Collection<? extends INameable> devices) {
@@ -635,7 +614,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 	private Map<String, Integer> createDefaultAxisMap(List<NexusObjectProvider<?>> scannables) {
 		final Map<String, Integer> defaultAxisIndexForScannableMap = new HashMap<>();
 
-		AbstractPosition firstPosition = (AbstractPosition) model.getPositionIterable().iterator().next();
+		AbstractPosition firstPosition = (AbstractPosition) model.getPointGenerator().iterator().next();
 		// A collection of dimension (scannable) names for each index of the scan
 		List<Collection<String>> dimensionNames = firstPosition.getDimensionNames();
 

@@ -71,7 +71,7 @@ public class ScanClusterProcessingChecker {
 
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
-		final IPosition pos = scanModel.getPositionIterable().iterator().next();
+		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		this.scannableNames = pos.getNames();
 		this.filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
 		this.detectorName = scanModel.getDetectors().get(0).getName();

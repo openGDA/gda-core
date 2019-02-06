@@ -177,7 +177,7 @@ public class LinearScanTest extends BrokerTest{
 		scanner.run(null);
 
 		Thread.sleep(100);
-		int size = ((IPointGenerator)scanner.getModel().getPositionIterable()).size();
+		int size = ((IPointGenerator)scanner.getModel().getPointGenerator()).size();
 		assertEquals("The model size was "+size+" and the points found were "+positions.size(), size, positions.size());
 
 		for (IPosition iPosition : positions) {
@@ -217,7 +217,7 @@ public class LinearScanTest extends BrokerTest{
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 
 		smodel.setFilePath(tmp.getAbsolutePath());

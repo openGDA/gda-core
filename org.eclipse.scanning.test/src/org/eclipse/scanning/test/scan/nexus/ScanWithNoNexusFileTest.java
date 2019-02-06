@@ -91,7 +91,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector);
 
 		// Do not create a file to scan into, no nexus file should be written

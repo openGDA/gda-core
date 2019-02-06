@@ -166,7 +166,7 @@ public class PerScanMonitorTest extends NexusTest {
 		checkPerScanMonitors(scanModel, instrument,
 				new HashSet<>(Arrays.asList(expectedPerScanMonitorNames)));
 
-		final IPosition pos = scanModel.getPositionIterable().iterator().next();
+		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
 
 		List<IScannable<?>> perPoint  = scanModel.getMonitorsPerPoint().stream()
@@ -296,7 +296,7 @@ public class PerScanMonitorTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		if (perScanMonitor != null) {
 			perScanMonitor.setActivated(true);
 		}

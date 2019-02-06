@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class AbstractGenerator<T> implements IPointGenerator<T>, Iterable<IPosition> {
+public abstract class AbstractGenerator<T> implements IPointGenerator<T> {
 
 	private static Logger logger = LoggerFactory.getLogger(AbstractGenerator.class);
 

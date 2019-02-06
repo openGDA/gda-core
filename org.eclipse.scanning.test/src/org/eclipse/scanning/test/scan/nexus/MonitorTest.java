@@ -200,7 +200,7 @@ public class MonitorTest extends NexusTest {
         }
 
 		// Check axes
-        final IPosition      pos = scanModel.getPositionIterable().iterator().next();
+        final IPosition      pos = scanModel.getPointGenerator().iterator().next();
 
         // Append _value_demand to each name in scannable names list, and appends
         // the item "." 3 times to the resulting list
@@ -219,7 +219,7 @@ public class MonitorTest extends NexusTest {
 			                            final List<String> monitorNames,
 			                            int... sizes) throws Exception {
 
-        final IPosition      pos = scanner.getModel().getPositionIterable().iterator().next();
+        final IPosition      pos = scanner.getModel().getPointGenerator().iterator().next();
 
         NXroot rootNode = getNexusRoot(scanner);
 		NXentry entry = rootNode.getEntry();
@@ -333,7 +333,7 @@ public class MonitorTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();
-		scanModel.setPositionIterable(gen);
+		scanModel.setPointGenerator(gen);
 		scanModel.setDetectors(detector);
 		scanModel.setMonitorsPerPoint(createMonitors(monitorNamesPerPoint));
 		scanModel.setMonitorsPerScan(createMonitors(monitorNamesPerScan));

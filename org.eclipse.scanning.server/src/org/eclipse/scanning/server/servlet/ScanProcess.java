@@ -215,7 +215,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
 		checkTerminated();
 
-		initializeMalcolmDevice(bean, (IPointGenerator<?>) scanModel.getPositionIterable());
+		initializeMalcolmDevice(bean, (IPointGenerator<?>) scanModel.getPointGenerator());
 		this.controller = createRunnableDevice(scanModel);
 
 		if (blocking) { // Normally the case
@@ -389,7 +389,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_BEAN, bean);
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST, bean.getScanRequest());
 		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_MODEL, scanModel);
-		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPositionIterable());
+		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanModel.getPointGenerator());
 
 		scriptRunning = true;
 		try {
@@ -427,7 +427,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			throws GeneratorException, EventException {
 		// converts the ScanBean to a ScanModel
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPositionIterable(generator);
+		scanModel.setPointGenerator(generator);
 
 		ScanEstimator estimator = new ScanEstimator(Services.getGeneratorService(), bean.getScanRequest());
 		bean.setSize(estimator.getSize());
@@ -468,7 +468,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			if (!dmodels.containsKey(odevice.getName())) continue; // Nothing to configure
 			Object dmodel = dmodels.get(odevice.getName());
 
-			IPointGenerator<?> generator = (IPointGenerator<?>) model.getPositionIterable();
+			IPointGenerator<?> generator = (IPointGenerator<?>) model.getPointGenerator();
 			manager.invoke(PreConfigure.class, dmodel, generator, model, bean, publisher);
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);

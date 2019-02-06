@@ -37,8 +37,8 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CollatedStepModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -300,10 +300,10 @@ public class ScanSpeedTest extends BrokerTest {
 		}
 
 		final StepModel onek = new CollatedStepModel(0,pointCount,1,names);
-		Iterable<IPosition> gen = gservice.createGenerator(onek);
+		IPointGenerator<?> gen = gservice.createGenerator(onek);
 
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 
 		// Create a file to scan into.
 		smodel.setFilePath(null); // Intentionally no nexus writing

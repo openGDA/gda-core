@@ -118,7 +118,7 @@ public class DarkCurrentTest extends NexusTest {
 		// check that the scan points have been written correctly
 		assertSolsticeScanGroup(rootNode.getEntry(), false, false, sizes);
 
-		Collection<String> positionerNames = scanModel.getPositionIterable().iterator().next().getNames();
+		Collection<String> positionerNames = scanModel.getPointGenerator().iterator().next().getNames();
 
 		// check the data for the dark detector
 		checkDark(rootNode, positionerNames, sizes);
@@ -285,7 +285,7 @@ public class DarkCurrentTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detector, dark);
 
 		// Create a file to scan into.

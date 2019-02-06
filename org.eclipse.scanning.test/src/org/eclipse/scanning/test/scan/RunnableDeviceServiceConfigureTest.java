@@ -106,7 +106,7 @@ public class RunnableDeviceServiceConfigureTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(detectors);
 
 		// Create a scan and run it without publishing events
@@ -118,7 +118,7 @@ public class RunnableDeviceServiceConfigureTest {
 		// Bit of a hack to get the generator from the model - should this be easier?
 		// Do not copy this code
 		ScanModel smodel = (ScanModel)((AbstractRunnableDevice)scanner).getModel();
-		IPointGenerator<?> gen = (IPointGenerator<?>)smodel.getPositionIterable();
+		IPointGenerator<?> gen = (IPointGenerator<?>)smodel.getPointGenerator();
 		assertEquals(gen.size(), size);
 	}
 

@@ -23,6 +23,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
@@ -71,9 +72,14 @@ public class MalcolmNexusScanFileManager extends NexusScanFileManager {
 
 	@Override
 	protected int getScanRank(ScanModel model) throws ScanningException {
-		SubscanModerator moderator = new SubscanModerator(model.getPositionIterable(),
+		SubscanModerator moderator = new SubscanModerator(model.getPointGenerator(),
 				null, model.getDetectors(), ServiceHolder.getGeneratorService());
-		return getScanRank(moderator.getOuterIterable());
+		try {
+			int scanRank = moderator.getOuterPointGenerator().getRank();
+			return scanRank == 0 ? 1 : scanRank; // TODO fix this, see DAQ-2004
+		} catch (GeneratorException e) {
+			throw new ScanningException(e);
+		}
 	}
 
 	private ScanRole getScanRole(NexusObjectProvider<?> nexusProvider) throws ScanningException {

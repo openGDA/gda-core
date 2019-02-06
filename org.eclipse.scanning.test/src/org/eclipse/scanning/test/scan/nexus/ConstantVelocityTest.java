@@ -142,7 +142,7 @@ public class ConstantVelocityTest extends NexusTest {
         }
 
 		// Check axes
-        final IPosition      pos = scanModel.getPositionIterable().iterator().next();
+        final IPosition      pos = scanModel.getPointGenerator().iterator().next();
         final Collection<String> scannableNames = pos.getNames();
 
         // Append _value_demand to each name in list, and append items ".", "." to list
@@ -218,7 +218,7 @@ public class ConstantVelocityTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  scanModel = new ScanModel();
-		scanModel.setPositionIterable(gen);
+		scanModel.setPointGenerator(gen);
 		scanModel.setDetectors(detector);
 
 		// Create a file to scan into.

@@ -6,8 +6,6 @@ import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PointEnd;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
-import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -100,35 +98,19 @@ public final class LocationManager {
 	public Iterator<IPosition> createPositionIterator() throws ScanningException {
 
 		CompoundModel<?> cmodel = bean.getScanRequest()!=null ? bean.getScanRequest().getCompoundModel() : null;
-		SubscanModerator moderator = new SubscanModerator(model.getPositionIterable(), cmodel, model.getDetectors(), ServiceHolder.getGeneratorService());
+		SubscanModerator moderator = new SubscanModerator(model.getPointGenerator(), cmodel, model.getDetectors(), ServiceHolder.getGeneratorService());
 		manager.addContext(moderator);
 
 		try {
 			stepNumber = 0;
-			outerSize  = getEstimatedSize(moderator.getOuterIterable());
-			innerSize  = getEstimatedSize(moderator.getInnerIterable());
-			totalSize  = getEstimatedSize(model.getPositionIterable());
+			outerSize  = moderator.getOuterScanSize();
+			innerSize  = moderator.getInnerScanSize();
+			totalSize  = moderator.getTotalScanSize();
 		} catch (GeneratorException se) {
 			throw new ScanningException("Cannot create the position iterator!", se);
 		}
 
-		return moderator.getOuterIterable().iterator();
-	}
-
-
-	private int getEstimatedSize(Iterable<IPosition> gen) throws GeneratorException {
-
-		int size=0;
-		if (gen instanceof IDeviceDependentIterable) {
-			size = ((IDeviceDependentIterable)gen).size();
-
-		} else if (gen instanceof IPointGenerator<?>) {
-			size = ((IPointGenerator<?>)gen).size();
-
-		} else if (gen!=null) {
-		    for (IPosition unused : gen) size++; // Fast even for large stuff providing they do not check hardware on the next() call.
-		}
-		return size;
+		return moderator.getOuterPointGenerator().iterator();
 	}
 
 	/**
@@ -146,10 +128,11 @@ public final class LocationManager {
 		 */
 		while(iterator.hasNext()) {
 			IPosition pos = iterator.next();
-		pos.setStepIndex(stepNumber);
+			pos.setStepIndex(stepNumber);
 			if (stepNumber == location) return pos;
 			stepNumber+=Math.max(innerSize, 1);
 		}
+
 		return null;
 	}
 

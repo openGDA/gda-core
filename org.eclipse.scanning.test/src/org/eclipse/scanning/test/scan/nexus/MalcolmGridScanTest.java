@@ -113,7 +113,7 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 
 		// Create the model for a scan.
 		final ScanModel smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		smodel.setDetectors(malcolmDevice);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(gen);

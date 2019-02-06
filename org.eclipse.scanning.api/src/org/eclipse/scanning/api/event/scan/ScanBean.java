@@ -56,16 +56,8 @@ public final class ScanBean extends StatusBean {
 	private String  beamline;
 
 	// Where are we in the scan
-	private int       point;
-
-	/**
-	 * Estimated by running the stack. For most static scans size is a constant.
-	 * However scans are allowed to define logic on the iterable.
-	 * In this case size == estimated size!
-	 */
-	private int       size;
-
-
+	private int point;
+	private int size;
 	private IPosition position;
 
 	// State information

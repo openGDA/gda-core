@@ -145,7 +145,7 @@ public class BasicScanTest extends NexusTest {
 		// check metadata scannables
 		checkMetadataScannables(scanModel, instrument);
 
-		final IPosition pos = scanModel.getPositionIterable().iterator().next();
+		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
 
 		List<IScannable<?>> perPoint  = scanModel.getMonitorsPerPoint() != null
@@ -245,7 +245,7 @@ public class BasicScanTest extends NexusTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 		if (monitorPerScan != null) {
 			monitorPerScan.setActivated(true);
 		}

@@ -110,7 +110,7 @@ public class LegacyDeviceSupportScanTest {
 
 		// Create the model for a scan.
 		final ScanModel  smodel = new ScanModel();
-		smodel.setPositionIterable(gen);
+		smodel.setPointGenerator(gen);
 //		if (monitor!=null) smodel.setMonitors(monitor); // TODO remove
 //		if (metadataScannable != null) smodel.setMetadataScannables(metadataScannable);
 

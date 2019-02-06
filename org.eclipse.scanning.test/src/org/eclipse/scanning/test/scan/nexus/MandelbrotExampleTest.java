@@ -69,7 +69,7 @@ public class MandelbrotExampleTest extends NexusTest {
 		// Tell configure detector to write 1 image into a 2D scan
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, 3, 2);
 		ScanModel mod = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		IPosition first = mod.getPositionIterable().iterator().next();
+		IPosition first = mod.getPointGenerator().iterator().next();
 		detector.run(first);
 
 		long before = System.currentTimeMillis();
@@ -82,7 +82,7 @@ public class MandelbrotExampleTest extends NexusTest {
 		soutput.deleteOnExit();
 		scanner = createGridScan(detector, soutput, false, 10, 3, 2);
 		mod = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		first = mod.getPositionIterable().iterator().next();
+		first = mod.getPointGenerator().iterator().next();
 		detector.run(first);
 
 		before = System.currentTimeMillis();

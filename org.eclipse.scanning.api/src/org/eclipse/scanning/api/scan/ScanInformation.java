@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.models.ScanMode;
-import org.eclipse.scanning.api.points.GeneratorException;
 
 /**
  *
@@ -54,6 +53,7 @@ public class ScanInformation {
 		this.estimator = prov;
 		setSize(estimator.getSize());
 		setRank(estimator.getRank());
+		setShape(estimator.getShape());
 	}
 
 	public String getFilePath() {
@@ -91,14 +91,7 @@ public class ScanInformation {
 		this.scannableNames = scannableNames;
 	}
 
-	public int[] getShape() throws ScanningException {
-		if (shape!=null) return shape;
-		// We calculate shape on the fly because it can be expensive to estimate.
-		try {
-			shape = estimator!=null ? estimator.getShape() : null;
-		} catch (GeneratorException e) {
-			throw new ScanningException(e);
-		}
+	public int[] getShape() {
 		return shape;
 	}
 
