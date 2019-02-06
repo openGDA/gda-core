@@ -158,6 +158,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		this.detectors = detectors.stream().
 				filter(ProcessingSelectionWizardPage::supportsAcquire).
+				sorted((d1, d2) -> d1.getName().compareTo(d2.getName())).
 				collect(toList());
 	}
 
@@ -260,7 +261,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		templatesComboViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().applyTo(templatesComboViewer.getControl());
-		List<File> templateFiles = getTemplateFiles();
+		final List<File> templateFiles = getTemplateFiles();
+		Collections.sort(templateFiles, (File f1, File f2) -> f1.getName().compareTo(f2.getName()));
 		templatesComboViewer.setContentProvider(ArrayContentProvider.getInstance());
 		templatesComboViewer.setLabelProvider(new LabelProvider() {
 			@Override
