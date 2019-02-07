@@ -328,7 +328,7 @@ public class EDXDMappingController extends EDXDController implements IEDXDMappin
 	}
 
 	public boolean isBufferedArrayPort() throws Exception {
-		return hdf5.getArrayPort().equals("xbuf");
+		return hdf5.getArrayPort().equalsIgnoreCase("xbuf");
 	}
 
 	public NDFileHDF5 getHdf5() {
