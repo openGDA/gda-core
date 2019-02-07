@@ -53,6 +53,13 @@ public interface IStageScanConfiguration {
 	 */
 	void removePropertyChangeListener(PropertyChangeListener listener);
 
+	/**
+	 * Returns the name of the camera configuration set as the default live stream source for the beamline
+	 *
+	 * @return the name of the camera configuration to be used as the default one (if set) or empty {@link String}
+	 */
+	String getDefaultStreamSourceConfig();
+
 
 
 
