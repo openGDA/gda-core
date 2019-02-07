@@ -29,7 +29,9 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.lang3;bundle-version="3.1.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.client.live.stream,
+ uk.ac.gda.client.live.stream.api,
  uk.ac.gda.client.live.stream.handlers,
  uk.ac.gda.client.live.stream.view,
  uk.ac.gda.client.live.stream.view.customui
 Automatic-Module-Name: uk.ac.gda.client.live.stream
+Service-Component: OSGI-INF/LiveStreamConnectionService.xml

@@ -52,6 +52,15 @@
       		id="uk.ac.diamond.daq.mapping.ui.command.mappingXanesTemplateHandler"
       		name="Load XANES template">
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.EnableLiveBackgroundHandler"
+            id="uk.ac.diamond.daq.mapping.ui.EnableLiveBackgroundCommand"
+            name="EnableLiveBackgroundCommand">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:false"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
+      </command>
    </extension>
    <extension
          point="org.eclipse.dawnsci.plotting.api.plottingAction">
@@ -105,7 +114,54 @@
                   commandId="uk.ac.diamond.daq.mapping.ui.command.mappingXanesTemplateHandler"
                   label="Load XANES template">
             </command>
+            <visibleWhen
+                  checkEnabled="true">
+                 <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                    <equals
+                               value="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective">
+                    </equals>
+                  </with>
+            </visibleWhen>
          </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=uk.ac.gda.client.script">
+         <toolbar
+               id="uk.ac.gda.client.toolbar"
+               label="Live Background Toolbar">
+            <separator
+                  name="uk.ac.diamond.daq.mapping.ui.separator1"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.EnableLiveBackgroundCommand"
+                  icon="icons/camcorder--arrow.png"
+                  label="Live Background"
+                  mode="FORCE_TEXT"
+                  style="toggle"
+                  tooltip="Enable live stream background in mapping view (if available)">
+               <visibleWhen
+                  checkEnabled="true">
+                  <with
+                     variable="activeWorkbenchWindow.activePerspective">
+                     <or>
+                        <equals
+                              value="uk.ac.diamond.daq.beamline.k11.perspective.PointAndShootPerspective">
+                        </equals>
+                        <equals
+                              value="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective">
+                        </equals>
+                     </or>
+                  </with>
+               </visibleWhen>
+            </command>
+            <separator
+                  name="uk.ac.diamond.daq.mapping.ui.separator2"
+                  visible="true">
+            </separator>
+         </toolbar>
       </menuContribution>
    </extension>
       <extension

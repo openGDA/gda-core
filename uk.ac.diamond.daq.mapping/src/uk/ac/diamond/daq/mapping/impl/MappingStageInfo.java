@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 public class MappingStageInfo implements IStageScanConfiguration {
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private String defaultStreamSourceConfig = "";
 
 	@Override
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -97,6 +98,17 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		double oldValue = this.beamSize;
 		this.beamSize = newValue;
 		this.pcs.firePropertyChange("beamSize", oldValue, newValue);
+	}
+
+
+
+	@Override
+	public final String getDefaultStreamSourceConfig() {
+		return defaultStreamSourceConfig;
+	}
+
+	public final void setDefaultStreamSourceConfig(String defaultStreamSourceConfig) {
+		this.defaultStreamSourceConfig = defaultStreamSourceConfig;
 	}
 
 	@Override
