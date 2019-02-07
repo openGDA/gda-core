@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,10 +36,10 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import gda.TestHelpers;
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.factory.Factory;
-import gda.factory.Findable;
 import gda.factory.Finder;
 
 public class JythonServerTest {
@@ -108,7 +107,6 @@ public class JythonServerTest {
 
 	@Test
 	public void testBeamlineHalt_StopsMotors() throws MotorException, InterruptedException {
-		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
 		Motor mockMotor3 = mock(Motor.class);
@@ -118,8 +116,12 @@ public class JythonServerTest {
 		when(mockMotor2.getName()).thenReturn("motor2");
 		when(mockMotor3.getName()).thenReturn("motor3");
 
-		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
-		Finder.getInstance().addFactory(factory );
+		Factory testFactory = TestHelpers.createTestFactory();
+		testFactory.addFindable(mockMotor1);
+		testFactory.addFindable(mockMotor2);
+		testFactory.addFindable(mockMotor3);
+
+		Finder.getInstance().addFactory(testFactory);
 
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(1000);
@@ -130,7 +132,6 @@ public class JythonServerTest {
 
 	@Test
 	public void testBeamlineHalt_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
-		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
 		Motor mockMotor3 = mock(Motor.class);
@@ -150,8 +151,11 @@ public class JythonServerTest {
 
 		doAnswer(new BeSlowAndThenFailAnswer()).when(mockMotor1).stop();
 
-		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
-		Finder.getInstance().addFactory(factory );
+		Factory testFactory = TestHelpers.createTestFactory();
+		testFactory.addFindable(mockMotor1);
+		testFactory.addFindable(mockMotor2);
+		testFactory.addFindable(mockMotor3);
+		Finder.getInstance().addFactory(testFactory);
 
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(3000);

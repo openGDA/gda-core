@@ -24,6 +24,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Test;
@@ -56,13 +58,17 @@ public class FinderTest {
 	}
 
 	private void prepareFactoryForSingletonTests() {
-		Findable singleton = new SingletonService("singleton");
+		SingletonService singleton = new SingletonService("singleton");
 		Findable notSingleton1 = new SomeOtherFindable("notASingleton1");
 		Findable notSingleton2 = new SomeOtherFindable("notASingleton2");
+
+		Map<String, SingletonService> singletonServices = new HashMap<>();
+		singletonServices.put("singleton", singleton);
 
 		Factory testFactory = mock(Factory.class);
 		when(testFactory.getFindables())
 			.thenReturn(Arrays.asList(singleton, notSingleton1, notSingleton2));
+		when(testFactory.getFindablesOfType(SingletonService.class)).thenReturn(singletonServices);
 
 		Finder.getInstance().addFactory(testFactory);
 	}

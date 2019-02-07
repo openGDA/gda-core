@@ -20,6 +20,7 @@ package uk.ac.gda.remoting.client;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.AUTO_EXPORT_RMI_PREFIX;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -189,6 +191,15 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory, Initia
 	public <T extends Findable> T getFindable(String name) throws FactoryException {
 		checkConfigured();
 		return (T) nameToFindable.get(name);
+	}
+
+	@SuppressWarnings("unchecked") // This is safe because we have just ensured the object is an instance of T
+	@Override
+	public <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz) {
+		checkConfigured();
+		return nameToFindable.entrySet().stream()
+		.filter(entry -> clazz.isInstance(entry.getValue()))
+		.collect(toMap(Entry::getKey, entry -> (T) entry.getValue()));
 	}
 
 	/**
