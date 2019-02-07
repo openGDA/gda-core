@@ -46,7 +46,12 @@ public class FocusScanWizard extends Wizard {
 
 	@Override
 	public boolean performCancel() {
-		return resultPage.closeWizard();
+		if (!resultPage.closeWizard()) {
+			return false;
+		}
+		// move the zone plate back to its original position
+		resultPage.resetFocusPosition();
+		return true;
 	}
 
 	@Override

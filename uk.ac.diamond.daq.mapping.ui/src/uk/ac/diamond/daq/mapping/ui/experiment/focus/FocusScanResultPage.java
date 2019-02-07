@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static org.eclipse.jface.resource.JFaceResources.DEFAULT_FONT;
+import static org.eclipse.jface.resource.JFaceResources.getFontRegistry;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.createNumberAndUnitsLengthComposite;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayYesNoMessage;
@@ -159,7 +161,7 @@ public class FocusScanResultPage extends WizardPage {
 	private ScheduledExecutorService updateMapExecutor;
 
 	private IScannable<Double> focusScannable;
-	private Object focusScannableOriginalPosition;
+	private Double focusScannableOriginalPosition;
 
 	public FocusScanResultPage() {
 		super(FocusScanResultPage.class.getSimpleName());
@@ -479,7 +481,10 @@ public class FocusScanResultPage extends WizardPage {
 		focusScannablePosition = createNumberAndUnitsLengthComposite(composite);
 		GridDataFactory.swtDefaults().applyTo(focusScannablePosition);
 
-		new Label(parent, SWT.NONE).setText("Select 'Finish' to move the focus to the selected position.");
+		final Label instructionLabel = new Label(parent, SWT.NONE);
+		instructionLabel.setFont(getFontRegistry().getBold(DEFAULT_FONT));
+		instructionLabel.setText("Select 'Finish' to move the focus to the selected position\n"
+				+ "or 'Cancel' to return it to its original position");
 	}
 
 	/**
@@ -595,9 +600,22 @@ public class FocusScanResultPage extends WizardPage {
 		}
 	}
 
+	/**
+	 * Move the focus scannable to the position chosen by the user
+	 */
 	protected void setFocusPosition() {
-		final Double newPosition = (Double) focusScannablePosition.getValue();
-		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
+		setFocusPositionInternal(focusScannablePosition.getValue());
+	}
+
+	/**
+	 * Move the focus scannable back to its original position
+	 */
+	protected void resetFocusPosition() {
+		setFocusPositionInternal(focusScannableOriginalPosition);
+	}
+
+	private void setFocusPositionInternal(Double newPosition) {
+		final ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
 			dialog.run(true, false, monitor -> doSetFocusPosition(newPosition, monitor));
 		} catch (InvocationTargetException | InterruptedException e) {
