@@ -123,12 +123,16 @@ public final class ServiceTestHelper {
 	 * </p>
 	 */
 	public static void setupServices() {
+		setupServices(false);
+	}
+
+	public static void setupServices(boolean remote) {
 		ScanPointGeneratorFactory.init();
 
 		marshallerService = createMarshallerService();
 		activemqConnectorService = createActivemqConnectorService();
 		eventServiceImpl = new EventServiceImpl(activemqConnectorService);
-		scannableDeviceService = createScannableConnectorService();
+		scannableDeviceService = createScannableConnectorService(remote);
 		runnableDeviceServiceImpl = new RunnableDeviceServiceImpl(scannableDeviceService);
 		pointGeneratorService = new PointGeneratorService();
 		validatorService = createValidatorService();
@@ -143,9 +147,9 @@ public final class ServiceTestHelper {
 		setupServiceHolders();
 	}
 
-	private static MockScannableConnector createScannableConnectorService() {
+	private static MockScannableConnector createScannableConnectorService(boolean remote) {
 		return new MockScannableConnector(
-				eventServiceImpl.createPublisher(BrokerTest.uri, EventConstants.POSITION_TOPIC));
+				remote ? eventServiceImpl.createPublisher(BrokerTest.uri, EventConstants.POSITION_TOPIC) : null);
 	}
 
 	private static void setupServiceHolders() {

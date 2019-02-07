@@ -51,7 +51,7 @@ public class RemoteScannableServiceTest extends BrokerTest {
 
 	@BeforeClass
 	public static void createServices() throws Exception {
-		ServiceTestHelper.setupServices();
+		ServiceTestHelper.setupServices(true);
 		eservice = ServiceTestHelper.getEventService();
 		cservice = ServiceTestHelper.getScannableDeviceService();
 
@@ -182,7 +182,7 @@ public class RemoteScannableServiceTest extends BrokerTest {
 		temp.setPosition(newPosition);
 
 		// Ensure 10 events were received before the timeout
-		assertTrue("Latch broke before 10 events were received", latch.await(60, TimeUnit.SECONDS)); //TODO decrease time
+		assertTrue("Latch broke before 10 events were received", latch.await(10, TimeUnit.SECONDS));
 		// Ensure T is now at the new position
 		assertEquals(newPosition, temp.getPosition(), 1e-15);
 	}
