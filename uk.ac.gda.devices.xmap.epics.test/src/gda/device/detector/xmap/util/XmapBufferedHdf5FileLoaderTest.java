@@ -19,7 +19,10 @@
 package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
+
+import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,6 +48,7 @@ public class XmapBufferedHdf5FileLoaderTest {
 	{
 		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-2309-0-HTXmapMca.h5";
 		xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
+		xMapLoader.setAttributeDataGroup("/entry/instrument/detector/NDAttributes/");
 		xMapLoader.loadFile();
 
 	}
@@ -76,4 +80,40 @@ public class XmapBufferedHdf5FileLoaderTest {
 		assertEquals(588, result, 0.0);
 	}
 
+	@Test
+	public void testReadB18File() throws Exception {
+		String filepath = "testfiles/gda/device/detector/xmap/test-400887-0-qexafs_xmap.h5";
+		int totalNumDataPoints = 90;
+		int numDetectorElements = 4;
+		int numMcaChannels = 2048;
+
+		String testfile1 = Paths.get(filepath).toAbsolutePath().toString();
+		XmapBufferedHdf5FileLoader xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
+		xMapLoader.setAttributeDataGroup("/entry/instrument/NDAttributes");
+
+		xMapLoader.loadFile();
+		assertEquals(totalNumDataPoints, xMapLoader.getNumberOfDataPoints()); // num points in scan
+		// get MCA data for first data point and check the shape
+		short[][] result = xMapLoader.getData(0);
+		assertEquals(numDetectorElements, result.length); // num detector elements
+		assertEquals(numMcaChannels, result[0].length); // num MCA channels
+
+		// Get MCA data for 10 frames, check the shape
+		int numFramesToRead = 10;
+		short[][][] results = xMapLoader.getData(1, numFramesToRead);
+		assertEquals(numFramesToRead, results.length); // num detector elements
+		assertEquals(numDetectorElements, results[0].length); // num detector elements
+		assertEquals(numMcaChannels, results[0][1].length); // num MCA channels
+
+		// Check that all the attribute data can be read
+		for(int i=0; i<totalNumDataPoints; i++) {
+			for(int j=0; j<numDetectorElements; j++) {
+				String indices = String.format("(%d,%d)", i, j);
+				assertNotEquals("getEvents"+indices, Double.NaN, xMapLoader.getEvents(i,  j));
+				assertNotEquals("getLiveTime"+indices, Double.NaN, xMapLoader.getLiveTime(i,  j));
+				assertNotEquals("getRealTime"+indices, Double.NaN, xMapLoader.getRealTime(i,  j));
+				assertNotEquals("getTrigger"+indices, Double.NaN, xMapLoader.getTrigger(i,  j));
+			}
+		}
+	}
 }

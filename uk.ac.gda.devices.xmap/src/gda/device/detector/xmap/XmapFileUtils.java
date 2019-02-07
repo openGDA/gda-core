@@ -6,23 +6,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 
-/**
- * Tests that a file is available to be read and has been released by the Arae Detector process writing it.
- *
- * @author rjw82
- *
- */
-public class XmapFileUtils {
+public final class XmapFileUtils {
 
-	private String filename;
-
-	public XmapFileUtils(String filename) {
-		this.filename = filename;
+	private XmapFileUtils() {
 	}
 
-	public void waitForFileToBeReadable() throws DeviceException,
+	/**
+	 * Test that a file is available to be read and has been released by the Area Detector process writing it.
+	 *
+	 * @param filename
+	 * @throws DeviceException
+	 * @throws InterruptedException
+	 */
+	public static void waitForFileToBeReadable(String filename) throws DeviceException,
 			InterruptedException {
 		try {
 			int timeout = 5000; // ms
@@ -65,5 +64,33 @@ public class XmapFileUtils {
 					"InterruptedException while waiting for XMAP HDF5 file to be readable - "
 							+ filename);
 		}
+	}
+
+
+	/**
+	 * @see {@link #getDataDirectoryDirName(String, String)}
+	 * @param xmapDir
+	 * @return path to dls data directory for beamline
+	 */
+	public static String getDataDirectoryDirName(String xmapDir) {
+		String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
+		return getDataDirectoryDirName(xmapDir, beamline);
+	}
+
+	/**
+	 * Convert path on X:/ used by XMap IOC to path to dls data directory
+	 * by replacing {@code X:/} with {@code /dls/<beamline>/data}. e.g.
+	 * <p><p>
+	 * X:/2018/sp1234-5/temp/dir1/   --> /dls/b18/data/2018/sp1234-5/temp/dir1/
+	 * <p><p>
+	 * Any backslashes are also replaced with forward slashes.
+	 *
+	 * @param xmapDir
+	 * @param beamline
+	 * @return path to dls data directory for beamline
+	 */
+	public static String getDataDirectoryDirName(String xmapDir, String beamline) {
+		String dirName = xmapDir.replace("X:/", "/dls/" + beamline + "/data/");
+		return dirName.replaceAll("\\\\", "/"); // replace backslashes with forward ones
 	}
 }
