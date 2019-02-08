@@ -75,11 +75,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.ProcessingSetupConfiguration;
 import uk.ac.diamond.daq.mapping.impl.ClusterProcessingModelWrapper;
 
 /**
@@ -141,6 +143,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private IRunnableDeviceService runnableDeviceService = null;
 
+	private ProcessingSetupConfiguration processingSetupConfiguration = null;
+
 	/**
 	 * A map from the name of a malcolm device to the name of the main primary dataset for that malcolm device.
 	 */
@@ -155,6 +159,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		this.context = context;
 		this.processingModelWrapper = processingModelWrapper;
+		this.processingSetupConfiguration = PlatformUI.getWorkbench().getService(ProcessingSetupConfiguration.class);
 
 		this.detectors = detectors.stream().
 				filter(ProcessingSelectionWizardPage::supportsAcquire).
@@ -222,7 +227,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		});
 		detectorsComboViewer.setInput(detectors);
 		if (!detectors.isEmpty()) {
-			detectorsComboViewer.setSelection(new StructuredSelection(detectors.get(0)));
+			detectorsComboViewer.setSelection(new StructuredSelection(getDefaultDetector()));
 		}
 		detectorsComboViewer.addSelectionChangedListener(evt -> {
 			@SuppressWarnings("unchecked")
@@ -237,6 +242,34 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				setPageComplete(true);
 			}
 		});
+	}
+
+	/**
+	 * Get the detector to be selected by default in the drop-down box
+	 * <p>
+	 * This will be
+	 * <ul>
+	 * <li>the detector specified in the {@link ProcessingSetupConfiguration}, if the configuration exists and the
+	 * detector specified exists</li>
+	 * <li>otherwise, the first detector in the list</li>
+	 * </ul>
+	 *
+	 * @return the detector to be selected
+	 */
+	private IScanModelWrapper<IDetectorModel> getDefaultDetector() {
+		// Select the first detector in the list, or the one specified in the config
+		IScanModelWrapper<IDetectorModel> result = detectors.get(0);
+		if (processingSetupConfiguration != null) {
+			final String defaultDetector = processingSetupConfiguration.getDefaultDetector();
+			if (defaultDetector != null && defaultDetector.length() > 0) {
+				final Optional<IScanModelWrapper<IDetectorModel>> det = detectors.stream()
+						.filter(d -> d.getName().equals(defaultDetector)).findFirst();
+				if (det.isPresent()) {
+					result = det.get();
+				}
+			}
+		}
+		return result;
 	}
 
 	private IRunnableDeviceService getRunnableDeviceService() throws EventException, URISyntaxException {
@@ -273,7 +306,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 		templatesComboViewer.setInput(templateFiles);
 		if (!templateFiles.isEmpty()) {
-			templatesComboViewer.setSelection(new StructuredSelection(templateFiles.get(0)));
+			templatesComboViewer.setSelection(new StructuredSelection(getDefaultProcessingFile(templateFiles)));
 		}
 
 		// refresh templates button
@@ -299,6 +332,36 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		});
 
 		return Arrays.asList(label, templatesComboViewer.getCombo(), refreshTemplatesButton);
+	}
+
+	/**
+	 * Get the processing file to be selected by default in the drop-down list
+	 * <p>
+	 * This will be:
+	 * <ul>
+	 * <li>the file specified in the {@link ProcessingSetupConfiguration}, if the configuration exists and the file
+	 * specified exists</li>
+	 * <li>otherwise, the first file in the input list</li>
+	 * </ul>
+	 *
+	 * @param templateFiles
+	 *            list of available template files
+	 * @return file to be selected
+	 */
+	private File getDefaultProcessingFile(List<File> templateFiles) {
+		// Get the file specified in the config, or the first in the list if none is specified
+		File result = templateFiles.get(0);
+		if (processingSetupConfiguration != null) {
+			final String defaultFile = processingSetupConfiguration.getDefaultProcessingFile();
+			if (defaultFile != null && defaultFile.length() > 0) {
+				final Optional<File> file = templateFiles.stream()
+						.filter(f -> f.getName().equals(defaultFile)).findFirst();
+				if (file.isPresent()) {
+					result = file.get();
+				}
+			}
+		}
+		return result;
 	}
 
 	private void refreshTemplates() {
