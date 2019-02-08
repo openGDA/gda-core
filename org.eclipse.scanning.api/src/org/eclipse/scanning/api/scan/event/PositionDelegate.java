@@ -23,6 +23,8 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.Location.LocationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages position listeners.
@@ -31,6 +33,8 @@ import org.eclipse.scanning.api.scan.event.Location.LocationType;
  *
  */
 public class PositionDelegate {
+
+	private static final Logger logger = LoggerFactory.getLogger(PositionDelegate.class);
 
 	private Collection<IPositionListener> listeners;
 	private IPublisher<Location>          publisher;
@@ -66,9 +70,7 @@ public class PositionDelegate {
 			try {
 				publisher.broadcast(new Location(type, evnt));
 			} catch (EventException e) {
-				// We swallow this without a logger because
-				// there is no logger dependency on the API.
-				e.printStackTrace();
+				logger.error("Could not publish position {}", evnt.getPosition());
 			}
 		}
 	}
