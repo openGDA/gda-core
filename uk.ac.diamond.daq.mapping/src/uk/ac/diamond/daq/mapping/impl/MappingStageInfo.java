@@ -24,11 +24,15 @@ import java.beans.PropertyChangeSupport;
 import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
+import uk.ac.diamond.daq.osgi.OsgiService;
+
 /**
  * A bean which holds information about the current axes used for mapping experiments. The intention is that a single
  * instance of this, created and initialised by Spring, will be a single point of reference for any parts of the system
  * that need to know or check the axis names.
  */
+@OsgiService(MappingStageInfo.class)
+@OsgiService(IStageScanConfiguration.class)
 public class MappingStageInfo implements IStageScanConfiguration {
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);

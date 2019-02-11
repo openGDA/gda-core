@@ -27,7 +27,9 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
+@OsgiService(IMappingRegionManager.class)
 public class MappingRegionManager implements IMappingRegionManager {
 
 	// Initialise with empty lists - the real contents should be configured using Spring

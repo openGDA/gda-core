@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.impl;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
  * An object that wraps a mapping bean. This object is configured in spring.
@@ -27,6 +28,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
  * that you get always get a reference to the current mapping bean in the mapping view
  * even after another bean has been loaded from the filesystem.
  */
+@OsgiService(IMappingExperimentBeanProvider.class)
 public class MappingExperimentBeanProvider implements IMappingExperimentBeanProvider {
 
 	private IMappingExperimentBean mappingExperimentBean;
