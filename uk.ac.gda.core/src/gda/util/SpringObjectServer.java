@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -57,6 +58,7 @@ import gda.factory.FactoryBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.spring.OsgiServiceBeanHandler;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import uk.ac.gda.remoting.client.RmiProxyMarker;
 
@@ -66,6 +68,8 @@ import uk.ac.gda.remoting.client.RmiProxyMarker;
 public class SpringObjectServer extends ObjectServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpringObjectServer.class);
+
+	private final OsgiServiceBeanHandler osgiServiceBeanHandler = new OsgiServiceBeanHandler();
 
 	boolean allowExceptionInConfigure=LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
@@ -96,6 +100,8 @@ public class SpringObjectServer extends ObjectServer {
 		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		setApplicationContextActiveProfiles(applicationContext);
 		applicationContext.setAllowBeanDefinitionOverriding(false);
+
+		// Load the context
 		applicationContext.refresh();
 
 		dumpListOfBeans();
@@ -296,8 +302,18 @@ public class SpringObjectServer extends ObjectServer {
 		addSpringBackedFactoryToFinder(applicationContext);
 
 		configureAllConfigurablesInApplicationContext(applicationContext);
+		injectBeansIntoOsgiServiceRegister(applicationContext);
 	}
 
+
+	private void injectBeansIntoOsgiServiceRegister(ApplicationContext applicationContext) {
+		Map<String, Object> allBeans = applicationContext.getBeansOfType(Object.class);
+		for (Entry<String, Object> entry : allBeans.entrySet()) {
+			String beanName = entry.getKey();
+			Object bean = entry.getValue();
+			osgiServiceBeanHandler.processBean(bean, beanName);
+		}
+	}
 
 	/**
 	 * Adds a Spring-backed {@link Factory} to the {@link Finder}.
