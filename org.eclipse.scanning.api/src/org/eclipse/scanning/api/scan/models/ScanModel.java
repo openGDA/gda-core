@@ -98,7 +98,7 @@ public class ScanModel {
 	 */
 	private List<?> annotationParticipants;
 
-	private ScanInformation scanInformation;
+	private ScanInformation scanInformation = null;
 
 	public ScanModel() {
 		this(null);

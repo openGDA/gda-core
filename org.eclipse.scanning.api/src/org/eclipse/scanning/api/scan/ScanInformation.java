@@ -12,10 +12,16 @@
 package org.eclipse.scanning.api.scan;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.GeneratorException;
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 
 /**
  *
@@ -28,92 +34,91 @@ import org.eclipse.scanning.api.device.models.ScanMode;
  */
 public class ScanInformation {
 
-	private String filePath;
-	private int                size;
-	private int                rank;
-	private List<String> scannableNames;
-	private transient ScanEstimator  estimator;
-	private int[] shape;
-	private ScanMode scanMode;
-	private long estimatedScanTime;
+	private final ScanMode scanMode;
+	private final String filePath;
+	private final int size;
+	private final int rank;
+	private final List<String> scannableNames;
+	private final int[] shape;
+	private final long timePerPoint; // in ms
+	private final long estimatedScanTime; // in ms
 
-	public ScanInformation() {
-
+	public ScanInformation(IPointGeneratorService pointGenService, ScanRequest<?> scanRequest) throws GeneratorException {
+		this(pointGenService.createCompoundGenerator(scanRequest.getCompoundModel()), scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 
-	/**
-	 * Setup the scan information from a ScanEstimator
-	 * NOTE the getShape() method is then delegated to the ScanEstimator
-	 * for speed reasons. It will not be calculated until you call
-	 * getShape() for the first time.
-	 *
-	 * @param prov
-	 */
-	public ScanInformation(ScanEstimator prov) {
-		this.estimator = prov;
-		setSize(estimator.getSize());
-		setRank(estimator.getRank());
-		setShape(estimator.getShape());
+	public ScanInformation(IPointGenerator<?> pointGen, ScanRequest<?> scanRequest) throws GeneratorException {
+		this(pointGen, scanRequest.getDetectors().values(), scanRequest.getFilePath());
+	}
+
+	public ScanInformation(IPointGenerator<?> pointGen, Collection<Object> detectorModels, String filePath) throws GeneratorException {
+		boolean isMalcolmScan = detectorModels.stream().anyMatch(IMalcolmModel.class::isInstance);
+		this.scanMode = isMalcolmScan ? ScanMode.HARDWARE : ScanMode.SOFTWARE;
+
+		this.size = pointGen.size();
+		// pointGen returns rank as 0 for acquire scans (correctly), but datasets must have min rank of 1
+		// as AreaDetector writes a 1D datasets of size 1 in this case. See DAQ-2004
+		this.rank = Math.max(pointGen.getRank(), 1);
+		this.shape = pointGen.getShape();
+
+		// the time per point is the maximum exposure time of a detector
+		this.timePerPoint = detectorModels.stream()
+				.filter(IDetectorModel.class::isInstance)
+				.map(IDetectorModel.class::cast)
+				.mapToDouble(IDetectorModel::getExposureTime)
+				.map(e -> e * 1000)
+				.mapToLong(Math::round)
+				.reduce(0l, Math::max);
+		this.estimatedScanTime = this.timePerPoint * this.size;
+
+		this.scannableNames = pointGen.getFirstPoint().getNames();
+		this.filePath = filePath;
+	}
+
+	public ScanMode getScanMode() {
+		return scanMode;
 	}
 
 	public String getFilePath() {
 		return filePath;
 	}
 
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
 	public int getSize() {
 		return size;
-	}
-
-	public void setSize(int size) {
-		this.size = size;
 	}
 
 	public int getRank() {
 		return rank;
 	}
 
-	public void setRank(int rank) {
-		this.rank = rank;
-	}
-
 	public List<String> getScannableNames() {
-		if (scannableNames == null) {
-			return Collections.emptyList();
-		}
 		return scannableNames;
-	}
-
-	public void setScannableNames(List<String> scannableNames) {
-		this.scannableNames = scannableNames;
 	}
 
 	public int[] getShape() {
 		return shape;
 	}
 
-	public long getEstimatedScanTime() {
-		if (estimatedScanTime > 0) return estimatedScanTime;
-		estimatedScanTime = estimator != null ? estimator.getEstimatedScanTime() : 0;
-		return estimatedScanTime;
+	public long getTimePerPoint() {
+		return timePerPoint;
 	}
 
-	public void setShape(int[] shape) {
-		this.shape = shape;
+	public long getEstimatedScanTime() {
+		return estimatedScanTime;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (int) (estimatedScanTime ^ (estimatedScanTime >>> 32));
 		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
 		result = prime * result + rank;
-		result = prime * result + ((scannableNames == null) ? 0 : scannableNames.hashCode());
-		result = prime * result + size;
 		result = prime * result + ((scanMode == null) ? 0 : scanMode.hashCode());
+		result = prime * result + ((scannableNames == null) ? 0 : scannableNames.hashCode());
+		result = prime * result + Arrays.hashCode(shape);
+		result = prime * result + size;
+		result = prime * result + (int) (timePerPoint ^ (timePerPoint >>> 32));
 		return result;
 	}
 
@@ -126,6 +131,8 @@ public class ScanInformation {
 		if (getClass() != obj.getClass())
 			return false;
 		ScanInformation other = (ScanInformation) obj;
+		if (estimatedScanTime != other.estimatedScanTime)
+			return false;
 		if (filePath == null) {
 			if (other.filePath != null)
 				return false;
@@ -133,26 +140,27 @@ public class ScanInformation {
 			return false;
 		if (rank != other.rank)
 			return false;
+		if (scanMode != other.scanMode)
+			return false;
 		if (scannableNames == null) {
 			if (other.scannableNames != null)
 				return false;
 		} else if (!scannableNames.equals(other.scannableNames))
 			return false;
+		if (!Arrays.equals(shape, other.shape))
+			return false;
 		if (size != other.size)
 			return false;
-		if (scanMode == null) {
-			if (other.scanMode != null)
-				return false;
-		} else if (!scanMode.equals(other.scanMode))
+		if (timePerPoint != other.timePerPoint)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "ScanInformation [filePath=" + filePath + ", size=" + size + ", rank=" + rank
-				+ ", scannableNames=" + scannableNames + ", shape=" + Arrays.toString(shape)
-				+ ", scanMode=" + scanMode + "]";
+		return "ScanInformation [scanMode=" + scanMode + ", filePath=" + filePath + ", size=" + size + ", rank=" + rank
+				+ ", scannableNames=" + scannableNames + ", shape=" + Arrays.toString(shape) + ", timePerPoint="
+				+ timePerPoint + ", estimatedScanTime=" + estimatedScanTime + "]";
 	}
 
 }

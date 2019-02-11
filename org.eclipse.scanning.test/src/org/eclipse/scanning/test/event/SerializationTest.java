@@ -447,7 +447,7 @@ public class SerializationTest {
 		assertTrue(jsonNoDet.indexOf(",,")<0);
 
 		bean = service.unmarshal(jsonNoDet, ScanBean.class);
-		assertTrue(bean.getScanRequest().getDetectors()==null);
+		assertTrue(bean.getScanRequest().getDetectors().isEmpty());
 	}
 
 

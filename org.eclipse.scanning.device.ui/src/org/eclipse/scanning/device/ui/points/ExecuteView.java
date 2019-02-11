@@ -62,7 +62,7 @@ import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.IParserService;
-import org.eclipse.scanning.api.scan.ScanEstimator;
+import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.ui.AbstractControl;
 import org.eclipse.scanning.api.scan.ui.DetectorScanUIElement;
@@ -549,8 +549,8 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			if (Activator.getDefault().getPreferenceStore().getBoolean(DevicePreferenceConstants.SHOW_SCAN_TIME)) {
 
 				try {
-					final ScanEstimator estimator = new ScanEstimator(ServiceHolder.getGeneratorService(), req);
-					long time = estimator.getEstimatedScanTime();
+					final ScanInformation scanInfo = new ScanInformation(ServiceHolder.getGeneratorService(), req);
+					long time = scanInfo.getEstimatedScanTime();
 					Format format = (time<HOUR_IN_MS) ? new SimpleDateFormat("mm'm' ss's'") : new SimpleDateFormat("h'h' mm'm' ss's'");
 					timeString = "   "+format.format(new Date(time));
 				} catch (Exception ne) {

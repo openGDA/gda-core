@@ -68,7 +68,6 @@ import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
-import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -209,7 +208,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		location = new LocationManager(getScanBean(), model, annotationManager);
 
 		// add the scan information to the context - it is created if not set on the scan model
-		annotationManager.addContext(getScanInformation(location.getTotalSize()));
+		annotationManager.addContext(getScanInformation());
 		annotationManager.addContext(getPublisher());
 		exposureManager = new ExposureTimeManager(this);
 		exposureManager.addDevices(model.getDetectors());
@@ -533,23 +532,16 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private ScanInformation getScanInformation(int size) throws ScanningException {
+	private ScanInformation getScanInformation() throws ScanningException {
 		ScanInformation scanInfo = getModel().getScanInformation();
 		if (scanInfo == null) {
-			ScanEstimator estimator;
 			try {
-				estimator = new ScanEstimator(model.getPointGenerator(), model.getDetectors());
+				List<Object> detectorModels = getModel().getDetectors().stream()
+						.map(IRunnableDevice::getModel).collect(toList());
+				scanInfo = new ScanInformation(getModel().getPointGenerator(), detectorModels, getModel().getFilePath());
 			} catch (GeneratorException e) {
-				logger.error("Could not create scan estimator", e);
-				throw new ScanningException("Could not create scan estimator", e);
+				throw new ScanningException("Could not create ScanInformation", e);
 			}
-
-			scanInfo = new ScanInformation(estimator);
-			scanInfo.setSize(size);
-			scanInfo.setRank(estimator.getRank());
-			scanInfo.setScannableNames(getScannableNames(getModel().getPointGenerator()));
-			scanInfo.setFilePath(getModel().getFilePath());
-
 			getModel().setScanInformation(scanInfo);
 		}
 

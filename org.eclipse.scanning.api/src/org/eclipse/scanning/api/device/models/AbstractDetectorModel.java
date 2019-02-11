@@ -33,6 +33,19 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	@FieldDescriptor(label="Exposure Time", unit="s", minimum=0)
 	private double exposureTime; // Seconds
 
+	public AbstractDetectorModel() {
+		// no-arg constructor for json
+	}
+
+	public AbstractDetectorModel(String name) {
+		setName(name);
+	}
+
+	public AbstractDetectorModel(String name, double exposureTime) {
+		this(name);
+		setExposureTime(exposureTime);
+	}
+
 	@Override
 	@UiComesAfter("name")
 	public double getExposureTime() {

@@ -29,7 +29,6 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.SpiralModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.BeforeClass;
@@ -85,9 +84,7 @@ public class ScanShapeTest {
 	public void testShapeGrid() throws Exception {
 		ScanRequest<Object> req = createGridScanRequest(nestCount, snake);
 
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
+		ScanInformation scanInfo = new ScanInformation(service, req);
 		final int expectedRank = nestCount + 2;
 		assertEquals(expectedRank, scanInfo.getRank());
 		int[] shape = scanInfo.getShape();
@@ -103,9 +100,7 @@ public class ScanShapeTest {
 	public void testShapeGridCircularRegion() throws Exception {
 		ScanRequest<Object> req = createGridWithCircleRegionScanRequest(nestCount, snake);
 
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
+		ScanInformation scanInfo = new ScanInformation(service, req);
 		int[] shape = scanInfo.getShape();
 		assertEquals(nestCount + 1, shape.length);
 		for (int i = 0; i < nestCount; i++) {
@@ -118,9 +113,7 @@ public class ScanShapeTest {
 	public void testShapeGridPolygonRegion() throws Exception {
 		ScanRequest<Object> req = createGridWithPolygonRegionScanRequest(nestCount, snake);
 
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
-
+		ScanInformation scanInfo = new ScanInformation(service, req);
 		int[] shape = scanInfo.getShape();
 		assertEquals(nestCount + 1, shape.length);
 		for (int i = 0; i < nestCount; i++) {
@@ -149,8 +142,7 @@ public class ScanShapeTest {
 
 		ScanRequest<Object> req = new ScanRequest<>();
 		req.setCompoundModel(compoundModel);
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+		ScanInformation scanInfo = new ScanInformation(service, req);
 
 		final int expectedRank = nestCount + 1;
 		assertEquals(expectedRank, scanInfo.getRank());
@@ -183,8 +175,7 @@ public class ScanShapeTest {
 
 		ScanRequest<Object> req = new ScanRequest<>();
 		req.setCompoundModel(compoundModel);
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+		ScanInformation scanInfo = new ScanInformation(service, req);
 
 		final int expectedRank = nestCount + 1;
 		assertEquals(expectedRank, scanInfo.getRank());
@@ -205,8 +196,7 @@ public class ScanShapeTest {
 		ScanRequest<Object> req = new ScanRequest<>();
 		req.setCompoundModel(compoundModel);
 
-		ScanEstimator scanEstimator = new ScanEstimator(service, req);
-		ScanInformation scanInfo = new ScanInformation(scanEstimator);
+		ScanInformation scanInfo = new ScanInformation(service, req);
 
 		// Note: a StaticModel of size 1 produces a scan of rank 1, size 1
 		final int expectedRank = 1;

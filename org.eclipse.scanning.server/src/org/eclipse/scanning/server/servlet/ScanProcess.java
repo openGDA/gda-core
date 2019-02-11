@@ -46,7 +46,6 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IFilePathService;
-import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
@@ -427,11 +426,9 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			throws GeneratorException, EventException {
 		// converts the ScanBean to a ScanModel
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPointGenerator(generator);
-
-		ScanEstimator estimator = new ScanEstimator(Services.getGeneratorService(), bean.getScanRequest());
-		bean.setSize(estimator.getSize());
 		scanModel.setFilePath(bean.getFilePath());
+		scanModel.setPointGenerator(generator);
+		bean.setSize(generator.size());
 
 		ScanRequest<?> req = bean.getScanRequest();
 		scanModel.setDetectors(getDetectors(req.getDetectors()));
@@ -442,9 +439,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		scanModel.setScanMetadata(req.getScanMetadata());
 		scanModel.setBean(bean);
 
-		ScanInformation scanInfo = new ScanInformation(estimator);
-		scanInfo.setFilePath(bean.getFilePath());
-		scanInfo.setScannableNames(getScannableNames(generator));
+		ScanInformation scanInfo = new ScanInformation(generator, req.getDetectors().values(), bean.getFilePath());
 		scanModel.setScanInformation(scanInfo);
 		return scanModel;
 	}

@@ -14,6 +14,7 @@ package org.eclipse.scanning.server.servlet;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
@@ -149,22 +150,20 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	@SuppressWarnings("unchecked")
 	private void configureDetector(IRunnableDevice<?> detector, Object detectorModel,
-			ScanModel scanModel, IPointGenerator<?> gen) throws Exception {
+			ScanModel scanModel, IPointGenerator<?> gen) throws ScanningException {
 
-		ScanInformation info = new ScanInformation();
-		info.setRank(1);
-		info.setShape(new int[] { 1 });
-		info.setSize(1);
+		try {
+			ScanInformation info = new ScanInformation(gen, Arrays.asList(detectorModel), scanModel.getFilePath());
+			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
+			manager.addContext(info);
+			manager.addDevices(detector);
 
-		info.setFilePath(scanModel.getFilePath());
-
-		AnnotationManager manager = new AnnotationManager(Activator.createResolver());
-		manager.addContext(info);
-		manager.addDevices(detector);
-
-		manager.invoke(PreConfigure.class, detectorModel, gen);
-		((IRunnableDevice<Object>) detector).configure(detectorModel);
-		manager.invoke(PostConfigure.class, detectorModel, gen);
+			manager.invoke(PreConfigure.class, detectorModel, gen);
+			((IRunnableDevice<Object>) detector).configure(detectorModel);
+			manager.invoke(PostConfigure.class, detectorModel, gen);
+		} catch (Exception e) {
+			throw new ScanningException(e);
+		}
 	}
 
 }

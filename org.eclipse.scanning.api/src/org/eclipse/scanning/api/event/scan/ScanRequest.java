@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,6 +251,7 @@ public class ScanRequest<T> implements Serializable {
 	}
 
 	public Map<String, Object> getDetectors() {
+		if (detectors == null) return Collections.emptyMap();
 		return detectors;
 	}
 

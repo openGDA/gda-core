@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
@@ -40,7 +39,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
-import org.eclipse.scanning.api.scan.ScanEstimator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
@@ -138,7 +136,7 @@ public abstract class AbstractAcquisitionTest {
 		if (dmodel!=null) {
 			AnnotationManager manager = new AnnotationManager(Activator.createResolver());
 			manager.addDevices(device);
-			manager.addContext(new ScanInformation(new ScanEstimator(gen, (Map<String, Object>)null, 1)));
+			manager.addContext(new ScanInformation(gen, Arrays.asList(dmodel), filePath));
 
 			manager.invoke(PreConfigure.class, dmodel, gen);
 			if (device instanceof AbstractMalcolmDevice) {

@@ -66,6 +66,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.ScanPointIterator;
@@ -267,8 +268,10 @@ public class ScanProcessTest {
 		when(mockRunnableDeviceService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
 		when(mocks.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(mockPointGen);
 		when(mockPointGen.size()).thenReturn(100); // these three lines required by ScanEstimator constructor
+		IPosition firstPoint = new Scalar<>("xNex", 0, 0);
+		when(mockPointGen.getFirstPoint()).thenReturn(firstPoint);
 		when(mockPointGen.iterator()).thenReturn(mockScanPointIterator);
-		when(mockScanPointIterator.next()).thenReturn(new Scalar<>("xNex", 0, 0));
+		when(mockScanPointIterator.next()).thenReturn(firstPoint);
 
 		Services services = new Services(); // the set methods of Services actually set a static field
 		services.setWatchdogService(mocks.get(IDeviceWatchdogService.class));

@@ -13,6 +13,7 @@ package org.eclipse.scanning.test.annot;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -123,7 +124,7 @@ public class AnnotationManagerTest {
 	@Test
 	public void countConfigure() throws Exception {
 
-		ScanInformation info = new ScanInformation();
+		ScanInformation info = mock(ScanInformation.class);
 		try {
 			manager.addContext(info);
 			manager.invoke(PreConfigure.class);
@@ -173,20 +174,22 @@ public class AnnotationManagerTest {
 
 	@Test
 	public void scanPointGeneratorInject() throws Exception {
+		ScanInformation info = mock(ScanInformation.class);
 
 		IPointGenerator<GridModel> gen = pservice.createGenerator(new GridModel());
-		manager.invoke(PreConfigure.class, gen, new ScanInformation());
+		manager.invoke(PreConfigure.class, gen, info);
 		assertEquals(gen, idevice.getPointGenerator());
 	}
 
 
 	@Test
 	public void scanInfoInject() throws Exception {
+		ScanInformation info = mock(ScanInformation.class);
 
 		manager.invoke(ScanStart.class);
 		assertEquals(null, edevice.getScanInformation());
 
-		manager.addContext(new ScanInformation());
+		manager.addContext(info);
 		manager.invoke(ScanStart.class);
 		assertTrue(edevice.getScanInformation()!=null);
 	}
