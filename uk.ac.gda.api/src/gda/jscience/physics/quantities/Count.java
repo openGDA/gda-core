@@ -19,66 +19,38 @@
 
 package gda.jscience.physics.quantities;
 
-import gda.jscience.physics.units.NonSIext;
-
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.quantities.QuantityFormat;
-import org.jscience.physics.units.ConversionException;
 import org.jscience.physics.units.Unit;
 
-/**
- * 
- */
+import gda.jscience.physics.units.NonSIext;
+
 public class Count extends Quantity {
     /**
      * Holds the associated unit.
      */
-	private final static Unit<Count> UNIT = NonSIext.COUNT;
+	private static final Unit<Count> UNIT = NonSIext.COUNT;
 
 	/**
 	 * Holds the factory for this class.
 	 */
 	@SuppressWarnings("unused")
-	private final static Factory<Count> FACTORY = new Factory<Count>(UNIT) {
+	private static final Factory<Count> FACTORY = new Factory<Count>(UNIT) {
 		@Override
 		protected Count create() {
 			return new Count();
 		}
 	};
-	
+
 	/**
 	 * Represents a {@link Count} amounting to nothing.
 	 */
-	public final static Count ZERO = Quantity.valueOf(0, UNIT);
-	
+	public static final Count ZERO = Quantity.valueOf(0, UNIT);
+
 	/**
 	 * Default constructor (allows for derivation).
 	 */
 	protected Count() {
 	}
 
-	/**
-	 * Returns the {@link Count} corresponding to the specified quantity.
-	 * 
-	 * @param q
-	 *            a quantity compatible with {@link Count}.
-	 * @return the specified quantity or a new {@link Count} instance.
-	 * @throws ConversionException
-	 *             if the current model does not allow the specified quantity to be converted to {@link Count}.
-	 */
-	public static Count CountOf(Quantity q) {
-		return q.to(UNIT);
-	}
-
-	/**
-	 * Shows {@link Count} instances in the specified unit.
-	 * 
-	 * @param unit the display unit for {@link Count} instances.
-	 */
-	public static void showAs(Unit<? extends Quantity> unit) {
-		QuantityFormat.show(Count.class, unit);
-	}
-
     private static final long serialVersionUID = 1L;
-	
 }

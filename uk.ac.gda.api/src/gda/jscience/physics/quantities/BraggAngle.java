@@ -20,7 +20,6 @@
 package gda.jscience.physics.quantities;
 
 import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Constants;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
@@ -31,14 +30,14 @@ import org.jscience.physics.units.SI;
  */
 public final class BraggAngle extends Angle {
 	/**
-	 * Default constructor (allows for derivation).
+	 * Prevent instantiation
 	 */
-	protected BraggAngle() {
+	private BraggAngle() {
 	}
 
 	/**
 	 * Returns the {@link BraggAngle} for the specified X-Ray wavelength
-	 * 
+	 *
 	 * @param wavelength
 	 *            Wavelength the specified X-Ray wavelength.
 	 * @param twoD
@@ -55,9 +54,9 @@ public final class BraggAngle extends Angle {
 
 	/**
 	 * Returns the {@link BraggAngle} for the specified X-Ray photon energy.
-	 * 
+	 *
 	 * @param photonEnergy
-	 *            PhotonEnergy the sepecified X-Ray photon energy.
+	 *            PhotonEnergy the specified X-Ray photon energy.
 	 * @param twoD
 	 *            Length the 2*d spacing of the crystal.
 	 * @return BraggAngle the Bragg Angle of the crystal.
@@ -68,18 +67,5 @@ public final class BraggAngle extends Angle {
 			return BraggAngle.braggAngleOf(Wavelength.wavelengthOf(photonEnergy), twoD);
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the {@link BraggAngle} for the specified scattering vector.
-	 * 
-	 * @param scatteringVector
-	 * @param wavelength
-	 *            the wavelength of the incident X-Ray.
-	 * @return BraggAngle the Bragg Angle of the crystal.
-	 */
-	public static Angle braggAngleOf(ScatteringVector scatteringVector, Length wavelength) {
-		return valueOf(Math.asin((scatteringVector.times(wavelength)).divide(Constants.four_π).doubleValue()),
-				SI.RADIAN);
 	}
 }

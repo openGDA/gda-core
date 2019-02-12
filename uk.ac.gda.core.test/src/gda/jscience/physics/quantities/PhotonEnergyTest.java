@@ -19,148 +19,189 @@
 
 package gda.jscience.physics.quantities;
 
+import static org.jscience.physics.units.NonSI.ANGSTROM;
+import static org.jscience.physics.units.NonSI.DEGREE_ANGLE;
+import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static org.jscience.physics.units.SI.METER;
+import static org.jscience.physics.units.SI.MILLI;
+import static org.jscience.physics.units.SI.NANO;
+import static org.jscience.physics.units.SI.RADIAN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
+import org.jscience.physics.units.ConversionException;
 import org.junit.Test;
 
-/**
- */
 public class PhotonEnergyTest {
-	Energy result;
+	private static final Length WAVELENGTH = Quantity.valueOf(529.847, NANO(METER));
+	private static final Length NEGATIVE_LENGTH = Quantity.valueOf(-1.0, ANGSTROM);
+	private static final Length TWO_D = Quantity.valueOf(6.271, ANGSTROM);
+	private static final Angle BRAGG_ANGLE = Quantity.valueOf(12787.5, MILLI(DEGREE_ANGLE));
+	private static final Angle NEGATIVE_ANGLE = Quantity.valueOf(-1.0, RADIAN);
 
-	/**
-	 * Test method for
-	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Length)}.
-	 */
+	private static final Energy EDGE = Quantity.valueOf(8980.197, ELECTRON_VOLT);
+	private static final Energy NEGATIVE_EDGE = Quantity.valueOf(-1.0, ELECTRON_VOLT);
+	private static final Length EDGE_LENGTH = Quantity.valueOf(3.0, ANGSTROM);
+	private static final Vector EDGE_LENGTH_VECTOR = vectorOf(EDGE_LENGTH);
+	private static final Length NEGATIVE_EDGE_LENGTH = Quantity.valueOf(-3.0, ANGSTROM);
+	private static final Vector NEGATIVE_EDGE_LENGTH_VECTOR = vectorOf(NEGATIVE_EDGE_LENGTH);
+	private static final double DOUBLE_VALUE = 3.0E-10;
+	private static final double NEGATIVE_DOUBLE_VALUE = -1.0;
+
+	//------------------------------------------------------------------------------
+	// Photon energy from wavelength
+	//------------------------------------------------------------------------------
 	@Test
-	public void testPhotonEnergyOfLength() {
-		Energy photonEnergy = Quantity.valueOf(2.34, NonSI.ELECTRON_VOLT);
-		Length negative = Quantity.valueOf(-1.0, NonSI.ANGSTROM);
-		Length wavelength = Quantity.valueOf(529.847, SI.NANO(SI.METER));
+	public void testPhotonEnergyOfWavelength() {
+		final Energy expectedEnergy = Quantity.valueOf(2.34, ELECTRON_VOLT);
 
-		result = PhotonEnergy.photonEnergyOf(wavelength);
-		System.out.println("r " + result + " pe " + photonEnergy);
-		assertEquals(photonEnergy.doubleValue(), result.doubleValue(), 0.000000000001);
-
-		result = PhotonEnergy.photonEnergyOf(negative);
-		assertTrue("PhotonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(null);
-		assertTrue("PhotonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(Length.ZERO);
-		assertTrue("PhotonEnergy should be null", null == result);
+		final Energy result = PhotonEnergy.photonEnergyOf(WAVELENGTH);
+		assertEquals(expectedEnergy.doubleValue(), result.doubleValue(), 0.000000000001);
 	}
 
-	/**
-	 * Test method for
-	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Angle, org.jscience.physics.quantities.Length)}
-	 * .
-	 */
 	@Test
-	public void testPhotonEnergyOfAngleLength() {
-		Length twoD = Quantity.valueOf(6.271, NonSI.ANGSTROM);
-		Length negative = Quantity.valueOf(-1.0, NonSI.ANGSTROM);
-		Angle negativeAngle = Quantity.valueOf(-1.0, SI.RADIAN);
-		Angle braggAngle = Quantity.valueOf(12787.5, SI.MILLI(NonSI.DEGREE_ANGLE));
-		Energy photonEnergy = Quantity.valueOf(8932.6, NonSI.ELECTRON_VOLT);
-
-		result = PhotonEnergy.photonEnergyOf(braggAngle, twoD);
-		assertEquals(photonEnergy.doubleValue(), result.doubleValue(), 0.0000000000001);
-
-		result = PhotonEnergy.photonEnergyOf(braggAngle, negative);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(negativeAngle, twoD);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(braggAngle, null);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(null, twoD);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(Angle.ZERO, twoD);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(braggAngle, Length.ZERO);
-		assertTrue("photonEnergy should be null", null == result);
+	public void testPhotonEnergyOfWavelengthNegativeWavelength() {
+		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_LENGTH));
 	}
 
-	/**
-	 * Test method for
-	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Quantity, org.jscience.physics.quantities.Quantity)} .
-	 */
+	@Test
+	public void testPhotonEnergyOfWavelengthNullWavelength() {
+		assertNull(PhotonEnergy.photonEnergyOf(null));
+	}
+
+	@Test
+	public void testPhotonEnergyOfWavelengthZeroWavelength() {
+		assertNull(PhotonEnergy.photonEnergyOf(Length.ZERO));
+	}
+
+	//------------------------------------------------------------------------------
+	// Photon energy from Bragg angle
+	//------------------------------------------------------------------------------
+	@Test
+	public void testPhotonEnergyOfAngle() {
+		final Energy expectedEnergy = Quantity.valueOf(8932.6, ELECTRON_VOLT);
+		final Energy result = PhotonEnergy.photonEnergyOf(BRAGG_ANGLE, TWO_D);
+		assertEquals(expectedEnergy.doubleValue(), result.doubleValue(), 0.0000000000001);
+	}
+
+	@Test
+	public void testPhotonEnergyOfAngleNegativeTwoD() {
+		assertNull(PhotonEnergy.photonEnergyOf(BRAGG_ANGLE, NEGATIVE_LENGTH));
+	}
+
+	@Test
+	public void testPhotonEnergyOfAngleNegativeAngle() {
+		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_ANGLE, TWO_D));
+	}
+
+	@Test
+	public void testPhotonEnergyOfAngleNullTwoD() {
+		assertNull(PhotonEnergy.photonEnergyOf(BRAGG_ANGLE, null));
+	}
+
+	@Test
+	public void testPhotonEnergyOfAngleNullAngle() {
+		assertNull(PhotonEnergy.photonEnergyOf(null, TWO_D));
+	}
+
+	@Test
+	public void testPhotonEnergyOfAngleZeroAngle() {
+		assertNull(PhotonEnergy.photonEnergyOf(Angle.ZERO, TWO_D));
+	}
+
+	public void testPhotonEnergyOfAngleZeroTwoD() {
+		assertNull(PhotonEnergy.photonEnergyOf(BRAGG_ANGLE, Length.ZERO));
+	}
+
+	//------------------------------------------------------------------------------
+	// Photon energy from edge (with Quantity k)
+	//------------------------------------------------------------------------------
 	@Test
 	public void testPhotonEnergyOfEnergyVector() {
-		// Energy e = photonEnergyOf(Energy edge, Vector k);
-		Energy edge = Quantity.valueOf(8980.197, NonSI.ELECTRON_VOLT);
-		Energy negativeEdge = Quantity.valueOf(-1.0, NonSI.ELECTRON_VOLT);
-		Energy photonEnergy = Quantity.valueOf(9020.0, NonSI.ELECTRON_VOLT);
-		Length l = Quantity.valueOf(3.0, NonSI.ANGSTROM);
-		Vector k = Vector.vectorOf(l);
-		Length lneg = Quantity.valueOf(-3.0, NonSI.ANGSTROM);
-		Vector negative = Vector.vectorOf(lneg);
+		final Energy expectedPhotonEnergy = Quantity.valueOf(9020.0, ELECTRON_VOLT);
+		final Energy result = PhotonEnergy.photonEnergyOf(EDGE, EDGE_LENGTH_VECTOR);
+		assertEquals(expectedPhotonEnergy.doubleValue(), result.doubleValue(), 0.0000000001);
+	}
 
-		result = PhotonEnergy.photonEnergyOf(edge, k);
-		assertEquals(photonEnergy.doubleValue(), result.doubleValue(), 0.0000000001);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorNegativeVector() {
+		assertNull(PhotonEnergy.photonEnergyOf(EDGE, NEGATIVE_EDGE_LENGTH_VECTOR));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(edge, negative);
-		assertTrue("photonEnergy should be null", null == result);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorNegativeEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_EDGE, EDGE_LENGTH_VECTOR));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(negativeEdge, k);
-		assertTrue("photonEnergy should be null", null == result);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorNullVector() {
+		assertNull(PhotonEnergy.photonEnergyOf(EDGE, null));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(edge, null);
-		assertTrue("photonEnergy should be null", null == result);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorNullEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(null, EDGE_LENGTH_VECTOR));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(null, k);
-		assertTrue("photonEnergy should be null", null == result);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorZeroEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(Energy.ZERO, EDGE_LENGTH_VECTOR));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(Energy.ZERO, k);
-		assertTrue("photonEnergy should be null", null == result);
+	@Test
+	public void testPhotonEnergyOfEnergyVectorZeroVector() {
+		assertNull(PhotonEnergy.photonEnergyOf(EDGE, Vector.ZERO));
+	}
 
-		result = PhotonEnergy.photonEnergyOf(edge, Vector.ZERO);
-		assertTrue("photonEnergy should be null", null == result);
+	//------------------------------------------------------------------------------
+	// Photon energy from edge (with double k)
+	//------------------------------------------------------------------------------
+	@Test
+	public void testPhotonEnergyOfEnergyDouble() {
+		final Energy expectedPhotonEnergy = Quantity.valueOf(9014.0, ELECTRON_VOLT);
+		final Energy result = PhotonEnergy.photonEnergyOf(EDGE, DOUBLE_VALUE);
+		assertEquals(expectedPhotonEnergy.doubleValue(), result.doubleValue(), 0.0000000000001);
+	}
+
+	@Test
+	public void testPhotonEnergyOfEnergyDoubleNegativeK() {
+		assertNull(PhotonEnergy.photonEnergyOf(EDGE, NEGATIVE_DOUBLE_VALUE));
+	}
+
+	@Test
+	public void testPhotonEnergyOfEnergyDoubleNegativeEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_EDGE, DOUBLE_VALUE));
+	}
+
+	@Test
+	public void testPhotonEnergyOfEnergyDoubleNullEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(null, DOUBLE_VALUE));
+	}
+
+	@Test
+	public void testPhotonEnergyOfEnergyDoubleZeroEdge() {
+		assertNull(PhotonEnergy.photonEnergyOf(Energy.ZERO, DOUBLE_VALUE));
+	}
+
+	@Test
+	public void testPhotonEnergyOfEnergyDoubleZeroK() {
+		assertNull(PhotonEnergy.photonEnergyOf(EDGE, 0.0));
 	}
 
 	/**
-	 * Test method for
-	 * {@link gda.jscience.physics.quantities.PhotonEnergy#photonEnergyOf(org.jscience.physics.quantities.Energy, double)}
-	 * .
+	 * Returns the {@link Length} corresponding to the specified quantity.
+	 *
+	 * @param length
+	 *            a quantity compatible with {@link Length}.
+	 * @return the specified quantity or a new {@link Length} instance.
+	 * @throws ConversionException
+	 *             if the current model does not allow the specified quantity to be converted to {@link Length}.
 	 */
-	@Test
-	public void testPhotonEnergyOfEnergyDouble() {
-		double value = 3.0E-10;
-		double negative = -1.0;
-		Energy edge = Quantity.valueOf(8980.197, NonSI.ELECTRON_VOLT);
-		Energy negativeEdge = Quantity.valueOf(-1.0, NonSI.ELECTRON_VOLT);
-		Energy photonEnergy = Quantity.valueOf(9014.0, NonSI.ELECTRON_VOLT);
-
-		result = PhotonEnergy.photonEnergyOf(edge, value);
-		assertEquals(photonEnergy.doubleValue(), result.doubleValue(), 0.0000000000001);
-
-		result = PhotonEnergy.photonEnergyOf(edge, negative);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(negativeEdge, value);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(null, value);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(Energy.ZERO, value);
-		assertTrue("photonEnergy should be null", null == result);
-
-		result = PhotonEnergy.photonEnergyOf(edge, 0.0);
-		assertTrue("photonEnergy should be null", null == result);
+	public static Vector vectorOf(Length length) {
+		return length.inverse().to(Vector.UNIT);
 	}
-
 }

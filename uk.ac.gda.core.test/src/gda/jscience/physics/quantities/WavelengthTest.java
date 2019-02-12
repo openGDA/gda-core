@@ -19,87 +19,92 @@
 
 package gda.jscience.physics.quantities;
 
+import static org.jscience.physics.units.NonSI.ANGSTROM;
+import static org.jscience.physics.units.NonSI.DEGREE_ANGLE;
+import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static org.jscience.physics.units.SI.METER;
+import static org.jscience.physics.units.SI.NANO;
+import static org.jscience.physics.units.SI.RADIAN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.SI;
 import org.junit.Test;
 
-/**
- */
-public class WavelengthTest
-{
-   /**
-    * Test method for {@link gda.jscience.physics.quantities.Wavelength#wavelengthOf(org.jscience.physics.quantities.Energy)}.
-    */
-   @Test
-   public void testWavelengthOfEnergy()
-   {
-      Energy photonEnergy;
-      Energy negativeEnergy;
-      Length wavelength;
-      Length result;
+public class WavelengthTest {
+	private static final Energy PHOTON_ENERGY = Quantity.valueOf(2.34, ELECTRON_VOLT);
+	private static final Energy NEGATIVE_ENERGY = Quantity.valueOf(-1.0, ELECTRON_VOLT);
+	private static final Length TWO_D = Quantity.valueOf(6.271, ANGSTROM);
+	private static final Angle BRAGG_ANGLE = Quantity.valueOf(12787.5, SI.MILLI(DEGREE_ANGLE));
+	private static final Length NEGATIVE_LENGTH = Quantity.valueOf(-1.0, ANGSTROM);
+	private static final Angle NEGATIVE_ANGLE = Quantity.valueOf(-1.0, RADIAN);
 
-      photonEnergy = Quantity.valueOf(2.34, NonSI.ELECTRON_VOLT);
-      wavelength = Quantity.valueOf(529.847, SI.NANO(SI.METER));
+	// -------------------------------------------------------------------------------
+	// Wavelength from energy
+	// -------------------------------------------------------------------------------
+	@Test
+	public void testWavelengthOfEnergy() {
+		final Length expected = Quantity.valueOf(529.847, NANO(METER));
+		final Length result = Wavelength.wavelengthOf(PHOTON_ENERGY);
+		assertEquals(expected.doubleValue(), result.doubleValue(), 0.0000000000001);
+	}
 
-      result = Wavelength.wavelengthOf(photonEnergy);
-      assertEquals(wavelength.doubleValue(), result.doubleValue(), 0.0000000000001);
+	@Test
+	public void testWavelengthOfEnergyNullEnergy() {
+		assertNull(Wavelength.wavelengthOf(null));
+	}
 
-      result = Wavelength.wavelengthOf(null);
-      assertTrue("Wavelength should be null", null == result);
+	@Test
+	public void testWavelengthOfEnergyNegativeEnergy() {
+		assertNull(Wavelength.wavelengthOf(NEGATIVE_ENERGY));
+	}
 
-      negativeEnergy = Quantity.valueOf(-1.0, NonSI.ELECTRON_VOLT);
-      result = Wavelength.wavelengthOf(negativeEnergy);
-      assertTrue("Wavelength should be null", null == result);
+	@Test
+	public void testWavelengthOfEnergyZeroEnergy() {
+		assertNull(Wavelength.wavelengthOf(Energy.ZERO));
+	}
 
-      result = Wavelength.wavelengthOf(Energy.ZERO);
-      assertTrue("Wavelength should be null", null == result);
-   }
+	// -------------------------------------------------------------------------------
+	// Wavelength from Bragg angle
+	// -------------------------------------------------------------------------------
+	@Test
+	public void testWavelengthOfAngle() {
+		final Length expectedWavelength = Quantity.valueOf(1.388, ANGSTROM);
+		final Length result = Wavelength.wavelengthOf(BRAGG_ANGLE, TWO_D);
+		assertEquals(expectedWavelength.doubleValue(), result.doubleValue(), 0.0000000000001);
+	}
 
-   /**
-    * Test method for {@link gda.jscience.physics.quantities.Wavelength#wavelengthOf(org.jscience.physics.quantities.Angle, org.jscience.physics.quantities.Length)}.
-    */
-   @Test
-   public void testWavelengthOfAngleLength()
-   {
-      Length twoD;
-      Angle braggAngle;
-      Length result;
-      Length wavelength;
-      Length negative;
-      Angle negativeAngle;
+	@Test
+	public void testWavelengthOfAngleNegativeLength() {
+		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, NEGATIVE_LENGTH));
+	}
 
-      twoD = Quantity.valueOf(6.271, NonSI.ANGSTROM);
-      braggAngle = Quantity.valueOf(12787.5, SI.MILLI(NonSI.DEGREE_ANGLE));
-      wavelength = Quantity.valueOf(1.388, NonSI.ANGSTROM);
+	@Test
+	public void testWavelengthOfAngleNegativeAngle() {
+		assertNull(Wavelength.wavelengthOf(NEGATIVE_ANGLE, TWO_D));
+	}
 
-      result = Wavelength.wavelengthOf(braggAngle, twoD);
-      assertEquals(wavelength.doubleValue(), result.doubleValue(), 0.0000000000001);
+	@Test
+	public void testWavelengthOfAngleNullLength() {
+		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, null));
+	}
 
-      negative = Quantity.valueOf(-1.0, NonSI.ANGSTROM);
-      result = Wavelength.wavelengthOf(braggAngle, negative);
-      assertTrue("Wavelength should be null", null == result);
+	@Test
+	public void testWavelengthOfAngleNullAngle() {
+		assertNull(Wavelength.wavelengthOf(null, TWO_D));
+	}
 
-      negativeAngle = Quantity.valueOf(-1.0, SI.RADIAN);
-      result = Wavelength.wavelengthOf(negativeAngle, twoD);
-      assertTrue("Wavelength should be null", null == result);
+	@Test
+	public void testWavelengthOfAngleZeroAngle() {
+		assertNull(Wavelength.wavelengthOf(Angle.ZERO, TWO_D));
+	}
 
-      result = Wavelength.wavelengthOf(braggAngle, null);
-      assertTrue("Wavelength should be null", null == result);
-
-      result = Wavelength.wavelengthOf(null, twoD);
-      assertTrue("Wavelength should be null", null == result);
-
-      result = Wavelength.wavelengthOf(Angle.ZERO, twoD);
-      assertTrue("Wavelength should be null", null == result);
-
-      result = Wavelength.wavelengthOf(braggAngle, Length.ZERO);
-      assertTrue("Wavelength should be null", null == result);
-  }
+	@Test
+	public void testWavelengthOfAngleZeroLength() {
+		assertNull(Wavelength.wavelengthOf(BRAGG_ANGLE, Length.ZERO));
+	}
 }

@@ -19,10 +19,6 @@
 
 package gda.jscience.physics.quantities;
 
-/*
- * - for X-Ray applications. All rights reserved. Permission to use, copy, modify, and distribute this software is
- * freely granted, provided that this notice is preserved.
- */
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Constants;
 import org.jscience.physics.quantities.Energy;
@@ -30,7 +26,7 @@ import org.jscience.physics.quantities.Length;
 
 /**
  * A method only class to extend the functionality of the {@link Length} class. This class extends
- * {@link org.jscience.physics.quantities.Length} to provide additional methods for conversions between Wavelength,
+ * {@link Length} to provide additional methods for conversions between Wavelength,
  * Bragg Angle, and Photon Energy for X-Ray application. While these additional methods should be accessed using class
  * name, their returns are of the {@link Length} type, not {@link Wavelength} type, in order to make them compatible
  * with the Unit System defined in JScience. Ideally these method should be implemented directly into the {@link Length}
@@ -47,7 +43,7 @@ public class Wavelength extends Length {
 
 	/**
 	 * Returns the X-Ray wavelength of the specified photon energy.
-	 * 
+	 *
 	 * @param photonEnergy
 	 *            PhotonEnergy the energy of the photon.
 	 * @return Wavelength the X-Ray wavelength of the specified photon energy.
@@ -62,7 +58,7 @@ public class Wavelength extends Length {
 
 	/**
 	 * Returns the X-Ray wavelength of the specified Bragg Angle for the crystal.
-	 * 
+	 *
 	 * @param braggAngle
 	 *            Angle the Bragg Angle of the crystal.
 	 * @param twoD

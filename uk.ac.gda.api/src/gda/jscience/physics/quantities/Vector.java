@@ -19,67 +19,37 @@
 
 package gda.jscience.physics.quantities;
 
-import gda.jscience.physics.units.NonSIext;
-
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.quantities.QuantityFormat;
-import org.jscience.physics.units.ConversionException;
 import org.jscience.physics.units.Unit;
 
-/**
- * 
- */
+import gda.jscience.physics.units.NonSIext;
+
 public class Vector extends Quantity {
 	/**
 	 * Holds the system unit.
 	 */
-	private final static Unit<Vector> UNIT = NonSIext.PER_ANGSTROM;
+	public static final Unit<Vector> UNIT = NonSIext.PER_ANGSTROM;
 
 	/**
 	 * Holds the factory for this class.
 	 */
 	@SuppressWarnings("unused")
-	private final static Factory<Vector> FACTORY = new Factory<Vector>(UNIT) {
+	private static final Factory<Vector> FACTORY = new Factory<Vector>(UNIT) {
 		@Override
 		protected Vector create() {
 			return new Vector();
 		}
-	};// .useFor(NonSIext.PER_ANGSTROM);
+	};
 
 	/**
 	 * Represents a {@link Length} amounting to nothing.
 	 */
-	public final static Vector ZERO = Quantity.valueOf(0, UNIT);
+	public static final Vector ZERO = Quantity.valueOf(0, UNIT);
 
 	/**
 	 * Default constructor (allows for derivation).
 	 */
 	protected Vector() {
 	}
-
-	/**
-	 * Returns the {@link Length} corresponding to the specified quantity.
-	 * 
-	 * @param length
-	 *            a quantity compatible with {@link Length}.
-	 * @return the specified quantity or a new {@link Length} instance.
-	 * @throws ConversionException
-	 *             if the current model does not allow the specified quantity to be converted to {@link Length}.
-	 */
-	public static Vector vectorOf(Length length) {
-		return length.inverse().to(UNIT);
-	}
-
-	/**
-	 * Shows {@link Length} instances in the specified unit.
-	 * 
-	 * @param unit
-	 *            the output unit for {@link Length} instances.
-	 * @see QuantityFormat#getOutputUnit
-	 */
-	public static void showAs(Unit<? extends Quantity> unit) {
-		QuantityFormat.show(Vector.class, unit);
-	}
-
 }

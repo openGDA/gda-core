@@ -27,7 +27,10 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	BraggAngleTest.class
+	BraggAngleTest.class,
+	PhotonEnergyTest.class,
+	WavelengthTest.class,
+	WaveVectorTest.class
 })
 
 public class AllJUnitTests {
