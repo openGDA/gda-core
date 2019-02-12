@@ -24,7 +24,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 
 	private static final long serialVersionUID = 165830281177522976L;
 
-	private Object sourceToken = null;
+	private Serializable sourceToken = null;
 	private GDAMessageCategory category = GDAMessageCategory.NOTIFY;
 	private String message = "";
 
@@ -40,19 +40,19 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 		this(null,category);
 	}
 
-	public GDAMessage(Object sourceToken) {
+	public GDAMessage(Serializable sourceToken) {
 		this(sourceToken,GDAMessageCategory.NOTIFY);
 	}
 
-	public GDAMessage(Object sourceToken, String message) {
+	public GDAMessage(Serializable sourceToken, String message) {
 		this(sourceToken,GDAMessageCategory.NOTIFY, message);
 	}
 
-	public GDAMessage(Object sourceToken, GDAMessageCategory category) {
+	public GDAMessage(Serializable sourceToken, GDAMessageCategory category) {
 		this(sourceToken,category,"");
 	}
 
-	public GDAMessage(Object sourceToken, GDAMessageCategory category, String message) {
+	public GDAMessage(Serializable sourceToken, GDAMessageCategory category, String message) {
 		this.sourceToken = sourceToken;
 		this.category = category;
 		this.message = message;
@@ -69,7 +69,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 	}
 
 	@Override
-	public Object getSourceToken() {
+	public Serializable getSourceToken() {
 		return sourceToken;
 	}
 
@@ -84,7 +84,7 @@ public abstract class GDAMessage implements Serializable, IGDAMessage {
 	}
 
 	@Override
-	public void setSourceToken(Object sourceToken) {
+	public void setSourceToken(Serializable sourceToken) {
 		this.sourceToken = sourceToken;
 	}
 

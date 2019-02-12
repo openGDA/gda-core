@@ -1,5 +1,7 @@
 package uk.ac.gda.eventbus.api.message;
 
+import java.io.Serializable;
+
 public class NotifyMessage extends GDAMessage {
 
 	private static final long serialVersionUID = 7582388296446175980L;
@@ -8,7 +10,7 @@ public class NotifyMessage extends GDAMessage {
 		super(GDAMessageCategory.NOTIFY);
 	}
 
-	public NotifyMessage(Object sourceToken, String message) {
+	public NotifyMessage(Serializable sourceToken, String message) {
 		super(sourceToken, GDAMessageCategory.NOTIFY, message);
 	}
 

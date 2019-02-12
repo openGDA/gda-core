@@ -1,5 +1,7 @@
 package uk.ac.gda.eventbus.api.message;
 
+import java.io.Serializable;
+
 public class ErrorMessage extends GDAMessage {
 
 	private static final long serialVersionUID = 5543479297191424861L;
@@ -8,11 +10,11 @@ public class ErrorMessage extends GDAMessage {
 		super(GDAMessageCategory.ERROR);
 	}
 
-	public ErrorMessage(Object sourceToken, String message) {
+	public ErrorMessage(Serializable sourceToken, String message) {
 		super(sourceToken, GDAMessageCategory.ERROR, message);
 	}
 
-	public ErrorMessage(Object sourceToken) {
+	public ErrorMessage(Serializable sourceToken) {
 		super(sourceToken, GDAMessageCategory.ERROR);
 	}
 

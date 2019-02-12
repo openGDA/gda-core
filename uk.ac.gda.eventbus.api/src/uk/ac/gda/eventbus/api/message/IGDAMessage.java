@@ -8,12 +8,12 @@ public interface IGDAMessage extends Serializable {
 
 	String getMessage();
 
-	Object getSourceToken();
+	Serializable getSourceToken();
 
 	void setCategory(GDAMessageCategory category);
 
 	void setMessage(String message);
 
-	void setSourceToken(Object sourceToken);
+	void setSourceToken(Serializable sourceToken);
 
 }
