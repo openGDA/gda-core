@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import gda.AbstractTestBase;
 import gda.MockFactory;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
@@ -42,7 +41,7 @@ import gda.device.Scannable;
 import gda.device.scannable.PositionCallableProvider;
 import gda.jython.IJythonServerNotifer;
 
-public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
+public class MultithreadedScanDataPointPipelineTest {
 
 	interface PositionCallableProvidingScannable extends PositionCallableProvider<Object>, Scannable {
 	}
@@ -107,7 +106,6 @@ public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
 	private Callable<Object> callabledetb2;
 	private Callable<Object> callabledetb3;
 
-	@Override
 	@Before
 	public void setUp() {
 		mockDataWriter = mock(DataWriter.class);
