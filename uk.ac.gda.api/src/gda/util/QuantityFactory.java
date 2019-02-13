@@ -36,7 +36,7 @@ import gda.jscience.physics.units.NonSIext;
  * A factory class to create Quantities from Strings. Uses a combination of BFI and Trickery.
  */
 public class QuantityFactory {
-	static final Logger logger = LoggerFactory.getLogger(QuantityFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(QuantityFactory.class);
 	static {
 		NonSIext.initializeClass();
 	}
@@ -57,13 +57,15 @@ public class QuantityFactory {
 
 		// convert input into Quantity objects
 		if (position instanceof String) {
-			Quantity newPosition = QuantityFactory.createFromString((String) position).to(targetQuantity);
-			if (newPosition != null){
-				position = newPosition;
+			final Quantity positionAsQuantity = QuantityFactory.createFromString((String) position);
+			if (positionAsQuantity != null){
+				targetPosition = positionAsQuantity.to(targetQuantity);
 			}
-		}
-		if (position instanceof PyString) {
-			targetPosition = QuantityFactory.createFromString(((PyString) position).toString()).to(targetQuantity);
+		} else if (position instanceof PyString) {
+			final Quantity positionAsQuantity = QuantityFactory.createFromString(((PyString) position).toString());
+			if (positionAsQuantity != null) {
+				targetPosition = positionAsQuantity.to(targetQuantity);
+			}
 		} else if (position instanceof Double) {
 			targetPosition = Quantity.valueOf((Double) position, targetQuantity);
 		} else if (position instanceof Integer) {
@@ -71,16 +73,15 @@ public class QuantityFactory {
 		} else if (position instanceof PyFloat) {
 			targetPosition = Quantity.valueOf(((PyFloat) position).getValue(), targetQuantity);
 		} else if (position instanceof PyInteger) {
-			targetPosition = Quantity.valueOf(Double.valueOf(((PyInteger) position).getValue()), targetQuantity);
+			targetPosition = Quantity.valueOf(((PyInteger) position).getValue(), targetQuantity);
 		} else if (position instanceof Quantity) {
 			targetPosition = ((Quantity) position).to(targetQuantity);
 		} else if (position instanceof Dimensionless) {
-			targetPosition = Quantity.valueOf(((Dimensionless) position).getAmount(),targetQuantity);
+			targetPosition = Quantity.valueOf(((Dimensionless) position).getAmount(), targetQuantity);
 		} else {
 			return null;
 		}
 		return targetPosition;
-
 	}
 
 	/**
@@ -92,11 +93,10 @@ public class QuantityFactory {
 	 * @return the Quantity created (or null)
 	 */
 	public static Quantity createFromString(String string) {
-		Quantity q = null;
-		String valueString;
-		String unitString;
+		final String valueString;
+		final String unitString;
 		if (string != null) {
-			StringTokenizer strtok = new StringTokenizer(string);
+			final StringTokenizer strtok = new StringTokenizer(string);
 
 			if (strtok.countTokens() == 2) {
 				// The string is assumed to be of the form "1.0 mm"
@@ -109,11 +109,11 @@ public class QuantityFactory {
 				// It is easiest to search the string backwards because we
 				// can't use isLetter() to find the end of a number because it
 				// might contain an 'e' or an 'E'
-				StringBuffer sb = new StringBuffer(string);
+				final StringBuilder sb = new StringBuilder(string);
 				sb.reverse();
 
-				StringBuffer unitStringBuffer = new StringBuffer();
-				StringBuffer valueStringBuffer = new StringBuffer();
+				final StringBuilder unitStringBuffer = new StringBuilder();
+				final StringBuilder valueStringBuffer = new StringBuilder();
 
 				// Go through reversed string appending to the unitStringBuffer
 				// until we find a character (digit or '.') which must be part
@@ -138,10 +138,12 @@ public class QuantityFactory {
 				valueString = new String(valueStringBuffer.reverse());
 				unitString = new String(unitStringBuffer.reverse());
 			}
-			if (valueString.isEmpty()) return q;
-			q = createFromTwoStrings(valueString, unitString);
+			if (valueString.isEmpty()) {
+				return null;
+			}
+			return createFromTwoStrings(valueString, unitString);
 		}
-		return q;
+		return null;
 	}
 
 	/**
@@ -154,16 +156,15 @@ public class QuantityFactory {
 	 * @return the Quantity created (or null)
 	 */
 	public static Quantity createFromTwoStrings(String valueString, String unitString) {
-		Quantity q = null;
 		if (valueString != null && unitString != null) {
 			try {
-				q = Quantity.valueOf(valueString + " " + unitString);
+				return Quantity.valueOf(valueString + " " + unitString);
 			} catch (NumberFormatException e) {
-				logger.warn("QuantityFactory: invalid number specified. valueString = '"+valueString +
-						"' unitString = '" + unitString + "'");
+				logger.warn("Invalid number specified. valueString = '{}', unitString = '{}'", valueString, unitString);
+				return null;
 			}
 		}
-		return q;
+		return null;
 	}
 
 	/**
@@ -176,15 +177,14 @@ public class QuantityFactory {
 	 * @return the corresponding Unit, or null if not found
 	 */
 	@SuppressWarnings("unchecked")
-	public static Unit<? extends Quantity> createUnitFromString(String string) {
-		Unit<? extends Quantity> unit = null;
+	public static <Q extends Quantity> Unit<Q> createUnitFromString(String string) {
 		// This method is tagged with @suppressWarnings as we can't predict at
 		// compile time which type of unit will be created from a string.
 		try {
-			unit = (string != null) ? Unit.valueOf(string) : null;
+			return (string != null) ? Unit.valueOf(string) : null;
 		} catch (IllegalArgumentException e) {
-			logger.warn("QuantityFactory: Unknown unit " + string + " requested");
+			logger.warn("Unknown unit {} requested", string);
+			return null;
 		}
-		return unit;
 	}
 }

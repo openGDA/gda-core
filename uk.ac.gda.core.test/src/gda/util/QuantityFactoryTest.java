@@ -515,9 +515,9 @@ public class QuantityFactoryTest {
 		assertEquals(expected, QuantityFactory.createFromObject("3.142 m", MILLI(METER)));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testCreateFromObjectStringInvalid() {
-		QuantityFactory.createFromObject("abcdef", MILLI(METER));
+		assertNull(QuantityFactory.createFromObject("abcdef", MILLI(METER)));
 	}
 
 	@Test
@@ -532,9 +532,9 @@ public class QuantityFactoryTest {
 		assertEquals(expected, QuantityFactory.createFromObject(new PyString("7.234 m"), MILLI(METER)));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testCreateFromObjectPyStringInvalid() {
-		QuantityFactory.createFromObject(new PyString("abcdef"), MILLI(METER));
+		assertNull(QuantityFactory.createFromObject(new PyString("abcdef"), MILLI(METER)));
 	}
 
 	@Test
