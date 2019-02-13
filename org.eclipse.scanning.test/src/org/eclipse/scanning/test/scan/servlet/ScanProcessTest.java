@@ -18,8 +18,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -73,7 +71,6 @@ import org.eclipse.scanning.api.points.ScanPointIterator;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
-import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.event.IPositioner;
@@ -86,7 +83,6 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.points.RepeatedPointIterator;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.Services;
@@ -538,51 +534,6 @@ public class ScanProcessTest {
 			assertThat(mandelbrot.getDataNode("T"), is(nullValue()));
 		}
 	}
-
-	@Test
-	public void testSimpleNestWithSleepInIterator() throws Exception {
-		// Arrange
-		ScanBean scanBean = new ScanBean();
-		ScanRequest<?> scanRequest = new ScanRequest<>();
-
-		final int numPoints = 5;
-		CompoundModel cmodel = new CompoundModel<>(Arrays.asList(
-				new RepeatedPointModel("T1", numPoints, 290.2, 100), new GridModel("xNex", "yNex",2,2)));
-		cmodel.setRegions(Arrays.asList(new ScanRegion<IROI>(
-				new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
-		scanRequest.setCompoundModel(cmodel);
-
-		final Map<String, Object> dmodels = new HashMap<String, Object>(3);
-		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
-		model.setName("mandelbrot");
-		model.setExposureTime(0.001);
-		dmodels.put("mandelbrot", model);
-		scanRequest.setDetectors(dmodels);
-
-		final File tmp = File.createTempFile("scan_nested_test", ".nxs");
-		tmp.deleteOnExit();
-		scanRequest.setFilePath(tmp.getAbsolutePath()); // TODO This will really come from the scan file service which is not written.
-
-		scanBean.setScanRequest(scanRequest);
-		ScanProcess process = new ScanProcess(scanBean, null, true);
-
-		RepeatedPointIterator._setCountSleeps(true);
-
-		// Act
-		long before = System.currentTimeMillis();
-		process.execute();
-		long after = System.currentTimeMillis();
-
-		// Assert
-		assertTrue("The time to do a scan of roughly 500ms of sleep was "+(after-before), (10000 > (after-before)));
-
-		// Important: the number of sleeps must be five
-		// NOTE: there are currently ten sleeps, as we iterate through the points in the scan
-		// twice to get the scan shape.
-		// TODO: DAQ-754. Find some way to avoid iterating through all the points to get the shape.
-		assertEquals(numPoints * 2, RepeatedPointIterator._getSleepCount());
-	}
-
 
 	@Test
 	public void testStartAndEndPos() throws Exception {

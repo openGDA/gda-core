@@ -54,8 +54,6 @@ import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.AbstractPosition;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -129,7 +127,7 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 
 		this.model = model;
 
-		final List<String> scannableNames = getScannableNames(model.getPointGenerator());
+		final List<String> scannableNames = model.getPointGenerator().getNames();
 		addLegacyPerScanMonitors(model, scannableNames);
 
 		this.scanInfo = createScanInfo(model, scannableNames);
@@ -358,17 +356,6 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 			logger.error("No such scannable ''{}''", monitorName);
 			return null;
 		}
-	}
-
-	private List<String> getScannableNames(Iterable<IPosition> gen) {
-		List<String> names = null;
-		if (gen instanceof IDeviceDependentIterable) {
-			names = ((IDeviceDependentIterable)gen).getScannableNames();
-		}
-		if (names==null) {
-			names = model.getPointGenerator().iterator().next().getNames();
-		}
-		return names;
 	}
 
 	private NexusScanInfo createScanInfo(ScanModel scanModel, List<String> scannableNames) throws ScanningException {

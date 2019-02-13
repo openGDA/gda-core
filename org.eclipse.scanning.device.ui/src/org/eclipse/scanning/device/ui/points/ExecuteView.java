@@ -470,7 +470,7 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 			styledString.append("A scan of ");
 			styledString.append((new DecimalFormat()).format(gen.size()), StyledString.COUNTER_STYLER);
 			styledString.append(" points, scanning motors: ");
-			styledString.append(getMotorNames(gen), FontStyler.BOLD);
+			styledString.append(String.join(", ", gen.getNames()), FontStyler.BOLD);
 
 			if (Activator.getDefault().getPreferenceStore().getBoolean(DevicePreferenceConstants.SHOW_SCAN_INFO)) {
 			        IPosition start = req.getStartPosition();
@@ -711,19 +711,6 @@ public class ExecuteView extends ViewPart implements ISelectionListener {
 		// We cannot find a part which has the temp information so
         // we use the server information.
 		return runnableDeviceService.getDeviceInformation();
-	}
-
-	private String getMotorNames(IPointGenerator<?> gen) {
-
-		StringBuilder buf = new StringBuilder();
-		IPosition first = gen.iterator().next();
-		for (Iterator<String> it = first.getNames().iterator(); it.hasNext();) {
-			String name = it.next();
-			buf.append(name);
-			if(it.hasNext()) buf.append(",");
-			buf.append(" ");
-		}
-		return buf.toString();
 	}
 
 	/**

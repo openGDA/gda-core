@@ -71,7 +71,7 @@ public class ScanInformation {
 				.reduce(0l, Math::max);
 		this.estimatedScanTime = this.timePerPoint * this.size;
 
-		this.scannableNames = pointGen.getFirstPoint().getNames();
+		this.scannableNames = pointGen.getNames();
 		this.filePath = filePath;
 	}
 

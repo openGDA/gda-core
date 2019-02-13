@@ -41,7 +41,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -288,17 +287,16 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	private void checkAndFixMonitors(IPointGenerator<?> gen) {
 		Collection<String> monitorNamesPerPoint = bean.getScanRequest().getMonitorNamesPerPoint();
 		Collection<String> monitorNamesPerScan = bean.getScanRequest().getMonitorNamesPerScan();
+		List<String> scannableNames = gen.getNames();
 
 		if (monitorNamesPerPoint != null) {
 			// remove any monitors
-			Collection<String> scannableNames = getScannableNames(gen);
 			monitorNamesPerPoint = monitorNamesPerPoint.stream().filter(mon -> !scannableNames.contains(mon)).collect(Collectors.toList());
 
 			bean.getScanRequest().setMonitorNamesPerPoint(monitorNamesPerPoint);
 		}
 		if (monitorNamesPerScan != null) {
 			// remove any monitors
-			Collection<String> scannableNames = getScannableNames(gen);
 			monitorNamesPerScan = monitorNamesPerScan.stream().filter(mon -> !scannableNames.contains(mon)).collect(Collectors.toList());
 
 			bean.getScanRequest().setMonitorNamesPerScan(monitorNamesPerScan);
@@ -469,18 +467,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
 		}
 		logger.debug("Configured detectors {}", dmodels.keySet());
-	}
-
-	private List<String> getScannableNames(Iterable<IPosition> gen) {
-
-		List<String> names = null;
-		if (gen instanceof IDeviceDependentIterable) {
-			names = ((IDeviceDependentIterable)gen).getScannableNames();
-		}
-		if (names==null) {
-			names = gen.iterator().next().getNames();
-		}
-		return names;
 	}
 
 	private IPointGenerator<?> createPointGenerator() throws GeneratorException {

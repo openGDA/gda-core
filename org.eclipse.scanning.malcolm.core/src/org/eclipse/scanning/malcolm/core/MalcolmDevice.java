@@ -430,7 +430,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		// get the axes to move
 		List<String> axesToMove = model.getAxesToMove();
 		if (axesToMove == null && pointGenerator != null) {
-			final List<String> scannableNames = pointGenerator.iterator().next().getNames(); // TODO get names direct from point generator when we can
+			final List<String> scannableNames = pointGenerator.getNames();
 			final List<String> availableAxes = getAvailableAxes();
 			int i = scannableNames.size() - 1;
 			while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {

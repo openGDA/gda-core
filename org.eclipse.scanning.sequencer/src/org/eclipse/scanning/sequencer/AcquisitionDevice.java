@@ -64,7 +64,6 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
 import org.eclipse.scanning.api.malcolm.event.MalcolmStepsCompletedEvent;
 import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -853,11 +852,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	}
 
 	private List<String> getScannableNames(Iterable<IPosition> gen) {
-		if (gen instanceof IDeviceDependentIterable) {
-			return ((IDeviceDependentIterable)gen).getScannableNames();
-		}
-
-		return model.getPointGenerator().iterator().next().getNames();
+		return model.getPointGenerator().getNames();
 	}
 
 	@Override

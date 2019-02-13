@@ -114,9 +114,8 @@ class CompoundGenerator extends AbstractGenerator<CompoundModel<Object>> impleme
 
 			final StringBuilder buf = new StringBuilder();
 			buf.append("A scan of "+size()+" points, ");
-			IPosition first = iterator().next();
 			buf.append("scanning motors: ");
-			for (Iterator<String> it = first.getNames().iterator(); it.hasNext();) {
+			for (Iterator<String> it = getNames().iterator(); it.hasNext();) {
 				String name = it.next();
 				buf.append(name);
 				if(it.hasNext()) buf.append(",");

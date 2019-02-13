@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
@@ -79,10 +78,6 @@ public class CompoundSpgIteratorFactory {
 
 	public CompoundSgpIterator createCompoundSpgIterator(CompoundGenerator gen) {
 		Iterator<? extends IPosition>[] iterators = initIterators(gen);
-
-		if (Arrays.stream(iterators).map(Object::getClass).anyMatch(IDeviceDependentIterable.class::isAssignableFrom)) {
-			throw new IllegalArgumentException();
-		}
 
 		final JythonObjectFactory<ScanPointIterator> compoundGeneratorFactory = ScanPointGeneratorFactory.JCompoundGeneratorFactory();
 

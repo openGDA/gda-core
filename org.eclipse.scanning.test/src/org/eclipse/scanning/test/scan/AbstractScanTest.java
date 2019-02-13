@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.scanning.api.ILevel;
@@ -39,10 +38,8 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
-import org.eclipse.scanning.api.points.IDeviceDependentIterable;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
@@ -58,7 +55,6 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.scan.mock.MockDetectorModel;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AbstractScanTest extends BrokerTest {
@@ -483,101 +479,6 @@ public class AbstractScanTest extends BrokerTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, publisher);
 		return scanner;
-	}
-
-	/**
-	 * This test creates a generator which pauses on the next() call.
-	 * This simulates motors moving and checks that nothing in the
-	 * scanning times out if this happens.
-	 *
-	 * http://jira.diamond.ac.uk/browse/DAQ-150
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	@Ignore("broken when ScanModel changed to explicity take an IPointGenerator not an Iterator<IPosition>")
-	public void testGeneratorWhichMimiksHardwareOperation() throws Exception {
-
-		final PausingIterable iterable = new PausingIterable(5);
-
-		MockDetectorModel dmodel = new MockDetectorModel();
-		dmodel.setExposureTime(0.001);
-		dmodel.setName("detector");
-		IRunnableDevice<MockDetectorModel> detector = dservice.createRunnableDevice(dmodel);
-
-
-		final ScanModel  smodel = new ScanModel();
-//		smodel.setPointGenerator(iterable); // commented out as scanModel now takes an IPointGenerator.
-		smodel.setDetectors(detector);
-		smodel.setBean(new ScanBean());
-
-		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel);
-		scanner.run(null);
-
-		// Check that using IDeviceDependentIterable, five means six - the additional call is done in ScanEstimator to get the scan rank
-		assertEquals("The iterator should be asked "+iterable.size()+" times for position and it was asked "+iterable.getTotalPositions(),
-				    iterable.size + 1, iterable.getTotalPositions());
-	}
-
-	private class PausingIterable implements Iterable<IPosition>, IDeviceDependentIterable {
-
-		private int totalPositions = 0;
-		private int size;
-
-		public PausingIterable(int i) {
-			this.size = i;
-		}
-
-		@Override
-		public Iterator<IPosition> iterator() {
-			return new Iterator<IPosition>() {
-
-				private int count = 0;
-				@Override
-				public boolean hasNext() {
-					return count<size;
-				}
-
-				@Override
-				public IPosition next() {
-					MapPosition next = new MapPosition();
-					next.put("x", count);
-					next.put("y", count);
-					++count;
-					++totalPositions;
-
-					System.out.println("Next position is "+next);
-					if (count%2==0) {
-						long amount = count*100;
-						System.out.println("Sleeping for "+amount+" while we get to it.");
-						try {
-							Thread.sleep(amount); // 200, 400
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-
-					return next;
-				}
-
-			};
-		}
-
-		public int getTotalPositions() {
-			return totalPositions;
-		}
-
-		@Override
-		public int size() {
-			return size;
-		}
-
-		@Override
-		public List<String> getScannableNames() {
-			return Arrays.asList("x", "y");
-		}
 	}
 
 }

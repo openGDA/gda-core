@@ -22,7 +22,6 @@ import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -97,9 +96,8 @@ public class SubscanModerator {
 		for (int i = orig.size()-1; i > -1; i--) {
 			Object model = orig.get(i);
 			if (!reachedOuterScan) {
-				IPointGenerator<?> g = pointGenService.createGenerator(model);
-				IPosition first = g.iterator().next();
-				List<String> names = first.getNames();
+				IPointGenerator<?> pointGen = pointGenService.createGenerator(model);
+				List<String> names = pointGen.getNames();
 				if (axes.containsAll(names)) {// These will be deal with by malcolm
 					innerModels.add(0, model);
 					continue; // The device will deal with it.

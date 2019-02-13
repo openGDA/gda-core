@@ -51,7 +51,6 @@ import org.eclipse.scanning.api.points.models.OneDStepModel;
 import org.eclipse.scanning.api.points.models.PtychographyGridModel;
 import org.eclipse.scanning.api.points.models.RandomOffsetGridModel;
 import org.eclipse.scanning.api.points.models.RasterModel;
-import org.eclipse.scanning.api.points.models.RepeatedPointModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.SpiralModel;
@@ -75,7 +74,6 @@ public class PointGeneratorService implements IPointGeneratorService {
 		gens.put(StepModel.class, StepGenerator.class);
 		gens.put(CollatedStepModel.class, CollatedStepGenerator.class);
 		gens.put(MultiStepModel.class, MultiStepGenerator.class);
-		gens.put(RepeatedPointModel.class, RepeatedPointGenerator.class);
 		gens.put(ArrayModel.class, ArrayGenerator.class);
 		gens.put(GridModel.class, GridGenerator.class);
 		gens.put(OneDEqualSpacingModel.class, OneDEqualSpacingGenerator.class);
