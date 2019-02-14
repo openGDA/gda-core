@@ -77,5 +77,10 @@ public class DriverProfileSection implements EditableWithListWidget {
 		defaultSection.setDuration(1.0);
 		return defaultSection;
 	}
+	
+	@Override
+	public String toString() {
+		return "DriverProfileSection [from " + start + " to " + stop + " in " + duration + " m]";
+	}
 
 }
