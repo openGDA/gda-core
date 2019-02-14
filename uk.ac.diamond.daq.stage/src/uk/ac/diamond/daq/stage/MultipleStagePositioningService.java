@@ -7,13 +7,7 @@ import gda.factory.Findable;
 import gda.observable.IObservable;
 
 public interface MultipleStagePositioningService extends Findable, IObservable {
-	boolean isStageEnabled (String stageName);
-	
-	List<StageConfiguration> getCurrentPositions () throws DeviceException;
-	
-	Object getPosition (String stageName) throws DeviceException, StageException;
-	
-	void setPosition (String stageName, Object position) throws DeviceException, StageException;
+	List<Stage> getCurrentStages () throws DeviceException;
 	
 	String getStageGroup ();
 }
