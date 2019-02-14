@@ -2,7 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -36,7 +36,10 @@ public class TriggerEditor implements ElementEditor {
 	private SignalSource source = SignalSource.POSITION;
 	private ExecutionPolicy mode = ExecutionPolicy.SINGLE;
 	
-	private Button sevSourceButton, timeSourceButton, oneShotButton, periodicButton;
+	private Button sevSourceButton;
+	private Button timeSourceButton;
+	private Button oneShotButton;
+	private Button periodicButton;
 	
 	private final ExperimentService experimentService;
 	private final String experimentId;
@@ -209,7 +212,7 @@ public class TriggerEditor implements ElementEditor {
 		composite.layout(true);
 	}
 	
-	public void setSevNames(List<String> sevs) {
+	public void setSevNames(Set<String> sevs) {
 		detailControl.setSevNames(sevs);
 	}
 

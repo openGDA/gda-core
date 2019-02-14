@@ -14,6 +14,7 @@ public class ExperimentPlanBean implements PlanRequest {
 
 	private String experimentDriverName;
 	private List<SegmentDescriptor> segments;
+	private String experimentDriverProfile;
 
 
 	@Override
@@ -58,4 +59,12 @@ public class ExperimentPlanBean implements PlanRequest {
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	public String getExperimentDriverProfile() {
+		return experimentDriverProfile;
+	}
+
+	public void setExperimentDriverProfile(String experimentDriverProfile) {
+		this.experimentDriverProfile = experimentDriverProfile;
+	}
 }

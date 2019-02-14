@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -42,7 +43,7 @@ public class TriggerListEditor {
 		return composite;
 	}
 	
-	public void setSevs(List<String> sevs) {
+	public void setSevs(Set<String> sevs) {
 		triggerEditor.setSevNames(sevs);
 	}
 	

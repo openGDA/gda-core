@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -84,6 +85,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	private String planName;
 	private String planDescription;
 	private Optional<IExperimentDriver> selectedDriver = Optional.empty();
+	private String driverConfiguration;
 	
 	
 	private void createExperimentDriverSection(Composite parent) {
@@ -102,7 +104,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		
 		new Label(controls, SWT.NONE); // space
 		List<Button> driverButtons = new ArrayList<>();
-		for (Map.Entry<IExperimentDriver, List<String>> experimentDriver : experimentDriverConfigurations.entrySet()) {
+		for (Map.Entry<IExperimentDriver,Set<String>> experimentDriver : experimentDriverConfigurations.entrySet()) {
 			Button button = new Button(controls, SWT.RADIO);
 			button.setText(experimentDriver.getKey().getName());
 			
@@ -122,7 +124,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		config = new Combo(controls, SWT.READ_ONLY);
 		STRETCH.applyTo(config);
 		
-		config.addListener(SWT.Selection, e -> setPageComplete(isPageComplete()));
+		config.addListener(SWT.Selection, e -> {
+			driverConfiguration = config.getText();
+			setPageComplete(isPageComplete());
+		});
 
 		
 		Composite plotComposite = new Composite(driverGroup, SWT.NONE);
@@ -152,17 +157,17 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		return (planName != null && !planName.isEmpty()) && (!useDriver.getSelection() || !config.getText().isEmpty());
 	}
 	
-	private Map<IExperimentDriver, List<String>> experimentDriverConfigurations;
+	private Map<IExperimentDriver, Set<String>> experimentDriverConfigurations;
 	
-	public void setExperimentDriverConfigurations(Map<IExperimentDriver, List<String>> configs) {
-		experimentDriverConfigurations = configs;
+	public void setExperimentDriverConfigurations(Map<IExperimentDriver, Set<String>> driverConfigs) {
+		experimentDriverConfigurations = driverConfigs;
 	}
 	
 	@Override
 	public IWizardPage getNextPage() {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
 		if (selectedDriver.isPresent()) {
-			nextPage.setSevs(selectedDriver.get().getReadouts());
+			nextPage.setSevs(selectedDriver.get().getReadoutNames());
 		}
 		return nextPage;
 	}
@@ -181,6 +186,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		} else {
 			return null;
 		}
+	}
+
+	public String getExperimentDriverProfile() {
+		return driverConfiguration;
 	}
 
 }
