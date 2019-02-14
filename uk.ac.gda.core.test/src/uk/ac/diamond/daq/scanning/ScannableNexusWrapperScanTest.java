@@ -576,7 +576,7 @@ public class ScannableNexusWrapperScanTest {
 		checkMetadataScannables(scanModel, entry);
 		checkAttributeScannable(instrument);
 
-		final IPosition pos = scanModel.getPositionIterable().iterator().next();
+		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
 
 		String dataGroupName = scanModel.getDetectors().get(0).getName();
@@ -727,7 +727,7 @@ public class ScannableNexusWrapperScanTest {
 		} while (!scannableNamesToCheck.isEmpty());
 
 		// check the metadata scannables specified in the legacy spring config are present
-		List<String> scannableNames = ((AbstractPosition) scanModel.getPositionIterable().iterator().next()).getNames();
+		List<String> scannableNames = ((AbstractPosition) scanModel.getPointGenerator().iterator().next()).getNames();
 		for (String legacyMetadataScannableName : expectedMetadataScannableNames) {
 			assertTrue(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName)
 					|| scannableNames.contains(legacyMetadataScannableName));
@@ -920,7 +920,7 @@ public class ScannableNexusWrapperScanTest {
 
 		// Create the model for a scan
 		final ScanModel scanModel = new ScanModel();
-		scanModel.setPositionIterable(gen);
+		scanModel.setPointGenerator(gen);
 		scanModel.setDetectors(detector);
 
 		IScannable<?> attributeScannable = connector.getScannable("attributes");
