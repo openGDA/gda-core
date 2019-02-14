@@ -20,7 +20,9 @@ package gda.device.detector.analyser;
 
 import java.util.Vector;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1170,7 +1172,7 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String channelString = attributeName.substring(channelToEnergyPrefix.length());
-				Quantity channel = Quantity.valueOf(channelString);
+				Amount<? extends Quantity> channel = Amount.valueOf(channelString);
 				try {
 					energy = ((IQuantityConverter) channelToEnergyConverter).toSource(channel).toString();
 					return energy;
@@ -1188,9 +1190,9 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 			}
 			if (channelToEnergyConverter != null && channelToEnergyConverter instanceof IQuantityConverter) {
 				String energyString = attributeName.substring(energyToChannelPrefix.length());
-				Quantity energy = Quantity.valueOf(energyString);
+				Amount<? extends Quantity> energy = Amount.valueOf(energyString);
 				try {
-					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getAmount();
+					long ichannel = (long) ((IQuantityConverter) channelToEnergyConverter).toTarget(energy).getEstimatedValue();
 					return Long.toString(Math.max(Math.min(ichannel, getNumberOfChannels() - 1), 0));
 				} catch (Exception e) {
 					throw new DeviceException("EpicsMCA.getAttribute exception", e);

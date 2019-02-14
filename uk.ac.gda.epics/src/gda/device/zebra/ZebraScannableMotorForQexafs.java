@@ -18,12 +18,17 @@
 
 package gda.device.zebra;
 
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+
 import java.util.concurrent.Callable;
 
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
@@ -154,16 +159,16 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 	}
 
 	public double convertEnergyToBraggAngle(double energy) throws Exception{
-		Energy energyEV = Quantity.valueOf(energy, NonSI.ELECTRON_VOLT);
-		Quantity angle = converter.toTarget(energyEV);
-		return (-1*(angle.getAmount())/1000);
+		Amount<Energy> energyEV = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
+		Amount<Angle> angle = converter.toTarget(energyEV).to(Angle.UNIT);
+		return (-1*(angle.getEstimatedValue())/1000);
 	}
 
 	public double convertBraggAngleToEnergy(double angledeg) throws Exception{
 		Unit<?> mDegree = Unit.valueOf("mDeg");
-		Quantity anglemDegree = Quantity.valueOf(Math.abs(angledeg),mDegree);
-		Quantity energyEV = converter.toSource(anglemDegree);
-		return energyEV.getAmount();
+		Amount<? extends Quantity> anglemDegree = Amount.valueOf(Math.abs(angledeg),mDegree);
+		Amount<Energy> energyEV = converter.toSource(anglemDegree).to(ELECTRON_VOLT);
+		return energyEV.getEstimatedValue();
 	}
 
 	@Override

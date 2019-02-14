@@ -20,7 +20,8 @@ package gda.device.monitor;
 
 import java.lang.reflect.Array;
 
-import org.jscience.physics.units.Unit;
+import javax.measure.unit.Unit;
+
 import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -20,7 +20,9 @@ package gda.device.scannable;
 
 import java.io.Serializable;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -419,7 +421,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 					units="";
 				}
 				if( !units.isEmpty()){
-					Quantity quantity = QuantityFactory.createFromTwoStrings("1.0", units);
+					Amount<? extends Quantity> quantity = QuantityFactory.createFromTwoStrings("1.0", units);
 					units = quantity.getUnit().toString();
 				}
 			}

@@ -18,16 +18,18 @@
 
 package gda.device.detector.analyser;
 
-import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.quantities.Dimensionless;
-import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -883,7 +885,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 			return String.format("%f %s", energy, ELECTRON_VOLT);
 		} else if (attributeName.startsWith(ENERGY_TO_CHANNEL_PREFIX)) {
 			final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
-			final double energy = Quantity.valueOf(energyString).getAmount();
+			final double energy = Amount.valueOf(energyString).getEstimatedValue();
 			return Integer.toString(getChannelForEnergy(energy));
 
 		} else if (attributeName.equals(NUMBER_OF_CHANNELS_ATTR)) {
@@ -897,7 +899,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	public double getEnergyForChannel(int channel) throws DeviceException {
 		ensureQuantityConverterExists();
 		try {
-			return channelToEnergyConverter.toSource(Dimensionless.valueOf(channel)).getAmount();
+			return channelToEnergyConverter.toSource(Amount.valueOf(channel, Unit.ONE)).getEstimatedValue();
 		} catch (Exception e) {
 			throw new DeviceException(String.format("Error getting energy for channel %d", channel), e);
 		}
@@ -906,8 +908,8 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 	public int getChannelForEnergy(double energy) throws DeviceException {
 		ensureQuantityConverterExists();
 		try {
-			final Quantity channel = channelToEnergyConverter.toTarget(Quantity.valueOf(energy, ELECTRON_VOLT));
-			return (int) Math.max(Math.min(channel.longValue(), getNumberOfChannels() - 1), 0);
+			final Amount<? extends Quantity> channel = channelToEnergyConverter.toTarget(Amount.valueOf(energy, ELECTRON_VOLT));
+			return (int) Math.max(Math.min(channel.getExactValue(), getNumberOfChannels() - 1), 0);
 		} catch (Exception e) {
 			throw new DeviceException(String.format("Error getting channel for energy %s", energy), e);
 		}

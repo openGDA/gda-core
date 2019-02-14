@@ -36,9 +36,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jscience.physics.quantities.Dimensionless;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,8 +70,8 @@ public class EpicsMCASimpleTest {
 
 	private static final Pattern ENERGY_PATTERN = Pattern.compile("4.56[0]* eV");
 
-	private static final Quantity CHANNEL_QUANTITY = Dimensionless.valueOf(CHANNEL);
-	private static final Quantity ENERGY_QUANTITY = Quantity.valueOf(ENERGY, NonSI.ELECTRON_VOLT);
+	private static final Amount<Dimensionless> CHANNEL_QUANTITY = Amount.valueOf(CHANNEL, Unit.ONE);
+	private static final Amount<Energy> ENERGY_QUANTITY = Amount.valueOf(ENERGY, NonSI.ELECTRON_VOLT);
 
 	private static final String CHANNEL_TO_ENERGY_STRING = String.format("channelToEnergy:%d", CHANNEL);
 	private static final String ENERGY_TO_CHANNEL_STRING = String.format("energyToChannel%.2f eV", ENERGY);
@@ -82,6 +86,7 @@ public class EpicsMCASimpleTest {
 	private FindableConverter channelToEnergyConverter;
 	private Factory testFactory;
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Before
 	public void setUp() throws Exception {
 		epicsDevice = createEpicsDevice();
@@ -94,20 +99,23 @@ public class EpicsMCASimpleTest {
 		// Create mock converters but don't add to finder at this point
 		channelToEnergyConverter = mock(FindableConverter.class);
 		when(channelToEnergyConverter.getName()).thenReturn(CALIBRATION_NAME);
-		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenReturn(ENERGY_QUANTITY);
-		when(channelToEnergyConverter.toTarget(any(Quantity.class))).thenAnswer(new Answer<Quantity>() {
+		when(channelToEnergyConverter.toSource(CHANNEL_QUANTITY)).thenAnswer(new Answer<Amount>() {
 			@Override
-			public Quantity answer(InvocationOnMock invocation) throws Throwable {
-				final Quantity energy = invocation.getArgumentAt(0, Quantity.class);
-				if (Math.abs(energy.getAmount() - ENERGY_QUANTITY.getAmount()) < 0.001) {
+			public Amount<? extends Quantity> answer(InvocationOnMock invocation) throws Throwable {
+				return ENERGY_QUANTITY;
+			}
+		});
+		when(channelToEnergyConverter.toTarget(any(Amount.class))).thenAnswer(new Answer<Amount>() {
+			@Override
+			public Amount<? extends Quantity> answer(InvocationOnMock invocation) throws Throwable {
+				final Amount<? extends Quantity> energy = invocation.getArgumentAt(0, Amount.class);
+				if (Math.abs(energy.getEstimatedValue() - ENERGY_QUANTITY.getEstimatedValue()) < 0.001) {
 					return CHANNEL_QUANTITY;
 				}
 				return null;
 			}
 		});
-		//thenReturn(CHANNEL_QUANTITY);
-
-		testFactory = TestHelpers.createTestFactory("EpicsMCASimpleTestFactory");
+		testFactory = TestHelpers.createTestFactory();
 		testFactory.addFindable(channelToEnergyConverter);
 		Finder.getInstance().addFactory(testFactory);
 	}
@@ -385,6 +393,7 @@ public class EpicsMCASimpleTest {
 		mcaSimpleDevice.getAttribute(CHANNEL_TO_ENERGY_STRING);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAttributeChannelToEnergyConversion() throws Exception {
 		Finder.getInstance().addFactory(testFactory);
@@ -394,9 +403,10 @@ public class EpicsMCASimpleTest {
 		assertTrue(ENERGY_PATTERN.matcher(energyAttr).matches());
 
 		// Verify that it uses the input channel number
-		final ArgumentCaptor<Quantity> quantityCaptor = ArgumentCaptor.forClass(Quantity.class);
+		@SuppressWarnings("rawtypes")
+		final ArgumentCaptor<Amount> quantityCaptor = ArgumentCaptor.forClass(Amount.class);
 		verify(channelToEnergyConverter).toSource(quantityCaptor.capture());
-		assertEquals(CHANNEL, quantityCaptor.getValue().intValue());
+		assertEquals(CHANNEL, quantityCaptor.getValue().getExactValue());
 
 		Finder.getInstance().removeAllFactories();
 	}
@@ -407,6 +417,7 @@ public class EpicsMCASimpleTest {
 		mcaSimpleDevice.getAttribute(ENERGY_TO_CHANNEL_STRING);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAttributeEnergyToChannelConversion() throws Exception {
 		Finder.getInstance().addFactory(testFactory);
@@ -415,9 +426,10 @@ public class EpicsMCASimpleTest {
 		assertEquals(CHANNEL, Integer.parseInt(channelAttr));
 
 		// Verify that it used the input energy
-		final ArgumentCaptor<Quantity> quantityCaptor = ArgumentCaptor.forClass(Quantity.class);
+		@SuppressWarnings("rawtypes")
+		final ArgumentCaptor<Amount> quantityCaptor = ArgumentCaptor.forClass(Amount.class);
 		verify(channelToEnergyConverter).toTarget(quantityCaptor.capture());
-		assertEquals(ENERGY, quantityCaptor.getValue().getAmount(), 0.001);
+		assertEquals(ENERGY, quantityCaptor.getValue().getEstimatedValue(), 0.001);
 		assertEquals(NonSI.ELECTRON_VOLT, quantityCaptor.getValue().getUnit());
 
 		Finder.getInstance().removeAllFactories();
