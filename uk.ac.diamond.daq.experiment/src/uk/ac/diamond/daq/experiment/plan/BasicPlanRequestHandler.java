@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import gda.factory.FindableBase;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
@@ -16,9 +17,9 @@ public class BasicPlanRequestHandler extends FindableBase implements PlanRequest
 	public void submit(PlanRequest planRequest) {
 		PlanRequestParser planRequestParser = new PlanRequestParser(experimentService);
 		IPlan plan = planRequestParser.parsePlanRequest(planRequest);
-		plan.start();
+		Async.submit(plan::start);
 	}
-		
+
 	public void setExperimentService(ExperimentService experimentService) {
 		this.experimentService = experimentService;
 	}
