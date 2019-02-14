@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.experiment.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,13 +15,16 @@ import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * For runtime testing and demoing until a real implementation is made
  */
-public class DummyExperimentService implements ExperimentService {
+@ServiceInterface(ExperimentService.class)
+public class DummyExperimentService extends FindableBase implements ExperimentService {
 
 	private final Map<String, ScanRequest<IROI>> scans;
 	
@@ -100,13 +104,13 @@ public class DummyExperimentService implements ExperimentService {
 
 	@Override
 	public Set<String> getScanNames(String experimentId) {
-		return scans.keySet();
+		return new HashSet<>(scans.keySet());
 	}
 	
 	@Override
 	public void saveDriverProfile(ExperimentDriverModel profile, String profileName, String driverName,
 			String experimentId) {
-		// no op
+		driverProfiles.put(profileName, profile);
 	}
 
 	@Override
@@ -116,7 +120,7 @@ public class DummyExperimentService implements ExperimentService {
 
 	@Override
 	public Set<String> getDriverProfileNames(String driverName, String experimentId) {
-		return driverProfiles.keySet();
+		return new HashSet<>(driverProfiles.keySet());
 	}
 
 }

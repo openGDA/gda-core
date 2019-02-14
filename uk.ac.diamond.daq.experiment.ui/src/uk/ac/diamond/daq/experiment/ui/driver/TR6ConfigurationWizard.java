@@ -8,6 +8,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.graphics.Point;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 
 public class TR6ConfigurationWizard extends Wizard {
 	
@@ -15,6 +16,8 @@ public class TR6ConfigurationWizard extends Wizard {
 	private IEclipseContext injectionContext;
 	
 	private String calibrationScannableName;
+	
+	private ProfileSetupPage profileSetupPage;
 	
 	public void setCalibrationScannableName(String name) {
 		this.calibrationScannableName = name;
@@ -26,7 +29,8 @@ public class TR6ConfigurationWizard extends Wizard {
 		CalibrationPage calibrationPage = ContextInjectionFactory.make(CalibrationPage.class, injectionContext);
 		calibrationPage.setScannable(Finder.getInstance().find(calibrationScannableName));
 		addPage(calibrationPage);
-		addPage(ContextInjectionFactory.make(ProfileSetupPage.class, injectionContext));
+		profileSetupPage = ContextInjectionFactory.make(ProfileSetupPage.class, injectionContext);
+		addPage(profileSetupPage);
 		addPage(ContextInjectionFactory.make(AbortConditionsPage.class, injectionContext));
 	}
 
@@ -36,7 +40,17 @@ public class TR6ConfigurationWizard extends Wizard {
 	}
 	
 	public Point getPreferredPageSize() {
-		return new Point(750, 500);
+		return new Point(750, 600);
+	}
+
+	public ExperimentDriverModel getProfile() {
+		ExperimentDriverModel model = new ExperimentDriverModel();
+		model.setProfile(profileSetupPage.getProfile());
+		return model;
+	}
+
+	public String getName() {
+		return profileSetupPage.getProfileName();
 	}
 
 }

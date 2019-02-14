@@ -2,11 +2,14 @@ package uk.ac.diamond.daq.experiment.api.driver;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
-public class DriverProfileSection implements EditableWithListWidget {
+public class DriverProfileSection implements EditableWithListWidget, Serializable {
 	
+	private static final long serialVersionUID = 689298404406092807L;
+
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	private double start;

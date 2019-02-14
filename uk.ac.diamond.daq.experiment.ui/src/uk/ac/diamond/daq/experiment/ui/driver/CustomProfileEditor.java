@@ -108,4 +108,9 @@ public abstract class CustomProfileEditor implements ProfileEditor {
 	abstract String getQuantityName();
 	abstract String getQuantityUnits();
 
+	
+	@Override
+	public List<DriverProfileSection> getProfile() {
+		return getDriverProfile();
+	}
 }

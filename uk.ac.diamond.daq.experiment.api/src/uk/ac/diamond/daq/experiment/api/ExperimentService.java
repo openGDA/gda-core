@@ -5,13 +5,14 @@ import java.util.Set;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
+import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 
 /**
  * This service allows us to save and retrieve configurations (e.g. defined scans)
  * associated with a given experiment ID.
  */
-public interface ExperimentService {
+public interface ExperimentService extends Findable {
 
 
 	/**
