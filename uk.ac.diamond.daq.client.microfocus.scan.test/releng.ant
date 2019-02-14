@@ -21,6 +21,7 @@
 				<pathelement location="${junitjar.loc}" />
 				<pathelement location="${jythonjar.loc}"/>
 				<pathelement location="${plugin.basedir}/bin" />
+				<path refid="tp.jscience4.path" />  <!-- put ahead of any plugin that exports javax.measure* packages -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
 				<pathelement location="${plugin.host.basedir}/bin" />
@@ -49,7 +50,7 @@
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress3/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.api/bin" />
-				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.datawriter/bin" />			
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.datawriter/bin" />
 				<pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
 				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
@@ -58,7 +59,6 @@
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
 				<pathelement location="${workspace.git.loc}/dawnsci.git/org.eclipse.dawnsci.hdf5/bin" />

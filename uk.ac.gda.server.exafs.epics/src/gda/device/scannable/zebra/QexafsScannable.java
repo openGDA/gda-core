@@ -18,12 +18,13 @@
 
 package gda.device.scannable.zebra;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +69,11 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected Channel maxSpeedChnl;
 	protected Channel energySwitchChnl;
 
-	protected Angle startAngle;
-	protected Angle endAngle;
-	protected Angle stepSize;
-	protected Angle runupPosition;
-	protected Angle runDownPosition;
+	protected Amount<Angle> startAngle;
+	protected Amount<Angle> endAngle;
+	protected Amount<Angle> stepSize;
+	protected Amount<Angle> runupPosition;
+	protected Amount<Angle> runDownPosition;
 
 	protected Double maxSpeed; // in deg/sec
 	protected Double desiredSpeed; // in deg/sec
@@ -86,7 +87,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected double stepIncDemDeg;
 
 
-	private Length twoDValue;
+	private Amount<Length> twoDValue;
 
 
 	@Override
@@ -109,10 +110,10 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	protected double energyToDegrees(double energy) {
-		Energy valueOf = Quantity.valueOf(energy, NonSI.ELECTRON_VOLT);
-		Angle braggAngleOf = null;
+		Amount<Energy> valueOf = Amount.valueOf(energy, NonSI.ELECTRON_VOLT);
+		Amount<Angle> braggAngleOf = null;
 		try {
-			braggAngleOf = BraggAngle.braggAngleOf(valueOf, getTwoD());
+			braggAngleOf = BraggAngle.braggAngleFromEnergy(valueOf, getTwoD());
 		} catch (Exception e) {
 			logger.error("Exception fetching Bragg angle", e);
 		}
@@ -226,14 +227,14 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		}
 	}
 
-	protected double radToDeg(Angle angle) {
-		double amount = QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
+	protected double radToDeg(Amount<Angle> angle) {
+		double amount = QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getEstimatedValue();
 		return amount;
 	}
 
-	protected double angleToEV(Angle angle) throws TimeoutException, CAException, InterruptedException {
-		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()),
-				NonSI.ELECTRON_VOLT).getAmount();
+	protected double angleToEV(Amount<Angle> angle) throws TimeoutException, CAException, InterruptedException {
+		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyFromBraggAngle(angle, getTwoD()),
+				NonSI.ELECTRON_VOLT).getEstimatedValue();
 		return amount;
 	}
 
@@ -243,17 +244,17 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
-	protected Length getTwoD() throws TimeoutException, CAException, InterruptedException {
+	protected Amount<Length> getTwoD() throws TimeoutException, CAException, InterruptedException {
 
 		if (twoDValue == null){
 			long timeAtMethodStart = System.currentTimeMillis();
 			String xtalSwitch = controller.cagetString(xtalSwitchChnl);
 			if (xtalSwitch.contains("111")) {
-				return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+				return Amount.valueOf(0.62711, SI.NANO(SI.METER));
 			} else if (xtalSwitch.contains("311")) {
-				return Quantity.valueOf(0.327, SI.NANO(SI.METER));
+				return Amount.valueOf(0.327, SI.NANO(SI.METER));
 			}
-			twoDValue = Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+			twoDValue = Amount.valueOf(0.62711, SI.NANO(SI.METER));
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in getTwoD = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		}
@@ -266,15 +267,16 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	protected void calculateMotionInDegrees() throws TimeoutException, CAException, InterruptedException {
 		long timeAtMethodStart = System.currentTimeMillis();
-		Length twoD = getTwoD();
+		Amount<Length> twoD = getTwoD();
 
-		Energy startEng = Quantity.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
-		startAngle = BraggAngle.braggAngleOf(startEng, twoD);
+		Amount<Energy> startEng = Amount.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
+		startAngle = BraggAngle.braggAngleFromEnergy(startEng, twoD);
 
-		Energy endEng = Quantity.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
-		endAngle = BraggAngle.braggAngleOf(endEng, twoD);
+		Amount<Energy> endEng = Amount.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
+		// calculate end energy from start, step increment, and number of pulses.
+		endAngle = BraggAngle.braggAngleFromEnergy(endEng, twoD);
 
-		stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
+		stepSize = (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 
 		// Calculate run up and run down
 
@@ -291,21 +293,21 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 			runUp = 2 * step;
 		}
 
-		Quantity add = QuantityFactory.createFromObject(extraRunUp, NonSI.DEGREE_ANGLE);
+		Amount<Angle> add = QuantityFactory.createFromObject(extraRunUp, NonSI.DEGREE_ANGLE);
 
-		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE).plus(add);
-		logger.debug("Run up size: " + runUpAngle.getAmount() + "deg");
+		Amount<Angle> runUpAngle = (QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE).plus(add));
+		logger.debug("Run up size: " + runUpAngle.getEstimatedValue() + "deg");
 
 		// backwards
-		if (endAngle.getAmount() > startAngle.getAmount()) {
-			runupPosition = (Angle) startAngle.minus(runUpAngle);
-			runDownPosition = (Angle) endAngle.plus(runUpAngle);
+		if (endAngle.getEstimatedValue() > startAngle.getEstimatedValue()) {
+			runupPosition = startAngle.minus(runUpAngle);
+			runDownPosition = endAngle.plus(runUpAngle);
 		}
 
 		// forwards
 		else {
-			runupPosition = (Angle) startAngle.plus(runUpAngle);
-			runDownPosition = (Angle) endAngle.minus(runUpAngle);
+			runupPosition = startAngle.plus(runUpAngle);
+			runDownPosition = endAngle.minus(runUpAngle);
 		}
 		long timeAtMethodEnd = System.currentTimeMillis();
 		logger.debug("Time spent in calculateMotionInDegrees = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");

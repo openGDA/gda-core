@@ -18,8 +18,16 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
@@ -35,12 +43,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.Unit;
+import org.jscience.physics.amount.Amount;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.quantities.BraggAngle;
@@ -59,7 +62,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	private Label numberPoints;
 	private Label avgTimePerPoint;
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
-	private Length crystal = null;
+	private Amount<Length> crystal = null;
 	private BooleanWrapper btnBothWays;
 
 	public QEXAFSParametersComposite(Composite parent, final QEXAFSParameters provider, ExpressionProvider k) {
@@ -106,13 +109,13 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 				finalEnergy.setMaximum(26000.0);
 				initialEnergy.setMinimum(2050.0);
 				initialEnergy.setMaximum(26000.0);
-				crystal = Quantity.valueOf(6.2695, NonSI.ANGSTROM);
+				crystal = Amount.valueOf(6.2695, NonSI.ANGSTROM);
 			} else if ("Si(311)".equals(dcmCrystal)) {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
 				initialEnergy.setMinimum(4000.0);
 				initialEnergy.setMaximum(40000.0);
-				crystal = Quantity.valueOf(3.275, NonSI.ANGSTROM);
+				crystal = Amount.valueOf(3.275, NonSI.ANGSTROM);
 			}
 		} else {
 			Double max = ExafsActivator.getStore()
@@ -123,7 +126,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 			finalEnergy.setMaximum(22000.0);
 			initialEnergy.setMinimum(2050.0);
 			initialEnergy.setMaximum(22000.0);
-			crystal = Quantity.valueOf(6.2695, NonSI.ANGSTROM);
+			crystal = Amount.valueOf(6.2695, NonSI.ANGSTROM);
 		}
 
 		label = new Label(this, SWT.NONE);
@@ -260,13 +263,13 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		double speedVal = provider.getSpeed();
 		double stepSizeVal = provider.getStepSize();
 		double rangeEv = finalEnergyVal - initialEnergyVal;
-		Unit<?> userUnits = QuantityFactory.createUnitFromString("eV");
-		Quantity initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
-		Angle initialAngle = BraggAngle.braggAngleOf((Energy) initialAngleQuantity, crystal);
-		Quantity finalAngleQuantity = QuantityFactory.createFromObject(finalEnergyVal, userUnits);
-		Angle finalAngle = BraggAngle.braggAngleOf((Energy) finalAngleQuantity, crystal);
+		Unit<Energy> userUnits = ELECTRON_VOLT;
+		Amount<Energy> initialAngleQuantity = QuantityFactory.createFromObject(initialEnergyVal, userUnits);
+		Amount<Angle> initialAngle = BraggAngle.braggAngleFromEnergy(initialAngleQuantity, crystal);
+		Amount<Energy> finalAngleQuantity = QuantityFactory.createFromObject(Double.valueOf(finalEnergyVal), userUnits);
+		Amount<Angle> finalAngle = BraggAngle.braggAngleFromEnergy(finalAngleQuantity, crystal);
 
-		double range = (((initialAngle.doubleValue() - finalAngle.doubleValue()) * 180) / Math.PI);
+		double range = (((initialAngle.doubleValue(Angle.UNIT) - finalAngle.doubleValue(Angle.UNIT)) * 180) / Math.PI);
 		double time = (range / speedVal) * 1000;
 		totalTime.setUnit("s");
 		if (time > 0) {

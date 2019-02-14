@@ -5,9 +5,9 @@ Bundle-SymbolicName: uk.ac.gda.server.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.gda.server.exafs.Activator
 Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.diamond.org.jscience4,
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
- uk.ac.diamond.org.jscience;bundle-version="[2.0.2,3.0.0)",
  uk.ac.gda.api,
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.lang;bundle-version="2.6.0",

@@ -20,8 +20,10 @@ package gda.device.scannable.zebra;
 
 import java.io.IOException;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.units.NonSI;
+import javax.measure.quantity.Angle;
+import javax.measure.unit.NonSI;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,7 +315,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		if (startAngle.isGreaterThan(endAngle)) {
 			frameCentre_deg = startReadback_deg - (frameCentre_offset_cts * countsPerDegree);
 		}
-		Angle frameCentre_angle = (Angle) QuantityFactory.createFromObject(frameCentre_deg, NonSI.DEGREE_ANGLE);
+		Amount<Angle> frameCentre_angle = QuantityFactory.createFromObject(frameCentre_deg, NonSI.DEGREE_ANGLE);
 		double frameCentre_eV = angleToEV(frameCentre_angle);
 		return frameCentre_eV;
 	}
