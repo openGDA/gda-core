@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,8 @@ import java.util.Set;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -24,15 +27,23 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 
 
 public class MetadataAndExperimentDriverPage extends WizardPage {
+	
+	private ExperimentService experimentService;
+	private String experimentId;
 
-	MetadataAndExperimentDriverPage() {
+	MetadataAndExperimentDriverPage(ExperimentService experimentService, String experimentId) {
 		super(MetadataAndExperimentDriverPage.class.getSimpleName());
 		setTitle("Metadata and experiment driver");
 		setDescription("Add a title and description to your plan, and select experiment driver configuration if required");
+		
+		this.experimentService = experimentService;
+		this.experimentId = experimentId;
 	}
 
 	@Override
@@ -82,6 +93,8 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	private Button useDriver;
 	private Combo config;
 	
+	IPlottingSystem<Composite> plottingSystem;
+	
 	private String planName;
 	private String planDescription;
 	private Optional<IExperimentDriver> selectedDriver = Optional.empty();
@@ -124,17 +137,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		config = new Combo(controls, SWT.READ_ONLY);
 		STRETCH.applyTo(config);
 		
-		config.addListener(SWT.Selection, e -> {
-			driverConfiguration = config.getText();
-			setPageComplete(isPageComplete());
-		});
-
-		
 		Composite plotComposite = new Composite(driverGroup, SWT.NONE);
 		fill.copy().span(2, 1).applyTo(plotComposite);
 		GridLayoutFactory.swtDefaults().applyTo(plotComposite);
 		
-		IPlottingSystem<Composite> plottingSystem;
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.createPlotPart(plotComposite, "Preview", null, PlotType.XY, null);
@@ -150,6 +156,48 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 			if (!used) selectedDriver = Optional.empty();
 			setPageComplete(!used);
 		}));
+		
+		config.addListener(SWT.Selection, e -> {
+			if (config.getText() != null && !config.getText().isEmpty()) {
+				driverConfiguration = config.getText();
+				plot(config.getText());
+			}
+			setPageComplete(isPageComplete());
+		});
+		
+	}
+	
+	private void plot(String profileName) {
+		if (!selectedDriver.isPresent()) {
+			// we should not have ended up in this method
+			return;
+		}
+		plottingSystem.clear();
+		List<DriverProfileSection> sections = experimentService.getDriverProfile(selectedDriver.get().getName(),
+																					profileName, experimentId).getProfile();
+		// create dataset from model
+		if (sections.isEmpty()) return;
+		
+		double[] x = new double[sections.size()+1];
+		double[] y = new double[sections.size()+1];
+		
+		x[0] = 0;
+		y[0] = sections.get(0).getStart();
+		
+		for (int i = 0; i < sections.size(); i++) {
+			x[i+1] = sections.get(i).getDuration() + x[i];
+			y[i+1] = sections.get(i).getStop();
+		}
+		
+		final Dataset xDataset = DatasetFactory.createFromObject(x);
+		final Dataset yDataset = DatasetFactory.createFromObject(y);
+		
+		xDataset.setName("Time (min)");
+		
+		plottingSystem.createPlot1D(xDataset, Arrays.asList(yDataset), null);
+		plottingSystem.clearAnnotations();
+		plottingSystem.setTitle("");
+		plottingSystem.setShowLegend(false);
 	}
 	
 	@Override

@@ -15,7 +15,7 @@ public class DriverProfileSection implements EditableWithListWidget {
 	
 	public DriverProfileSection() {}
 	
-	public DriverProfileSection(int start, int stop, double duration) {
+	public DriverProfileSection(double start, double stop, double duration) {
 		this.start = start;
 		this.stop = stop;
 		this.duration = duration;

@@ -1,7 +1,9 @@
 package uk.ac.diamond.daq.experiment.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +32,9 @@ public class DummyExperimentService implements ExperimentService {
 		scans.put("tr6_tomo", getTomographyScan());
 		
 		driverProfiles = new HashMap<>();
-		driverProfiles.put("trapez_30s", getProfile());
+		driverProfiles.put("trapez_30s", getProfile1());
+		driverProfiles.put("sombrero", getProfile2());
+		driverProfiles.put("saw_10_pp", getProfile3());
 	}
 
 	private ScanRequest<IROI> getDiffractionScan() {
@@ -44,13 +48,44 @@ public class DummyExperimentService implements ExperimentService {
 		return new ScanRequest<>(model, null, null, null);
 	}
 	
-	private ExperimentDriverModel getProfile() {
+	private ExperimentDriverModel getProfile1() {
 		ExperimentDriverModel profile = new ExperimentDriverModel();
 		profile.setProfile(Arrays.asList(
 				new DriverProfileSection(0, 5, 0.5),
 				new DriverProfileSection(5, 5, 0.5),
 				new DriverProfileSection(5, 0, 0.5)));
 		return profile;
+	}
+	
+	private ExperimentDriverModel getProfile2() {
+		ExperimentDriverModel profile = new ExperimentDriverModel();
+		double tenSeconds = 10 / 60.0;
+		profile.setProfile(Arrays.asList(
+				new DriverProfileSection(0, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 5, tenSeconds),
+				new DriverProfileSection(5, 5, tenSeconds),
+				new DriverProfileSection(5, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 2.5, tenSeconds),
+				new DriverProfileSection(2.5, 0, tenSeconds)));
+		return profile;
+	}
+	
+	private ExperimentDriverModel getProfile3() {
+		ExperimentDriverModel model = new ExperimentDriverModel();
+		
+		List<DriverProfileSection> singlePeriod = Arrays.asList(
+													new DriverProfileSection(5, 10, 0.1),
+													new DriverProfileSection(10, 5, 0.1));
+		
+		List<DriverProfileSection> wholeProfile = new ArrayList<>();
+		
+		for (int period = 0; period < 10; period++) {
+			wholeProfile.addAll(singlePeriod);
+		}
+		
+		model.setProfile(wholeProfile);
+		return model;
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public class PlanSetupWizard extends Wizard {
 			driverConfigs.put(driver.getValue(), experimentService.getDriverProfileNames(driver.getKey(), experimentId));
 		}
 		
-		metadataAndDriverPage = new MetadataAndExperimentDriverPage();
+		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentService, experimentId);
 		metadataAndDriverPage.setExperimentDriverConfigurations(driverConfigs);
 		addPage(metadataAndDriverPage);
 		
