@@ -32,7 +32,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegmentAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
@@ -410,7 +410,7 @@ public class PlanTest {
 	class TestFactory extends PlanFactory {
 
 		@Override
-		public ISampleEnvironmentVariable addSEV(SEVSignal signalProvider) {
+		public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
 			return sev;
 		}
 

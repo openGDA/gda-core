@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
@@ -44,7 +44,7 @@ public class SegmentListEditor {
 		return composite;
 	}
 	
-	public void setSevs(Map<String, SEVSignal> sevs) {
+	public void setSevs(Map<String, SignalSource> sevs) {
 		segmentEditor.setSevNames(sevs.keySet().stream().collect(Collectors.toList()));
 	}
 	

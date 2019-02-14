@@ -10,7 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.segment.SegmentListEditor;
 
@@ -37,7 +37,7 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		setControl(composite);
 	}
 	
-	public void setSevs(Map<String, SEVSignal> sevs) {
+	public void setSevs(Map<String, SignalSource> sevs) {
 		segments.setSevs(sevs);
 	}
 

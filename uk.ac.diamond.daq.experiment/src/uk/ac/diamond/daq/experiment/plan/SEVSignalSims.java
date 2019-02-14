@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
  * SEV Signal simulations for testing. Exists in this package
@@ -28,8 +28,8 @@ public class SEVSignalSims {
 	 * @param step (negative for decreasing signal)
 	 * @return
 	 */
-	public static SEVSignal linearEvolution(double start, double step) {
-		return new SEVSignal() {
+	public static SignalSource linearEvolution(double start, double step) {
+		return new SignalSource() {
 			
 			private double position = start;
 			
@@ -55,8 +55,8 @@ public class SEVSignalSims {
 	 * @param scannable
 	 * @return
 	 */
-	public static SEVSignal fromScannable(Scannable scannable) {
-		return new SEVSignal() {
+	public static SignalSource fromScannable(Scannable scannable) {
+		return new SignalSource() {
 			private Scannable input = scannable;
 			@Override
 			public double read() {
@@ -82,8 +82,8 @@ public class SEVSignalSims {
 	 * @param function 
 	 * @return
 	 */
-	public static SEVSignal fromFunction(Function<Double, Double> function) {
-		return new SEVSignal() {
+	public static SignalSource fromFunction(Function<Double, Double> function) {
+		return new SignalSource() {
 			
 			private Double x = 0.0;
 			

@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Findable;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
-public class ScannableSEVSignal implements SEVSignal, Findable {
+public class ScannableSignalSource implements SignalSource, Findable {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ScannableSEVSignal.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScannableSignalSource.class);
 	private String name;
 	private Scannable scannable;
 

@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
- * Instances of this class will sample a {@link SEVSignal} at a specified frequency, and
+ * Instances of this class will sample a {@link SignalSource} at a specified frequency, and
  * when the signal changes significantly (i.e. change >= tolerance), will notify its {@link SEVListener}s.
  * It will stop sampling if there are no listeners registered.
  *
@@ -23,7 +23,7 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SampleEnvironmentVariable.class);
 	
-	private SEVSignal signalProvider;
+	private SignalSource signalProvider;
 	private Set<SEVListener> listeners;
 	private boolean enabled;
 	private double lastPosition;
@@ -32,11 +32,11 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	/**
 	 * @param signalProvider
 	 */
-	SampleEnvironmentVariable(SEVSignal signalProvider) {
+	SampleEnvironmentVariable(SignalSource signalProvider) {
 		this(signalProvider, 0.01);
 	}
 	
-	public SampleEnvironmentVariable(SEVSignal signalProvider, double tolerance) {
+	public SampleEnvironmentVariable(SignalSource signalProvider, double tolerance) {
 		this.signalProvider = signalProvider;
 		this.lastPosition = signalProvider.read();
 		this.tolerance = tolerance;

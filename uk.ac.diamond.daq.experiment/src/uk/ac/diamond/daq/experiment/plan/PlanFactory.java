@@ -9,7 +9,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
@@ -21,7 +21,7 @@ public class PlanFactory implements IPlanFactory {
 	private ISampleEnvironmentVariable timer;
 
 	@Override
-	public ISampleEnvironmentVariable addSEV(SEVSignal signalProvider) {
+	public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
 		return new SampleEnvironmentVariable(signalProvider);
 	}
 	

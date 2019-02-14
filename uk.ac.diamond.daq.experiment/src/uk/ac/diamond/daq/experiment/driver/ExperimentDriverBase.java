@@ -13,13 +13,13 @@ import uk.ac.diamond.daq.experiment.api.driver.AbortCondition;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 public abstract class ExperimentDriverBase implements IExperimentDriver {
 	
 	private String name;
 	
-	private Map<String, SEVSignal> readouts;
+	private Map<String, SignalSource> readouts;
 	private ExperimentDriverModel model = new ExperimentDriverModel();
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
@@ -45,12 +45,12 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		return model;
 	}
 	
-	public void setReadouts(Map<String, SEVSignal> readouts) {
+	public void setReadouts(Map<String, SignalSource> readouts) {
 		this.readouts = readouts;
 	}
 
 	@Override
-	public Map<String, SEVSignal> getReadouts() {
+	public Map<String, SignalSource> getReadouts() {
 		return readouts;
 	}
 	
