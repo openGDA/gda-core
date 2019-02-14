@@ -831,7 +831,7 @@ public class GDAJythonInterpreter {
 			// Try and get existing object from namespace
 			PyObject obj = get(new PyString(key), Py.None);
 			// Check if it's a scannable
-			if (!Py.None.equals(obj) && obj.__tojava__(Scannable.class) != Py.NoConversion) {
+			if (obj != Py.None && obj.__tojava__(Scannable.class) != Py.NoConversion) {
 				if (overwriting.enabled()) {
 					logger.debug("Overwriting scannable '{}' with '{}'", key, value);
 				} else {
