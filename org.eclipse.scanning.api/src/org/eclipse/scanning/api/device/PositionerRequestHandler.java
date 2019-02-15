@@ -62,6 +62,7 @@ public class PositionerRequestHandler implements IRequestHandler<PositionerReque
 
 			} else if (request.getPositionType()==PositionRequestType.ABORT) {
 				positioner.abort();
+				positioners.remove(request.getUniqueId()); // positioners can no longer be used after calling abort
 			}else if (request.getPositionType()==PositionRequestType.CLOSE) {
 				positioner.close();
 			}

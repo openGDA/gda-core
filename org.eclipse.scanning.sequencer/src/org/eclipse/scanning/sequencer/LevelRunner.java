@@ -59,7 +59,7 @@ abstract class LevelRunner<L extends ILevel> {
 	private static Logger logger = LoggerFactory.getLogger(LevelRunner.class);
 
 	protected IPosition position;
-	private volatile ForkJoinPool eservice; // Different threads may nullify the service, better to make volatile.
+	private final ForkJoinPool executorService;
 	private ScanningException abortException;
 	private PositionDelegate pDelegate;
 	private boolean levelCachingAllowed = true;
@@ -74,6 +74,9 @@ abstract class LevelRunner<L extends ILevel> {
 
 	protected LevelRunner(INameable device) {
 		pDelegate = new PositionDelegate(device);
+
+		// Slightly faster than thread pool executor @see ScanAlgorithmBenchMarkTest
+		executorService = new ForkJoinPool();
 	}
 
 	/**
@@ -151,13 +154,6 @@ abstract class LevelRunner<L extends ILevel> {
 		final Map<Integer, AnnotationManager> managerMap = getLevelOrderedManagerMap(positionMap);
 
 		try {
-			// TODO Should we actually create the service size to the size
-			// of the largest level population? This would mean that you try to
-			// start everything at the same time.
-			if (eservice == null) {
-				this.eservice = createService();
-			}
-
 			final Integer finalLevel = 0;
 			for (Iterator<Integer> it = positionMap.keySet().iterator(); it.hasNext();) {
 
@@ -180,13 +176,13 @@ abstract class LevelRunner<L extends ILevel> {
 					// The last one and we are non-blocking
 					logger.debug("Starting non-blocking scan for level {}", level);
 					for (Callable<IPosition> callable : tasks) {
-						eservice.submit(callable);
+						executorService.submit(callable);
 					}
 				} else {
 					// Normally we block until done.
 					// Blocks until level has run
 					logger.debug("Starting blocking scan for level {}", level);
-					final List<Future<IPosition>> taskFutures = eservice.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS);
+					final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
 
 					// Check first for abort exception
 					if (abortException != null) {
@@ -266,16 +262,11 @@ abstract class LevelRunner<L extends ILevel> {
 		if (abortException != null) {
 			throw abortException;
 		}
-		if (eservice == null) {
-			logger.debug("await(): eservice is null");
+		if (executorService.isTerminated()) {
+			logger.warn("await() called when executorService is terminated");
 			return position;
 		}
-		if (eservice.isTerminated()) {
-			logger.debug("await(): eservice is terminated");
-			eservice = null;
-			return position;
-		}
-		if (!eservice.awaitQuiescence(time, TimeUnit.SECONDS)) { // Might have nullified service during wait.
+		if (!executorService.awaitQuiescence(time, TimeUnit.SECONDS)) { // Might have nullified service during wait.
 			final String message = String.format("The timeout of %d seconds has been reached waiting for the scan to complete, scan aborting.", timeout);
 			logger.error(message);
 			throw new ScanningException(message);
@@ -314,9 +305,8 @@ abstract class LevelRunner<L extends ILevel> {
 		logger.debug(message, ne); // Just for testing we make sure that the stack is visible.
 		abortException = ne instanceof ScanningException ? (ScanningException) ne
 				: new ScanningException(ne.getMessage(), ne);
-		if (eservice != null) {
-			eservice.shutdownNow();
-			eservice = null;
+		if (!executorService.isShutdown()) {
+			executorService.shutdownNow();
 		}
 	}
 
@@ -324,17 +314,16 @@ abstract class LevelRunner<L extends ILevel> {
 	 * Attempts to close the thread pool and log exceptions
 	 */
 	public void close() {
-		if (eservice == null) {
-			return; // We are already finished
-		}
 		try {
-			eservice.shutdown();
-			eservice.awaitTermination(getTimeout(), TimeUnit.SECONDS);
+			if (!executorService.isShutdown()) {
+				executorService.shutdownNow();
+			}
+			if (!executorService.isTerminated()) {
+				executorService.awaitTermination(getTimeout(), TimeUnit.SECONDS);
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			logger.debug("Unexpected forced termination of pool", e);
-		} finally {
-			eservice = null;
 		}
 	}
 
@@ -395,16 +384,6 @@ abstract class LevelRunner<L extends ILevel> {
 			sortedManagers = new SoftReference<>(ret);
 		}
 		return ret;
-	}
-
-	private ForkJoinPool createService() {
-		// TODO Need spring config for this.
-		Integer processors = Integer.getInteger("org.eclipse.scanning.level.runner.pool.count");
-		if (processors == null || processors < 1) {
-			processors = Runtime.getRuntime().availableProcessors();
-		}
-		return new ForkJoinPool(processors);
-		// Slightly faster than thread pool executor @see ScanAlgorithmBenchMarkTest
 	}
 
 	public void addPositionListener(IPositionListener listener) {

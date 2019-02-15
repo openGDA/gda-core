@@ -283,14 +283,6 @@ public class LevelRunnerTest {
 	}
 
 	@Test
-	public void testResetClearsException() throws Exception {
-		runner.setDevices(asList(level5a, level5b));
-		runner.abortWithError(scan, position, new ScanningException("Test scan failure"));
-		runner.reset();
-		runner.run(position);
-	}
-
-	@Test
 	public void testCreateEmptyRunner() throws Exception {
 		final IPosition position = mock(IPosition.class);
 		final ILevel levelObject = mock(ILevel.class);

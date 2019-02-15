@@ -105,23 +105,6 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	}
 
 	@Test
-	public void testThatAbortDoesNotChangeHardware() throws Exception {
-
-		IPositioner pos1 = dservice.createPositioner("test");
-		if (rservice==null) rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
-		IPositioner pos2 = rservice.createPositioner("test");
-		pos1.setPosition(new MapPosition("x", 0, 0));
-		pos2.setPosition(new MapPosition("x", 0, 0));
-
-		pos1.setPosition(new MapPosition("x", 0, 10)); // Should take 1 seconds
-		pos2.abort();
-
-		assertTrue(pos2.getPosition().getValue("x")==10); // Should reach 10 despite abort because setPosition is blocking.
-
-	}
-
-	// TODO Why does this pass locally an not on travis?
-	//@Test
 	public void testDeviceNames() throws Exception {
 
 		Collection<String> names1 = dservice.getRunnableDeviceNames();
