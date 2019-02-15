@@ -237,16 +237,21 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	private void runScanBlocking(IDeviceController controller, ScanModel scanModel)
 			throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException, EventException {
-		logger.debug("Running blocking controller {}", controller.getName());
+		logger.debug("Running blocking scan {}", scanModel.getFilePath());
 		updateBean(Status.RUNNING, "Starting scan");
-		controller.getDevice().run(null); // Runs until done
 
-		if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEndPosition() != null) {
-			updateBean(Status.FINISHING, null);
-			// Run a script, if any has been requested
-			runScript(bean.getScanRequest().getAfterScript(), scanModel);
-			// move to the end position, if one is set
-			setPosition(bean.getScanRequest().getEndPosition(), "end");
+		try {
+			controller.getDevice().run(null); // Runs until done
+
+			if (bean.getScanRequest().getAfterScript() != null || bean.getScanRequest().getEndPosition() != null) {
+				updateBean(Status.FINISHING, null);
+				// Run a script, if any has been requested
+				runScript(bean.getScanRequest().getAfterScript(), scanModel);
+				// move to the end position, if one is set
+				setPosition(bean.getScanRequest().getEndPosition(), "end");
+			}
+		} finally {
+			logger.debug("Finished running blocking scan {}", scanModel.getFilePath());
 		}
 	}
 

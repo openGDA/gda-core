@@ -638,8 +638,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			throw new ScanningException(this, "Internal Error - Could not obtain lock to run device!");
 		}
 		try {
-			if (!getDeviceState().isRunning() && getDeviceState() != DeviceState.ARMED) {
-				throw new ScanningException("The scan state is " + getDeviceState());
+			if (!(getDeviceState().isRunning() || getDeviceState() == DeviceState.ARMED)) {
+				throw new IllegalStateException("Unexpected scan state: " + getDeviceState());
 			}
 			if (awaitPaused) {
 				// the await paused is the flag set to indicate we should pause
@@ -659,6 +659,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 				getScanBean().setPreviousStatus(getScanBean().getStatus());
 				if (getDeviceState().isRestState()) {
 					getScanBean().setStatus(Status.TERMINATED);
+					logger.info("Scan set to terminated");
 				} else {
 					// Set the status to resumed and run any methods annotated with 'ScanResume'
 					getScanBean().setStatus(Status.RESUMED);
@@ -680,10 +681,10 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	public void abort() throws ScanningException, InterruptedException {
 		logger.debug("abort() called");
 		doWorkWithStateChangeLock(this::abortInternal, null, "abort", false, true);
+		logger.debug("abort() exiting");
 	}
 
 	private void abortInternal() throws ScanningException, InterruptedException{
-
 		setDeviceState(DeviceState.ABORTING);
 		positioner.abort();
 		writers.abort();
@@ -707,6 +708,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	public void pause() throws ScanningException, InterruptedException {
 		logger.debug("pause() called");
 		doWorkWithStateChangeLock(this::pauseInternal, DeviceState.RUNNING, "pause", true, false);
+		logger.debug("pause() exiting");
 	}
 
 	private void pauseInternal() throws ScanningException, InterruptedException {
@@ -733,6 +735,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// position. Therefore we do not need a subscan moderator but can run the iterator
 		// to the point
 		doWorkWithStateChangeLock(()-> seekInternal(stepNumber), DeviceState.PAUSED, "seek", true, false);
+		logger.debug("seek() exiting");
 	}
 
 	private void seekInternal(int stepNumber) throws ScanningException, InterruptedException {
@@ -751,6 +754,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	public void resume() throws ScanningException, InterruptedException {
 		logger.debug("resume() called");
 		doWorkWithStateChangeLock(this::resumeInternal, DeviceState.PAUSED, "resume", false, true);
+		logger.debug("resume() exit");
 	}
 
 	private void resumeInternal() throws ScanningException, InterruptedException {

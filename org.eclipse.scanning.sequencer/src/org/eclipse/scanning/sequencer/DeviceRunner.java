@@ -119,10 +119,10 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 				}
 				logger.debug("Starting to run detector {}", detector.getName());
 				detector.run(position);
-				logger.debug("Finished running detector {}", detector.getName());
 			} catch (Exception ne) {
 				abortWithError(detector, position, ne);
 			} finally {
+				logger.debug("Finished running detector {}", detector.getName());
 				if (detector instanceof AbstractRunnableDevice) {
 					((AbstractRunnableDevice<?>) detector).setBusy(false);
 				}

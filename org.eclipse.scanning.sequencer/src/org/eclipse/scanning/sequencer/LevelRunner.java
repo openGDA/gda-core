@@ -169,7 +169,7 @@ abstract class LevelRunner<L extends ILevel> {
 		 * return the last run position while returning the last-1 run position. Position is a best guess of what
 		 * position happened.
 		 */
-		logger.debug("Starting scan for {}", loc);
+		logger.debug("running {} for position {}", getLevelRole(), loc);
 		this.position = loc;
 		if (!pDelegate.firePositionWillPerform(loc)) {
 			return false;
@@ -199,14 +199,14 @@ abstract class LevelRunner<L extends ILevel> {
 				managerMap.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
 				if (!it.hasNext() && !block) {
 					// The last one and we are non-blocking
-					logger.debug("Starting non-blocking scan for level {}", level);
+					logger.debug("running non-blocking {} tasks for level {}", getLevelRole(), level);
 					for (Callable<IPosition> callable : tasks) {
 						executorService.submit(callable);
 					}
 				} else {
 					// Normally we block until done.
 					// Blocks until level has run
-					logger.debug("Starting blocking scan for level {}", level);
+					logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
 					final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
 
 					// Check first for abort exception
@@ -218,8 +218,10 @@ abstract class LevelRunner<L extends ILevel> {
 					final List<Future<IPosition>> cancelledTasks = taskFutures.stream()
 							.filter(Future::isCancelled)
 							.collect(toList());
-					if (!cancelledTasks.isEmpty()) {
-						logger.error("Timeout error at level {}", level);
+					if (cancelledTasks.isEmpty()) {
+						logger.debug("Finished performing {} tasks at level {}", getLevelRole(), level);
+					} else {
+						logger.error("Timeout performing {} tasks at level {}", getLevelRole(), level);
 
 						// You cannot get the original task from a Future, so use a map to identify the scannables whose
 						// tasks have been cancelled
@@ -255,7 +257,6 @@ abstract class LevelRunner<L extends ILevel> {
 			throw new ScanningException("Scanning interrupted while moving to new position!", e);
 		}
 
-		logger.debug("Finished scan for {}", loc);
 		return true;
 	}
 
