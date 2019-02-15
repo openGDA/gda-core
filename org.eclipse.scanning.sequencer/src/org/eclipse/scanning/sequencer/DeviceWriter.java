@@ -19,7 +19,6 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
-import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  *
@@ -47,7 +46,7 @@ final class DeviceWriter extends DeviceRunner {
 	}
 
 	@Override
-	protected Callable<IPosition> create(IRunnableDevice<?> device, IPosition position) throws ScanningException {
+	protected Callable<IPosition> createTask(IRunnableDevice<?> device, IPosition position) {
 		if (device instanceof IWritableDetector<?>) {
 			return new WriteTask((IWritableDetector<?>)device, position);
 		}

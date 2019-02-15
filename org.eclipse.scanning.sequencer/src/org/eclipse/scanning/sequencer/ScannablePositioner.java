@@ -112,7 +112,7 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 	}
 
 	@Override
-	protected Callable<IPosition> create(IScannable<?> scannable, IPosition position) throws ScanningException {
+	protected Callable<IPosition> createTask(IScannable<?> scannable, IPosition position) {
 		return new MoveTask(scannable, position);
 	}
 

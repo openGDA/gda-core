@@ -105,7 +105,7 @@ class ExposureTimeManager extends LevelRunner<IRunnableDevice<?>> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Callable<IPosition> create(IRunnableDevice<?> device, IPosition position) throws ScanningException {
+	protected Callable<IPosition> createTask(IRunnableDevice<?> device, IPosition position) {
 		return new ExposureTimeTask((IRunnableDevice<IDetectorModel>)device, position);
 	}
 

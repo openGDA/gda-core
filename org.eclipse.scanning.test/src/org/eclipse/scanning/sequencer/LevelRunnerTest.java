@@ -292,7 +292,7 @@ public class LevelRunnerTest {
 		assertTrue(emptyRunner.run(position));
 		assertEquals(position, emptyRunner.await());
 		assertTrue(emptyRunner.getDevices().isEmpty());
-		assertNull(emptyRunner.create(levelObject, position));
+		assertNull(emptyRunner.createTask(levelObject, position));
 		assertNull(emptyRunner.getLevelRole());
 	}
 
@@ -319,7 +319,7 @@ public class LevelRunnerTest {
 		}
 
 		@Override
-		protected Callable<IPosition> create(ILevel levelObject, IPosition position) throws ScanningException {
+		protected Callable<IPosition> createTask(ILevel levelObject, IPosition position) {
 			final TestTask task = new TestTask(levelObject, position);
 
 			// Register the create

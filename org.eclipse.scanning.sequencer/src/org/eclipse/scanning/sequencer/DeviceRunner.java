@@ -22,7 +22,6 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +88,7 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 	}
 
 	@Override
-	protected Callable<IPosition> create(IRunnableDevice<?> detector, IPosition position) throws ScanningException {
+	protected Callable<IPosition> createTask(IRunnableDevice<?> detector, IPosition position) {
 		return new RunTask(detector, position);
 	}
 

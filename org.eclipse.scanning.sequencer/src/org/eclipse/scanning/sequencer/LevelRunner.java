@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -33,6 +34,8 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -69,8 +72,8 @@ abstract class LevelRunner<L extends ILevel> {
 	private ScanningException abortException;
 	private boolean levelCachingAllowed = true;
 
-	private SoftReference<Map<Integer, List<L>>> sortedObjects;
-	private SoftReference<Map<Integer, AnnotationManager>> sortedManagers;
+	private SoftReference<Map<Integer, List<L>>> devicesByLevel;
+	private SoftReference<Map<Integer, AnnotationManager>> annotationManagers;
 
 	/**
 	 * The timeout (in seconds) is overridden by some subclasses.
@@ -120,10 +123,8 @@ abstract class LevelRunner<L extends ILevel> {
 	 *            scannables, not just the one in the levelObject parameter
 	 * @return a callable that returns the position reached once it has finished running. May return null to do no work
 	 *         for a given create level.
-	 *
-	 * @throws ScanningException
 	 */
-	protected abstract Callable<IPosition> create(L levelObject, IPosition position) throws ScanningException;
+	protected abstract Callable<IPosition> createTask(L levelObject, IPosition position);
 
 	/**
 	 * @return The role of the objects at this level. See {@link org.eclipse.scanning.api.scan.LevelRole}
@@ -159,10 +160,7 @@ abstract class LevelRunner<L extends ILevel> {
 	 *             if the value cannot be set for any other reason
 	 */
 	protected boolean run(IPosition loc, boolean block) throws ScanningException {
-
-		if (abortException != null) {
-			throw abortException;
-		}
+		if (abortException != null) throw abortException;
 
 		/**
 		 * NOTE: The position is passed down to run in the thread pool. A subsequent run and await could in theory
@@ -175,76 +173,27 @@ abstract class LevelRunner<L extends ILevel> {
 			return false;
 		}
 
-		final Map<Integer, List<L>> positionMap = getLevelOrderedDevices();
-		final Map<Integer, AnnotationManager> managerMap = getLevelOrderedManagerMap(positionMap);
+		final Map<Integer, List<L>> devicesByLevel = getDevicesByLevel();
+		final Map<Integer, AnnotationManager> annotationManagersByLevel = getAnnotationManagersByLevel(devicesByLevel);
 
 		try {
 			final Integer finalLevel = 0;
-			for (Iterator<Integer> it = positionMap.keySet().iterator(); it.hasNext();) {
+			for (Iterator<Integer> levelIterator = devicesByLevel.keySet().iterator(); levelIterator.hasNext();) {
+				if (abortException != null) throw abortException; // check aborted
 
-				if (abortException != null) {
-					throw abortException;
-				}
+				final int level = levelIterator.next();
+				final List<L> devicesForLevel = devicesByLevel.get(level);
+				final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
 
-				final int level = it.next();
-				final List<L> lobjects = positionMap.get(level);
-				final List<Callable<IPosition>> tasks = new ArrayList<>(lobjects.size());
-				for (L lobject : lobjects) {
-					final Callable<IPosition> c = create(lobject, loc);
-					if (c != null) { // legal to say that there is nothing to do for a given object.
-						tasks.add(c);
-					}
-				}
+				annotationManagersByLevel.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
 
-				managerMap.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
-				if (!it.hasNext() && !block) {
-					// The last one and we are non-blocking
-					logger.debug("running non-blocking {} tasks for level {}", getLevelRole(), level);
-					for (Callable<IPosition> callable : tasks) {
-						executorService.submit(callable);
-					}
+				if (block || levelIterator.hasNext()) {
+					runLevelBlocking(loc, level, devicesForLevel, tasks);
 				} else {
-					// Normally we block until done.
-					// Blocks until level has run
-					logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
-					final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
-
-					// Check first for abort exception
-					if (abortException != null) {
-						throw abortException;
-					}
-
-					// If timed out, some tasks will have been cancelled
-					final List<Future<IPosition>> cancelledTasks = taskFutures.stream()
-							.filter(Future::isCancelled)
-							.collect(toList());
-					if (cancelledTasks.isEmpty()) {
-						logger.debug("Finished performing {} tasks at level {}", getLevelRole(), level);
-					} else {
-						logger.error("Timeout performing {} tasks at level {}", getLevelRole(), level);
-
-						// You cannot get the original task from a Future, so use a map to identify the scannables whose
-						// tasks have been cancelled
-						final Map<Future<IPosition>, L> taskMap = new HashMap<>(tasks.size());
-						for (int i = 0; i < tasks.size(); i++) {
-							taskMap.put(taskFutures.get(i), lobjects.get(i));
-						}
-
-						final StringBuilder messageBuilder = new StringBuilder();
-						messageBuilder.append("The timeout of ").append(timeout)
-								.append("s has been reached waiting for level ").append(level)
-								.append(" device(s): ");
-						for (Future<IPosition> taskFuture : cancelledTasks) {
-
-							messageBuilder.append(taskMap.get(taskFuture).toString()).append(", ");
-						}
-						final String message = messageBuilder.toString().replaceAll(", $", "");
-						logger.error(message);
-						throw new ScanningException(message);
-					}
-					pDelegate.fireLevelPerformed(level, lobjects, getPosition(loc, taskFutures));
+					runLevelNonBlocking(level, tasks);
 				}
-				managerMap.get(level).invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, lobjects));
+
+				annotationManagersByLevel.get(level).invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
 			}
 
 			pDelegate.firePositionPerformed(finalLevel, loc);
@@ -258,6 +207,54 @@ abstract class LevelRunner<L extends ILevel> {
 		}
 
 		return true;
+	}
+
+	private void runLevelBlocking(IPosition loc, final int level,
+			final List<L> devicesForLevel, final List<Callable<IPosition>> tasks)
+			throws InterruptedException, ScanningException, ExecutionException {
+			// Normally we block until done.
+			logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
+			final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
+			checkForCancelledTasks(level, devicesForLevel, taskFutures); // any timed-out tasks will have been cancelled
+			pDelegate.fireLevelPerformed(level, devicesForLevel, getPosition(loc, taskFutures));
+	}
+
+	private void runLevelNonBlocking(final int level, final List<Callable<IPosition>> tasks) {
+		// The last one and we are non-blocking
+		logger.debug("running non-blocking {} tasks for level {}", getLevelRole(), level);
+		for (Callable<IPosition> callable : tasks) {
+			executorService.submit(callable);
+		}
+	}
+
+	private void checkForCancelledTasks(final int level, final List<L> devicesForLevel,
+			final List<Future<IPosition>> taskFutures) throws ScanningException {
+		// Check first for abort exception
+		if (abortException != null) throw abortException;
+
+		// Tasks that were not complete by the timeout will have been cancelled by the ExecutorService
+		if (taskFutures.stream().anyMatch(Future::isCancelled)) {
+			logger.error("Timeout performing {} tasks at level {}", getLevelRole(), level);
+			String message = getTimeoutMessage(level, devicesForLevel, taskFutures);
+			logger.error(message);
+			throw new ScanningException(message);
+		} else {
+			logger.debug("Finished performing {} tasks at level {}", getLevelRole(), level);
+		}
+	}
+
+	private String getTimeoutMessage(final int level, final List<L> devices, final List<Future<IPosition>> taskFutures) {
+		Stream<String> timedOutDeviceStrings = IntStream.range(0, devices.size())
+				.filter(i -> taskFutures.get(i).isCancelled())
+				.mapToObj(devices::get)
+				.map(Object::toString);
+
+		return String.format("The timeout of %ds has been reached waiting for level %d device(s): %s",
+				timeout, level, String.join(", ", (Iterable<String>) timedOutDeviceStrings::iterator));
+	}
+
+	private List<Callable<IPosition>> createTasks(List<L> devices, IPosition location) {
+		return devices.stream().map(obj -> createTask(obj, location)).filter(Objects::nonNull).collect(toList());
 	}
 
 	/**
@@ -359,9 +356,9 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @return the ordered scannables
 	 * @throws ScanningException
 	 */
-	private Map<Integer, List<L>> getLevelOrderedDevices() throws ScanningException {
-		if (sortedObjects != null && sortedObjects.get() != null) {
-			return sortedObjects.get();
+	private Map<Integer, List<L>> getDevicesByLevel() throws ScanningException {
+		if (devicesByLevel != null && devicesByLevel.get() != null) {
+			return devicesByLevel.get();
 		}
 
 		final Collection<L> devices = getDevices();
@@ -380,27 +377,27 @@ abstract class LevelRunner<L extends ILevel> {
 			devicesByLevel.get(level).add(object);
 		}
 		if (levelCachingAllowed) {
-			sortedObjects = new SoftReference<>(devicesByLevel);
+			this.devicesByLevel = new SoftReference<>(devicesByLevel);
 		}
 
 		return devicesByLevel;
 	}
 
-	private Map<Integer, AnnotationManager> getLevelOrderedManagerMap(Map<Integer, List<L>> positionMap) {
+	private Map<Integer, AnnotationManager> getAnnotationManagersByLevel(Map<Integer, List<L>> devicesByLevel) {
 
-		if (sortedManagers != null && sortedManagers.get() != null) {
-			return sortedManagers.get();
+		if (annotationManagers != null && annotationManagers.get() != null) {
+			return annotationManagers.get();
 		}
 
 		final Map<Integer, AnnotationManager> ret = new HashMap<>();
-		for (Entry<Integer, List<L>> posEntry : positionMap.entrySet()) {
+		for (Entry<Integer, List<L>> posEntry : devicesByLevel.entrySet()) {
 			// Less annotations is more efficient
 			final Integer pos = posEntry.getKey();
 			ret.put(pos, new AnnotationManager(SequencerActivator.getInstance(), LevelStart.class, LevelEnd.class));
 			ret.get(pos).addDevices(posEntry.getValue());
 		}
 		if (levelCachingAllowed) {
-			sortedManagers = new SoftReference<>(ret);
+			annotationManagers = new SoftReference<>(ret);
 		}
 		return ret;
 	}
@@ -448,7 +445,7 @@ abstract class LevelRunner<L extends ILevel> {
 			}
 
 			@Override
-			protected Callable<IPosition> create(T levelObject, IPosition position) throws ScanningException {
+			protected Callable<IPosition> createTask(T levelObject, IPosition position) {
 				return null;
 			}
 
