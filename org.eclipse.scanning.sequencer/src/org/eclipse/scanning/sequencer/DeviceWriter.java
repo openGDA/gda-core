@@ -16,7 +16,6 @@ import java.util.concurrent.Callable;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
@@ -49,14 +48,16 @@ final class DeviceWriter extends DeviceRunner {
 
 	@Override
 	protected Callable<IPosition> create(IRunnableDevice<?> device, IPosition position) throws ScanningException {
-		if (!(device instanceof IWritableDetector<?>)) return null;
-		return new WriteTask((IWritableDetector<?>)device, position);
+		if (device instanceof IWritableDetector<?>) {
+			return new WriteTask((IWritableDetector<?>)device, position);
+		}
+		return null;
 	}
 
 	private final class WriteTask implements Callable<IPosition> {
 
-		private IWritableDetector<?> detector;
-		private IPosition            position;
+		private final IWritableDetector<?> detector;
+		private final IPosition position;
 
 		public WriteTask(IWritableDetector<?> detector, IPosition position) {
 			this.detector = detector;
@@ -65,24 +66,18 @@ final class DeviceWriter extends DeviceRunner {
 
 		@Override
 		public IPosition call() throws Exception {
-			if (detector instanceof IRunnableEventDevice) {
-				((IRunnableEventDevice)detector).fireWriteWillPerform(position);
-			}
+			detector.fireWriteWillPerform(position);
 			try {
 				boolean wrote = detector.write(position);
 				if (wrote) {
-					if (detector instanceof IRunnableEventDevice) {
-						((IRunnableEventDevice)detector).fireWritePerformed(position);
-					}
+					detector.fireWritePerformed(position);
 				}
 				return null; // faster if not adding new information
-
 			} catch (Exception ne) {
 				abortWithError(detector, position, ne);
                 throw ne;
 			}
 		}
-
 	}
 
 	@Override
