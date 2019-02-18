@@ -13,6 +13,7 @@ package org.eclipse.scanning.sequencer;
 
 import static java.util.stream.Collectors.toList;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +28,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -58,10 +62,11 @@ abstract class LevelRunner<L extends ILevel> {
 
 	private static Logger logger = LoggerFactory.getLogger(LevelRunner.class);
 
-	protected IPosition position;
 	private final ForkJoinPool executorService;
+	private final PositionDelegate pDelegate;
+
+	protected IPosition position;
 	private ScanningException abortException;
-	private PositionDelegate pDelegate;
 	private boolean levelCachingAllowed = true;
 
 	private SoftReference<Map<Integer, List<L>>> sortedObjects;
@@ -74,9 +79,29 @@ abstract class LevelRunner<L extends ILevel> {
 
 	protected LevelRunner(INameable device) {
 		pDelegate = new PositionDelegate(device);
+		executorService = createExecutorService();
+	}
 
-		// Slightly faster than thread pool executor @see ScanAlgorithmBenchMarkTest
-		executorService = new ForkJoinPool();
+	private ForkJoinPool createExecutorService() {
+		final UncaughtExceptionHandler uncaughtExceptionHandler =
+				(t, e) -> logger.error("Unhandled exception from thread: {}", t.getName(), e);
+
+	    class LevelTaskThread extends ForkJoinWorkerThread {
+
+			protected LevelTaskThread(ForkJoinPool pool, String name) {
+				super(pool);
+				setName(name);
+			}
+
+	    }
+
+	    final String namePrefix = String.valueOf(getLevelRole()).toLowerCase() + "runner-worker-";
+	    final AtomicInteger threadNumCounter = new AtomicInteger(0);
+		ForkJoinWorkerThreadFactory threadFactory = pool -> new LevelTaskThread(pool, namePrefix + threadNumCounter.incrementAndGet());
+
+		// a ForkJoinPool is required as it is the only executor that has an awaitQuiescence method
+		return new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
+				threadFactory, uncaughtExceptionHandler, false);
 	}
 
 	/**
@@ -208,6 +233,7 @@ abstract class LevelRunner<L extends ILevel> {
 								.append("s has been reached waiting for level ").append(level)
 								.append(" device(s): ");
 						for (Future<IPosition> taskFuture : cancelledTasks) {
+
 							messageBuilder.append(taskMap.get(taskFuture).toString()).append(", ");
 						}
 						final String message = messageBuilder.toString().replaceAll(", $", "");
@@ -228,9 +254,6 @@ abstract class LevelRunner<L extends ILevel> {
 			}
 			throw new ScanningException("Scanning interrupted while moving to new position!", e);
 		}
-		if (block) {
-			await();
-		}
 
 		logger.debug("Finished scan for {}", loc);
 		return true;
@@ -244,8 +267,9 @@ abstract class LevelRunner<L extends ILevel> {
 	 *
 	 * If nothing has been run by the runner, there will be no executor service created and latch() will directly
 	 * return.
+	 * @throws ScanningException if the timeout occurred before the tasks were complete
 	 */
-	protected IPosition await() throws ScanningException {
+	protected IPosition await() throws ScanningException, InterruptedException {
 		return await(getTimeout());
 	}
 
@@ -257,8 +281,9 @@ abstract class LevelRunner<L extends ILevel> {
 	 * return.
 	 *
 	 * @return the position of the last 'run' call, which may not always be what was awaited.
+	 * @throws ScanningException if the timeout occurred before the tasks were complete
 	 */
-	protected IPosition await(long time) throws ScanningException {
+	protected IPosition await(long time) throws ScanningException, InterruptedException {
 		if (abortException != null) {
 			throw abortException;
 		}
