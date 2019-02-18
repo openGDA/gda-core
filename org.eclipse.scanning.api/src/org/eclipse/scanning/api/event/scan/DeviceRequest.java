@@ -242,7 +242,6 @@ public class DeviceRequest extends IdBean {
 		return result;
 	}
 
-	@SuppressWarnings("squid:S3776")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

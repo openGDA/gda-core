@@ -240,7 +240,6 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		return solsticeScanMonitor;
 	}
 
-	@SuppressWarnings("squid:S1452")
 	protected Map<ScanRole, Collection<INexusDevice<?>>> extractNexusDevices(ScanModel model) throws ScanningException {
 
 		Map<ScanRole, Collection<INexusDevice<?>>> nexusDevices = new EnumMap<>(ScanRole.class);
@@ -253,7 +252,6 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 		return nexusDevices;
 	}
 
-	@SuppressWarnings({"squid:S1452", "squid:S3776"})
 	protected Map<ScanRole, List<NexusObjectProvider<?>>> extractNexusProviders() throws ScanningException {
 		logger.trace("extractNexusProviders() called");
 		Map<ScanRole, List<NexusObjectProvider<?>>> nexusObjectProviders = new EnumMap<>(ScanRole.class);
