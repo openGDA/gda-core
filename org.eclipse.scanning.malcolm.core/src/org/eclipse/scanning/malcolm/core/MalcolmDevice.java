@@ -71,7 +71,12 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	 * An enumeration of timeout property names and default values for different operations.
 	 */
 	private enum Timeout {
-		STANDARD("org.eclipse.scanning.malcolm.core.timeout", Duration.ofSeconds(5)),
+		/**
+		 * Malcolm has a basic internal timeout of 10 seconds.
+		 * Our equivalent timeout is greater in order to get a MalcolmMessage with an error
+		 * in the event of an internal Malcolm timeout.
+		 */
+		STANDARD("org.eclipse.scanning.malcolm.core.timeout", Duration.ofSeconds(15)),
 		CONFIG("org.eclipse.scanning.malcolm.core.configureTimeout", Duration.ofMinutes(10)),
 		RUN("org.eclipse.scanning.malcolm.core.runTimeout", Duration.ofDays(2));
 
