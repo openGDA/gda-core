@@ -649,7 +649,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 
 		// Check the locking using a condition
-		if (!stateChangeLock.tryLock(1, TimeUnit.SECONDS)) {
+		if (!stateChangeLock.tryLock(10, TimeUnit.SECONDS)) { // FIXME Calls to Malcolm can take up to 10 seconds to return!
 			throw new ScanningException(this, "Internal Error - Could not obtain lock to run device!");
 		}
 		try {
