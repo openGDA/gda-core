@@ -121,39 +121,39 @@ public class PhotonEnergyTest {
 	// Photon energy from edge (with Quantity k)
 	//------------------------------------------------------------------------------
 	@Test
-	public void testPhotonEnergyOfEnergyVector() {
+	public void testPhotonEnergyOfEdgeVector() {
 		final Energy expectedPhotonEnergy = Quantity.valueOf(9020.0, ELECTRON_VOLT);
 		final Energy result = PhotonEnergy.photonEnergyOf(EDGE, EDGE_LENGTH_VECTOR);
 		assertEquals(expectedPhotonEnergy.doubleValue(), result.doubleValue(), 0.0000000001);
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorNegativeVector() {
+	public void testPhotonEnergyOfEdgeVectorNegativeVector() {
 		assertNull(PhotonEnergy.photonEnergyOf(EDGE, NEGATIVE_EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorNegativeEdge() {
+	public void testPhotonEnergyOfEdgeVectorNegativeEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_EDGE, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorNullVector() {
+	public void testPhotonEnergyOfEdgeVectorNullVector() {
 		assertNull(PhotonEnergy.photonEnergyOf(EDGE, null));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorNullEdge() {
+	public void testPhotonEnergyOfEdgeVectorNullEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(null, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorZeroEdge() {
+	public void testPhotonEnergyOfEdgeVectorZeroEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(Energy.ZERO, EDGE_LENGTH_VECTOR));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyVectorZeroVector() {
+	public void testPhotonEnergyOfEdgeVectorZeroVector() {
 		assertNull(PhotonEnergy.photonEnergyOf(EDGE, Vector.ZERO));
 	}
 
@@ -161,34 +161,34 @@ public class PhotonEnergyTest {
 	// Photon energy from edge (with double k)
 	//------------------------------------------------------------------------------
 	@Test
-	public void testPhotonEnergyOfEnergyDouble() {
+	public void testPhotonEnergyOfEdgeDouble() {
 		final Energy expectedPhotonEnergy = Quantity.valueOf(9014.0, ELECTRON_VOLT);
 		final Energy result = PhotonEnergy.photonEnergyOf(EDGE, DOUBLE_VALUE);
 		assertEquals(expectedPhotonEnergy.doubleValue(), result.doubleValue(), 0.0000000000001);
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyDoubleNegativeK() {
+	public void testPhotonEnergyOfEdgeDoubleNegativeK() {
 		assertNull(PhotonEnergy.photonEnergyOf(EDGE, NEGATIVE_DOUBLE_VALUE));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyDoubleNegativeEdge() {
+	public void testPhotonEnergyOfEdgeDoubleNegativeEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(NEGATIVE_EDGE, DOUBLE_VALUE));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyDoubleNullEdge() {
+	public void testPhotonEnergyOfEdgeDoubleNullEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(null, DOUBLE_VALUE));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyDoubleZeroEdge() {
+	public void testPhotonEnergyOfEdgeDoubleZeroEdge() {
 		assertNull(PhotonEnergy.photonEnergyOf(Energy.ZERO, DOUBLE_VALUE));
 	}
 
 	@Test
-	public void testPhotonEnergyOfEnergyDoubleZeroK() {
+	public void testPhotonEnergyOfEdgeDoubleZeroK() {
 		assertNull(PhotonEnergy.photonEnergyOf(EDGE, 0.0));
 	}
 
