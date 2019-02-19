@@ -23,8 +23,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.factory.Finder;
+import gda.rcp.views.AbstractPositionerComposite;
+import gda.rcp.views.EnumPositionerComposite;
 import gda.rcp.views.NudgePositionerComposite;
 
 public class ScannablePositionerControl implements LiveControl {
@@ -184,22 +187,28 @@ public class ScannablePositionerControl implements LiveControl {
 			return;
 		}
 
+		AbstractPositionerComposite positionerComposite;
+		if (scannable instanceof EnumPositioner) {
+			positionerComposite = new EnumPositionerComposite(composite, SWT.NONE);
+		} else {
 		// Create the NudgePositionerComposite and set the scannable
-		final NudgePositionerComposite npc = new NudgePositionerComposite(composite, SWT.NONE);
-		npc.setScannable(scannable);
+		positionerComposite = new NudgePositionerComposite(composite, SWT.NONE);
+		NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
+			if (getUserUnits() != null) {
+				npc.setUserUnits(getUserUnits());
+			}
+			if (getIncrement() != null) {
+				npc.setIncrement(getIncrement());
+			}
+			if (incrementTextWidth != null) {
+				npc.setIncrementTextWidth(incrementTextWidth);
+			}
+		}
+		positionerComposite.setScannable(scannable);
 
 		// Configure the NPC with additional settings if provided
 		if (getDisplayName() != null) {
-			npc.setDisplayName(getDisplayName());
-		}
-		if (getUserUnits() != null) {
-			npc.setUserUnits(getUserUnits());
-		}
-		if (getIncrement() != null) {
-			npc.setIncrement(getIncrement());
-		}
-		if (incrementTextWidth != null) {
-			npc.setIncrementTextWidth(incrementTextWidth);
+			positionerComposite.setDisplayName(getDisplayName());
 		}
 	}
 
