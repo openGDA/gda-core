@@ -71,19 +71,19 @@ public class CoupledScannableTest {
 	@Test
 	public void testUseFirstScannableUnits() throws DeviceException, FactoryException {
 		final CoupledScannable scannable = new CoupledScannable();
-		scannable.setScannables(asList(dummyScannable1 , dummyScannable2));
+		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
 		scannable.setName("test");
 		scannable.configure();
 
 		dummyScannable1.moveTo(1.0);
-		final Object posWithUserUnits_mm = scannable.getPosition();
-		assertEquals("Should have same value as position of scannable1 as user unit set to that of scannable1", 1.0, posWithUserUnits_mm);
+		final double posWithUserUnits_mm = (double) scannable.getPosition();
+		assertEquals("Should have same value as position of scannable1 as user unit set to that of scannable1", 1.0, posWithUserUnits_mm, 0.0001);
 
 		dummyScannable1.setUserUnits("m");
 
-		final Object posWithUserUnits_m = scannable.getPosition();
+		final double posWithUserUnits_m = (double) scannable.getPosition();
 
-		assertEquals(posWithUserUnits_mm, posWithUserUnits_m);
+		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, 0.0001);
 	}
 
 	@Test
@@ -95,14 +95,14 @@ public class CoupledScannableTest {
 		scannable.configure();
 
 		dummyScannable1.moveTo(1.0);
-		final Object posWithUserUnits_mm = scannable.getPosition();
-		assertEquals("Should have value of 1000 user unit set to micro whilst scannable1 is mm", 1000.0, posWithUserUnits_mm);
+		final double posWithUserUnits_mm = (double) scannable.getPosition();
+		assertEquals("Should have value of 1000 user unit set to micro whilst scannable1 is mm", 1000.0, posWithUserUnits_mm, 0.0001);
 
 		dummyScannable1.setUserUnits("m");
 
-		final Object posWithUserUnits_m = scannable.getPosition();
+		final double posWithUserUnits_m = (double) scannable.getPosition();
 
-		assertEquals(posWithUserUnits_mm, posWithUserUnits_m);
+		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, 0.0001);
 	}
 
 	/*
@@ -131,7 +131,7 @@ public class CoupledScannableTest {
 
 		// Verify that the units for the component move have been handled correctly
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (Double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
 	}
 
 	@Test
@@ -146,15 +146,15 @@ public class CoupledScannableTest {
 		coupled.moveTo(15.7);
 
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (Double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(78.9, (Double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(78.9, (double) dummyScannable2.getPosition(), 0.0001);
 	}
 
 	@Test
 	public void testSetScannablesFromFinder() throws Exception {
-		final Factory testFactory = TestHelpers.createTestFactory("testFactory");
+		final Factory testFactory = TestHelpers.createTestFactory();
 		testFactory.addFindable(dummyScannable1);
 		testFactory.addFindable(dummyScannable2);
 
@@ -170,10 +170,10 @@ public class CoupledScannableTest {
 		coupled.moveTo(15.7);
 
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (Double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(78.9, (Double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(78.9, (double) dummyScannable2.getPosition(), 0.0001);
 	}
 
 	@Test(expected = FactoryException.class)
@@ -198,10 +198,10 @@ public class CoupledScannableTest {
 
 		// If there are no functions, all scannables are moved to the same position
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(15.7, (Double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(15.7, (double) dummyScannable1.getPosition(), 0.0001);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(15.7, (Double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(15.7, (double) dummyScannable2.getPosition(), 0.0001);
 	}
 
 	@Test(expected = DeviceException.class)

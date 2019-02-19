@@ -20,7 +20,6 @@ package gda.device.scannable;
 
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.jscience.physics.quantities.Quantity;
@@ -36,15 +35,11 @@ import gda.device.scannable.component.UnitsComponent;
  * Note: this is largely tested through ScannableMotionUnitsBaseTeast
  */
 public class UnitsComponentTest {
-
-
-	UnitsComponent uc;
-	static Quantity q1m = Quantity.valueOf(1, METER);
-	static Quantity q2m = Quantity.valueOf(2, METER);
-	static Quantity q3m = Quantity.valueOf(3, METER);
-	static Quantity q1000mm = Quantity.valueOf(1000, MILLI(METER));
-	static Quantity q2000mm = Quantity.valueOf(2000, MILLI(METER));
-	static Quantity q3000mm = Quantity.valueOf(3000, MILLI(METER));
+	private UnitsComponent uc;
+	private static final Quantity q1m = Quantity.valueOf(1, METER);
+	private static final Quantity q2m = Quantity.valueOf(2, METER);
+	private static final Quantity q1000mm = Quantity.valueOf(1000, MILLI(METER));
+	private static final Quantity q3000mm = Quantity.valueOf(3000, MILLI(METER));
 
 	@Before
 	public void setUp() {
@@ -67,58 +62,73 @@ public class UnitsComponentTest {
 	public void testExternalTowardInternalWithObjectArray() throws DeviceException {
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
-		Double[] internalExpected = new Double[]{1000., 2000., 3000., 4000., 5000.};
-		assertArrayEquals(internalExpected, (Double[]) uc.externalTowardInternal(new Object[]{1, q2m, q3000mm, "4m", "5000 mm"}));
+		final double[] internalExpected = new double[] { 1000., 2000., 3000., 4000., 5000. };
+		final Object[] result = (Object[]) uc.externalTowardInternal(new Object[] { 1, q2m, q3000mm, "4m", "5000 mm" });
+		assertEquals(internalExpected.length, result.length);
+		for (int i = 0; i < result.length; i++) {
+			assertEquals(internalExpected[i], (double) result[i], 0.0001);
+		}
 	}
 
 	@Test
 	public void testExternalTowardInternalWithPyTuple() throws DeviceException {
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
-		PyTuple internalExpectedTuple = new PyTuple(new PyFloat(1000.), new PyFloat(2000.));
-		assertEquals(internalExpectedTuple, uc.externalTowardInternal(new PyTuple(new PyFloat(1.), new PyFloat(2.))));
+		final PyTuple internalExpectedTuple = new PyTuple(new PyFloat(1000.), new PyFloat(2000.));
+		final PyTuple result = (PyTuple) uc.externalTowardInternal(new PyTuple(new PyFloat(1.), new PyFloat(2.)));
+		assertEquals(internalExpectedTuple.size(), result.size());
+		for (int i = 0; i < result.size(); i++) {
+			assertEquals((double) internalExpectedTuple.get(i), (double) result.get(i), 0.0001);
+		}
 	}
 
 	@Test
 	public void testInternalTowardExternalWithPyTuple() throws DeviceException {
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
-		PyTuple externalExpectedTuple = new PyTuple(new PyFloat(1.), new PyFloat(2.));
-		assertEquals(externalExpectedTuple, uc.internalTowardExternal(new PyTuple(new PyFloat(1000.), new PyFloat(2000.))));
+		final PyTuple externalExpectedTuple = new PyTuple(new PyFloat(1.), new PyFloat(2.));
+		final PyTuple result = (PyTuple) uc.internalTowardExternal(new PyTuple(new PyFloat(1000.), new PyFloat(2000.)));
+		assertEquals(externalExpectedTuple.size(), result.size());
+		for (int i = 0; i < result.size(); i++) {
+			assertEquals((double) externalExpectedTuple.get(i), (double) result.get(i), 0.0001);
+		}
 	}
 
 	@Test
 	public void testExternalTowardInternalWithObject() throws DeviceException {
 		uc.setUserUnits("m");
 		uc.setHardwareUnitString("mm");
-		assertEquals(new Double(1000.), uc.externalTowardInternal(1));
-		assertEquals(new Double(1000.), uc.externalTowardInternal(1.));
-		assertEquals(new Double(1000.), uc.externalTowardInternal(q1m));
-		assertEquals(new Double(1000.), uc.externalTowardInternal(q1000mm));
-		assertEquals(new Double(1000.), uc.externalTowardInternal("1"));
-		assertEquals(new Double(1000.), uc.externalTowardInternal("1m"));
-		assertEquals(new Double(1000.), uc.externalTowardInternal("1000mm"));
+		assertEquals(1000.0, (double) uc.externalTowardInternal(1), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal(1.), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal(q1m), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal(q1000mm), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal("1"), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal("1m"), 0.0001);
+		assertEquals(1000.0, (double) uc.externalTowardInternal("1000mm"), 0.0001);
 	}
 
 	@Test
 	public void testInternalTowardExternalWithObjectArray() throws DeviceException {
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
-		Double[] externalExpected = new Double[]{1., 2., 3., 4., 5.};
-		assertArrayEquals(externalExpected, (Double[]) uc.internalTowardExternal(new Object[]{1000, q2m, q3000mm, "4m", "5000 mm"}));
+		final double[] externalExpected = new double[] { 1., 2., 3., 4., 5. };
+		final Object[] result = (Object[]) uc.internalTowardExternal(new Object[] { 1000, q2m, q3000mm, "4m", "5000 mm" });
+		assertEquals(externalExpected.length, result.length);
+		for (int i = 0; i < result.length; i++) {
+			assertEquals(externalExpected[i], (double) result[i], 0.0001);
+		}
 	}
 
 	@Test
 	public void testInternalTowardExternalWithObject() throws DeviceException {
 		uc.setHardwareUnitString("mm");
 		uc.setUserUnits("m");
-		assertEquals(new Double(1.), uc.internalTowardExternal(1000));
-		assertEquals(new Double(1.), uc.internalTowardExternal(1000.));
-		assertEquals(new Double(1.), uc.internalTowardExternal(q1m));
-		assertEquals(new Double(1.), uc.internalTowardExternal(q1000mm));
-		assertEquals(new Double(1.), uc.internalTowardExternal("1000"));
-		assertEquals(new Double(1.), uc.internalTowardExternal("1m"));
-		assertEquals(new Double(1.), uc.internalTowardExternal("1000mm"));
+		assertEquals(1.0, (double) uc.internalTowardExternal(1000), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal(1000.), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal(q1m), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal(q1000mm), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal("1000"), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal("1m"), 0.0001);
+		assertEquals(1.0, (double) uc.internalTowardExternal("1000mm"), 0.0001);
 	}
-
 }
