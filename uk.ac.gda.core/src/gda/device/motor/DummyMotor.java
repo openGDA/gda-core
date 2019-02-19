@@ -379,7 +379,6 @@ public class DummyMotor extends MotorBase {
 	 * Does the position updating which simulates a move.
 	 */
 
-	@SuppressWarnings("squid:S2189") // Otherwise SonarLint complains about lack of end condition
 	private synchronized void runMotor() {
 		int i = 0;
 

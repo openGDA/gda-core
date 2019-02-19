@@ -254,7 +254,6 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		obsComp.notifyIObservers(this, new SimpleCommandProgress(percentDone, msg));
 	}
 
-	@SuppressWarnings("squid:S2189") // complaint about infinite loops
 	@Override
 	public void run() {
 		cmdBeingProcessed = null;
