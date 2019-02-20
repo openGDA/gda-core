@@ -103,7 +103,7 @@ public class MedipixParametersUIEditor extends RichBeanEditorPart {
 
 			// Button to open TwoDArrayView window for detector
 			final Button openRoiButton = new Button(regionsGroup, SWT.NONE);
-			openRoiButton.setText("Open ROI Region");
+			openRoiButton.setText("Open Medipix");
 			openRoiButton.setToolTipText("Open detector ROI window and apply ROI values to detector");
 			openRoiButton.addSelectionListener(new SelectionListener() {
 				@Override

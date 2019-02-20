@@ -53,9 +53,11 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	@Override
 	public void configureScanNumber(int i) {
-		nexus = new XasNexusDataWriter(i);
-		if (nexusFileNameTemplate != null) {
-			nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
+		if (firstData) {
+			nexus = new XasNexusDataWriter(i);
+			if (nexusFileNameTemplate != null) {
+				nexus.setNexusFileNameTemplate(nexusFileNameTemplate);
+			}
 		}
 	}
 
