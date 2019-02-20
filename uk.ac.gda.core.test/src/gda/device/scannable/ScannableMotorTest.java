@@ -61,6 +61,8 @@ import gda.jython.InterfaceProvider;
  * Enough is done here to make sure things are tied together properly only.
  */
 public class ScannableMotorTest {
+	// Tolerance allowed for inaccuracies in floating point calculations
+	private static final double FP_TOLERANCE = 0.0000001;
 
 	private ScannableMotor sm;
 	private Motor motor;
@@ -95,7 +97,7 @@ public class ScannableMotorTest {
 
 	@Test
 	public void testConfigureWithMotorName() throws Exception {
-		final Factory factory = TestHelpers.createTestFactory("test");
+		final Factory factory = TestHelpers.createTestFactory();
 		final Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
 
@@ -131,14 +133,14 @@ public class ScannableMotorTest {
 	@Test
 	public void testGetPosition() throws Exception {
 		when(motor.getPosition()).thenReturn(1.); // mm
-		assertEquals(1000., sm.getPosition()); // micron
+		assertEquals(1000., (double) sm.getPosition(), FP_TOLERANCE); // micron
 	}
 
 	@Test
 	public void testGetPositionWithOffset() throws Exception {
 		sm.setOffset(1.);
 		when(motor.getPosition()).thenReturn(1.); // mm
-		assertEquals(1001., (Double) sm.getPosition(), .00001); // micron
+		assertEquals(1001., (double) sm.getPosition(), FP_TOLERANCE); // micron
 	}
 
 	@Test
@@ -155,11 +157,11 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.1);
 		when(motor.getPosition()).thenReturn(1.01);
-		assertEquals(1.01, (Double) sm.rawGetDemandPosition(), .00001);
-		assertEquals(1010., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1.01, (double) sm.rawGetDemandPosition(), FP_TOLERANCE);
+		assertEquals(1010., (double) sm.getDemandPosition(), FP_TOLERANCE);
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals(1.01, (Double) sm.rawGetDemandPosition(), .00001);
-		assertEquals(1010., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1.01, (double) sm.rawGetDemandPosition(), FP_TOLERANCE);
+		assertEquals(1010., (double) sm.getDemandPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -168,11 +170,11 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.rawAsynchronousMoveTo(1.);
 		when(motor.getPosition()).thenReturn(1.01);
-		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
-		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1., (double) sm.rawGetDemandPosition(), FP_TOLERANCE);
+		assertEquals(1000., (double) sm.getDemandPosition(), FP_TOLERANCE);
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
-		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1., (double) sm.rawGetDemandPosition(), FP_TOLERANCE);
+		assertEquals(1000., (double) sm.getDemandPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -182,8 +184,8 @@ public class ScannableMotorTest {
 		sm.rawAsynchronousMoveTo(1.);
 		when(motor.getPosition()).thenReturn(1.11);
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
-		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1., (double) sm.rawGetDemandPosition(), FP_TOLERANCE);
+		assertEquals(1000., (double) sm.getDemandPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -194,8 +196,8 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.rawAsynchronousMoveTo(1.);
 		when(motor.getPosition()).thenReturn(1.11);
-		assertEquals(1110., (Double) sm.getDemandPosition(), .00001);
-		assertEquals(1110., (Double) sm.getDemandPosition(), .00001);
+		assertEquals(1110., (double) sm.getDemandPosition(), FP_TOLERANCE);
+		assertEquals(1110., (double) sm.getDemandPosition(), FP_TOLERANCE);
 		verify(mockedTerminalPrinter, times(1)).print(
 				"WARNING: sm is returning a position based on its real motor position (1.11) rather than its last demanded position(1),\n"
 						+ "as these differ by more than the configured demand position tolerance (0.1).");
@@ -206,9 +208,9 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.1);
 		when(motor.getPosition()).thenReturn(1.01);
-		assertEquals(1010, (Double) sm.getPosition(), .00001);
+		assertEquals(1010., (double) sm.getPosition(), FP_TOLERANCE);
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals(1010., (Double) sm.getPosition(), .00001);
+		assertEquals(1010., (double) sm.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -217,7 +219,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.asynchronousMoveTo(1000.);
 		when(motor.getPosition()).thenReturn(1.01);
-		assertEquals(1000., (Double) sm.getPosition(), .00001);
+		assertEquals(1000., (double) sm.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -227,7 +229,7 @@ public class ScannableMotorTest {
 		sm.asynchronousMoveTo(1000.);
 		when(motor.getStatus()).thenReturn(BUSY);
 		when(motor.getPosition()).thenReturn(1.01);
-		assertEquals(1010, (Double) sm.getPosition(), .00001);
+		assertEquals(1010., (double) sm.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -237,7 +239,7 @@ public class ScannableMotorTest {
 		sm.asynchronousMoveTo(1000.);
 		when(motor.getPosition()).thenReturn(1.11);
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals(1110., (Double) sm.getPosition(), .00001);
+		assertEquals(1110., (double) sm.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -248,7 +250,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.1);
 		sm.asynchronousMoveTo(1000.);
 		when(motor.getPosition()).thenReturn(1.11);
-		assertEquals(1110., (Double) sm.getPosition(), .00001);
+		assertEquals(1110., (double) sm.getPosition(), FP_TOLERANCE);
 		verify(mockedTerminalPrinter).print(
 				"WARNING: sm is returning a position based on its real motor position (1.11) rather than its last demanded position(1),\n"
 						+ "as these differ by more than the configured demand position tolerance (0.1).");
@@ -257,10 +259,10 @@ public class ScannableMotorTest {
 	@Test
 	public void testGetLimitsWithOfset() throws Exception {
 		sm.setOffset(1.);
-		assertEquals(1001., sm.getUpperGdaLimits()[0], .000001); // micron
-		assertEquals(1001., sm.getUpperGdaLimits()[0], .000001); // micron
-		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); // micron
-		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); // micron
+		assertEquals(1001., sm.getUpperGdaLimits()[0], FP_TOLERANCE); // micron
+		assertEquals(1001., sm.getUpperGdaLimits()[0], FP_TOLERANCE); // micron
+		assertEquals(-999., sm.getLowerGdaLimits()[0], FP_TOLERANCE); // micron
+		assertEquals(-999., sm.getLowerGdaLimits()[0], FP_TOLERANCE); // micron
 	}
 
 	@Test
@@ -348,8 +350,8 @@ public class ScannableMotorTest {
 	public void testToStringWithOffset() throws Exception {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		sm.setOffset(1.);
-		assertEquals(1001., sm.getUpperGdaLimits()[0], .000001); // micron
-		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); // micron
+		assertEquals(1001., sm.getUpperGdaLimits()[0], FP_TOLERANCE); // micron
+		assertEquals(-999., sm.getLowerGdaLimits()[0], FP_TOLERANCE); // micron
 		assertEquals("sm : 11.000micron(+1.0000) (-999.00:1001.0)", sm.toFormattedString());
 	}
 
@@ -373,7 +375,7 @@ public class ScannableMotorTest {
 		final ArgumentCaptor<Double> captor = ArgumentCaptor.forClass(Double.class);
 		sm.asynchronousMoveTo(50); // micron
 		verify(motor).moveTo(captor.capture());
-		assertEquals(0.05, captor.getValue(), 0.001);
+		assertEquals(0.05, captor.getValue(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -381,7 +383,7 @@ public class ScannableMotorTest {
 		final ArgumentCaptor<Double> captor = ArgumentCaptor.forClass(Double.class);
 		sm.moveTo("0.9 mm");
 		verify(motor).moveTo(captor.capture());
-		assertEquals(0.9,  captor.getValue(), 0.001);
+		assertEquals(0.9,  captor.getValue(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -389,7 +391,7 @@ public class ScannableMotorTest {
 		final ArgumentCaptor<Double> captor = ArgumentCaptor.forClass(Double.class);
 		sm.moveTo("5 micron");
 		verify(motor).moveTo(captor.capture());
-		assertEquals(0.005, captor.getValue(), 0.001);
+		assertEquals(0.005, captor.getValue(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -539,7 +541,7 @@ public class ScannableMotorTest {
 	public void testCheckLimitCodeIntegration() throws Exception {
 		when(motor.getMinPosition()).thenReturn(-1.); // mm
 		when(motor.getMaxPosition()).thenReturn(.5); // mm
-		assertEquals(null, sm.checkPositionValid(499)); // micron
+		assertNull(sm.checkPositionValid(499)); // micron
 		assertEquals("Motor limit violation on motor null: 0.501000 > 0.500000 (internal/hardware/dial values).", sm.checkPositionValid(501)); // micron
 	}
 
@@ -547,26 +549,26 @@ public class ScannableMotorTest {
 	public void testGetLowerInnerLimit() throws Exception {
 		final Double nullDouble = null;
 		sm.setLowerGdaLimits(nullDouble);
-		assertEquals(null, sm.getLowerInnerLimit());
+		assertNull(sm.getLowerInnerLimit());
 		sm.setLowerGdaLimits(-1000.); // microns
-		assertEquals(new Double(-1000.), sm.getLowerInnerLimit()); // microns
+		assertEquals(-1000., sm.getLowerInnerLimit(), FP_TOLERANCE); // microns
 		when(motor.getMinPosition()).thenReturn(-1.001); // mm
-		assertEquals(new Double(-1000.), sm.getLowerInnerLimit()); // microns
+		assertEquals(-1000., sm.getLowerInnerLimit(), FP_TOLERANCE); // microns
 		when(motor.getMinPosition()).thenReturn(-.999); // mm
-		assertEquals(-999., sm.getLowerInnerLimit(), .00000001); // microns
+		assertEquals(-999., sm.getLowerInnerLimit(), FP_TOLERANCE); // microns
 	}
 
 	@Test
 	public void testGetUpperInnerLimit() throws Exception {
 		final Double nullDouble = null;
 		sm.setUpperGdaLimits(nullDouble);
-		assertEquals(null, sm.getUpperInnerLimit());
+		assertNull(sm.getUpperInnerLimit());
 		sm.setUpperGdaLimits(1000.); // microns
-		assertEquals(new Double(1000.), sm.getUpperInnerLimit()); // microns
+		assertEquals(1000., sm.getUpperInnerLimit(), FP_TOLERANCE); // microns
 		when(motor.getMinPosition()).thenReturn(-1.001); // mm
-		assertEquals(new Double(1000.), sm.getUpperInnerLimit()); // microns
+		assertEquals(1000., sm.getUpperInnerLimit(), FP_TOLERANCE); // microns
 		when(motor.getMaxPosition()).thenReturn(.999); // mm
-		assertEquals(999., sm.getUpperInnerLimit(), .00000001); // microns
+		assertEquals(999., sm.getUpperInnerLimit(), FP_TOLERANCE); // microns
 	}
 
 	@Test
@@ -628,8 +630,8 @@ public class ScannableMotorTest {
 	public void testGetMotorLimit() throws Exception {
 		when(motor.getMinPosition()).thenReturn(-1.); // mm
 		when(motor.getMaxPosition()).thenReturn(.8); // mm
-		assertEquals(-1000., sm.getLowerMotorLimit(), .00001); // microns
-		assertEquals(800., sm.getUpperMotorLimit(), .00001); // microns
+		assertEquals(-1000., sm.getLowerMotorLimit(), FP_TOLERANCE); // microns
+		assertEquals(800., sm.getUpperMotorLimit(), FP_TOLERANCE); // microns
 	}
 
 	@Test(expected = DeviceException.class)
@@ -649,8 +651,8 @@ public class ScannableMotorTest {
 		when(motor.getMinPosition()).thenReturn(-1.); // mm
 		when(motor.getMaxPosition()).thenReturn(.8); // mm
 		sm.setScalingFactor(-1.);
-		assertEquals(-800., sm.getLowerMotorLimit(), .00001); // microns
-		assertEquals(1000., sm.getUpperMotorLimit(), .00001); // microns
+		assertEquals(-800., sm.getLowerMotorLimit(), FP_TOLERANCE); // microns
+		assertEquals(1000., sm.getUpperMotorLimit(), FP_TOLERANCE); // microns
 	}
 
 	@Test
@@ -674,9 +676,9 @@ public class ScannableMotorTest {
 		when(motor.getName()).thenReturn("motname");
 		sm.setScalingFactor(-1.);
 
-		assertEquals(null, sm.checkPositionValid(0.));// micron
-		assertEquals(null, sm.checkPositionValid(19.));// micron
-		assertEquals(null, sm.checkPositionValid(-9.));// micron
+		assertNull(sm.checkPositionValid(0.));// micron
+		assertNull(sm.checkPositionValid(19.));// micron
+		assertNull(sm.checkPositionValid(-9.));// micron
 		assertEquals("Motor limit violation on motor motname: -0.021000 < -0.020000 (internal/hardware/dial values).", sm.checkPositionValid(21.));// micron
 		assertEquals("Motor limit violation on motor motname: 0.011000 > 0.010000 (internal/hardware/dial values).", sm.checkPositionValid(-11.));// micron
 	}
@@ -689,9 +691,9 @@ public class ScannableMotorTest {
 		sm.setLowerGdaLimits(-1000.);
 		sm.setUpperGdaLimits(800.);
 
-		assertEquals(null, sm.checkPositionValid(0.));// micron
-		assertEquals(null, sm.checkPositionValid(-999));// micron
-		assertEquals(null, sm.checkPositionValid(799));// micron
+		assertNull(sm.checkPositionValid(0.));// micron
+		assertNull(sm.checkPositionValid(-999));// micron
+		assertNull(sm.checkPositionValid(799));// micron
 		assertEquals("Scannable limit violation on sm.sm: 1.001 > 1.0 (internal/hardware/dial values).", sm.checkPositionValid(-1001));// micron
 		assertEquals("Scannable limit violation on sm.sm: -0.8009999999999999 < -0.7999999999999999 (internal/hardware/dial values).",
 				sm.checkPositionValid(801));// micron
@@ -705,9 +707,8 @@ public class ScannableMotorTest {
 		sm = new ScannableMotor();
 		sm.setMotor(motor);
 		sm.configure();
-		Double nullDouble = null;
-		assertEquals(nullDouble, sm.getLowerGdaLimits());
-		assertEquals(nullDouble, sm.getUpperGdaLimits());
+		assertNull(sm.getLowerGdaLimits());
+		assertNull(sm.getUpperGdaLimits());
 	}
 
 	@Test
@@ -720,8 +721,10 @@ public class ScannableMotorTest {
 		sm.setLowerGdaLimits(-91.);
 		sm.setUpperGdaLimits(89.);
 		sm.configure();
-		assertArrayEquals(new Double[] { -91. }, sm.getLowerGdaLimits());
-		assertArrayEquals(new Double[] { 89. }, sm.getUpperGdaLimits());
+		assertEquals(1, sm.getLowerGdaLimits().length);
+		assertEquals(-91., sm.getLowerGdaLimits()[0], FP_TOLERANCE);
+		assertEquals(1, sm.getUpperGdaLimits().length);
+		assertEquals(89., sm.getUpperGdaLimits()[0], FP_TOLERANCE);
 	}
 
 	@Test
@@ -733,8 +736,8 @@ public class ScannableMotorTest {
 		sm.setMotor(motor);
 		sm.setScalingFactor(-1.0);
 		sm.configure();
-		assertEquals(-20., sm.getLowerGdaLimits()[0], 0.001);
-		assertEquals(10., sm.getUpperGdaLimits()[0], 0.001);
+		assertEquals(-20., sm.getLowerGdaLimits()[0], FP_TOLERANCE);
+		assertEquals(10., sm.getUpperGdaLimits()[0], FP_TOLERANCE);
 	}
 
 	@Test
@@ -749,7 +752,7 @@ public class ScannableMotorTest {
 		sm.configure();
 		sm.setOffset(1000.);// micron
 		assertEquals(-9000., sm.getLowerGdaLimits()[0], .0001);// micron
-		assertEquals(7000., sm.getUpperGdaLimits()[0], .00001);// micron
+		assertEquals(7000., sm.getUpperGdaLimits()[0], FP_TOLERANCE);// micron
 	}
 
 	@Test
@@ -764,7 +767,7 @@ public class ScannableMotorTest {
 		sm.configure();
 		sm.setScalingFactor(-1.);// micron
 		assertEquals(-6000., sm.getLowerGdaLimits()[0], .0001);// micron
-		assertEquals(10000., sm.getUpperGdaLimits()[0], .00001);// micron
+		assertEquals(10000., sm.getUpperGdaLimits()[0], FP_TOLERANCE);// micron
 	}
 
 	@Test
@@ -775,8 +778,8 @@ public class ScannableMotorTest {
 		sm = new ScannableMotor();
 		sm.setMotor(motor);
 		sm.configure();
-		assertEquals(-Double.MAX_VALUE, sm.getLowerGdaLimits()[0], .001);
-		assertEquals(Double.MAX_VALUE, sm.getUpperGdaLimits()[0], .001);
+		assertEquals(-Double.MAX_VALUE, sm.getLowerGdaLimits()[0], FP_TOLERANCE);
+		assertEquals(Double.MAX_VALUE, sm.getUpperGdaLimits()[0], FP_TOLERANCE);
 	}
 
 	@Test(expected = DeviceException.class)
