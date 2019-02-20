@@ -61,8 +61,12 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	 * <p>
 	 * This value is empirically determined by measuring the position of know features to calibrate the BE scale. It is
 	 * usually close to 4.5 eV.
+	 *
+	 * Here we use a WorkFunctionProvider, first we assign an inner class which provides a fixed value
+	 * however this can be overwritten with a Jython class e.g. for I05
+	 * which calculates the work function using parameters in a lookup table edited by beamline staff.
 	 */
-	private double workFunction; // In eV this is analyser work function (Φ) usually close to 4.5 eV
+	private WorkFunctionProvider workFunctionProvider = new FixedWorkFunctionProvider();
 	private Scannable pgmEnergyScannable;
 	private VGScientaController controller;
 	private VGScientaAnalyserEnergyRange energyRange;
@@ -384,7 +388,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	public double toBindingEnergy(double kineticEnergy) {
-		return currentPhotonEnergy - kineticEnergy - getWorkFunction();
+		return currentPhotonEnergy - kineticEnergy - getWorkFunction(currentPhotonEnergy);
 	}
 
 	@Override
@@ -847,12 +851,16 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		controller.setSlices(slices);
 	}
 
-	public double getWorkFunction() {
-		return workFunction;
+	public WorkFunctionProvider getWorkFunctionProvider() {
+		return workFunctionProvider;
 	}
 
-	public void setWorkFunction(double workFunction) {
-		this.workFunction = workFunction;
+	public void setWorkFunctionProvider(WorkFunctionProvider workFunctionProvider) {
+		this.workFunctionProvider = workFunctionProvider;
+	}
+
+	public double getWorkFunction(double photonEnergy) {
+		return workFunctionProvider.getWorkFunction(photonEnergy);
 	}
 
 	public Scannable getPgmEnergyScannable() {
@@ -861,5 +869,18 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	public void setPgmEnergyScannable(Scannable pgmEnergyScannable) {
 		this.pgmEnergyScannable = pgmEnergyScannable;
+	}
+
+	private class FixedWorkFunctionProvider implements WorkFunctionProvider {
+
+		/**
+		 * Return a fixed number for work function as a default for cases
+		 * where no other implementation of WorkFunctionProvider is provided
+		 */
+		@Override
+		public double getWorkFunction(double photonEnergy) {
+			return 4.5;
+		}
+
 	}
 }
