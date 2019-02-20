@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.test;
 
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
@@ -182,7 +183,7 @@ public class ScanRequestConverterTest {
 		final ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
 		// Assert
-		assertThat(scanRequest.getDetectors(), is(nullValue()));
+		assertThat(scanRequest.getDetectors().entrySet(), is(empty()));
 
 		// Act again - merge the scan request back into the same mapping bean
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
