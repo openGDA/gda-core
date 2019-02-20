@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
@@ -28,6 +31,20 @@ public class MappingScanRegion implements IMappingScanRegion {
 	private IMappingScanRegionShape region;
 	private IScanPathModel scanPath;
 
+    private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
+    }
+
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
 	@Override
 	public IMappingScanRegionShape getRegion() {
 		return region;
@@ -35,7 +52,7 @@ public class MappingScanRegion implements IMappingScanRegion {
 
 	@Override
 	public void setRegion(IMappingScanRegionShape region) {
-		this.region = region;
+		firePropertyChange("region", this.region, this.region = region);
 	}
 
 	@Override
@@ -45,7 +62,7 @@ public class MappingScanRegion implements IMappingScanRegion {
 
 	@Override
 	public void setScanPath(IScanPathModel scanPath) {
-		this.scanPath = scanPath;
+		firePropertyChange("scanPath", this.scanPath, this.scanPath = scanPath);
 	}
 
 	@Override
