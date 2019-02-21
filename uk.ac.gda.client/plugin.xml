@@ -1035,6 +1035,14 @@
          id="uk.ac.gda.client.script.reload"
          name="ReloadScript">
    </command>
+   <command
+         id="uk.ac.gda.client.sound.toggle"
+         name="SoundToggle">
+      <state
+         class="org.eclipse.ui.handlers.RegistryToggleState:false"
+         id="org.eclipse.ui.commands.toggleState">
+      </state>
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.commandImages">
@@ -1072,6 +1080,10 @@
    <handler
          class="uk.ac.gda.client.actions.RunScriptHandler"
          commandId="uk.ac.gda.client.script.run">
+   </handler>
+   <handler
+         class="uk.ac.gda.client.actions.SoundToggleHandler"
+         commandId="uk.ac.gda.client.sound.toggle">
    </handler>
 </extension>
 <extension
@@ -1202,6 +1214,18 @@
            </command>
         </toolbar>
      </menuContribution>
+     <menuContribution
+           locationURI="toolbar:org.eclipse.ui.main.toolbar?after=gda.script.actions">
+        <toolbar
+              id="uk.ac.gda.sound.toolbar"
+              label="GDA Sound Toolbar">
+           <command
+              commandId="uk.ac.gda.client.sound.toggle"
+              mode="FORCE_TEXT"
+              style="push">
+           </command>
+       </toolbar>
+    </menuContribution>
   </extension>
   <extension
         name="Navigator content for scripting"
