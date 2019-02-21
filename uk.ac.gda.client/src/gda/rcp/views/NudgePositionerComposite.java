@@ -21,25 +21,15 @@ package gda.rcp.views;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.text.DecimalFormat;
-import java.util.Objects;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -47,21 +37,13 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
 
 /**
- * A class which provides a GUI composite to allow easy control of a scannable.
+ * A class which provides a GUI composite to allow easy control of a scannable
  * <p>
  * It provides the current position which can be edited and moved (unless READ_ONLY is specified) and buttons to allow
  * incremental moves. It also provides a stop button to abort moves. Tapping the up and down arrows while in the
@@ -72,7 +54,7 @@ import uk.ac.gda.client.UIHelper;
  * Example of vertical & horizontal format:<br>
  * <img src="nudgepositionercomposite.png" />
  */
-public class NudgePositionerComposite extends Composite {
+public class NudgePositionerComposite extends AbstractPositionerComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);
 	private static final double DEFAULT_INCREMENT = 1.0;
@@ -80,29 +62,23 @@ public class NudgePositionerComposite extends Composite {
 	private static final int DEFAULT_INCREMENT_TEXT_WIDTH = 30;
 
 	// GUI Elements
-	private final CLabel displayNameLabel;
-	private final Text positionText;
-	private final Text incrementText;
-	private final Button stopButton;
-	private final Button decrementButton;
-	private final Button incrementButton;
-	private final Composite nudgeAmountComposite;
+	private Text positionText;
+	private Text incrementText;
 
-	// Update job
-	private Job updateReadbackJob;
+	private Button decrementButton;
+	private Button incrementButton;
 
-	private Scannable scannable;
 	private Double lowerLimit; // Use Double to allow null for if no limits are set
 	private Double upperLimit;
-	private String scannableName;
-	private String scannableOutputFormat;
+
+	private final DecimalFormat fourDecimalPlaces = new DecimalFormat("0.####");
+
 	private String userUnits;
-	private String displayName; // Allow a different prettier name be used if required
 	private Double incrementValue = DEFAULT_INCREMENT;
 	private Double currentPosition;
-	private RowData stopButtonRowData;
+
 	private int incrementTextWidth = DEFAULT_INCREMENT_TEXT_WIDTH;
-	private final boolean readOnlyPosition;
+	private boolean readOnlyPosition;
 
 	/**
 	 * Constructor for a NudgePositionerComposite only requires the specification of minimal parameters.
@@ -120,27 +96,14 @@ public class NudgePositionerComposite extends Composite {
 	 */
 	public NudgePositionerComposite(Composite parent, int style) {
 		// Mask out style attributes that are intended for specific controls
-		super(parent, style & ~SWT.HORIZONTAL & ~SWT.VERTICAL & ~SWT.READ_ONLY);
+		super(parent, style & ~SWT.READ_ONLY);
+		readOnlyPosition = (style & SWT.READ_ONLY) != 0;
+	}
 
-		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		parent.setBackgroundMode(SWT.INHERIT_FORCE);
-
-		// Setup layout
-		final int rowLayoutType = ((style & SWT.HORIZONTAL) != 0) ? SWT.HORIZONTAL : SWT.VERTICAL;
-		final RowLayout rowLayout = new RowLayout(rowLayoutType);
-		rowLayout.fill = true;
-		rowLayout.center = true;
-		rowLayout.marginTop = 1;
-		rowLayout.marginBottom = 1;
-		rowLayout.spacing = 1;
-		this.setLayout(rowLayout);
-
-		// Name label
-		displayNameLabel = new CLabel(this, SWT.CENTER);
-
+	@Override
+	protected void createPositionerControl() {
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
-		readOnlyPosition = (style & SWT.READ_ONLY) != 0;
 		if (readOnlyPosition) {
 			positionText.setEditable(false);
 		} else {
@@ -167,13 +130,13 @@ public class NudgePositionerComposite extends Composite {
 				@Override
 				public void focusLost(FocusEvent e) {
 					// Update to ensure current position is shown when focus is lost
-					updateReadbackJob.schedule();
+					scheduleUpdateReadbackJob();
 				}
 			});
 		}
 
 		// Increment/decrement value
-		nudgeAmountComposite = new Composite(this, SWT.NONE);
+		Composite nudgeAmountComposite = new Composite(this, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(1, 1).applyTo(nudgeAmountComposite);
 		final GridDataFactory buttonDataFactory = GridDataFactory.fillDefaults().hint(NUDGE_BUTTON_WIDTH, SWT.DEFAULT).grab(true, false);
 
@@ -193,30 +156,11 @@ public class NudgePositionerComposite extends Composite {
 		incrementButton.setText("+");
 		buttonDataFactory.applyTo(incrementButton);
 		incrementButton.addSelectionListener(widgetSelectedAdapter(e-> moveBy(incrementValue)));
-
-		// Stop button
-		stopButton = new Button(this, SWT.NONE);
-		stopButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			try {
-				scannable.stop();
-			} catch (DeviceException ex) {
-				logger.error("Error while stopping " + scannableName, ex);
-			}
-		}));
-		stopButtonRowData = new RowData();
-		stopButton.setLayoutData(stopButtonRowData);
-		stopButton.setText("Stop");
-		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
-		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage.createImage());
-
-		// At this time the control is built but no scannable is set so disable it.
-		disable();
 	}
 
 	private void moveBy(double amountToMove) {
 		if (currentPosition == null) {
-			final String message = String.format("Cannot move %s", scannableName);
+			final String message = String.format("Cannot move %s", getScannable().getName());
 			final String reason = "Position is unknown";
 			logger.error("{} : {}", message, reason);
 			UIHelper.showError(message, reason);
@@ -225,55 +169,15 @@ public class NudgePositionerComposite extends Composite {
 		}
 	}
 
-	/**
-	 * Moves the scannable to a new position.<br>
-	 * Checks if the position is within limits and if the scannable is busy before moving
-	 *
-	 * @param position
-	 *            The demanded position
-	 */
-	private void move(double position) {
-		final boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
-		if (!batonHeld) {
-			final MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
-					"You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
-			dialog.open();
-		} else if (checkLimits(position)) {
-			try {
-				if (!scannable.isBusy()) {
-					runMoveInThread(position);
-				}
-			} catch (DeviceException e) {
-				logger.error("Error while trying to move {}", scannableName, e);
-			}
-		} else {
-			// Log positions to full accuracy: round to max. 4 decimal places to display to user
-			logger.error("Cannot move {} to {}: position is outside the allowed limits [{} : {}]", scannableName, position, lowerLimit, upperLimit);
-			final DecimalFormat df = new DecimalFormat("0.####");
-			final String message = String.format("Cannot move %s to %s%nPosition is outside the allowed limits [%s : %s]",
-					scannableName, df.format(position), df.format(lowerLimit), df.format(upperLimit));
-			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error moving device", message);
+	@Override
+	protected boolean moveAllowed(Object newPosition) {
+		double position = convertPosition(newPosition);
+		final boolean allowed = checkLimits(position);
+		if (!allowed) {
+			setReasonForDisallowingMove(String.format("Position %s is outside the allowed limits [%s : %s]",
+					fourDecimalPlaces.format(position), fourDecimalPlaces.format(lowerLimit), fourDecimalPlaces.format(upperLimit)));
 		}
-	}
-
-	/**
-	 * Move the scannable, ensuring that the GUI is not blocked during the move.
-	 * <p>
-	 * In theory, we could call {@link gda.device.scannable.ScannableMotionBase#asynchronousMoveTo(Object)}, but
-	 * creating our own thread here ensures that the GUI is not blocked if asynchronousmoveTo() is written in such a way
-	 * that it can block.
-	 *
-	 * @param position
-	 *            The demanded position
-	 */
-	private void runMoveInThread(double position) {
-		Async.execute(() -> {
-			try {
-				scannable.moveTo(position);
-			} catch (DeviceException e) {
-				logger.error("Error while trying to move {}", scannableName, e);
-			}
-		});
+		return allowed;
 	}
 
 	/**
@@ -294,16 +198,18 @@ public class NudgePositionerComposite extends Composite {
 	 * This is used to update the GUI. Only this method should be used to update the GUI to ensure display is consistent. The position is updated and the
 	 * controls enabled/disabled as appropriate.
 	 *
-	 * @param currentPositionString
-	 *            The newest position to display typically from {@link #getCurrentPosition()}
+	 * @param currentPosition
+	 *            The newest position to display
 	 * @param moving
 	 *            Flag showing if the scannable is moving
 	 */
-	private void updateGui(final Double currentPosition, final boolean moving) {
+	@Override
+	protected void updatePositionerControl(final Object currentPosition, final boolean moving) {
+
 		// Save the new position
-		this.currentPosition = currentPosition;
+		this.currentPosition = convertPosition(currentPosition);
 		// Format current position using output format
-		final String currentPositionString = String.format(scannableOutputFormat, currentPosition).trim();
+		final String currentPositionString = String.format(getScannableOutputFormat(), currentPosition).trim();
 		// Update the GUI in the UI thread
 		Display.getDefault().asyncExec(() -> {
 			if (positionText.isDisposed()) {
@@ -322,79 +228,7 @@ public class NudgePositionerComposite extends Composite {
 			decrementButton.setEnabled(!moving);
 			incrementButton.setEnabled(!moving);
 			positionText.setEditable(!moving && !readOnlyPosition);
-			if (stopButton != null) {
-				stopButton.setEnabled(moving);
-			}
 		});
-	}
-
-	/**
-	 * Calls {@link Scannable} getPosition() method and parses it into a String using getOutputFormat() If the scannable returns an array the first element is
-	 * used.
-	 *
-	 * @return The current position of the scannable
-	 */
-	private Double getCurrentPosition() {
-		Double currentPos = null;
-		try {
-			final Object getPosition = scannable.getPosition();
-
-			if (getPosition.getClass().isArray()) {
-				// The scannable returns an array assume the relevant value is the first and its a double
-				currentPos = (Double) ((Object[]) getPosition)[0];
-			} else if (getPosition instanceof Double) {
-				currentPos = (Double) getPosition;
-			} else {
-				logger.error("Error while parsing currrent position of {}", scannableName);
-			}
-		} catch (DeviceException e) {
-			logger.error("Error while getting currrent position of {}", scannableName, e);
-		}
-
-		return currentPos;
-	}
-
-	private void determineUserUnits() {
-		try {
-			if (scannable instanceof ScannableMotionUnits) {
-				setUserUnits(((ScannableMotionUnits) scannable).getUserUnits());
-			} else {
-				logger.debug("No user units available for {}", scannableName);
-			}
-		} catch (Exception e) {
-			logger.error("Error getting user limits for {}", scannableName, e);
-		}
-	}
-
-	public void setUserUnits(String userUnits) {
-		this.userUnits = userUnits;
-	}
-
-	private void determineScannableLimits() {
-		try {
-			if (scannable instanceof IScannableMotor) {
-				final IScannableMotor scannableMotor = (IScannableMotor) scannable;
-				lowerLimit = scannableMotor.getLowerInnerLimit();
-				upperLimit = scannableMotor.getUpperInnerLimit();
-			} else if (scannable instanceof ScannableMotion) {
-				final ScannableMotion scannableMotion = (ScannableMotion) scannable;
-				final Double[] lowerLimits = scannableMotion.getLowerGdaLimits();
-				if (lowerLimits != null && lowerLimits.length > 0) {
-					lowerLimit = scannableMotion.getLowerGdaLimits()[0];
-				}
-				final Double[] upperLimits = scannableMotion.getLowerGdaLimits();
-				if (upperLimits != null && upperLimits.length > 0) {
-					upperLimit = scannableMotion.getUpperGdaLimits()[0];
-				}
-			}
-			if (lowerLimit == null && upperLimit == null) {
-				logger.debug("No scannable units available for {}", scannableName);
-			} else {
-				positionText.setToolTipText(lowerLimit + " : " + upperLimit);
-			}
-		} catch (Exception e) {
-			logger.error("Error getting scannable limits for {}", scannableName, e);
-		}
 	}
 
 	/**
@@ -415,8 +249,47 @@ public class NudgePositionerComposite extends Composite {
 		incrementValue = Double.parseDouble(incrementText);
 	}
 
-	public double getIncrement() {
-		return this.incrementValue;
+	private void determineUserUnits() {
+		try {
+			if (getScannable() instanceof ScannableMotionUnits) {
+				setUserUnits(((ScannableMotionUnits) getScannable()).getUserUnits());
+			} else {
+				logger.debug("No user units available for {}", getScannable().getName());
+			}
+		} catch (Exception e) {
+			logger.error("Error getting user limits for {}", getScannable().getName(), e);
+		}
+	}
+
+	public void setUserUnits(String userUnits) {
+		this.userUnits = userUnits;
+	}
+
+	private void determineScannableLimits() {
+		try {
+			if (getScannable() instanceof IScannableMotor) {
+				final IScannableMotor scannableMotor = (IScannableMotor) getScannable();
+				lowerLimit = scannableMotor.getLowerInnerLimit();
+				upperLimit = scannableMotor.getUpperInnerLimit();
+			} else if (getScannable() instanceof ScannableMotion) {
+				final ScannableMotion scannableMotion = (ScannableMotion) getScannable();
+				final Double[] lowerLimits = scannableMotion.getLowerGdaLimits();
+				if (lowerLimits != null && lowerLimits.length > 0) {
+					lowerLimit = scannableMotion.getLowerGdaLimits()[0];
+				}
+				final Double[] upperLimits = scannableMotion.getLowerGdaLimits();
+				if (upperLimits != null && upperLimits.length > 0) {
+					upperLimit = scannableMotion.getUpperGdaLimits()[0];
+				}
+			}
+			if (lowerLimit == null && upperLimit == null) {
+				logger.debug("No scannable units available for {}", getScannable().getName());
+			} else {
+				positionText.setToolTipText(lowerLimit + " : " + upperLimit);
+			}
+		} catch (Exception e) {
+			logger.error("Error getting scannable limits for {}", getScannable().getName(), e);
+		}
 	}
 
 	/**
@@ -437,207 +310,39 @@ public class NudgePositionerComposite extends Composite {
 		this.upperLimit = upperLimit;
 	}
 
-	public Double getLowerLimit() {
-		return lowerLimit;
-	}
-
-	public Double getUpperLimit() {
-		return upperLimit;
-	}
-
-	/**
-	 * Clears the limits set on the NudgePositionerComposite does not affect the underlying scannable limits.
-	 */
-	public void removeLimits() {
-		lowerLimit = null;
-		upperLimit = null;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	/**
-	 * Sets a different name to be used in the GUI instead of the default which is the scannable name
-	 * <p>
-	 * After calling this method the control will be automatically redrawn.
-	 *
-	 * @param displayName
-	 *            The name to be used in the GUI
-	 */
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-		displayNameLabel.setText(displayName);
-		this.redraw();
-	}
-
-	/**
-	 * Hides the stop button.
-	 * <p>
-	 * This is useful for scannables which can't be stopped (move instantly) i.e. setting a voltage.
-	 *
-	 * @see #showStopButton()
-	 */
-	public void hideStopButton() {
-		stopButton.setVisible(false);
-		// Exclude the stop button so the layout will compress when it's hidden
-		stopButtonRowData.exclude = true;
-		this.redraw();
-	}
-
-	/**
-	 * Shows the stop button.
-	 *
-	 * @see #hideStopButton()
-	 */
-	public void showStopButton() {
-		stopButton.setVisible(true);
-		// Don't exclude the stop button so the layout will expand when it's shown
-		stopButtonRowData.exclude = false;
-		this.redraw();
-	}
-
-	/**
-	 * Check if the stop button is visible
-	 *
-	 * @return true if stop button is visible
-	 * @see #showStopButton()
-	 * @see #hideStopButton()
-	 */
-	public boolean isStopButtonVisible() {
-		return stopButton.isVisible();
+	private Double convertPosition(final Object currentPosition) {
+		if (currentPosition.getClass().isArray()) {
+			// The scannable returns an array assume the relevant value is the first and its a double
+			return (Double) ((Object[]) currentPosition)[0];
+		} else if (currentPosition instanceof Double) {
+			return (Double) currentPosition;
+		} else {
+			logger.error("Error while parsing current position of {}", getScannable().getName());
+			return null;
+		}
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
 		if (enabled) {
-			// When the control is enabled reconfigure to ensure values are current
-			configure();
-		} else { // disabled
+			// Set the increment text
+			incrementText.setText(incrementValue.toString());
+
+			determineScannableLimits();
+			determineUserUnits();
+		} else {
 			// Clear the position and increments
 			positionText.setText("");
 			incrementText.setText("");
 		}
 		// Disable the controls
-		displayNameLabel.setEnabled(enabled);
 		positionText.setEnabled(enabled);
 		incrementText.setEnabled(enabled);
-		stopButton.setEnabled(enabled);
 		decrementButton.setEnabled(enabled);
 		incrementButton.setEnabled(enabled);
 
 		this.redraw();
-	}
-
-	/**
-	 * Sets the control enabled
-	 * <p>
-	 * Equivalent to setEnabled(true)
-	 *
-	 * @see #setEnabled(boolean)
-	 */
-	public void enable() {
-		setEnabled(true);
-	}
-
-	/**
-	 * Sets the control disabled (grayed)
-	 * <p>
-	 * Equivalent to setEnabled(false)
-	 *
-	 * @see #setEnabled(boolean)
-	 */
-	public void disable() {
-		setEnabled(false);
-	}
-
-	public Scannable getScannable() {
-		return scannable;
-	}
-
-	/**
-	 * This sets the scannable which will be controlled and will automatically configure the control.
-	 * <p>
-	 * This can also be called to change the scannable controlled at any time which will reconfigure the control.
-	 *
-	 * @param scannable
-	 *            The scannable to control
-	 */
-	public void setScannable(Scannable scannable) {
-		if (scannable == null) {
-			throw new IllegalArgumentException("Scannable cannot be set null");
-		}
-
-		this.scannable = scannable;
-		this.scannableName = scannable.getName();
-		this.scannableOutputFormat = scannable.getOutputFormat()[0];
-
-		// If no display name is set when the scannable is set, set it to the scannable name
-		if (displayName == null) {
-			setDisplayName(scannableName);
-		}
-		enable();
-	}
-
-	private void configure() {
-		if (scannable == null) {
-			throw new IllegalStateException("Scannable is not set");
-		}
-
-		// Set the increment text
-		incrementText.setText(incrementValue.toString());
-
-		// TODO This should setup the control after the scannable is set
-		// This is the job which handles updating of the composite. It need to be scheduled when a move is
-		// started after which it will continue to run until the move finishes.
-		updateReadbackJob = new Job("Update " + scannableName + " nudge positioner readback value") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				boolean moving = true;
-				while (moving) { // Loop which runs while scannable is moving
-					try {
-						moving = scannable.isBusy();
-					} catch (DeviceException e) {
-						logger.error("Error while determining whether {} is busy", scannableName, e);
-						return Status.CANCEL_STATUS;
-					}
-
-					// Check if the user has cancelled the job
-					if (monitor.isCanceled()) {
-						return Status.CANCEL_STATUS;
-					}
-
-					try {
-						Thread.sleep(100); // Pause to stop loop running to fast. ~ 10 Hz
-					} catch (InterruptedException e) {
-						logger.error("Thread interrupted during update job for {}", scannableName, e);
-						return Status.CANCEL_STATUS; // Thread interrupted so cancel update job
-					}
-
-					// Update the GUI
-					updateGui(getCurrentPosition(), moving);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-
-		// Add an observer to the scannable to start the updateReadbackJob when an event occurs such as starting to move.
-		// If the job is already running a maximum of one extra will be scheduled.
-		final IObserver iObserver = (source, arg) -> updateReadbackJob.schedule();
-		scannable.addIObserver(iObserver);
-
-		this.addDisposeListener(e -> {
-			scannable.deleteIObserver(iObserver);
-			updateReadbackJob.cancel();
-		});
-
-		determineScannableLimits();
-		determineUserUnits();
-		updateReadbackJob.schedule(); // Get initial values
-	}
-
-	public int getIncrementTextWidth() {
-		return incrementTextWidth;
 	}
 
 	public void setIncrementTextWidth(int incrementTextWidth) {
