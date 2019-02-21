@@ -444,7 +444,7 @@ public class BatonManager implements IBatonManager {
 		if (logger.isDebugEnabled()) {
 			logger.debug("notifyServerOfBatonChange() called when jythonServerNotifer={}, called from {} (abridged)",
 					jythonServerNotifer,
-					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
+					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(10).collect(Collectors.toList()));
 		}
 		if (jythonServerNotifer != null) {
 			jythonServerNotifer.notifyServer(this, new BatonChanged());
