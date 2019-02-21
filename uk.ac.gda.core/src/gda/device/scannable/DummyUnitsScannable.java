@@ -21,8 +21,12 @@ package gda.device.scannable;
 
 import java.util.Arrays;
 
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
+import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -62,8 +66,10 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		final Double targetInHardwareUnits = unitsComponent.convertObjectToHardwareUnitsAssumeUserUnits(externalPosition);
+		final Quantity targetInUserUnits = QuantityFactory.createFromObject(externalPosition, Unit.valueOf(getUserUnits()));
+		final double targetInHardwareUnits = targetInUserUnits.to(Unit.valueOf(getHardwareUnitString())).getAmount();
 		final String report = checkPositionValid(targetInHardwareUnits);
 		if (report != null) {
 			throw new DeviceException(report);
@@ -71,9 +77,11 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		currentPosition = targetInHardwareUnits;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getPosition() throws DeviceException {
-		return unitsComponent.convertObjectToUserUnitsAssumeHardwareUnits(currentPosition);
+		final Quantity positionInHardwareUnits = QuantityFactory.createFromObject(currentPosition, Unit.valueOf(getHardwareUnitString()));
+		return positionInHardwareUnits.to(Unit.valueOf(getUserUnits())).getAmount();
 	}
 
 	@Override
