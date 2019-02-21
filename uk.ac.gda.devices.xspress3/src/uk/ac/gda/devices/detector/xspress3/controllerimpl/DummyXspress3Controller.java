@@ -568,7 +568,7 @@ public class DummyXspress3Controller extends ConfigurableBase implements Xspress
 	@Override
 	public int monitorUpdateArraysAvailableFrame(int desiredPoint) throws DeviceException {
 		logger.debug("Called DummyXspress3Controller.monitorUpdateArraysAvailableFrame({})", desiredPoint);
-		return desiredPoint;
+		return desiredPoint + 1;
 	}
 
 	@Override
