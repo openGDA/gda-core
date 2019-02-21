@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 public class CameraControllerEvent implements Serializable {
 	private double acquireTime;
-	private CameraRegionOfInterest regionOfInterest;
 	private BinningFormat binningFormat;
 	private CameraState cameraState;
 
@@ -32,14 +31,6 @@ public class CameraControllerEvent implements Serializable {
 
 	public void setAcquireTime(double acquireTime) {
 		this.acquireTime = acquireTime;
-	}
-
-	public CameraRegionOfInterest getRegionOfInterest() {
-		return regionOfInterest;
-	}
-
-	public void setRegionOfInterest(CameraRegionOfInterest regionOfInterest) {
-		this.regionOfInterest = regionOfInterest;
 	}
 
 	public BinningFormat getBinningFormat() {

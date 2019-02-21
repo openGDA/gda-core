@@ -83,19 +83,25 @@ public interface CameraControl extends Findable, IObservable {
 	void setBinningPixels (BinningFormat binningFormat) throws DeviceException;
 
 	/**
-	 * Get the current region of interest.
-	 * @return region of interest or <code>null</code> if none is set
+	 *
+	 * @return frame size
+	 * @throws DeviceException
 	 */
-	CameraRegionOfInterest getRegionOfInterest () throws DeviceException;
+	int[] getFrameSize () throws DeviceException;
 
 	/**
 	 *
-	 * @param region
+	 * @param left
+	 * @param top
+	 * @param width
+	 * @param height
+	 * @throws DeviceException
 	 */
-	void setRegionOfInterest (CameraRegionOfInterest region) throws DeviceException;
+	void setRoi (int left, int top, int width, int height) throws DeviceException;
 
 	/**
-	 * Clear
+	 *
+	 * @throws DeviceException
 	 */
-	void clearRegionOfInterest () throws DeviceException;
+	void clearRoi () throws DeviceException;
 }
