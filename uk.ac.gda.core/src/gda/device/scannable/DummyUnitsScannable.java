@@ -90,4 +90,22 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 				+ ", outputFormat=" + Arrays.toString(outputFormat) + "]";
 	}
 
+	/**
+	 * Direct access to get currentPosition for testing purposes
+	 *
+	 * @return position in internal units
+	 */
+	public double getCurrentPosition() {
+		return currentPosition;
+	}
+
+	/**
+	 * Direct access to set current position for testing purposes
+	 *
+	 * @param currentPosition
+	 *            position in internal units
+	 */
+	public void setCurrentPosition(double currentPosition) {
+		this.currentPosition = currentPosition;
+	}
 }
