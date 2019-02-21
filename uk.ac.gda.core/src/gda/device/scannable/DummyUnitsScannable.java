@@ -33,7 +33,8 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 
 	private double currentPosition = 0;
 
-	public DummyUnitsScannable(){
+	public DummyUnitsScannable() {
+		// noargs constructor for use in Spring
 	}
 
 	/**
@@ -45,9 +46,9 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 	 * @param userUnits
 	 * @throws DeviceException
 	 */
-	public DummyUnitsScannable(String name, double initialPosition, String hardwareUnits, String userUnits) throws DeviceException{
+	public DummyUnitsScannable(String name, double initialPosition, String hardwareUnits, String userUnits) throws DeviceException {
 		setName(name);
-		setInputNames(new String[]{name});
+		setInputNames(new String[] { name });
 		currentPosition = initialPosition;
 		setHardwareUnitString(hardwareUnits);
 		setInitialUserUnits(userUnits);
@@ -55,26 +56,24 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 	}
 
 	@Override
-	public void configure(){
-		//everything done in setters
+	public void configure() {
+		// everything done in setters
 		setConfigured(true);
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		Double targetInHardwareUnits = unitsComponent.convertObjectToHardwareUnitsAssumeUserUnits(externalPosition);
-		String report = checkPositionValid(targetInHardwareUnits);
+		final Double targetInHardwareUnits = unitsComponent.convertObjectToHardwareUnitsAssumeUserUnits(externalPosition);
+		final String report = checkPositionValid(targetInHardwareUnits);
 		if (report != null) {
 			throw new DeviceException(report);
 		}
 		currentPosition = targetInHardwareUnits;
 	}
 
-
 	@Override
 	public Object getPosition() throws DeviceException {
-		Double positionInUserUnits = unitsComponent.convertObjectToUserUnitsAssumeHardwareUnits(currentPosition);
-		return positionInUserUnits;
+		return unitsComponent.convertObjectToUserUnitsAssumeHardwareUnits(currentPosition);
 	}
 
 	@Override
