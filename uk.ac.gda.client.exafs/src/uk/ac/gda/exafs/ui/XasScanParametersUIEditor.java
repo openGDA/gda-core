@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.Converter;
+import gda.gui.exafs.Converter;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;

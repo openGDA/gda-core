@@ -18,9 +18,6 @@
 
 package gda.exafs.scan;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -28,7 +25,8 @@ import org.python.core.PyArray;
 import org.python.core.PyFloat;
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
-
+import gda.gui.exafs.Converter;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 
 /**
@@ -199,7 +197,7 @@ public class ExafsScanPointCreator {
 	private double[][] calculateValues() throws ExafsScanPointCreatorException {
 		// Rather than using two dimensional arrays, this method should use pojo objects and collections
 		// this is much easier to deal with.
-		scanTimes= new ArrayList<ExafsScanRegionTime> ();
+		scanTimes= new ArrayList<> ();
 		double[][] preEdgeEnergies = createStepArray(initialEnergy, aEnergy, preEdgeStep, preEdgeTime, false,
 				numberDetectors);
 		scanTimes.add(new ExafsScanRegionTime("PreEdge", preEdgeEnergies.length, new double[]{preEdgeTime}));

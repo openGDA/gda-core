@@ -12,7 +12,7 @@
 	<!-- ====================================================================
 		   JUnit tests
 		 ==================================================================== -->
-
+	
 	<import file="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/ant-headless/test-common.ant" />
 
 	<target name="junit-tests" depends="set-test-base-GDA, Xvfb_start, Metacity_start, _junit-tests, Metacity_stop, Xvfb_stop" />
@@ -33,6 +33,7 @@
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client.experimentdefinition/bin" />
+				<pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.api/bin" />

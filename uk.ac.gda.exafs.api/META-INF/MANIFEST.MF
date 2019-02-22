@@ -33,6 +33,7 @@ Require-Bundle: uk.ac.gda.common,
  org.eclipse.january,
  org.eclipse.dawnsci.nexus,
  org.eclipse.dawnsci.hdf5,
- uk.ac.gda.nexus
+ uk.ac.gda.nexus,
+ uk.ac.gda.dls
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.exafs.api

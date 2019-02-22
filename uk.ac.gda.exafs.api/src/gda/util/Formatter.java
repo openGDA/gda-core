@@ -21,6 +21,8 @@ package gda.util;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import gda.gui.exafs.Converter;
+
 /**
  * Formats Strings and numbers (rounding effectively)
  */

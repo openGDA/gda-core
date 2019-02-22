@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.Converter;
+import gda.gui.exafs.Converter;
 import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
