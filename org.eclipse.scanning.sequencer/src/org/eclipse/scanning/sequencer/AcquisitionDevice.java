@@ -607,14 +607,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	@Override
 	public void reset() throws ScanningException {
-		logger.debug("reset() called");
-		if (positioner instanceof LevelRunner) {
-			((LevelRunner<?>)positioner).reset();
-		}
-		runners.reset();
-		writers.reset();
-
-		super.reset();
+		// Cannot reset an Acquisition Device. A new one must be created for each scan.
+		throw new UnsupportedOperationException("reset not supported");
 	}
 
 	/**

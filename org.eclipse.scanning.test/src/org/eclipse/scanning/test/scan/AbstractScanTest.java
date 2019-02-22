@@ -310,23 +310,6 @@ public class AbstractScanTest extends BrokerTest {
 			ok=true;
 		}
 		if (!ok) throw new Exception("The exception was not thrown by the scan as expected!");
-
-		// 5. Reset everything and see if can run ok
-		scanner.reset();
-
-		// Put the model back for the test and reconfigure
-		dmodel.setRan(0);
-		dmodel.setWritten(0);
-		dmodel.setAbortCount(-1); // Solves the problem with the detector!
-		detector.configure(dmodel);
-
-		// Reconfigure - might need better way of doing?
-		AbstractRunnableDevice<ScanModel> ascanner = (AbstractRunnableDevice<ScanModel>)scanner;
-		scanner.configure(ascanner.getModel());
-
-		// Run again, should be ok.
-		scanner.run(null);
-		checkRun(scanner);
 	}
 
 
