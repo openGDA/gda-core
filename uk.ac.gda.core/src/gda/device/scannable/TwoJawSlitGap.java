@@ -57,9 +57,8 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-
 		// return position as a double
-		return unitsComponent.convertObjectToUserUnitsAssumeUserUnits(getCurrentGap());
+		return getCurrentGap().to(unitsComponent.getUserUnit()).getAmount();
 	}
 
 	/**

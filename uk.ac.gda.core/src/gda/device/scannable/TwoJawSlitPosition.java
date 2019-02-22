@@ -102,7 +102,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 			//note current value
 			Quantity initialPositionQuantity = getCurrentPosition();
-			double initialPositionUserUnits = unitsComponent.convertObjectToUserUnitsAssumeUserUnits(initialPositionQuantity);
+			double initialPositionUserUnits = initialPositionQuantity.to(unitsComponent.getUserUnit()).getAmount();
 
 			try {
 				//calculate motor targets based on starting positions
@@ -228,7 +228,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		// return position as a double
-		return unitsComponent.convertObjectToUserUnitsAssumeUserUnits(getCurrentPosition());
+		return getCurrentPosition().to(unitsComponent.getUserUnit()).getAmount();
 	}
 
 	@Override
