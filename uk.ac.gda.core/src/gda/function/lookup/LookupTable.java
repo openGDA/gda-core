@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.collections.map.MultiValueMap;
@@ -305,7 +306,7 @@ public class LookupTable extends ConfigurableBase implements Lookup, Localizable
 	public Unit<? extends Quantity> lookupUnit(String scannableName) throws DeviceException {
 		checkConfigured();
 		synchronized (lookupMap) {
-			return ((ArrayList<Unit<? extends Quantity>>) lookupMap.getCollection(getColumnUnit()))
+			return ((List<Unit<? extends Quantity>>) lookupMap.getCollection(getColumnUnit()))
 					.get(indexOfScannable(getScannableNames(), scannableName));
 		}
 	}
@@ -315,7 +316,7 @@ public class LookupTable extends ConfigurableBase implements Lookup, Localizable
 	public synchronized String lookupUnitString(String scannableName) throws DeviceException {
 		checkConfigured();
 		synchronized (lookupMap) {
-			Unit<? extends Quantity> unit = ((ArrayList<Unit<? extends Quantity>>) lookupMap
+			Unit<? extends Quantity> unit = ((List<Unit<? extends Quantity>>) lookupMap
 					.getCollection(getColumnUnit())).get(indexOfScannable(getScannableNames(), scannableName));
 			return unit.toString();
 		}
@@ -326,7 +327,7 @@ public class LookupTable extends ConfigurableBase implements Lookup, Localizable
 	public synchronized int lookupDecimalPlaces(String scannableName) throws DeviceException {
 		checkConfigured();
 		synchronized (lookupMap) {
-			return ((ArrayList<Integer>) lookupMap.getCollection("DecimalPlaces")).get(indexOfScannable(
+			return ((List<Integer>) lookupMap.getCollection("DecimalPlaces")).get(indexOfScannable(
 					getScannableNames(), scannableName));
 		}
 	}

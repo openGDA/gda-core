@@ -20,7 +20,7 @@
 package gda.util.converters;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -174,7 +174,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 		throw new IllegalArgumentException("LookupTableConverterHolder.setName() : Error this should not be called");
 	}
 
-	static boolean UnitsAreEqual1(ArrayList<Unit<? extends Quantity>> o, ArrayList<Unit<? extends Quantity>> n) {
+	static boolean UnitsAreEqual1(List<Unit<? extends Quantity>> o, List<Unit<? extends Quantity>> n) {
 		if (o.size() != n.size())
 			return false;
 
@@ -186,8 +186,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 		return true;
 	}
 
-	static boolean UnitsAreEqual(ArrayList<ArrayList<Unit<? extends Quantity>>> o,
-			ArrayList<ArrayList<Unit<? extends Quantity>>> n) {
+	static boolean UnitsAreEqual(List<List<Unit<? extends Quantity>>> o, List<List<Unit<? extends Quantity>>> n) {
 		if (o.size() != n.size())
 			return false;
 
@@ -203,14 +202,14 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 		if (o == null || n == null) {
 			throw new IllegalArgumentException("LookupTableConverterHolder.CheckUnitsAreEqual() : o or n is null ");
 		}
-		ArrayList<ArrayList<Unit<? extends Quantity>>> newAcceptableUnits = n.getAcceptableUnits();
+		List<List<Unit<? extends Quantity>>> newAcceptableUnits = n.getAcceptableUnits();
 		if (!UnitsAreEqual(newAcceptableUnits, o.getAcceptableUnits())) {
 			throw new IllegalArgumentException(
 					"LookupTableConverterHolder.CheckUnitsAreEqual() : AcceptableUnits have changed from "
 							+ o.getAcceptableUnits().toString() + " to " + newAcceptableUnits.toString());
 		}
 
-		ArrayList<ArrayList<Unit<? extends Quantity>>> newAcceptableMoveableUnits = n.getAcceptableMoveableUnits();
+		List<List<Unit<? extends Quantity>>> newAcceptableMoveableUnits = n.getAcceptableMoveableUnits();
 		if (!UnitsAreEqual(newAcceptableMoveableUnits, o.getAcceptableMoveableUnits())) {
 			throw new IllegalArgumentException(
 					"LookupTableConverterHolder.CheckUnitsAreEqual() : AcceptableMoveableUnits have changed from "
@@ -250,7 +249,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableMoveableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -258,7 +257,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
@@ -305,7 +304,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 	 * @see gda.util.converters.IQuantityConverter#getAcceptableSourceUnits()
 	 */
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return getConverter().getAcceptableSourceUnits();
 	}
 
@@ -313,7 +312,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 	 * @see gda.util.converters.IQuantityConverter#getAcceptableTargetUnits()
 	 */
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return getConverter().getAcceptableTargetUnits();
 	}
 

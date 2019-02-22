@@ -19,7 +19,7 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -66,12 +66,12 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return expressionParameters.getAcceptableSourceUnits();
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return expressionParameters.getAcceptableTargetUnits();
 	}
 

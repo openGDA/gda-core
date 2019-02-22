@@ -19,7 +19,7 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -64,7 +64,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
 		return sourceConverter.getAcceptableUnits();
 	}
 
@@ -72,7 +72,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableMoveableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
 		return targetConverter.getAcceptableMoveableUnits();
 	}
 
@@ -122,7 +122,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		if (!(sourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.getAcceptableSourceUnits: sourceConverter does not support IQuantityConverter ");
@@ -131,7 +131,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		if (!(targetConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"getAcceptableTargetUnits: targetConverter does not support IQuantityConverter ");

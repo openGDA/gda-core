@@ -19,7 +19,7 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -141,12 +141,12 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -161,12 +161,12 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableSourceUnits();
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableTargetUnits();
 	}
 

@@ -19,37 +19,37 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
 
 /**
  * Used by <code>gda.util.converters.GenQuantitiesConverter</code> to convert between two Quantities.
- * 
+ *
  * Source is the value internal to GDa and target is the motor position.
  */
 public interface IQuantityConverter extends IConverter<Quantity, Quantity> {
 	/**
 	 * @return AcceptableSourceUnits
 	 */
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits();
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits();
 
 	/**
 	 * @return AcceptableTargetUnits
 	 */
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits();
-	
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits();
+
 	/**
-	 * 
-	 * @return true if the converter converts from S to T 
+	 *
+	 * @return true if the converter converts from S to T
 	 */
 	public boolean handlesStoT();
 
 	/**
-	 * 
-	 * @return true if the converter converts from T to S 
+	 *
+	 * @return true if the converter converts from T to S
 	 */
 	public boolean handlesTtoS();
-	
+
 }

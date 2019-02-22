@@ -20,6 +20,8 @@
 package gda.util.converters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -38,8 +40,8 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
-		ArrayList<ArrayList<Unit<? extends Quantity>>> units = new ArrayList<ArrayList<Unit<? extends Quantity>>>();
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+		final List<List<Unit<? extends Quantity>>> units = new ArrayList<>();
 		units.add(converter.getAcceptableSourceUnits());
 		return units;
 	}
@@ -47,8 +49,8 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	@Override
 	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
 		Quantity target = converter.toTarget(sources[0]);
-		Quantity targets[] = new Quantity[moveables.length];
-		java.util.Arrays.fill(targets, target);
+		Quantity[] targets = new Quantity[moveables.length];
+		Arrays.fill(targets, target);
 		return targets;
 	}
 
@@ -56,13 +58,13 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
 		Quantity source = converter.toSource(targets[0]);
 		Quantity sources[] = new Quantity[moveables.length];
-		java.util.Arrays.fill(sources, source);
+		Arrays.fill(sources, source);
 		return sources;
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
-		ArrayList<ArrayList<Unit<? extends Quantity>>> units = new ArrayList<ArrayList<Unit<? extends Quantity>>>();
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+		final List<List<Unit<? extends Quantity>>> units = new ArrayList<>();
 		units.add(converter.getAcceptableTargetUnits());
 		return units;
 	}
@@ -72,11 +74,11 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 		return "GenQuantitiesConverter wrapper of  " + converter.toString();
 	}
 
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return converter.getAcceptableSourceUnits();
 	}
 
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return converter.getAcceptableTargetUnits();
 	}
 

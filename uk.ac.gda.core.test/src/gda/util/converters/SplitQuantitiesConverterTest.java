@@ -19,12 +19,12 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
-
-import junit.framework.TestCase;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+
+import junit.framework.TestCase;
 
 /**
  * SplitQuantitiesConverterTest Class. It is assumed the that working directory points to the test folder above gda
@@ -60,13 +60,12 @@ public class SplitQuantitiesConverterTest extends TestCase {
 		SplitQuantitiesConverter splitConverter = new SplitQuantitiesConverter(toSourceConverter,
 				calcMoveablesConverter);
 
-		ArrayList<ArrayList<Unit<? extends Quantity>>> acceptableUnits = splitConverter.getAcceptableUnits();
-		ArrayList<ArrayList<Unit<? extends Quantity>>> acceptableMoveableUnits = splitConverter
+		List<List<Unit<? extends Quantity>>> acceptableUnits = splitConverter.getAcceptableUnits();
+		List<List<Unit<? extends Quantity>>> acceptableMoveableUnits = splitConverter
 				.getAcceptableMoveableUnits();
 
-		ArrayList<ArrayList<Unit<? extends Quantity>>> acceptableCalcMoveablesUnits = calcMoveablesConverter
-				.getAcceptableUnits();
-		ArrayList<ArrayList<Unit<? extends Quantity>>> acceptableToSourceMoveableUnits = toSourceConverter
+		List<List<Unit<? extends Quantity>>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
+		List<List<Unit<? extends Quantity>>> acceptableToSourceMoveableUnits = toSourceConverter
 				.getAcceptableMoveableUnits();
 
 		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableCalcMoveablesUnits, acceptableUnits));

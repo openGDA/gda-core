@@ -20,7 +20,7 @@
 package gda.util.converters;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -151,12 +151,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
@@ -184,12 +184,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return getConverter().getAcceptableSourceUnits();
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return getConverter().getAcceptableTargetUnits();
 	}
 

@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.jscience.physics.quantities.Quantity;
@@ -56,7 +57,7 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 
 	private double[][] columnData;
 
-	private ArrayList<Unit<? extends Quantity>> columnUnits;
+	private List<Unit<? extends Quantity>> columnUnits;
 
 	private int[] columnDecimalPlaces;
 
@@ -156,7 +157,7 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 		logger.debug("each line should contain " + nColumns + " numbers");
 
 		if (unitStrings != null) {
-			columnUnits = new ArrayList<Unit<? extends Quantity>>();
+			columnUnits = new ArrayList<>();
 			// NB unitStrings contains as its first element "Units" hence
 			// the i+1
 			for (int i = 0; i < nColumns; i++){

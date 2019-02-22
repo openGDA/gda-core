@@ -20,6 +20,7 @@
 package gda.util.converters;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -42,7 +43,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 
 	private final int sColumn, tColumn;
 
-	private final ArrayList<Unit<? extends Quantity>> acceptableSourceUnits, acceptableTargetUnits;
+	private final List<Unit<? extends Quantity>> acceptableSourceUnits, acceptableTargetUnits;
 
 	private final String columnDataFileName;
 
@@ -157,10 +158,10 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 				sourceMinIsTargetMax = false;
 			}
 
-			acceptableSourceUnits = new ArrayList<Unit<? extends Quantity>>();
+			acceptableSourceUnits = new ArrayList<>();
 			acceptableSourceUnits.add(columnDataFile.getColumnUnits(sColumn));
 
-			acceptableTargetUnits = new ArrayList<Unit<? extends Quantity>>();
+			acceptableTargetUnits = new ArrayList<>();
 			acceptableTargetUnits.add(columnDataFile.getColumnUnits(tColumn));
 		} catch (ArrayIndexOutOfBoundsException exception) {
 			throw new IllegalArgumentException(
@@ -177,12 +178,12 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		return acceptableSourceUnits;
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		return acceptableTargetUnits;
 	}
 

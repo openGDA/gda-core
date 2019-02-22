@@ -19,7 +19,7 @@
 
 package gda.util.converters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
@@ -62,7 +62,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
 		return calculateMoveablesConverter.getAcceptableUnits();
 	}
 
@@ -70,7 +70,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableMoveableUnits()
 	 */
 	@Override
-	public ArrayList<ArrayList<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
 		return toSourceConverter.getAcceptableMoveableUnits();
 	}
 
@@ -110,7 +110,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
 		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.getAcceptableSourceUnits: calculateMoveablesConverter does not support IQuantityConverter ");
@@ -119,7 +119,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	@Override
-	public ArrayList<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
 		if (!(toSourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.getAcceptableTargetUnits: toSourceConverter does not support IQuantityConverter ");
