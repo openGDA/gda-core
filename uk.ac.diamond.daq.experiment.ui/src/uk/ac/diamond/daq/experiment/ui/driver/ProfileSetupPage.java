@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.driver;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -15,6 +17,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+
+import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 
 public class ProfileSetupPage extends WizardPage {
 	
@@ -24,6 +29,8 @@ public class ProfileSetupPage extends WizardPage {
 	
 	@Inject
 	private IEclipseContext injectionContext;
+	
+	private String profileName;
 	
 	private ProfileMode profileMode = ProfileMode.DISPLACEMENT;
 	private ProfilePath profilePath = ProfilePath.FIXED_RATE;
@@ -45,6 +52,15 @@ public class ProfileSetupPage extends WizardPage {
 		FontData[] fontData = title.getFont().getFontData();
 		fontData[0].setHeight(14);
 		title.setFont(new Font(Display.getDefault(), fontData[0]));
+		
+		Composite nameComposite = new Composite(composite, SWT.NONE);
+		GridLayoutFactory.swtDefaults().extendedMargins(0, 0, 10, 10).numColumns(2).equalWidth(false).applyTo(nameComposite);
+		stretch.applyTo(nameComposite);
+		
+		new Label(nameComposite, SWT.NONE).setText("Profile name");
+		Text name = new Text(nameComposite, SWT.BORDER);
+		stretch.applyTo(name);
+		name.addListener(SWT.Modify, e -> profileName = name.getText());
 		
 		Composite modeAndPath = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).applyTo(modeAndPath);
@@ -117,6 +133,8 @@ public class ProfileSetupPage extends WizardPage {
 		}
 	}
 	
+	ProfileEditor editor;
+	
 	private void updateEditor() {
 		if (editorComposite!=null) {
 			editorComposite.dispose();
@@ -127,10 +145,18 @@ public class ProfileSetupPage extends WizardPage {
 		GridLayoutFactory.swtDefaults().applyTo(editorComposite);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(editorComposite);
 
-		ProfileEditor editor = getProfileEditor();
+		editor = getProfileEditor();
 		editor.createControl(editorComposite);
 		
 		composite.layout();
+	}
+
+	public List<DriverProfileSection> getProfile() {
+		return editor.getProfile();
+	}
+
+	public String getProfileName() {
+		return profileName;
 	}
 
 }

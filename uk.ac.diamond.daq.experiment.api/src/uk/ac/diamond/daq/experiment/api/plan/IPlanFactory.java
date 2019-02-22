@@ -9,12 +9,12 @@ public interface IPlanFactory {
 
 
 	/**
-	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link SEVSignal}.
+	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link SignalSource}.
 	 *
 	 * @param signalProvider
 	 * @return reference to created sev
 	 */
-	ISampleEnvironmentVariable addSEV(SEVSignal signalProvider);
+	ISampleEnvironmentVariable addSEV(SignalSource signalProvider);
 
 
 	/**

@@ -1,9 +1,8 @@
 package uk.ac.diamond.daq.experiment.ui.plan;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.wizard.Wizard;
 
@@ -34,13 +33,12 @@ public class PlanSetupWizard extends Wizard {
 		
 		Map<String, IExperimentDriver> drivers = Finder.getInstance().getFindablesOfType(IExperimentDriver.class);
 		
-		// just for the demo! configs should probably come from the experient service
-		Map<IExperimentDriver, List<String>> driverConfigs = new HashMap<>();
+		Map<IExperimentDriver, Set<String>> driverConfigs = new HashMap<>();
 		for (Map.Entry<String, IExperimentDriver> driver : drivers.entrySet()) {
-			driverConfigs.put(driver.getValue(), Arrays.asList("config" + Math.random()));
+			driverConfigs.put(driver.getValue(), experimentService.getDriverProfileNames(driver.getKey(), experimentId));
 		}
 		
-		metadataAndDriverPage = new MetadataAndExperimentDriverPage();
+		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentService, experimentId);
 		metadataAndDriverPage.setExperimentDriverConfigurations(driverConfigs);
 		addPage(metadataAndDriverPage);
 		
@@ -62,6 +60,7 @@ public class PlanSetupWizard extends Wizard {
 		planBean.setName(metadataAndDriverPage.getPlanName());
 		planBean.setDescription(metadataAndDriverPage.getPlanDescription());
 		planBean.setExperimentDriverName(metadataAndDriverPage.getExperimentDriverName());
+		planBean.setExperimentDriverProfile(metadataAndDriverPage.getExperimentDriverProfile());
 		
 		planBean.setSegments(segmentsAndTriggersPage.getSegments());
 		

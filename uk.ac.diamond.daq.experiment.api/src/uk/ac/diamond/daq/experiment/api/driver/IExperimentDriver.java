@@ -1,11 +1,13 @@
 package uk.ac.diamond.daq.experiment.api.driver;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
  * The ExperimentDriver is any apparatus or mechanism that modifies the specimen
@@ -34,15 +36,22 @@ public interface IExperimentDriver extends Findable {
 	/**
 	 * @return signals which respond to the profile
 	 */
-	Map<String, SEVSignal> getReadouts();
+	Map<String, SignalSource> getReadouts();
 
 	/**
 	 * Convenience method to get readout of given name
 	 */
-	default SEVSignal getReadout(String name) {
-		SEVSignal readout = getReadouts().get(name);
+	default SignalSource getReadout(String name) {
+		SignalSource readout = getReadouts().get(name);
 		Objects.requireNonNull(readout, "This experiment driver does not have a readout named '" + name + "'");
 		return readout;
+	}
+	
+	/**
+	 * Convenience method to get the names of all readouts associated with this driver
+	 */
+	default Set<String> getReadoutNames() {
+		return new HashSet<>(getReadouts().keySet());
 	}
 
 	/**

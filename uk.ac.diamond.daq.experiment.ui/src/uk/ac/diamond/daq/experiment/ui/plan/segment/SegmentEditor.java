@@ -4,7 +4,6 @@ import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -51,7 +50,7 @@ public class SegmentEditor implements ElementEditor {
 	// Triggers
 	private TriggerListEditor triggers;
 	
-	private List<String> sevs;
+	private Set<String> sevs;
 	
 	public SegmentEditor(ExperimentService experimentService, String experimentId) {
 		triggers = new TriggerListEditor(experimentService, experimentId);
@@ -201,8 +200,7 @@ public class SegmentEditor implements ElementEditor {
 		composite.layout();
 	}
 	
-	public void setSevNames(List<String> sevs) {
-		// SEV Combo in this editor is not working...
+	public void setSevNames(Set<String> sevs) {
 		this.sevs = sevs;
 		triggers.setSevs(sevs);
 	}

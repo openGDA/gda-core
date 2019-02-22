@@ -5,10 +5,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
- * This implementation does not poll a {@link SEVSignal}. Methods {@link #broadcast(double)} will
+ * This implementation does not poll a {@link SignalSource}. Methods {@link #broadcast(double)} will
  * set and broadcast the desired signal, and {@link #ramp(double, double)} will call broadcast incrementally
  * until the desired signal is reached.
  */

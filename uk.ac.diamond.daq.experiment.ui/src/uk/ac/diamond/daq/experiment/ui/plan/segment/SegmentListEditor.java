@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
@@ -44,8 +43,8 @@ public class SegmentListEditor {
 		return composite;
 	}
 	
-	public void setSevs(Map<String, SEVSignal> sevs) {
-		segmentEditor.setSevNames(sevs.keySet().stream().collect(Collectors.toList()));
+	public void setSevs(Set<String> sevs) {
+		segmentEditor.setSevNames(sevs);
 	}
 	
 	public List<SegmentDescriptor> getSegments() {

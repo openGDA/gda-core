@@ -109,6 +109,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		SegmentDescriptor model = new SegmentDescriptor();
 		model.setName("Unnamed segment");
 		model.setSignalSource(SignalSource.TIME);
+		model.setIneq(Inequality.LESS_THAN);
 		return model;
 	}
 

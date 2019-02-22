@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -22,12 +23,12 @@ public class TriggerDetailControl {
 	
 	private Composite composite;
 	
-	private List<String> sevs;
+	private Set<String> sevs;
 	
 	private Text target, tolerance, interval;
 	private Combo sevCombo;
 	
-	public void setSevNames(List<String> sevs) {
+	public void setSevNames(Set<String> sevs) {
 		this.sevs = sevs;
 	}
 	
@@ -84,7 +85,7 @@ public class TriggerDetailControl {
 		
 		new Label(composite, SWT.NONE).setText("Interval");
 		interval = new Text(composite, SWT.BORDER);
-		interval.addListener(SWT.Selection, e -> {
+		interval.addListener(SWT.Modify, e -> {
 			if (model != null) model.setInterval(Double.parseDouble(interval.getText()));
 		});
 		if (model != null) {
@@ -139,7 +140,7 @@ public class TriggerDetailControl {
 		if (sevs != null) {
 			sevCombo.setItems(sevs.toArray(new String[0]));
 			if (model != null) {
-				sevCombo.select(sevs.indexOf(model.getSampleEnvironmentVariableName()));
+				sevCombo.select(indexOf(model.getSampleEnvironmentVariableName()));
 			} else {
 				sevCombo.select(0);
 			}
@@ -152,6 +153,10 @@ public class TriggerDetailControl {
 		STRETCH.applyTo(sevCombo);
 	}
 	
+	private int indexOf(String sampleEnvironmentVariableName) {
+		return new ArrayList<>(sevs).indexOf(sampleEnvironmentVariableName);
+	}
+
 	protected Text getTarget() {
 		return target;
 	}

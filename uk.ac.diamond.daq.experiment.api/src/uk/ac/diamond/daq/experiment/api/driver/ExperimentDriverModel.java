@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.api.driver;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +16,9 @@ import java.util.Set;
  * @author Douglas Winter
  *
  */
-public class ExperimentDriverModel {
-	
+public class ExperimentDriverModel implements Serializable {
+
+	private static final long serialVersionUID = -4072720382672143028L;
 	private List<DriverProfileSection> profile;
 	private Double maxLimit;
 	private Double minLimit;

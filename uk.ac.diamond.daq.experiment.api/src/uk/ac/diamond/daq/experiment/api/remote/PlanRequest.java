@@ -16,6 +16,12 @@ public interface PlanRequest extends Serializable {
 	 * {@code null} if none used in the plan
 	 */
 	String getExperimentDriverName();
+	
+	
+	/**
+	 * {@code null} if no driver used
+	 */
+	String getExperimentDriverProfile();
 
 
 	List<SegmentRequest> getSegmentRequests();

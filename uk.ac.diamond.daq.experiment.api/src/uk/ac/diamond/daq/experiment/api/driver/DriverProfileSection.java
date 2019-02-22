@@ -2,16 +2,27 @@ package uk.ac.diamond.daq.experiment.api.driver;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
-public class DriverProfileSection implements EditableWithListWidget {
+public class DriverProfileSection implements EditableWithListWidget, Serializable {
 	
+	private static final long serialVersionUID = 689298404406092807L;
+
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	private double start;
 	private double stop;
 	private double duration;
+	
+	public DriverProfileSection() {}
+	
+	public DriverProfileSection(double start, double stop, double duration) {
+		this.start = start;
+		this.stop = stop;
+		this.duration = duration;
+	}
 	
 	public double getStart() {
 		return start;
@@ -68,6 +79,11 @@ public class DriverProfileSection implements EditableWithListWidget {
 		defaultSection.setStop(1.0);
 		defaultSection.setDuration(1.0);
 		return defaultSection;
+	}
+	
+	@Override
+	public String toString() {
+		return "DriverProfileSection [from " + start + " to " + stop + " in " + duration + " m]";
 	}
 
 }

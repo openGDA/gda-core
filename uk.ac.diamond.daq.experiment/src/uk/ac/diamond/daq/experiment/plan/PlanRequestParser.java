@@ -34,6 +34,7 @@ public class PlanRequestParser {
 		
 		if (planRequest.getExperimentDriverName() != null) {
 			driver = Finder.getInstance().find(planRequest.getExperimentDriverName());
+			driver.setModel(experimentService.getDriverProfile(driver.getName(), planRequest.getExperimentDriverProfile(), planRequest.getPlanName()));
 			plan.setDriver(driver);
 		}
 		

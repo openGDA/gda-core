@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SEVSignal;
+import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 public class SampleEnvironmentVariableTest {
 
@@ -23,7 +23,7 @@ public class SampleEnvironmentVariableTest {
 
 	@Before
 	public void setUp() {
-		SEVSignal signalProvider = SEVSignalSims.linearEvolution(0, 0.1);
+		SignalSource signalProvider = SEVSignalSims.linearEvolution(0, 0.1);
 		sev = new SampleEnvironmentVariable(signalProvider);
 	}
 
