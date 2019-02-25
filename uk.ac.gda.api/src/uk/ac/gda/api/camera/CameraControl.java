@@ -91,6 +91,13 @@ public interface CameraControl extends Findable, IObservable {
 
 	/**
 	 *
+	 * @return array of left, top, width, height
+	 * @throws DeviceException
+	 */
+	int[] getRoi () throws DeviceException;
+
+	/**
+	 *
 	 * @param left
 	 * @param top
 	 * @param width

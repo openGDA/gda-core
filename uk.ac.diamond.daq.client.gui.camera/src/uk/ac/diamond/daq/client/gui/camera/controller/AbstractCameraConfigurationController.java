@@ -26,8 +26,8 @@ public abstract class AbstractCameraConfigurationController implements IObserver
 		cameraControl = Finder.getInstance().find(findableInstance);
 		cameraControl.addIObserver(this);
 		
-		int[] frameSize = cameraControl.getFrameSize();
-		currentRoi = new RectangularROI(0.0, 0.0, frameSize[0], frameSize[1], 0.0);
+		int[] rawRoi= cameraControl.getRoi();
+		currentRoi = new RectangularROI(rawRoi[0], rawRoi[1], rawRoi[2], rawRoi[3], 0.0);
 		proposedRoi = new RectangularROI(0.0, 0.0, 0.0, 0.0, 0.0);
 	}
 	

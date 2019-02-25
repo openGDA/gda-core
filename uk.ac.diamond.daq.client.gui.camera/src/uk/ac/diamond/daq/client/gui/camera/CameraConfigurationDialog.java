@@ -11,7 +11,6 @@ import uk.ac.diamond.daq.client.gui.camera.controller.CameraConfigurationMode;
 import uk.ac.diamond.daq.client.gui.camera.controller.ImagingCameraConfigurationController;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureConfigurationComposite;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 
 public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog<ImagingCameraConfigurationController> {
 	private static final int EXPOSURE_TAB_INDEX = 0;
@@ -19,12 +18,11 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 	
 	private static CameraConfigurationDialog instance;
 	
-	public static void show (Display display, CameraConfiguration cameraConfiguration, 
-			LiveStreamConnection liveStreamConnection) throws DeviceException {
+	public static void show (Display display, LiveStreamConnection liveStreamConnection) throws DeviceException {
 		if (instance == null) {
 			ImagingCameraConfigurationController controller = new ImagingCameraConfigurationController("imaging_camera_control");
 			
-			instance = new CameraConfigurationDialog(display, controller, cameraConfiguration, 
+			instance = new CameraConfigurationDialog(display, controller, 
 					liveStreamConnection, "Camera Configuration");
 			instance.shell.addListener(SWT.Dispose, e -> {
 				instance.controller.dispose ();
@@ -35,9 +33,8 @@ public class CameraConfigurationDialog extends AbstractCameraConfigurationDialog
 	}
 	
 	private CameraConfigurationDialog(Display display, ImagingCameraConfigurationController controller,
-			CameraConfiguration cameraConfiguration, LiveStreamConnection liveStreamConnection, 
-			String title) throws DeviceException {
-		super (display, controller, cameraConfiguration, liveStreamConnection, title);
+			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {
+		super (display, controller, liveStreamConnection, title);
 	}
 	
 	@Override
