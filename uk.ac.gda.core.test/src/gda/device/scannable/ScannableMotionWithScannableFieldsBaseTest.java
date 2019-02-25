@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -46,6 +47,8 @@ import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBas
 import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase.ScannableField;
 
 public class ScannableMotionWithScannableFieldsBaseTest {
+	// Tolerance for imprecision of floating-point calculations
+	private static final double FP_TOLERANCE = 0.00001;
 
 	ScannableMotionWithScannableFieldsBase scn;
 	private ScannableField i1;
@@ -158,7 +161,13 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		when(scn.rawGetPosition()).thenReturn(new Double[] { 90., 91., 92., 93.});
 		i1.atLevelMoveStart();
 		i1.asynchronousMoveTo(10.);
-		verify(scn).rawAsynchronousMoveTo(new Double[] { 10., 91. });
+
+		final ArgumentCaptor<Double[]> argCaptor = ArgumentCaptor.forClass(Double[].class);
+		verify(scn).rawAsynchronousMoveTo(argCaptor.capture());
+		final Double[] argument = argCaptor.getValue();
+		assertEquals(10., argument[0], FP_TOLERANCE);
+		assertEquals(91., argument[1], FP_TOLERANCE);
+
 		assertFalse(scn.isTargeting());
 	}
 
@@ -222,7 +231,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		i1.setHardwareUnitString("m");
 		i1.setUserUnits("mm");
 		doReturn(new Double[] { 5., 1., 2., 3. }).when(scn).rawGetPosition();
-		assertEquals(5000., i1.getPosition());
+		assertEquals(5000., (double) i1.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test

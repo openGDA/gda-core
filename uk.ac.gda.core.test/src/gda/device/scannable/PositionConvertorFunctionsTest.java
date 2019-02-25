@@ -22,6 +22,8 @@ import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,8 @@ import org.python.core.PyString;
 
 @RunWith(Enclosed.class)
 public class PositionConvertorFunctionsTest {
+	// Tolerance for imprecision of floating-point calculations
+	private static final double FP_TOLERANCE = 0.00001;
 
 	@RunWith(Parameterized.class)
 	public static class ParameterizedTests {
@@ -100,7 +104,13 @@ public class PositionConvertorFunctionsTest {
 
 		@Test
 		public void test() {
-			assertEquals(expectedResult, input);
+			if (expectedResult instanceof Double) {
+				assertEquals((double) expectedResult, (double) input, FP_TOLERANCE);
+			} else if (expectedResult instanceof Quantity) {
+				assertTrue(((Quantity) expectedResult).approxEquals(((Quantity) input)));
+			} else {
+				assertEquals(expectedResult, input);
+			}
 		}
 	}
 
@@ -223,14 +233,25 @@ public class PositionConvertorFunctionsTest {
 			Quantity[] expected = new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1., METER), null };
 			Quantity[] actual = PositionConvertorFunctions.toQuantityArray(
 					new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null }, METER);
-			assertArrayEquals(expected, actual);
+
+			assertEquals(expected.length, actual.length);
+			for (int i = 0; i < expected.length; i++) {
+				if (expected[i] == null) {
+					assertNull(actual[i]);
+				} else {
+					assertEquals(expected[i].getAmount(), actual[i].getAmount(), FP_TOLERANCE);
+				}
+			}
 		}
 
 		@Test
-		public void testToAmmountArray() {
-			Double[] actual = PositionConvertorFunctions.toAmountArray(
+		public void testToAmountArray() {
+			final Double[] actual = PositionConvertorFunctions.toAmountArray(
 					new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null });
-			assertArrayEquals(new Double[] { 1., 1000., null }, actual);
+			assertEquals(3, actual.length);
+			assertEquals(1., actual[0], FP_TOLERANCE);
+			assertEquals(1000., actual[1], FP_TOLERANCE);
+			assertNull(actual[2]);
 		}
 	}
 }

@@ -34,14 +34,13 @@ import gda.util.converters.LookupTableQuantityConverter.Mode;
  * LookupTableQuantityConverterTest Class. It is assumed the that working directory points to the test folder above gda
  */
 public class LookupTableQuantityConverterTest {
+	// Tolerance for imprecision of floating-point calculations
+	private static final double FP_TOLERANCE = 0.00001;
 
 	/**
 	 * Delta to use when comparing doubles.
 	 */
 	private static final double DELTA = 0.001;
-
-	public LookupTableQuantityConverterTest() {
-	}
 
 	@BeforeClass
 	public static void setUp() {
@@ -69,7 +68,7 @@ public class LookupTableQuantityConverterTest {
 		try {
 			Quantity source = converter.toSource(targetBeforeConversion);
 			Quantity targetAfterConversion = converter.toTarget(source);
-			assertEquals(targetAfterConversion, targetBeforeConversion);
+			assertEquals(targetAfterConversion.getAmount(), targetBeforeConversion.getAmount(), FP_TOLERANCE);
 		} catch (Exception e) {
 			assertEquals("", e.getMessage());
 		}
@@ -225,7 +224,7 @@ public class LookupTableQuantityConverterTest {
 		try {
 			Quantity source = converter.toSource(targetBeforeConversion);
 			Quantity targetAfterConversion = converter.toTarget(source);
-			assertEquals(targetBeforeConversion, targetAfterConversion);
+			assertEquals(targetBeforeConversion.getAmount(), targetAfterConversion.getAmount(), FP_TOLERANCE);
 		} catch (Exception e) {
 			assertEquals("", e.getMessage());
 		}
@@ -260,7 +259,7 @@ public class LookupTableQuantityConverterTest {
 			Quantity source = converter.toSource(targetBeforeConversion); // target
 			// in Angstrom, source should be in mm
 			Quantity targetAfterConversion = converter.toTarget(source);
-			assertEquals(targetBeforeConversion, targetAfterConversion);
+			assertEquals(targetBeforeConversion.getAmount(), targetAfterConversion.getAmount(), FP_TOLERANCE);
 		} catch (Exception e) {
 			assertEquals("", e.getMessage());
 		}
