@@ -2,15 +2,18 @@ package uk.ac.diamond.daq.experiment.api.plan;
 
 import java.util.List;
 
+import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
+import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
+
 public interface IExperimentRecord {
 
-	List<ISegmentAccount> getSegmentAccounts();
+	List<SegmentRecord> getSegmentRecords();
 
-	List<ITriggerAccount> getTriggerAccounts();
+	List<TriggerRecord> getTriggerRecords();
 
-	ISegmentAccount getSegmentAccount(String segmentName);
+	SegmentRecord getSegmentRecord(String segmentName);
 
-	ITriggerAccount getTriggerAccount(String triggerName);
+	TriggerRecord getTriggerRecord(String triggerName);
 
 	String summary();
 

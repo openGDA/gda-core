@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gda.factory.FindableBase;
+
 /**
  * This model contains:
  * <ol>
@@ -16,46 +18,46 @@ import java.util.Set;
  * @author Douglas Winter
  *
  */
-public class ExperimentDriverModel implements Serializable {
+public class ExperimentDriverModel extends FindableBase implements Serializable {
 
 	private static final long serialVersionUID = -4072720382672143028L;
 	private List<DriverProfileSection> profile;
 	private Double maxLimit;
 	private Double minLimit;
 	private Set<AbortCondition> abortConditions;
-	
+
 	public List<DriverProfileSection> getProfile() {
 		return profile;
 	}
-	
+
 	public void setProfile(List<DriverProfileSection> profile) {
 		this.profile = profile;
 	}
-	
+
 	public Double getMaxLimit() {
 		return maxLimit;
 	}
-	
+
 	public void setMaxLimit(Double maxLimit) {
 		this.maxLimit = maxLimit;
 	}
-	
+
 	public Double getMinLimit() {
 		return minLimit;
 	}
-	
+
 	public void setMinLimit(Double minLimit) {
 		this.minLimit = minLimit;
 	}
-	
+
 	public Set<AbortCondition> getAbortConditions() {
 		return abortConditions != null ? abortConditions : Collections.emptySet();
 	}
-	
+
 	public void setAbortConditions(Set<AbortCondition> abortConditions) {
 		this.abortConditions = abortConditions;
 	}
-	
+
 	public void addAbortCondition(AbortCondition condition) {
 		if (abortConditions == null) abortConditions = new HashSet<>();
 		abortConditions.add(condition);
