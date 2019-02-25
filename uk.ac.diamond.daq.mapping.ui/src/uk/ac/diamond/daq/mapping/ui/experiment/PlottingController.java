@@ -83,9 +83,6 @@ public class PlottingController {
 	private void checkPlottingSystem() {
 		if (mapPlottingSystem == null || mapPlottingSystem.isDisposed()) {
 			initPlottingSystem();
-			if (mapPlottingSystem == null) {
-				throw new NullPointerException("Couldn't get map plotting system");
-			}
 		}
 
 		if (mappingRegionColour == null) {
@@ -104,10 +101,10 @@ public class PlottingController {
 
 	private void initPlottingSystem() {
 		// Get and check the plotting system
-		if (mapPlottingSystem != null) return;
+		if (mapPlottingSystem != null && !mapPlottingSystem.isDisposed()) return;
 		mapPlottingSystem = plottingService.getPlottingSystem(plottingSystemName);
 		if (mapPlottingSystem == null) {
-			return;
+			throw new NullPointerException("Couldn't get map plotting system");
 		}
 
 		logger.debug("Initialized plotting system");
