@@ -163,6 +163,45 @@
             </separator>
          </toolbar>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.dawnsci.mapping.menu">
+         <menu
+               id="uk.ac.diamond.daq.mapping.ui.map.scanningpathdisplayoptions"
+               label="Scanning Path Display Options">
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.command.showHideMappingPath"
+                  icon="icons/Show_Hide_Path_16.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.command.showHideMappingRegion"
+                  icon="icons/Show_Hide_Mapping_Region_16.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.command.showHideBeamPosition"
+                  icon="icons/Show_Hide_Beam.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.command.toggleFillMappingRegion"
+                  icon="icons/Fill_Mapping_Region_16.png"
+                  style="push">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.command.findBeamInPlot"
+                  icon="icons/centreBeam.png"
+                  style="push">
+            </command>
+         </menu>
+         <command
+               commandId="uk.ac.diamond.daq.mapping.ui.EnableLiveBackgroundCommand"
+               icon="icons/camcorder--arrow.png"
+               label="Live Background"
+               style="toggle">
+         </command>
+      </menuContribution>
    </extension>
       <extension
             point="org.eclipse.ui.perspectiveExtensions">
