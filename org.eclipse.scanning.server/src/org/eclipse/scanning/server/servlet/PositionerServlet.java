@@ -19,11 +19,12 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.PositionerRequest;
+import org.eclipse.scanning.api.points.IPosition;
 
 /**
- * A servlet to get the available devices from the IDeviceService.
+ * A servlet to handle a {@link PositionerRequest} to move to an {@link IPosition}.
  *
-     Spring config started, for instance:
+ *  Can be configured in spring, for example:
     <pre>
 
     {@literal <bean id="positionerServlet" class="org.eclipse.scanning.server.servlet.PositionerServlet" init-method="connect">}
@@ -33,9 +34,6 @@ import org.eclipse.scanning.api.event.scan.PositionerRequest;
     {@literal </bean>}
 
     </pre>
-
-    FIXME Add security via activemq layer. Anyone can run this now.
-
  *
  * @author Matthew Gerring
  *
