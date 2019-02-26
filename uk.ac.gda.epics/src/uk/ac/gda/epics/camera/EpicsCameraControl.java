@@ -23,13 +23,13 @@ import static uk.ac.gda.api.camera.CameraState.IDLE;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.NDROI;
 import gda.factory.FindableBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
-import uk.ac.gda.api.camera.CameraRegionOfInterest;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -38,9 +38,11 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 
 	private final ObservableComponent observableComponent = new ObservableComponent();
 	private final ADBase adBase;
+	private final NDROI ndRoi;
 
-	public EpicsCameraControl(ADBase adBase) {
+	public EpicsCameraControl(ADBase adBase, NDROI ndRoi) {
 		this.adBase = adBase;
+		this.ndRoi = ndRoi;
 	}
 
 	private void notifyObservers () throws DeviceException {
@@ -49,7 +51,6 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 			event.setBinningFormat(getBinningPixels());
 			event.setCameraState(getAcquireState());
 			event.setAcquireTime(getAcquireTime());
-			event.setRegionOfInterest(getRegionOfInterest());
 
 			observableComponent.notifyIObservers(this, event);
 		}
@@ -140,38 +141,38 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	}
 
 	@Override
-	public CameraRegionOfInterest getRegionOfInterest() throws DeviceException {
+	public int[] getFrameSize() throws DeviceException {
 		try {
-			return CameraRegionOfInterest.getInstanceFromWidthHeight(adBase.getMinX(),
-					adBase.getMinY(), adBase.getSizeX(), adBase.getSizeY());
+			return new int[] { ndRoi.getMaxSizeX_RBV(), ndRoi.getMaxSizeY_RBV() };
 		} catch (Exception e) {
-			throw new DeviceException("Unable to get Camera ROI", e);
+			throw new DeviceException("Unable to get frame size", e);
 		}
 	}
 
 	@Override
-	public void setRegionOfInterest(CameraRegionOfInterest region) throws DeviceException {
+	public int[] getRoi () throws DeviceException {
 		try {
-			adBase.setMinX(region.getLeft());
-			adBase.setSizeX(region.getWidth());
-			adBase.setMinY(region.getLeft());
-			adBase.setSizeY(region.getHeight());
-			notifyObservers();
+			return new int[] { ndRoi.getMinX(), ndRoi.getMinY(), ndRoi.getSizeX(), ndRoi.getSizeY() };
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get ROI", e);
+		}
+	}
+
+	@Override
+	public void setRoi(int left, int top, int width, int height) throws DeviceException {
+		try {
+			ndRoi.setMinX(left);
+			ndRoi.setMinY(top);
+			ndRoi.setSizeX(width);
+			ndRoi.setSizeY(height);
 		} catch (Exception e) {
 			throw new DeviceException("Unable to set ROI", e);
 		}
 	}
 
 	@Override
-	public void clearRegionOfInterest() throws DeviceException {
-		try {
-			adBase.setMinX(0);
-			adBase.setSizeX(adBase.getMaxSizeX_RBV());
-			adBase.setMinY(0);
-			adBase.setSizeY(adBase.getMaxSizeY_RBV());
-			notifyObservers();
-		} catch (Exception e) {
-			throw new DeviceException ("Unable to clear ROI", e);
-		}
+	public void clearRoi() throws DeviceException {
+		int[] frameSize = getFrameSize();
+		setRoi(0, 0, frameSize[0], frameSize[1]);
 	}
 }
