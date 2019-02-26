@@ -10,7 +10,6 @@ import uk.ac.diamond.daq.client.gui.camera.controller.DiffractionCameraConfigura
 import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionAnalysisConfigurationComposite;
 import uk.ac.diamond.daq.client.gui.camera.diffraction.DiffractionConfigurationComposite;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 
 public class DiffractionConfigurationDialog extends AbstractCameraConfigurationDialog<DiffractionCameraConfigurationController> {
 	private static final int EXPOSURE_TAB_INDEX = 0;
@@ -18,14 +17,13 @@ public class DiffractionConfigurationDialog extends AbstractCameraConfigurationD
 
 	private static DiffractionConfigurationDialog instance;
 		
-	public static void show (Display display, CameraConfiguration cameraConfiguration, 
-			LiveStreamConnection liveStreamConnection) throws DeviceException {
+	public static void show (Display display, LiveStreamConnection liveStreamConnection) throws DeviceException {
 		if (instance == null) {
 			DiffractionCameraConfigurationController controller = new DiffractionCameraConfigurationController(
 					"diffraction_camera_control", "det_position");
 			
-			instance = new DiffractionConfigurationDialog(display, controller, cameraConfiguration, 
-					liveStreamConnection, "Diffraction Configuration");
+			instance = new DiffractionConfigurationDialog(display, controller, liveStreamConnection, 
+					"Diffraction Configuration");
 			instance.shell.addListener(SWT.Dispose, e -> {
 				instance.controller.dispose ();
 				instance = null;
@@ -36,9 +34,8 @@ public class DiffractionConfigurationDialog extends AbstractCameraConfigurationD
 	}
 	
 	private DiffractionConfigurationDialog(Display display, DiffractionCameraConfigurationController controller,
-			CameraConfiguration cameraConfiguration, LiveStreamConnection liveStreamConnection, 
-			String title) throws DeviceException {
-		super (display, controller, cameraConfiguration, liveStreamConnection, title);
+			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {
+		super (display, controller, liveStreamConnection, title);
 	}
 
 	@Override

@@ -1,7 +1,8 @@
 package uk.ac.diamond.daq.client.gui.camera.controller;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+
 import uk.ac.gda.api.camera.BinningFormat;
-import uk.ac.gda.api.camera.CameraRegionOfInterest;
 
 public class CameraConfigurationAdapter implements CameraConfigurationListener {
 
@@ -11,7 +12,7 @@ public class CameraConfigurationAdapter implements CameraConfigurationListener {
 	}
 
 	@Override
-	public void setRegionOfInterest(CameraRegionOfInterest regionOfInterest) {
+	public void setROI(RectangularROI roi) {
 		//do nothing
 	}
 

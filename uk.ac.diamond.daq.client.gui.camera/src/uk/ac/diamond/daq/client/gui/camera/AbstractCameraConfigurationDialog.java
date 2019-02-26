@@ -30,13 +30,11 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 	protected C controller;
 	private LiveStreamConnection liveStreamConnection;
 	protected CameraImageComposite cameraImageComposite;
-	private CameraConfiguration cameraConfiguration;
 
-	public AbstractCameraConfigurationDialog (Display display, C controller, CameraConfiguration cameraConfiguration, 
+	public AbstractCameraConfigurationDialog (Display display, C controller, 
 			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {	
 		this.controller = controller;
 		this.liveStreamConnection = liveStreamConnection;
-		this.cameraConfiguration = cameraConfiguration;
 		
 		shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
 		shell.setText(title);
@@ -63,8 +61,7 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(panel);
 		try {
-			cameraImageComposite = new CameraImageComposite(panel, controller, liveStreamConnection,
-					cameraConfiguration, SWT.NONE);
+			cameraImageComposite = new CameraImageComposite(panel, controller, liveStreamConnection, SWT.NONE);
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(cameraImageComposite);
 
 			HistogramComposite histogramPanel = new HistogramComposite(panel, 
