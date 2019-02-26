@@ -6,6 +6,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,29 +50,31 @@ public class BinningComposite extends Composite {
 
 		addListener(SWT.Dispose, e -> controller.removeListener(binningListener));
 
-		GridLayoutFactory.fillDefaults().numColumns(7).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
-		Label label = new Label(this, SWT.NONE);
-		label.setText("Binning:");
-		GridDataFactory.fillDefaults().applyTo(label);
+		Group group = new Group(this, SWT.NONE);
+		group.setText("Binning");
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(group);
+
+		GridLayoutFactory.swtDefaults().numColumns(6).applyTo(group);
 
 		binningButtons = new BinningButton[3];
-		binningButtons[0] = addButton(1);
-		binningButtons[1] = addButton(2);
-		binningButtons[2] = addButton(4);
+		binningButtons[0] = addButton(group, 1);
+		binningButtons[1] = addButton(group, 2);
+		binningButtons[2] = addButton(group, 4);
 		
 		binningListener.setBinningFormat(controller.getBinning());
 	}
 
-	private BinningButton addButton(int pixels) {
+	private BinningButton addButton(Group group, int pixels) {
 		BinningButton binningButton = new BinningButton();
 		binningButton.pixels = pixels;
-		binningButton.button = new Button(this, SWT.RADIO);
+		binningButton.button = new Button(group, SWT.RADIO);
 		binningButton.button.addListener(SWT.Selection, e -> toggleRadioButtons(pixels, true));
 
 		GridDataFactory.swtDefaults().applyTo(binningButton.button);
 
-		Label label = new Label(this, SWT.NONE);
+		Label label = new Label(group, SWT.NONE);
 		label.setText("x" + pixels);
 		GridDataFactory.swtDefaults().applyTo(label);
 
