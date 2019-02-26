@@ -150,6 +150,15 @@ public class EpicsCameraControl extends FindableBase implements CameraControl {
 	}
 
 	@Override
+	public int[] getRoi () throws DeviceException {
+		try {
+			return new int[] { ndRoi.getMinX(), ndRoi.getMinY(), ndRoi.getSizeX(), ndRoi.getSizeY() };
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get ROI", e);
+		}
+	}
+
+	@Override
 	public void setRoi(int left, int top, int width, int height) throws DeviceException {
 		try {
 			ndRoi.setMinX(left);
