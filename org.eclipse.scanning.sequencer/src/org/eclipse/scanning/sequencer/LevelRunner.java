@@ -355,26 +355,31 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @throws ScanningException
 	 */
 	private SortedMap<Integer, List<L>> getDevicesByLevel() throws ScanningException {
-		if (devicesByLevel != null) {
-			return devicesByLevel;
+		SortedMap<Integer, List<L>> result = this.devicesByLevel;
+		if (result == null) {
+			result = createDevicesByLevelMap();
 		}
 
+		if (levelCachingAllowed) {
+			this.devicesByLevel = result;
+		}
+
+		return result;
+	}
+
+	private SortedMap<Integer, List<L>> createDevicesByLevelMap() throws ScanningException {
 		final Collection<L> devices = getDevices();
 
-		final SortedMap<Integer, List<L>> devicesByLevel = new TreeMap<>();
+		final SortedMap<Integer, List<L>> result = new TreeMap<>();
 		for (L object : devices) {
 			final int level = object.getLevel();
-
-			if (!devicesByLevel.containsKey(level)) {
-				devicesByLevel.put(level, new ArrayList<L>());
+			if (!result.containsKey(level)) {
+				result.put(level, new ArrayList<L>());
 			}
-			devicesByLevel.get(level).add(object);
-		}
-		if (levelCachingAllowed) {
-			this.devicesByLevel = devicesByLevel;
+			result.get(level).add(object);
 		}
 
-		return devicesByLevel;
+		return result;
 	}
 
 	private SortedMap<Integer, AnnotationManager> getAnnotationManagersByLevel(Map<Integer, List<L>> devicesByLevel) {
@@ -382,15 +387,20 @@ abstract class LevelRunner<L extends ILevel> {
 			return this.annotationManagers;
 		}
 
+		final SortedMap<Integer, AnnotationManager> annotationManagers = createAnnotationManagersByLevelMap(devicesByLevel);
+		if (levelCachingAllowed) {
+			this.annotationManagers = annotationManagers;
+		}
+		return annotationManagers;
+	}
+
+	private SortedMap<Integer, AnnotationManager> createAnnotationManagersByLevelMap(Map<Integer, List<L>> devicesByLevel) {
 		final SortedMap<Integer, AnnotationManager> annotationManagers = new TreeMap<>();
 		for (Entry<Integer, List<L>> posEntry : devicesByLevel.entrySet()) {
 			// Less annotations is more efficient
 			final Integer pos = posEntry.getKey();
 			annotationManagers.put(pos, new AnnotationManager(SequencerActivator.getInstance(), LevelStart.class, LevelEnd.class));
 			annotationManagers.get(pos).addDevices(posEntry.getValue());
-		}
-		if (levelCachingAllowed) {
-			this.annotationManagers = annotationManagers;
 		}
 		return annotationManagers;
 	}
