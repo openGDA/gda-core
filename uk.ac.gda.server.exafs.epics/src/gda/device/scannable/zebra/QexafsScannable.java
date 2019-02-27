@@ -78,6 +78,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected Double desiredSpeed; // in deg/sec
 
 	protected double extraRunUp = 0;
+	private double runUpScaleFactor = 3.0;
+
 	protected boolean runUpOn = true;
 	protected boolean runDownOn = true;
 	private boolean doToggleEnergyControl = true;
@@ -270,7 +272,6 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		startAngle = BraggAngle.braggAngleOf(startEng, twoD);
 
 		Energy endEng = Quantity.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
-		// calculate end energy from start, step increment, and number of pulses.
 		endAngle = BraggAngle.braggAngleOf(endEng, twoD);
 
 		stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
@@ -281,7 +282,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		double acceleration = controller.cagetDouble(accelChnl);
 		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
 		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
-		runUp *= 3.0; // to be safe add 10%
+		runUp *= runUpScaleFactor; // to be safe multiply by scale factor (>1)
 		// Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
 		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
 		double step = Math.abs(radToDeg(stepSize));// controller.cagetDouble(this.stepIncDegChnl);
@@ -395,5 +396,13 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	public void setToggleEnergyControl(boolean toggleEnergyControl) {
 		this.doToggleEnergyControl = toggleEnergyControl;
+	}
+
+	public double getRunUpScaleFactor() {
+		return runUpScaleFactor;
+	}
+
+	public void setRunUpScaleFactor(double runUpScaleFactor) {
+		this.runUpScaleFactor = runUpScaleFactor;
 	}
 }
