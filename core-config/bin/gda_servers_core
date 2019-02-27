@@ -141,7 +141,10 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
         echo "$(set_stop_message)"
     fi
 
+    bashlog debug "gda_servers_core" "Running 
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}
+    # Above two line should match, apart from the closing quote at the end of the first line
     ssh_tunnel_activated=true
     echo -e "${options_text}"
 
