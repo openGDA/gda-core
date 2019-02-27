@@ -17,12 +17,11 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -71,8 +70,8 @@ abstract class LevelRunner<L extends ILevel> {
 	private ScanningException abortException;
 	private boolean levelCachingAllowed = true;
 
-	private Map<Integer, List<L>> devicesByLevel;
-	private Map<Integer, AnnotationManager> annotationManagers;
+	private SortedMap<Integer, List<L>> devicesByLevel;
+	private SortedMap<Integer, AnnotationManager> annotationManagers;
 
 	/**
 	 * The timeout (in seconds) is overridden by some subclasses.
@@ -107,7 +106,7 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	/**
-	 * @return the objects which we would like to order by level
+	 * @return the objects which we would like to order by level, cannot be <code>null</code>
 	 */
 	protected abstract Collection<L> getDevices() throws ScanningException;
 
@@ -172,21 +171,21 @@ abstract class LevelRunner<L extends ILevel> {
 			return false;
 		}
 
-		final Map<Integer, List<L>> devicesByLevel = getDevicesByLevel();
-		final Map<Integer, AnnotationManager> annotationManagersByLevel = getAnnotationManagersByLevel(devicesByLevel);
+		final SortedMap<Integer, List<L>> devicesByLevel = getDevicesByLevel();
+		final SortedMap<Integer, AnnotationManager> annotationManagersByLevel = getAnnotationManagersByLevel(devicesByLevel);
 
 		try {
-			final Integer finalLevel = 0;
-			for (Iterator<Integer> levelIterator = devicesByLevel.keySet().iterator(); levelIterator.hasNext();) {
+			final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
+			for (Map.Entry<Integer, List<L>> entry : devicesByLevel.entrySet()) {
 				if (abortException != null) throw abortException; // check aborted
 
-				final int level = levelIterator.next();
-				final List<L> devicesForLevel = devicesByLevel.get(level);
+				final int level = entry.getKey();
+				final List<L> devicesForLevel = entry.getValue();
 				final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
 
 				annotationManagersByLevel.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
 
-				if (block || levelIterator.hasNext()) {
+				if (block || level != finalLevel) {
 					runLevelBlocking(loc, level, devicesForLevel, tasks);
 				} else {
 					runLevelNonBlocking(level, tasks);
@@ -355,18 +354,14 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @return the ordered scannables
 	 * @throws ScanningException
 	 */
-	private Map<Integer, List<L>> getDevicesByLevel() throws ScanningException {
+	private SortedMap<Integer, List<L>> getDevicesByLevel() throws ScanningException {
 		if (devicesByLevel != null) {
 			return devicesByLevel;
 		}
 
 		final Collection<L> devices = getDevices();
 
-		if (devices == null) {
-			return Collections.emptyMap();
-		}
-
-		final Map<Integer, List<L>> devicesByLevel = new TreeMap<>();
+		final SortedMap<Integer, List<L>> devicesByLevel = new TreeMap<>();
 		for (L object : devices) {
 			final int level = object.getLevel();
 
@@ -382,12 +377,12 @@ abstract class LevelRunner<L extends ILevel> {
 		return devicesByLevel;
 	}
 
-	private Map<Integer, AnnotationManager> getAnnotationManagersByLevel(Map<Integer, List<L>> devicesByLevel) {
+	private SortedMap<Integer, AnnotationManager> getAnnotationManagersByLevel(Map<Integer, List<L>> devicesByLevel) {
 		if (this.annotationManagers != null) {
 			return this.annotationManagers;
 		}
 
-		final Map<Integer, AnnotationManager> annotationManagers = new HashMap<>();
+		final SortedMap<Integer, AnnotationManager> annotationManagers = new TreeMap<>();
 		for (Entry<Integer, List<L>> posEntry : devicesByLevel.entrySet()) {
 			// Less annotations is more efficient
 			final Integer pos = posEntry.getKey();

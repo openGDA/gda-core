@@ -12,6 +12,7 @@
 package org.eclipse.scanning.sequencer;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 import org.eclipse.scanning.api.INameable;
@@ -43,6 +44,7 @@ class DeviceRunner extends LevelRunner<IRunnableDevice<?>> {
 
 	DeviceRunner(INameable source, Collection<IRunnableDevice<?>> devices) {
 		super(source);
+		Objects.requireNonNull(devices);
 		this.devices = devices;
 		setTimeout(calculateTimeout(devices));
 	}

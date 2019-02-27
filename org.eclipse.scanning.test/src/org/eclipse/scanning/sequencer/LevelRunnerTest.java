@@ -138,7 +138,7 @@ public class LevelRunnerTest {
 		verify(listener).positionPerformed(positionPerformedCaptor.capture());
 
 		final PositionEvent positionPerformed = positionPerformedCaptor.getValue();
-		assertEquals(0, positionPerformed.getLevel());
+		assertEquals(5, positionPerformed.getLevel());
 		assertNull(positionPerformed.getLevelObjects());
 		assertEquals(position, positionPerformed.getPosition());
 		assertEquals(scan, positionPerformed.getDevice());
