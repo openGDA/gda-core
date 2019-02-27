@@ -289,6 +289,7 @@ public class UserOptions extends java.util.LinkedHashMap<String, UserOption> {
 	 * @return UserOptions
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("unused")
 	public static UserOptions getUserOptionsFromConfigFromGUI(String configDirTemplate, String configNameTemplate,
 			String configDirValues, String configNameValues) throws DeviceException {
 		throw new UnsupportedOperationException("This relies on Corba, reimplement this functionality");
@@ -319,6 +320,7 @@ public class UserOptions extends java.util.LinkedHashMap<String, UserOption> {
 	 * @param configNameValues
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("unused")
 	public void saveValuesToConfigFromGUI(String configDirValues, String configNameValues) throws DeviceException {
 		throw new UnsupportedOperationException("This relies on Corba, reimplement this functionality");
 	}
