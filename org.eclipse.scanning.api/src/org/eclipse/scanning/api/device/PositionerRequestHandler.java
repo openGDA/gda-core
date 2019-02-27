@@ -62,15 +62,14 @@ public class PositionerRequestHandler implements IRequestHandler<PositionerReque
 
 			} else if (request.getPositionType()==PositionRequestType.ABORT) {
 				positioner.abort();
-				positioners.remove(request.getUniqueId()); // positioners can no longer be used after calling abort
-			}else if (request.getPositionType()==PositionRequestType.CLOSE) {
+			} else if (request.getPositionType()==PositionRequestType.CLOSE) {
 				positioner.close();
 			}
 			// Return the current position.
 			request.setPosition(positioner.getPosition());
 			return request;
 
-		} catch(ScanningException | InterruptedException ne) {
+		} catch (ScanningException | InterruptedException ne) {
 			throw new EventException("Cannot connect to positioner!", ne);
 		}
 	}
