@@ -24,11 +24,14 @@ import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.SI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the Bragg angle of a crystal.
  */
 public final class BraggAngle extends Angle {
+	private static final Logger logger = LoggerFactory.getLogger(BraggAngle.class);
 	/**
 	 * Prevent instantiation
 	 */
@@ -45,6 +48,7 @@ public final class BraggAngle extends Angle {
 	 * @return BraggAngle the Bragg Angle of the crystal.
 	 */
 	public static Angle braggAngleOf(Length wavelength, Length twoD) {
+		logger.debug("braggAngleOf(wavelength = {}, twoD = {})", wavelength, twoD);
 		if (wavelength != null && twoD != null && wavelength.isGreaterThan(Length.ZERO)
 				&& twoD.isGreaterThan(Length.ZERO)) {
 			return Quantity.valueOf(Math.asin(wavelength.divide(twoD).doubleValue()), SI.RADIAN);
@@ -62,6 +66,7 @@ public final class BraggAngle extends Angle {
 	 * @return BraggAngle the Bragg Angle of the crystal.
 	 */
 	public static Angle braggAngleOf(Energy photonEnergy, Length twoD) {
+		logger.debug("braggAngleOf(photonEnergy = {}, twoD = {})", photonEnergy, twoD);
 		if (photonEnergy != null && twoD != null && photonEnergy.isGreaterThan(Energy.ZERO)
 				&& twoD.isGreaterThan(Length.ZERO)) {
 			return BraggAngle.braggAngleOf(Wavelength.wavelengthOf(photonEnergy), twoD);

@@ -22,10 +22,14 @@ package gda.jscience.physics.quantities;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.units.NonSIext;
 
 public class Vector extends Quantity {
+	private static final Logger logger = LoggerFactory.getLogger(Vector.class);
+
 	/**
 	 * Holds the system unit.
 	 */
@@ -38,6 +42,7 @@ public class Vector extends Quantity {
 	private static final Factory<Vector> FACTORY = new Factory<Vector>(UNIT) {
 		@Override
 		protected Vector create() {
+			logger.debug("Vector created");
 			return new Vector();
 		}
 	};

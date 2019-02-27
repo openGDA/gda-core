@@ -21,10 +21,14 @@ package gda.jscience.physics.quantities;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.units.NonSIext;
 
 public class Count extends Quantity {
+	private static final Logger logger = LoggerFactory.getLogger(Count.class);
+
     /**
      * Holds the associated unit.
      */
@@ -37,6 +41,7 @@ public class Count extends Quantity {
 	private static final Factory<Count> FACTORY = new Factory<Count>(UNIT) {
 		@Override
 		protected Count create() {
+			logger.debug("Count created");
 			return new Count();
 		}
 	};

@@ -22,12 +22,15 @@ package gda.jscience.physics.quantities;
 import org.jscience.physics.quantities.Constants;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Quantity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.units.NonSIext;
 
 /**
  */
 public class WaveVector extends Vector {
+	private static final Logger logger = LoggerFactory.getLogger(WaveVector.class);
 	/**
 	 * Default constructor (allows for derivation).
 	 */
@@ -45,6 +48,7 @@ public class WaveVector extends Vector {
 	 * @return WaveVector of the electron
 	 */
 	public static Vector waveVectorOf(Energy edgeEnergy, Energy electronEnergy) {
+		logger.debug("waveVectorOf(edgeEnergy = {}, electronEnergy = {})", edgeEnergy, electronEnergy);
 		if (edgeEnergy != null && electronEnergy != null && edgeEnergy.isGreaterThan(Energy.ZERO)
 				&& electronEnergy.isGreaterThan(Energy.ZERO)) {
 			final Quantity electronMassTimesTwo = Constants.me.times(2.0);

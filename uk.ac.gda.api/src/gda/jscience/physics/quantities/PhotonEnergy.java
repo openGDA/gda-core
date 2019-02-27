@@ -31,6 +31,8 @@ import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.SI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A method only class to extend the functionality of the {@link Energy}. This class extends
@@ -41,6 +43,7 @@ import org.jscience.physics.units.SI;
  * implemented directly into the {@link Energy} class.
  */
 public class PhotonEnergy extends Energy {
+	private static final Logger logger = LoggerFactory.getLogger(PhotonEnergy.class);
 
 	private static final long serialVersionUID = -4217480403676154739L;
 
@@ -61,6 +64,7 @@ public class PhotonEnergy extends Energy {
 	 * @return PhotonEnergy the energy of the photon.
 	 */
 	public static Energy photonEnergyOf(Length wavelength) {
+		logger.debug("photonEnergyOf(wavelength = {})", wavelength);
 		if (wavelength != null && wavelength.isGreaterThan(Length.ZERO)) {
 			// returns (h*c/λ)
 			return (Energy) (Constants.h.times(Constants.c).divide(wavelength));
@@ -78,6 +82,7 @@ public class PhotonEnergy extends Energy {
 	 * @return PhotonEnergy the energy of the photon from the crystal.
 	 */
 	public static Energy photonEnergyOf(Angle braggAngle, Length twoD) {
+		logger.debug("photonEnergyOf(braggAngle = {}, twoD = {})", braggAngle, twoD);
 		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(Angle.ZERO)
 				&& twoD.isGreaterThan(Length.ZERO)) {
 			// calculate wavelength first then the photon energy
@@ -94,6 +99,7 @@ public class PhotonEnergy extends Energy {
 	 * @return PhotonEnergy the energy of the photon from the crystal.
 	 */
 	public static Energy photonEnergyOf(Quantity edge, Quantity k) {
+		logger.debug("photonEnergyOf(edge = {}, k = {})", edge, k);
 		if (edge != null && k != null && edge.isGreaterThan(Energy.ZERO) && k.isGreaterThan(Vector.ZERO)) {
 			Quantity hBarSquared = Constants.hBar.times(Constants.hBar);
 			Quantity electronMassTimesTwo = Constants.me.times(2.0);
@@ -112,6 +118,7 @@ public class PhotonEnergy extends Energy {
 	 * @return PhotonEnergy the energy of the photon from the crystal.
 	 */
 	public static Energy photonEnergyOf(Energy edge, double value) {
+		logger.debug("photonEnergyOf(edge = {}, double value = {})", edge, value);
 		if (edge != null && edge.isGreaterThan(Energy.ZERO) && value > 0.0) {
 			Quantity hBarSquared = Constants.hBar.times(Constants.hBar);
 			Quantity electronMassTimesTwo = Constants.me.times(2.0);

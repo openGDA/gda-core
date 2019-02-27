@@ -23,6 +23,8 @@ import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Constants;
 import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Length;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A method only class to extend the functionality of the {@link Length} class. This class extends
@@ -33,6 +35,7 @@ import org.jscience.physics.quantities.Length;
  * class.
  */
 public class Wavelength extends Length {
+	private static final Logger logger = LoggerFactory.getLogger(Wavelength.class);
 	private static final long serialVersionUID = 2110601334827305173L;
 
 	/**
@@ -49,6 +52,7 @@ public class Wavelength extends Length {
 	 * @return Wavelength the X-Ray wavelength of the specified photon energy.
 	 */
 	public static Length wavelengthOf(Energy photonEnergy) {
+		logger.debug("wavelengthOf(photonEnergy = {}", photonEnergy);
 		if (photonEnergy != null && photonEnergy.isGreaterThan(Energy.ZERO)) {
 			// Returns (h*c/E)
 			return (Length) (Constants.h.times(Constants.c).divide(photonEnergy));
@@ -66,6 +70,7 @@ public class Wavelength extends Length {
 	 * @return Wavelength the X-Ray wavelength selected by the crystal.
 	 */
 	public static Length wavelengthOf(Angle braggAngle, Length twoD) {
+		logger.debug("wavelengthOf(braggAngle = {}, twoD = {})", braggAngle, twoD);
 		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(Angle.ZERO)
 				&& twoD.isGreaterThan(Length.ZERO)) {
 			return (Length) (twoD.times(braggAngle.sine()));
