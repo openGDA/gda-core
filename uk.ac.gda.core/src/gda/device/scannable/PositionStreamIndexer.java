@@ -67,6 +67,8 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 		try {
 			fairGetLock.lockInterruptibly();
 		} catch (InterruptedException e) {
+			logger.error("@{}.get({}) interrupted while waiting for element, lastIndexRead={}, readValuesNotGot now {} (size {})",
+					Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size());
 			throw new InterruptedException("PositionStreamIndexer interrupted while waiting for element " + index);
 		}
 
@@ -81,10 +83,16 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 					readValuesNotGot.put(++lastIndexRead, value);
 				}
 			}
-			logger.trace("@{}.get({}) readValuesNotGot now {}", Integer.toHexString(hashCode()), index, readValuesNotGot);
 			if (!readValuesNotGot.containsKey(index)) {
+				logger.error("@{}.get({}) is not available. lastIndexRead={}, readValuesNotGot now {} (size {})",
+						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size());
 				throw new IllegalStateException("Element " + index
 						+ " is not available. Values can only be got once (to avoid excessive memory use).");
+			}
+			if (logger.isTraceEnabled()) {
+				logger.trace("@{}.get({}) lastIndexRead={}, readValuesNotGot now {} (size {}) returning {}",
+						Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size(),
+						readValuesNotGot.get(index));
 			}
 			return readValuesNotGot.remove(index);
 		} finally {
