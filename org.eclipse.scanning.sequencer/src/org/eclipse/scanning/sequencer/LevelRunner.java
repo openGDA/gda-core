@@ -14,7 +14,6 @@ package org.eclipse.scanning.sequencer;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,8 +71,8 @@ abstract class LevelRunner<L extends ILevel> {
 	private ScanningException abortException;
 	private boolean levelCachingAllowed = true;
 
-	private SoftReference<Map<Integer, List<L>>> devicesByLevel;
-	private SoftReference<Map<Integer, AnnotationManager>> annotationManagers;
+	private Map<Integer, List<L>> devicesByLevel;
+	private Map<Integer, AnnotationManager> annotationManagers;
 
 	/**
 	 * The timeout (in seconds) is overridden by some subclasses.
@@ -357,8 +356,8 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @throws ScanningException
 	 */
 	private Map<Integer, List<L>> getDevicesByLevel() throws ScanningException {
-		if (devicesByLevel != null && devicesByLevel.get() != null) {
-			return devicesByLevel.get();
+		if (devicesByLevel != null) {
+			return devicesByLevel;
 		}
 
 		final Collection<L> devices = getDevices();
@@ -372,34 +371,33 @@ abstract class LevelRunner<L extends ILevel> {
 			final int level = object.getLevel();
 
 			if (!devicesByLevel.containsKey(level)) {
-				devicesByLevel.put(level, new ArrayList<L>(7));
+				devicesByLevel.put(level, new ArrayList<L>());
 			}
 			devicesByLevel.get(level).add(object);
 		}
 		if (levelCachingAllowed) {
-			this.devicesByLevel = new SoftReference<>(devicesByLevel);
+			this.devicesByLevel = devicesByLevel;
 		}
 
 		return devicesByLevel;
 	}
 
 	private Map<Integer, AnnotationManager> getAnnotationManagersByLevel(Map<Integer, List<L>> devicesByLevel) {
-
-		if (annotationManagers != null && annotationManagers.get() != null) {
-			return annotationManagers.get();
+		if (this.annotationManagers != null) {
+			return this.annotationManagers;
 		}
 
-		final Map<Integer, AnnotationManager> ret = new HashMap<>();
+		final Map<Integer, AnnotationManager> annotationManagers = new HashMap<>();
 		for (Entry<Integer, List<L>> posEntry : devicesByLevel.entrySet()) {
 			// Less annotations is more efficient
 			final Integer pos = posEntry.getKey();
-			ret.put(pos, new AnnotationManager(SequencerActivator.getInstance(), LevelStart.class, LevelEnd.class));
-			ret.get(pos).addDevices(posEntry.getValue());
+			annotationManagers.put(pos, new AnnotationManager(SequencerActivator.getInstance(), LevelStart.class, LevelEnd.class));
+			annotationManagers.get(pos).addDevices(posEntry.getValue());
 		}
 		if (levelCachingAllowed) {
-			annotationManagers = new SoftReference<>(ret);
+			this.annotationManagers = annotationManagers;
 		}
-		return ret;
+		return annotationManagers;
 	}
 
 	public void addPositionListener(IPositionListener listener) {
