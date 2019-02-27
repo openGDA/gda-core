@@ -426,6 +426,9 @@ public class NexusDataWriter extends DataWriterBase {
 	/** Performance instrumentation logging the total time spent writing */
 	private long totalWritingTime;
 
+	/** Flag to indicate if SWMR is active */
+	private boolean swmrActive = false;
+
 	@Override
 	public void addData(IScanDataPoint dataPoint) throws Exception {
 		// Some performance instrumentation
@@ -462,6 +465,7 @@ public class NexusDataWriter extends DataWriterBase {
 				this.prepareFileAndStructure();
 				if (file instanceof NexusFileHDF5 && LocalProperties.check(GDA_NEXUS_SWMR, false)) {
 					((NexusFileHDF5) file).activateSwmrMode();
+					swmrActive  = true;
 				}
 			}
 		} finally {
@@ -2101,4 +2105,9 @@ public class NexusDataWriter extends DataWriterBase {
 			return path;
 		}
 	}
+
+	public boolean isSwmrActive() {
+		return swmrActive;
+	}
+
 }

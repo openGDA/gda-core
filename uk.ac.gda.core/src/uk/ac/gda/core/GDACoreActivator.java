@@ -1,5 +1,7 @@
 package uk.ac.gda.core;
 
+import java.util.Optional;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -30,8 +32,20 @@ public class GDACoreActivator implements BundleActivator {
 		GDACoreActivator.context = null;
 	}
 
-	public static <T> T getService(Class<T> serviceClass) {
+	/**
+	 * Gets a OSGi service from the context. If no context is set (i.e. if running outside an OSGi framework like JUnit
+	 * tests) or if the service is not available an empty {@link Optional} will be returned.
+	 *
+	 * @param <T> The service interface
+	 * @param serviceClass
+	 *            the service class
+	 * @return {@link Optional} containing the service implementation if found or {@link Optional#empty()} if not
+	 */
+	public static <T> Optional<T> getService(Class<T> serviceClass) {
+		if(context == null) return Optional.empty();
 		ServiceReference<T> ref = context.getServiceReference(serviceClass);
-		return context.getService(ref);
+		if(ref == null) return Optional.empty();
+		return Optional.ofNullable(context.getService(ref));
 	}
+
 }

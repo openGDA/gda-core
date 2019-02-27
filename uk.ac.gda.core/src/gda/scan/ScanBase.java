@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -46,6 +47,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -61,7 +63,10 @@ import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
 import gda.util.ScannableLevelComparator;
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * Base class for objects using the Scan interface.
@@ -649,6 +654,54 @@ public abstract class ScanBase implements NestableScan {
 
 	protected void sendScanEvent(ScanEvent.EventType reason){
 		getJythonServerNotifer().notifyServer(this, new ScanEvent(reason, getScanInformation(),getStatus(),currentPointCount));
+		sendJsonScanMessage(reason);
+	}
+
+	private void sendJsonScanMessage(EventType reason) {
+		// Convert between status enums
+		final ScanMessage.ScanStatus status;
+		switch (reason) {
+		case STARTED:
+			status = ScanMessage.ScanStatus.STARTED;
+			break;
+		case UPDATED:
+			status = ScanMessage.ScanStatus.UPDATED;
+			break;
+		case FINISHED:
+			status = ScanMessage.ScanStatus.ENDED;
+			break;
+		default:
+			throw new IllegalArgumentException("Unreconized EventType: " + reason);
+		}
+		final ScanInformation info = getScanInformation();
+
+		// Build the message object
+		ScanMessage message = new ScanMessage(status,
+				info.getFilename(),
+				isSwmrActive(),
+				info.getScanNumber(),
+				info.getDimensions(),
+				Arrays.asList(info.getScannableNames()),
+				Arrays.asList(info.getDetectorNames()),
+				(100.0 * (currentPointCount + 1)) / info.getNumberOfPoints()); // Progress in %
+
+		// If the optional is missing probably running in a unit test
+		Optional<MessagingService> optionalJms = GDACoreActivator.getService(MessagingService.class);
+		optionalJms.ifPresent(jms -> jms.sendMessage(message));
+	}
+
+	private boolean isSwmrActive() {
+		if (isDataWriterAvaliable()) {
+			DataWriter dataWriter = getDataWriter();
+			if (dataWriter instanceof NexusDataWriter) {
+				NexusDataWriter ndw = (NexusDataWriter) dataWriter;
+				return ndw.isSwmrActive();
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -744,6 +797,10 @@ public abstract class ScanBase implements NestableScan {
 			return manuallySetDataWriter;
 		}
 		return scanDataPointPipeline.getDataWriter();
+	}
+
+	private boolean isDataWriterAvaliable() {
+		return scanDataPointPipeline != null || manuallySetDataWriter != null;
 	}
 
 	@Override
