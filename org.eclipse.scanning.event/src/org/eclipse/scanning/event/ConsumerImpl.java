@@ -1216,6 +1216,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		// If terminate has been requested before the bean is run, don't run it
 		// instead set state to TERMINATED and publish to status topic
 		if (bean.getStatus()==Status.REQUEST_TERMINATE) {
+			LOGGER.warn("Run aborted before started");
 			bean.setStatus(Status.TERMINATED);
 			bean.setMessage("Run aborted before started");
 			statusTopicPublisher.broadcast(bean);

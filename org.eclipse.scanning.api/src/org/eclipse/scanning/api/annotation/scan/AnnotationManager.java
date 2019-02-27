@@ -216,9 +216,16 @@ public class AnnotationManager {
 	public void invoke(Class<? extends Annotation> annotation, Object... context) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, ScanningException, EventException {
 		try {
 			final Collection<MethodWrapper> as = annotationMap.get(annotation);
-			if (as!=null) for (MethodWrapper wrapper : as) wrapper.invoke(context);
+			if (as!=null) {
+				for (MethodWrapper wrapper : as) {
+					logger.trace("Invoking on {} in invoke({},{})", wrapper.instance, annotation, context);
+					wrapper.invoke(context);
+					logger.trace("Invoked  on {} in invoke({},{})", wrapper.instance, annotation, context);
+				}
+			}
 
 		} catch (InvocationTargetException wapperExceptioned) {
+			logger.error("Exception in invoke({},{}): ", annotation, context, wapperExceptioned);
 		    Throwable supressed = wapperExceptioned.getTargetException();
 		    if (supressed!=null) {
 			// If they returned one of the scanning.api exceptions, throw this from the call.
@@ -226,6 +233,8 @@ public class AnnotationManager {
 			if (supressed instanceof EventException) throw (EventException)supressed;
 		    }
 		    throw wapperExceptioned;
+		} finally {
+			logger.trace("Completed invoke({}, {})", annotation, context);
 		}
 	}
 

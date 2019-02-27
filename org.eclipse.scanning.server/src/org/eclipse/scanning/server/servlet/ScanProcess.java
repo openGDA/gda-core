@@ -175,9 +175,9 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				bean.setPercentComplete(100);
 			}
 			broadcast(bean);
-			logger.debug("Completed run normally : {}", bean);
-		} catch (Exception e) {
-			logger.error("Cannot execute run {} {}", getBean().getName(), getBean().getUniqueId(), e);
+			logger.info("Completed run normally {} {} {}", bean.getName(), bean.getUniqueId(), bean.getFilePath());
+		} catch (Throwable e) {
+			logger.error("Cannot execute run {}", bean, e);
 			bean.setPreviousStatus(bean.getStatus());
 			bean.setStatus(Status.FAILED);
 			bean.setMessage(e.getMessage());
@@ -186,6 +186,8 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			// rethrow the exception as an EventException
 			if (e instanceof EventException) throw (EventException)e;
 			throw new EventException(e);
+		} finally {
+			logger.debug("Completed ScanProcess.execute() {}", bean);
 		}
 	}
 
@@ -215,11 +217,15 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	private void executeBlocking(IDeviceController controller, ScanBean bean) throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
 
 		logger.debug("Running blocking controller {}", controller.getName());
-		controller.getDevice().run(null); // Runs until done
+		try {
+			controller.getDevice().run(null); // Runs until done
 
-		// Run a script, if any has been requested
-		runScript(bean.getScanRequest().getAfter(), bean.getScanRequest()::setAfterResponse);
-		setPosition(bean.getScanRequest().getEnd(), "end");
+			// Run a script, if any has been requested
+			runScript(bean.getScanRequest().getAfter(), bean.getScanRequest()::setAfterResponse);
+			setPosition(bean.getScanRequest().getEnd(), "end");
+		} finally {
+			logger.debug("Finished running blocking controller {}", controller.getName());
+		}
 	}
 
 	private void setPosition(IPosition pos, String location) throws ScanningException, InterruptedException {
