@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
  * This class provides a mapping of path property (e.g. "fastAxisStep", "xCentre") to the initial unit to be displayed
@@ -37,6 +38,7 @@ import gda.configuration.properties.LocalProperties;
  * <li>millimetres if this property is not set</li>
  * </ul>
  */
+@OsgiService(InitialLengthUnits.class)
 public class InitialLengthUnits {
 	private static final Logger logger = LoggerFactory.getLogger(InitialLengthUnits.class);
 

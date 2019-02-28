@@ -21,11 +21,13 @@ package uk.ac.diamond.daq.mapping.impl;
 import java.util.List;
 
 import gda.factory.FindableBase;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
  * Spring-configure this bean to specify which motors may be set
  * as the fast, slow and (optionally) associated axes for mapping experiments.
  */
+@OsgiService(MappingStageOptions.class)
 public class MappingStageOptions extends FindableBase {
 
 	private List<String> fastAxes;
