@@ -85,7 +85,6 @@ import gda.rcp.views.dashboard.JythonSnapshotProvider;
 import gda.rcp.views.dashboard.ScannableObject;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
-import gda.scan.ScanEvent;
 import gda.util.PropertyUtils;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.ClientManager;
@@ -334,14 +333,6 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			}
 			// always print the point to the terminal
 			appendOutput(sdpt.toFormattedString(scanDataPointFormatter) + "\n");
-		} else if (theObserved instanceof JythonServerFacade && changeCode instanceof ScanEvent) {
-			if (((ScanEvent) changeCode).getType() == ScanEvent.EventType.FINISHED) {
-				// BEEP to info users scan has finished.
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					logger.debug("======= system beep =======");
-					PlatformUI.getWorkbench().getDisplay().beep();
-				});
-			}
 		} else if (changeCode instanceof String) {
 			String message = (String) changeCode;
 

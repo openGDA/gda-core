@@ -515,7 +515,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 
 	@Override
 	public void abortCommands(String jsfIdentifier) {
-		abortCommands(false);
+		abortCommands(LocalProperties.check("gda.jython.hardware.stop.always", false));
 	}
 
 	private void abortCommands(final boolean andCallStopAll) {
