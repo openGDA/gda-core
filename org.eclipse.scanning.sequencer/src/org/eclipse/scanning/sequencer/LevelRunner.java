@@ -14,6 +14,7 @@ package org.eclipse.scanning.sequencer;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +41,7 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.LevelEnd;
 import org.eclipse.scanning.api.annotation.scan.LevelStart;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.scan.LevelInformation;
@@ -142,7 +144,7 @@ abstract class LevelRunner<L extends ILevel> {
 	/**
 	 * Call to set the value at the location specified
 	 *
-	 * @param loc
+	 * @param position
 	 *            the position to move to
 	 * @param block
 	 *            set to <code>true</code> to block until the parallel tasks have completed.<br>
@@ -157,7 +159,7 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @throws ScanningException
 	 *             if the value cannot be set for any other reason
 	 */
-	protected boolean run(IPosition loc, boolean block) throws ScanningException {
+	protected boolean run(IPosition position, boolean block) throws ScanningException {
 		if (abortException != null) throw abortException;
 
 		/**
@@ -165,9 +167,9 @@ abstract class LevelRunner<L extends ILevel> {
 		 * return the last run position while returning the last-1 run position. Position is a best guess of what
 		 * position happened.
 		 */
-		logger.debug("running {} for position {}", getLevelRole(), loc);
-		this.position = loc;
-		if (!pDelegate.firePositionWillPerform(loc)) {
+		logger.debug("running {} for position {}", getLevelRole(), position);
+		this.position = position;
+		if (!pDelegate.firePositionWillPerform(position)) {
 			return false;
 		}
 
@@ -175,26 +177,15 @@ abstract class LevelRunner<L extends ILevel> {
 		final SortedMap<Integer, AnnotationManager> annotationManagersByLevel = getAnnotationManagersByLevel(devicesByLevel);
 
 		try {
-			final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
-			for (Map.Entry<Integer, List<L>> entry : devicesByLevel.entrySet()) {
+		final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
+		for (Integer level : devicesByLevel.keySet()) {
 				if (abortException != null) throw abortException; // check aborted
-
-				final int level = entry.getKey();
-				final List<L> devicesForLevel = entry.getValue();
-				final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
-
-				annotationManagersByLevel.get(level).invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
-
-				if (block || level != finalLevel) {
-					runLevelBlocking(loc, level, devicesForLevel, tasks);
-				} else {
-					runLevelNonBlocking(level, tasks);
-				}
-
-				annotationManagersByLevel.get(level).invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
+				runLevel(level, position, devicesByLevel.get(level),
+						block || level != finalLevel, // if non-blocking, still block for all but the final level
+						annotationManagersByLevel.get(level));
 			}
 
-			pDelegate.firePositionPerformed(finalLevel, loc);
+			pDelegate.firePositionPerformed(finalLevel, position);
 		} catch (ScanningException | CancellationException e) {
 			throw e;
 		} catch (Exception e) {
@@ -205,6 +196,23 @@ abstract class LevelRunner<L extends ILevel> {
 		}
 
 		return true;
+	}
+
+	private void runLevel(final int level, IPosition loc, final List<L> devicesForLevel,
+			boolean block, AnnotationManager annotationManager)
+			throws IllegalAccessException, InvocationTargetException, InstantiationException, ScanningException,
+			EventException, InterruptedException, ExecutionException {
+		final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
+
+		annotationManager.invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
+
+		if (block) {
+			runLevelBlocking(loc, level, devicesForLevel, tasks);
+		} else {
+			runLevelNonBlocking(level, tasks);
+		}
+
+		annotationManager.invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
 	}
 
 	private void runLevelBlocking(IPosition loc, final int level,
