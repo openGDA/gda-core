@@ -162,11 +162,6 @@ abstract class LevelRunner<L extends ILevel> {
 	protected boolean run(IPosition position, boolean block) throws ScanningException {
 		if (abortException != null) throw abortException;
 
-		/**
-		 * NOTE: The position is passed down to run in the thread pool. A subsequent run and await could in theory
-		 * return the last run position while returning the last-1 run position. Position is a best guess of what
-		 * position happened.
-		 */
 		logger.debug("running {} for position {}", getLevelRole(), position);
 		this.position = position;
 		if (!pDelegate.firePositionWillPerform(position)) {
