@@ -7,6 +7,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -91,6 +93,21 @@ public class UserOptionsMenuOnClose extends Composite {
 			public void modifyText(ModifyEvent e) {
 				if (nameError.isVisible() && !name.getText().isEmpty()) {
 					nameError.setVisible(false);
+				}
+			}
+		});
+		
+		addTabListener(feedback);
+		addTabListener(name);
+
+	}
+
+	private void addTabListener(Text textbox) {
+		textbox.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
+					e.doit = true;
 				}
 			}
 		});

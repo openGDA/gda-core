@@ -18,29 +18,24 @@
 
 package uk.ac.gda.client.experimentdefinition.components;
 
-import java.lang.reflect.Method;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.DecoratingLabelProvider;
-import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IContentProvider;
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -48,7 +43,6 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
-import org.eclipse.richbeans.xml.cell.XMLChooserEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
@@ -57,11 +51,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +66,6 @@ import uk.ac.gda.client.experimentdefinition.ExperimentObjectEvent;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
-import uk.ac.gda.common.rcp.CommonRCPActivator;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
 /**
@@ -109,11 +100,6 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		this.tableViewer = new TableViewer(table);
 		createColumns(tableViewer);
 
-		tableViewer.setUseHashlookup(true);
-		 tableViewer.setColumnProperties(new String[] { "Run Name", "Scan File Name",
-		 "Detector File Name", "Sample File Name", "Output File Name", "Number Repetitions" });
-		tableViewer.setCellEditors(createCellEditors(tableViewer));
-		tableViewer.setCellModifier(createModifier(tableViewer));
 		tableViewer.setContentProvider(createContentProvider());
 		tableViewer.setInput(runObjectManager);
 
@@ -163,124 +149,6 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		};
 	}
 
-	private ICellModifier createModifier(final TableViewer tableViewer) {
-		return new DoubleClickModifier(tableViewer) {
-//			@Override
-//			public boolean canModify(Object element, String property) {
-//				if (element instanceof IExperimentObject) {
-//					if (((IExperimentObject) element).getExperimentStatus() == ExperimentStatus.RUNNING)
-//						return false;
-//				}
-//				return super.canModify(element, property);
-//			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				try {
-					property = property.replace(" ", "");
-					final Method method = element.getClass().getMethod("get" + property);
-					return method.invoke(element);
-				} catch (Exception e) {
-					logger.error("Cannot get " + property, e);
-					return null;
-				}
-			}
-
-			@Override
-			public void modify(Object item, String property, Object value) {
-				try {
-					final Object element = tableViewer.getStructuredSelection().getFirstElement();
-					if (element == null) {
-						logger.warn("Can't update {} to {} - no item selected in table", property, value);
-						return;
-					}
-
-					final Object existVal = getValue(element, property);
-					if (existVal != null && existVal.equals(value))
-						return; // No change
-
-					// No spaces
-					if (property.equals("Run Name") && value != null && ((String) value).indexOf(' ') > -1) {
-						MessageDialog.openError(getSite().getShell(), "Contains a space", property
-								+ " must not contain a space.");
-						return;
-					}
-
-					property = property.replace(" ", "");
-					if (!property.equals("RunName") && !property.equals("NumberRepetitions")) {
-						if (value == null)
-							return;
-						if ("".equals(value))
-							return;
-					} else {
-						if (value == null || "".equals(value) || !value.toString().matches("\\w+"))
-							return;
-					}
-
-					final Method method = element.getClass().getMethod("set" + property, value.getClass());
-					method.invoke(element, value);
-					tableViewer.refresh();
-
-					runObjectManager.write();
-
-					if (property.equals("NumberRepetitions") || property.equals("RunName")) {
-						try {
-							ExperimentFactory.getExperimentEditorManager().refreshViewers();
-						} catch (Exception ne) {
-							logger.error("Cannot estimate time of scan - server error.", ne);
-						}
-					}
-				} catch (Exception e) {
-					logger.error("Cannot set " + property, e);
-				} finally {
-					setEnabled(false);
-				}
-			}
-		};
-	}
-
-	private CellEditor[] createCellEditors(final TableViewer tableViewer) {
-		CellEditor[] editors = new CellEditor[1];
-		Table table = tableViewer.getTable();
-		TextCellEditor nameEd = new TextCellEditor(table);
-		((Text) nameEd.getControl()).setTextLimit(60);
-		// NOTE Must not add verify listener - it breaks things.
-		editors[0] = nameEd;
-		try {
-			IFolder containingFolder = runObjectManager.getContainingFolder();
-			final List<IExperimentBeanDescription> beanTypes = ExperimentBeanManager.INSTANCE.getBeanDescriptions();
-			String[] columnNames = runObjectManager.getOrderedColumnBeanTypes();
-			for (int index = 0; index < columnNames.length; index++){
-				String columnName = columnNames[index];
-				for (IExperimentBeanDescription type : beanTypes) {
-					if (type.includeInNew() && columnName.equals(type.getBeanType())) {
-
-					IExperimentBeanDescription[] beanTypesToFilterOn = new IExperimentBeanDescription[0];
-					for (IExperimentBeanDescription beanType : beanTypes) {
-						if (beanType.getBeanType().equals(type.getBeanType())) {
-							beanTypesToFilterOn = (IExperimentBeanDescription[]) ArrayUtils.add(beanTypesToFilterOn,
-									beanType);
-						}
-					}
-
-					editors = (CellEditor[]) ArrayUtils.add(editors, new XMLChooserEditor(table, containingFolder,
-							beanTypesToFilterOn));
-					break;
-				}
-				}
-			}
-		} catch (Exception e1) {
-			logger.error("Could not create editors for Run Editor View.", e1);
-		}
-
-		SpinnerCellEditor repEd = new SpinnerCellEditor(table);
-		repEd.setMaximum(999);
-		repEd.setMinimum(1);
-		editors = (CellEditor[]) ArrayUtils.add(editors, repEd);
-
-		return editors;
-	}
-
 	private void createColumns(TableViewer table) {
 
 		ColumnViewerToolTipSupport.enableFor(table, ToolTip.NO_RECREATE);
@@ -290,6 +158,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		name.getColumn().setText("Name");
 		name.getColumn().setWidth(150);
 		name.setLabelProvider(new RunColumnLabelProvider());
+		name.setEditingSupport(new RunColumnEditingSupport(table));
 
 		final String sizeColumn = System.getProperty("gda.exafs.run.editor.column.width");
 		final int width = sizeColumn != null ? Integer.parseInt(sizeColumn) : 200;
@@ -303,10 +172,12 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 			boolean beanDescriptionFound = false;
 			for (IExperimentBeanDescription type : beanTypes) {
 				if (type.includeInNew() && columnName.equals(type.getBeanType())) {
+					logger.debug("Creating table column for {}", type.getBeanType());
 					final TableViewerColumn thisColumn = new TableViewerColumn(table, SWT.LEFT, index+1);
 					thisColumn.getColumn().setText(type.getBeanType());
 					thisColumn.getColumn().setWidth(width);
-					thisColumn.setLabelProvider(new BeanColumnLabelProvider(type));
+					thisColumn.setLabelProvider(new XmlNameLabelProvider(type));
+					thisColumn.setEditingSupport(new XmlNameEditingSupport(table, type));
 					columnsMade++;
 					beanDescriptionFound = true;
 					break;
@@ -321,32 +192,15 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		runNum.getColumn().setText("Repetitions");
 		runNum.getColumn().setWidth(30);
 		runNum.setLabelProvider(new RepetitionsColumnLabelProvider());
+		runNum.setEditingSupport(new NumRepetitionsEditingSupport(table));
 	}
 
 	private abstract class BaseColumnLabelProvider extends ColumnLabelProvider {
 
-//		@Override
-//		public String getToolTipText(Object element) {
-//			if (element instanceof IExperimentObject) {
-//				final IExperimentObject ob = (IExperimentObject) element;
-//				if (ob.getExperimentStatus() == ExperimentStatus.RUNNING) {
-//					return "'" + ob.getRunName() + "' is currently being run and cannot be edited.";
-//				}
-//			}
-//			return null;
-//		}
-
 		private final Color black = SWTResourceManager.getColor(SWT.COLOR_BLACK);
-//		private final Color grey = SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY);
 
 		@Override
 		public Color getForeground(Object element) {
-//			if (element instanceof IExperimentObject) {
-//				final IExperimentObject ob = (IExperimentObject) element;
-//				if (ob.getExperimentStatus() == ExperimentStatus.RUNNING) {
-//					return grey;
-//				}
-//			}
 			return black;
 		}
 
@@ -380,92 +234,6 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		}
 	}
 
-	private class BeanColumnLabelProvider extends BaseColumnLabelProvider {
-
-		final Image errorIcon = SWTResourceManager.getImage(ExperimentRunEditor.class, "/page_error.png");
-		private ILabelProvider workbenchLabelProvider;
-		private IExperimentBeanDescription type;
-		ILabelProviderListener listener;
-
-		BeanColumnLabelProvider(final IExperimentBeanDescription type) {
-			Assert.isNotNull(type);
-			this.type = type;
-			workbenchLabelProvider = new DecoratingLabelProvider(new WorkbenchLabelProvider(), CommonRCPActivator
-					.getDefault().getWorkbench().getDecoratorManager().getLabelDecorator());
-
-			listener = new ILabelProviderListener() {
-				@Override
-				public void labelProviderChanged(LabelProviderChangedEvent event) {
-					Set<IExperimentObject> scanObjectsToUpdate = new HashSet<IExperimentObject>();
-					Object[] elements = event.getElements();
-					for (Object object : elements) {
-						if (object instanceof IFile) {
-							for (IExperimentObject scanObject : runObjectManager.getExperimentList()) {
-								IFile file = scanObject.getFile(type.getBeanType());
-								if (file != null && file.equals(object)) {
-									scanObjectsToUpdate.add(scanObject);
-								}
-							}
-						}
-					}
-					tableViewer.update(scanObjectsToUpdate.toArray(), null);
-				}
-			};
-			workbenchLabelProvider.addListener(listener);
-		}
-
-		@Override
-		public Image getImage(Object element) {
-			IFile file = ((IExperimentObject) element).getFile(type.getBeanType());
-			Image image = workbenchLabelProvider.getImage(file);
-			if (image == null) {
-				image = errorIcon;
-			}
-			return image;
-		}
-
-		@Override
-		public String getText(Object element) {
-			final IExperimentObject ob = (IExperimentObject) element;
-			final IExperimentObjectManager man = ExperimentFactory.getManager(ob);
-			final int index = man.getExperimentList().indexOf(ob);
-			IExperimentObject prev = null;
-			if (index > 0) {
-				prev = man.getExperimentList().get(index - 1);
-			}
-
-			String label = getName(prev, ob, type);
-
-			if (label == null)
-				return "";
-			return label;
-		}
-
-		@Override
-		public String getToolTipText(Object element) {
-			String toolTipText = super.getToolTipText(element);
-			if (toolTipText == null) {
-				toolTipText = type.getBeanType() + " File";
-			}
-//			if (element instanceof IExperimentObject) {
-//				final IExperimentObject ob = (IExperimentObject) element;
-//				if (ob.getExperimentStatus() == ExperimentStatus.RUNNING) {
-//					return "'" + ob.getRunName() + "' is currently being run and cannot be edited.";
-//				}
-//			}
-
-			return toolTipText;
-		}
-
-		@Override
-		public void dispose() {
-			workbenchLabelProvider.removeListener(listener);
-			workbenchLabelProvider.dispose();
-			super.dispose();
-		}
-
-	}
-
 	private class RepetitionsColumnLabelProvider extends BaseColumnLabelProvider {
 		@Override
 		public String getText(Object element) {
@@ -473,23 +241,6 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		}
 	}
 
-	private String getName(IExperimentObject prev, IExperimentObject ob, IExperimentBeanDescription type) {
-		final String value = ob.getFileName(type.getBeanType());
-		if (value == null)
-			return "";
-		if (prev == null)
-			return value;
-
-		if (System.getProperty("gda.exafs.use.quotes.for.repeated.runs") == null)
-			return value;
-		final String prevValue = prev.getFileName(type.getBeanType());
-		if (prevValue != null) {
-			if (!prevValue.equals(value))
-				return value;
-		}
-		return "\"";
-
-	}
 
 	@Override
 	public void setFocus() {
@@ -603,4 +354,158 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 				tableViewer.getTable().isFocusControl();
 	}
 
+	/**
+	 * Label provider for showing the XML filename column
+	 */
+	private class XmlNameLabelProvider extends BaseColumnLabelProvider {
+		private final IExperimentBeanDescription beanDescription;
+
+		public XmlNameLabelProvider(IExperimentBeanDescription beanDescription) {
+			this.beanDescription = beanDescription;
+		}
+
+		@Override
+		public String getText(Object element) {
+			IExperimentObject opf = (IExperimentObject) element;
+			return opf.getFile(beanDescription.getBeanType()).getName();
+		}
+	}
+
+	/**
+	 *  Editing support for choosing an XML filename using a combo box
+	 */
+	private class XmlNameEditingSupport extends EditingSupport {
+
+		private final IExperimentBeanDescription beanDescription;
+		private String[] xmlFileNamesForCombo;
+
+		public XmlNameEditingSupport(ColumnViewer viewer, IExperimentBeanDescription beanDescription) {
+			super(viewer);
+			this.beanDescription = beanDescription;
+		}
+
+		@Override
+		protected CellEditor getCellEditor(final Object element) {
+			IExperimentObject expObject = (IExperimentObject) element;
+
+			// Get list of files matching the bean type for this column
+			List<IFile> filesOfBean = new ArrayList<>();
+			final List<IExperimentBeanDescription> beanDescriptions = ExperimentBeanManager.INSTANCE.getBeanDescriptions();
+			beanDescriptions.forEach(description -> {
+				if (description.getBeanType().equals(beanDescription.getBeanType())) {
+					filesOfBean.addAll(description.getSortedFileList(expObject.getFolder()));
+				}
+			});
+
+			// Make array of filenames to be shown in combo box.
+			xmlFileNamesForCombo = new String[filesOfBean.size()];
+			for (int i = 0; i < xmlFileNamesForCombo.length; i++) {
+				xmlFileNamesForCombo[i] = FilenameUtils.getName(filesOfBean.get(i).getName());
+			}
+
+			return new ComboBoxCellEditor((Composite) getViewer().getControl(), xmlFileNamesForCombo, SWT.READ_ONLY);
+		}
+
+		@Override
+		protected boolean canEdit(Object ob) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			// get value from model and convert to int to update combobox
+			IExperimentObject param = (IExperimentObject) element;
+			String filename = param.getFile(beanDescription.getBeanType()).getName();
+			int index = Arrays.asList(xmlFileNamesForCombo).indexOf(filename);
+			logger.debug("XmlNameEditingSupport.getValue() : index = {}, name = {}", index, filename);
+			return index;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			// Update model using selected item in filename combo box
+			IExperimentObject param = (IExperimentObject) element;
+			int index = (Integer) value; // selected index in combo box
+			String xmlName = xmlFileNamesForCombo[index];
+			logger.debug("XmlNameEditingSupport.setValue() : index = {}, xmlName = {}", index, xmlName);
+			param.setFileName(beanDescription.getBeanType(), xmlName);
+			getViewer().update(param, null);
+			runObjectManager.write();
+		}
+	}
+
+	/**
+	 * Editing support for altering the number of repetitions (using {@link SpinnerCellEditor})
+	 */
+	private class NumRepetitionsEditingSupport extends EditingSupport {
+
+		public NumRepetitionsEditingSupport(ColumnViewer viewer) {
+			super(viewer);
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return new SpinnerCellEditor((Composite) getViewer().getControl());
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			// get value from model and convert to int to update spinner widget
+			IExperimentObject param = (IExperimentObject) element;
+			return param.getNumberRepetitions();
+		}
+
+		@Override
+		public void setValue(Object element, Object value) {
+			// Update model using value from spinner widget
+			IExperimentObject param = (IExperimentObject) element;
+			int numReps = Integer.parseInt(value.toString());
+			param.setNumberRepetitions(numReps);
+			getViewer().update(param, null);
+			ExperimentFactory.getExperimentEditorManager().refreshViewers();
+			runObjectManager.write();
+		}
+	}
+
+	/**
+	 * Editing support for changing the scan run name.
+	 */
+	private class RunColumnEditingSupport extends EditingSupport {
+
+		public RunColumnEditingSupport(ColumnViewer viewer) {
+			super(viewer);
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return new TextCellEditor((Composite) getViewer().getControl());
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			IExperimentObject param = (IExperimentObject) element;
+			return param.getRunName();
+		}
+
+		@Override
+		public void setValue(Object element, Object value) {
+			// Update model using value from 'run name' widget
+			IExperimentObject param = (IExperimentObject) element;
+			param.setRunName(value.toString());
+			getViewer().update(param, null);
+			// refresh the tree view so the displayed scan name is up to date with the model
+			ExperimentFactory.getExperimentEditorManager().refreshViewers();
+			runObjectManager.write();
+		}
+	}
 }
