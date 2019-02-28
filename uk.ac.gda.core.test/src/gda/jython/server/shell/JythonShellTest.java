@@ -45,9 +45,9 @@ import java.util.function.Predicate;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Binding;
 import org.jline.reader.EndOfFileException;
-import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.junit.After;
@@ -79,7 +79,7 @@ public class JythonShellTest {
 	@Mock Terminal terminal;
 	@Mock KeyMap<Binding> keymap;
 	@Mock PrintWriter writer;
-	@Mock LineReader reader;
+	@Mock LineReaderImpl reader;
 	@Mock JythonShellParser parser;
 	JythonShell shell;
 
