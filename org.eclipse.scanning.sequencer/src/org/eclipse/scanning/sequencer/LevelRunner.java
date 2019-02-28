@@ -69,7 +69,8 @@ abstract class LevelRunner<L extends ILevel> {
 	private final PositionDelegate pDelegate;
 
 	protected IPosition position;
-	private ScanningException abortException;
+
+	private Exception abortException;
 
 	private SortedMap<Integer, List<L>> devicesByLevel;
 	private SortedMap<Integer, AnnotationManager> annotationManagers;
@@ -131,20 +132,26 @@ abstract class LevelRunner<L extends ILevel> {
 	protected abstract LevelRole getLevelRole();
 
 	/**
-	 * Call to set the value at the location specified<br>
-	 * Same as calling run(position, true)
+	 * Runs the devices for this level runner by level for the given {@link IPosition}.
+	 * How this behaves is determined by the concrete subclass of this class that the instance
+	 * belongs to, specifically how {@link #createTask(ILevel, IPosition)} is implemented.
+	 * <p>
+	 * Calling this method is equivalent to calling calling @{code run(position, true)}.
 	 *
-	 * For parameters, return code & exceptions see {{@link #run(IPosition, boolean)}
+	 * @param position the position to perform the run for
+	 * @throws InterruptedException if a call to {@link #abort()} was made while this method
+	 *     was running, not that this is not guaranteed
+	 * @throws ScanningException if the run failed for any other reason
 	 */
-	protected boolean run(IPosition position) throws ScanningException {
+	protected boolean run(IPosition position) throws ScanningException, InterruptedException {
 		return run(position, true);
 	}
 
 	/**
-	 * Call to set the value at the location specified
+	 * Runs the devices for this level runner by level for the given {@link IPosition}.
+	 * This is equivalent to calling calling @{code run(position, true)}
 	 *
-	 * @param position
-	 *            the position to move to
+	 * @param position the position to perform the run for
 	 * @param block
 	 *            set to <code>true</code> to block until the parallel tasks have completed.<br>
 	 *            set to <code>false</code> to return after the last level is told to execute.<br>
@@ -153,13 +160,12 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @return <code>true</code> if the run performed normally, <code>false</code> otherwise, for instance because
 	 *         {@link IPositionListener#positionWillPerform(org.eclipse.scanning.api.scan.PositionEvent)} returned false
 	 *         for some position listener
-	 * @throws CancellationException
-	 *             can be thrown if abort has been called while blocking
-	 * @throws ScanningException
-	 *             if the value cannot be set for any other reason
+	 * @throws InterruptedException if a call to {@link #abort()} was made while this method
+	 *     was running, not that this is not guaranteed
+	 * @throws ScanningException if the run failed for any other reason
 	 */
-	protected boolean run(IPosition position, boolean block) throws ScanningException {
-		if (abortException != null) throw abortException;
+	protected boolean run(IPosition position, boolean block) throws ScanningException, InterruptedException {
+		checkAborted();
 
 		logger.debug("running {} for position {}", getLevelRole(), position);
 		this.position = position;
@@ -171,9 +177,9 @@ abstract class LevelRunner<L extends ILevel> {
 		final SortedMap<Integer, AnnotationManager> annotationManagersByLevel = getAnnotationManagersByLevel(devicesByLevel);
 
 		try {
-		final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
-		for (Integer level : devicesByLevel.keySet()) {
-				if (abortException != null) throw abortException; // check aborted
+			final int finalLevel = devicesByLevel.isEmpty() ? 0 : devicesByLevel.lastKey();
+			for (Integer level : devicesByLevel.keySet()) {
+				checkAborted();
 				runLevel(level, position, devicesByLevel.get(level),
 						block || level != finalLevel, // if non-blocking, still block for all but the final level
 						annotationManagersByLevel.get(level));
@@ -183,10 +189,8 @@ abstract class LevelRunner<L extends ILevel> {
 		} catch (ScanningException | CancellationException e) {
 			throw e;
 		} catch (Exception e) {
-			if (abortException != null) {
-				throw abortException;
-			}
-			throw new ScanningException("Scanning interrupted while moving to new position!", e);
+			checkAborted(); // if the runner has already been aborted, we prefer to throw that exception
+			throw new ScanningException("Interrupted while performing " + getLevelRole().toString().toLowerCase(), e);
 		}
 
 		return true;
@@ -215,6 +219,7 @@ abstract class LevelRunner<L extends ILevel> {
 			// Normally we block until done.
 			logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
 			final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
+			checkAborted(); // first check if we were aborted in the meantime
 			checkForCancelledTasks(level, devicesForLevel, taskFutures); // any timed-out tasks will have been cancelled
 			pDelegate.fireLevelPerformed(level, devicesForLevel, getPosition(loc, taskFutures));
 	}
@@ -229,9 +234,6 @@ abstract class LevelRunner<L extends ILevel> {
 
 	private void checkForCancelledTasks(final int level, final List<L> devicesForLevel,
 			final List<Future<IPosition>> taskFutures) throws ScanningException {
-		// Check first for abort exception
-		if (abortException != null) throw abortException;
-
 		// Tasks that were not complete by the timeout will have been cancelled by the ExecutorService
 		if (taskFutures.stream().anyMatch(Future::isCancelled)) {
 			logger.error("Timeout performing {} tasks at level {}", getLevelRole(), level);
@@ -282,9 +284,8 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @throws ScanningException if the timeout occurred before the tasks were complete
 	 */
 	protected IPosition await(long time) throws ScanningException, InterruptedException {
-		if (abortException != null) {
-			throw abortException;
-		}
+		checkAborted();
+
 		if (executorService.isTerminated()) {
 			logger.warn("await() called when executorService is terminated");
 			return position;
@@ -297,11 +298,23 @@ abstract class LevelRunner<L extends ILevel> {
 		return position;
 	}
 
+	private void checkAborted() throws InterruptedException, ScanningException {
+		if (abortException != null) {
+			if (abortException instanceof InterruptedException) {
+				throw (InterruptedException) abortException;
+			} else if (abortException instanceof ScanningException) {
+				throw (ScanningException) abortException;
+			} else {
+				throw new ScanningException("Unexpected exception type: " + abortException.getClass(), abortException); // not expected
+			}
+		}
+	}
+
 	/**
 	 * Abort the level runner.
 	 */
 	public void abort() {
-		abort("User requested abort", new ScanningException("User requested abort"));
+		abort("User requested abort", new InterruptedException("User requested abort"));
 	}
 
 	/**
@@ -325,9 +338,15 @@ abstract class LevelRunner<L extends ILevel> {
 	}
 
 	private void abort(String message, Throwable ne) {
-		logger.debug(message, ne); // Just for testing we make sure that the stack is visible.
-		abortException = ne instanceof ScanningException ? (ScanningException) ne
-				: new ScanningException(ne.getMessage(), ne);
+		logger.debug("Abort called while performing {}: {}", getLevelRole(), message, ne);
+		if (ne instanceof InterruptedException) {
+			abortException = (InterruptedException) ne;
+		} else if (ne instanceof ScanningException) {
+			abortException = (ScanningException) ne;
+		} else {
+			abortException = new ScanningException(ne.getMessage(), ne);
+		}
+
 		if (!executorService.isShutdown()) {
 			executorService.shutdownNow();
 		}

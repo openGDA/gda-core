@@ -37,6 +37,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -272,13 +274,25 @@ public class LevelRunnerTest {
 			fail("Expected to throw an exception due to timeout");
 		} catch (ScanningException e) {
 			assertEquals(expectedMessage, e.getMessage());
+		} catch (InterruptedException e) {
+			fail("Expected ScanningException, not InterruptedException");
 		}
 	}
 
 	@Test(expected = ScanningException.class)
-	public void testRunFailsAfterAbortException() throws Exception {
+	public void testRunFailsAfterAbortWithError() throws Exception {
 		runner.setDevices(asList(level5a, level5b));
 		runner.abortWithError(scan, position, new ScanningException("Test scan failure"));
+		runner.run(position);
+	}
+
+	@Test(expected = InterruptedException.class)
+	public void testRunFailsAfterAbort() throws Exception {
+		runner.setDevices(asList(level5a, level5b));
+		level5b.setDelay(5); // 5 second delay
+
+		// schedule an abort for 1 second into the run
+		Executors.newSingleThreadScheduledExecutor().schedule(() -> runner.abort(), 1, TimeUnit.SECONDS);
 		runner.run(position);
 	}
 
