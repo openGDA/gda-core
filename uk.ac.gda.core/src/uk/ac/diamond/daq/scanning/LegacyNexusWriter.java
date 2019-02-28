@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.scanning;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +38,8 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 
@@ -48,6 +51,8 @@ import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
  * @author Matthew Dickie
  */
 class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModification {
+
+	private static final Logger logger = LoggerFactory.getLogger(LegacyNexusWriter.class);
 
 	private final ScannableNexusWrapper<N> scannableNexusWrapper;
 	private final SingleScannableWriter scannableWriter;
@@ -80,9 +85,17 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 		// relies on predictable iteration order of LinkedHashMap
 		Iterator<String> fieldNameIter = scannableNexusWrapper.getOutputFieldNames().iterator();
 		for (int i = 0; i < paths.length; i++) {
-			final String fieldName = fieldNameIter.next();
-			String fieldUnits = (units != null && units.length > i) ? units[i] : null;
-			createField(fieldName, paths[i], fieldUnits);
+			try {
+				final String fieldName = fieldNameIter.next();
+				String fieldUnits = (units != null && units.length > i) ? units[i] : null;
+				createField(fieldName, paths[i], fieldUnits);
+			} catch (Exception e) {
+				final List<String> outputFieldNames= scannableNexusWrapper.getOutputFieldNames();
+				logger.error("Mismatch between {} paths and {} outputFieldNames for {}? i={} paths={}, outputFieldNames={}, units={}",
+					paths.length, outputFieldNames.size(), scannableNexusWrapper.getName(), i, Arrays.toString(paths), outputFieldNames,
+					Arrays.toString(units));
+				throw new NexusException("Possible mismatch between paths and outputFieldNames for "+scannableNexusWrapper.getName(), e);
+			}
 		}
 
 		entryModified = true;
