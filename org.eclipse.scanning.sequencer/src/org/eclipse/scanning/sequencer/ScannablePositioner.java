@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,7 +37,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IPositioner {
-	private static Logger logger = LoggerFactory.getLogger(ScannablePositioner.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(ScannablePositioner.class);
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(3);
 
 	private IScannableDeviceService     connectorService;
 	private List<IScannable<?>>         monitors;
@@ -44,13 +47,12 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 
 	ScannablePositioner(IScannableDeviceService service, INameable parent) {
 		super(parent);
-		setLevelCachingAllowed(false);
 		this.connectorService = service;
 
 		// This is setting the default but the actual value of the timeout
 		// is set by implementing ITimeoutable in your IScannable. The devices
 		// at a given level are checked for their timeout when they are run.
-		setTimeout(3*60); // Three minutes. If this needs to be increased implement getTimeout() on IScannable.
+		setTimeout(DEFAULT_TIMEOUT.getSeconds()); // If this needs to be increased implement getTimeout() on IScannable.
 	}
 
 	/**
@@ -71,6 +73,10 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 
 	@Override
 	public boolean setPosition(IPosition position) throws ScanningException, InterruptedException {
+		if (scannables != null) {
+			clearCachedLevelObjects();
+		}
+
 		run(position);
 		return true;
 	}
@@ -90,7 +96,6 @@ final class ScannablePositioner extends LevelRunner<IScannable<?>> implements IP
 		ret.setStepIndex(position.getStepIndex());
 		return ret;
 	}
-
 
 	@Override
 	protected Collection<IScannable<?>> getDevices() throws ScanningException {

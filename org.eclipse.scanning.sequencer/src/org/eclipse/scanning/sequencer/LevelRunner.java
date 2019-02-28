@@ -70,7 +70,6 @@ abstract class LevelRunner<L extends ILevel> {
 
 	protected IPosition position;
 	private ScanningException abortException;
-	private boolean levelCachingAllowed = true;
 
 	private SortedMap<Integer, List<L>> devicesByLevel;
 	private SortedMap<Integer, AnnotationManager> annotationManagers;
@@ -358,15 +357,12 @@ abstract class LevelRunner<L extends ILevel> {
 	 * @throws ScanningException
 	 */
 	private SortedMap<Integer, List<L>> getDevicesByLevel() throws ScanningException {
-		SortedMap<Integer, List<L>> result = this.devicesByLevel;
-		if (result == null) {
-			result = createDevicesByLevelMap();
+		if (devicesByLevel != null) {
+			return devicesByLevel;
 		}
 
-		if (levelCachingAllowed) {
-			this.devicesByLevel = result;
-		}
-
+		SortedMap<Integer, List<L>> result = createDevicesByLevelMap();
+		this.devicesByLevel = result;
 		return result;
 	}
 
@@ -391,9 +387,7 @@ abstract class LevelRunner<L extends ILevel> {
 		}
 
 		final SortedMap<Integer, AnnotationManager> annotationManagers = createAnnotationManagersByLevelMap(devicesByLevel);
-		if (levelCachingAllowed) {
-			this.annotationManagers = annotationManagers;
-		}
+		this.annotationManagers = annotationManagers;
 		return annotationManagers;
 	}
 
@@ -406,6 +400,11 @@ abstract class LevelRunner<L extends ILevel> {
 			annotationManagers.get(pos).addDevices(posEntry.getValue());
 		}
 		return annotationManagers;
+	}
+
+	protected void clearCachedLevelObjects() {
+		devicesByLevel = null;
+		annotationManagers = null;
 	}
 
 	public void addPositionListener(IPositionListener listener) {
@@ -481,10 +480,6 @@ abstract class LevelRunner<L extends ILevel> {
 	 */
 	public void setTimeout(long time) {
 		this.timeout = time;
-	}
-
-	public void setLevelCachingAllowed(boolean levelCachingAllowed) {
-		this.levelCachingAllowed = levelCachingAllowed;
 	}
 
 }
