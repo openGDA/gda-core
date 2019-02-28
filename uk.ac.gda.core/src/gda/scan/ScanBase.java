@@ -28,7 +28,6 @@ import static gda.scan.ScanDataPoint.handleZeroInputExtraNameDevice;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -532,11 +531,10 @@ public abstract class ScanBase implements NestableScan {
 			estimatedPointsToComputeSimultaneousely = (float) getPositionCallableThreadPoolSize()
 					/ (float) numberOfScannablesThatCanProvidePositionCallables();
 		}
-		logger.info(String.format(
-				"Creating MultithreadedScanDataPointPipeline which can hold %d points before blocking"
-						+ ", and that will on average process %.1f points simultaneously using %d threads.",
+		logger.info("Creating MultithreadedScanDataPointPipeline which can hold {} points before blocking"
+						+ ", and that will on average process {} points simultaneously using {} threads.",
 				getScanDataPointQueueLength(), estimatedPointsToComputeSimultaneousely,
-				getPositionCallableThreadPoolSize()));
+				getPositionCallableThreadPoolSize());
 
 		scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
 				new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
@@ -559,11 +557,11 @@ public abstract class ScanBase implements NestableScan {
 			if (getStatus().isAborting()) {
 				// stop all scannables
 				try {
-					logger.info("ScanBase stopping " + allScannables.size() + " Scannables involved in interupted Scan");
+					logger.info("ScanBase stopping {} Scannables involved in interupted Scan", allScannables.size());
 					for (Scannable scannable : allScannables) {
 						scannable.stop();
 					}
-					logger.info("ScanBase stopping " + allDetectors.size() + " Detectors involved in interupted Scan");
+					logger.info("ScanBase stopping {} Detectors involved in interupted Scan", allDetectors.size());
 					for (Scannable scannable : allDetectors) {
 						scannable.stop();
 					}
@@ -1070,7 +1068,7 @@ public abstract class ScanBase implements NestableScan {
 	@Override
 	public final void run() throws Exception {
 		Exception exceptionFromMainTryClause = null;
-		logger.debug("ScanBase.run() for scan: '" + getName() + "'");
+		logger.debug("ScanBase.run() for scan: '{}'", getName());
 		do {
 			lineScanNeedsDoing = false;
 			pointNumberAtLineBeginning = currentPointCount;
@@ -1092,7 +1090,7 @@ public abstract class ScanBase implements NestableScan {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 					throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
 				} catch (RedoScanLineThrowable e){
-					logger.info("Redoing scan line because: ", e.getMessage());
+					logger.info("Redoing scan line because: {}", e.getMessage());
 					logger.trace("Cause of redo exception", e);
 					lineScanNeedsDoing = true;
 					currentPointCount = pointNumberAtLineBeginning;
@@ -1121,7 +1119,7 @@ public abstract class ScanBase implements NestableScan {
 					exceptionFromMainTryClause = e;
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (RedoScanLineThrowable e){
-					logger.info("Redoing scan line because: ", e.getMessage());
+					logger.info("Redoing scan line because: {}", e.getMessage());
 					logger.trace("Cause of redo exception", e);
 					lineScanNeedsDoing = true;
 					currentPointCount = pointNumberAtLineBeginning;
@@ -1133,7 +1131,7 @@ public abstract class ScanBase implements NestableScan {
 					// aborting the scan. Thus preventing major stacktraces in the log file.
 					if ("sleep interrupted".equals(message)) {
 						// need the correct exception type so wrapping code know its an interrupt
-						logger.info("Scan aborted on request." + message);
+						logger.info("Scan aborted on request. {}", message);
 						throw new ScanInterruptedException(message,e.getStackTrace());
 					}
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
@@ -1144,7 +1142,7 @@ public abstract class ScanBase implements NestableScan {
 			} catch (ScanInterruptedException e) {
 				throw e;
 			} catch (RedoScanLineThrowable e){
-				logger.info("Redoing scan line because: ", e.getMessage());
+				logger.info("Redoing scan line because: {}", e.getMessage());
 				logger.trace("Cause of redo exception", e);
 				lineScanNeedsDoing = true;
 				currentPointCount = pointNumberAtLineBeginning;
@@ -1158,11 +1156,11 @@ public abstract class ScanBase implements NestableScan {
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
 				for (Scannable scn : allScannables) {
-					logger.info("Stopping " + scn.getName());
+					logger.info("Stopping {}", scn.getName());
 					scn.stop();
 				}
 				for (Scannable det : allDetectors) {
-					logger.info("Stopping " + det.getName());
+					logger.info("Stopping {}", det.getName());
 					det.stop();
 				}
 
@@ -1182,7 +1180,7 @@ public abstract class ScanBase implements NestableScan {
 					endScan();
 				} catch (DeviceException e) {
 					if ((e instanceof RedoScanLineThrowable) && (getChild() == null)) {
-						logger.info("Redoing scan line because: ", e.getMessage());
+						logger.info("Redoing scan line because: {}", e.getMessage());
 						logger.trace("Cause of redo exception", e);
 						lineScanNeedsDoing = true;
 						currentPointCount = pointNumberAtLineBeginning;
@@ -1402,8 +1400,9 @@ public abstract class ScanBase implements NestableScan {
 
 	protected void checkThreadInterrupted() throws InterruptedException {
 		if (Thread.interrupted()) {
-			logger.info("Scan thread has been interrupted.", (Object[])Thread.currentThread().getStackTrace());
-			throw new InterruptedException();
+			InterruptedException interruptedException = new InterruptedException("Scan thread has been interrupted");
+			logger.info("Scan thread has been interrupted", interruptedException);
+			throw interruptedException;
 		}
 	}
 
@@ -1450,9 +1449,8 @@ class ParentScanComponent implements ScanParent{
 			// notify Command (Jython) Server that the status has changed
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this, this.getStatus());
 		} else {
-			String msg = MessageFormat.format("Scan status change from {0} to {1} is not expected", this.status.name(),
+			logger.error("Scan status change from '{}' to '{}' is not expected", this.status.name(),
 					newStatus.name());
-			logger.error(msg);
 		}
 
 	}
