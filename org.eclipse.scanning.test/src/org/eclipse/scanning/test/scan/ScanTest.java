@@ -13,12 +13,15 @@ package org.eclipse.scanning.test.scan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
@@ -189,15 +192,29 @@ public class ScanTest extends BrokerTest {
 		checkRun(scanner);
 	}
 
-	//@Test
+	@Test
 	public void testAbortSimpleScan() throws Exception {
+		MockDetectorModel dmodel = new MockDetectorModel();
+		dmodel.setExposureTime(0.01);
+		dmodel.setName("detector");
+		IRunnableDevice<MockDetectorModel> detector = runnableDeviceService.createRunnableDevice(dmodel);
 
-		IRunnableDevice<ScanModel> scanner = createTestScanner(null, null, null, null, null, null);
+		IRunnableDevice<ScanModel> scanner = createTestScanner(null, null, null, null, null, detector);
+		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+			try {
+				scanner.abort();
+			} catch (ScanningException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}, 100, TimeUnit.MILLISECONDS);
 		scanner.start(null);
-		Thread.sleep(100);
-		scanner.abort();
-		Thread.sleep(100);
-		assertTrue("The Device state was "+scanner.getDeviceState()+" not "+DeviceState.ABORTED, scanner.getDeviceState()==DeviceState.ABORTED);
+		try {
+			scanner.latch(10, TimeUnit.SECONDS); // latch calls createException to rethrow any exceptions thrown by run()
+			fail("InterruptedException expected");
+		} catch (InterruptedException e) {
+			assertEquals("User requested abort", e.getMessage());
+		}
+		assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
 	}
 
 	@Test
