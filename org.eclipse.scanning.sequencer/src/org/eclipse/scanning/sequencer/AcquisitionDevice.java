@@ -480,9 +480,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| InstantiationException | EventException e) {
 				throw new ScanningException(e);
+			} finally {
+				if (scanFinishedLatch != null) {
+					scanFinishedLatch.countDown();
+				}
 			}
-			if (scanFinishedLatch != null)
-				scanFinishedLatch.countDown();
 		}
 	}
 
