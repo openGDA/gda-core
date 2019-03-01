@@ -76,8 +76,8 @@ public class ExperimentRecord implements IExperimentRecord {
 		}
 	}
 
-	protected void segmentActivated(String segmentName) {
-		bean.getSegments().add(new SegmentRecord(segmentName));
+	protected void segmentActivated(String segmentName, String sampleEnvironmentName) {
+		bean.getSegments().add(new SegmentRecord(segmentName, sampleEnvironmentName));
 		broadcast();
 	}
 	
@@ -90,10 +90,10 @@ public class ExperimentRecord implements IExperimentRecord {
 		broadcast();
 	}
 	
-	protected void triggerComplete(String triggerName, TriggerEvent event) {
+	protected void triggerComplete(String triggerName, TriggerEvent event, String sampleEnvironmentName) {
 		final TriggerRecord record = bean.getTriggers().stream()
 				.filter(t -> t.getTriggerName().equals(triggerName))
-				.findFirst().orElse(new TriggerRecord(triggerName));
+				.findFirst().orElse(new TriggerRecord(triggerName, sampleEnvironmentName));
 		
 		record.addEvent(event);
 		if (!bean.getTriggers().contains(record)) bean.getTriggers().add(record);

@@ -4,7 +4,7 @@ import java.util.Set;
 
 public interface ISampleEnvironmentVariable {
 
-	
+
 	/**
 	 * Register either an {@link ITrigger} or an {@link ISegment} to this SEV. If it is the first SEVListener, the SEV will begin.
 	 * @param listener
@@ -16,11 +16,13 @@ public interface ISampleEnvironmentVariable {
 	 * @param listener
 	 */
 	void removeListener(SEVListener listener);
-	
+
 	Set<SEVListener> getListeners();
 
 	boolean isEnabled();
 
 	double read();
+
+	String getName();
 
 }

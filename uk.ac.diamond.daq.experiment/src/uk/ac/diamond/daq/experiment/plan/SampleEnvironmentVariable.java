@@ -12,18 +12,18 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 
 /**
- * Instances of this class will sample a {@link SignalSource} at a specified frequency, and
+ * Instances of this class will poll a {@link Scannable} at a specified frequency, and
  * when the signal changes significantly (i.e. change >= tolerance), will notify its {@link SEVListener}s.
  * It will stop sampling if there are no listeners registered.
  *
  */
-public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
+public class SampleEnvironmentVariable extends FindableBase implements ISampleEnvironmentVariable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SampleEnvironmentVariable.class);
 	
@@ -35,15 +35,14 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	private double lastPosition;
 	private double tolerance;
 	
-	/**
-	 * @param externalSource
-	 */
-	SampleEnvironmentVariable(Scannable externalSource) {
-		this(externalSource, DEFAULT_TOLERANCE);
+	
+	public SampleEnvironmentVariable(Scannable scannable) {
+		this(scannable, DEFAULT_TOLERANCE);
 	}
 	
-	public SampleEnvironmentVariable(Scannable externalSource, double tolerance) {
-		this.externalSource = externalSource;
+	public SampleEnvironmentVariable(Scannable scannable, double tolerance) {
+		this.externalSource = scannable;
+		setName(scannable.getName());
 		this.lastPosition = read();
 		this.tolerance = tolerance;
 		clear();

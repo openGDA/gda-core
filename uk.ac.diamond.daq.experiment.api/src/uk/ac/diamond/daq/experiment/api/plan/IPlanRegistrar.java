@@ -29,15 +29,16 @@ public interface IPlanRegistrar {
 	 * @param trigger
 	 * @param event
 	 */
-	void triggerComplete(ITrigger trigger, TriggerEvent event);
+	void triggerComplete(ITrigger trigger, TriggerEvent event, String sampleEnvironmentName);
 
 
 	/**
 	 * Called to report that the specified {@link ISegment} has become active
 	 *
 	 * @param segment
+	 * @param sampleEnvironmentName the name of the sample environment this segment depends on
 	 */
-	void segmentActivated(ISegment segment);
+	void segmentActivated(ISegment segment, String sampleEnvironmentName);
 
 
 	/**

@@ -16,6 +16,7 @@ import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
 	
+	private static final String SYSTEM_TIMER_NAME = "System timer";
 	private static IEventService eventService;
 
 	private IPlanRegistrar registrar;
@@ -34,7 +35,11 @@ public class PlanFactory implements IPlanFactory {
 	
 	@Override
 	public ISampleEnvironmentVariable addTimer() {
-		if (timer == null) timer = new SampleEnvironmentVariable(new SystemTimerSignal());
+		if (timer == null) {
+			SampleEnvironmentVariable systemTimer = new SampleEnvironmentVariable(new SystemTimerSignal());
+			systemTimer.setName(SYSTEM_TIMER_NAME);
+			timer = systemTimer;
+		}
 		return timer;
 	}
 

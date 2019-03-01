@@ -86,6 +86,11 @@ public class SampleEnvironmentVariableTest {
 			public void signalChanged(double signal) {
 				sevBroadcastCounts++;
 			}
+
+			@Override
+			public String getSampleEnvironmentName() {
+				return null;
+			}
 		});
 
 		changeSignal(envVar, 1); // broadcast here
@@ -121,6 +126,11 @@ public class SampleEnvironmentVariableTest {
 
 		private boolean await() throws InterruptedException {
 			return latch.await(25, TimeUnit.MILLISECONDS);
+		}
+
+		@Override
+		public String getSampleEnvironmentName() {
+			return null;
 		}
 	}
 

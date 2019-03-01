@@ -13,14 +13,16 @@ public class SegmentRecord implements Serializable {
 	private static final long serialVersionUID = 7981329060834102814L;
 
 	private String segmentName;
+	private String sampleEnvironmentName;
 	private long startTime;
 	private long endTime;
 
 	private double terminationSignal;
 
-	public SegmentRecord(String segmentName) {
+	public SegmentRecord(String segmentName, String sampleEnvironmentName) {
 		startTime = Instant.now().toEpochMilli();
 		this.segmentName = segmentName;
+		this.sampleEnvironmentName = sampleEnvironmentName;
 	}
 
 	public SegmentRecord() {}
@@ -60,5 +62,13 @@ public class SegmentRecord implements Serializable {
 
 	public void setTerminationSignal(double terminationSignal) {
 		this.terminationSignal = terminationSignal;
+	}
+
+	public String getSampleEnvironmentName() {
+		return sampleEnvironmentName;
+	}
+
+	public void setSampleEnvironmentName(String sampleEnvironmentName) {
+		this.sampleEnvironmentName = sampleEnvironmentName;
 	}
 }

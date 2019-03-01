@@ -7,7 +7,8 @@ package uk.ac.diamond.daq.experiment.api.plan;
  *
  */
 public interface SEVListener {
-	
+
 	void signalChanged(double signal);
+	String getSampleEnvironmentName();
 
 }

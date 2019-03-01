@@ -79,6 +79,10 @@ public abstract class TriggerBase implements ITrigger {
 		return triggerable;
 	}
 	
+	public String getSampleEnvironmentName() {
+		return sev.getName();
+	}
+	
 	@Override
 	public synchronized void signalChanged(double signal) {
 		if (evaluating) {
@@ -100,7 +104,7 @@ public abstract class TriggerBase implements ITrigger {
 							logger.error("Problem while executing trigger", e);
 						} finally {
 							event.setSuccessful(success);
-							registrar.triggerComplete(this, event);
+							registrar.triggerComplete(this, event, getSEV().getName());
 						}
 					});
 				}

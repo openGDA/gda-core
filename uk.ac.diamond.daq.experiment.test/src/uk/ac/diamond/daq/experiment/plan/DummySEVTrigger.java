@@ -38,7 +38,7 @@ class DummySEVTrigger extends TriggerBase {
 
 		previousTrigger = signal;
 		registrar.triggerOccurred(this);
-		registrar.triggerComplete(this, new TriggerEvent(signal));
+		registrar.triggerComplete(this, new TriggerEvent(signal), thesev.getName());
 		triggerCount++;
 	}
 

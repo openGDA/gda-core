@@ -12,10 +12,12 @@ public class TriggerRecord implements Serializable {
 	private static final long serialVersionUID = -1263340531173097425L;
 
 	private String triggerName;
+	private String sampleEnvironmentName;
 	private List<TriggerEvent> events;
 
-	public TriggerRecord(String triggerName) {
+	public TriggerRecord(String triggerName, String sampleEnvironmentName) {
 		this.triggerName = triggerName;
+		this.sampleEnvironmentName = sampleEnvironmentName;
 		events = new ArrayList<>();
 	}
 
@@ -23,6 +25,14 @@ public class TriggerRecord implements Serializable {
 
 	public String getTriggerName() {
 		return triggerName;
+	}
+
+	public String getSampleEnvironmentName() {
+		return sampleEnvironmentName;
+	}
+
+	public void setSampleEnvironmentName(String sampleEnvironmentName) {
+		this.sampleEnvironmentName = sampleEnvironmentName;
 	}
 
 	public List<TriggerEvent> getEvents() {

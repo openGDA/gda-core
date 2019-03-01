@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.experiment.plan;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -12,7 +13,7 @@ import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
  * set and broadcast the desired signal, and {@link #ramp(double, double)} will call broadcast incrementally
  * until the desired signal is reached.
  */
-public class MockSEV implements ISampleEnvironmentVariable {
+public class MockSEV extends FindableBase implements ISampleEnvironmentVariable {
 
 	private double signal;
 	private Set<SEVListener> listeners = new CopyOnWriteArraySet<>();

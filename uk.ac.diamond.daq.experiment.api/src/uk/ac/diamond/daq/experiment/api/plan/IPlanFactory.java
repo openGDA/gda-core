@@ -19,16 +19,16 @@ public interface IPlanFactory {
 	 * @return reference to created sev
 	 */
 	ISampleEnvironmentVariable addSEV(Scannable scannable);
-	
-	
+
+
 	/**
 	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link DoubleSupplier}.
-	 * 
+	 *
 	 * @param DoubleSupplier will be wrapped inside a {@link Scannable}
 	 * @return reference to the created sev
 	 */
-	ISampleEnvironmentVariable addSEV(DoubleSupplier DoubleSupplier);
-	
+	ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource);
+
 	/**
 	 * Gets a timer to use as an {@link ISampleEnvironmentVariable}.
 	 */

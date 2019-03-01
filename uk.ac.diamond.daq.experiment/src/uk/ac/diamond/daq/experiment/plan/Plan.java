@@ -111,7 +111,7 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 		if (activeSegment == null) {
 			terminateExperiment();
 		} else {
-			record.segmentActivated(activeSegment.getName());
+			record.segmentActivated(activeSegment.getName(), activeSegment.getSampleEnvironmentName());
 			activeSegment.activate();
 		}
 	}	
@@ -152,13 +152,13 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	}
 	
 	@Override
-	public void triggerComplete(ITrigger trigger, TriggerEvent event) {
-		record.triggerComplete(trigger.getName(), event);
+	public void triggerComplete(ITrigger trigger, TriggerEvent event, String sampleEnvironmentName) {
+		record.triggerComplete(trigger.getName(), event, sampleEnvironmentName);
 	}
 	
 	@Override
-	public void segmentActivated(ISegment segment) {
-		record.segmentActivated(segment.getName());
+	public void segmentActivated(ISegment segment, String sampleEnvironmentName) {
+		record.segmentActivated(segment.getName(), sampleEnvironmentName);
 	}
 
 	@Override

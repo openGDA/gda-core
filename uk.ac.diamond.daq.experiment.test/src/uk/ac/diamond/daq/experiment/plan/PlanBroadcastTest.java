@@ -43,6 +43,7 @@ import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 public class PlanBroadcastTest {
 
 	private static final String PLAN_NAME = "Plan B";
+	private static final String SEV_NAME = "displacement";
 	private static final String FIRST_SEGMENT_NAME = "Merl";
 	private static final String SECOND_SEGMENT_NAME = "Lenny";
 	private static final String THIRD_SEGMENT_NAME = "Terrance";
@@ -87,6 +88,10 @@ public class PlanBroadcastTest {
 
 	private SegmentRecord getLastSegment() {
 		return bean.getSegments().get(bean.getSegments().size()-1);
+	}
+
+	private TriggerRecord getLastTrigger() {
+		return bean.getTriggers().get(bean.getTriggers().size()-1);
 	}
 
 	@Test
@@ -202,6 +207,19 @@ public class PlanBroadcastTest {
 		assertThat(triggerEvent2.isSuccessful(), is(true));
 	}
 
+	@Test
+	public void BroadcastSevNamesForSegmentsAndTriggers() {
+		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1,
+				plan.addTrigger(TRIGGER_ONE_NAME, this::work, 0.5));
+
+		plan.start();
+
+		sev.broadcast(0.5);
+
+		assertThat(getLastTrigger().getSampleEnvironmentName(), is(SEV_NAME));
+		assertThat(getLastSegment().getSampleEnvironmentName(), is(SEV_NAME));
+	}
+
 	private void badJob() {
 		throw new RuntimeException("I'm afraid I cannot do that, Dave");
 	}
@@ -295,6 +313,7 @@ public class PlanBroadcastTest {
 	private void initPlan() {
 		plan = new Plan(PLAN_NAME);
 		sev = new MockSEV();
+		sev.setName(SEV_NAME);
 		plan.setFactory(new TestFactory(sev));
 		plan.addSEV(()->0.0); // doesn't matter
 	}
