@@ -183,13 +183,15 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				bean.setPercentComplete(100);
 				updateBean(Status.COMPLETE, "Scan Complete");
 			}
-			logger.debug("Completed run normally : {}", bean);
-		} catch (Exception e) {
-			logger.error("Cannot execute run {} {}", getBean().getName(), getBean().getUniqueId(), e);
+			logger.info("Completed run normally {} {} {}", bean.getName(), bean.getUniqueId(), bean.getFilePath());
+		} catch (Throwable e) {
+			logger.error("Cannot execute run {}", bean, e);
 			updateBean(Status.FAILED, e.getMessage());
 			// rethrow the exception as an EventException
 			if (e instanceof EventException) throw (EventException)e;
 			throw new EventException(e);
+		} finally {
+			logger.debug("Completed ScanProcess.execute() {}", bean);
 		}
 	}
 

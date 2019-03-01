@@ -607,6 +607,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 
 	@Override
 	public void reset() throws ScanningException {
+		logger.error("reset() unsupported");
 		// Cannot reset an Acquisition Device. A new one must be created for each scan.
 		throw new UnsupportedOperationException("reset not supported");
 	}

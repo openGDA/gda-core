@@ -191,8 +191,9 @@ abstract class LevelRunner<L extends ILevel> {
 		} catch (Exception e) {
 			checkAborted(); // if the runner has already been aborted, we prefer to throw that exception
 			throw new ScanningException("Interrupted while performing " + getLevelRole().toString().toLowerCase(), e);
+		}  finally {
+			logger.debug("Finishing iterating over devicesByLevel for scan for {}", position);
 		}
-
 		return true;
 	}
 
@@ -202,7 +203,9 @@ abstract class LevelRunner<L extends ILevel> {
 			EventException, InterruptedException, ExecutionException {
 		final List<Callable<IPosition>> tasks = createTasks(devicesForLevel, loc);
 
+		logger.trace("Invoking LevelStart on {}", devicesForLevel);
 		annotationManager.invoke(LevelStart.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
+		logger.trace("Invoked  LevelStart on {}", devicesForLevel);
 
 		if (block) {
 			runLevelBlocking(loc, level, devicesForLevel, tasks);
@@ -210,18 +213,20 @@ abstract class LevelRunner<L extends ILevel> {
 			runLevelNonBlocking(level, tasks);
 		}
 
+		logger.trace("Invoking LevelEnd on {}", devicesForLevel);
 		annotationManager.invoke(LevelEnd.class, loc, new LevelInformation(getLevelRole(), level, devicesForLevel));
+		logger.trace("Invoked  LevelEnd on {}", devicesForLevel);
 	}
 
 	private void runLevelBlocking(IPosition loc, final int level,
 			final List<L> devicesForLevel, final List<Callable<IPosition>> tasks)
 			throws InterruptedException, ScanningException, ExecutionException {
-			// Normally we block until done.
-			logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
-			final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
-			checkAborted(); // first check if we were aborted in the meantime
-			checkForCancelledTasks(level, devicesForLevel, taskFutures); // any timed-out tasks will have been cancelled
-			pDelegate.fireLevelPerformed(level, devicesForLevel, getPosition(loc, taskFutures));
+		// Normally we block until done.
+		logger.debug("running blocking {} tasks for level {}", getLevelRole(), level);
+		final List<Future<IPosition>> taskFutures = executorService.invokeAll(tasks, getTimeout(), TimeUnit.SECONDS); // blocks until timeout
+		checkAborted(); // first check if we were aborted in the meantime
+		checkForCancelledTasks(level, devicesForLevel, taskFutures); // any timed-out tasks will have been cancelled
+		pDelegate.fireLevelPerformed(level, devicesForLevel, getPosition(loc, taskFutures));
 	}
 
 	private void runLevelNonBlocking(final int level, final List<Callable<IPosition>> tasks) {

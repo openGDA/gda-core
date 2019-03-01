@@ -627,13 +627,15 @@ public class StatusQueueView extends EventConnectionView {
 		for(StatusBean bean : getSelection()) {
 			if (bean.getStatus().isActive()) {
 			try {
-				final DateFormat format = DateFormat.getDateTimeInstance();
+				final String submissionTime = DateFormat.getDateTimeInstance().format(new Date(bean.getSubmissionTime()));
 				boolean ok = MessageDialog.openQuestion(getViewSite().getShell(), "Confirm terminate "+bean.getName(),
-						  "Are you sure you want to terminate "+bean.getName()+" submitted on "+format.format(new Date(bean.getSubmissionTime()))+"?");
+						  "Are you sure you want to terminate "+bean.getName()+" submitted on "+submissionTime+"?");
 
 				if (!ok) continue;
 
 				consumerProxy.terminateJob(bean);
+
+				logger.info("Requesting termination of {} submitted on {}", bean.getName(), submissionTime);
 			} catch (Exception e) {
 				ErrorDialog.openError(getViewSite().getShell(), "Cannot terminate "+bean.getName(), "Cannot terminate "+bean.getName()+"\n\nPlease contact your support representative.",
 						new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
