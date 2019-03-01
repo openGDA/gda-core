@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.server.servlet;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +56,10 @@ import org.eclipse.scanning.api.script.UnsupportedLanguageException;
 import org.eclipse.scanning.server.application.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+
 
 /**
  * Object for running a scan.
@@ -253,6 +259,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			throws ScanningException, InterruptedException, TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException, EventException {
 		logger.debug("Running blocking scan {}", scanModel.getFilePath());
 		updateBean(Status.RUNNING, "Starting scan");
+		sendJsonScanStartMessage(scanModel);
 
 		try {
 			controller.getDevice().run(null); // Runs until done
@@ -264,8 +271,41 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				// move to the end position, if one is set
 				setPosition(bean.getScanRequest().getEndPosition(), "end");
 			}
+
+			sendJsonScanEndedMessage(scanModel);
 		} finally {
 			logger.debug("Finished running blocking scan {}", scanModel.getFilePath());
+		}
+	}
+
+	private void sendJsonScanStartMessage(ScanModel scanModel) {
+		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.STARTED, scanModel);
+	}
+
+	private void sendJsonScanEndedMessage(ScanModel scanModel) {
+		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.FINISHED, scanModel);
+	}
+
+	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
+		try {
+			int[] scanShape = scanModel.getPointGenerator().getShape();
+
+			// Build the message object
+			ScanMessage message = new ScanMessage(status, bean.getFilePath(), true, // SWMR is always active once the
+																					// scan starts
+					bean.getScanNumber(), scanShape,
+					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
+					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),
+					bean.getPercentComplete()); // Progress in %
+
+			// Send the message
+			MessagingService jms = Services.getGdaMessagingService();
+			if (jms == null)
+				return; // Probably running in a unit test
+			jms.sendMessage(message);
+
+		} catch (Exception e) {
+			logger.error("Failed to send JSON scan message", e);
 		}
 	}
 

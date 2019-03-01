@@ -12,4 +12,5 @@
    <reference bind="setWatchdogService" cardinality="1..1" interface="org.eclipse.scanning.api.device.IDeviceWatchdogService" name="IDeviceWatchdogService" policy="static"/>
    <reference bind="setParserService" cardinality="0..1" interface="org.eclipse.scanning.api.scan.IParserService" name="IParserService" policy="dynamic"/>
    <reference bind="setMarshallerService" cardinality="0..1" interface="org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService" name="IMarshallerService" policy="dynamic"/>
+   <reference bind="setMessagingService" cardinality="0..1" interface="uk.ac.diamond.daq.api.messaging.MessagingService" name="GdaMessagingService" policy="dynamic"/>
 </scr:component>

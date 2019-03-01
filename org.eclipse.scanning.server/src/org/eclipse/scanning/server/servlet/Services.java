@@ -26,6 +26,8 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.script.IScriptService;
 
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+
 
 /**
  * This class holds services for the scanning server servlets. Services should be configured to be optional and dynamic
@@ -46,6 +48,7 @@ public class Services {
 	private static IMessagingService       messagingService;
 	private static IValidatorService       validatorService;
 	private static IDeviceWatchdogService  watchdogService;
+	private static MessagingService gdaMessagingService;
 
 	private static final Set<IPreprocessor> preprocessors = new LinkedHashSet<>();
 
@@ -131,5 +134,13 @@ public class Services {
 
 	public void setWatchdogService(IDeviceWatchdogService watchdogService) {
 		Services.watchdogService = watchdogService;
+	}
+
+	public static MessagingService getGdaMessagingService() {
+		return gdaMessagingService;
+	}
+
+	public void setGdaMessagingService(MessagingService gdaMessagingService) {
+		Services.gdaMessagingService = gdaMessagingService;
 	}
 }

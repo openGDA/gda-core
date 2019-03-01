@@ -75,6 +75,10 @@ import org.eclipse.scanning.sequencer.nexus.NexusScanFileManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
+import uk.ac.diamond.daq.api.messaging.messages.ScanMessage.ScanStatus;
+
 /**
  * This device does a standard GDA scan at each point. If a given point is a
  * MalcolmDevice, that device will be configured and run for its given point.
@@ -396,6 +400,8 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (publisher != null) {
 			publisher.broadcast(bean);
 		}
+
+		buildAndSendJsonScanMessage(ScanMessage.ScanStatus.UPDATED, model);
 	}
 
 	private void fireFirst(IPosition firstPosition) throws ScanningException {
@@ -510,9 +516,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		if (aborted) {
 			logger.info("Scan terminated due to user abort");
 			getScanBean().setStatus(Status.TERMINATED);
+			buildAndSendJsonScanMessage(ScanStatus.ABORTED, model);
 		} else {
 			logger.error("An error occurred running the scan", e);
 			getScanBean().setStatus(Status.FAILED);
+			buildAndSendJsonScanMessage(ScanStatus.ABORTED, model);
 		}
 		runExceptions.add(e);
 
@@ -865,6 +873,27 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
+	private void buildAndSendJsonScanMessage(final ScanMessage.ScanStatus status, ScanModel scanModel) {
+		try {
+			int[] scanShape = scanModel.getPointGenerator().getShape();
 
+			// Build the message object
+			ScanMessage message = new ScanMessage(status, scanBean.getFilePath(), true, // SWMR is always active once the
+																					// scan starts
+					scanBean.getScanNumber(), scanShape,
+					scanModel.getScannables().stream().map(IScannable::getName).collect(toList()),
+					scanModel.getDetectors().stream().map(IRunnableDevice::getName).collect(toList()),
+					scanBean.getPercentComplete()); // Progress in %
+
+			// Send the message
+			MessagingService jms = ServiceHolder.getMessagingService();
+			if (jms == null)
+				return; // Probably running in a unit test
+			jms.sendMessage(message);
+
+		} catch (Exception e) {
+			logger.error("Failed to send JSON scan message", e);
+		}
+	}
 
 }

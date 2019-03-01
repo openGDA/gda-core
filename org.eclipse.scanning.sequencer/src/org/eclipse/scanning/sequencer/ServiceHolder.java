@@ -23,6 +23,8 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
 
+import uk.ac.diamond.daq.api.messaging.MessagingService;
+
 public class ServiceHolder {
 
 	// OSGi stuff
@@ -137,6 +139,16 @@ public class ServiceHolder {
 
 	public void setMarshallerService(IMarshallerService marshallerService) {
 		ServiceHolder.marshallerService = marshallerService;
+	}
+
+	private static MessagingService messagingService;
+
+	public static MessagingService getMessagingService() {
+		return messagingService;
+	}
+
+	public void setMessagingService(MessagingService messagingService) {
+		ServiceHolder.messagingService = messagingService;
 	}
 
 	/**

@@ -22,25 +22,25 @@ public class ScanRequestTest extends AbstractScanCommandsTest {
 	@Test
 	public void testGridScan() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 0.001))");
-		runAndCheck("sr", false, 5);
+		runAndCheck("sr", false, 30);
 	}
 
 	@Test(expected=Exception.class)
 	public void testGridScanWrongAxis() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('x', 'y'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 0.001))");
-		runAndCheck("sr", false, 5);
+		runAndCheck("sr", false, 30);
 	}
 
 	@Test
 	public void testGridScanNoDetector() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True))");
-		runAndCheck("sr", false, 5);
+		runAndCheck("sr", false, 30);
 	}
 
 	@Test
 	public void testGridWithROIScan() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('xNex', 'yNex'), start=(0.0, 1.0), stop=(10.0, 12.0), count=(3, 2), snake=False, roi=[circ(origin=(0.0, 1.0), radius=2.0)]), det=detector('mandelbrot', 0.001))");
-		runAndCheck("sr", false, 5);
+		runAndCheck("sr", false, 30);
 	}
 
 	@Test(expected=Exception.class)
@@ -52,6 +52,6 @@ public class ScanRequestTest extends AbstractScanCommandsTest {
 	@Test
 	public void testGridScanWithGoodTimeout() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 1.2, timeout=2))");
-		runAndCheck("sr", false, 10);
+		runAndCheck("sr", false, 30);
 	}
 }
