@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +42,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -115,7 +115,7 @@ public class AnnotationManagerTest {
 		assertEquals(sdevice.getCount(), 5);
 	}
 
-	@Test(expected=InvocationTargetException.class)
+	@Test(expected=ScanningException.class)
 	public void countConfigureNoScanInfo() throws Exception {
 		manager.invoke(PreConfigure.class);
 		assertEquals(1, cdevice.getCount("configure"));

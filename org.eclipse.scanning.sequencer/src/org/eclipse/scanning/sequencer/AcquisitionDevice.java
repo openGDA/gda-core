@@ -13,7 +13,6 @@ package org.eclipse.scanning.sequencer;
 
 import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -404,8 +403,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private void fireFirst(IPosition firstPosition) throws IllegalAccessException, InvocationTargetException, InstantiationException, ScanningException, EventException {
-
+	private void fireFirst(IPosition firstPosition) throws ScanningException {
 		// Notify that we will do a run and provide the first position.
 		annotationManager.invoke(ScanStart.class, firstPosition);
 		if (model.getFilePath()!=null) annotationManager.invoke(FileDeclared.class, model.getFilePath(), firstPosition);
@@ -477,9 +475,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		} finally {
 			try {
 				annotationManager.invoke(ScanFinally.class, last);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| InstantiationException | EventException e) {
-				throw new ScanningException(e);
 			} finally {
 				if (scanFinishedLatch != null) {
 					scanFinishedLatch.countDown();
@@ -523,8 +518,6 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		getScanBean().setMessage(ne.getMessage());
 		try {
 			annotationManager.invoke(ScanFault.class, ne);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
-			throw new ScanningException(ne);
 		} finally {
 			setDeviceState(DeviceState.FAULT);
 
@@ -576,11 +569,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		getScanBean().setMessage("Scan Complete");
 
 		// Will send the state of the scan off.
-		try {
-			annotationManager.invoke(ScanEnd.class, lastPosition);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException | EventException e) {
-			throw new ScanningException(e);
-		}
+		annotationManager.invoke(ScanEnd.class, lastPosition);
 		setDeviceState(DeviceState.ARMED); // publishes the scan bean
 
 	}

@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.scanning.api.IServiceResolver;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanParticipant;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -207,32 +206,29 @@ public class AnnotationManager {
 	 * argument list when it is called.
 	 *
 	 * @param annotation like &#64;ScanStart etc.
-	 * @param context, extra things like ScanInformation, IPosition etc.
-	 * @throws InvocationTargetException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
+	 * @param context extra things like ScanInformation, IPosition etc.
+	 * @throws ScanningException if an error occurred invoking the annotated methods
 	 */
-	public void invoke(Class<? extends Annotation> annotation, Object... context) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, ScanningException, EventException {
+	public void invoke(Class<? extends Annotation> annotation, Object... context) throws ScanningException {
 		try {
-			final Collection<MethodWrapper> as = annotationMap.get(annotation);
-			if (as!=null) {
-				for (MethodWrapper wrapper : as) {
-					logger.trace("Invoking on {} in invoke({},{})", wrapper.instance, annotation, context);
-					wrapper.invoke(context);
-					logger.trace("Invoked  on {} in invoke({},{})", wrapper.instance, annotation, context);
+			logger.trace("Invoking methods annotated with {} with context: {}", annotation, context);
+			final Collection<MethodWrapper> methodWrappers = annotationMap.get(annotation);
+			if (methodWrappers != null) {
+				for (MethodWrapper methodWrapper : methodWrappers) {
+					logger.trace("Invoking on {} in invoke({},{})", methodWrapper.instance, annotation, context);
+					methodWrapper.invoke(context);
+					logger.trace("Invoked  on {} in invoke({},{})", methodWrapper.instance, annotation, context);
 				}
 			}
-
-		} catch (InvocationTargetException wapperExceptioned) {
-			logger.error("Exception in invoke({},{}): ", annotation, context, wapperExceptioned);
-		    Throwable supressed = wapperExceptioned.getTargetException();
-		    if (supressed!=null) {
-			// If they returned one of the scanning.api exceptions, throw this from the call.
-			if (supressed instanceof ScanningException) throw (ScanningException)supressed;
-			if (supressed instanceof EventException) throw (EventException)supressed;
-		    }
-		    throw wapperExceptioned;
+		} catch (InvocationTargetException e) {
+			logger.error("Exception in invoke({},{}): ", annotation, context, e);
+		    Throwable wrapped = e.getTargetException();
+			if (wrapped instanceof ScanningException) {
+				throw (ScanningException) wrapped;
+			}
+		    throw new ScanningException(e);
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+		    throw new ScanningException(e);
 		} finally {
 			logger.trace("Completed invoke({}, {})", annotation, context);
 		}
