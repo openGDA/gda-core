@@ -27,14 +27,14 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 public class DummyExperimentService extends FindableBase implements ExperimentService {
 
 	private final Map<String, ScanRequest<IROI>> scans;
-	
+
 	private final Map<String, ExperimentDriverModel> driverProfiles;
 
 	public DummyExperimentService() {
 		scans = new HashMap<>();
 		scans.put("diff_5x5", getDiffractionScan());
 		scans.put("tr6_tomo", getTomographyScan());
-		
+
 		driverProfiles = new HashMap<>();
 		driverProfiles.put("trapez_30s", getProfile1());
 		driverProfiles.put("sombrero", getProfile2());
@@ -51,16 +51,17 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 1);
 		return new ScanRequest<>(model, null, null, null);
 	}
-	
+
 	private ExperimentDriverModel getProfile1() {
 		ExperimentDriverModel profile = new ExperimentDriverModel();
 		profile.setProfile(Arrays.asList(
 				new DriverProfileSection(0, 5, 0.5),
 				new DriverProfileSection(5, 5, 0.5),
 				new DriverProfileSection(5, 0, 0.5)));
+		profile.setName("trapez_30s");
 		return profile;
 	}
-	
+
 	private ExperimentDriverModel getProfile2() {
 		ExperimentDriverModel profile = new ExperimentDriverModel();
 		double tenSeconds = 10 / 60.0;
@@ -72,23 +73,25 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 				new DriverProfileSection(5, 2.5, tenSeconds),
 				new DriverProfileSection(2.5, 2.5, tenSeconds),
 				new DriverProfileSection(2.5, 0, tenSeconds)));
+		profile.setName("sombrero");
 		return profile;
 	}
-	
+
 	private ExperimentDriverModel getProfile3() {
 		ExperimentDriverModel model = new ExperimentDriverModel();
-		
+
 		List<DriverProfileSection> singlePeriod = Arrays.asList(
 													new DriverProfileSection(5, 10, 0.1),
 													new DriverProfileSection(10, 5, 0.1));
-		
+
 		List<DriverProfileSection> wholeProfile = new ArrayList<>();
-		
+
 		for (int period = 0; period < 10; period++) {
 			wholeProfile.addAll(singlePeriod);
 		}
-		
+
 		model.setProfile(wholeProfile);
+		model.setName("saw_10_pp");
 		return model;
 	}
 
@@ -106,10 +109,11 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	public Set<String> getScanNames(String experimentId) {
 		return new HashSet<>(scans.keySet());
 	}
-	
+
 	@Override
 	public void saveDriverProfile(ExperimentDriverModel profile, String profileName, String driverName,
 			String experimentId) {
+		profile.setName(profileName);
 		driverProfiles.put(profileName, profile);
 	}
 

@@ -7,6 +7,7 @@ import static uk.ac.diamond.daq.experiment.api.driver.DriverState.RUNNING;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import gda.device.Scannable;
@@ -20,6 +21,7 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	private String name;
 	
 	private Map<String, Scannable> readouts;
+	private String mainReadoutName;
 	private ExperimentDriverModel model = new ExperimentDriverModel();
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
@@ -55,6 +57,19 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 	}
 	
 	@Override
+	public String getMainReadoutName() {
+		if (mainReadoutName == null && readouts.size() == 1) {
+			mainReadoutName = readouts.values().iterator().next().getName();
+		}
+		Objects.requireNonNull(mainReadoutName, "One of the readouts must be nominated as 'main' - use setMainReadoutName()");
+		return mainReadoutName;
+	}
+	
+	public void setMainReadoutName(String mainReadoutName) {
+		this.mainReadoutName = mainReadoutName;
+	}
+	
+	@Override
 	public void zero() {
 		checkValidState("zero", IDLE);
 		doZero();
@@ -67,6 +82,7 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		getModel().getAbortConditions().forEach(AbortCondition::activate);
 		state = RUNNING;
 		doStart();
+		state = IDLE;
 	}
 
 	@Override

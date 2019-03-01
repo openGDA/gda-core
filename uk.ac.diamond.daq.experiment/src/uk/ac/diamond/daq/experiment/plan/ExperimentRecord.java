@@ -4,6 +4,7 @@ import static uk.ac.diamond.daq.experiment.api.plan.event.EventConstants.EXPERIM
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.List;
 
 import org.eclipse.scanning.api.event.EventException;
@@ -58,6 +59,8 @@ public class ExperimentRecord implements IExperimentRecord {
 		} catch (URISyntaxException e) {
 			logger.error("Error setting up experiment plan publisher. GUI updates will not work!", e);
 		}
+		
+		bean.setStartTime(Instant.now().toEpochMilli());
 		
 		bean.setStatus(Status.RUNNING);
 		// no need to broadcast now: activation of first segment is eminent

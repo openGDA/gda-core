@@ -24,7 +24,7 @@ public class ExperimentDriverStateTest {
 	public void startValidFromIdle() {
 		assertThat(driver.getState(), is(IDLE));
 		driver.start();
-		assertThat(driver.getState(), is(RUNNING));
+		assertThat(driver.hasRun(), is(true));
 	}
 
 	@Test

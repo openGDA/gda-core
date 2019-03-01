@@ -39,6 +39,11 @@ public interface IExperimentDriver extends Findable {
 	Map<String, Scannable> getReadouts();
 
 	/**
+	 * @return the name of the main readout
+	 */
+	String getMainReadoutName();
+
+	/**
 	 * Convenience method to get readout of given name
 	 */
 	default Scannable getReadout(String name) {
@@ -46,7 +51,7 @@ public interface IExperimentDriver extends Findable {
 		Objects.requireNonNull(readout, "This experiment driver does not have a readout named '" + name + "'");
 		return readout;
 	}
-	
+
 	/**
 	 * Convenience method to get the names of all readouts associated with this driver
 	 */

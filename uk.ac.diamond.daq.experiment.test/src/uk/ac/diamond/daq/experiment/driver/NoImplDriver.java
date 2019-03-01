@@ -8,11 +8,15 @@ import uk.ac.diamond.daq.experiment.api.driver.DriverState;
  */
 public class NoImplDriver extends ExperimentDriverBase {
 
+	private boolean hasRun = false;
+
 	@Override
 	protected void doZero() { /*do nothing*/ }
 
 	@Override
-	protected void doStart() { /*do nothing*/ }
+	protected void doStart() {
+		hasRun = true;
+	}
 
 	@Override
 	protected void doPause() { /*do nothing*/ }
@@ -25,6 +29,10 @@ public class NoImplDriver extends ExperimentDriverBase {
 
 	void setState(DriverState state) {
 		this.state = state;
+	}
+
+	public boolean hasRun() {
+		return hasRun;
 	}
 
 }

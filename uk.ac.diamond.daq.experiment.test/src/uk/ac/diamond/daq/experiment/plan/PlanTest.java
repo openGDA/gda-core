@@ -13,7 +13,6 @@ import org.junit.Test;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
@@ -190,18 +189,14 @@ public class PlanTest {
 		// If one is included, calling start() on the plan
 		// should also start the driver.
 
-		IExperimentDriver experimentDriver = getExperimentDriver();
+		NoImplDriver experimentDriver = new NoImplDriver();
 		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
 		plan.setDriver(experimentDriver);
 		plan.addSegment(SEGMENT1_NAME, sev -> false);
 
 		plan.start();
 
-		assertThat(experimentDriver.getState(), is(DriverState.RUNNING));
-	}
-
-	private IExperimentDriver getExperimentDriver() {
-		return new NoImplDriver();
+		assertThat(experimentDriver.hasRun(), is(true));
 	}
 
 	private void someJob() {

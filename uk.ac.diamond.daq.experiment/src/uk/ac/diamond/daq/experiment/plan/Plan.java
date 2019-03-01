@@ -79,12 +79,15 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 		logger.info("Plan '{}' execution started", getName());
 		printBanner("Plan '" + getName() + "' execution started");
 		
-		activateNextSegment();
-		
 		if (experimentDriver.isPresent()) {
 			IExperimentDriver driver = experimentDriver.get();
 			record.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
-			driver.start();
+		}
+		
+		activateNextSegment();
+		
+		if (experimentDriver.isPresent()) {
+			experimentDriver.get().start();
 		}
 	}
 	

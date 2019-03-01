@@ -115,6 +115,6 @@ public class PlanFactory implements IPlanFactory {
 	}
 	
 	public void setEventService(IEventService service) {
-		eventService = service;
+		PlanFactory.eventService = service;
 	}
 }

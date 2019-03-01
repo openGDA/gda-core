@@ -18,7 +18,12 @@ public class AbortConditionTest {
 
 		driver.getModel().addAbortCondition(new AbortCondition(driver, sev, s -> s > 100));
 		driver.start();
-		assertThat(driver.getState(), is(DriverState.RUNNING));
+
+		// NoImplDriver finishes immediately...
+		assertThat(driver.hasRun(), is(true));
+
+		// ...so let's pretend it's still going
+		driver.setState(DriverState.RUNNING);
 
 		sev.broadcast(101); // over the limit!
 
