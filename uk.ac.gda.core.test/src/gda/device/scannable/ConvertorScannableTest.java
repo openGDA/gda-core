@@ -34,6 +34,7 @@ import gda.MockFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
+import gda.util.converters.IQuantityConverter;
 import gda.util.converters.JEPConverterHolder;
 import gda.util.converters.LookupTableConverterHolder;
 import gda.util.converters.LookupTableQuantityConverter;
@@ -52,7 +53,7 @@ public class ConvertorScannableTest {
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, null);
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 	}
 
 	@Test
@@ -79,7 +80,7 @@ public class ConvertorScannableTest {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 		bsx.setUpperGdaLimits(10.0);
 		bsx.setLowerGdaLimits(0.0);
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 		assertNull(scannable.checkPositionValid(4.5));
 		assertNotNull(scannable.checkPositionValid(5.5));
 
@@ -94,7 +95,7 @@ public class ConvertorScannableTest {
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
-		scannable = new ConvertorScannable("beamstopToSample", bsx, jepConverterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		scannable.setConvertorUnitString("mDeg");
@@ -106,7 +107,7 @@ public class ConvertorScannableTest {
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
-		scannable = new ConvertorScannable("beamstopToSample", bsx, jepConverterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		// scannable.setConvertorUnitString("mDeg");
@@ -121,7 +122,7 @@ public class ConvertorScannableTest {
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_StoT);
 
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 		final double valToSend = 5000.0;
 		scannable.asynchronousMoveTo(valToSend);
 
@@ -139,7 +140,7 @@ public class ConvertorScannableTest {
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
 		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_Both);
 
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		scannable = createConvertorScannable("beamstopToSample", bsx, converterx);
 
 		final double valToSendToBSX = 10.0;
 		bsx.asynchronousMoveTo(valToSendToBSX);
@@ -152,5 +153,19 @@ public class ConvertorScannableTest {
 
 		// should return converted the position of the underlying scannable
 		assertEquals(valForBSX10, (double) scannable.getPosition(), FP_TOLERANCE);
+	}
+
+	private static ConvertorScannable createConvertorScannable(String name, ScannableMotionUnits theScannable, IQuantityConverter theConvertor) {
+		final ConvertorScannable scannable = new ConvertorScannable();
+		scannable.setName(name);
+		scannable.setInputNames(new String[] { name });
+		scannable.setScannable(theScannable);
+
+		// set up the units component for this object based on the underlying scannable
+		scannable.setConvertor(theConvertor);
+		scannable.setScannableName(theScannable.getName());
+
+		scannable.configure();
+		return scannable;
 	}
 }
