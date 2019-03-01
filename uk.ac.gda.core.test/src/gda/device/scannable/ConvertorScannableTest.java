@@ -20,39 +20,38 @@
 package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.MockFactory;
-import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
-import gda.device.ScannableMotionUnits;
-import gda.util.converters.LookupTableQuantityConverter;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.SI;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- *
- */
+import gda.MockFactory;
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.ScannableMotionUnits;
+import gda.util.converters.JEPConverterHolder;
+import gda.util.converters.LookupTableConverterHolder;
+import gda.util.converters.LookupTableQuantityConverter;
+
 public class ConvertorScannableTest {
+	// Allow for inaccuracy in floating point values
+	private static final double FP_TOLERANCE = 0.000000000001;
 
 	private ConvertorScannable scannable;
 	private ScannableMotionUnits bsx;
-	private gda.util.converters.LookupTableConverterHolder converterx;
+	private LookupTableConverterHolder converterx;
 
-	/**
-	 * @throws Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		bsx = MockFactory.createMockScannableMotionUnits("bsx");
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
-				null);
+		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, null);
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
 	}
 
@@ -73,22 +72,20 @@ public class ConvertorScannableTest {
 
 		scannable.setUserUnits("micron");
 		assertEquals("beamstopToSample : 2000.0micron", scannable.toFormattedString());
-
 	}
 
 	@Test
-	public void testCheckPositionValid() throws DeviceException,Exception {
+	public void testCheckPositionValid() throws DeviceException, Exception {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 		bsx.setUpperGdaLimits(10.0);
 		bsx.setLowerGdaLimits(0.0);
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
-		assertTrue(scannable.checkPositionValid(4.5) == null);
-		assertTrue(scannable.checkPositionValid(5.5) != null);
+		assertNull(scannable.checkPositionValid(4.5));
+		assertNotNull(scannable.checkPositionValid(5.5));
 
 		scannable.setUserUnits("micron");
-		assertTrue(scannable.checkPositionValid(4500) == null);
-		assertTrue(scannable.checkPositionValid(5500) != null);
-
+		assertNull(scannable.checkPositionValid(4500));
+		assertNotNull(scannable.checkPositionValid(5500));
 	}
 
 	@Test
@@ -96,13 +93,11 @@ public class ConvertorScannableTest {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		gda.util.converters.JEPConverterHolder converterx = new gda.util.converters.JEPConverterHolder("testconverter",
-				"mDeg_dcm_perp_mm_converter.xml");
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
+		scannable = new ConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		scannable.setConvertorUnitString("mDeg");
-
 	}
 
 	@Test
@@ -110,15 +105,13 @@ public class ConvertorScannableTest {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		gda.util.converters.JEPConverterHolder converterx = new gda.util.converters.JEPConverterHolder("testconverter",
-				"mDeg_dcm_perp_mm_converter.xml");
-		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
+		final JEPConverterHolder jepConverterx = new JEPConverterHolder("testconverter", "mDeg_dcm_perp_mm_converter.xml");
+		scannable = new ConvertorScannable("beamstopToSample", bsx, jepConverterx);
 		// hardware units set to scannable's hw unit already (mm)
 		scannable.setInitialUserUnits("mDeg");
 		// scannable.setConvertorUnitString("mDeg");
 		scannable.asynchronousMoveTo(5000.0);
-		assertEquals(0.22419773646390695, bsx.getPosition());
-
+		assertEquals(0.22419773646390695, (double) bsx.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -126,20 +119,17 @@ public class ConvertorScannableTest {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
-				LookupTableQuantityConverter.Mode_StoT);
+		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_StoT);
 
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
-		Double valToSend = new Double(5000.);
+		final double valToSend = 5000.0;
 		scannable.asynchronousMoveTo(valToSend);
 
-		//move outside of the convertorscannable
+		// move outside of the convertorscannable
 		bsx.asynchronousMoveTo(10.);
 
-		Object position = scannable.getPosition();
-		//should return last value sent rather than convert the position of the underlying scannable
-		assertEquals(valToSend, position);
-
+		// should return last value sent rather than convert the position of the underlying scannable
+		assertEquals(valToSend, (double) scannable.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -147,26 +137,20 @@ public class ConvertorScannableTest {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
 
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/device/scannable/ConvertorScannableTest");
-		converterx = new gda.util.converters.LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1,
-				LookupTableQuantityConverter.Mode_Both);
+		converterx = new LookupTableConverterHolder("converterx", "beamstop_to_sample.txt", 0, 1, LookupTableQuantityConverter.Mode_Both);
 
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
 
-		Double valToSendToBSX = new Double(10.);
+		final double valToSendToBSX = 10.0;
 		bsx.asynchronousMoveTo(valToSendToBSX);
-		Object valForBSX10 = scannable.getPosition();
+		final double valForBSX10 = (double) scannable.getPosition();
 
-		Double valToSend = new Double(5000.);
-		scannable.asynchronousMoveTo(valToSend);
+		scannable.asynchronousMoveTo(5000.0);
 
-		//move outside of the converter
+		// move outside of the converter
 		bsx.asynchronousMoveTo(valToSendToBSX);
 
-
-		Object position = scannable.getPosition();
-		//should return converted the position of the underlying scannable
-		assertEquals(valForBSX10, position);
-
+		// should return converted the position of the underlying scannable
+		assertEquals(valForBSX10, (double) scannable.getPosition(), FP_TOLERANCE);
 	}
-
 }
