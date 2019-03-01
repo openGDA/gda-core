@@ -23,14 +23,18 @@ import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MICRO;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.jscience.physics.quantities.Quantity;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
@@ -38,8 +42,10 @@ import gda.device.ScannableMotionUnits;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
 
 public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
+	// Tolerance for imprecision of floating-point calculations
+	private static final double FP_TOLERANCE = 0.00001;
 
-	static class TestableScannableMotionUnitsBase extends ScannableMotionUnitsBase implements Testable {
+	private static class TestableScannableMotionUnitsBase extends ScannableMotionUnitsBase implements Testable {
 
 		public ScannableBase delegate = mock(ScannableBase.class);
 
@@ -57,10 +63,6 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		public boolean isBusy() throws DeviceException {
 			return delegate.isBusy();
 		}
-
-
-
-
 	}
 
 	private TestableScannableMotionUnitsBase scannable;
@@ -228,7 +230,6 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		super.testIsAtWithStrings();
 	}
 
-
 	@Test
 	public void testGetOffset() throws DeviceException {
 		ScannableOffsetAndScalingComponent mock = mock(ScannableOffsetAndScalingComponent.class);
@@ -236,7 +237,11 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		when(mock.getOffset()).thenReturn(new Double[]{1000.});
 		getSMU().setHardwareUnitString("mm");
 		getSMU().setUserUnits("m");
-		assertArrayEquals(new Double[]{1.},	getSMU().getOffset());
+
+		// We expect the offset array to be {1.0}, allowing for floating point imprecision
+		final Double[] offset = getSMU().getOffset();
+		assertEquals(1, offset.length);
+		assertEquals(1.0, offset[0], FP_TOLERANCE);
 	}
 
 	@Test
@@ -246,7 +251,13 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		when(mock.getOffset()).thenReturn(new Double[]{1000., 2000., null});
 		getSMU().setHardwareUnitString("mm");
 		getSMU().setUserUnits("m");
-		assertArrayEquals(new Double[]{1., 2., null}, getSMU().getOffset());
+
+		// We expect the offset array to be {1.0, 2.0, null}, allowing for floating point imprecision
+		final Double[] offset = getSMU().getOffset();
+		assertEquals(3, offset.length);
+		assertEquals(1.0, offset[0], FP_TOLERANCE);
+		assertEquals(2.0, offset[1], FP_TOLERANCE);
+		assertNull(offset[2]);
 	}
 
 	@Test
@@ -260,7 +271,16 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setInputNames(new String[]{"i1", "i2", "i3"});
 		smub.setOffset(1., 2., null);
 		smub.setOffset(new Double[]{1., 2., null});
-		verify(mock, times(2)).setOffset(new Double[]{1000., 2000., null});
+
+		// We expect setOffset() to be called twice with array parameter {1000.0, 2000.0, null} allowing for floating point imprecision
+		final ArgumentCaptor<Double[]> offsetCaptor = ArgumentCaptor.forClass(Double[].class);
+		verify(mock, times(2)).setOffset(offsetCaptor.capture());
+		for (Double[] parameter : offsetCaptor.getAllValues()) {
+			assertEquals(3, parameter.length);
+			assertEquals(1000.0, parameter[0], FP_TOLERANCE);
+			assertEquals(2000.0, parameter[1], FP_TOLERANCE);
+			assertNull(parameter[2]);
+		}
 	}
 
 	@Test
@@ -273,7 +293,15 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setUserUnits("m");
 		smub.setInputNames(new String[]{"i1", "i2", "i3"});
 		smub.setOffset(new Object[]{Quantity.valueOf(1000000, MICRO(METER)), "2m", null});
-		verify(mock, times(1)).setOffset(new Double[]{1000., 2000., null});
+
+		// We expect setOffset() to be called once with array parameter {1000., 2000., null}
+		final ArgumentCaptor<Double[]> offsetCaptor = ArgumentCaptor.forClass(Double[].class);
+		verify(mock, times(1)).setOffset(offsetCaptor.capture());
+		final Double[] parameter = offsetCaptor.getValue();
+		assertEquals(3, parameter.length);
+		assertEquals(1000.0, parameter[0], FP_TOLERANCE);
+		assertEquals(2000.0, parameter[1], FP_TOLERANCE);
+		assertNull(parameter[2]);
 	}
 
 	@Test
@@ -291,7 +319,14 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setOffset("1");
 		smub.setOffset("1m");
 
-		verify(mock, times(5)).setOffset(new Double[]{1000.});
+		// We expect setOffset() to be called 5 times with a value of 1000.0 allowing for floating point imprecision
+		final ArgumentCaptor<Double[]> offsetCaptor = ArgumentCaptor.forClass(Double[].class);
+		verify(mock, times(5)).setOffset(offsetCaptor.capture());
+
+		for (Double[] parameter : offsetCaptor.getAllValues()) {
+			assertEquals(1, parameter.length);
+			assertEquals(1000.0, parameter[0], FP_TOLERANCE);
+		}
 	}
 
 	@Override
