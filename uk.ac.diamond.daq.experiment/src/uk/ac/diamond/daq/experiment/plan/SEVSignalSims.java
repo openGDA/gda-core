@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
  * SEV Signal simulations for testing. Exists in this package
@@ -28,8 +28,8 @@ public class SEVSignalSims {
 	 * @param step (negative for decreasing signal)
 	 * @return
 	 */
-	public static SignalSource linearEvolution(double start, double step) {
-		return new SignalSource() {
+	public static DoubleSupplier linearEvolution(double start, double step) {
+		return new DoubleSupplier() {
 			
 			private double position = start;
 			
@@ -38,7 +38,7 @@ public class SEVSignalSims {
 			}
 			
 			@Override
-			public double read() {
+			public double getAsDouble() {
 				advancePosition();
 				return position;
 			}
@@ -55,11 +55,11 @@ public class SEVSignalSims {
 	 * @param scannable
 	 * @return
 	 */
-	public static SignalSource fromScannable(Scannable scannable) {
-		return new SignalSource() {
+	public static DoubleSupplier fromScannable(Scannable scannable) {
+		return new DoubleSupplier() {
 			private Scannable input = scannable;
 			@Override
-			public double read() {
+			public double getAsDouble() {
 				try {
 					return (double) input.getPosition();
 				} catch (DeviceException e) {
@@ -82,13 +82,13 @@ public class SEVSignalSims {
 	 * @param function 
 	 * @return
 	 */
-	public static SignalSource fromFunction(Function<Double, Double> function) {
-		return new SignalSource() {
+	public static DoubleSupplier fromFunction(Function<Double, Double> function) {
+		return new DoubleSupplier() {
 			
 			private Double x = 0.0;
 			
 			@Override
-			public double read() {
+			public double getAsDouble() {
 				x++;
 				return function.apply(x);
 			}

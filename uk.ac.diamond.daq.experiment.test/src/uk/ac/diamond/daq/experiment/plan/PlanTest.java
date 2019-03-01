@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -32,7 +33,6 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegmentAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
 import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
@@ -57,7 +57,7 @@ public class PlanTest {
 
 		plan.setFactory(new TestFactory());
 
-		plan.addSEV(null); // TestFactory::addSEV returns our MockSEV
+		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
 
 		TestHelpers.setUpTest(PlanTest.class, "DontCare", true);
 	}
@@ -285,7 +285,7 @@ public class PlanTest {
 		// actually '-' and '.' are also allowed
 		Plan ep = new Plan("My$Experiment");
 		ep.setFactory(new TestFactory());
-		ep.addSEV(null);
+		ep.addSEV(()->0.0); // TestFactory doesn't care
 
 		ep.addSegment(" ", x -> x >= 5, ep.addTrigger("My.Trigger&", this::someJob, 2.5));
 
@@ -410,7 +410,7 @@ public class PlanTest {
 	class TestFactory extends PlanFactory {
 
 		@Override
-		public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
+		public ISampleEnvironmentVariable addSEV(DoubleSupplier signalProvider) {
 			return sev;
 		}
 

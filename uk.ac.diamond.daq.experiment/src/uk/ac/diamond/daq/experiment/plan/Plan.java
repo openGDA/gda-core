@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.function.DoubleSupplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
@@ -26,7 +28,6 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
@@ -187,8 +188,15 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	}
 	
 	@Override
-	public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
-		ISampleEnvironmentVariable sev = factory.addSEV(signalProvider);
+	public ISampleEnvironmentVariable addSEV(Scannable scannable) {
+		ISampleEnvironmentVariable sev = factory.addSEV(scannable);
+		lastDefinedSev = sev;
+		return sev;
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource) {
+		ISampleEnvironmentVariable sev = factory.addSEV(signalSource);
 		lastDefinedSev = sev;
 		return sev;
 	}

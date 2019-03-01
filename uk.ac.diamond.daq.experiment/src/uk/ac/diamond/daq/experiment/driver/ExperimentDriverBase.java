@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import gda.device.Scannable;
 import uk.ac.diamond.daq.experiment.api.driver.AbortCondition;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 public abstract class ExperimentDriverBase implements IExperimentDriver {
 	
 	private String name;
 	
-	private Map<String, SignalSource> readouts;
+	private Map<String, Scannable> readouts;
 	private ExperimentDriverModel model = new ExperimentDriverModel();
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
@@ -45,12 +45,12 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		return model;
 	}
 	
-	public void setReadouts(Map<String, SignalSource> readouts) {
+	public void setReadouts(Map<String, Scannable> readouts) {
 		this.readouts = readouts;
 	}
 
 	@Override
-	public Map<String, SignalSource> getReadouts() {
+	public Map<String, Scannable> getReadouts() {
 		return readouts;
 	}
 	

@@ -5,7 +5,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 
 /**
  * This implementation does not poll a {@link SignalSource}. Methods {@link #broadcast(double)} will

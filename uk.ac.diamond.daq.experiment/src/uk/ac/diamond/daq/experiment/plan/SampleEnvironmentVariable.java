@@ -5,13 +5,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleSupplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
+import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 
 /**
  * Instances of this class will sample a {@link SignalSource} at a specified frequency, and
@@ -23,24 +27,34 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SampleEnvironmentVariable.class);
 	
-	private SignalSource signalProvider;
+	private static final double DEFAULT_TOLERANCE = 0.01;
+	
+	private Scannable externalSource;
 	private Set<SEVListener> listeners;
 	private boolean enabled;
 	private double lastPosition;
 	private double tolerance;
 	
 	/**
-	 * @param signalProvider
+	 * @param externalSource
 	 */
-	SampleEnvironmentVariable(SignalSource signalProvider) {
-		this(signalProvider, 0.01);
+	SampleEnvironmentVariable(Scannable externalSource) {
+		this(externalSource, DEFAULT_TOLERANCE);
 	}
 	
-	public SampleEnvironmentVariable(SignalSource signalProvider, double tolerance) {
-		this.signalProvider = signalProvider;
-		this.lastPosition = signalProvider.read();
+	public SampleEnvironmentVariable(Scannable externalSource, double tolerance) {
+		this.externalSource = externalSource;
+		this.lastPosition = read();
 		this.tolerance = tolerance;
 		clear();
+	}
+	
+	public SampleEnvironmentVariable(DoubleSupplier externalSource) {
+		this(new ExternalSourceWrapper(externalSource));
+	}
+	
+	public SampleEnvironmentVariable(DoubleSupplier externalSource, double tolerance) {
+		this(new ExternalSourceWrapper(externalSource), tolerance);
 	}
 	
 	private void begin() {
@@ -57,7 +71,7 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 		});
 		
 		executorService.scheduleAtFixedRate(()->{
-			double newPosition = signalProvider.read();
+			double newPosition = read();
 			if (Math.abs(lastPosition - newPosition) >= tolerance) {
 				listeners.forEach(listener -> listener.signalChanged(newPosition));
 				lastPosition = newPosition;
@@ -93,7 +107,11 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 	
 	@Override
 	public double read() {
-		return signalProvider.read();
+		try {
+			return (double) externalSource.getPosition();
+		} catch (DeviceException e ) {
+			throw new ExperimentException(e);
+		}
 	}
 	
 	@Override
@@ -108,7 +126,7 @@ public class SampleEnvironmentVariable implements ISampleEnvironmentVariable {
 
 	@Override
 	public String toString() {
-		return "SampleEnvironmentVariable [signalProvider=" + signalProvider + ", enabled="
+		return "SampleEnvironmentVariable [signalProvider=" + externalSource + ", enabled="
 				+ enabled + "]";
 	}
 	

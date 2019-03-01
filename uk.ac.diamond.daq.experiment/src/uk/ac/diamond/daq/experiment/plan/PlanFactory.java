@@ -1,15 +1,17 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.util.function.DoubleSupplier;
+
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
+import gda.device.Scannable;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
@@ -21,8 +23,13 @@ public class PlanFactory implements IPlanFactory {
 	private ISampleEnvironmentVariable timer;
 
 	@Override
-	public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
-		return new SampleEnvironmentVariable(signalProvider);
+	public ISampleEnvironmentVariable addSEV(Scannable scannable) {
+		return new SampleEnvironmentVariable(scannable);
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource) {
+		return new SampleEnvironmentVariable(signalSource);
 	}
 	
 	@Override

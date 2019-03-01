@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import gda.device.Scannable;
 import gda.factory.Findable;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 /**
  * The ExperimentDriver is any apparatus or mechanism that modifies the specimen
@@ -36,13 +36,13 @@ public interface IExperimentDriver extends Findable {
 	/**
 	 * @return signals which respond to the profile
 	 */
-	Map<String, SignalSource> getReadouts();
+	Map<String, Scannable> getReadouts();
 
 	/**
 	 * Convenience method to get readout of given name
 	 */
-	default SignalSource getReadout(String name) {
-		SignalSource readout = getReadouts().get(name);
+	default Scannable getReadout(String name) {
+		Scannable readout = getReadouts().get(name);
 		Objects.requireNonNull(readout, "This experiment driver does not have a readout named '" + name + "'");
 		return readout;
 	}

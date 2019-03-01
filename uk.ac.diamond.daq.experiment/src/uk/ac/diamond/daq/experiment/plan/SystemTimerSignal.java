@@ -1,14 +1,14 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
+import java.util.function.DoubleSupplier;
 
 /**
- * SEVSignal which gives current time in seconds
+ * Gives current time in seconds
  */
-public class SystemTimerSignal implements SignalSource {
+public class SystemTimerSignal implements DoubleSupplier {
 	
 	@Override
-	public double read() {
+	public double getAsDouble() {
 		return System.currentTimeMillis() / 1000.0;
 	}
 
