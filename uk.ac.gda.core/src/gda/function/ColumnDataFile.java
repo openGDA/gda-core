@@ -161,7 +161,11 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 			// NB unitStrings contains as its first element "Units" hence
 			// the i+1
 			for (int i = 0; i < nColumns; i++){
-				Unit<? extends Quantity> unit = QuantityFactory.createUnitFromString(unitStrings[i + 1]);
+				String unitString = unitStrings[i + 1];
+				if (unitString.equals("\"\"")) {
+					unitString = "";
+				}
+				final Unit<? extends Quantity> unit = QuantityFactory.createUnitFromString(unitString);
 				if(unit == null){
 					throw new RuntimeException("unit is null for string " + unitStrings[i + 1]);
 				}
