@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.test.helpers
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Diamond Light Source
-Require-Bundle: org.mockito.mockito-core;bundle-version="[1.10.19,2.0.0)",
+Require-Bundle: org.mockito.mockito-core,
  uk.ac.diamond.org.springframework;bundle-version="1.0.0",
  uk.ac.gda.common.client;bundle-version="1.0.0",
  uk.ac.gda.api,
