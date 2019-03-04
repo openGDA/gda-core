@@ -463,9 +463,9 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	private MalcolmMessage call(MalcolmMethod method, long timeout) throws InterruptedException, ExecutionException, TimeoutException {
-		logger.debug("Calling method on malcolm device: {}", method);
+		logger.debug("Calling '{}' method on malcolm device", method);
 		final MalcolmMessage reply = callWithTimeout(()->call(method), timeout);
-		logger.debug("Received reply from malcolm device: {}", reply);
+		logger.debug("Received reply from malcolm device '{}' method: {}", method, reply);
 		return reply;
 	}
 
