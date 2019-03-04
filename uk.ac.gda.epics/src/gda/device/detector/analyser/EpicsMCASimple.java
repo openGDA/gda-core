@@ -880,8 +880,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCASimple {
 		if (attributeName.startsWith(CHANNEL_TO_ENERGY_PREFIX)) {
 			final String channelString = attributeName.substring(CHANNEL_TO_ENERGY_PREFIX.length());
 			final double energy = getEnergyForChannel(Integer.parseInt(channelString));
-			return Quantity.valueOf(energy, ELECTRON_VOLT).toString();
-
+			return String.format("%f %s", energy, ELECTRON_VOLT);
 		} else if (attributeName.startsWith(ENERGY_TO_CHANNEL_PREFIX)) {
 			final String energyString = attributeName.substring(ENERGY_TO_CHANNEL_PREFIX.length());
 			final double energy = Quantity.valueOf(energyString).getAmount();
