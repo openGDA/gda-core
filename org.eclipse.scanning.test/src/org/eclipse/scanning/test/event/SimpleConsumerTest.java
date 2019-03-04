@@ -151,12 +151,10 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		verifyZeroInteractions(runner, process);
 	}
 
-	@Test
-	public void testConsumeBeanFails() throws Exception {
+	public void testConsumeBeanThrowException(Exception exceptionToThrow, Status expectedStatus) throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
 		IConsumerProcess<StatusBean> process = setupMocksForConsumingBean(statusBean);
-		EventException e = new EventException("Could not run bean");
-		doThrow(e).when(process).start();
+		doThrow(exceptionToThrow).when(process).start();
 
 		startConsumer();
 
@@ -167,8 +165,18 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 		// verify that the bean's status was set to FAILED and was broadcast on the status topic
 		verify(statusTopicPublisher, timeout(1000)).broadcast(statusBean);
-		assertThat(statusBean.getStatus(), is(Status.FAILED));
-		assertThat(statusBean.getMessage(), is(e.getMessage()));
+		assertThat(statusBean.getStatus(), is(expectedStatus));
+		assertThat(statusBean.getMessage(), is(exceptionToThrow.getMessage()));
+	}
+
+	@Test
+	public void testConsumeBeanFailed() throws Exception {
+		testConsumeBeanThrowException(new EventException("Could not run bean"), Status.FAILED);
+	}
+
+	@Test
+	public void testConsumeBeanAborted() throws Exception {
+		testConsumeBeanThrowException(new InterruptedException("User abort"), Status.TERMINATED);
 	}
 
 	@Test

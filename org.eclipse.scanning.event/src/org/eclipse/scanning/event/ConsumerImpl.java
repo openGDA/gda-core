@@ -1263,6 +1263,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 			LOGGER.info("Starting process for bean {}", bean);
 			process.start(); // Depending on the process may run in a separate thread (default is not to)
+		} catch (InterruptedException e) {
+			bean.setStatus(Status.TERMINATED);
+			bean.setMessage(e.getMessage());
+			statusTopicPublisher.broadcast(bean);
+			throw e;
 		} catch (Exception e) {
 			// if an exception is thrown, set the bean status to failed. Note the exception is logged in processException()
 			bean.setStatus(Status.FAILED);
