@@ -18,8 +18,9 @@
 
 package gda.device.detector.xmap.util;
 
+import java.nio.file.Paths;
+
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 	protected DataHolder dataHolder;
 	protected ILazyDataset lazyDataset;
 	private String fileName;
+	private String detectorDataPath = "/entry/instrument/detector/data";
+	private String attributeDataGroup = "/entry/instrument/NDAttributes";
 
 	public XmapBufferedHdf5FileLoader(String fileName) {
 		super();
@@ -45,36 +48,34 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 	public void loadFile() throws Exception {
 		hdf5Loader = new HDF5Loader(fileName);
 		dataHolder = hdf5Loader.loadFile();
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+		lazyDataset = dataHolder.getLazyDataset(detectorDataPath);
 	}
 
 	@Override
 	public short[][] getData(int dataPointNumber) {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+		lazyDataset = dataHolder.getLazyDataset(detectorDataPath);
 		int channelNumbers = lazyDataset.getShape()[2];
 		int numberOfDetectorElements = lazyDataset.getShape()[1];
-		IDataset slice;
+		Dataset slice;
 		try {
-			slice = lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
-					numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
+			slice = (Dataset) lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
+					numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 }).squeeze();
 		} catch (Exception e) {
 			logger.error("Could not get data from lazy dataset", e);
 			return null;
 		}
-		IDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) DatasetUtils.cast(sqSlice, Dataset.INT32).getBuffer();
+
 		short allData[][] = new short[numberOfDetectorElements][channelNumbers];
 		for (int i = 0; i < numberOfDetectorElements; i++) {
-			for (int j = 0; j < channelNumbers; j++) {
-				allData[i][j] = (short) data[i * numberOfDetectorElements + j];
-			}
+			// set all channel counts for this element by taking a slice
+			allData[i] = (short[]) slice.getSlice(new int[] {i, 0}, new int[] {i+1, channelNumbers}, null).getBuffer();
 		}
 		return allData;
 	}
 
 	@Override
 	public short[][][] getData(int fromDataPointNumber, int toDataPointNumber) throws Exception {
-		lazyDataset = dataHolder.getLazyDataset("/entry/instrument/detector/data");
+		lazyDataset = dataHolder.getLazyDataset(detectorDataPath);
 		int numberOfAvailableDataPoints = lazyDataset.getShape()[0];
 		int channelNumbers = lazyDataset.getShape()[2];
 		int numberOfDetectorElements = lazyDataset.getShape()[1];
@@ -88,17 +89,15 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 			toDataPointNumber = fromDataPointNumber;
 			fromDataPointNumber = temp;
 		}
-		IDataset slice = lazyDataset.getSlice(new int[] { fromDataPointNumber, 0, 0 }, new int[] { toDataPointNumber,
-				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
-		IDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) DatasetUtils.cast(sqSlice, Dataset.INT32).getBuffer();
+		Dataset slice = (Dataset) lazyDataset.getSlice(new int[] { fromDataPointNumber, 0, 0 }, new int[] { toDataPointNumber+1,
+				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 }).squeeze();
+
 		int noDataPtsToRead = (toDataPointNumber - fromDataPointNumber) + 1;
 		short allData[][][] = new short[noDataPtsToRead][numberOfDetectorElements][channelNumbers];
 		for (int k = 0; k < noDataPtsToRead; k++) {
 			for (int i = 0; i < numberOfDetectorElements; i++) {
-				for (int j = 0; j < channelNumbers; j++) {
-					allData[k][i][j] = (short) data[k * noDataPtsToRead + i * numberOfDetectorElements + j];
-				}
+				// set all channel counts for this datapoint and element by taking a slice
+				allData[k][i] = (short[]) slice.getSlice(new int[] {k, i, 0}, new int[] {k+1, i+1, channelNumbers}, null).getBuffer();
 			}
 		}
 		return allData;
@@ -106,39 +105,63 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 
 	@Override
 	public int getNumberOfDataPoints() {
-		return lazyDataset.getShape().length;
+		return lazyDataset.getShape()[0];
 	}
 
 	@Override
 	public double getTrigger(int dataPointNumber, int element) {
-		return getDouble("/entry/instrument/detector/NDAttributes/triggers_ch_" + element, dataPointNumber);
+		return getAttributeValue("triggers_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getRealTime(int dataPointNumber, int element) {
-		return getDouble("/entry/instrument/detector/NDAttributes/real_time_ch_" + element, dataPointNumber);
+		return getAttributeValue("real_time_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getLiveTime(int dataPointNumber, int element) {
-		return getDouble("/entry/instrument/detector/NDAttributes/trigger_live_time_ch_" + element, dataPointNumber);
+		return getAttributeValue("trigger_live_time_ch_" + element, dataPointNumber);
 	}
 
 	@Override
 	public double getEvents(int dataPointNumber, int element) {
-		return getDouble("/entry/instrument/detector/NDAttributes/events_ch_" + element, dataPointNumber);
+		return getAttributeValue("events_ch_" + element, dataPointNumber);
 	}
 
-	private double getDouble(String dataPath, int dataPointNumber) {
-		lazyDataset = dataHolder.getLazyDataset(dataPath);
+	private double getAttributeValue(String attributeName, int dataPointNumber) {
+		String attributePath = Paths.get(attributeDataGroup, attributeName).toString();
+		lazyDataset = dataHolder.getLazyDataset(attributePath);
 		IDataset slice;
 		try {
-			slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
-					new int[] { 1 });
+			slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },	new int[] { 1 });
 		} catch (Exception e) {
 			logger.error("Could not get data from lazy dataset", e);
 			return Double.NaN;
 		}
 		return slice.getDouble(0);
+	}
+
+	public String getDetectorDataPath() {
+		return detectorDataPath;
+	}
+
+	/**
+	 * Path to detector dataset in the hdf file
+	 * @param detectorDataPath
+	 */
+	public void setDetectorDataPath(String detectorDataPath) {
+		this.detectorDataPath = detectorDataPath;
+	}
+
+	public String getAttributeDataGroup() {
+		return attributeDataGroup;
+	}
+
+	/**
+	 * Path to group containing attribute data
+	 * @param attributeDataGroup
+	 */
+	public void setAttributeDataGroup(String attributeDataGroup) {
+		this.attributeDataGroup = attributeDataGroup;
 	}
 }

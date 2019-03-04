@@ -20,8 +20,11 @@ package gda.device.detector.xmap;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -46,6 +49,7 @@ import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gov.aps.jca.CAException;
 
 /**
@@ -71,6 +75,8 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	private boolean lastFileReadStatus = false;
 	private String capturepv;
 	private boolean deadTimeEnabled = true;
+	private String defaultSubDirectory = "xmapData";
+	private String qexafsEnergyName = "qexafs_energy";
 
 	public NexusXmap getXmap() {
 		return xmap;
@@ -133,8 +139,14 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			logger.error("Error performing sleep", e);
 		}
 		// for Xmap, as data written to file and not accessible during data collection,
-		// return the total number of pixels only at the end of the scan i.e. file has been written to
-		return controller.getPixelsPerRun();
+		// return the total number of frames only at the end of the scan i.e. file has been written
+		try {
+			int numFrames = controller.getHdf5().getNumCaptured_RBV();
+			logger.debug("Number of captured frames = {}", numFrames);
+			return numFrames;
+		}catch(Exception e) {
+			throw new DeviceException("Problem getting number of captured frames", e);
+		}
 	}
 
 	@Override
@@ -158,6 +170,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
+		String fileNameOnDls = "";
 		try {
 			if (lastFileName == null && !lastFileReadStatus) {
 				lastFileName = this.controller.getHDFFileName();
@@ -168,21 +181,20 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				//sleep required for gda to recognise number of arrays has finalized.
 //				Thread.sleep(1000);
 				// change to linux format
-				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
-				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
+				fileNameOnDls = XmapFileUtils.getDataDirectoryDirName(lastFileName);
 
-				new XmapFileUtils(lastFileName).waitForFileToBeReadable();
+				XmapFileUtils.waitForFileToBeReadable(fileNameOnDls);
 
-				createFileLoader();
+				createFileLoader(fileNameOnDls);
 				try {
-					logger.info("Loading " + lastFileName);
+					logger.info("Loading {}", fileNameOnDls);
 					fileLoader.loadFile();
 				} catch (Exception e) {
 					// this could be an NFS cache problem, so wait and try once more after a few seconds
 					logger.warn("Exception trying to read Xmap HDF5 file, so wait and try again...");
 					Thread.sleep(5000);
 					fileLoader = null;
-					createFileLoader();
+					createFileLoader(fileNameOnDls);
 					fileLoader.loadFile();  // let this throw its exception to surrounding catch
 				}
 				lastFileReadStatus = true;
@@ -192,13 +204,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			int numPointsToRead = finalFrame - startFrame + 1;
 
 			if (numOfPointsInFile < numPointsToRead) {
-				String msg = "Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
+				String msg = "Xmap data file "+ fileNameOnDls +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
 				logger.error(msg);
 				throw new DeviceException( msg);
 			}
 
 			XmapNXDetectorDataCreator dataCreator = new XmapNXDetectorDataCreator(
-					fileLoader, xmap.vortexParameters.getDetectorList(),
+					fileLoader, xmap.getVortexParameters().getDetectorList(),
 					getExtraNames(), getOutputFormat(), getName(),
 					isDeadTimeEnabled(), xmap.getEventProcessingTimes(),
 					xmap.isSumAllElementData());
@@ -217,15 +229,15 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				throw new DeviceException("Unable to end hdf5 capture", e1);
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
-			throw new DeviceException("Unable to load file called " + lastFileName, e);
+			throw new DeviceException("Unable to load file called " + fileNameOnDls, e);
 		}
 	}
 
-	private void createFileLoader() throws  Exception {
+	private void createFileLoader(String fileName) throws  Exception {
 		if (controller.isBufferedArrayPort())
-			fileLoader = new XmapBufferedHdf5FileLoader(lastFileName);
+			fileLoader = new XmapBufferedHdf5FileLoader(fileName);
 		else
-			fileLoader = new XmapNexusFileLoader(lastFileName, getXmap().getNumberOfMca());
+			fileLoader = new XmapNexusFileLoader(fileName, getXmap().getNumberOfMca());
 	}
 
 	@Override
@@ -383,7 +395,8 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 		// set the sub-directory and create if necessary
 		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir = dataDir + "tmp" + File.separator + lastScanNumber;
+		dataDir = Paths.get(dataDir, defaultSubDirectory).toString();
+
 		File scanSubDir = new File(dataDir);
 		if (!scanSubDir.exists()) {
 			boolean directoryExists = scanSubDir.mkdirs();
@@ -392,7 +405,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			}
 
 			// set 777 perms to ensure detector account
-			Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+			Set<PosixFilePermission> perms = new HashSet<>();
 			perms.add(PosixFilePermission.OWNER_READ);
 			perms.add(PosixFilePermission.OWNER_WRITE);
 			perms.add(PosixFilePermission.OWNER_EXECUTE);
@@ -404,7 +417,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			perms.add(PosixFilePermission.OTHERS_EXECUTE);
 			Files.setPosixFilePermissions(scanSubDir.toPath(), perms);
 		}
-		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase(), "X:/");
+		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase()+"/data/", "X:/");
 		controller.setDirectory(dataDir);
 	}
 
@@ -416,21 +429,19 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
 
 			// This has a -1 for b18. This is because the B18 Position Compare does not send the first
-			// pulse and so the first data point is always missed
+			// pulse and so the first data point is always missed.
 			if (LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("b18")){
-				numberOfPointsPerScan -= 1;
+				// Only subtract 1 when doing qexafs scans, not for all scans
+				List<String> scnNames = Arrays.asList(InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDetectorNames());
+				if (scnNames != null && scnNames.contains(qexafsEnergyName)) {
+					numberOfPointsPerScan -= 1;
+				}
 			}
 
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			controller.setAutoPixelsPerBuffer(true);
 
-			// in Xmap, each buffer holds 124 points and we have to also tell it the number of buffers to expect
-			int buffPerRow = Math.round(numberOfPointsPerScan / 124);
-			if (numberOfPointsPerScan % 124 != 0) {
-				buffPerRow++;
-			}
-
-			controller.setHdfNumCapture(buffPerRow);
+			controller.setHdfNumCapture(numberOfPointsPerScan);
 			controller.startRecording();
 		} catch (Exception e) {
 			logger.error("Error occurred arming the xmap detector", e);
@@ -517,5 +528,17 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	public void setDeadTimeEnabled(boolean deadTimeEnabled) {
 		this.deadTimeEnabled = deadTimeEnabled;
+	}
+
+	public String getDefaultSubDirectory() {
+		return defaultSubDirectory;
+	}
+
+	/**
+	 * Set name of subdirectory in data directory where detector Hdf5 file should be written.
+	 * @param defaultSubDirectory
+	 */
+	public void setDefaultSubDirectory(String defaultSubDirectory) {
+		this.defaultSubDirectory = defaultSubDirectory;
 	}
 }
