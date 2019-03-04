@@ -215,7 +215,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
 		checkTerminated();
 
-		initializeMalcolmDevice(bean, (IPointGenerator<?>) scanModel.getPointGenerator());
+		initializeMalcolmDevice(bean, scanModel.getPointGenerator());
 		this.controller = createRunnableDevice(scanModel);
 
 		if (blocking) { // Normally the case
@@ -468,7 +468,7 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			if (!dmodels.containsKey(odevice.getName())) continue; // Nothing to configure
 			Object dmodel = dmodels.get(odevice.getName());
 
-			IPointGenerator<?> generator = (IPointGenerator<?>) model.getPointGenerator();
+			IPointGenerator<?> generator = model.getPointGenerator();
 			manager.invoke(PreConfigure.class, dmodel, generator, model, bean, publisher);
 			odevice.configure(dmodel);
 			manager.invoke(PostConfigure.class, dmodel, generator, model, bean, publisher);
