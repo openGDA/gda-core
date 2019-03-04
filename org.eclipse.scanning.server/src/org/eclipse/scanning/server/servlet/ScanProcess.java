@@ -159,16 +159,11 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 
 	@Override
 	public void execute() throws EventException {
+		logger.debug("Starting to run : {}", bean);
+
+		// some initial tasks to possibly tweak and validate the scan bean and request
+		final ScanModel scanModel = prepareScan();
 		try {
-			logger.debug("Starting to run : {}", bean);
-
-			// some initial tasks to possibly tweak and validate the scan bean and request
-			setFilePath(bean);
-			IPointGenerator<?> pointGenerator = createPointGenerator();
-			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
-			validateScanRequest();
-			final ScanModel scanModel = createScanModel(pointGenerator);
-
 			// Move to a position if they set one
 			setPosition(bean.getScanRequest().getStartPosition(), "start");
 
@@ -184,14 +179,35 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 				updateBean(Status.COMPLETE, "Scan Complete");
 			}
 			logger.info("Completed run normally {} {} {}", bean.getName(), bean.getUniqueId(), bean.getFilePath());
-		} catch (Throwable e) {
-			logger.error("Cannot execute run {}", bean, e);
-			updateBean(Status.FAILED, e.getMessage());
-			// rethrow the exception as an EventException
-			if (e instanceof EventException) throw (EventException)e;
-			throw new EventException(e);
+		} catch (Exception e) {
+			handleException(e);
 		} finally {
 			logger.debug("Completed ScanProcess.execute() {}", bean);
+		}
+	}
+
+	private void handleException(Exception e) throws EventException {
+		if (e instanceof InterruptedException && terminated) {
+			// Scan was aborted by user - ok to swallow InterrutpedException as execute() immediately returns
+			logger.info("Scan terminated: {}",  e.getMessage());
+			updateBean(Status.TERMINATED, e.getMessage());
+		} else {
+			logger.error("Cannot execute run {}", bean, e);
+			updateBean(Status.FAILED, e.getMessage());
+		}
+	}
+
+	private ScanModel prepareScan() throws EventException {
+		try {
+			setFilePath(bean);
+			IPointGenerator<?> pointGenerator = createPointGenerator();
+			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
+			validateScanRequest();
+			return createScanModel(pointGenerator);
+		} catch (Exception e) {
+			// throw an exception when something goes wrong preparing the scan
+			updateBean(Status.FAILED, "Could not run scan");
+			throw new EventException("Could not run scan ", e);
 		}
 	}
 

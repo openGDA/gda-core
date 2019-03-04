@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -73,6 +74,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.script.IScriptService;
@@ -216,6 +218,7 @@ public class ScanProcessTest {
 
 		private final ExecutorService executor = Executors.newSingleThreadExecutor();
 		private final ScanProcess process;
+		private Exception exception;
 
 		private ScanTask(ScanProcess p) {
 			process = p;
@@ -226,16 +229,19 @@ public class ScanProcessTest {
 				try {
 					process.execute();
 				} catch (EventException e) {
-					throw new RuntimeException(e);
+					exception = e;
 				}
 			};
 			executor.execute(r);
 		}
 
-		public void awaitCompletion() throws InterruptedException {
+		public void awaitCompletion() throws Exception {
 			executor.shutdown();
 			boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
 			assertThat("Timed out waiting for ScanProcess.execute", terminated, is(true));
+			if (exception != null) {
+				throw exception;
+			}
 		}
 
 	}
@@ -332,6 +338,7 @@ public class ScanProcessTest {
 		verify(mocks.get(IScriptService.class), never()).execute(any(ScriptRequest.class)); // no scripts run (before or after)
 		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
+		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
 	}
 
 	@Test
@@ -363,6 +370,7 @@ public class ScanProcessTest {
 		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
 		verify(mockScriptService, never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
+		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
 	}
 
 	@Test
@@ -396,6 +404,31 @@ public class ScanProcessTest {
 
 		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
+		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
+	}
+
+	@Test
+	public void testScanFails() throws Exception {
+		// Arrange
+		ScanBean scanBean = createScanBean();
+		ScanRequest<?> scanRequest = scanBean.getScanRequest();
+
+		Mocks mocks = setupMocks();
+
+		ScanningException e = new ScanningException("Something went wrong.");
+		doThrow(e).when(mocks.get(IPausableDevice.class)).run(null);
+
+		// Act
+		ScanProcess process = new ScanProcess(scanBean, null, true);
+		process.execute();
+
+		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
+		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
+		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
+
+		verify(mocks.get(IScriptService.class), never()).execute(scanRequest.getAfterScript()); // after script not called
+		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
+		assertThat(scanBean.getStatus(), is(Status.FAILED));
 	}
 
 	/**
