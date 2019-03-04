@@ -20,27 +20,24 @@ package gda.exafs.scan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyTuple;
 
 public class ExafsScanPointCreatorTest {
+	// Allow for inaccuracy in floating point values
+	private static final double FP_TOLERANCE = 0.0000000001;
+
+	@Test(expected = NullPointerException.class)
+	public void testGetEnergiesFailsWhenNothingSet() throws Exception {
+		final ExafsScanPointCreator creator = new ExafsScanPointCreator();
+		creator.getEnergies();
+	}
 
 	@Test
-	public void testGetScanEnergies() {
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
-
-		boolean exceptionseen = false;
-		try {
-			creator.getEnergies();
-		} catch (Exception e) {
-			exceptionseen = true;
-		}
-		if (!exceptionseen) {
-			fail("exception not thrown when nothing set!");
-		}
+	public void testGetScanEnergies() throws Exception {
+		final ExafsScanPointCreator creator = new ExafsScanPointCreator();
 
 		creator.setInitialEnergy(100);
 		creator.setaEnergy(110.);
@@ -58,39 +55,27 @@ public class ExafsScanPointCreatorTest {
 
 		creator.setNumberDetectors(4);
 
-		try {
-			creator.getEnergies();
-		} catch (Exception e) {
-			fail("exception thrown when all set!");
-		}
+		creator.getEnergies();
 
-		try {
-			PyTuple energies = creator.getEnergies();
-			assertEquals(42, energies.__len__());
-			assertEquals(107.0, energies.__getitem__(10).__getitem__(0).__tojava__(java.lang.Double.class));
-			assertEquals(113.2656, energies.__getitem__(21).__getitem__(0).__tojava__(java.lang.Double.class));
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
+		final PyTuple energies = creator.getEnergies();
+		assertEquals(42, energies.__len__());
+		assertEquals(107.0, (double) energies.__getitem__(10).__getitem__(0).__tojava__(Double.class), FP_TOLERANCE);
+		assertEquals(113.2656, (double) energies.__getitem__(21).__getitem__(0).__tojava__(Double.class), FP_TOLERANCE);
 
 		creator.setPreEdgeStep(2);
 		creator.setEdgeStep(1);
 		creator.setExafsStep(5);
 
-		try {
-			PyTuple energies = creator.getEnergies();
-			testValueAlwaysIncreases(energies);
-			assertEquals(17, energies.__len__());
-			assertEquals(109.848, energies.__getitem__(5).__getitem__(0).__tojava__(java.lang.Double.class));
-			assertEquals(125.0, energies.__getitem__(15).__getitem__(0).__tojava__(java.lang.Double.class));
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
+		final PyTuple energies2 = creator.getEnergies();
+		testValueAlwaysIncreases(energies2);
+		assertEquals(17, energies2.__len__());
+		assertEquals(109.848, (double) energies2.__getitem__(5).__getitem__(0).__tojava__(Double.class), FP_TOLERANCE);
+		assertEquals(125.0, (double) energies2.__getitem__(15).__getitem__(0).__tojava__(Double.class), FP_TOLERANCE);
 	}
 
 	@Test
-	public void testVaryingExafsTime() {
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+	public void testVaryingExafsTime() throws Exception {
+		final ExafsScanPointCreator creator = new ExafsScanPointCreator();
 
 		creator.setInitialEnergy(100);
 		creator.setaEnergy(110.);
@@ -109,21 +94,16 @@ public class ExafsScanPointCreatorTest {
 		creator.setExafsToTime(1.);
 		creator.setkWeighting(1.);
 
-		try {
-			PyTuple energies = creator.getEnergies();
-			testValueAlwaysIncreases(energies);
-			assertEquals(42, energies.__len__());
-			assertEquals(0.1, energies.__getitem__(38).__getitem__(1).__tojava__(java.lang.Double.class));
-			assertEquals(0.82, energies.__getitem__(40).__getitem__(1).__tojava__(java.lang.Double.class));
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-
+		final PyTuple energies = creator.getEnergies();
+		testValueAlwaysIncreases(energies);
+		assertEquals(42, energies.__len__());
+		assertEquals(0.1, (double) energies.__getitem__(38).__getitem__(1).__tojava__(Double.class), FP_TOLERANCE);
+		assertEquals(0.82, (double) energies.__getitem__(40).__getitem__(1).__tojava__(Double.class), FP_TOLERANCE);
 	}
 
 	@Test
-	public void testVaryingExafsByK() {
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+	public void testVaryingExafsByK() throws Exception {
+		final ExafsScanPointCreator creator = new ExafsScanPointCreator();
 
 		creator.setInitialEnergy(100);
 		creator.setaEnergy(110.);
@@ -142,32 +122,20 @@ public class ExafsScanPointCreatorTest {
 		creator.setExafsConstantEnergyStep(false);
 		creator.setEdgeEnergy(117.);
 
-		try {
-			PyTuple energies = creator.getEnergies();
-			testValueAlwaysIncreases(energies);
-			assertEquals(51, energies.__len__());
-			double e38 = (Double) energies.__getitem__(38).__getitem__(0).__tojava__(java.lang.Double.class);
-			assertTrue("Expected >= 120., but actually " + e38, e38 >= 120.);
-			double e48 = (Double) energies.__getitem__(48).__getitem__(0).__tojava__(java.lang.Double.class);
-			assertTrue("Expected >= 127., but actually " + e48, e48 >= 127.);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-
+		final PyTuple energies = creator.getEnergies();
+		testValueAlwaysIncreases(energies);
+		assertEquals(51, energies.__len__());
+		final double e38 = (Double) energies.__getitem__(38).__getitem__(0).__tojava__(Double.class);
+		assertTrue("Expected >= 120., but actually " + e38, e38 >= 120.);
+		final double e48 = (Double) energies.__getitem__(48).__getitem__(0).__tojava__(Double.class);
+		assertTrue("Expected >= 127., but actually " + e48, e48 >= 127.);
 	}
 
-	@SuppressWarnings("null")
 	@Test
-	public void testExafsWhenCalculatingABC() {
+	public void testExafsWhenCalculatingABC() throws Exception {
+		final Double[] abc = ExafsScanRegionCalculator.calculateABC("Fe", "K", null, 20., 10., 10., false);
 
-		Double[] abc = null;
-		try {
-			abc = ExafsScanRegionCalculator.calculateABC("Fe", "K", null, 20., 10., 10., false);
-		} catch (Exception e1) {
-			fail(e1.getMessage());
-		}
-
-		ExafsScanPointCreator creator = new ExafsScanPointCreator();
+		final ExafsScanPointCreator creator = new ExafsScanPointCreator();
 
 		creator.setInitialEnergy(7050);
 		creator.setaEnergy(abc[0]);
@@ -183,28 +151,21 @@ public class ExafsScanPointCreatorTest {
 		creator.setEdgeTime(2.);
 		creator.setExafsTime(3.);
 
-		try {
-			PyTuple energies = creator.getEnergies();
-			testValueAlwaysIncreases(energies);
-			assertEquals(37, energies.__len__());
-			assertEquals(7080.0, energies.__getitem__(3).__getitem__(0).__tojava__(java.lang.Double.class));
-			assertTrue((Double) energies.__getitem__(32).__getitem__(0).__tojava__(java.lang.Double.class) >= 7122.7);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-
+		final PyTuple energies = creator.getEnergies();
+		testValueAlwaysIncreases(energies);
+		assertEquals(37, energies.__len__());
+		assertEquals(7080.0, (double) energies.__getitem__(3).__getitem__(0).__tojava__(Double.class), FP_TOLERANCE);
+		assertTrue((Double) energies.__getitem__(32).__getitem__(0).__tojava__(Double.class) >= 7122.7);
 	}
 
 	private void testValueAlwaysIncreases(PyTuple energies) {
 		double last = 0;
 		for (int i = 1; i < energies.__len__(); i++) {
-			PyFloat[] lastObj = (PyFloat[]) energies.get(i - 1);
-			PyFloat[] thisObj = (PyFloat[]) energies.get(i);
+			final PyFloat[] lastObj = (PyFloat[]) energies.get(i - 1);
+			final PyFloat[] thisObj = (PyFloat[]) energies.get(i);
 			last = lastObj[0].asDouble();
-			double thisValue = thisObj[0].asDouble();
-			if (last >= thisValue) {
-				fail(last + " not greater than " + thisValue);
-			}
+			final double thisValue = thisObj[0].asDouble();
+			assertTrue("Value should always increase", thisValue > last);
 			last = thisValue;
 		}
 	}
