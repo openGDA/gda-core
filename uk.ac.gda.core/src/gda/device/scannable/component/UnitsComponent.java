@@ -26,8 +26,10 @@ import static gda.jscience.physics.units.NonSIext.COUNT;
 import static gda.jscience.physics.units.NonSIext.DEGREES_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE;
+import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT;
 import static gda.jscience.physics.units.NonSIext.KILOCOUNT;
 import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT;
+import static gda.jscience.physics.units.NonSIext.MICROAMPERE;
 import static gda.jscience.physics.units.NonSIext.MICRON;
 import static gda.jscience.physics.units.NonSIext.MICRONS;
 import static gda.jscience.physics.units.NonSIext.MICRON_UM;
@@ -35,16 +37,23 @@ import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_LOWERCASE;
 import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE;
 import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_LC;
+import static gda.jscience.physics.units.NonSIext.uAMPERE;
 import static gda.jscience.physics.units.NonSIext.uDEG_ANGLE;
 import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE;
 import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_LC;
+import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static org.jscience.physics.units.NonSI.LITER;
+import static org.jscience.physics.units.SI.AMPERE;
+import static org.jscience.physics.units.SI.CUBIC_METER;
 import static org.jscience.physics.units.SI.KELVIN;
+import static org.jscience.physics.units.SI.KILOGRAM;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MICRO;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.jscience.physics.units.SI.NANO;
 import static org.jscience.physics.units.SI.NEWTON;
 import static org.jscience.physics.units.SI.RADIAN;
+import static org.jscience.physics.units.SI.SECOND;
 import static org.jscience.physics.units.SI.VOLT;
 import static org.jscience.physics.units.Unit.ONE;
 
@@ -65,8 +74,6 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.quantities.Temperature;
 import org.jscience.physics.quantities.Volume;
 import org.jscience.physics.quantities.VolumetricDensity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
 import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +81,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.jscience.physics.quantities.Count;
-import gda.jscience.physics.units.NonSIext;
 import gda.util.QuantityFactory;
 
 /**
@@ -338,8 +344,8 @@ public class UnitsComponent implements PositionConvertor {
 		// also want energy here
 		else if (hardwareUnitQuantity instanceof Energy) {
 			unitList.add(KILOELECTRONVOLT);
-			unitList.add(NonSI.ELECTRON_VOLT);
-			unitList.add(NonSIext.GIGAELECTRONVOLT);  //for the machine
+			unitList.add(ELECTRON_VOLT);
+			unitList.add(GIGAELECTRONVOLT);  //for the machine
 		}
 
 		else if (hardwareUnitQuantity instanceof Dimensionless) {
@@ -347,25 +353,25 @@ public class UnitsComponent implements PositionConvertor {
 		}
 
 		else if (hardwareUnitQuantity instanceof ElectricCurrent) {
-			unitList.add(SI.AMPERE);
-			unitList.add(NonSIext.MICROAMPERE);
-			unitList.add(NonSIext.uAMPERE);
-			unitList.add(MILLI((SI.AMPERE)));
+			unitList.add(AMPERE);
+			unitList.add(MICROAMPERE);
+			unitList.add(uAMPERE);
+			unitList.add(MILLI((AMPERE)));
 		}
 
 		else if (hardwareUnitQuantity instanceof Duration) {
-			unitList.add(SI.SECOND);
-			unitList.add(MILLI((SI.SECOND)));
+			unitList.add(SECOND);
+			unitList.add(MILLI((SECOND)));
 		}
 
 		else if (hardwareUnitQuantity instanceof Volume) {
-			unitList.add(NonSI.LITER);
-			unitList.add(SI.CUBIC_METER);
+			unitList.add(LITER);
+			unitList.add(CUBIC_METER);
 		}
 
 		else if (hardwareUnitQuantity instanceof VolumetricDensity) {
 			// mg/mL
-			unitList.add(SI.MICRO(SI.KILOGRAM).divide(SI.MILLI(NonSI.LITER)));
+			unitList.add(MICRO(KILOGRAM).divide(MILLI(LITER)));
 		}
 
 		else {
