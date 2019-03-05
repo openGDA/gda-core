@@ -70,11 +70,10 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
-import org.eclipse.scanning.api.event.core.IPublisher;
+import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -445,16 +444,11 @@ public class FocusScanResultPage extends WizardPage {
 	private void stopFocusScan() {
 		if (statusBean != null && statusBean.getStatus().isActive()) {
 			logger.debug("attempting to stopFocusScan, current scan state: {}", statusBean.getStatus());
-			// set the status of the bean to REQUEST_TERMINATE
-			statusBean.setStatus(Status.REQUEST_TERMINATE);
-			statusBean.setMessage("Termination of " + statusBean.getName());
-
-			// then publish the bean to the status topic
-			try (final IPublisher<StatusBean> publisher = eventService.createPublisher(
-						getActiveMqUri(), EventConstants.STATUS_TOPIC)) {
-				publisher.broadcast(statusBean);
-			} catch (URISyntaxException | EventException e) {
-				logger.error("Could not send terminate request", e);
+			try (IConsumer<StatusBean> consumerProxy = eventService.createConsumerProxy(getActiveMqUri(),
+					EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC)) {
+				consumerProxy.terminateJob(statusBean);
+			} catch (Exception e) {
+				logger.error("Error sending request to terminate focus scan", e);
 				MessageDialog.openError(getShell(), "Error", "Could not send terminate request. See error log for details");
 			}
 		} else {
