@@ -22,8 +22,14 @@ import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.Unit;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyTuple;
@@ -40,6 +46,39 @@ public class UnitsComponentTest {
 	private static final Quantity q2m = Quantity.valueOf(2, METER);
 	private static final Quantity q1000mm = Quantity.valueOf(1000, MILLI(METER));
 	private static final Quantity q3000mm = Quantity.valueOf(3000, MILLI(METER));
+
+	private static final List<String> LENGTH_UNITS = Arrays.asList(
+			"m", "nm", "mm", "µm", "micron", "um", "Ang", "Angstrom", "micron", "microns", "m");
+
+	private static final List<String> ANGLE_UNITS = Arrays.asList(
+			"rad", "Deg", "degrees", "mDeg", "deg", "mdeg", "mRad", "mrad", "uDeg", "uRad", "urad");
+
+	private static final List<String> TEMPERATURE_UNITS = Arrays.asList("centigrade", "K");
+	private static final List<String> FORCE_UNITS = Arrays.asList("N");
+	private static final List<String> ELECTRICAL_POTENTIAL_UNITS = Arrays.asList("V");
+	private static final List<String> COUNT_UNITS = Arrays.asList("cts", "kcts");
+	private static final List<String> ENERGY_UNITS = Arrays.asList("keV", "eV", "GeV");
+	private static final List<String> DIMENSIONLESS_UNITS = Arrays.asList(Unit.ONE.toString());
+	private static final List<String> ELECTRIC_CURRENT_UNITS = Arrays.asList("A", "μA", "uA", "mA");
+	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
+	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "m³");
+	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/mL");
+
+	@BeforeClass
+	public static void setUpClass() {
+		Collections.sort(LENGTH_UNITS);
+		Collections.sort(ANGLE_UNITS);
+		Collections.sort(TEMPERATURE_UNITS);
+		Collections.sort(FORCE_UNITS);
+		Collections.sort(ELECTRICAL_POTENTIAL_UNITS);
+		Collections.sort(COUNT_UNITS);
+		Collections.sort(ENERGY_UNITS);
+		Collections.sort(DIMENSIONLESS_UNITS);
+		Collections.sort(ELECTRIC_CURRENT_UNITS);
+		Collections.sort(DURATION_UNITS);
+		Collections.sort(VOLUME_UNITS);
+		Collections.sort(VOLUMETRIC_DENSITY_UNITS);
+	}
 
 	@Before
 	public void setUp() {
@@ -130,5 +169,103 @@ public class UnitsComponentTest {
 		assertEquals(1.0, (double) uc.internalTowardExternal("1000"), 0.0001);
 		assertEquals(1.0, (double) uc.internalTowardExternal("1m"), 0.0001);
 		assertEquals(1.0, (double) uc.internalTowardExternal("1000mm"), 0.0001);
+	}
+
+	@Test
+	public void testGetAcceptableUnitsLength() throws DeviceException {
+		// Any length unit should return all length units as compatible
+		for (String unit : LENGTH_UNITS) {
+			testGetAcceptableUnits(unit, LENGTH_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsAngle() throws DeviceException {
+		for (String unit : ANGLE_UNITS) {
+			testGetAcceptableUnits(unit, ANGLE_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsTemperature() throws DeviceException {
+		for (String unit : TEMPERATURE_UNITS) {
+			testGetAcceptableUnits(unit, TEMPERATURE_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsForce() throws DeviceException {
+		for (String unit : FORCE_UNITS) {
+			testGetAcceptableUnits(unit, FORCE_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsElectricalPotential() throws DeviceException {
+		for (String unit : ELECTRICAL_POTENTIAL_UNITS) {
+			testGetAcceptableUnits(unit, ELECTRICAL_POTENTIAL_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsCount() throws DeviceException {
+		for (String unit : COUNT_UNITS) {
+			testGetAcceptableUnits(unit, COUNT_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsEnergy() throws DeviceException {
+		for (String unit : ENERGY_UNITS) {
+			testGetAcceptableUnits(unit, ENERGY_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsDimensionless() throws DeviceException {
+		uc.setHardwareUnitString(Unit.ONE.toString());
+		final String[] acceptableUnits = uc.getAcceptableUnits();
+		assertEquals(1, acceptableUnits.length);
+		assertEquals("", acceptableUnits[0]);
+	}
+
+	@Test
+	public void testGetAcceptableUnitsElectricCurrent() throws DeviceException {
+		for (String unit : ELECTRIC_CURRENT_UNITS) {
+			testGetAcceptableUnits(unit, ELECTRIC_CURRENT_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsDuration() throws DeviceException {
+		for (String unit : DURATION_UNITS) {
+			testGetAcceptableUnits(unit, DURATION_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsVolume() throws DeviceException {
+		for (String unit : VOLUME_UNITS) {
+			testGetAcceptableUnits(unit, VOLUME_UNITS);
+		}
+	}
+
+	@Test
+	public void testGetAcceptableUnitsVolumetricDensity() throws DeviceException {
+		for (String unit : VOLUMETRIC_DENSITY_UNITS) {
+			testGetAcceptableUnits(unit, VOLUMETRIC_DENSITY_UNITS);
+		}
+	}
+
+	@Test(expected = DeviceException.class)
+	public void testGetAcceptableUnitsVolumetricDensityGramsPerLitre() throws DeviceException {
+		uc.setHardwareUnitString("g/L");
+	}
+
+	private void testGetAcceptableUnits(String hardwareUnitString, List<String> expectedAcceptableUnits) throws DeviceException {
+		uc.setHardwareUnitString(hardwareUnitString);
+		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
+		Collections.sort(acceptableUnits);
+		assertEquals(expectedAcceptableUnits, acceptableUnits);
 	}
 }
