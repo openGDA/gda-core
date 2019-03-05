@@ -229,7 +229,9 @@ public class UnitsComponent implements PositionConvertor {
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
 		if (userUnitHasBeenExplicitlySet) {
 			// Check the new hardware unit is compatible
-			final List<Unit<? extends Quantity>> compatibleUnits = generateCompatibleUnits(hardwareUnitString);
+			@SuppressWarnings("unchecked")
+			final Unit<? extends Quantity> unit = Unit.valueOf(hardwareUnitString);
+			final List<Unit<? extends Quantity>> compatibleUnits = generateCompatibleUnits(unit);
 			if (!compatibleUnits.contains(userUnit)) {
 				throw new DeviceException("The hardware unit could not be set to '" + hardwareUnitString
 						+ "' because this is incompatible" + " with the explicitely set user unit '"
@@ -282,13 +284,9 @@ public class UnitsComponent implements PositionConvertor {
 		}
 	}
 
-	private List<Unit<? extends Quantity>> generateCompatibleUnits(String hardwareUnitString) {
+	private List<Unit<? extends Quantity>> generateCompatibleUnits(Unit<? extends Quantity> unit) {
 		final List<Unit<? extends Quantity>> unitList = new ArrayList<>();
-		final Quantity hardwareUnitQuantity = QuantityFactory.createFromTwoStrings("1.0", hardwareUnitString);
-
-		if (hardwareUnitQuantity == null) {
-			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supportd.");
-		}
+		final Quantity hardwareUnitQuantity = Quantity.valueOf(1.0, unit);
 
 		if (hardwareUnitQuantity instanceof Length) {
 			// these first two lines here so that they are not overwritten
@@ -375,7 +373,7 @@ public class UnitsComponent implements PositionConvertor {
 		}
 
 		else {
-			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supported.");
+			throw new IllegalArgumentException("Hardware unit " + unit + " not supported.");
 		}
 		return unitList;
 	}
@@ -385,7 +383,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * are used in the GDA
 	 */
 	private void setCompatibleUnits() {
-		acceptableUnits = generateCompatibleUnits(this.hardwareUnit.toString());
+		acceptableUnits = generateCompatibleUnits(this.hardwareUnit);
 	}
 
 	/*
