@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.function.DoubleSupplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
@@ -26,8 +28,8 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 
 public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	
@@ -71,10 +73,16 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 		experimentDataDir = Paths.get(dataDirBeforeExperiment, validName(getName())).toString();
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, experimentDataDir);
 		
-		record = new ExperimentRecord();
+		record = new ExperimentRecord(name);
+		record.start();
 		
 		logger.info("Plan '{}' execution started", getName());
 		printBanner("Plan '" + getName() + "' execution started");
+		
+		if (experimentDriver.isPresent()) {
+			IExperimentDriver driver = experimentDriver.get();
+			record.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
+		}
 		
 		activateNextSegment();
 		
@@ -106,12 +114,13 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 		if (activeSegment == null) {
 			terminateExperiment();
 		} else {
-			record.segmentActivated(activeSegment.getName());
+			record.segmentActivated(activeSegment.getName(), activeSegment.getSampleEnvironmentName());
 			activeSegment.activate();
 		}
 	}	
 	
 	private void terminateExperiment() {
+		record.complete();
 		String summary = record.summary();
 		logger.info("End of experiment'{}'", getName());
 		logger.info(summary);
@@ -140,14 +149,19 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	}	
 	
 	@Override
-	public void triggerOccurred(ITrigger trigger, double triggeringSignal) {
+	public void triggerOccurred(ITrigger trigger) {
 		switchToTriggerSubdirectory(activeSegment, trigger);
-		record.triggerOccurred(trigger.getName(), triggeringSignal);
+		record.triggerOccurred(trigger.getName());
 	}
 	
 	@Override
-	public void segmentActivated(ISegment segment) {
-		record.segmentActivated(segment.getName());
+	public void triggerComplete(ITrigger trigger, TriggerEvent event, String sampleEnvironmentName) {
+		record.triggerComplete(trigger.getName(), event, sampleEnvironmentName);
+	}
+	
+	@Override
+	public void segmentActivated(ISegment segment, String sampleEnvironmentName) {
+		record.segmentActivated(segment.getName(), sampleEnvironmentName);
 	}
 
 	@Override
@@ -157,6 +171,13 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	}
 	
 	private void switchToTriggerSubdirectory(ISegment segment, ITrigger trigger) {
+		if (segment == null) {
+			// FIXME unfortunate race condition:
+			// trigger fires in final segment and segment terminates
+			// before this method is called
+			segment = segments.get(segments.size()-1);
+			
+		}
 		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, Paths.get(experimentDataDir, validName(segment), validName(trigger)).toString());
 	}
 	
@@ -187,8 +208,15 @@ public class Plan implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	}
 	
 	@Override
-	public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
-		ISampleEnvironmentVariable sev = factory.addSEV(signalProvider);
+	public ISampleEnvironmentVariable addSEV(Scannable scannable) {
+		ISampleEnvironmentVariable sev = factory.addSEV(scannable);
+		lastDefinedSev = sev;
+		return sev;
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource) {
+		ISampleEnvironmentVariable sev = factory.addSEV(signalSource);
 		lastDefinedSev = sev;
 		return sev;
 	}

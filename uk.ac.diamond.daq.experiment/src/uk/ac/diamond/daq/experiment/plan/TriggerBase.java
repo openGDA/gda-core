@@ -10,6 +10,7 @@ import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 
 public abstract class TriggerBase implements ITrigger {
 	
@@ -78,6 +79,10 @@ public abstract class TriggerBase implements ITrigger {
 		return triggerable;
 	}
 	
+	public String getSampleEnvironmentName() {
+		return sev.getName();
+	}
+	
 	@Override
 	public synchronized void signalChanged(double signal) {
 		if (evaluating) {
@@ -89,8 +94,18 @@ public abstract class TriggerBase implements ITrigger {
 														// to move this outside synchronised method
 					logger.debug("Trigger '{}' now triggering due to signal {}", getName(), signal);
 					executorService.execute(()->{
-						registrar.triggerOccurred(this, signal);
-						triggerable.trigger();
+						final TriggerEvent event = new TriggerEvent(signal);
+						registrar.triggerOccurred(this);
+						boolean success = false;
+						try {
+							triggerable.trigger();
+							success = true;
+						} catch (Exception e) {
+							logger.error("Problem while executing trigger", e);
+						} finally {
+							event.setSuccessful(success);
+							registrar.triggerComplete(this, event, getSEV().getName());
+						}
 					});
 				}
 			} finally {

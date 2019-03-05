@@ -1,39 +1,19 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
-import java.time.chrono.ChronoZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
 
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
-import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
-import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
-import uk.ac.diamond.daq.experiment.api.plan.ISegmentAccount;
-import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
-import uk.ac.diamond.daq.experiment.api.plan.ITriggerAccount;
-import uk.ac.diamond.daq.experiment.api.plan.ITriggerEvent;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
@@ -55,9 +35,9 @@ public class PlanTest {
 		plan = new Plan(EXPERIMENT_NAME);
 		sev = new MockSEV();
 
-		plan.setFactory(new TestFactory());
+		plan.setFactory(new TestFactory(sev));
 
-		plan.addSEV(null); // TestFactory::addSEV returns our MockSEV
+		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
 
 		TestHelpers.setUpTest(PlanTest.class, "DontCare", true);
 	}
@@ -103,55 +83,7 @@ public class PlanTest {
 		sev.broadcast(16);
 
 		// but all segments run
-		assertThat(plan.getExperimentRecord().getSegmentAccounts().size(), is(3));
-	}
-
-	@Test
-	public void segmentActivationAndCompletionTimestamped() {
-		plan.addSegment(SEGMENT1_NAME, x->x>5);
-		plan.addSegment(SEGMENT2_NAME, x->x>10);
-		plan.addSegment(SEGMENT3_NAME, x->x>15);
-
-		plan.start();
-
-		sev.ramp(16, 1);
-
-		List<ISegmentAccount> segmentAccounts = plan.getExperimentRecord().getSegmentAccounts();
-		assertThat(segmentAccounts.size(), is(3));
-
-		List<String> accountNames = segmentAccounts.stream().map(ISegmentAccount::getSegmentName).collect(toList());
-		assertThat(accountNames, is(equalTo(Arrays.asList(SEGMENT1_NAME, SEGMENT2_NAME, SEGMENT3_NAME))));
-
-		segmentAccounts.forEach(accnt -> {
-			assertThat(accnt.getStartTime(), is(not(after(accnt.getEndTime()))));
-			// i.e. start time is before OR equal to end time (for quick tests!)
-		});
-	}
-
-	private static Matcher<ChronoZonedDateTime<?>> after(ZonedDateTime other) {
-		return greaterThan(other);
-	}
-
-	@Test (expected = IllegalArgumentException.class)
-	public void invalidSegmentAccountRequested() {
-		plan.addSegment(SEGMENT1_NAME, x -> true);
-		plan.start();
-		plan.getExperimentRecord().getSegmentAccount(SEGMENT2_NAME);
-	}
-
-	@Test (expected = IllegalArgumentException.class)
-	public void invalidTriggerAccountRequested() {
-		plan.addSegment(SEGMENT1_NAME, x -> true);
-		plan.start();
-		plan.getExperimentRecord().getTriggerAccount(TRIGGER1_NAME);
-	}
-
-	@Test (expected=IllegalStateException.class)
-	public void getRecordWhileRunningThrows() {
-		plan.addSegment(SEGMENT1_NAME, sev, x -> false);
-		plan.start();
-		assertTrue(plan.isRunning());
-		plan.getExperimentRecord();
+		assertThat(plan.getExperimentRecord().getSegmentRecords().size(), is(3));
 	}
 
 	@Test (expected=IllegalStateException.class)
@@ -167,73 +99,6 @@ public class PlanTest {
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 0),
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 5));
 		plan.start();
-	}
-
-	@Test
-	public void runningMultipleTimesOverwritesRecord() {
-		plan.addSegment(SEGMENT1_NAME, sev, x->true);
-		plan.addSegment(SEGMENT2_NAME, sev, x->true);
-
-		plan.start(); // finishes immediately
-		plan.start();
-		assertThat(plan.getExperimentRecord().getSegmentAccounts().size(), is(2));
-	}
-
-	@Test
-	public void allTriggersRecorded() {
-
-		DummySEVTrigger t1 = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, 4);
-		DummySEVTrigger t2 = (DummySEVTrigger) plan.addTrigger(TRIGGER2_NAME, this::someJob, 1);
-
-		plan.addSegment(SEGMENT1_NAME, x -> x > 12, t1);
-		plan.addSegment(SEGMENT2_NAME, x -> x > 30, t2);
-
-		plan.start();
-
-		sev.ramp(31, 1);
-
-		ITriggerAccount t1account = plan.getExperimentRecord().getTriggerAccount(TRIGGER1_NAME);
-		ITriggerAccount t2account = plan.getExperimentRecord().getTriggerAccount(TRIGGER2_NAME);
-		assertThat(t1account.getEvents().size(), is(t1.getTriggerCount()));
-		assertThat(t2account.getEvents().size(), is(t2.getTriggerCount()));
-	}
-
-	@Test
-	public void significantSEVSignalsRecorded() {
-		/* we need to record sev signals which:
-		 * - cause segment transition
-		 * - trigger a trigger's triggerableoperation
-		 */
-
-		plan.addSegment(SEGMENT1_NAME, x -> x >= 10, // a signal of 10 or higher would cause this segment to terminate
-				plan.addTrigger(TRIGGER1_NAME, this::someJob, 2.5)); // this trigger fires in sev signal intervals of 2.5 (or greater)
-
-		plan.start();
-
-		/*
-		 * The broadcasted signals from simulated SEV sequence:
-		 * 0 (signal at plan.start())
-		 * 1.5
-		 * 3 -> trigger fires
-		 * 4.5
-		 * 6 -> trigger fires
-		 * 7.5
-		 * 9 -> trigger fires
-		 * 10.5 -> segment ends
-		 * 12
-		 */
-		sev.ramp(11, 1.5);
-
-		ITriggerAccount triggerAccount = plan.getExperimentRecord().getTriggerAccount(TRIGGER1_NAME);
-		List<ITriggerEvent> counts = triggerAccount.getEvents();
-
-		assertThat(counts.size(), is(3));
-
-		List<Double> triggeringSignals = counts.stream().map(ITriggerEvent::getTriggeringSignal).collect(toList());
-		assertThat(triggeringSignals, is(equalTo(Arrays.asList(3.0, 6.0, 9.0))));
-
-		ISegmentAccount segmentAccount = plan.getExperimentRecord().getSegmentAccount(SEGMENT1_NAME);
-		assertThat(segmentAccount.getTerminationSignal(), is(10.5));
 	}
 
 	@Test
@@ -284,8 +149,8 @@ public class PlanTest {
 	public void nonAlphanumericsInNamesBecomeUnderscores() {
 		// actually '-' and '.' are also allowed
 		Plan ep = new Plan("My$Experiment");
-		ep.setFactory(new TestFactory());
-		ep.addSEV(null);
+		ep.setFactory(new TestFactory(sev));
+		ep.addSEV(()->0.0); // TestFactory doesn't give a monkeys
 
 		ep.addSegment(" ", x -> x >= 5, ep.addTrigger("My.Trigger&", this::someJob, 2.5));
 
@@ -324,103 +189,14 @@ public class PlanTest {
 		// If one is included, calling start() on the plan
 		// should also start the driver.
 
-		IExperimentDriver experimentDriver = getExperimentDriver();
+		NoImplDriver experimentDriver = new NoImplDriver();
 		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
 		plan.setDriver(experimentDriver);
 		plan.addSegment(SEGMENT1_NAME, sev -> false);
 
 		plan.start();
 
-		assertThat(experimentDriver.getState(), is(DriverState.RUNNING));
-	}
-
-	private IExperimentDriver getExperimentDriver() {
-		return new NoImplDriver();
-	}
-
-	/**
-	 * Works like PositionTrigger but without executor service.
-	 * No triggerable job but triggering signals increment trigger count (getTriggerCount())
-	 */
-	class DummySEVTrigger extends TriggerBase {
-
-		private DummySEVTrigger(String name, IPlanRegistrar registrar, double positionInterval) {
-			super(registrar, () -> {}, sev);
-			setName(name);
-			this.thesev = sev;
-			this.positionInterval = positionInterval;
-			this.registrar = registrar;
-		}
-
-		private final IPlanRegistrar registrar;
-		private final ISampleEnvironmentVariable thesev;
-		private final double positionInterval;
-
-		private double previousTrigger;
-
-		private int triggerCount;
-
-		@Override
-		public void signalChanged(double signal) {
-			if (!isEnabled()) return;
-			if (BigDecimal.valueOf(signal).subtract(BigDecimal.valueOf(previousTrigger)).abs().divide(BigDecimal.valueOf(positionInterval), 5, RoundingMode.HALF_UP).compareTo(BigDecimal.ONE) < 0) {
-				return;
-			}
-
-			previousTrigger = signal;
-			registrar.triggerOccurred(this, signal);
-			triggerCount++;
-		}
-
-		@Override
-		public void setEnabled(boolean enabled) {
-			super.setEnabled(enabled);
-			if (enabled) {
-				previousTrigger = thesev.read();
-				thesev.addListener(this);
-			} else {
-				thesev.removeListener(this);
-			}
-		}
-
-		@Override
-		protected void enable() {
-			// nothing else
-		}
-
-		@Override
-		protected void disable() {
-			// nothing else
-		}
-
-		public int getTriggerCount() {
-			return triggerCount;
-		}
-
-		@Override
-		protected boolean evaluateTriggerCondition(double signal) {
-			return false;
-		}
-
-	}
-
-	/**
-	 * Factory that injects our mock implementations
-	 */
-	class TestFactory extends PlanFactory {
-
-		@Override
-		public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
-			return sev;
-		}
-
-		@Override
-		public ITrigger addTrigger(String name, Triggerable triggerable,ISampleEnvironmentVariable sev,
-				double triggerInterval) {
-			ITrigger trigger = new DummySEVTrigger(name, getRegistrar(), triggerInterval);
-			trigger.setName(name);
-			return trigger;
-		}
+		assertThat(experimentDriver.hasRun(), is(true));
 	}
 
 	private void someJob() {

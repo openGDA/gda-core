@@ -19,12 +19,14 @@
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.diamond.daq.experiment.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
+				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
 				<pathelement location="${workspace.git.loc}/gda-nexus.git/uk.ac.gda.nexus/bin" />
 				<pathelement location="${workspace.git.loc}/scanning.git/org.eclipse.scanning.api/bin" />
 				<pathelement location="${plugin.host.basedir}/bin" />

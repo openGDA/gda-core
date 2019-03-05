@@ -1,6 +1,10 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
+import java.util.function.DoubleSupplier;
+
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+
+import gda.device.Scannable;
 
 public interface IPlanFactory {
 
@@ -9,13 +13,21 @@ public interface IPlanFactory {
 
 
 	/**
-	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link SignalSource}.
+	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link Scannable}.
 	 *
-	 * @param signalProvider
+	 * @param scannable
 	 * @return reference to created sev
 	 */
-	ISampleEnvironmentVariable addSEV(SignalSource signalProvider);
+	ISampleEnvironmentVariable addSEV(Scannable scannable);
 
+
+	/**
+	 * Creates an {@link ISampleEnvironmentVariable} which samples the specified {@link DoubleSupplier}.
+	 *
+	 * @param DoubleSupplier will be wrapped inside a {@link Scannable}
+	 * @return reference to the created sev
+	 */
+	ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource);
 
 	/**
 	 * Gets a timer to use as an {@link ISampleEnvironmentVariable}.

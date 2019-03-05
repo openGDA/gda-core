@@ -4,6 +4,7 @@ Bundle-Name: DIAD UI
 Bundle-SymbolicName: uk.ac.diamond.daq.experiment.ui
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.ui,
  uk.ac.gda.api,
  uk.ac.gda.client,
@@ -13,8 +14,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.january,
  uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0",
  org.eclipse.core.runtime;bundle-version="3.13.0",
- org.eclipse.e4.core.di;bundle-version="1.6.100"
+ org.eclipse.e4.core.di;bundle-version="1.6.100",
+ org.eclipse.osgi,
+ org.eclipse.scanning.api,
+ uk.ac.gda.common,
+ uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.experiment.ui.driver,
  uk.ac.diamond.daq.experiment.ui.plan
 Bundle-Vendor: Diamond Light Source
+Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.ui
+Import-Package: org.slf4j;version="1.7.25"

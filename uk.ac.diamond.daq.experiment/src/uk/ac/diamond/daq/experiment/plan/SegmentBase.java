@@ -86,6 +86,11 @@ public abstract class SegmentBase implements ISegment {
 	}
 	
 	@Override
+	public String getSampleEnvironmentName() {
+		return sev.getName();
+	}
+	
+	@Override
 	public String getName() {
 		return name;
 	}

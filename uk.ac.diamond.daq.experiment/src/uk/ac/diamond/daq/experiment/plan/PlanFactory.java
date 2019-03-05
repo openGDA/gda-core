@@ -1,19 +1,22 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.util.function.DoubleSupplier;
+
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
+import gda.device.Scannable;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 
 public class PlanFactory implements IPlanFactory {
 	
+	private static final String SYSTEM_TIMER_NAME = "System timer";
 	private static IEventService eventService;
 
 	private IPlanRegistrar registrar;
@@ -21,13 +24,22 @@ public class PlanFactory implements IPlanFactory {
 	private ISampleEnvironmentVariable timer;
 
 	@Override
-	public ISampleEnvironmentVariable addSEV(SignalSource signalProvider) {
-		return new SampleEnvironmentVariable(signalProvider);
+	public ISampleEnvironmentVariable addSEV(Scannable scannable) {
+		return new SampleEnvironmentVariable(scannable);
+	}
+	
+	@Override
+	public ISampleEnvironmentVariable addSEV(DoubleSupplier signalSource) {
+		return new SampleEnvironmentVariable(signalSource);
 	}
 	
 	@Override
 	public ISampleEnvironmentVariable addTimer() {
-		if (timer == null) timer = new SampleEnvironmentVariable(new SystemTimerSignal());
+		if (timer == null) {
+			SampleEnvironmentVariable systemTimer = new SampleEnvironmentVariable(new SystemTimerSignal());
+			systemTimer.setName(SYSTEM_TIMER_NAME);
+			timer = systemTimer;
+		}
 		return timer;
 	}
 
@@ -103,6 +115,6 @@ public class PlanFactory implements IPlanFactory {
 	}
 	
 	public void setEventService(IEventService service) {
-		eventService = service;
+		PlanFactory.eventService = service;
 	}
 }

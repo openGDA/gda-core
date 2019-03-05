@@ -9,13 +9,13 @@ import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleSupplier;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.SEVListener;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 public class SampleEnvironmentVariableTest {
 
@@ -23,7 +23,7 @@ public class SampleEnvironmentVariableTest {
 
 	@Before
 	public void setUp() {
-		SignalSource signalProvider = SEVSignalSims.linearEvolution(0, 0.1);
+		DoubleSupplier signalProvider = SEVSignalSims.linearEvolution(0, 0.1);
 		sev = new SampleEnvironmentVariable(signalProvider);
 	}
 
@@ -86,6 +86,11 @@ public class SampleEnvironmentVariableTest {
 			public void signalChanged(double signal) {
 				sevBroadcastCounts++;
 			}
+
+			@Override
+			public String getSampleEnvironmentName() {
+				return null;
+			}
 		});
 
 		changeSignal(envVar, 1); // broadcast here
@@ -121,6 +126,11 @@ public class SampleEnvironmentVariableTest {
 
 		private boolean await() throws InterruptedException {
 			return latch.await(25, TimeUnit.MILLISECONDS);
+		}
+
+		@Override
+		public String getSampleEnvironmentName() {
+			return null;
 		}
 	}
 

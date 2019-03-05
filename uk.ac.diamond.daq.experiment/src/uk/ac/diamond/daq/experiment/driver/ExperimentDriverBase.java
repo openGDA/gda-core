@@ -7,19 +7,21 @@ import static uk.ac.diamond.daq.experiment.api.driver.DriverState.RUNNING;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import gda.device.Scannable;
 import uk.ac.diamond.daq.experiment.api.driver.AbortCondition;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.ExperimentDriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
-import uk.ac.diamond.daq.experiment.api.plan.SignalSource;
 
 public abstract class ExperimentDriverBase implements IExperimentDriver {
 	
 	private String name;
 	
-	private Map<String, SignalSource> readouts;
+	private Map<String, Scannable> readouts;
+	private String mainReadoutName;
 	private ExperimentDriverModel model = new ExperimentDriverModel();
 	
 	// Should this be org.eclipse.scanning.api.event.scan.DeviceState?
@@ -45,13 +47,26 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		return model;
 	}
 	
-	public void setReadouts(Map<String, SignalSource> readouts) {
+	public void setReadouts(Map<String, Scannable> readouts) {
 		this.readouts = readouts;
 	}
 
 	@Override
-	public Map<String, SignalSource> getReadouts() {
+	public Map<String, Scannable> getReadouts() {
 		return readouts;
+	}
+	
+	@Override
+	public String getMainReadoutName() {
+		if (mainReadoutName == null && readouts.size() == 1) {
+			mainReadoutName = readouts.values().iterator().next().getName();
+		}
+		Objects.requireNonNull(mainReadoutName, "One of the readouts must be nominated as 'main' - use setMainReadoutName()");
+		return mainReadoutName;
+	}
+	
+	public void setMainReadoutName(String mainReadoutName) {
+		this.mainReadoutName = mainReadoutName;
 	}
 	
 	@Override
@@ -67,6 +82,7 @@ public abstract class ExperimentDriverBase implements IExperimentDriver {
 		getModel().getAbortConditions().forEach(AbortCondition::activate);
 		state = RUNNING;
 		doStart();
+		state = IDLE;
 	}
 
 	@Override
