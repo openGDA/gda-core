@@ -40,7 +40,7 @@ public class TR6ConfigurationWizard extends Wizard {
 	}
 	
 	public Point getPreferredPageSize() {
-		return new Point(750, 600);
+		return new Point(750, 700);
 	}
 
 	public ExperimentDriverModel getProfile() {

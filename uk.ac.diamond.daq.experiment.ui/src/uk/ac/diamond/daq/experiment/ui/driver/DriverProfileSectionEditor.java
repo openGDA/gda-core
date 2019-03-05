@@ -31,7 +31,7 @@ public class DriverProfileSectionEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Start");
 		start = new Text(composite, SWT.BORDER);
-		start.addListener(SWT.Modify, e -> {
+		start.addListener(SWT.FocusOut, e -> {
 			if (section != null) {
 				section.setStart(Double.parseDouble(start.getText()));
 			}
@@ -42,7 +42,7 @@ public class DriverProfileSectionEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Stop");
 		stop = new Text(composite, SWT.BORDER);
-		stop.addListener(SWT.Modify, e -> {
+		stop.addListener(SWT.FocusOut, e -> {
 			if (section != null) {
 				section.setStop(Double.parseDouble(stop.getText()));
 			}
@@ -53,7 +53,7 @@ public class DriverProfileSectionEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Duration");
 		duration = new Text(composite, SWT.BORDER);
-		duration.addListener(SWT.Modify, e -> {
+		duration.addListener(SWT.FocusOut, e -> {
 			if (section != null) {
 				section.setDuration(Double.parseDouble(duration.getText()));
 			}

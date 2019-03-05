@@ -69,6 +69,7 @@ public class CalibrationPage extends WizardPage {
 		new Label(motionControl, SWT.NONE).setText("Position");
 		NudgePositionerComposite positioner = new NudgePositionerComposite(motionControl, SWT.NONE);
 		positioner.setScannable(scannable);
+		positioner.setIncrementTextWidth(40);
 		stretch.applyTo(positioner);
 		
 		// This is clearly not right, but needed because NudgePositionerComposite is naughty
