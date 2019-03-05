@@ -1,10 +1,12 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowDataFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -19,17 +21,19 @@ import uk.ac.diamond.daq.client.gui.camera.controller.AbstractCameraConfiguratio
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.diamond.daq.client.gui.camera.liveview.HistogramComposite;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 
 public abstract class AbstractCameraConfigurationDialog<C extends AbstractCameraConfigurationController> {
 	private static final Logger log = LoggerFactory.getLogger(AbstractCameraConfigurationDialog.class);
 
+	private static final int MINIMUM_WIDTH = 800;
+	private static final int MINIMUM_HEIGHT = 600;
 	private static final int BUTTON_WIDTH = 80;
-
+	
 	protected Shell shell;
 	protected C controller;
 	private LiveStreamConnection liveStreamConnection;
 	protected CameraImageComposite cameraImageComposite;
+	double aspectRatio;
 
 	public AbstractCameraConfigurationDialog (Display display, C controller, 
 			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {	
@@ -38,7 +42,6 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 		
 		shell = new Shell(display, SWT.TITLE | SWT.RESIZE);
 		shell.setText(title);
-		shell.setSize(1000, 800);
 
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(shell);
 
@@ -67,7 +70,13 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 			HistogramComposite histogramPanel = new HistogramComposite(panel, 
 					cameraImageComposite.getPlottingSystem(), SWT.NONE);
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(histogramPanel);
+			
+			RectangularROI maxSize = controller.getMaximumSizedROI();
+			aspectRatio = maxSize.getLength(1) / maxSize.getLength(0);
+			shell.setMinimumSize(calculateSize(MINIMUM_WIDTH));
 		} catch (Exception e) {
+			log.error("Unable to connect camera", e);
+			
 			Label label;
 
 			label = new Label(panel, SWT.NONE);
@@ -77,6 +86,8 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 			label = new Label(panel, SWT.NONE);
 			label.setText("No Camera found");
 			GridDataFactory.fillDefaults().grab(true, true).applyTo(label);
+			
+			shell.setMinimumSize(MINIMUM_WIDTH, MINIMUM_HEIGHT);
 		}
 
 		return panel;
@@ -115,6 +126,20 @@ public abstract class AbstractCameraConfigurationDialog<C extends AbstractCamera
 		RowDataFactory.swtDefaults().hint(BUTTON_WIDTH, -1).applyTo(closeButton);
 		
 		return panel;
+	}
+	
+	private Point calculateSize (int width) {
+		int newWidth = width;
+		if (newWidth < MINIMUM_WIDTH) {
+			newWidth = MINIMUM_WIDTH;
+		}
+		int newHeight = (int)Math.round((double)width * aspectRatio);
+		if (newHeight < MINIMUM_HEIGHT) {
+			newHeight = MINIMUM_HEIGHT;
+			newWidth = (int)Math.round((double)(MINIMUM_HEIGHT / aspectRatio));
+		}
+		
+		return new Point(newWidth, newHeight);
 	}
 
 	private void load() {
