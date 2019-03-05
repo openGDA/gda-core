@@ -42,17 +42,12 @@ public class SubmissionQueueReporter {
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmissionQueueReporter.class);
 
-	private IConsumer<StatusBean> consumerProxy = null;
-
 	/**
 	 * Returns whether the submission queue is empty, i.e. there are no currently running or submitted scans.
 	 * @return <code>true</code> if there are no running or submitted scans, <code>false</code> otherwise
 	 */
 	public boolean isQueueEmpty() {
-		try {
-			if (consumerProxy == null) {
-				consumerProxy = getConsumerProxy();
-			}
+		try (IConsumer<StatusBean> consumerProxy = createConsumerProxy()) {
 			// first check whether there are submitted scans which haven't been run yet
 			final boolean noSubmittedScans = consumerProxy.getSubmissionQueue().isEmpty();
 			boolean queueClear = noSubmittedScans;
@@ -68,7 +63,7 @@ public class SubmissionQueueReporter {
 		}
 	}
 
-	private IConsumer<StatusBean> getConsumerProxy() throws EventException, URISyntaxException {
+	private IConsumer<StatusBean> createConsumerProxy() throws EventException, URISyntaxException {
 		final BundleContext context = FrameworkUtil.getBundle(SubmissionQueueReporter.class).getBundleContext();
 		final IEventService eventService = context.getService(context.getServiceReference(IEventService.class));
 		final URI queueUri = new URI(LocalProperties.getActiveMQBrokerURI());
