@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
 /**
  * A bean representing a focus scan. The following fields should be configured in spring:
@@ -41,6 +42,7 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
  * TODO perhaps this bean should be split into two, one to setup focus scanning on a beamline e.g. FocusScanSetupBean,
  * and FocusScanBean only containing the fields necessary to setup a particular scan.
  */
+@OsgiService(FocusScanBean.class)
 public class FocusScanBean {
 
 	/**
