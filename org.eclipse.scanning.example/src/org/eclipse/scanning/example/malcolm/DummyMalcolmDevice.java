@@ -450,6 +450,14 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	@Override
 	public void validate(DummyMalcolmModel model) throws ValidationException {
 		super.validate(model);
+
+		if (pointGenerator == null) {
+			throw new ValidationException("Point generator not set");
+		}
+		if (fileDir == null) {
+			throw new ValidationException("File directory not set");
+		}
+
 		// validate field: axesToMove
 		if (model.getAxesToMove() != null) {
 			final List<String> axesToMove = Arrays.asList(this.availableAxes.getValue());

@@ -202,7 +202,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 			setFilePath(bean);
 			IPointGenerator<?> pointGenerator = createPointGenerator();
 			checkAndFixMonitors(pointGenerator); // removes monitors that are also in the scan as scannables
-			validateScanRequest();
 			return createScanModel(pointGenerator);
 		} catch (Exception e) {
 			// throw an exception when something goes wrong preparing the scan
@@ -227,12 +226,12 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		}
 	}
 
-	private void runScan(final ScanModel scanModel) throws ScanningException, EventException, InterruptedException,
-			TimeoutException, ExecutionException, UnsupportedLanguageException, ScriptExecutionException {
+	private void runScan(final ScanModel scanModel) throws Exception {
 		checkTerminated();
 
 		initializeMalcolmDevice(bean, scanModel.getPointGenerator());
 		this.controller = createRunnableDevice(scanModel);
+		validateScanRequest();
 
 		if (blocking) { // Normally the case
 			runScanBlocking(controller, scanModel);
