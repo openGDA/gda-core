@@ -292,16 +292,14 @@ public class UnitsComponent implements PositionConvertor {
 			// these first two lines here so that they are not overwritten
 			// unless we recognise the dimensions of the hardware units
 			unitList.add(METER);
-			unitList.add(NANO((METER)));
-			unitList.add(MILLI((METER)));
-			unitList.add(MICRO((METER)));
+			unitList.add(NANO(METER));
+			unitList.add(MILLI(METER));
+			unitList.add(MICRO(METER));
 			unitList.add(MICRON);
 			unitList.add(MICRON_UM);
+			unitList.add(MICRONS);
 			unitList.add(ANG);
 			unitList.add(ANGSTROM);
-			unitList.add(MICRON);
-			unitList.add(MICRONS);
-			unitList.add(METER);
 		}
 		// angular motions
 		else if (hardwareUnitQuantity instanceof Angle) {
@@ -354,12 +352,12 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(AMPERE);
 			unitList.add(MICROAMPERE);
 			unitList.add(uAMPERE);
-			unitList.add(MILLI((AMPERE)));
+			unitList.add(MILLI(AMPERE));
 		}
 
 		else if (hardwareUnitQuantity instanceof Duration) {
 			unitList.add(SECOND);
-			unitList.add(MILLI((SECOND)));
+			unitList.add(MILLI(SECOND));
 		}
 
 		else if (hardwareUnitQuantity instanceof Volume) {
