@@ -27,6 +27,10 @@ public interface EpicsConstants {
 		Disable, Enable;
 	}
 
+	public enum OffOn {
+		Off, On;
+	}
+
 	/**
 	 * Epics timestamps use the Epics Epoch which starts from 1st Jan 1990. As Unix / Java time runs from 1st Jan 1970
 	 * an offset needs to be applied to convert Epics timestamps, in millisceonds, to the Java Epoch.
