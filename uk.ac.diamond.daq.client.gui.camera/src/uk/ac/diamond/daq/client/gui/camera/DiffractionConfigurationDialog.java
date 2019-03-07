@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -14,6 +15,9 @@ import uk.ac.gda.client.live.stream.LiveStreamConnection;
 public class DiffractionConfigurationDialog extends AbstractCameraConfigurationDialog<DiffractionCameraConfigurationController> {
 	private static final int EXPOSURE_TAB_INDEX = 0;
 	private static final int DIFFRACTION_TAB_INDEX = 1;
+
+	private static final int MINIMUM_WIDTH = 960;
+	private static final int MINIMUM_HEIGHT = 600;
 
 	private static DiffractionConfigurationDialog instance;
 		
@@ -35,7 +39,7 @@ public class DiffractionConfigurationDialog extends AbstractCameraConfigurationD
 	
 	private DiffractionConfigurationDialog(Display display, DiffractionCameraConfigurationController controller,
 			LiveStreamConnection liveStreamConnection, String title) throws DeviceException {
-		super (display, controller, liveStreamConnection, title);
+		super (display, controller, liveStreamConnection, title, new Point(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 	}
 
 	@Override
