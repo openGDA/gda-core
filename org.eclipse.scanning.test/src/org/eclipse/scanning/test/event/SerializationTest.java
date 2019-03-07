@@ -505,7 +505,7 @@ public class SerializationTest {
 
 	@Test @Ignore
 	public void testSerializeDeviceRequestWithArrayList() throws Exception {
-		ArrayList value = new ArrayList();
+		ArrayList<Double> value = new ArrayList<>();
 		value.add(1.234);
 		value.add(2.345);
 
