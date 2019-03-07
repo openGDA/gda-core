@@ -163,7 +163,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 				logger.debug("Importing '{}'", name);
 				Class<?> serviceInterface = SPRING_BUNDLE_LOADER.loadClass(remoteObject.getServiceInterface());
 				Object proxy = createProxy(name, serviceInterface);
-				logger.info("Sucessfully imported '{}', '{}'", name, proxy);
+				logger.debug("Sucessfully imported '{}', '{}'", name, proxy);
 				return proxy;
 			} else {
 				logger.debug("No remote obejct avaliable called '{}'", name);

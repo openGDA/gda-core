@@ -178,13 +178,13 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 
 	@Override
 	public RmiObjectInfo getRemoteObject(String name) {
-		logger.info("Request received for '{}'", name);
+		logger.debug("Request received for '{}'", name);
 		return exportedObjects.computeIfAbsent(name, this::findAndExport);
 	}
 
 	private RmiObjectInfo findAndExport(String name) {
 		// Find using local we are about to export something so it should not be remote already
-		final Findable object = Finder.getInstance().findLocal(name);
+		final Findable object = Finder.getInstance().findLocalNoWarn(name);
 		if (object == null) { // there is no object available in the server with this name
 			logger.debug("No object with name '{}' found", name);
 			return null;
