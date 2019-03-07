@@ -26,6 +26,8 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
+import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.analysis.ClusterProcessingRunnableDevice;
 import org.eclipse.scanning.sequencer.analysis.ProcessingRunnableDevice;
@@ -48,6 +50,16 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 		runnableDeviceServiceImpl._register(ProcessingModel.class, ProcessingRunnableDevice.class);
 		ProcessingRunnableDevice processingRunnableDevice = new ProcessingRunnableDevice();
 		runnableDeviceServiceImpl._register(null, processingRunnableDevice);
+
+		for (int i = 1; i <= 3; i++) {
+			final String name = "malcolm" + i;
+			final DummyMalcolmModel malcolmModel = new DummyMalcolmModel();
+			malcolmModel.setName(name);
+			final DummyMalcolmDevice malcolmDevice = new DummyMalcolmDevice();
+			malcolmDevice.setModel(malcolmModel);
+			malcolmDevice.setName(name);
+			runnableDeviceServiceImpl._register(name, malcolmDevice);
+		}
 	}
 
 	@Test(expected=ModelValidationException.class)
@@ -264,7 +276,6 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Test(expected=ValidationException.class)
 	public void twoMalcolms() throws Exception {
-
 		ScanRequest<IROI> req = createScanRequest();
 
 		IRunnableDeviceService dservice = ServiceTestHelper.getRunnableDeviceService();

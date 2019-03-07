@@ -13,7 +13,6 @@ package org.eclipse.scanning.points.validation;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -90,7 +89,7 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 		}
 	}
 
-	private void validateMalcolmRules(Map<String, Object> dmodels)  throws ValidationException, ScanningException {
+	private void validateMalcolmRules(Map<String, Object> dmodels) throws ValidationException, ScanningException {
 		// we can't validate without a validation service
 		IRunnableDeviceService runnableDeviceService = ValidatorService.getRunnableDeviceService();
 		if (runnableDeviceService == null) return;
@@ -99,38 +98,38 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 		final ScanMode scanMode = dmodels.values().stream().anyMatch(IMalcolmModel.class::isInstance) ?
 				ScanMode.HARDWARE : ScanMode.SOFTWARE;
 
-		final Map<DeviceRole, Integer> deviceRoleCount = new EnumMap<>(DeviceRole.class);
-		for (DeviceRole role : DeviceRole.values()) deviceRoleCount.put(role, 0);
+		// check each detector supports the scan mode and that there is at most one malcolm device
+		int numMalcolmDevices = 0;
 		for (Entry<String, Object> entry : dmodels.entrySet()) {
-			final String name = entry.getKey();
-			final Object model = entry.getValue();
-			final DeviceInformation<?> info = runnableDeviceService.getDeviceInformation(name);
-
-			DeviceRole role = null;
-			if (info == null) {
-				final IRunnableDevice<?> device = runnableDeviceService.createRunnableDevice(model);
-				if (device.getRole() != DeviceRole.PROCESSING) {
-					// Only processing may be created on the fly, the others must have names.
-					throw new ValidationException("Detector '"+name+"' cannot be found!");
-				}
-				role = DeviceRole.PROCESSING;
-			} else {
-				// devices that can run either as a standard hardware detector or as a hardware
-				// triggered detector will be switched to the appropriate role according to the scan type
-				if (!info.getSupportedScanModes().contains(scanMode)) {
-					throw new ValidationException(MessageFormat.format("The device ''{0}'' does not support a {1} scan",
-							info.getName(), scanMode.toString().toLowerCase()));
-				}
-				role = info.getDeviceRole();
+			DeviceRole role = checkDetectorAndGetRole(runnableDeviceService, scanMode, entry.getKey(), entry.getValue());
+			if (role == DeviceRole.MALCOLM) {
+				numMalcolmDevices++;
 			}
-
-			if (role==null) throw new ValidationException("Detector '"+name+"' cannot be found!");
-			Integer c = deviceRoleCount.get(role);
-			deviceRoleCount.put(role, ++c);
 		}
 
-		if (deviceRoleCount.get(DeviceRole.MALCOLM) > 1) {
+		if (numMalcolmDevices > 1) {
 			throw new ValidationException("Only one malcolm device may be used per scan.");
+		}
+	}
+
+	private DeviceRole checkDetectorAndGetRole(IRunnableDeviceService runnableDeviceService, final ScanMode scanMode,
+			String name, Object model) throws ScanningException {
+		final DeviceInformation<?> info = runnableDeviceService.getDeviceInformation(name);
+		if (info == null) {
+			final IRunnableDevice<?> device = runnableDeviceService.createRunnableDevice(model);
+			if (device.getRole() != DeviceRole.PROCESSING) {
+				// Only processing may be created on the fly, the others must have names.
+				throw new ValidationException("Detector '"+name+"' cannot be found!");
+			}
+			return DeviceRole.PROCESSING;
+		} else {
+			// devices that can run either as a standard hardware detector or as a hardware
+			// triggered detector will be switched to the appropriate role according to the scan type
+			if (!info.getSupportedScanModes().contains(scanMode)) {
+				throw new ValidationException(MessageFormat.format("The device ''{0}'' does not support a {1} scan",
+						info.getName(), scanMode.toString().toLowerCase()));
+			}
+			return info.getDeviceRole();
 		}
 	}
 
@@ -140,7 +139,6 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 			IValidator<Object> validator = vservice.getValidator(model);
 			if (validator!=null) validator.validate(model); // We just ignore those without validators.
 		}
-
 	}
 
 }
