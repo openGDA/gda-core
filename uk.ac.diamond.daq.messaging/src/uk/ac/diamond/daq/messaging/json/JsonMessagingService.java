@@ -24,6 +24,8 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -45,6 +47,7 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
+import uk.ac.diamond.daq.concurrent.Threads;
 import uk.ac.diamond.daq.services.PropertyService;
 
 /**
@@ -66,6 +69,8 @@ public class JsonMessagingService implements MessagingService {
 	private final ConcurrentMap<Class<?>, String> typeToDestination = new ConcurrentHashMap<>();
 	private final ConcurrentMap<String, MessageProducer> topicToProducer = new ConcurrentHashMap<>();
 	private final ObjectMapper objectMapper = new ObjectMapper();
+
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor(Threads.daemon().named(JsonMessagingService.class.getCanonicalName()).factory());
 
 	private Session session;
 
@@ -100,21 +105,8 @@ public class JsonMessagingService implements MessagingService {
 
 	@Override
 	public void sendMessage(Message message, String destination) {
-		// Get the producer, there is a cache to avoid creating the producer every time.
-		MessageProducer producer = topicToProducer.computeIfAbsent(destination, this::createProducer);
-		try {
-			// Serialise to JSON
-			String json = objectMapper.writeValueAsString(message);
-			// Make JMS test message
-			javax.jms.Message jsonMessage = session.createTextMessage(json);
-			// Send
-			producer.send(jsonMessage);
-
-		} catch (JsonProcessingException e) {
-			logger.error("Failed converting '{}' to JSON", message, e);
-		} catch (JMSException e) {
-			logger.error("Failed to send message '{}'", message, e);
-		}
+		// Submit the message to be sent and return without blocking
+		executorService.execute(new SendMessageRunnable(message, destination));
 	}
 
 	private MessageProducer createProducer(String topic) {
@@ -134,6 +126,35 @@ public class JsonMessagingService implements MessagingService {
 	public synchronized void setFactoryService(PropertyService propertyService) {
 		logger.debug("Set Property Service to {}", propertyService);
 		// We don't actually need this but requiring it means it will be initalized before we call LocalProperties.
+	}
+
+	private class SendMessageRunnable implements Runnable {
+		private final Message message;
+		private final String destination;
+
+		public SendMessageRunnable(Message message, String destination) {
+			this.message = message;
+			this.destination = destination;
+		}
+
+		@Override
+		public void run() {
+			// Get the producer, there is a cache to avoid creating the producer every time.
+			MessageProducer producer = topicToProducer.computeIfAbsent(destination, JsonMessagingService.this::createProducer);
+			try {
+				// Serialise to JSON
+				String json = objectMapper.writeValueAsString(message);
+				// Make JMS test message
+				javax.jms.Message jsonMessage = session.createTextMessage(json);
+				// Send
+				producer.send(jsonMessage);
+
+			} catch (JsonProcessingException e) {
+				logger.error("Failed converting '{}' to JSON", message, e);
+			} catch (JMSException e) {
+				logger.error("Failed to send message '{}'", message, e);
+			}
+		}
 	}
 
 }
