@@ -25,6 +25,7 @@ import org.python.core.PyArray;
 import org.python.core.PyFloat;
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
+
 import gda.gui.exafs.Converter;
 import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -348,8 +349,7 @@ public class ExafsScanPointCreator {
 	 * @return k in inverse Angstroms
 	 */
 	private double evToK(double energy) {
-		Converter.setEdgeEnergy(edgeEnergy / 1000.0);
-		return Converter.convert(energy, Converter.EV, Converter.PERANGSTROM);
+		return Converter.convertEnergyToWaveVector(energy, edgeEnergy);
 	}
 
 	/**
@@ -360,8 +360,7 @@ public class ExafsScanPointCreator {
 	 * @return energy in eV
 	 */
 	private double kToEv(double value) {
-		Converter.setEdgeEnergy(edgeEnergy / 1000.0);
-		return Converter.convert(value, Converter.PERANGSTROM, Converter.EV);
+		return Converter.convertWaveVectorToEnergy(value, edgeEnergy);
 	}
 
 	protected static double[][] createStepArray(double low, double high, double step, double time, boolean ensureUseHighEnergy, int numDetectors) {

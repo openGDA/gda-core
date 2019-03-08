@@ -860,8 +860,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			@Override
 			public double getValue(double e) {
 				if (!Double.isNaN(e)) {
-					Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
-					return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
+					return Converter.convertEnergyToWaveVector(e, getEdgeValue());
 				}
 				return e;
 			}
@@ -878,8 +877,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			@Override
 			public double getValue(double e) {
 				if (!Double.isNaN(e)) {
-					Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
-					return Converter.convert(e, Converter.PERANGSTROM, Converter.EV);
+					return Converter.convertWaveVectorToEnergy(e, getEdgeValue());
 				}
 				return e;
 			}

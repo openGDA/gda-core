@@ -67,8 +67,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		return new ExpressionProvider() {
 			@Override
 			public double getValue(double e) {
-				Converter.setEdgeEnergy(getEdgeValue() / 1000.0);
-				return Converter.convert(e, Converter.EV, Converter.PERANGSTROM);
+				return Converter.convertEnergyToWaveVector(e, getEdgeValue());
 			}
 			@Override
 			public IFieldWidget[] getPrecedents() {
