@@ -13,12 +13,15 @@ package org.eclipse.scanning.malcolm.core;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
+import org.eclipse.scanning.api.points.IPointGeneratorService;
 
 public class Services {
 
 	private static IRunnableDeviceService runnableDeviceService;
 
 	private static IMalcolmConnection connectorService;
+
+	private static IPointGeneratorService pointGenService;
 
 	public static IRunnableDeviceService getRunnableDeviceService() {
 		return runnableDeviceService;
@@ -34,6 +37,14 @@ public class Services {
 
 	public void setConnectorService(IMalcolmConnection connectorService) {
 		Services.connectorService = connectorService;
+	}
+
+	public static IPointGeneratorService getPointGeneratorService() {
+		return Services.pointGenService;
+	}
+
+	public void setPointGeneratorService(IPointGeneratorService pointGenService) {
+		Services.pointGenService = pointGenService;
 	}
 
 }

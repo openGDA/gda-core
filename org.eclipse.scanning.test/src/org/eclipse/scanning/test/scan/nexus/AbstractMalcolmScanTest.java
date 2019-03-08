@@ -77,7 +77,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final DummyMalcolmModel model = createMalcolmModel();
 
 		malcolmDevice = dservice.createRunnableDevice(model);
-		((IMalcolmDevice<?>) malcolmDevice).setFileDir(malcolmOutputDir);
+		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
 		((AbstractMalcolmDevice<?>) malcolmDevice).addRunListener(new IRunListener() {
 			@Override

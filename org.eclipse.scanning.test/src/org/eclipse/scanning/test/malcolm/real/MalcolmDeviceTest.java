@@ -20,6 +20,7 @@ package org.eclipse.scanning.test.malcolm.real;
 
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_DATASETS;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
+import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.HEALTH_ENDPOINT;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STATE_ENDPOINT;
@@ -34,7 +35,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -47,6 +48,7 @@ import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.TableAttribute;
+import org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
@@ -59,7 +61,7 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 /**
- * A test class for testing a real {@link MalcolmDevice}, but with a mock {@link IMalcolmConnectorService}.
+ * A test class for testing a real {@link MalcolmDevice}, but with a mock {@link IMalcolmConnection}.
  */
 public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
@@ -68,13 +70,22 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		void call(IMalcolmDevice<?> malcolmDevice) throws Exception;
 	}
 
+	private static final String OUTPUT_DIR = "/path/to/ixx-1234";
 
-	private static final String FILE_DIR = "/path/to/ixx-1234";
-	private static final String FILE_TEMPLATE = "ixx-1234-%s.h5";
+	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir) {
+		if (outputDir == null) {
+			outputDir = System.getProperty("user.dir");
+		}
+		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
-	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen) {
-		final List<String> axesToMove = Arrays.asList("stage_y", "stage_x");
-		return new EpicsMalcolmModel(FILE_DIR, FILE_TEMPLATE, axesToMove, pointGen);
+		if (pointGen == null) { // outside of a scan, MalcolmDevice uses default values
+			// unfortunately we need to compare with the exact same point generator for mockito validation to pass
+			// as point generators don't (and probably shouldn't) override equals
+			pointGen = MalcolmDevice.getDummyPointGenerator();
+		}
+		final List<String> axesToMove = pointGen.getNames(); // we don't test using non-malcolm axes
+
+		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen);
 	}
 
 	@Test
@@ -143,13 +154,21 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testValidate() throws Exception {
+	public void testValidateNoScan() throws Exception {
+		testValidate(null, null);
+	}
+
+	@Test
+	public void testValidateWithScan() throws Exception {
+		testValidate(createPointGenerator(), OUTPUT_DIR);
+	}
+
+	public void testValidate(IPointGenerator<?> pointGen, String fileDir) throws Exception {
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
-		final IPointGenerator<?> pointGen = createPointGenerator();
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
+		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
 
 		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
 		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -162,7 +181,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
 		malcolmDevice.setPointGenerator(pointGen);
-		malcolmDevice.setFileDir(FILE_DIR);
+		malcolmDevice.setOutputDir(fileDir);
 
 		malcolmDevice.validate(malcolmModel);
 
@@ -191,15 +210,23 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testValidateWithReturn() throws Exception {
+	public void testValidateWithReturnNoScan() throws Exception {
+		testValidateWithReturn(null, null);
+	}
+
+	@Test
+	public void testValidateWithReturnWithScan() throws Exception {
+		testValidateWithReturn(createPointGenerator(), OUTPUT_DIR);
+	}
+
+	public void testValidateWithReturn(IPointGenerator<?> pointGen, String fileDir) throws Exception {
 		// TODO: validateWithReturn should really return a MalcolmModel, with the exposureTime updated if necessary. See JIRA ticket DAQ-1437.
 
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
-		final IPointGenerator<?> pointGen = createPointGenerator();
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
+		EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
 
 		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
 		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
@@ -213,7 +240,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
 		malcolmDevice.setPointGenerator(pointGen);
-		malcolmDevice.setFileDir(FILE_DIR);
+		malcolmDevice.setOutputDir(fileDir);
 
 		EpicsMalcolmModel result = (EpicsMalcolmModel) malcolmDevice.validateWithReturn(malcolmModel);
 
@@ -229,7 +256,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected validate message and configure the mock connection to reply as expected
 		expectedValidateMessage = createExpectedCallMessage(id++, MalcolmMethod.VALIDATE, expectedEpicsMalcolmModel);
 		final IPointGenerator<?> modifiedPointGen = createPointGenerator();
-		final EpicsMalcolmModel modifiedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(modifiedPointGen);
+		final EpicsMalcolmModel modifiedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(modifiedPointGen, fileDir);
 		final MalcolmMessage expectedValidateResponse = createExpectedMalcolmValidateReturnReply(modifiedEpicsMalcolmModel);
 		when(malcolmConnection.send(malcolmDevice, expectedValidateMessage)).thenReturn(expectedValidateResponse);
 
@@ -251,9 +278,10 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
 		final IPointGenerator<?> pointGen = createPointGenerator();
+		final String fileDir = OUTPUT_DIR;
 
 		// create the expected EpicsMalcolmModel that should be sent to malcolm
-		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen);
+		final EpicsMalcolmModel expectedMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir);
 
 		// create the expected abort, reset and configure message and configure the mock connection to reply as expected
 		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
@@ -271,7 +299,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// Act
 		// pointGenerator and fileDir would be set by ScanProcess in a real scan
 		malcolmDevice.setPointGenerator(pointGen);
-		malcolmDevice.setFileDir(FILE_DIR);
+		malcolmDevice.setOutputDir(fileDir);
 
 		malcolmDevice.configure(malcolmModel);
 

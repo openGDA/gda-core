@@ -199,7 +199,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 			// load the nexus entry for the file (may be cached from a previous dataset)
 			NXentry entry = nexusEntries.get(filename);
 			if (entry == null) {
-				entry = getNexusEntry(malcolmDevice.getFileDir() + "/" + filename);
+				entry = getNexusEntry(malcolmDevice.getOutputDir() + "/" + filename);
 				nexusEntries.put(filename, entry);
 			}
 			assertNotNull(entry);

@@ -65,7 +65,7 @@ class MalcolmNexusObjectBuilder<M extends IMalcolmModel> {
 	MalcolmNexusObjectBuilder(IMalcolmDevice<M> malcolmDevice) {
 		this.malcolmDevice = malcolmDevice;
 		nexusWrappers = new HashMap<>();
-		malcolmOutputDirName = new File(malcolmDevice.getFileDir()).getName();
+		malcolmOutputDirName = new File(malcolmDevice.getOutputDir()).getName();
 	}
 
 	/**

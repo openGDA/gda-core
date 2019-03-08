@@ -135,7 +135,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		final IRunnableDeviceService service = Services.getRunnableDeviceService();
 		IRunnableDevice<?> malcolmDevice = service.getRunnableDevice(malcolmModel.getName());
 		((IMalcolmDevice<?>) malcolmDevice).setPointGenerator(gen);
-		((IMalcolmDevice<?>) malcolmDevice).setFileDir(malcolmOutputDir.toString());
+		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir.toString());
 		logger.debug("Malcolm device(s) initialized");
 	}
 

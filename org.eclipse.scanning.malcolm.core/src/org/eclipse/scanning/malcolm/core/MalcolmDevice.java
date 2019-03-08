@@ -15,7 +15,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_A
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.connector.IMalcolmConnection.ERROR_MESSAGE_PREFIX_FAILED_TO_CONNECT;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -53,9 +53,11 @@ import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,13 +180,16 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	public static final String STATE_ENDPOINT = "state";
 	public static final String HEALTH_ENDPOINT = "health";
 	public static final String COMPLETED_STEPS_ENDPOINT = "completedSteps";
-	private static final String FILE_EXTENSION_H5 = "h5";
+	public static final String FILE_EXTENSION_H5 = "h5";
 	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm Device Connection: ";
 
 	// Frequencies and Timeouts
 	// broadcast every 250 milliseconds
 	public static final long POSITION_COMPLETE_INTERVAL = Long.getLong("org.eclipse.scanning.malcolm.core.positionCompleteInterval", 250);
 
+	private static final String DUMMY_OUTPUT_DIR = System.getProperty("user.dir"); // any existing directory would work, malcolm just validates it exists
+
+	private static IPointGenerator<?> dummyPointGenerator = null;
 
 	// Listeners to malcolm endpoints
 	private final IMalcolmConnectionEventListener stateChangeListener = this::handleStateChange;
@@ -352,7 +357,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 
 		MalcolmMessage reply = null;
 		try {
-			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(params);
+			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(params, true); // use default point gen and filedir if not set (i.e. we're not in a scan)
 			final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.VALIDATE, epicsModel);
 			reply = send(msg, Timeout.STANDARD.toMillis());
 			if (reply.getType()==Type.ERROR) {
@@ -381,7 +386,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			// Swallow the error as it might throw one if in a non-resetable state
 		}
 
-		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model);
+		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, false);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
 		MalcolmMessage reply = wrap(()->send(msg, Timeout.CONFIG.toMillis()));
 		if (reply.getType() == Type.ERROR) {
@@ -405,32 +410,63 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	}
 
 	/**
+	 * Returns the default point generator. This is sent to the actual malcolm device when
+	 * validate is called outside of a scan, so that the rest of the model can be validated.
+	 *
+	 * Note that this must be created lazily instead of in a static initializer as
+	 * we need the get the point generator service from the service holder,
+	 * which may not have been set at before this class is initialized.
+	 *
+	 * @return the dummy point generator
+	 */
+	public static IPointGenerator<?> getDummyPointGenerator() {
+		if (dummyPointGenerator == null && Services.getPointGeneratorService() != null) {
+			try {
+				dummyPointGenerator = Services.getPointGeneratorService().createCompoundGenerator(new CompoundModel<>(new StaticModel()));
+			} catch (GeneratorException e) {
+				logger.error("Could not generate default point generator", e);
+			}
+		}
+
+		return dummyPointGenerator;
+	}
+
+	/**
 	 * Create the {@link EpicsMalcolmModel} passed to the actual malcolm device. This is created from both the
 	 * {@link IMalcolmModel} that this {@link MalcolmDevice} has been configured with and information about
 	 * the scan, e.g. the scan path defined by the point generator, that have been set on this object.
-	 * @param model
+	 * @param model the IMalcolmModel to use
+	 * @param useDefaults <code>true</code> to use a default point generator, <code>false</code> otherwise
 	 * @return
 	 */
-	private EpicsMalcolmModel createEpicsMalcolmModel(M model) throws MalcolmDeviceException {
+	private EpicsMalcolmModel createEpicsMalcolmModel(M model, boolean useDefaults) throws MalcolmDeviceException {
 		double exposureTime = model.getExposureTime();
 
 		// set the exposure time and mutators in the points generator
-		if (pointGenerator != null) {
-			((CompoundModel<?>) pointGenerator.getModel()).setMutators(Collections.emptyList());
-			((CompoundModel<?>) pointGenerator.getModel()).setDuration(exposureTime);
+		IPointGenerator<?> pointGen = this.pointGenerator;
+		if (pointGen == null && useDefaults) {
+			pointGen = getDummyPointGenerator();
+		}
+		if (pointGen != null) {
+			((CompoundModel<?>) pointGen.getModel()).setMutators(Collections.emptyList());
+			((CompoundModel<?>) pointGen.getModel()).setDuration(exposureTime);
 		}
 
-
-		// set the file template
+		// set the file template and output dir
 		String fileTemplate = null;
-		if (fileDir != null) {
-			fileTemplate = new File(fileDir).getName() + "-%s." + FILE_EXTENSION_H5;
+		String outputDir = this.outputDir;
+		if (outputDir == null && useDefaults) {
+			outputDir = DUMMY_OUTPUT_DIR;
+		}
+
+		if (outputDir != null) {
+			fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 		}
 
 		// get the axes to move
 		List<String> axesToMove = model.getAxesToMove();
-		if (axesToMove == null && pointGenerator != null) {
-			final List<String> scannableNames = pointGenerator.getNames();
+		if (axesToMove == null && pointGen != null) {
+			final List<String> scannableNames = pointGen.getNames();
 			final List<String> availableAxes = getAvailableAxes();
 			int i = scannableNames.size() - 1;
 			while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
@@ -440,7 +476,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 			axesToMove = scannableNames.subList(i + 1, scannableNames.size());
 		}
 
-		return new EpicsMalcolmModel(fileDir, fileTemplate, axesToMove, pointGenerator);
+		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen);
 	}
 
 	private void subscribe(MalcolmMessage subscribeMessage, IMalcolmConnectionEventListener listener) throws MalcolmDeviceException {

@@ -51,7 +51,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	private MalcolmEventDelegate eventDelegate;
 
 	protected IPointGenerator<?> pointGenerator;
-	protected String fileDir;
+	protected String outputDir;
 
 	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
@@ -87,18 +87,19 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 
 	@ScanFinally
 	public void scanFinally() throws ScanningException {
-		// clear the point generator when the scan has finished
+		// clear the point generator and output dir when the scan has finished. These are set per scan
 		this.pointGenerator = null;
+		this.outputDir = null;
 	}
 
 	@Override
-	public void setFileDir(String fileDir) {
-		this.fileDir = fileDir;
+	public void setOutputDir(String outputDir) {
+		this.outputDir = outputDir;
 	}
 
 	@Override
-	public String getFileDir() {
-		return fileDir;
+	public String getOutputDir() {
+		return outputDir;
 	}
 
 	@Override

@@ -50,7 +50,9 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
+import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -87,9 +89,12 @@ public abstract class AbstractMalcolmDeviceTest {
 		ServiceTestHelper.setupServices();
 		this.runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
 
+		pointGenService = new PointGeneratorService();
+		new ServiceHolder().setGeneratorService(pointGenService);
+		new Services().setPointGeneratorService(pointGenService);
+
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
 		malcolmDevice = new MalcolmDevice<>("malcolm", malcolmConnection, runnableDeviceService);
-		pointGenService = new PointGeneratorService();
 
 		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
 		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));

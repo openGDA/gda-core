@@ -41,7 +41,7 @@ public abstract class AbstractValidationTest {
 
 		// Just for testing we give it a dir.
 		File dir = File.createTempFile("fred", ".nxs").getParentFile();
-		((IMalcolmDevice<?>)device).setFileDir(dir.getAbsolutePath());
+		((IMalcolmDevice<?>)device).setOutputDir(dir.getAbsolutePath());
 
 		// Just for testing, we make the detector legal.
 		IMalcolmDevice<?> mdevice = (IMalcolmDevice<?>)device;

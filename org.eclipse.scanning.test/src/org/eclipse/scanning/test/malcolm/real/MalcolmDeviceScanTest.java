@@ -59,7 +59,6 @@ import org.eclipse.scanning.api.points.models.StepModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -82,9 +81,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-
 		RunnableDeviceServiceImpl.setDeviceConnectorService(scannableDeviceService);
-		new ServiceHolder().setGeneratorService(pointGenService);
 		initializeMalcolmDevice();
 	}
 

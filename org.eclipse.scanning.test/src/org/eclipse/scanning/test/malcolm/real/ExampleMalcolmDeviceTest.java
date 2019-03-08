@@ -266,7 +266,7 @@ public class ExampleMalcolmDeviceTest {
 		// Cannot set the generator from @PreConfigure in this unit test.
 		malcolmDevice.setPointGenerator(pointGen);
 		// Set the file directory on the device
-		malcolmDevice.setFileDir("/path/to/ixx-1234");
+		malcolmDevice.setOutputDir("/path/to/ixx-1234");
 
 		// Call configure
 		malcolmDevice.configure(malcolmModel);

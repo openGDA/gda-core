@@ -148,12 +148,12 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	}
 
 	@Override
-	public void setFileDir(String fileDir) {
+	public void setOutputDir(String fileDir) {
 		throw new UnsupportedOperationException("This method is not supported on the client");
 	}
 
 	@Override
-	public String getFileDir() {
+	public String getOutputDir() {
 		throw new UnsupportedOperationException("This method is not supported on the client");
 	}
 

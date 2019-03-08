@@ -52,6 +52,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	private IScanService service;
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
+	private IPointGeneratorService pointGenService;
 
 	@Before
 	public void before() throws Exception {
@@ -59,6 +60,7 @@ public class MalcolmEpicsV4ConnectorTest {
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
 		this.connectorService = new MalcolmEpicsV4Connection();
 		this.service = new RunnableDeviceServiceImpl();
+		this.pointGenService = new PointGeneratorService();
 	}
 
 	@After
@@ -249,7 +251,7 @@ public class MalcolmEpicsV4ConnectorTest {
 			// Set the generator on the device
 			// Cannot set the generator from @PreConfigure in this unit test.
 			((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(scan);
-			((AbstractMalcolmDevice<?>) malcolmDevice).setFileDir("/TestFile/Dir");
+			((AbstractMalcolmDevice<?>) malcolmDevice).setOutputDir("/TestFile/Dir");
 			epicsv4Device.stop();
 
 			try {
@@ -303,7 +305,7 @@ public class MalcolmEpicsV4ConnectorTest {
 			// Set the generator on the device
 			// Cannot set the generator from @PreConfigure in this unit test.
 			((AbstractMalcolmDevice<?>)modelledDevice).setPointGenerator(scan);
-			((AbstractMalcolmDevice<?>)modelledDevice).setFileDir("/TestFile/Dir");
+			((AbstractMalcolmDevice<?>)modelledDevice).setOutputDir("/TestFile/Dir");
 			// Call configure
 			modelledDevice.configure(pmac1);
 

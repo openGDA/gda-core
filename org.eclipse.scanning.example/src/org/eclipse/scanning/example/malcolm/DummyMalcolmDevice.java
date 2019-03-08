@@ -451,13 +451,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 	public void validate(DummyMalcolmModel model) throws ValidationException {
 		super.validate(model);
 
-		if (pointGenerator == null) {
-			throw new ValidationException("Point generator not set");
-		}
-		if (fileDir == null) {
-			throw new ValidationException("File directory not set");
-		}
-
 		// validate field: axesToMove
 		if (model.getAxesToMove() != null) {
 			final List<String> axesToMove = Arrays.asList(this.availableAxes.getValue());
@@ -469,15 +462,15 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		}
 
 		// validate file dir if set
-		if (getFileDir() != null) {
+		if (getOutputDir() != null) {
 
-			final File fileDir = new File(getFileDir());
+			final File fileDir = new File(getOutputDir());
 			if (!fileDir.exists()) {
-				throw new ModelValidationException("The output dir for malcolm does not exist: " + getFileDir(),
+				throw new ModelValidationException("The output dir for malcolm does not exist: " + getOutputDir(),
 						model, "fileDir");
 			}
 			if (!fileDir.isDirectory()) {
-				throw new ModelValidationException("The output dir for malcolm is not a directory: " + getFileDir(),
+				throw new ModelValidationException("The output dir for malcolm is not a directory: " + getOutputDir(),
 						model, "fileDir");
 			}
 		}
@@ -738,7 +731,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice<DummyMalcolmModel>
 		DummyMalcolmModel model = getModel();
 		if (model.getDummyDetectorModels().isEmpty()) return;
 
-		String dirPath = getFileDir();
+		String dirPath = getOutputDir();
 		if (dirPath == null) return; // we can run without writing Nexus
 		if (!dirPath.endsWith("/")) {
 			dirPath += "/";

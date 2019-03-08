@@ -93,12 +93,12 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T
 	 * Set the directory where malcolm will write its h5 files to. The directory should exist at
 	 * the point that the malcolm device is configured, malcolm is not responsible for creating it.
 	 */
-	public void setFileDir(String fileDir);
+	public void setOutputDir(String fileDir);
 
 	/**
 	 * Get the directory where malcolm will write its h5 files to.
 	 */
-	public String getFileDir();
+	public String getOutputDir();
 
 	/**
 	 * Add a listener to malcolm changes.
