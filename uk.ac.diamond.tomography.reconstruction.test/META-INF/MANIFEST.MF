@@ -7,7 +7,7 @@ Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.diamond.tomography.reconstruction;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
- org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
+ org.mockito.mockito-core,
  org.objenesis;bundle-version="[2.1.0,3.0.0)",
  org.hamcrest.core;bundle-version="1.1.0"
 Import-Package: org.apache.commons.io;version="2.4.0"
