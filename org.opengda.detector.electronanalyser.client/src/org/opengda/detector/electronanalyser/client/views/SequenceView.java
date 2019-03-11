@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
@@ -148,6 +148,7 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.concurrent.Async;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
@@ -1438,8 +1439,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 				});
 				firstTime = true;
-				taskTimer.scheduleAtFixedRate(new TimerTask() {
-
+				Async.scheduleAtFixedRate(new TimerTask() {
 					@Override
 					public void run() {
 						Display.getDefault().asyncExec(new Runnable() {
@@ -1460,7 +1460,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 							}
 						});
 					}
-				}, 1000, 2000);
+				}, 1000, 1000, TimeUnit.MILLISECONDS);
 			}
 			if (arg instanceof ScanPointStartEvent) {
 				currentPointNumber = ((ScanPointStartEvent) arg).getCurrentPointNumber();
@@ -1487,7 +1487,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						if (animation != null) {
 							animation.cancelAnimation();
 						}
-						taskTimer.cancel();
 					}
 				});
 			}
@@ -1540,7 +1539,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Combo comboElementSet;
 	private Image[] images;
 	private double currentregiontimeremaining;
-	private Timer taskTimer = new Timer();
 	private boolean firstTime;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
