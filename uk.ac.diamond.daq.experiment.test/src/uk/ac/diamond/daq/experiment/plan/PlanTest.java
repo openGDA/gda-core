@@ -4,9 +4,11 @@ import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.nio.file.Paths;
 
+import org.eclipse.scanning.api.event.IEventService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,6 +40,11 @@ public class PlanTest {
 		plan.setFactory(new TestFactory(sev));
 
 		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
+
+		// OSGi would usually set the following
+		IEventService eventService = mock(IEventService.class);
+		ExperimentRecord experimentRecord = new ExperimentRecord("");
+		experimentRecord.setEventService(eventService);
 
 		TestHelpers.setUpTest(PlanTest.class, "DontCare", true);
 	}
@@ -202,5 +209,4 @@ public class PlanTest {
 	private void someJob() {
 		// do nothing: to avoid passing in null to dummy trigger for readability
 	}
-
 }
