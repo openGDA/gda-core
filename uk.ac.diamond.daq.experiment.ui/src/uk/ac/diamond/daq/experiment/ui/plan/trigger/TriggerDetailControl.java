@@ -116,7 +116,7 @@ public class TriggerDetailControl {
 		
 		new Label(composite, SWT.NONE).setText("Period");
 		interval = new Text(composite, SWT.BORDER);
-		interval.addListener(SWT.Selection, e -> {
+		interval.addListener(SWT.Modify, e -> {
 			if (model != null) model.setInterval(Double.parseDouble(interval.getText()));
 		});
 		if (model != null) {
