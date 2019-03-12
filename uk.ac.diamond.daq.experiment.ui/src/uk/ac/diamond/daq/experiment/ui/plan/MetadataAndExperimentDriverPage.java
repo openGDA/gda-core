@@ -191,6 +191,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
 		if (selectedDriver.isPresent()) {
 			nextPage.setSevs(selectedDriver.get().getReadoutNames());
+			nextPage.plotProfile(experimentService.getDriverProfile(selectedDriver.get().getName(),
+					config.getText(), experimentId).getProfile());
+		} else {
+			nextPage.plotProfile(Collections.emptyList());
 		}
 		return nextPage;
 	}
