@@ -24,7 +24,6 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  javassist;bundle-version="3.20.0",
  uk.ac.diamond.org.springframework,
  org.apache.commons.lang3;bundle-version="3.1.0"
-Import-Package: org.eclipse.january.dataset,
- org.eclipse.osgi.util,
+Import-Package: org.eclipse.osgi.util,
  org.python.core;version="2.7.1"
 Automatic-Module-Name: uk.ac.gda.core.test
