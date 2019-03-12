@@ -64,7 +64,7 @@ import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
  * If this list is not configured, then the user will be able to display and
  * configure any available scannable that implements {@link ScannableMotion} or a derived interface.
  */
-class OuterScannablesSection extends AbstractMappingSection {
+public class OuterScannablesSection extends AbstractMappingSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(OuterScannablesSection.class);
 

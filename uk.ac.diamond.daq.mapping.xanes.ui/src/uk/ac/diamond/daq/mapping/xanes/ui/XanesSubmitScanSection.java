@@ -18,10 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
+import java.util.List;
+
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -31,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
 /**
@@ -46,6 +51,7 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
 
 	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
+	private String energyScannable;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -83,15 +89,20 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 	@Override
 	protected void onShow() {
 		setParametersVisibility(true);
+		selectEnergyScannable(true);
 	}
 
 	@Override
 	protected void onHide() {
 		setParametersVisibility(false);
+		selectEnergyScannable(false);
 	}
 
-	/*
+	/**
 	 * Show or hide the corresponding parameters section
+	 *
+	 * @param visible
+	 *            <code>true</code> to show the section, <code>false</code> to hide it
 	 */
 	private void setParametersVisibility(boolean visible) {
 		final XanesEdgeParametersSection xanesParams = getMappingView().getSection(XanesEdgeParametersSection.class);
@@ -102,5 +113,33 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 			xanesParams.setVisible(visible);
 			relayoutMappingView();
 		}
+	}
+
+	/**
+	 * Select or deselect the energy scannable
+	 * <p>
+	 * If the energy scannable is set, it will be selected when the user switches to the XANES scanning view and
+	 * deselected when they switch to another view. This prevents them from (for example) inadvertently running an
+	 * energy scan as a standard Mapping scan, which will not correct for drift.
+	 *
+	 * @param select
+	 *            <code>true</code> to select the energy scannable, <code>false</code> to deselect it
+	 */
+	private void selectEnergyScannable(boolean select) {
+		if (energyScannable != null && !energyScannable.equals("")) {
+			final List<IScanModelWrapper<IScanPathModel>> outerScannables = getMappingBean().getScanDefinition().getOuterScannables();
+			for (IScanModelWrapper<IScanPathModel> scannable : outerScannables) {
+				if (scannable.getName().equals(energyScannable)) {
+					scannable.setIncludeInScan(select);
+					final OuterScannablesSection outerScannablesSection = getMappingView().getSection(OuterScannablesSection.class);
+					outerScannablesSection.updateControls();
+					break;
+				}
+			}
+		}
+	}
+
+	public void setEnergyScannable(String energyScannable) {
+		this.energyScannable = energyScannable;
 	}
 }
