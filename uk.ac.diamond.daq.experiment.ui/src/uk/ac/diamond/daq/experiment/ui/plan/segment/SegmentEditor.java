@@ -183,7 +183,7 @@ public class SegmentEditor implements ElementEditor {
 			break;
 		case TIME:
 			GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(limitComposite);
-			new Label(limitComposite, SWT.NONE).setText("Duration (min)");
+			new Label(limitComposite, SWT.NONE).setText("Duration (s)");
 			
 			duration = new Text(limitComposite, SWT.BORDER);
 			duration.addListener(SWT.Modify, e -> model.setDuration(Double.parseDouble(duration.getText())));
