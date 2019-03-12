@@ -195,6 +195,8 @@ public class SegmentEditor implements ElementEditor {
 		
 		if (sevs != null && !sevCombo.isDisposed()) {
 			sevCombo.setItems(sevs.toArray(new String[0]));
+			sevCombo.select(0);
+			model.setSevName(sevCombo.getText());
 		}
 		
 		composite.layout();

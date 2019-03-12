@@ -124,6 +124,9 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 			button.addListener(SWT.Selection, e -> {
 				selectedDriver = Optional.of(experimentDriver.getKey());
 				config.setItems(experimentDriver.getValue().toArray(new String[0]));
+				if (config.getItemCount() == 1) {
+					config.select(0);
+				}
 				setPageComplete(isPageComplete());
 			});
 			

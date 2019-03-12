@@ -139,10 +139,13 @@ public class TriggerDetailControl {
 		sevCombo = new Combo(composite, SWT.READ_ONLY);
 		if (sevs != null) {
 			sevCombo.setItems(sevs.toArray(new String[0]));
-			if (model != null) {
+			if (model != null && model.getSampleEnvironmentVariableName() != null && !model.getSampleEnvironmentVariableName().isEmpty()) {
 				sevCombo.select(indexOf(model.getSampleEnvironmentVariableName()));
 			} else {
 				sevCombo.select(0);
+				if (model != null) {
+					model.setSampleEnvironmentVariableName(sevCombo.getText());
+				}
 			}
 		}
 
