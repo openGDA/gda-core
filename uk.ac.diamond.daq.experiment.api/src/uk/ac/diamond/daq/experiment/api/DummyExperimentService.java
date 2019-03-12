@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.SinglePointModel;
 import org.eclipse.scanning.api.points.models.StepModel;
 
 import gda.factory.FindableBase;
@@ -34,6 +36,7 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		scans = new HashMap<>();
 		scans.put("diff_5x5", getDiffractionScan());
 		scans.put("tr6_tomo", getTomographyScan());
+		scans.put("diff_spot", getDiffractionSpotScan());
 
 		driverProfiles = new HashMap<>();
 		driverProfiles.put("trapez_30s", getProfile1());
@@ -50,6 +53,16 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	private ScanRequest<IROI> getTomographyScan() {
 		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 1);
 		return new ScanRequest<>(model, null, null, null);
+	}
+
+	private ScanRequest<IROI> getDiffractionSpotScan() {
+		SinglePointModel model = new SinglePointModel();
+		model.setFastAxisName("beam_x");
+		model.setSlowAxisName("beam_y");
+		model.setX(12.5);
+		model.setY(0.38);
+		IROI roi = new PointROI(new double[] {12.5, 0.38});
+		return new ScanRequest<>(model, roi, null, null, null);
 	}
 
 	private ExperimentDriverModel getProfile1() {
