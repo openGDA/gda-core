@@ -8,6 +8,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -174,6 +175,14 @@ public class TriggerDetailControl {
 	
 	protected Combo getSevs() {
 		return sevCombo;
+	}
+
+	protected void setEnabled(boolean enabled) {
+		for (Control control : composite.getChildren()) {
+			if (!(control instanceof Label)) {
+				control.setEnabled(enabled);
+			}
+		}
 	}
 
 }

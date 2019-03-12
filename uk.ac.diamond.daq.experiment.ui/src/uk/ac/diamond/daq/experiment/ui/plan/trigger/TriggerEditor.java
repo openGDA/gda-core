@@ -116,11 +116,23 @@ public class TriggerEditor implements ElementEditor {
 		
 		
 		updateDetailControl();
+		
+		setEnabled(false);
 	}
 	
 	private void removeListener(Widget widget, int type) {
 		if (widget.isListening(type))
 			widget.removeListener(type, widget.getListeners(type)[0]);
+	}
+	
+	private void setEnabled(boolean enabled) {
+		nameText.setEnabled(enabled);
+		triggerable.setEnabled(enabled);
+		sevSourceButton.setEnabled(enabled);
+		timeSourceButton.setEnabled(enabled);
+		oneShotButton.setEnabled(enabled);
+		periodicButton.setEnabled(enabled);
+		detailControl.setEnabled(enabled);
 	}
 
 	@Override
@@ -169,6 +181,9 @@ public class TriggerEditor implements ElementEditor {
 		}
 		
 		updateDetailControl();
+		
+		setEnabled(true);
+		
 		nameText.setFocus();
 	}
 
@@ -181,6 +196,7 @@ public class TriggerEditor implements ElementEditor {
 		mode = ExecutionPolicy.SINGLE;
 		updateDetailControl();
 		detailControl.getTarget().setText("0");
+		setEnabled(false);
 	}
 	
 	private void sourceSwitched(SignalSource source) {
