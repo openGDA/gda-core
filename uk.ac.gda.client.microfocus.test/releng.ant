@@ -42,13 +42,13 @@
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-ui.git/org.dawnsci.common.widgets/bin" />
-				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.diamond.daq.microfocus.api/bin" />	
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.diamond.daq.microfocus.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.server.exafs.epics/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress2/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.devices.xspress3/bin" />
 				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.api/bin" />
-				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.datawriter/bin" />			
+				<pathelement location="${workspace.git.loc}/gda-xas-core.git/uk.ac.gda.exafs.datawriter/bin" />
 				<pathelement location="${workspace.git.loc}/gda-diamond.git/uk.ac.gda.dls/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
 				<pathelement location="${workspace.git.loc}/gda-epics.git/uk.ac.gda.epics/bin" />
@@ -57,7 +57,6 @@
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.javax.measure.unit.path" />
 				<path refid="tp.path" />  <!-- target platform -->
 				<pathelement location="${workspace.git.loc}/dawn-hdf.git/hdf.hdf5lib/bin" />
