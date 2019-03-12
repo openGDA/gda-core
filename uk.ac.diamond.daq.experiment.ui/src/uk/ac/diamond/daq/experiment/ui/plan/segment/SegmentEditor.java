@@ -174,7 +174,11 @@ public class SegmentEditor implements ElementEditor {
 			
 			Set<Inequality> pred = EnumSet.allOf(Inequality.class);
 			inequality.setInput(pred.toArray());
-			inequality.setSelection(new StructuredSelection(Inequality.GREATER_THAN_OR_EQUAL_TO));
+			if (model != null && model.getInequality() != null) {
+				inequality.setSelection(new StructuredSelection(model.getInequality()));
+			} else {
+				inequality.setSelection(new StructuredSelection(Inequality.GREATER_THAN_OR_EQUAL_TO));
+			}
 			inequality.addSelectionChangedListener(e -> model.setIneq((Inequality) ((StructuredSelection) inequality.getSelection()).getFirstElement()));
 			
 			predicateArgument = new Text(limitComposite, SWT.BORDER);
