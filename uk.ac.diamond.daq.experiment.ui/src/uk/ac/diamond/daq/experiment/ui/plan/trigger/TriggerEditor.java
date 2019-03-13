@@ -31,7 +31,7 @@ public class TriggerEditor implements ElementEditor {
 	private TriggerDetailControl detailControl = new TriggerDetailControl();
 	private Composite detailComposite;
 	private Text nameText;
-	private Combo executable;
+	private Combo triggerable;
 	
 	private SignalSource source = SignalSource.POSITION;
 	private ExecutionPolicy mode = ExecutionPolicy.SINGLE;
@@ -67,10 +67,13 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		executable = new Combo(composite, SWT.READ_ONLY);
-		executable.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
+		triggerable = new Combo(composite, SWT.READ_ONLY);
+		triggerable.setItems(experimentService.getScanNames(experimentId).toArray(new String[0]));
+		if (triggerable.getItemCount() == 1) {
+			triggerable.select(0);
+		}
 		
-		STRETCH.copy().applyTo(executable);
+		STRETCH.copy().applyTo(triggerable);
 		
 		new Label(composite, SWT.NONE); // space
 		
@@ -113,11 +116,23 @@ public class TriggerEditor implements ElementEditor {
 		
 		
 		updateDetailControl();
+		
+		setEnabled(false);
 	}
 	
 	private void removeListener(Widget widget, int type) {
 		if (widget.isListening(type))
 			widget.removeListener(type, widget.getListeners(type)[0]);
+	}
+	
+	private void setEnabled(boolean enabled) {
+		nameText.setEnabled(enabled);
+		triggerable.setEnabled(enabled);
+		sevSourceButton.setEnabled(enabled);
+		timeSourceButton.setEnabled(enabled);
+		oneShotButton.setEnabled(enabled);
+		periodicButton.setEnabled(enabled);
+		detailControl.setEnabled(enabled);
 	}
 
 	@Override
@@ -132,17 +147,17 @@ public class TriggerEditor implements ElementEditor {
 			}
 		});
 		
-		removeListener(executable, SWT.Selection);
+		removeListener(triggerable, SWT.Selection);
 		
 		if (model.getScanName()== null || model.getScanName().isEmpty()) {
-			executable.deselectAll();
+			triggerable.deselectAll();
 		} else {
-			executable.select(Arrays.asList(executable.getItems()).indexOf(model.getScanName()));
+			triggerable.select(Arrays.asList(triggerable.getItems()).indexOf(model.getScanName()));
 		}
 		
-		executable.addListener(SWT.Selection, e -> {
+		triggerable.addListener(SWT.Selection, e -> {
 			if (model != null) {
-				model.setScanName(executable.getText());
+				model.setScanName(triggerable.getText());
 			}
 		});
 		
@@ -166,6 +181,9 @@ public class TriggerEditor implements ElementEditor {
 		}
 		
 		updateDetailControl();
+		
+		setEnabled(true);
+		
 		nameText.setFocus();
 	}
 
@@ -173,11 +191,12 @@ public class TriggerEditor implements ElementEditor {
 	public void clear() {
 		removeListener(nameText, SWT.Modify);
 		nameText.setText("");
-		executable.deselectAll();
+		triggerable.deselectAll();
 		source = SignalSource.TIME;
 		mode = ExecutionPolicy.SINGLE;
 		updateDetailControl();
 		detailControl.getTarget().setText("0");
+		setEnabled(false);
 	}
 	
 	private void sourceSwitched(SignalSource source) {

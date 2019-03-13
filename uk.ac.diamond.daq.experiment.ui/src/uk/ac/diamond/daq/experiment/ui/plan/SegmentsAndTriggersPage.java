@@ -10,12 +10,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.segment.SegmentListEditor;
 
 public class SegmentsAndTriggersPage extends WizardPage {
 	
 	private SegmentListEditor segments;
+	private DriverProfilePreview profilePlot;
 
 	SegmentsAndTriggersPage(ExperimentService experimentService, String experimentId) {
 		super(SegmentsAndTriggersPage.class.getSimpleName());
@@ -29,15 +31,21 @@ public class SegmentsAndTriggersPage extends WizardPage {
 	public void createControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
-		GridLayoutFactory.fillDefaults().spacing(50, SWT.DEFAULT).numColumns(2).equalWidth(true).applyTo(composite);
+		GridLayoutFactory.fillDefaults().spacing(50, SWT.DEFAULT).numColumns(3).equalWidth(true).applyTo(composite);
 		
 		segments.createEditorPart(composite);
+		
+		profilePlot = new DriverProfilePreview(composite);
 		
 		setControl(composite);
 	}
 	
 	public void setSevs(Set<String> sevs) {
 		segments.setSevs(sevs);
+	}
+	
+	public void plotProfile(List<DriverProfileSection> profile) {
+		profilePlot.plot(profile);
 	}
 
 	public List<SegmentDescriptor> getSegments() {

@@ -3,17 +3,12 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -91,9 +86,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	}
 	
 	private Button useDriver;
+	private List<Button> driverButtons;
 	private Combo config;
 	
-	IPlottingSystem<Composite> plottingSystem;
+	private DriverProfilePreview profilePlot;
 	
 	private String planName;
 	private String planDescription;
@@ -116,7 +112,7 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		useDriver.setSelection(!experimentDriverConfigurations.isEmpty());
 		
 		new Label(controls, SWT.NONE); // space
-		List<Button> driverButtons = new ArrayList<>();
+		driverButtons = new ArrayList<>();
 		for (Map.Entry<IExperimentDriver,Set<String>> experimentDriver : experimentDriverConfigurations.entrySet()) {
 			Button button = new Button(controls, SWT.RADIO);
 			button.setText(experimentDriver.getKey().getName());
@@ -124,6 +120,9 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 			button.addListener(SWT.Selection, e -> {
 				selectedDriver = Optional.of(experimentDriver.getKey());
 				config.setItems(experimentDriver.getValue().toArray(new String[0]));
+				if (config.getItemCount() == 1) {
+					config.select(0);
+				}
 				setPageComplete(isPageComplete());
 			});
 			
@@ -141,20 +140,18 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		fill.copy().span(2, 1).applyTo(plotComposite);
 		GridLayoutFactory.swtDefaults().applyTo(plotComposite);
 		
-		try {
-			plottingSystem = PlottingFactory.createPlottingSystem();
-			plottingSystem.createPlotPart(plotComposite, "Preview", null, PlotType.XY, null);
-			fill.applyTo(plottingSystem.getPlotComposite());
-		} catch (Exception e) {
-			new Label(plotComposite, SWT.NONE).setText("Preview cannot be displayed");
-		}
+		profilePlot = new DriverProfilePreview(plotComposite);
 		
 		useDriver.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
 			boolean used = useDriver.getSelection();
 			config.setEnabled(used);
-			driverButtons.forEach(button -> button.setEnabled(used));
-			if (!used) selectedDriver = Optional.empty();
+			if (!used) {
+				selectedDriver = Optional.empty();
+				driverButtons.forEach(button -> button.setSelection(false));
+				config.deselectAll();
+			}
 			setPageComplete(!used);
+			plot(config.getText());
 		}));
 		
 		config.addListener(SWT.Selection, e -> {
@@ -168,36 +165,14 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 	}
 	
 	private void plot(String profileName) {
-		if (!selectedDriver.isPresent()) {
-			// we should not have ended up in this method
-			return;
+		List<DriverProfileSection> profile;
+		if (!selectedDriver.isPresent() || profileName == null || profileName.isEmpty()) {
+			profile = Collections.emptyList();
+		} else {
+			profile = experimentService.getDriverProfile(selectedDriver.get().getName(),
+												profileName, experimentId).getProfile();
 		}
-		plottingSystem.clear();
-		List<DriverProfileSection> sections = experimentService.getDriverProfile(selectedDriver.get().getName(),
-																					profileName, experimentId).getProfile();
-		// create dataset from model
-		if (sections.isEmpty()) return;
-		
-		double[] x = new double[sections.size()+1];
-		double[] y = new double[sections.size()+1];
-		
-		x[0] = 0;
-		y[0] = sections.get(0).getStart();
-		
-		for (int i = 0; i < sections.size(); i++) {
-			x[i+1] = sections.get(i).getDuration() + x[i];
-			y[i+1] = sections.get(i).getStop();
-		}
-		
-		final Dataset xDataset = DatasetFactory.createFromObject(x);
-		final Dataset yDataset = DatasetFactory.createFromObject(y);
-		
-		xDataset.setName("Time (min)");
-		
-		plottingSystem.createPlot1D(xDataset, Arrays.asList(yDataset), null);
-		plottingSystem.clearAnnotations();
-		plottingSystem.setTitle("");
-		plottingSystem.setShowLegend(false);
+		profilePlot.plot(profile);
 	}
 	
 	@Override
@@ -216,6 +191,10 @@ public class MetadataAndExperimentDriverPage extends WizardPage {
 		SegmentsAndTriggersPage nextPage = (SegmentsAndTriggersPage) super.getNextPage();
 		if (selectedDriver.isPresent()) {
 			nextPage.setSevs(selectedDriver.get().getReadoutNames());
+			nextPage.plotProfile(experimentService.getDriverProfile(selectedDriver.get().getName(),
+					config.getText(), experimentId).getProfile());
+		} else {
+			nextPage.plotProfile(Collections.emptyList());
 		}
 		return nextPage;
 	}
