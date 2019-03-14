@@ -40,7 +40,8 @@ public class ScanMessage implements Message {
 	public enum ScanStatus {
 		STARTED,
 		UPDATED,
-		ENDED;
+		ABORTED,
+		FINISHED;
 	}
 
 	private final ScanStatus status;

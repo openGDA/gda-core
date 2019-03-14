@@ -665,10 +665,14 @@ public abstract class ScanBase implements NestableScan {
 			status = ScanMessage.ScanStatus.STARTED;
 			break;
 		case UPDATED:
-			status = ScanMessage.ScanStatus.UPDATED;
+			if (getStatus().isAborting()) {
+				status = ScanMessage.ScanStatus.ABORTED;
+			} else {
+				status = ScanMessage.ScanStatus.UPDATED;
+			}
 			break;
 		case FINISHED:
-			status = ScanMessage.ScanStatus.ENDED;
+			status = ScanMessage.ScanStatus.FINISHED;
 			break;
 		default:
 			throw new IllegalArgumentException("Unreconized EventType: " + reason);
