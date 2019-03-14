@@ -52,7 +52,7 @@ public class DummySwtVideoReceiver extends DummyVideoReceiverBase<ImageData>{
 	private Color circleColour;
 
 	@Override
-	protected void createBlankImage() {
+	protected void createInitialImage() {
 		Display display = Display.getDefault();
 		image = new Image(display, imageSize.width, imageSize.height);
 		gc = new GC(image);
