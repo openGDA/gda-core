@@ -52,7 +52,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
-	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");;
+	private static final IEclipsePreferences serverPrefs = InstanceScope.INSTANCE.getNode("uk.ac.gda.server.exafs");
 	private static final String[] DEFAULT_SCAN_TAB_ORDER = { "Scan", "Detector", "Sample", "Output" };
 	private static final String DEFAULT_SELECTED_SCAN_TAB = "Scan";
 
