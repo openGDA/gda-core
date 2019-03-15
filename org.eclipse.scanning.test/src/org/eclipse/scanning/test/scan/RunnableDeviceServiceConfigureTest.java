@@ -118,7 +118,7 @@ public class RunnableDeviceServiceConfigureTest {
 		// Bit of a hack to get the generator from the model - should this be easier?
 		// Do not copy this code
 		ScanModel smodel = (ScanModel)((AbstractRunnableDevice)scanner).getModel();
-		IPointGenerator<?> gen = (IPointGenerator<?>)smodel.getPointGenerator();
+		IPointGenerator<?> gen = smodel.getPointGenerator();
 		assertEquals(gen.size(), size);
 	}
 

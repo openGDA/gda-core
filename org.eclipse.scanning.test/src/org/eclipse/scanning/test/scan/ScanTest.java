@@ -382,7 +382,7 @@ public class ScanTest extends BrokerTest {
 			checkRun(scanner);
 
 			// Bit of a hack to get the generator from the model - should this be easier?
-			IPointGenerator<?> gen = (IPointGenerator<?>)((ScanModel)((AbstractRunnableDevice)scanner).getModel()).getPointGenerator();
+			IPointGenerator<?> gen = ((ScanModel)((AbstractRunnableDevice)scanner).getModel()).getPointGenerator();
 			assertEquals(gen.size(), events.size());
 			assertEquals(Arrays.asList(DeviceState.CONFIGURING, DeviceState.ARMED, DeviceState.RUNNING, DeviceState.ARMED), states);
 
@@ -433,7 +433,7 @@ public class ScanTest extends BrokerTest {
 		// Bit of a hack to get the generator from the model - should this be easier?
 		// Do not copy this code
 		ScanModel smodel = (ScanModel)((AbstractRunnableDevice)scanner).getModel();
-		IPointGenerator<?> gen = (IPointGenerator<?>)smodel.getPointGenerator();
+		IPointGenerator<?> gen = smodel.getPointGenerator();
 		MockDetectorModel dmodel = (MockDetectorModel)((AbstractRunnableDevice)smodel.getDetectors().get(0)).getModel();
 		assertEquals(gen.size(), dmodel.getRan());
 		assertEquals(0, dmodel.getWritten()); // write() not called as no nexus file set

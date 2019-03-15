@@ -248,7 +248,7 @@ public class ScanFinishedTest {
 		// Create a scan and run it without publishing events
 		IScanDevice scanner = (IScanDevice) dservice.createRunnableDevice(smodel, null);
 
-		final IPointGenerator<?> fgen = (IPointGenerator<?>)smodel.getPointGenerator();
+		final IPointGenerator<?> fgen = smodel.getPointGenerator();
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override
 			public void runWillPerform(RunEvent evt) throws ScanningException{
