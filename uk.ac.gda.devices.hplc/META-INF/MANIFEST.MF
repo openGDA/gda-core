@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.core;bundle-version="9.5.0",
  uk.ac.gda.devices.hatsaxs
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.devices.hplc,
  uk.ac.gda.devices.hplc.beans
