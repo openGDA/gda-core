@@ -58,7 +58,9 @@ public class ListWithCustomEditor {
 		getList().forEach(thing -> thing.removePropertyChangeListener(elementChangeListener));
 		list.forEach(thing -> thing.addPropertyChangeListener(elementChangeListener));
 		this.list = list;
-		viewer.setInput(this.list);
+		if (viewer != null) {
+			viewer.setInput(this.list);
+		}
 	}
 	
 	public void setElementEditor(ElementEditor editor) {
@@ -137,6 +139,11 @@ public class ListWithCustomEditor {
 			elementEditor.createControl(parent);
 		}
 		
+		if (!list.isEmpty()) {
+			viewer.getTable().setSelection(0);
+			listChanged();
+		}
+		
 		// If list contains fewer elements than the allowed minimum
 		// we add() until this is remedied
 		
@@ -144,7 +151,7 @@ public class ListWithCustomEditor {
 		
 		updateButtons();
 	}
-	
+
 	public List<EditableWithListWidget> getList() {
 		if (list == null) {
 			list = new ArrayList<>();

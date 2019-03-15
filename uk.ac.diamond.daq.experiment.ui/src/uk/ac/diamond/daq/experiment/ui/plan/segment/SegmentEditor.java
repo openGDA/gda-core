@@ -1,16 +1,26 @@
 package uk.ac.diamond.daq.experiment.ui.plan.segment;
 
-import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.databinding.Binding;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.SelectObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.viewers.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -28,16 +38,12 @@ import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
 
 public class SegmentEditor implements ElementEditor {
 	
-	private SegmentDescriptor model;
-	
 	private Composite composite;
 	private Composite limitComposite;
 	
 	private Text name;
 	private Button sevSource;
 	private Button timeSource;
-	
-	private SignalSource limitingSource;
 	
 	// sev-based segment
 	private Combo sevCombo;
@@ -47,13 +53,21 @@ public class SegmentEditor implements ElementEditor {
 	// time-based
 	private Text duration;
 	
-	// Triggers
 	private TriggerListEditor triggers;
 	
+	// for binding
+	private SegmentDescriptor segment;
+	private final DataBindingContext dbc;
+	private final List<Binding> segmentDescriptorBindings;
+	private final List<Binding> limitControlBindings;
+	private ISideEffect limitControlSwitch;
 	private Set<String> sevs;
 	
 	public SegmentEditor(ExperimentService experimentService, String experimentId) {
 		triggers = new TriggerListEditor(experimentService, experimentId);
+		dbc = new DataBindingContext();
+		segmentDescriptorBindings = new ArrayList<>();
+		limitControlBindings = new ArrayList<>();
 	}
 
 	@Override
@@ -64,151 +78,187 @@ public class SegmentEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Name");
 		name = new Text(composite, SWT.BORDER);
-		name.addListener(SWT.Modify, e -> model.setName(name.getText()));
 		STRETCH.applyTo(name);
 		
-		new Label(composite, SWT.NONE); // space
+		addSpace(composite);
 		
 		new Label(composite, SWT.NONE).setText("Limiting source");
 		
 		sevSource = new Button(composite, SWT.RADIO);
 		sevSource.setText("Environment variable");
 		sevSource.setSelection(true);
-		sevSource.addListener(SWT.Selection, e -> changeLimitingSource(SignalSource.POSITION));
-		
 		STRETCH.applyTo(sevSource);
 		
 		timeSource = new Button(composite, SWT.RADIO);
 		timeSource.setText("Time");
-		timeSource.addListener(SWT.Selection, e -> changeLimitingSource(SignalSource.TIME));
-		
 		STRETCH.applyTo(timeSource);
 		
-		new Label(composite, SWT.NONE); // space
+		addSpace(composite);
 		
-		if (limitingSource == null) limitingSource = SignalSource.POSITION;
+		createLimitComposite();
 		
-		updateLimitControl();
-		
-		// FIXME this doesn't look right
-		// it is weird that we are creating a new composite on top of parent.getParent()
 		Composite triggersComposite = new Composite(parent.getParent(), SWT.NONE);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(triggersComposite);
 		GridLayoutFactory.fillDefaults().applyTo(triggersComposite);
 		triggers.createEditorPart(triggersComposite);
-
 		triggers.addListListener(e -> {
-			if (model != null) {
-				model.setTriggers(triggers.getTriggerList());
+			if (segment != null) {
+				segment.setTriggers(triggers.getTriggerList());
 			}
 		});
-		
-		name.setFocus();
 	}
-
+	
 	@Override
 	public void load(EditableWithListWidget element) {
-		model = (SegmentDescriptor) element;
-		name.setText(model.getName());
-		
-		limitingSource = model.getSignalSource();
-		updateLimitControl();
-		
-		if (limitingSource == SignalSource.POSITION) {
-			
-			sevSource.setSelection(true);
-			timeSource.setSelection(false);
-			
-			
-			
-			int index = Arrays.asList(sevCombo.getItems()).indexOf(model.getSampleEnvironmentVariableName());
-			sevCombo.select(index);
-			
-			inequality.setSelection(new StructuredSelection(model.getInequality()));
-			
-			predicateArgument.setText(String.valueOf(model.getInequalityArgument()));
-		} else {
-			timeSource.setSelection(true);
-			sevSource.setSelection(false);
-			duration.setText(String.valueOf(model.getDuration()));
-		}
-		
-		triggers.setTriggerList(model.getTriggers());
-		name.setFocus();
+		segment = (SegmentDescriptor) element;
+		triggers.setTriggerList(segment.getTriggers());
+		updateBindings();
 	}
-
+	
 	@Override
 	public void clear() {
-		name.setText("");
-		timeSource.setEnabled(true);
-		limitingSource = SignalSource.TIME;
-		updateLimitControl();
+		removeOldBindings();
 	}
 	
-	private void changeLimitingSource(SignalSource source) {
-		if (model != null) model.setSignalSource(source);
-		limitingSource = source;
-		updateLimitControl();
-		limitComposite.setFocus();
-	}
-	
-	private void updateLimitControl() {
-		if (limitComposite!=null) {
+	private void createLimitComposite() {
+		if (limitComposite != null) {
 			limitComposite.dispose();
 			limitComposite = null;
 		}
 		
 		limitComposite = new Composite(composite, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.CENTER).grab(true, true).applyTo(limitComposite);
+	}
+	
+	private void updateLimitControls(SignalSource signalSource) {
+		createLimitComposite();
 		
-		switch (limitingSource) {
+		switch (signalSource) {
 		case POSITION:
-			GridLayoutFactory.fillDefaults().numColumns(3).applyTo(limitComposite);
-			sevCombo = new Combo(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-			
-			sevCombo.addListener(SWT.Selection, e -> model.setSevName(sevCombo.getText()));
-			STRETCH.applyTo(sevCombo);
-			
-			inequality = new ComboViewer(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-			inequality.setContentProvider(ArrayContentProvider.getInstance());
-			
-			Set<Inequality> pred = EnumSet.allOf(Inequality.class);
-			inequality.setInput(pred.toArray());
-			if (model != null && model.getInequality() != null) {
-				inequality.setSelection(new StructuredSelection(model.getInequality()));
-			} else {
-				inequality.setSelection(new StructuredSelection(Inequality.GREATER_THAN_OR_EQUAL_TO));
-			}
-			inequality.addSelectionChangedListener(e -> model.setIneq((Inequality) ((StructuredSelection) inequality.getSelection()).getFirstElement()));
-			
-			predicateArgument = new Text(limitComposite, SWT.BORDER);
-			predicateArgument.addListener(SWT.Modify, e -> model.setIneqRef(Double.parseDouble(predicateArgument.getText())));
-			STRETCH.applyTo(predicateArgument);
+			createPositionControls();
 			break;
 		case TIME:
-			GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(limitComposite);
-			new Label(limitComposite, SWT.NONE).setText("Duration (s)");
-			
-			duration = new Text(limitComposite, SWT.BORDER);
-			duration.addListener(SWT.Modify, e -> model.setDuration(Double.parseDouble(duration.getText())));
-			STRETCH.applyTo(duration);
+			createTimeControls();
 			break;
-		default:
-			throw new IllegalArgumentException("Unsupported segment limiting source");
+		default: 
+			throw new IllegalArgumentException("Unsupported  segment limiting source");
 		}
 		
-		if (sevs != null && !sevCombo.isDisposed()) {
-			sevCombo.setItems(sevs.toArray(new String[0]));
-			sevCombo.select(0);
-			model.setSevName(sevCombo.getText());
-		}
+		updateLimitControlBindings(signalSource);
 		
 		composite.layout();
 	}
 	
+	private void createPositionControls() {
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(limitComposite);
+		sevCombo = new Combo(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		populateSevCombo();
+		
+		STRETCH.applyTo(sevCombo);
+		
+		inequality = new ComboViewer(limitComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		inequality.setContentProvider(ArrayContentProvider.getInstance());
+		
+		Set<Inequality> pred = EnumSet.allOf(Inequality.class);
+		inequality.setInput(pred.toArray());
+		
+		predicateArgument = new Text(limitComposite, SWT.BORDER);
+		STRETCH.applyTo(predicateArgument);
+	}
+	
+	private void createTimeControls() {
+		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(limitComposite);
+		new Label(limitComposite, SWT.NONE).setText("Duration (s)");
+		
+		duration = new Text(limitComposite, SWT.BORDER);
+		STRETCH.applyTo(duration);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateBindings() {
+		removeOldBindings();
+		
+		IObservableValue<String> nameTextObservable = WidgetProperties.text(SWT.Modify).observe(name);
+		IObservableValue<String> nameInModelObservable = BeanProperties.value("name").observe(segment);
+		
+		Binding nameBinding = dbc.bindValue(nameTextObservable, nameInModelObservable);
+		segmentDescriptorBindings.add(nameBinding);
+		
+		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value("signalSource").observe(segment);
+		
+		SelectObservableValue<SignalSource> limitingSourceSelection = new SelectObservableValue<>();
+		limitingSourceSelection.addOption(SignalSource.POSITION, WidgetProperties.selection().observe(sevSource));
+		limitingSourceSelection.addOption(SignalSource.TIME, WidgetProperties.selection().observe(timeSource));
+
+		Binding sourceBinding = dbc.bindValue(limitingSourceSelection, sourceInModelObservable);
+		segmentDescriptorBindings.add(sourceBinding);
+		limitControlSwitch = ISideEffect.create(limitingSourceSelection::getValue, this::updateLimitControls);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void updateLimitControlBindings(SignalSource signalSource) {
+		
+		limitControlBindings.forEach(binding -> {
+			dbc.removeBinding(binding);
+			binding.dispose();
+		});
+		
+		limitControlBindings.clear();
+		
+		switch (signalSource) {
+		case POSITION:
+			IObservableValue<String> sevControlObservable = WidgetProperties.selection().observe(sevCombo);
+			IObservableValue<String> sevInModelObservable = BeanProperties.value("sampleEnvironmentVariableName").observe(segment);
+			Binding sevBinding = dbc.bindValue(sevControlObservable, sevInModelObservable);
+			limitControlBindings.add(sevBinding);
+			
+			// if sevName is not set, choose first option
+			if (segment.getSampleEnvironmentVariableName() == null) {
+				sevCombo.select(0);
+			}
+			
+			IViewerObservableValue selectedInequalityObservable = ViewerProperties.singleSelection().observe(inequality);
+			IObservableValue<SignalSource> inequalityInModelObservable = BeanProperties.value("inequality").observe(segment);
+			Binding inequalityBinding = dbc.bindValue(selectedInequalityObservable, inequalityInModelObservable);
+			limitControlBindings.add(inequalityBinding);
+			
+			IObservableValue<Double> ineqArgControlObservable = WidgetProperties.text(SWT.Modify).observe(predicateArgument);
+			IObservableValue<Double> ineqArgInModelObservable = BeanProperties.value("inequalityArgument").observe(segment);
+			Binding ineqArgBinding = dbc.bindValue(ineqArgControlObservable, ineqArgInModelObservable);
+			limitControlBindings.add(ineqArgBinding);
+			break;
+			
+		case TIME:
+			IObservableValue<Double> durationControlObservable = WidgetProperties.text(SWT.Modify).observe(duration);
+			IObservableValue<Double> durationInModelObservable = BeanProperties.value("duration").observe(segment);
+			Binding durationBinding = dbc.bindValue(durationControlObservable, durationInModelObservable);
+			limitControlBindings.add(durationBinding);
+			break;
+			
+		default:
+			throw new IllegalArgumentException("Unsupported  segment limiting source");
+		}
+	}
+
+	private void removeOldBindings() {
+		segmentDescriptorBindings.forEach(binding -> {
+			dbc.removeBinding(binding);
+			binding.dispose();
+		});
+		
+		if (limitControlSwitch != null) {
+			limitControlSwitch.dispose();
+		}
+		
+		segmentDescriptorBindings.clear();
+	}
+	
+	private void populateSevCombo() {
+		sevCombo.setItems(sevs.toArray(new String[0]));
+	}
+
 	public void setSevNames(Set<String> sevs) {
 		this.sevs = sevs;
 		triggers.setSevs(sevs);
 	}
-
 }

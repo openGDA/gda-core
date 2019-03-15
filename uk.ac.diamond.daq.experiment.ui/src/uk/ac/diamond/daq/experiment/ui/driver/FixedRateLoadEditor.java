@@ -1,6 +1,6 @@
 package uk.ac.diamond.daq.experiment.ui.driver;
 
-import static uk.ac.diamond.daq.experiment.ui.driver.DiadUIUtils.STRETCH;
+import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;

@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.jface.wizard.IWizardContainer;
@@ -14,7 +15,7 @@ import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 
 public class PlanSetupWizard extends Wizard {
 	
-	private ExperimentPlanBean planBean = new ExperimentPlanBean();
+	private final ExperimentPlanBean planBean;
 	
 	// pages
 	private MetadataAndExperimentDriverPage metadataAndDriverPage;
@@ -24,11 +25,24 @@ public class PlanSetupWizard extends Wizard {
 	private final ExperimentService experimentService;
 	private final String experimentId;
 	
+
+	/**
+	 * This constructor should be used to create a new experiment plan
+	 */
 	public PlanSetupWizard(ExperimentService experimentService, String experimentId) {
-		this.experimentService = experimentService;
-		this.experimentId = experimentId;
+		this(experimentService, experimentId, new ExperimentPlanBean());
 	}
 	
+	/**
+	 * This constructor should be used to edit a previously defined experiment plan
+	 */
+	public PlanSetupWizard(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
+		this.experimentService = experimentService;
+		this.experimentId = experimentId;
+		Objects.requireNonNull(planBean);
+		this.planBean = planBean;
+	}
+
 	@Override
 	public void addPages() {
 		setWindowTitle("Setup experiment plan");
@@ -40,11 +54,12 @@ public class PlanSetupWizard extends Wizard {
 			driverConfigs.put(driver.getValue(), experimentService.getDriverProfileNames(driver.getKey(), experimentId));
 		}
 		
-		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentService, experimentId);
+		metadataAndDriverPage = new MetadataAndExperimentDriverPage(experimentService, experimentId, planBean);
 		metadataAndDriverPage.setExperimentDriverConfigurations(driverConfigs);
+		
 		addPage(metadataAndDriverPage);
 		
-		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentService, experimentId);
+		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentService, experimentId, planBean);
 		addPage(segmentsAndTriggersPage);
 		
 		planSummaryPage = new PlanSummaryPage();
@@ -67,14 +82,7 @@ public class PlanSetupWizard extends Wizard {
 		return true;
 	}
 	
-	public ExperimentPlanBean getExperimentPlanBean() {
-		planBean.setName(metadataAndDriverPage.getPlanName());
-		planBean.setDescription(metadataAndDriverPage.getPlanDescription());
-		planBean.setExperimentDriverName(metadataAndDriverPage.getExperimentDriverName());
-		planBean.setExperimentDriverProfile(metadataAndDriverPage.getExperimentDriverProfile());
-		
-		planBean.setSegments(segmentsAndTriggersPage.getSegments());
-		
+	public ExperimentPlanBean getExperimentPlanBean() {		
 		return planBean;
 	}
 }
