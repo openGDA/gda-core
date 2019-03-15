@@ -9,8 +9,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
@@ -25,8 +23,6 @@ import gda.observable.IObserver;
  *
  */
 public class ScanProgressComposite extends Composite implements IObserver {
-
-	private static final Logger logger=LoggerFactory.getLogger(ScanProgressComposite.class);
 
 	private Text txtPointValue;
 	private Text txtRegionValue;

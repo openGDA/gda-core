@@ -8,8 +8,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.nxdetector.plugins.ADArrayPlugin;
 import org.opengda.detector.electronanalyser.nxdetector.plugins.PVArrayPlugin;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -37,8 +35,6 @@ public class RegionScannable extends ScannableBase implements Scannable {
 	private AtomicInteger count=new AtomicInteger(); // enabled region position count
 	private boolean firstInScan;
 	private Scriptcontroller scriptController;
-	private static final Logger logger = LoggerFactory
-			.getLogger(RegionScannable.class);
 
 	public RegionScannable() {
 		setInputNames(new String[] {"region_number"});
