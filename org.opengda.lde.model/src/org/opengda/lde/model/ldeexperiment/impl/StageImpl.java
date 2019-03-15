@@ -554,7 +554,7 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	@Override
 	public EList<Cell> getCell() {
 		if (cell == null) {
-			cell = new EObjectContainmentWithInverseEList<Cell>(Cell.class, this, LDEExperimentsPackage.STAGE__CELL, LDEExperimentsPackage.CELL__STAGE);
+			cell = new EObjectContainmentWithInverseEList<>(Cell.class, this, LDEExperimentsPackage.STAGE__CELL, LDEExperimentsPackage.CELL__STAGE);
 		}
 		return cell;
 	}
@@ -745,7 +745,6 @@ public class StageImpl extends MinimalEObjectImpl.Container implements Stage {
 	 * @generated
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
 		switch (operationID) {
 			case LDEExperimentsPackage.STAGE___GET_CELL_BY_ID__STRING:
