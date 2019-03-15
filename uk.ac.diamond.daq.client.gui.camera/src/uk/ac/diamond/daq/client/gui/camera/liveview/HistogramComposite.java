@@ -13,8 +13,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
-
 public class HistogramComposite extends Composite {
 
 	private HistogramViewer histogram;
