@@ -38,7 +38,6 @@ public class ScalerMFMappableDataProviderTest {
 	private static ScalerMFMappableDataProvider scalerDataProvider;
 	static String TestFileFolder;
 
-	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
