@@ -42,6 +42,7 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		driverProfiles.put("trapez_30s", getProfile1());
 		driverProfiles.put("sombrero", getProfile2());
 		driverProfiles.put("saw_10_pp", getProfile3());
+		driverProfiles.put("Aluminium Plastic Deformation Profile", getUserWorkingGroupProfile());
 	}
 
 	private ScanRequest<IROI> getDiffractionScan() {
@@ -51,7 +52,7 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	}
 
 	private ScanRequest<IROI> getTomographyScan() {
-		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 1);
+		IScanPathModel model = new StepModel("tr6_rot", 0, 180, 5);
 		return new ScanRequest<>(model, null, null, null);
 	}
 
@@ -105,6 +106,25 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 		model.setProfile(wholeProfile);
 		model.setName("saw_10_pp");
+		return model;
+	}
+
+	private ExperimentDriverModel getUserWorkingGroupProfile () {
+		ExperimentDriverModel model = new ExperimentDriverModel();
+
+		List<DriverProfileSection> profile = new ArrayList<>();
+
+		//start from 0 and drive to 304 in 1 minute
+		profile.add(new DriverProfileSection(200,  304, 1.0));
+		//hold at 304 for 30 seconds
+		profile.add(new DriverProfileSection(304, 304, 0.5));
+		//return to 0 in 30 seconds
+		profile.add(new DriverProfileSection(304, 200, 1.0));
+
+		model.setProfile(profile);
+
+		model.setName("Aluminium Plastic Deformation Profile");
+
 		return model;
 	}
 
