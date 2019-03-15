@@ -129,7 +129,6 @@ public abstract class AbstractMalcolmDeviceTest {
 		verify(malcolmConnection).send(malcolmDevice, expectedGetDeviceStateMessage);
 
 		// The listeners that malcolm registers with the connection layer
-		@SuppressWarnings("rawtypes")
 		ArgumentCaptor<IMalcolmConnectionEventListener> malcolmListeners = ArgumentCaptor.forClass(IMalcolmConnectionEventListener.class);
 
 		// verify that the malcolm device subscribed to the 'state' endpoint

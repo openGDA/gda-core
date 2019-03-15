@@ -315,7 +315,6 @@ public class DeviceRequest extends IdBean {
 		this.deviceName = dn;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object getDeviceModel() {
 		return deviceModel;
 	}

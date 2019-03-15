@@ -65,7 +65,7 @@ public class RemoteServiceFactory {
 		remotes = Collections.unmodifiableMap(tmp);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public static <T> T getRemoteService(URI uri, Class<T> clazz, IEventService eservice) throws EventException, InstantiationException, IllegalAccessException {
 		if (!remotes.containsKey(clazz)) return null; // TODO Maybe throw an exception?
 		T instance = (T)remotes.get(clazz).newInstance();
