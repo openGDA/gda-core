@@ -32,8 +32,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.excalibur.ChipAnper;
 import uk.ac.gda.devices.excalibur.ChipPixel;
@@ -64,8 +62,6 @@ import uk.ac.gda.excalibur.config.model.SummaryNode;
  */
 public class ExcaliburConfigModelHelper {
 	private static final String FILE_EXTN_EXCALIBURCONFIG = "excaliburconfig";
-
-	private final static Logger logger = LoggerFactory.getLogger(ExcaliburConfigModelHelper.class);
 
 	public static ExcaliburConfigModelHelper INSTANCE = new ExcaliburConfigModelHelper();
 
@@ -125,10 +121,10 @@ public class ExcaliburConfigModelHelper {
 	/**
 	 * Saves the {@link ExcaliburConfig} to an excalibur file - the excalibur file should end in an extension
 	 * .excaliburconfig for it to be resolved in the client when imported.
-	 * 
+	 *
 	 * @param fileName
 	 * @param excaliburConfig
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void saveToXML(String fileName, ExcaliburConfig excaliburConfig) throws Exception {
 		try{
@@ -220,8 +216,8 @@ public class ExcaliburConfigModelHelper {
 
 	private MpxiiiChipRegModel getMpxiiiChipRegModel(MpxiiiChipReg chip) throws Exception {
 		MpxiiiChipRegModel chipRegModel = ExcaliburConfigFactory.eINSTANCE.createMpxiiiChipRegModel();
-		
-		//chipRegModel.setAnper(getAnperModel(chip.getAnper()));	// kw 30 June 2015 
+
+		//chipRegModel.setAnper(getAnperModel(chip.getAnper()));	// kw 30 June 2015
 		chipRegModel.setPixel(getPixelModel(chip.getPixel()));
 		chipRegModel.setChipDisable(!chip.isChipEnabled());
 		//chipRegModel.setDacIntoMpx(chip.getDacIntoMpx());			// kw thu 17 dec 2015
@@ -268,7 +264,7 @@ public class ExcaliburConfigModelHelper {
 		anperModel.setTprefA(anper.getTprefA());
 		anperModel.setTprefB(anper.getTprefB());
 		// There is a slight doubt here - setting it as it sounds right
-		
+
 		return anperModel;
 	}
 
@@ -288,7 +284,7 @@ public class ExcaliburConfigModelHelper {
 
 	/**
 	 * Sends the configuration parameters persisted in the {@link ExcaliburConfig} to the excalibur detector.
-	 * 
+	 *
 	 */
 	Exception sendToExcaliburException=null;
 	public void sendToExcalibur(List<ExcaliburReadoutNodeFem> readOutNodes, ExcaliburConfig excaliburConfig)
@@ -308,7 +304,7 @@ public class ExcaliburConfigModelHelper {
 						detectorNode.setOperationMode(modelReadoutNodeFem.getOperationMode());
 						//detectorNode.setDacExternal(modelReadoutNodeFem.getDacExternal()); // kw 30 June 2015
 						//detectorNode.setDacSense(modelReadoutNodeFem.getDacSense()); // kw 30 June 2015
-						
+
 						//setDetectorChipReg(detectorNode.getMpxiiiChipReg1(), modelReadoutNodeFem.getMpxiiiChipReg1());	// kw thu 17 dec 2015
 						//setDetectorChipReg(detectorNode.getMpxiiiChipReg2(), modelReadoutNodeFem.getMpxiiiChipReg2());
 						//setDetectorChipReg(detectorNode.getMpxiiiChipReg3(), modelReadoutNodeFem.getMpxiiiChipReg3());
@@ -323,7 +319,7 @@ public class ExcaliburConfigModelHelper {
 				}});
 			threads.add(thread);
 			thread.start();
-			
+
 		}
 		for(Thread thread : threads){
 			thread.join();

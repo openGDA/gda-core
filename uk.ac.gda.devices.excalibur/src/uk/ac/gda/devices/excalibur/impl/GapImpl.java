@@ -21,10 +21,6 @@ package uk.ac.gda.devices.excalibur.impl;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.devices.excalibur.Gap;
 
 /**
@@ -54,8 +50,6 @@ public class GapImpl extends BasePvProvidingImpl implements Gap {
 	private static final String ADJACENT_PORT = "AdjacentPort";
 
 	private static final String ADJACENT_ADDRESS = "AdjacentAddress";
-
-	private static final Logger logger = LoggerFactory.getLogger(GapImpl.class);
 
 	private NDPluginBase pluginBase;
 
