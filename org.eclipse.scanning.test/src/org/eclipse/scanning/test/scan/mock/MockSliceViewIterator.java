@@ -18,8 +18,6 @@ import org.eclipse.dawnsci.analysis.dataset.slicer.ISliceViewIterator;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.january.dataset.SliceNDIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Iteration over views of a (subsampled) ILazyDataset
@@ -36,8 +34,6 @@ import org.slf4j.LoggerFactory;
  * also adds extra metadata.
  */
 public class MockSliceViewIterator implements ISliceViewIterator{
-
-	private static final Logger logger = LoggerFactory.getLogger(MockSliceViewIterator.class);
 
 	private ILazyDataset lazyDataset;
 	private SliceNDIterator iterator;
