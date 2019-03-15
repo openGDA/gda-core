@@ -731,7 +731,6 @@ public class PixiumController extends DetectorBase {
 			this.preview = preview;
 		}
 
-		@SuppressWarnings("static-access")
 		@Override
 		public void run() {
 
