@@ -417,7 +417,6 @@ public class DOEUtils {
 		bIn.close();
 		// the whole idea is to create a clone, therefore the readObject must
 		// be the same type in the toClone, hence of T
-		@SuppressWarnings("unchecked")
 		Object copy = oIn.readObject();
 		oIn.close();
 
