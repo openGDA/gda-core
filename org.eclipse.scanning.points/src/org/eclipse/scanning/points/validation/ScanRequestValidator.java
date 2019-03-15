@@ -112,10 +112,10 @@ class ScanRequestValidator implements IValidator<ScanRequest<?>> {
 					} catch (ScanningException ne) {
 						throw ne; // If we cannot make a device with this model, the scan request is not valid.
 					}
-				} else{
+				} else {
 					// devices that can run either as a standard hardware detector or as a hardware
 					// triggered detector will be switched to the appropriate role according to the scan type
-					if (info != null && !info.getSupportedScanModes().contains(scanMode)) {
+					if (!info.getSupportedScanModes().contains(scanMode)) {
 						throw new ValidationException(MessageFormat.format("The device ''{0}'' does not support a {1} scan",
 								info.getName(), scanMode.toString().toLowerCase()));
 					}
