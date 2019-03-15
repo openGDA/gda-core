@@ -18,13 +18,6 @@
 
 package uk.ac.gda.beamline.synoptics.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -44,12 +37,18 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
 import uk.ac.gda.beamline.synoptics.utils.ListenableProperty;
 /**
  * reusable composite that display a label on the left and a drop down list on the right.
  * This interface allows user to change the value of a java property dynamically at runtime.
  * The change is enforce on both server and client.
- *   
+ *
  * @author fy65
  *
  */
@@ -68,15 +67,15 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 		property=property2;
 		list=strings;
 		this.eventAdminName=eventAdminName;
-		
+
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
-		GridDataFactory.fillDefaults().applyTo(this);		
-		
+		GridDataFactory.fillDefaults().applyTo(this);
+
 		Label lbl = new Label(this, SWT.NONE | SWT.CENTER);
 		lbl.setText(label);
-		
+
 		viewer= new ComboViewer(parent, SWT.READ_ONLY);
-		// the ArrayContentProvider  object does not store any state, 
+		// the ArrayContentProvider  object does not store any state,
 		// therefore you can re-use instances
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
 		viewer.setLabelProvider(new LabelProvider() {
@@ -90,7 +89,7 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 		});
 		viewer.setInput(strings);
 		// react to the selection change of the viewer
-		// note that the viewer returns the actual object 
+		// note that the viewer returns the actual object
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			//implement property change by this viewer
 			@Override
@@ -139,8 +138,8 @@ public class PropertyValueSelectionComposite extends Composite implements Proper
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		//implement property changed by other client component 
-		if (evt.getSource()!=this && evt != null) {
+		//implement property changed by other client component
+		if (evt != null && evt.getSource() != this) {
 			if (evt.getPropertyName().equals(property.getPropertyName())){
 				for (String item : list) {
 					if (item.equals(evt.getNewValue().toString())) {
