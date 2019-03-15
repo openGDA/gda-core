@@ -26,14 +26,11 @@ import java.nio.file.Paths;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 
 @Ignore
 public class PressureCalculationTest {
-	private final static Logger logger = LoggerFactory.getLogger(PressureCalculationTest.class);
 
 	/**
 	 * Generate tables of absorption coefficients for XrayLib and Mucal so they can be easily compared.

@@ -24,14 +24,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.util.VisitPath;
 
 public class SpreadsheetView extends ViewPart {
-
-	private static final Logger logger = LoggerFactory.getLogger(SpreadsheetView.class);
 
 	private IPartListener partListener = new IPartListener() {
 		@Override
