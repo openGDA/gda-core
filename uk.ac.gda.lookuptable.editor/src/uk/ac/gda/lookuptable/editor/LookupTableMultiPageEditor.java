@@ -24,8 +24,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An example showing how to create a multi-page editor. This example has 3 pages:
@@ -36,8 +34,6 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class LookupTableMultiPageEditor extends MultiPageEditorPart implements IResourceChangeListener {
-
-	private static final Logger logger = LoggerFactory.getLogger(LookupTableMultiPageEditor.class);
 
 	/** The text editor used in page 0. */
 	private TextEditor editor;
@@ -98,7 +94,7 @@ public class LookupTableMultiPageEditor extends MultiPageEditorPart implements I
 						try {
 				            InputStream is = new ByteArrayInputStream(editorText.getBytes("UTF-8"));
 				            lookupTeditor.refresh(is);
-				            
+
 				        } catch (UnsupportedEncodingException e) {
 				            e.printStackTrace();
 				        }
