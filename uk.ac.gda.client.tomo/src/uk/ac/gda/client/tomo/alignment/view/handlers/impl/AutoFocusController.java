@@ -18,19 +18,18 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
-import gda.jython.IScanDataPointObserver;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.scan.IScanDataPoint;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.python.core.PyBaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.IScanDataPointObserver;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.scan.IScanDataPoint;
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IAutofocusController;
 
@@ -46,7 +45,6 @@ public class AutoFocusController implements IAutofocusController {
 
 	@Override
 	public String doAutoFocus(IProgressMonitor monitor, double acquireTime) throws InterruptedException {
-		final PyBaseException[] exceptions = new PyBaseException[1];
 		final SubMonitor progress = SubMonitor.convert(monitor);
 		progress.beginTask("", 30);
 		try {

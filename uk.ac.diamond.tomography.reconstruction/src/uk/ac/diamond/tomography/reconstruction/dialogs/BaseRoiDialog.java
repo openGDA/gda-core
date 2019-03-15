@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 public abstract class BaseRoiDialog extends Dialog {
-	
+
 	private static final String SHELL_TITLE = "Define ROI";
 
 	private static final String DEFINE_ROI_PLOT = SHELL_TITLE;
@@ -52,7 +52,6 @@ public abstract class BaseRoiDialog extends Dialog {
 		this.dialogHeight = dialogHeight;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected final Control createDialogArea(Composite parent) {
 		getShell().setText(SHELL_TITLE);
