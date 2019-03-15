@@ -512,8 +512,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 
 	protected void setSupportedScanModes(ScanMode... supportedScanModes) {
-		if (supportedScanModes==null) {
-			supportedScanModes = null;
+		if (supportedScanModes == null) {
 			return;
 		}
 		this.supportedScanModes = EnumSet.of(supportedScanModes[0], supportedScanModes);
