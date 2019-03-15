@@ -18,8 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.extractor.NexusExtractor;
-
 import java.io.StringReader;
 import java.net.URL;
 import java.util.List;
@@ -28,6 +26,7 @@ import java.util.regex.Pattern;
 
 import org.xml.sax.InputSource;
 
+import gda.data.nexus.extractor.NexusExtractor;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -58,7 +57,7 @@ final public class NexusTreeNodeSelection {
 	 * Value to indicate all items are to be selected
 	 */
 	public final static NexusTreeNodeSelection GET_ALL;
-	
+
 	static {
 		SKIP = new NexusTreeNodeSelection();
 		SKIP.wanted = SKIP_THIS_ITEM;
@@ -76,7 +75,7 @@ final public class NexusTreeNodeSelection {
 	 * @throws Exception
 	 */
 	public static NexusTreeNodeSelection createFromXML(String filename) throws Exception {
-		NexusTreeNodeSelection tree = (NexusTreeNodeSelection) XMLHelpers.createFromXML(mappingURL,
+		NexusTreeNodeSelection tree = XMLHelpers.createFromXML(mappingURL,
 				NexusTreeNodeSelection.class, schemaUrl, filename);
 		// ensure top has NexusGroup with name and class blank
 		tree.setName(NexusExtractor.topName);
@@ -90,14 +89,14 @@ final public class NexusTreeNodeSelection {
 	 * @throws Exception
 	 */
 	public static NexusTreeNodeSelection createFromXML(InputSource inputSource) throws Exception {
-		NexusTreeNodeSelection tree = (NexusTreeNodeSelection) XMLHelpers.createFromXML(mappingURL,
+		NexusTreeNodeSelection tree = XMLHelpers.createFromXML(mappingURL,
 				NexusTreeNodeSelection.class, schemaUrl, inputSource);
 		// ensure top has NexusGroup with name and class blank
 		tree.setName(NexusExtractor.topName);
 		tree.setNxClass(NexusExtractor.topClass);
 		return tree;
 	}
-	
+
 	/**
 	 * @return @see NexusTreeNodeSelection  - a selection to extract all items with NXenty and below, including the data
 	 */
@@ -121,15 +120,15 @@ final public class NexusTreeNodeSelection {
 	public static NexusTreeNodeSelection createTreeForAllNXData() {
 		return createTreeForDataSetNames(null, true);
 	}
-	
+
 	/**
 	 * @param dataSetNames - list of names of data to be extracted
 	 * @return @see NexusTreeNodeSelection  - a selection to extract all DataItems with NXenty/NXData with names in datSetName
-	 * 
+	 *
 	 * Each dataSetName is expected to be of the form nxDataName.SDSName. However for positioner data the same data will be accessed
 	 * from each set of detector data and os the nxDataName is not relevant. Instead for such data the dataSetName is a simple single
 	 * name that refers to the name of SDS element in the tree within any nxData element.
-	 * See the tests in NexusLoaderTest for details of a particular case.  
+	 * See the tests in NexusLoaderTest for details of a particular case.
 	 */
 	public static NexusTreeNodeSelection createTreeForDataSetNames(List<String> dataSetNames, boolean withData) {
 		NexusTreeNodeSelection top = new NexusTreeNodeSelection();
@@ -146,7 +145,7 @@ final public class NexusTreeNodeSelection {
 			for( String s : dataSetNames){
 				String [] parts = s.split("[.]",2);
 				String nxDataNodeName = parts.length == 1 ? "" : parts[0];
-				String nxChildNodeName = parts.length == 1 ? parts[0] : parts[1]; 
+				String nxChildNodeName = parts.length == 1 ? parts[0] : parts[1];
 
 				NexusTreeNodeSelection nxDataNode = null;
 				for( NexusTreeNodeSelection sel : nxEntry.getChildNodes()){
@@ -154,7 +153,7 @@ final public class NexusTreeNodeSelection {
 						nxDataNode = sel;
 						break;
 					}
-						
+
 				}
 				if( nxDataNode == null){
 					nxDataNode = new NexusTreeNodeSelection();
@@ -198,11 +197,11 @@ final public class NexusTreeNodeSelection {
 		return top;
 
 	}
-	
-	
+
+
 	/**
 	 * @return @see NexusTreeNodeSelection  - a selection to extract all items but for Scannable and Detector data
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static NexusTreeNodeSelection createTreeForAllMetaData() throws Exception {
 		String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
@@ -251,7 +250,7 @@ final public class NexusTreeNodeSelection {
 		setNxClass(nxClass);
 		nxNamePattern=Pattern.compile(name);
 		nxClassPattern=Pattern.compile(nxClass);
-		
+
 	}
 
 	/**
@@ -299,7 +298,7 @@ final public class NexusTreeNodeSelection {
 	boolean isGetData() {
 		return dataType == NAME_DIMS_AND_DATA;
 	}
-	
+
 	boolean isGetThisAndBelow() {
 		return wanted == GET_THIS_AND_BELOW;
 	}
@@ -329,7 +328,7 @@ final public class NexusTreeNodeSelection {
 	public void setName(String name) {
 		nxName_UseSetNxName = name;
 		nxNamePattern=Pattern.compile(nxName_UseSetNxName);
-		
+
 	}
 
 	/**
