@@ -18,9 +18,6 @@
 
 package gda.device.scannable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
@@ -32,7 +29,6 @@ import gda.factory.FactoryException;
  */
 public class SimplePVScannable extends ScannableBase {
 
-	private static final Logger logger=LoggerFactory.getLogger(SimplePVScannable.class);
 	private String pvName;
 	private CAClient ca_client = new CAClient();
 	private boolean textInput=false; //default to Number

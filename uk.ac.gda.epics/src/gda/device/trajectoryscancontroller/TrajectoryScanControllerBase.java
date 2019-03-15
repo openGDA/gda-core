@@ -22,9 +22,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.factory.FindableBase;
 
 /**
@@ -32,8 +29,6 @@ import gda.factory.FindableBase;
  * @since 3/7/2017
  */
 public abstract class TrajectoryScanControllerBase extends FindableBase implements TrajectoryScanController {
-
-	private static final Logger logger = LoggerFactory.getLogger(TrajectoryScanControllerBase.class);
 
 	protected List<String> axisNames = Arrays.asList("A", "B", "C", "U", "V", "W", "X", "Y", "Z");
 	protected List<String> motorNames = Arrays.asList("M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8");
