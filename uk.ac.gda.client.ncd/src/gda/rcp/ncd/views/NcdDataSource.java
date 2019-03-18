@@ -18,12 +18,17 @@
 
 package gda.rcp.ncd.views;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.function.UnaryOperator;
 
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -34,6 +39,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
@@ -44,15 +50,20 @@ import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
 
 /**
- * Panel that observes a PlotView to show additional information and tries to control the Ncd ListenerDispatcher to send
+ * Panel that observes a PlotView to show additional information and tries to control the NcdListenerDispatcher to send
  * the desired updates.
  */
 public class NcdDataSource extends ViewPart implements IObserver {
+
 	private static final Logger logger = LoggerFactory.getLogger(NcdDataSource.class);
+	private static final String PLOT_ACTION = "symmetry_action";
+
+	protected final Runnable noReflection = (Runnable)() -> reflectData(d -> d);
 
 	private Composite parentComp;
 	protected String panelId;
@@ -81,6 +92,16 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	private Button btnStartUpdates;
 
 	protected String default_source;
+
+	private DataBean originalData;
+
+	private Spinner centreY;
+	private Spinner centreX;
+
+	private Button enableSymmetry;
+
+	protected Optional<Runnable> reflection = Optional.empty();
+
 
 	/**
 	 * Controls the server side display of live or near live data and displays statistics
@@ -162,7 +183,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		btnPlotA.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				pushToPlotView(dataBeanA);
+				pushToPlotView(dataBeanA, true);
 			}
 		});
 
@@ -171,7 +192,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		btnPlotAb.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanA, dataBeanB));
+				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanA, dataBeanB), true);
 			}
 		});
 
@@ -181,7 +202,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		btnPlotAnB.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				pushToPlotView(PlotViewStatsAndMaths.dataBeanAdd(dataBeanA, dataBeanB));
+				pushToPlotView(PlotViewStatsAndMaths.dataBeanAdd(dataBeanA, dataBeanB), true);
 			}
 		});
 
@@ -201,7 +222,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		btnPlotB.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				pushToPlotView(dataBeanB);
+				pushToPlotView(dataBeanB, true);
 			}
 		});
 
@@ -210,7 +231,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		btnPlotBa.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanB, dataBeanA));
+				pushToPlotView(PlotViewStatsAndMaths.dataBeanSubtract(dataBeanB, dataBeanA), true);
 			}
 		});
 
@@ -219,84 +240,141 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		grpStatistics.setLayout(new GridLayout(3, false));
 		grpStatistics.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+		GridDataFactory labelGdf = GridDataFactory.createFrom(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		GridDataFactory valueGdf = GridDataFactory.createFrom(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		valueGdf.hint(120, SWT.DEFAULT);
+
 		Label spacer = new Label(grpStatistics, SWT.NONE);
-		spacer.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(spacer);
 		Label txtValue = new Label(grpStatistics, SWT.NONE);
-		txtValue.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtValue);
 		txtValue.setAlignment(SWT.CENTER);
 		txtValue.setText("value");
 
 		Label txtPosition = new Label(grpStatistics, SWT.NONE);
-		txtPosition.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtPosition);
 		txtPosition.setAlignment(SWT.CENTER);
 		txtPosition.setText("position");
 
 		Label txtMax = new Label(grpStatistics, SWT.NONE);
-		txtMax.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtMax);
 		txtMax.setAlignment(SWT.RIGHT);
 		txtMax.setText("max");
 
 		textMaxVal = new Text(grpStatistics, SWT.RIGHT);
 		textMaxVal.setText("0");
-		GridData gd_textMaxVal = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textMaxVal.widthHint = 120;
-		textMaxVal.setLayoutData(gd_textMaxVal);
+		valueGdf.applyTo(textMaxVal);
 		textMaxVal.setEditable(false);
 
 		textMaxPos = new Text(grpStatistics, SWT.RIGHT);
 		textMaxPos.setText("0");
-		GridData gd_textMaxPos = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textMaxPos.widthHint = 120;
-		textMaxPos.setLayoutData(gd_textMaxPos);
+		valueGdf.applyTo(textMaxPos);
 		textMaxPos.setEditable(false);
 
 		Label txtMin = new Label(grpStatistics, SWT.NONE);
-		txtMin.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtMin);
 		txtMin.setAlignment(SWT.RIGHT);
 		txtMin.setText("min");
 
 		textMinVal = new Text(grpStatistics, SWT.RIGHT);
 		textMinVal.setText("0");
-		GridData gd_textMinVal = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textMinVal.widthHint = 120;
-		textMinVal.setLayoutData(gd_textMinVal);
+		valueGdf.applyTo(textMinVal);
 		textMinVal.setEditable(false);
 
 		textMinPos = new Text(grpStatistics, SWT.RIGHT);
 		textMinPos.setText("0");
-		GridData gd_textMinPos = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textMinPos.widthHint = 120;
-		textMinPos.setLayoutData(gd_textMinPos);
+		valueGdf.applyTo(textMinPos);
 		textMinPos.setEditable(false);
 
 		Label txtSum = new Label(grpStatistics, SWT.NONE);
-		txtSum.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtSum);
 		txtSum.setAlignment(SWT.RIGHT);
 		txtSum.setText("sum");
 
 		textSum = new Text(grpStatistics, SWT.RIGHT);
 		textSum.setText("0");
-		GridData gd_textSum = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textSum.widthHint = 120;
-		textSum.setLayoutData(gd_textSum);
+		valueGdf.applyTo(textSum);
 		textSum.setEditable(false);
-
-		Label spacer2 = new Label(grpStatistics, SWT.NONE);
-		spacer.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		valueGdf.applyTo(new Label(grpStatistics, SWT.NONE));
 
 		Label txtMean = new Label(grpStatistics, SWT.NONE);
-		txtMean.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		labelGdf.applyTo(txtMean);
 		txtMean.setAlignment(SWT.RIGHT);
 		txtMean.setText("mean");
 
 		textMean = new Text(grpStatistics, SWT.RIGHT);
 		textMean.setText("0");
-		GridData gd_textMean = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
-		gd_textMean.widthHint = 120;
-		textMean.setLayoutData(gd_textMean);
+		valueGdf.applyTo(textMean);
 		textMean.setEditable(false);
+		valueGdf.applyTo(new Label(grpStatistics, SWT.NONE));
 
 		enableDisableMaths();
+
+		Group symmetryGroup = new Group(parent, SWT.NONE);
+		symmetryGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		symmetryGroup.setText("Symmetry");
+		symmetryGroup.setLayout(new GridLayout(2, false));
+
+		enableSymmetry = new Button(symmetryGroup, SWT.TOGGLE);
+		enableSymmetry.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+		enableSymmetry.setText("Enable Symmetry");
+		enableSymmetry.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				runReflection();
+			}
+		});
+
+		Label xLabel = new Label(symmetryGroup, SWT.NONE);
+		xLabel.setText("Beam Centre X");
+		xLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
+		centreX = new Spinner(symmetryGroup, SWT.NONE);
+		centreX.setMaximum(Integer.MAX_VALUE);
+		centreX.setMinimum(0);
+		centreX.addModifyListener(e -> this.runReflection());
+
+		Label yLabel = new Label(symmetryGroup, SWT.NONE);
+		yLabel.setText("Beam Centre Y");
+		yLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, true));
+		centreY = new Spinner(symmetryGroup, SWT.NONE);
+		centreY.setMaximum(Integer.MAX_VALUE);
+		centreY.setMinimum(0);
+		centreY.addModifyListener(e -> this.runReflection());
+
+		Composite symmetryTypes = new Composite(symmetryGroup, SWT.NONE);
+		symmetryTypes.setLayout(new GridLayout(3, false));
+		symmetryTypes.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		SelectionAdapter listener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button source = (Button)e.getSource();
+				if (source.getSelection()) {
+					logger.debug("Selected: {}", e.getSource());
+				}
+				reflection = Optional.of((Runnable)source.getData(PLOT_ACTION));
+				runReflection();
+			}
+		};
+
+		Button twoFoldVertical = new Button(symmetryTypes, SWT.RADIO);
+		twoFoldVertical.setText("2-fold Vertical");
+		Runnable defaultReflection = (Runnable)() -> reflectData(d -> SymmetryUtil.reflectVertical(d, valueOf(centreX)));
+		twoFoldVertical.setData(PLOT_ACTION, defaultReflection);
+		twoFoldVertical.addSelectionListener(listener);
+		twoFoldVertical.setSelection(true);
+		// Setting selection programmatically here doesn't call the listener so set the reflection separately
+		reflection = Optional.of(defaultReflection);
+
+		Button twoFoldHorizontal = new Button(symmetryTypes, SWT.RADIO);
+		twoFoldHorizontal.setText("2-fold Horizontal");
+		twoFoldHorizontal.setData(PLOT_ACTION, (Runnable)() -> reflectData(d -> SymmetryUtil.reflectHorizontal(d, valueOf(centreY))));
+		twoFoldHorizontal.addSelectionListener(listener);
+
+		Button fourFold = new Button(symmetryTypes, SWT.RADIO);
+		fourFold.setText("4-fold");
+		fourFold.addSelectionListener(listener);
+		fourFold.setData(PLOT_ACTION, (Runnable)() -> reflectData(d -> SymmetryUtil.reflectBoth(d, valueOf(centreX), valueOf(centreY))));
 	}
 
 	protected void updateSourceCombo() {
@@ -364,7 +442,17 @@ public class NcdDataSource extends ViewPart implements IObserver {
 
 		if (changeCode instanceof DataBean) {
 			currentBean = (DataBean) changeCode;
+			originalData = (DataBean) changeCode;
 			processData(currentBean);
+			parentComp.getDisplay().asyncExec(this::runReflection);
+		}
+	}
+
+	private void runReflection() {
+		if (enableSymmetry.getSelection()) {
+			reflection.ifPresent(Runnable::run);
+		} else {
+			noReflection.run();
 		}
 	}
 
@@ -377,26 +465,26 @@ public class NcdDataSource extends ViewPart implements IObserver {
 			public void run() {
 				btnStoreCurrentAsA.setEnabled(true);
 				btnStoreCurrentAsB.setEnabled(true);
-				textMaxVal.setText(String.format(doubleFormat, d.max()));
+				textMaxVal.setText(String.format(doubleFormat, d.max().doubleValue()));
 				textMaxPos.setText(formatIntArray(d.maxPos()));
-				textMinVal.setText(String.format(doubleFormat, d.min()));
+				textMinVal.setText(String.format(doubleFormat, d.min().doubleValue()));
 				textMinPos.setText(formatIntArray(d.minPos()));
-				textSum.setText(String.format(doubleFormat, d.sum()));
-				textMean.setText(String.format(doubleFormat, d.mean()));
+				textSum.setText(String.format(doubleFormat, ((Number)d.sum()).doubleValue()));
+				textMean.setText(String.format(doubleFormat, ((Number)d.mean()).doubleValue()));
+				int[] shape = originalData.getData().get(0).getData().getShape();
+				centreX.setMaximum(shape[1]-1);
+				centreY.setMaximum(shape[0]-1);
 			}
 		});
 	}
 
 	private String formatIntArray(int[] array) {
-		if (array == null || array.length == 0) {
+		if (array == null) {
 			return "";
 		}
-
-		StringBuilder sb = new StringBuilder(String.format("%d", array[0]));
-		for (int i = 1; i < array.length; i++) {
-			sb.append(String.format(", %d", array[array.length - i]));
-		}
-		return sb.toString();
+		return Arrays.stream(array)
+				.mapToObj(Integer::toString)
+				.collect(joining(", "));
 	}
 
 	private void stopUpdates() {
@@ -404,8 +492,24 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		JythonServerFacade.getInstance().runCommand("finder.find('ncdlistener').monitorStop('" + plotPanelName + "')");
 	}
 
-	private void pushToPlotView(DataBean dBean) {
-		stopUpdates();
+	private void reflectData(UnaryOperator<Dataset> reflection) {
+		if (originalData == null) {
+			return;
+		}
+		Dataset data = originalData.getData().stream().findFirst().get().getData();
+		Dataset newData = reflection.apply(data);
+		DatasetWithAxisInformation dwai = new DatasetWithAxisInformation();
+		dwai.setData(newData);
+		DataBean db = new DataBean();
+		db.setData(Arrays.asList(dwai));
+		db.setGuiPlotMode(GuiPlotMode.TWOD);
+		pushToPlotView(db, false);
+	}
+
+	private void pushToPlotView(DataBean dBean, boolean pauseUpdates) {
+		if (pauseUpdates) {
+			stopUpdates();
+		}
 		if (plotView == null) {
 			return;
 		}
@@ -413,5 +517,9 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		plotView.processPlotUpdate(dBean, this);
 		currentBean = dBean;
 		processData(dBean);
+	}
+
+	private int valueOf(Spinner spinner) {
+		return Integer.valueOf(spinner.getText());
 	}
 }
