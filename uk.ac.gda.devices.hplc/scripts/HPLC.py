@@ -30,7 +30,7 @@ class HPLC(object):
     """
     
     def __init__(self, filename):
-        self.__version__ = '1.00'
+        self.__version__ = '1.01'
         self.hplcFile = filename
         self.bean = HplcSessionBean.createFromXML(filename)
         finder = gda.factory.Finder.getInstance()
@@ -74,6 +74,15 @@ class HPLC(object):
             self.environment(type)
         else:
             self.logger.error('Environment type should be one of: HPLC, BSSC, Manual.')
+
+    def setGdaStatus(self, status='HPLC'):
+        statuses = {'Idle': 0, 'HPLC': 1, 'BSSC': 2, 'Manual': 3, 'Other': 4}
+        try:
+            gdaStatus.getPosition()
+        except:
+            gdaStatus = SingleEpicsPositionerClass('fv1', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-CS-IOC-01:GDASTATUS', 'BL21B-VA-FVALV-01:CON', 'BL21B-VA-FVALV-01:CON', 'mm', '%d')
+        if status in statuses.keys():
+            gdaStatus(statuses[status])
 
     def armFastValve(self):
         try:
@@ -218,6 +227,7 @@ class HPLC(object):
 
     def run(self, processing=True):
         try:
+            self.setGdaStatus('HPLC')
             if not self.getSafetyShutter():
                 if self.getSearchStatus():
                     #self.armFastValve()
@@ -291,8 +301,10 @@ class HPLC(object):
                 self.logger.info('Finished collecting '+b.getSampleName())
             self.setSafetyShutter('Close')
             if self.isError:
+                self.setGdaStatus('Idle')
                 self.logger.error('SCRIPT WAS TERMINATED PREMATURELY')
             else:
+                self.setGdaStatus('Idle')
                 self.logger.info('SCRIPT FINISHED NORMALLY')
             #namespace:
             #b.getLocation().getRow()
@@ -307,5 +319,9 @@ class HPLC(object):
             #b.getUsername()
             #JythonScriptProgressProvider.sendProgress(100*i/float(len(self.bean.measurements)))
         except:
+            self.setGdaStatus('Idle')
             self.logger.error('SCRIPT TERMINATED IN ERROR')
+        finally:
+            self.setGdaStatus('Idle')
+            self.logger.error('SCRIPT TERMINATED')
 
