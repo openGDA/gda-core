@@ -1,12 +1,14 @@
 package org.opengda.lde.ui.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
+import java.util.function.Supplier;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.LiveImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 public class LiveImageViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(LiveImageViewFactory.class);
@@ -18,6 +20,8 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 	private int yDimension;
 	private String xSizePV;
 	private String ySizePV;
+	private Supplier<String> titleProvider;
+
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating image plot view");
@@ -27,6 +31,7 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 		imageView.setArrayEnablePV(arrayEnablePV);
 		imageView.setxSizePV(getxSizePV());
 		imageView.setySizePV(getySizePV());
+		imageView.setTitleProvider(getTitleProvider());
 		imageView.setxDimension(xDimension);
 		imageView.setyDimension(yDimension);
 		return imageView;
@@ -34,7 +39,7 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -119,6 +124,14 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 
 	public void setySizePV(String ySizePV) {
 		this.ySizePV = ySizePV;
+	}
+
+	public Supplier<String> getTitleProvider() {
+		return titleProvider;
+	}
+
+	public void setTitleProvider(Supplier<String> titleProvider) {
+		this.titleProvider = titleProvider;
 	}
 
 }
