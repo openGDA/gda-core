@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 
 import gda.factory.Finder;
@@ -18,6 +19,7 @@ public class PlanSetupWizard extends Wizard {
 	// pages
 	private MetadataAndExperimentDriverPage metadataAndDriverPage;
 	private SegmentsAndTriggersPage segmentsAndTriggersPage;
+	private PlanSummaryPage planSummaryPage;
 	
 	private final ExperimentService experimentService;
 	private final String experimentId;
@@ -44,11 +46,20 @@ public class PlanSetupWizard extends Wizard {
 		
 		segmentsAndTriggersPage = new SegmentsAndTriggersPage(experimentService, experimentId);
 		addPage(segmentsAndTriggersPage);
+		
+		planSummaryPage = new PlanSummaryPage();
+		addPage(planSummaryPage);
 	}
 	
 	@Override
 	public boolean canFinish() {
-		return metadataAndDriverPage.isPageComplete() && segmentsAndTriggersPage.isPageComplete();
+		if (metadataAndDriverPage.isPageComplete() && segmentsAndTriggersPage.isPageComplete()) {
+			IWizardContainer wizardContainer = getContainer();
+			if (wizardContainer.getCurrentPage() == planSummaryPage) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
