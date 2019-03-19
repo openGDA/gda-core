@@ -61,6 +61,11 @@
                   id="org.eclipse.ui.commands.toggleState">
             </state>
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.daq.mapping.ui.experiment.SelectScanTypeHandler"
+            id="uk.ac.diamond.daq.mapping.ui.SelectScanType"
+            name="Select scan type">
+      </command>
    </extension>
    <extension
          point="org.eclipse.dawnsci.plotting.api.plottingAction">
@@ -201,6 +206,44 @@
                label="Live Background"
                style="toggle">
          </command>
+         <command
+               commandId="uk.ac.diamond.daq.mapping.ui.SelectScanType"
+               icon="icons/map.png"
+               label="Scan type"
+               style="push">
+            <visibleWhen checkEnabled="true">
+               <with variable="activeWorkbenchWindow.activePerspective">
+                  <equals value="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective" />
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=uk.ac.gda.client.toolbar">
+         <toolbar
+               id="uk.ac.diamond.daq.mapping.ui.scantype"
+               label="Scan Type Toolbar">
+            <separator
+                  name="uk.ac.diamond.daq.mapping.ui.scantype.separator1">
+            </separator>
+            <command
+                  commandId="uk.ac.diamond.daq.mapping.ui.SelectScanType"
+                  icon="icons/map.png"
+                  label="Scan Type"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="Select scan type">
+                  <visibleWhen checkEnabled="true">
+	                <with variable="activeWorkbenchWindow.activePerspective">
+                      <equals value="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective" />
+                    </with>
+                  </visibleWhen>
+            </command>
+            <separator
+                  name="uk.ac.diamond.daq.mapping.ui.scantype.separator2">
+            </separator>
+         </toolbar>
       </menuContribution>
    </extension>
       <extension
