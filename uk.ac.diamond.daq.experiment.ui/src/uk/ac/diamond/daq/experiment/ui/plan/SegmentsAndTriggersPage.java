@@ -5,12 +5,15 @@ import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
 import uk.ac.diamond.daq.experiment.api.driver.DriverProfileSection;
+import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
 import uk.ac.diamond.daq.experiment.ui.plan.segment.SegmentListEditor;
 
@@ -38,6 +41,17 @@ public class SegmentsAndTriggersPage extends WizardPage {
 		profilePlot = new DriverProfilePreview(composite);
 		
 		setControl(composite);
+	}
+	
+	@Override
+	public IWizardPage getNextPage() {
+		IWizard wizard = getWizard();
+		IWizardPage page = super.getNextPage();
+		if (wizard instanceof PlanSetupWizard && page instanceof PlanSummaryPage) {
+			ExperimentPlanBean plan = ((PlanSetupWizard)wizard).getExperimentPlanBean();
+			((PlanSummaryPage)page).refresh(plan);
+		}
+		return page;
 	}
 	
 	public void setSevs(Set<String> sevs) {
