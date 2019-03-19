@@ -20,13 +20,14 @@ package uk.ac.gda.beamline.synoptics.composites;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.eclipse.swt.widgets.Composite;
 
@@ -46,9 +47,11 @@ public class DetectorFileSelectionFactory implements CompositeFactory {
 	public Composite createComposite(Composite parent, int style) {
 		requireNonNull(fileProvider, "NewFileListener is required");
 		Map<String, Predicate<String>> filters = fileFilters.entrySet().stream()
-				.collect(Collectors.toMap(
+				.collect(toMap(
 						Entry::getKey,
-						e -> Pattern.compile(e.getValue()).asPredicate()));
+						e -> Pattern.compile(e.getValue()).asPredicate(),
+						(a, b) -> a,
+						LinkedHashMap::new));
 
 		Function<DetectorFileSelection, LatestFileController> controllerFactory = view ->
 				new LatestFileController(
