@@ -3,18 +3,18 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableExecutableExtension;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class ExternalIOViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ExternalIOViewFactory.class);
 	private String viewPartName;
 	private String updatePV;
 	private String name;
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating external IO plot view");
@@ -54,11 +54,11 @@ public class ExternalIOViewFactory implements FindableExecutableExtension {
 
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

@@ -91,7 +91,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 			int slices = getAnalyser().getSlices();
 			int[] dims = new int[] { slices, length };
 			// Get the image data from the analyser
-			double[] value = analyser.getImage(dims[0] * dims[1]);
+			double[] value = analyser.getImage();
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;

@@ -61,7 +61,7 @@ class AnalyserLiveDataDispatcher extends ConfigurableBase implements MonitorList
 		this.plotName = plotName;
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public VGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 

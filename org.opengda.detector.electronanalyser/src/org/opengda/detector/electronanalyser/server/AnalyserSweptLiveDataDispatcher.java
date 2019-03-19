@@ -61,7 +61,7 @@ class AnalyserSweptLiveDataDispatcher extends ConfigurableBase implements Monito
 		this.plotName = plotName;
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public VGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
 

@@ -119,7 +119,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 			nxDetector.setField("exposure_time", analyser.getCollectionTime());
 			nxDetector.setAttribute("exposure_time", UNITS, "seconds");
 			// This is the number of frames as determined by the frame rate of the camera
-			nxDetector.setField("number_of_frames", analyser.getController().getFrames());
+			nxDetector.setField("number_of_frames", analyser.getFrames());
 			// This is also the number of iterations should be equal to model.getItterations()
 			nxDetector.setField("number_of_cycles", analyser.getAdBase().getNumExposures_RBV());
 			// Pass energy
@@ -212,7 +212,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 		// Get the data from the detector array plugin
 		Object image;
 		try {
-			image = analyser.getController().getImage();
+			image = analyser.getImage();
 
 			// Create a dataset from the data
 			Dataset dataset = DatasetFactory.createFromObject(image, dataDimensions);

@@ -3,17 +3,17 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.SlicesView;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableExecutableExtension;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class SlicesViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(SlicesViewFactory.class);
 	private String viewPartName;
 	private String name;
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private String updatePV;
 
 	@Override
@@ -55,11 +55,11 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

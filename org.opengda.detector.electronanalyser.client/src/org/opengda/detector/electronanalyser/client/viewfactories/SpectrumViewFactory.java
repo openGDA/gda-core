@@ -3,17 +3,17 @@ package org.opengda.detector.electronanalyser.client.viewfactories;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableExecutableExtension;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class SpectrumViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(SpectrumViewFactory.class);
 	private String viewPartName;
 	private String name;
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private String updatePV;
 	private double updatesPerSecond = 0; // Initialise to 0 if set it will be different.
 
@@ -59,11 +59,11 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

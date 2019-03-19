@@ -116,7 +116,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
@@ -146,6 +145,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
@@ -225,7 +225,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EditingDomain editingDomain;
 
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 
 	double totalTimes = 0.0;
 	int numActives = 0;
@@ -861,11 +861,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void initialisation() {
 		try { // populate Combo list from EPICS PV
-			Set<String> elementSet = getAnalyser().getPsuModes();
+			Set<String> elementSet = getAnalyser().getEnergyRange().getAllPsuModes();
 			String[] psuModes = elementSet.toArray(new String[elementSet.size()]);
 			comboElementSet.removeAll();
 			comboElementSet.setItems(psuModes);
-		} catch (DeviceException e) {
+		} catch (NullPointerException e) {
 			logger.error("Cannot get element set list from analyser.", e);
 		}
 		try { // initialise with the current PV value
@@ -957,7 +957,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		updateSoftXRayEnergy();
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
@@ -1342,7 +1342,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

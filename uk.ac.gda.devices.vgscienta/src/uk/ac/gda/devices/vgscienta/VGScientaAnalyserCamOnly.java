@@ -834,6 +834,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	 * @throws Exception
 	 *             If there is a problem at the EPICS level
 	 */
+	@Override
 	public int getSlices() throws Exception {
 		return controller.getSlice();
 	}
@@ -882,5 +883,30 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 			return 4.5;
 		}
 
+	}
+
+	@Override
+	public double[] getSpectrum() throws Exception {
+		return controller.getSpectrum();
+	}
+
+	@Override
+	public double[] getImage() throws Exception {
+		return controller.getImage();
+	}
+
+	@Override
+	public double getExcitationEnergy() throws Exception {
+		return controller.getExcitationEnergy();
+	}
+
+	@Override
+	public double[] getExtIO(int length) throws Exception {
+		return controller.getExtIO(length);
+	}
+
+	@Override
+	public int getFrames() throws Exception {
+		return controller.getFrames();
 	}
 }

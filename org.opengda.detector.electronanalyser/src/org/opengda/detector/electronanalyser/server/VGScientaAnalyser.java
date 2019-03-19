@@ -19,7 +19,6 @@
 package org.opengda.detector.electronanalyser.server;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -44,10 +43,12 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
+import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 import uk.ac.gda.devices.vgscienta.VGScientaController;
 
-@ServiceInterface(IVGScientaAnalyser.class)
-public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser {
+@ServiceInterface(IVGScientaAnalyserRMI.class)
+public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserRMI {
 
 	private static final long serialVersionUID = -2907729482321978030L;
 
@@ -57,6 +58,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private int[] fixedModeRegion;
 	private int[] sweptModeRegion;
 
+	private VGScientaAnalyserEnergyRange energyRange;
+
 	private NDProcess ndProc;
 
 	private NexusFile nexusFile;
@@ -65,19 +68,18 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private String cachedEnergyMode;
 
-	private Double totalIntensity=new Double(0.0);
+	private double totalIntensity= 0.0;
+	private double energyStepPerPixel = 0.0;
+	private double maxKE;
 
-	@Override
 	public VGScientaController getController() {
 		return controller;
 	}
 
-	@Override
 	public void setController(VGScientaController controller) {
 		this.controller = controller;
 	}
 
-	@Override
 	public int getNumberOfSweeptSteps() throws Exception {
 		return controller.getTotalDataPoints();
 	}
@@ -375,13 +377,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		try {
 			int size = getEnergyAxis().length;
 
-			double[] s = getSpectrum(size);
+			double[] s = getSpectrum();
 			NexusGroupData spectrum_data=new NexusGroupData(s);
 			spectrum_data.isDetectorEntryData=true;
 			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
 			spectrum_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(spectrum_data_node);
-			this.totalIntensity = (Double) DatasetFactory.createFromObject(s).sum();
+			this.totalIntensity = (double)DatasetFactory.createFromObject(s).sum();
 		} catch (Exception e) {
 			logger.error("Failed to get spectrum data from EPICS analyser. ",e);
 		}
@@ -561,12 +563,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				lazy = d.getWriteableDataset();
 			}
 
-			Dataset spectrum = DatasetFactory.createFromObject(getSpectrum(size));
+			Dataset spectrum = DatasetFactory.createFromObject(getSpectrum());
 			spectrum.setShape(dims);
 
 			lazy.setSlice(null, spectrum, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 
-			this.totalIntensity=(Double) spectrum.sum();
+			this.totalIntensity=(double) spectrum.sum();
 		} catch (Exception e) {
 			logger.error("Failed to get spectrum data from EPICS analyser. ",e);
 		}
@@ -624,22 +626,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	}
 
-
 	public double[] getExternalIOData(int i) throws TimeoutException, CAException, InterruptedException, Exception {
 		return controller.getExtIO(i);
 	}
 
-	@Override
-	public double[] getSpectrum(int i) throws Exception {
-		return controller.getSpectrum(i);
-	}
-
-	@Override
 	public double[] getImage(int i) throws Exception {
 		return controller.getImage(i);
 	}
 
-	@Override
 	public void setFixedMode(boolean fixed) throws Exception {
 		int[] region = fixedModeRegion;
 		if (fixed) {
@@ -659,7 +653,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setTriggerMode(0);
 	}
 
-
 	public int[] getSweptModeRegion() {
 		return sweptModeRegion;
 	}
@@ -668,12 +661,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		this.sweptModeRegion = sweptModeRegion;
 	}
 
-	@Override
 	public int[] getFixedModeRegion() {
 		return fixedModeRegion;
 	}
 
-	@Override
 	public void setFixedModeRegion(int[] fixedModeRegion) {
 		this.fixedModeRegion = fixedModeRegion;
 	}
@@ -696,75 +687,70 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 	}
 
-	@Override
 	public void setNumberInterations(int value) throws Exception {
 		getAdBase().setNumExposures(value);
 	}
-	@Override
+
 	public void setNumberInterations(int value, double timeout) throws Exception {
 		getAdBase().setNumExposures(value);
 	}
 
-	@Override
 	public Integer getNumberIterations() throws Exception {
 		return getAdBase().getNumExposures_RBV();
 	}
-	@Override
+
 	public void setCameraMinX(int value) throws Exception {
 		getAdBase().setMinX(value);
 	}
 
-	@Override
 	public void setCameraMinX(int value, double timeout) throws Exception {
 		getAdBase().setMinXWait(value, timeout);
 	}
 
-	@Override
 	public int getCameraMinX() throws Exception {
 		return getAdBase().getMinX_RBV();
 	}
-	@Override
+
 	public void setCameraMinY(int value) throws Exception {
 		getAdBase().setMinY(value);
 	}
-	@Override
+
 	public void setCameraMinY(int value, double timeout) throws Exception {
 		getAdBase().setMinYWait(value, timeout);
 	}
 
-	@Override
 	public int getCameraMinY() throws Exception {
 		return getAdBase().getMinY_RBV();
 	}
-	@Override
+
 	public void setCameraSizeX(int value) throws Exception {
 		getAdBase().setSizeX(value);
 	}
-	@Override
+
 	public void setCameraSizeX(int value, double timeout) throws Exception {
 		getAdBase().setSizeXWait(value, timeout);
 	}
-	@Override
+
 	public int getCameraSizeX() throws Exception {
 		return getAdBase().getSizeX_RBV();
 	}
-	@Override
+
 	public void setCameraSizeY(int value) throws Exception {
 		getAdBase().setSizeY(value);
 	}
-	@Override
+
 	public void setCameraSizeY(int value, double timeout) throws Exception {
 		getAdBase().setSizeYWait(value, timeout);
 	}
-	@Override
+
 	public void setImageMode(ImageMode imagemode) throws Exception {
 		getAdBase().setImageMode(imagemode);
 	}
-	@Override
+
 	public void setImageMode(ImageMode imagemode, double timeout) throws Exception {
 		getAdBase().setImageModeWait(imagemode, timeout);
 	}
-	@Override
+
 	public int getCameraSizeY() throws Exception {
 		return getAdBase().getSizeY_RBV();
 	}
@@ -773,54 +759,52 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setLensMode(String value) throws Exception {
 		controller.setLensMode(value);
 	}
-	@Override
+
 	public void setLensMode(String value, double timeout) throws Exception {
 		controller.setLensMode(value);
 	}
+
 	@Override
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
-	@Override
+
 	public void setAcquisitionMode(String value) throws Exception {
 		controller.setAcquisitionMode(value);
 	}
-	@Override
+
 	public void setAcquisitionMode(String value, double timeout) throws Exception {
 		controller.setAcquisitionMode(value);
 	}
 
-	@Override
 	public String getAcquisitionMode() throws Exception {
 		return controller.getAcquisitionMode();
 	}
-	@Override
+
 	public void setEnergyMode(String value) throws Exception {
 		controller.setEnergyMode(value);
 	}
-	@Override
+
 	public void setEnergyMode(String value, double timeout) throws Exception {
 		controller.setEnergyMode(value);
 	}
 
-	@Override
 	public String getEnergyMode() throws Exception {
 		return controller.getEnergyMode();
 	}
 
-	@Override
 	public void setDetectorMode(String value) throws Exception {
 		controller.setDetectorMode(value);
 	}
-	@Override
+
 	public void setDetectorMode(String value, double timeout) throws Exception {
 		controller.setDetectorMode(value);
 	}
-	@Override
+
 	public String getDetectorMode() throws Exception {
 		return controller.getDetectorMode();
 	}
-	@Override
+
 	public void setPsuMode(String value) throws Exception {
 		controller.setPsuMode(value);
 	}
@@ -835,25 +819,24 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setPassEnergy(value);
 	}
 
-	@Override
 	public void setPassEnergy(Integer value, double timeout) throws Exception {
 		controller.setPassEnergy(value);
 	}
+
 	@Override
 	public Integer getPassEnergy() throws Exception {
 		return controller.getPassEnergy();
 	}
 
-	@Override
 	public void setStartEnergy(Double value) throws Exception {
 		controller.setStartEnergy(value);
 	}
 
-	@Override
+
 	public void setStartEnergy(Double value, double timeout) throws Exception {
 		controller.setStartEnergy(value);
 	}
-	@Override
+
 	public Double getStartEnergy() throws Exception {
 		return controller.getStartEnergy();
 	}
@@ -863,77 +846,74 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setCentreEnergy(value);
 	}
 
-	@Override
 	public void setCentreEnergy(Double value, double timeout) throws Exception {
 		controller.setCentreEnergy(value);
 	}
+
 	@Override
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
 	}
 
-	@Override
 	public void setEndEnergy(Double value) throws Exception {
 		controller.setEndEnergy(value);
 	}
 
-	@Override
 	public void setEndEnergy(Double value, double timeout) throws Exception {
 		controller.setEndEnergy(value);
 	}
-	@Override
+
 	public Double getEndEnergy() throws Exception {
 		return controller.getEndEnergy();
 	}
 
-	@Override
 	public void setEnergyStep(Double value) throws Exception {
 		controller.setEnergyStep(value);
 	}
-	@Override
+
 	public void setEnergyStep(Double value, double timeout) throws Exception {
 		controller.setEnergyStep(value);
 	}
-	@Override
+
 	public Double getEnergyStep() throws Exception {
 		return controller.getEnergyStep();
 	}
 
-	@Override
+
 	public void setFrames(Integer value) throws Exception {
 		controller.setFrames(value);
 	}
+
 	@Override
-	public Integer getFrames() throws Exception {
+	public int getFrames() throws Exception {
 		return controller.getFrames();
 	}
 
-	@Override
 	public void setStepTime(double value) throws Exception {
 		controller.setExposureTime(value);
 	}
-	@Override
+
 	public void setStepTime(double value, double timeout) throws Exception {
 		controller.setExposureTime(value);
 	}
-	@Override
+
 	public double getStepTime() throws Exception {
 		return controller.getExposureTime();
 	}
-	@Override
+
 	public void setSlices(int value) throws Exception {
 		controller.setSlices(value);
 	}
-	@Override
+
 	public void setSlices(int value, double timeout) throws Exception {
 		controller.setSlices(value);
 	}
+
 	@Override
 	public int getSlices() throws Exception {
 		return controller.getSlice();
 	}
 
-	@Override
 	public Integer getTotalSteps() throws Exception {
 		return controller.getTotalSteps();
 	}
@@ -943,12 +923,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.zeroSupplies();
 	}
 
-	@Override
 	public int getNdarrayXsize() throws Exception {
 		return getNdArray().getPluginBase().getArraySize0_RBV();
 	}
 
-	@Override
 	public int getNdarrayYsize() throws Exception {
 		return getNdArray().getPluginBase().getArraySize1_RBV();
 	}
@@ -958,10 +936,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		return controller.getExtIO();
 	}
 
+	@Override
 	public double[] getSpectrum() throws Exception {
 		return controller.getSpectrum();
 	}
 
+	@Override
 	public double[] getImage() throws Exception {
 		return controller.getImage();
 	}
@@ -974,30 +954,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		this.ndProc = ndProc;
 	}
 
-	@Override
 	public void start() throws Exception {
 		getCollectionStrategy().collectData();
 	}
 
 	@Override
-	public String[] getPassENergies() throws DeviceException {
-		return controller.getPassEnergies().toArray(new String[0]);
-	}
-
-	@Override
-	public String[] getLensModes() throws DeviceException {
-		return controller.getLensModes().toArray(new String[0]);
-	}
-	@Override
-	public Set<String> getPsuModes() throws DeviceException {
-		return controller.getPsuModes();
-	}
-	@Override
 	public double getExcitationEnergy() throws Exception {
 		return controller.getExcitationEnergy();
 	}
 
-	@Override
 	public void setExcitationEnergy(double energy) throws Exception {
 		controller.setExcitationEnergy(energy);
 	}
@@ -1009,7 +974,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setNexusFile(NexusFile nexusFile) {
 		this.nexusFile = nexusFile;
 	}
-
 
 	public String getRegionName() {
 		return regionName;
@@ -1027,12 +991,93 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		this.cachedEnergyMode = energyMode;
 	}
 
-	public Double getTotalIntensity() {
+	public double getTotalIntensity() {
 		return totalIntensity;
 	}
 
 	@Override
 	public double[] getExtIO(int length) throws Exception {
 		return controller.getExtIO(length);
+	}
+
+	@Override
+	public VGScientaAnalyserEnergyRange getEnergyRange() {
+		return energyRange;
+	}
+
+	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
+		this.energyRange = energyRange;
+	}
+
+	@Override
+	public double getEnergyStepPerPixel() {
+		return energyStepPerPixel;
+	}
+
+	public void setEnergyStepPerPixel(double energyStepPerPixel) {
+		this.energyStepPerPixel = energyStepPerPixel;
+	}
+
+	@Override
+	public double getMaxKE() {
+		return maxKE;
+	}
+
+	public void setMaxKE(double maxKE) {
+		this.maxKE = maxKE;
+	}
+
+	@Override
+	public int getFixedModeEnergyChannels() {
+		return fixedModeRegion[2];
+	}
+
+	@Override
+	public int getSweptModeEnergyChannels() {
+		return sweptModeRegion[3];
+	}
+
+	@Override
+	public void changeRequestedIterations(int newScheduledIterations) {
+		throw new UnsupportedOperationException("Can not chnage iterations on this implementation");
+	}
+
+	@Override
+	public void startContinuious() throws Exception {
+		logger.info("Starting continious acquisition");
+		// For continuous acquisition in alignment use fixed mode
+		setFixedMode(true);
+		// Change to continuous
+		getAdBase().setImageMode(ImageMode.CONTINUOUS);
+		// Change to 1 iteration
+		controller.setIterations(1);
+		// Start acquiring
+		getAdBase().startAcquiring();
+
+	}
+
+	@Override
+	public void stopAfterCurrentIteration() throws Exception {
+		controller.stopAfterCurrentIteration();
+	}
+
+	@Override
+	public int getIterations() throws Exception {
+		return controller.getIterations();
+	}
+
+	@Override
+	public int getCompletedIterations() throws Exception {
+		return controller.getCompletedIterations();
+	}
+
+	@Override
+	public int getCurrentIterations() throws Exception {
+		return controller.getCurrentIterations();
+	}
+
+	@Override
+	public void setIterations(int iterations) throws Exception {
+		controller.setIterations(iterations);
 	}
 }

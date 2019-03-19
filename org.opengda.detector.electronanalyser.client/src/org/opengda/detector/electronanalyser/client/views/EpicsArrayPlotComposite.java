@@ -11,7 +11,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.widgets.Composite;
 import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +28,13 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public class EpicsArrayPlotComposite extends Composite implements InitializationListener, IEnergyAxis, IPlotCompositeInitialiser {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsArrayPlotComposite.class);
 	protected String updatePV;
-	protected IVGScientaAnalyser analyser;
+	protected IVGScientaAnalyserRMI analyser;
 	protected IPlottingSystem<Composite> plottingSystem;
 	protected ILineTrace profileLineTrace;
 	protected UpdateListener updateListener;
@@ -189,12 +189,12 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		xAxis.setRange(Math.max(lower, upper), Math.min(lower, upper));
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
 	@Override
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 
