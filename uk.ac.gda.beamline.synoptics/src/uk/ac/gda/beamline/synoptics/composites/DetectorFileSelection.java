@@ -238,7 +238,7 @@ public class DetectorFileSelection extends Composite implements LatestFileDispla
 	public void setFileNumber(int current, int total) {
 		String currentIndex = (total == 0 || current <= 0) ? "" : String.valueOf(current);
 		String lastIndex = (total == 0 || current <= 0) ? "n/a" : " /" + total;
-		boolean first = current == 1;
+		boolean first = current <= 1;
 		boolean last = current >= total || total < 1;
 		Display.getDefault().asyncExec(() -> {
 			formatFileIndex(currentIndex, lastIndex, currentFileIndexText.isFocusControl());
