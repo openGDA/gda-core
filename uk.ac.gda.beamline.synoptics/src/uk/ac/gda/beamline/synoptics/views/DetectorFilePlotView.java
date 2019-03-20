@@ -24,7 +24,10 @@ import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -37,8 +40,11 @@ import org.slf4j.LoggerFactory;
  * A generic view to display detector data file(s) content as plot in selected plot type for new plot or plot over existing data
  */
 public class DetectorFilePlotView extends ViewPart {
-	private static final Logger logger = LoggerFactory.getLogger(DetectorFilePlotView.class);
 	public static final String ID = "uk.ac.gda.beamline.i11.views.DetectorFilePlotView";
+
+	private static final Logger logger = LoggerFactory.getLogger(DetectorFilePlotView.class);
+	private static final String TRACE_NAME = "DetectorPlotTrace";
+
 	private IPlottingSystem<Composite> plottingSystem = null;
 
 	private PlotType currentPlotType = PlotType.XY;
@@ -140,6 +146,33 @@ public class DetectorFilePlotView extends ViewPart {
 		}
 	}
 
+	public void updateImagePlot(ILazyDataset image, String filename) {
+		if (!isDisposed() && !Display.getDefault().isDisposed()) {
+			plottingSystem.clear();
+			if (image.getShape().length > 2) {
+				// If file has multiple frames, only plot first
+				try {
+					image = image.getSlice(new Slice(0, 1, 1)).squeeze();
+				} catch (DatasetException e) {
+					logger.error("Could not plot image trace", e);
+				}
+			}
+			ILazyDataset img = image; // image has to be (effectively) final
+			Display.getDefault().asyncExec(() -> {
+				IImageTrace trace = (IImageTrace) plottingSystem.getTrace(TRACE_NAME);
+				boolean needTrace = trace == null;
+				if (trace == null) {
+					trace = plottingSystem.createImageTrace(TRACE_NAME);
+				}
+				trace.setData(img, null, false);
+				if (needTrace) {
+					plottingSystem.addTrace(trace);
+				}
+				plottingSystem.setTitle(filename);
+				plottingSystem.repaint();
+			});
+		}
+	}
 
 	@Override
 	public void dispose() {

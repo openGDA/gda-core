@@ -22,7 +22,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.io,
  org.slf4j,
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.scisoft.analysis.io
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.beamline.synoptics;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
  uk.ac.gda.beamline.synoptics.api;uses:="org.dawnsci.plotting.api",
