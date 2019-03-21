@@ -511,11 +511,9 @@ public class NexusScanFileManager implements INexusScanFileManager, IPositionLis
 					primaryDevice = scannable;
 					break;
 				}
-				if (primaryDevice == null) {
-					// Could not device with a dataset to use as the @signal field
-					logger.error("Could not create an NXdata group for the nexus file as no suitable dataset could be found.");
-					return;
-				}
+				// Could not device with a dataset to use as the @signal field
+				logger.error("Could not create an NXdata group for the nexus file as no suitable dataset could be found.");
+				return;
 			}
 			primaryDeviceType = ScanRole.SCANNABLE;
 		} else {

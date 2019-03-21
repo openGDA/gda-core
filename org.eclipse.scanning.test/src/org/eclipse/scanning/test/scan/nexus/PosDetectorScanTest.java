@@ -115,19 +115,17 @@ public class PosDetectorScanTest extends NexusTest {
 			NexusFile nf = null;
 			try {
 				ILazyDataset uniqueKeysDataset = null;
-				if (uniqueKeysDataset == null) {
-					nf = fileFactory.newNexusFile(filePath);
-					nf.openToRead();
+				nf = fileFactory.newNexusFile(filePath);
+				nf.openToRead();
 
-					TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-					NXroot root = (NXroot) nexusTree.getGroupNode();
-					NXentry entry = root.getEntry();
+				TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+				NXroot root = (NXroot) nexusTree.getGroupNode();
+				NXentry entry = root.getEntry();
 
-					NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_SOLSTICE_SCAN);
-					NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
-					DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
-					uniqueKeysDataset = dataNode.getDataset();
-				}
+				NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_SOLSTICE_SCAN);
+				NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
+				DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
+				uniqueKeysDataset = dataNode.getDataset();
 
 //				((IDynamicDataset) uniqueKeysDataset).refreshShape();
 				return uniqueKeysDataset.getSlice(); // it's only a small dataset, so this is ok

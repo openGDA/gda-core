@@ -297,8 +297,9 @@ public class ModelFieldEditorFactory {
 
 	private static void showHint(final String hint, final Composite parent) {
 
-		if (parent.isDisposed()) return;
-		if (parent!=null) parent.getDisplay().asyncExec(new Runnable() {
+		if (parent == null || parent.isDisposed()) return;
+
+		parent.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 
