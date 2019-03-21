@@ -138,7 +138,7 @@ public class ScansSetupUsingXmlTest {
 												qexafs_xspress, qexafs_counterTimer01, qexafsFfI0,
 												qexafsScannable};
 
-		final Factory factory = TestHelpers.createTestFactory("test");
+		final Factory factory = TestHelpers.createTestFactory();
 		for(Findable f : findables) {
 			factory.addFindable(f);
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(f.getName(), f);
