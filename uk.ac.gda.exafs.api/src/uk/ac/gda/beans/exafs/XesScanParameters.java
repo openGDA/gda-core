@@ -39,6 +39,7 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	public static final int FIXED_XES_SCAN_XAS = 2;
 	public static final int FIXED_XES_SCAN_XANES = 3;
 	public static final int SCAN_XES_SCAN_MONO = 4;
+	public static final int SCAN_XES_REGION_FIXED_MONO = 5;
 
 	private boolean shouldValidate = true;
 
