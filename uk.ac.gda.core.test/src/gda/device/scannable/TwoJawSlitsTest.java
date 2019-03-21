@@ -46,6 +46,9 @@ import gda.factory.Finder;
  */
 public class TwoJawSlitsTest {
 
+	// Allow for inaccuracy in floating point values
+	private static final double FP_TOLERANCE = 0.0000000001;
+
 	private Factory factory;
 
 	//these names must be unique else they clash with motors in other tests!!!
@@ -68,7 +71,7 @@ public class TwoJawSlitsTest {
 
 	@Before
 	public void setUp() throws Exception {
-		factory = TestHelpers.createTestFactory("test");
+		factory = TestHelpers.createTestFactory();
 		Finder.getInstance().removeAllFactories();
 		Finder finder = Finder.getInstance();
 		finder.addFactory(factory);
@@ -176,10 +179,10 @@ public class TwoJawSlitsTest {
 		double gapMin = gap.getLowerGdaLimits()[0];
 
 		//asserts here!
-		assertEquals(3, positionMax, 0);
-		assertEquals(-3, positionMin, 0);
-		assertEquals(10, gapMax, 0);
-		assertEquals(0, gapMin, 0);
+		assertEquals(3.0, positionMax, FP_TOLERANCE);
+		assertEquals(-3.0, positionMin, FP_TOLERANCE);
+		assertEquals(10.0, gapMax, FP_TOLERANCE);
+		assertEquals(0.0, gapMin, FP_TOLERANCE);
 	}
 
 	@Test
@@ -248,6 +251,4 @@ public class TwoJawSlitsTest {
 			fail("exception during testSetHardwareUnitString: " + e.getMessage());
 		}
 	}
-
-
 }
