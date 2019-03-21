@@ -21,7 +21,6 @@ package gda.device.scannable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import fr.esrf.Tango.DevFailed;
@@ -29,7 +28,6 @@ import fr.esrf.TangoApi.DeviceAttribute;
 import gda.device.TangoDeviceProxy;
 import gda.device.impl.DummyTangoDeviceImpl;
 
-@Ignore("DAQ-1322 This test requires Jacorb need to resolve dependencies following Corba removal")
 public class TangoScannableTest {
 	private TangoDeviceProxy dev;
 	private TangoScannable scannable = new TangoScannable();
