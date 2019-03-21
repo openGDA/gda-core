@@ -109,6 +109,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.moveTo(braggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(braggAngle));
+		checkPosition(xesSpectrometer.getXtal_x(), getSpectrometerXPos(braggAngle));
 		checkPositions(xesSpectrometer.getMinusCrystalGroup(), getMinusPosition(braggAngle));
 		checkPositions(xesSpectrometer.getCentreCrystalGroup(), getCentrePosition(braggAngle));
 		checkPositions(xesSpectrometer.getPlusCrystalGroup(), getPlusPosition(braggAngle));
@@ -122,6 +123,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
+		checkPosition(xesSpectrometer.getXtal_x(), getSpectrometerXPos(newBraggAngle));
 		// 'minus' crystal should be at original location
 		checkPositions(xesSpectrometer.getMinusCrystalGroup(), getMinusPosition(origBraggAngle));
 		checkPositions(xesSpectrometer.getCentreCrystalGroup(), getCentrePosition(newBraggAngle));
@@ -136,6 +138,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
+		checkPosition(xesSpectrometer.getXtal_x(), getSpectrometerXPos(newBraggAngle));
 		checkPositions(xesSpectrometer.getMinusCrystalGroup(), getMinusPosition(newBraggAngle));
 		// centre crystal should be at original location
 		checkPositions(xesSpectrometer.getCentreCrystalGroup(), getCentrePosition(origBraggAngle));
@@ -150,6 +153,7 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
+		checkPosition(xesSpectrometer.getXtal_x(), getSpectrometerXPos(newBraggAngle));
 		checkPositions(xesSpectrometer.getMinusCrystalGroup(), getMinusPosition(newBraggAngle));
 		checkPositions(xesSpectrometer.getCentreCrystalGroup(), getCentrePosition(newBraggAngle));
 		// 'plus' crystal should be at original location
@@ -169,6 +173,7 @@ public class XesSpectrometerScannableTest {
 		checkPositions(xesSpectrometer.getMinusCrystalGroup(), getMinusPosition(braggAngle));
 		checkPositions(xesSpectrometer.getCentreCrystalGroup(), getCentrePosition(braggAngle));
 		checkPositions(xesSpectrometer.getPlusCrystalGroup(), getPlusPosition(braggAngle));
+		checkPosition(xesSpectrometer.getXtal_x(), getSpectrometerXPos(braggAngle));
 	}
 
 	private void checkPositions(ScannableGroup group, double[] expectedPositions) throws NumberFormatException, DeviceException {
@@ -179,7 +184,11 @@ public class XesSpectrometerScannableTest {
 			assertEquals("Value for '"+scannables.get(i).getName()+"' in scannable group '"+group.getName()+"' is not within tolerance",
 						expectedPositions[i], position, tolerance);
 		}
+	}
 
+	private void checkPosition(Scannable scannable, double expectedPosition) throws NumberFormatException, DeviceException {
+		double position = Double.valueOf(scannable.getPosition().toString());
+		assertEquals("Value for '"+scannable.getName()+"' is not within tolerance", expectedPosition, position, tolerance);
 	}
 
 	private double[] getDetPosition(double bragg) {
@@ -196,8 +205,11 @@ public class XesSpectrometerScannableTest {
 	}
 
 	private double[] getCentrePosition(double bragg) {
-		double targetL = XesUtils.getL(radius, bragg);
 		double angle = XesUtils.getCrystalRotation(bragg);
-		return new double[] {targetL, angle};
+		return new double[] {angle};
+	}
+
+	private double getSpectrometerXPos(double bragg) {
+		return XesUtils.getL(radius, bragg);
 	}
 }
