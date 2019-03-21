@@ -30,6 +30,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.configuration.properties.LocalProperties;
+import gda.util.Version;
 
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
@@ -61,13 +62,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		final String suffix = LocalProperties.get(LocalProperties.GDA_GUI_TITLEBAR_SUFFIX);
 		String title;
 		if (prefix != null) {
-			title = prefix + " - GDA - " + gda.util.Version.getRelease();
+			title = prefix + " - GDA - " + Version.getRelease();
 		} else if (suffix != null){
-			title = "GDA " + gda.util.Version.getRelease() + " " + suffix;
+			title = "GDA " + Version.getRelease() + " " + suffix;
 		} else {
 			String beamLineName = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 			title = String.format("Data Acquisition Client - Beamline %s - %s", beamLineName == null ? "Unknown"
-					: beamLineName.toUpperCase(), gda.util.Version.getRelease());
+					: beamLineName.toUpperCase(), Version.getRelease());
 		}
 		configurer.setTitle(title);
 
