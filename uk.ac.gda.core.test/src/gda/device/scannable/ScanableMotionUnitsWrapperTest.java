@@ -18,16 +18,17 @@
 
 package gda.device.scannable;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import gda.device.ScannableMotionUnits;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScanableMotionUnitsWrapperTest {
+import gda.device.ScannableMotionUnits;
 
+public class ScanableMotionUnitsWrapperTest {
 
 	private ScannableMotionUnitsWrapper wrapper;
 	private ScannableMotionUnits delegate;
@@ -41,18 +42,18 @@ public class ScanableMotionUnitsWrapperTest {
 
 	@Test
 	public void testSetGetExtraNames() {
-		when(delegate.getExtraNames()).thenReturn(new String[] {"a","b"});
-		assertEquals(new String[] {"a","b"}, wrapper.getExtraNames());
-		wrapper.setExtraNames(new String[] {"c","d"});
-		assertEquals(new String[] {"c","d"}, wrapper.getExtraNames());
+		when(delegate.getExtraNames()).thenReturn(new String[] { "a", "b" });
+		assertArrayEquals(new String[] { "a", "b" }, wrapper.getExtraNames());
+		wrapper.setExtraNames(new String[] { "c", "d" });
+		assertArrayEquals(new String[] { "c", "d" }, wrapper.getExtraNames());
 	}
 
 	@Test
 	public void testSetGetInputNames() {
-		when(delegate.getInputNames()).thenReturn(new String[] {"a","b"});
-		assertEquals(new String[] {"a","b"}, wrapper.getInputNames());
-		wrapper.setInputNames(new String[] {"c","d"});
-		assertEquals(new String[] {"c","d"}, wrapper.getInputNames());
+		when(delegate.getInputNames()).thenReturn(new String[] { "a", "b" });
+		assertArrayEquals(new String[] { "a", "b" }, wrapper.getInputNames());
+		wrapper.setInputNames(new String[] { "c", "d" });
+		assertArrayEquals(new String[] { "c", "d" }, wrapper.getInputNames());
 	}
 
 	@Test
@@ -62,5 +63,4 @@ public class ScanableMotionUnitsWrapperTest {
 		wrapper.setName("cd");
 		assertEquals("cd", wrapper.getName());
 	}
-
 }
