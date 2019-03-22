@@ -28,10 +28,12 @@ import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.PointStyle;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,14 +115,16 @@ public class PlottingController {
 	public void updatePlotRegionFrom(IMappingScanRegionShape scanRegion) {
 		checkPlottingSystem();
 		if (scanRegion != null) {
-			IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
-			if (plotRegion == null) {
-				plotRegion = createNewPlotRegion(scanRegion);
-				mapPlottingSystem.addRegion(plotRegion);
-			}
-			updatingROIFromRegion = true;
-			plotRegion.setROI(scanRegion.toROI());
-			updatingROIFromRegion = false;
+			PlatformUI.getWorkbench().getService(UISynchronize.class).asyncExec(() -> {
+				IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
+				if (plotRegion == null) {
+					plotRegion = createNewPlotRegion(scanRegion);
+					mapPlottingSystem.addRegion(plotRegion);
+				}
+				updatingROIFromRegion = true;
+				plotRegion.setROI(scanRegion.toROI());
+				updatingROIFromRegion = false;
+			});
 		}
 	}
 
