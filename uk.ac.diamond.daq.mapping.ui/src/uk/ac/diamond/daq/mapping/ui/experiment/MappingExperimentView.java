@@ -106,10 +106,6 @@ public class MappingExperimentView implements IAdaptable {
 	private StatusPanel statusPanel;
 
 	@Inject
-	private PlottingController plotter;
-	@Inject
-	private BeamPositionPlotter beamPositionPlotter;
-	@Inject
 	private IEclipseContext injectionContext;
 	@Inject
 	private ScanRequestConverter scanRequestConverter;
@@ -149,10 +145,6 @@ public class MappingExperimentView implements IAdaptable {
 
 	@PostConstruct
 	public void createView(Composite parent, MPart part) {
-		// It'd really be better if the beam position plotter could initialise itself when the map plot view was
-		// created, but there doesn't seem to be a good way to hook into that, so we use the creation of the GUI
-		// elements for this view as a proxy since it happens at around the same time.
-		beamPositionPlotter.init();
 
 		loadPreviousState(part);
 
@@ -348,9 +340,6 @@ public class MappingExperimentView implements IAdaptable {
 	}
 
 	protected void disposeInternal() {
-		plotter.dispose();
-		beamPositionPlotter.dispose();
-
 		for (IMappingSection section : sections.values()) {
 			section.dispose();
 		}
@@ -360,7 +349,6 @@ public class MappingExperimentView implements IAdaptable {
 	@Optional
 	private void updateUiWithPathInfo(@UIEventTopic(PathInfoCalculatorJob.PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
 		statusPanel.setPathInfo(pathInfo);
-		plotter.plotPath(pathInfo);
 	}
 
 	@Inject
