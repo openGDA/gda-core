@@ -22,6 +22,8 @@ import uk.ac.diamond.daq.msgbus.MsgBus.Msg;
 
 public abstract class NcdMsg extends Msg implements NcdMetadataFileMsg {
 
+	private static final long serialVersionUID = 1L;
+
 	private final String detectorType;
 	private final NcdMetaType metaType;
 
@@ -61,16 +63,25 @@ public abstract class NcdMsg extends Msg implements NcdMetadataFileMsg {
 	}
 
 	public static class StatusUpdate extends NcdMsg {
+
+		private static final long serialVersionUID = 1L;
+
 		public StatusUpdate(String detectorType, NcdMetaType metaType, String filepath, String internalPath) {
 			super(detectorType, metaType, filepath, internalPath);
 		}
 	}
 	public static class ChangeRequest extends NcdMsg {
+
+		private static final long serialVersionUID = 1L;
+
 		public ChangeRequest(String detectorType, NcdMetaType metaType, String filepath, String internalPath) {
 			super(detectorType, metaType, filepath, internalPath);
 		}
 	}
 	public static class Refresh extends NcdMsg {
+
+		private static final long serialVersionUID = 1L;
+
 		public Refresh(String detectorType, NcdMetaType metaType) {
 			super(detectorType, metaType, null, null);
 		}
