@@ -50,6 +50,8 @@ public class PlottingController {
 	public static final String MAPPING_PATH_NAME = "Mapping Scan Path";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlottingController.class);
+	private static final int DEFAULT_PATH_TRACE_WIDTH = 1;
+	private static final int DEFAULT_PATH_POINT_SIZE = 4;
 
 	private IPlottingService plottingService;
 	private String plottingSystemName = "Map";
@@ -185,6 +187,8 @@ public class PlottingController {
 			ILineTrace pathTrace = mapPlottingSystem.createLineTrace(MAPPING_PATH_NAME);
 			pathTrace.setTraceColor(scanPathColour);
 			pathTrace.setPointStyle(PointStyle.SQUARE);
+			pathTrace.setPointSize(DEFAULT_PATH_POINT_SIZE);
+			pathTrace.setLineWidth(DEFAULT_PATH_TRACE_WIDTH);
 			pathTrace.setVisible(scanPathVisible);
 
 			// Get the point coordinates from the last path info and add them to the trace
