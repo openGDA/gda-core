@@ -71,10 +71,14 @@ public class PlanSummaryPage  extends WizardPage {
 				summaryText.append("\n\t\tSEV: ").append(decodeSignalSource(trigger.getSignalSource(), 
 						trigger.getSampleEnvironmentVariableName()));
 				summaryText.append("\n\t\tExecution Policy: ").append(trigger.getExecutionPolicy());
-				summaryText.append("\n\t\t\tValue: ").append(trigger.getTarget());
-				if (trigger.getExecutionPolicy() == ExecutionPolicy.SINGLE 
-						&& trigger.getSignalSource() == SignalSource.POSITION) {
-					summaryText.append("\n\t\t\tTolerance: ").append(trigger.getTolerance());
+				if (trigger.getExecutionPolicy() == ExecutionPolicy.SINGLE) {
+					summaryText.append("\n\t\t\tValue: ").append(trigger.getTarget());
+					if(trigger.getSignalSource() == SignalSource.POSITION) {
+						summaryText.append("\n\t\t\tTolerance: ").append(trigger.getTolerance());
+					}
+				}
+				if (trigger.getExecutionPolicy() == ExecutionPolicy.REPEATING) {
+					summaryText.append("\n\t\t\tInterval: ").append(trigger.getInterval());
 				}
 			}
 		}
