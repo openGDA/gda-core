@@ -77,9 +77,17 @@ public class BatonManager implements IBatonManager {
 
 	public BatonManager() {
 
-		firstClientTakesBaton = LocalProperties.get("gda.accesscontrol.firstClientTakesBaton", "true").equals("true");
-
 		useBaton = LocalProperties.isBatonManagementEnabled();
+
+		if (!useBaton) {
+			// if baton control not in use and this is the only client, then set this as the baton
+			// holder (meaning in this case the only client. This is useful as it gives this client
+			// certain privileges in this class which subsequent clients do not have e.g. to set
+			// the visit ID).
+			firstClientTakesBaton = true;
+		} else {
+			firstClientTakesBaton = LocalProperties.get("gda.accesscontrol.firstClientTakesBaton", "true").equals("true");
+		}
 
 		useRBAC = LocalProperties.isAccessControlEnabled();
 
@@ -136,19 +144,12 @@ public class BatonManager implements IBatonManager {
 
 			facadeNames.put(uniqueID, info.copy());
 
-			// if baton control not in use and this is the only client, the set this as the baton
-			// holder (meaning in this case the only client. This is useful as it gives this client
-			// certain privileges in this class which subsequent clients do not have e.g. to set
-			// the visit ID).
-			if (!useBaton && leaseHolders.isEmpty() && !info.isServer()) {
-				changeBatonHolder(uniqueID);
-			}
-			// if baton in use and firstClientTakesBaton flag set and this is the first client
-			else if (firstClientTakesBaton &&
-					useBaton &&
-					leaseHolders.isEmpty() &&
-					!info.isServer() &&
-					!info.isAutomatedUser()) {
+			// Decide if client should get the baton or not
+			if (firstClientTakesBaton
+					&& !isBatonHeld()
+					&& !info.isServer()
+					&& !info.isAutomatedUser()
+					) {
 				changeBatonHolder(uniqueID);
 			}
 
