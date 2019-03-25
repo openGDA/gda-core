@@ -33,15 +33,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import gda.util.QuantityFactory;
 
 /**
  * Class to hold the contents of the JEPConverter file.
@@ -49,13 +45,14 @@ import gda.util.QuantityFactory;
 final class JEPQuantityConverterParameters {
 	final String expressionTtoS, expressionStoT;
 
-	final List<Unit<? extends Quantity>> acceptableSourceUnits, acceptableTargetUnits;
+	final List<String> acceptableSourceUnits;
+	final List<String> acceptableTargetUnits;
 
 	final boolean sourceMinIsTargetMax;
 
 	JEPQuantityConverterParameters(String expressionTtoS, String expressionStoT,
-			List<Unit<? extends Quantity>> acceptableSourceUnits,
-			List<Unit<? extends Quantity>> acceptableTargetUnits, boolean sourceMinIsTargetMax) {
+			List<String> acceptableSourceUnits,
+			List<String> acceptableTargetUnits, boolean sourceMinIsTargetMax) {
 		this.expressionTtoS = expressionTtoS;
 		this.expressionStoT = expressionStoT;
 		this.acceptableSourceUnits = acceptableSourceUnits;
@@ -81,13 +78,13 @@ final class JEPQuantityConverterParameters {
 
 	// todo should make a copy but as this is a private class I can ensure
 	// the returned value is not changed
-	List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	List<String> getAcceptableSourceUnits() {
 		return acceptableSourceUnits;
 	}
 
 	// todo should make a copy but as this is a private class I can ensure
 	// the returned value is not changed
-	List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	List<String> getAcceptableTargetUnits() {
 		return acceptableTargetUnits;
 	}
 
@@ -101,10 +98,10 @@ final class JEPQuantityConverterParameters {
 		String filePath = filename;
 
 		if (filename.equals(jUnitTestFileName)) {
-			final List<Unit<? extends Quantity>> acceptableSourceUnits = new ArrayList<>();
-			acceptableSourceUnits.add(QuantityFactory.createUnitFromString("Ang"));
-			final List<Unit<? extends Quantity>> acceptableTargetUnits = new ArrayList<>();
-			acceptableTargetUnits.add(QuantityFactory.createUnitFromString("mm"));
+			final List<String> acceptableSourceUnits = new ArrayList<>();
+			acceptableSourceUnits.add("Ang");
+			final List<String> acceptableTargetUnits = new ArrayList<>();
+			acceptableTargetUnits.add("mm");
 			return new JEPQuantityConverterParameters("2*X", "X/2", acceptableSourceUnits, acceptableTargetUnits, false);
 		}
 		try {
@@ -188,12 +185,10 @@ final class JEPQuantityConverterParameters {
 			Node topNode = topNodeList.item(0);
 			String expressionTtoS = getStringFromNodeList(topNode, expressionTtoSString);
 			String expressionStoT = getStringFromNodeList(topNode, expressionStoTString);
-			final List<Unit<? extends Quantity>> acceptableSourceUnits = new ArrayList<>();
-			acceptableSourceUnits.add(QuantityFactory.createUnitFromString(getStringFromNodeList(topNode,
-					acceptableSourceUnitsString)));
-			final List<Unit<? extends Quantity>> acceptableTargetUnits = new ArrayList<>();
-			acceptableTargetUnits.add(QuantityFactory.createUnitFromString(getStringFromNodeList(topNode,
-					acceptableTargetUnitsString)));
+			final List<String> acceptableSourceUnits = new ArrayList<>();
+			acceptableSourceUnits.add(getStringFromNodeList(topNode, acceptableSourceUnitsString));
+			final List<String> acceptableTargetUnits = new ArrayList<>();
+			acceptableTargetUnits.add(getStringFromNodeList(topNode, acceptableTargetUnitsString));
 			boolean sourceMinIsTargetMax = getBooleanFromNodeList(topNode, sourceMinIsTargetMaxString, false);
 
 			jepQuantityConverterParameters = new JEPQuantityConverterParameters(expressionTtoS, expressionStoT,

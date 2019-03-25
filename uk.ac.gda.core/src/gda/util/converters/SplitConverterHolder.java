@@ -22,7 +22,6 @@ package gda.util.converters;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 /**
  * Class that can be used to create a converter made up of two other converters in such a way that one converter is used
@@ -141,12 +140,12 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<String>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<String>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -161,12 +160,12 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableTargetUnits();
 	}
 

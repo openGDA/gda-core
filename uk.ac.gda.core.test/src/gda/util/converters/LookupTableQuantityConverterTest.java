@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
+import gda.jscience.physics.units.NonSIext;
 import gda.util.converters.LookupTableQuantityConverter.Mode;
 
 /**
@@ -41,6 +42,7 @@ public class LookupTableQuantityConverterTest {
 
 	@BeforeClass
 	public static void setUp() {
+		NonSIext.initializeClass();
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/util/converters/LookupTableQuantityConverterTest");
 	}
 
@@ -377,11 +379,13 @@ public class LookupTableQuantityConverterTest {
 		assertEquals(3.0, sourceQuantity.getAmount(), DELTA);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Unit<? extends Quantity> getAcceptableTargetUnits(final IQuantityConverter converter) {
-		return converter.getAcceptableTargetUnits().get(0);
+		return Unit.valueOf(converter.getAcceptableTargetUnits().get(0));
 	}
 
+	@SuppressWarnings("unchecked")
 	private Unit<? extends Quantity> getAcceptableSourceUnits(final IQuantityConverter converter) {
-		return converter.getAcceptableSourceUnits().get(0);
+		return Unit.valueOf(converter.getAcceptableSourceUnits().get(0));
 	}
 }

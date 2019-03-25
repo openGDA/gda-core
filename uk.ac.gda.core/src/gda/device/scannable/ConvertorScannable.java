@@ -140,7 +140,8 @@ public class ConvertorScannable extends ScannableMotionUnitsBase implements IObs
 		final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(sourcePositionAmount,
 				QuantityFactory.createUnitFromString(theScannable.getUserUnits()));
 
-		final Quantity targetPositionInTargetUnits = sourcePositionQuantity.to(theConvertor.getAcceptableTargetUnits().get(0));
+		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(theConvertor.getAcceptableTargetUnits().get(0));
+		final Quantity targetPositionInTargetUnits = sourcePositionQuantity.to(acceptableTargetUnits);
 
 		try {
 			Quantity currentPositionInHardwareUnits = theConvertor.toSource(targetPositionInTargetUnits);

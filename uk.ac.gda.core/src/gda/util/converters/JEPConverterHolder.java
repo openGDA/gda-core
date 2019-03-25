@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -151,12 +150,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<String>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<String>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
@@ -184,12 +183,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return getConverter().getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return getConverter().getAcceptableTargetUnits();
 	}
 

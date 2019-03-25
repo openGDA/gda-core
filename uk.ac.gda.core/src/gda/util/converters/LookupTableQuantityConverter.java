@@ -43,7 +43,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 
 	private final int sColumn, tColumn;
 
-	private final List<Unit<? extends Quantity>> acceptableSourceUnits, acceptableTargetUnits;
+	private final List<String> acceptableSourceUnits, acceptableTargetUnits;
 
 	private final String columnDataFileName;
 
@@ -123,8 +123,12 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			// to do if the x values are the same then duplicate the first
 			// and last so that conversion of min and max target gives min
 			// and max source.
-			final Unit<? extends Quantity> sColumnUnits = columnDataFile.getColumnUnits(sColumn);
-			final Unit<? extends Quantity> tColumnUnits = columnDataFile.getColumnUnits(tColumn);
+			final String sColumnUnitsString = columnDataFile.getColumnUnits(sColumn);
+			final String tColumnUnitsString = columnDataFile.getColumnUnits(tColumn);
+			@SuppressWarnings("unchecked")
+			final Unit<? extends Quantity> sColumnUnits = Unit.valueOf(sColumnUnitsString);
+			@SuppressWarnings("unchecked")
+			final Unit<? extends Quantity> tColumnUnits = Unit.valueOf(tColumnUnitsString);
 			if (performStoT()) {
 				if (extrapolate) {
 					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn),
@@ -157,10 +161,10 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			}
 
 			acceptableSourceUnits = new ArrayList<>();
-			acceptableSourceUnits.add(sColumnUnits);
+			acceptableSourceUnits.add(sColumnUnitsString);
 
 			acceptableTargetUnits = new ArrayList<>();
-			acceptableTargetUnits.add(tColumnUnits);
+			acceptableTargetUnits.add(tColumnUnitsString);
 		} catch (IndexOutOfBoundsException exception) {
 			throw new IllegalArgumentException(
 					"LookupTableQuantityConverter.LookupTableQuantityConverter: Error accessing data from ColumnDataFile - check the column indices are correct. "
@@ -176,12 +180,12 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return acceptableSourceUnits;
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return acceptableTargetUnits;
 	}
 
@@ -192,7 +196,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 					"LookupTableQuantityConverter.toSource: Mode does not allow T→S conversion. "
 							+ this.toString());
 		}
-		final Unit<? extends Quantity> acceptableUnits = getAcceptableTargetUnits().get(0);
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
 		if (!target.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toSource: target units ("
 					+ target.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "
@@ -216,7 +221,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 					"LookupTableQuantityConverter.toTarget: Mode does not allow S→T conversion. "
 							+ this.toString());
 		}
-		final Unit<? extends Quantity> acceptableUnits = getAcceptableSourceUnits().get(0);
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
 		if (!source.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toTarget: source units ("
 					+ source.getUnit() + ") are not compatible with acceptable units (" + acceptableUnits + "). "

@@ -66,12 +66,12 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return expressionParameters.getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return expressionParameters.getAcceptableTargetUnits();
 	}
 
@@ -80,9 +80,11 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	 */
 	@Override
 	public synchronized Quantity toSource(Quantity target) {
-		if (!target.getUnit().equals(getAcceptableTargetUnits().get(0))) {
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+		if (!target.getUnit().equals(acceptableTargetUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: target units (" + target.getUnit()
-					+ ") do not match acceptableUnits (" + getAcceptableTargetUnits().get(0) + ")" + this.toString());
+					+ ") do not match acceptableUnits (" + acceptableTargetUnits + ")" + this.toString());
 		}
 
 		jepTtoS.addVariable(VariableName, target.getAmount()); // getAmount
@@ -98,7 +100,9 @@ final class JEPQuantityConverter implements IQuantityConverter {
 					+ target.getAmount() + " expression = " + expressionParameters.getExpressionTtoS() + " "
 					+ this.toString());
 		}
-		return Quantity.valueOf(val, getAcceptableSourceUnits().get(0));
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
+		return Quantity.valueOf(val, acceptableSourceUnits);
 	}
 
 	/*
@@ -106,9 +110,11 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	 */
 	@Override
 	public synchronized Quantity toTarget(Quantity source) {
-		if (!source.getUnit().equals(getAcceptableSourceUnits().get(0))) {
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
+		if (!source.getUnit().equals(acceptableSourceUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: source units (" + source.getUnit()
-					+ ") do not match acceptableUnits (" + getAcceptableSourceUnits().get(0) + ") " + this.toString());
+					+ ") do not match acceptableUnits (" + acceptableSourceUnits + ") " + this.toString());
 		}
 
 		jepStoT.addVariable(VariableName, source.getAmount());
@@ -120,7 +126,9 @@ final class JEPQuantityConverter implements IQuantityConverter {
 					+ source.getAmount() + " expression = " + expressionParameters.getExpressionStoT() + " "
 					+ this.toString());
 		}
-		return Quantity.valueOf(val, getAcceptableTargetUnits().get(0));
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+		return Quantity.valueOf(val, acceptableTargetUnits);
 	}
 
 	@Override

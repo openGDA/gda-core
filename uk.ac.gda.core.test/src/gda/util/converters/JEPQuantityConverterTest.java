@@ -24,7 +24,10 @@ import static org.junit.Assert.fail;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.jscience.physics.units.NonSIext;
 
 /**
  * JEPQuantityConverterTest Class
@@ -33,6 +36,11 @@ import org.junit.Test;
  */
 public class JEPQuantityConverterTest {
 	private static final String TEST_FILE_FOLDER = "testfiles/gda/util/converters/JEPQuantityConverterTest";
+
+	@BeforeClass
+	public static void setUpClass() {
+		NonSIext.initializeClass();
+	}
 
 	@Test
 	public void testToSource() throws Exception {
@@ -104,8 +112,9 @@ public class JEPQuantityConverterTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private Unit<? extends Quantity> getAcceptableTargetUnits(final IQuantityConverter converter) {
-		return converter.getAcceptableTargetUnits().get(0);
+		return Unit.valueOf(converter.getAcceptableTargetUnits().get(0));
 	}
 
 	private void testConverter(final IQuantityConverter converter) throws Exception {

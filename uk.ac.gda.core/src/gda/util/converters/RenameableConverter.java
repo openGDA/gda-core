@@ -21,7 +21,6 @@ package gda.util.converters;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 /**
  * RenameableConverter Class
@@ -121,7 +120,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableUnits()
 	 */
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<String>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
@@ -129,7 +128,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	 * @see gda.util.converters.IQuantitiesConverter#getAcceptableMoveableUnits()
 	 */
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<String>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -148,7 +147,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	 * @see gda.util.converters.IQuantityConverter#getAcceptableSourceUnits()
 	 */
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableSourceUnits();
 	}
 
@@ -156,7 +155,7 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	 * @see gda.util.converters.IQuantityConverter#getAcceptableTargetUnits()
 	 */
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableTargetUnits();
 	}
 

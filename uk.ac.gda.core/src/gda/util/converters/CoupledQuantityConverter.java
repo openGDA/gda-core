@@ -47,12 +47,12 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return sourceConverter.getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return targetConverter.getAcceptableTargetUnits();
 	}
 
@@ -69,18 +69,20 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 		Quantity q = sourceConverter.toTarget(source);
 		// check units are of the sort we expect for the conversion - else
 		// convert to it first
-		if (!q.getUnit().equals(getTargetConverterSourceUnit())) {
+		@SuppressWarnings("unchecked")
+		final Unit<? extends Quantity> targetUnit = Unit.valueOf(getTargetConverterSourceUnit());
+		if (!q.getUnit().equals(targetUnit)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: source units (" + q.getUnit()
-					+ ") do not match acceptableUnits (" + getTargetConverterSourceUnit() + ")");
+					+ ") do not match acceptableUnits (" + targetUnit + ")");
 		}
 		return targetConverter.toTarget(q);
 	}
 
-	private Unit<? extends Quantity> getSourceConverterTargetUnit() {
+	private String getSourceConverterTargetUnit() {
 		return sourceConverter.getAcceptableTargetUnits().get(0);
 	}
 
-	private Unit<? extends Quantity> getTargetConverterSourceUnit() {
+	private String getTargetConverterSourceUnit() {
 		return targetConverter.getAcceptableSourceUnits().get(0);
 	}
 

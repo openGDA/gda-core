@@ -22,7 +22,6 @@ package gda.util.converters;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 public interface IQuantitiesConverter {
 
@@ -56,7 +55,7 @@ public interface IQuantitiesConverter {
 	 * @return Each element of the array is an array of units that is acceptable for the corresponding source in calls
 	 *         to calculateMoveables
 	 */
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits();
+	public List<List<String>> getAcceptableUnits();
 
 	/**
 	 * Returns the units in which the targets quantities passed into ToSource can be expressed
@@ -64,7 +63,7 @@ public interface IQuantitiesConverter {
 	 * @return Each element of the array is an array of units that is acceptable for the corresponding target in calls
 	 *         to ToSource
 	 */
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits();
+	public List<List<String>> getAcceptableMoveableUnits();
 
 	/**
 	 * Returns true is the conversion reverses the sense. So that to get the max of the source you convert the min of

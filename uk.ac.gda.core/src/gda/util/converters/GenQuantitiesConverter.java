@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 /**
  * Package private class used by the public LookupTableConverterHolder and JEPConverterHolder This is a helper class to
@@ -40,8 +39,8 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
-		final List<List<Unit<? extends Quantity>>> units = new ArrayList<>();
+	public List<List<String>> getAcceptableUnits() {
+		final List<List<String>> units = new ArrayList<>();
 		units.add(converter.getAcceptableSourceUnits());
 		return units;
 	}
@@ -63,8 +62,8 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
-		final List<List<Unit<? extends Quantity>>> units = new ArrayList<>();
+	public List<List<String>> getAcceptableMoveableUnits() {
+		final List<List<String>> units = new ArrayList<>();
 		units.add(converter.getAcceptableTargetUnits());
 		return units;
 	}
@@ -74,11 +73,11 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 		return "GenQuantitiesConverter wrapper of  " + converter.toString();
 	}
 
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return converter.getAcceptableSourceUnits();
 	}
 
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return converter.getAcceptableTargetUnits();
 	}
 

@@ -22,7 +22,6 @@ package gda.util.converters;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 /**
  * Used by <code>gda.util.converters.GenQuantitiesConverter</code> to convert between two Quantities.
@@ -33,12 +32,12 @@ public interface IQuantityConverter extends IConverter<Quantity, Quantity> {
 	/**
 	 * @return AcceptableSourceUnits
 	 */
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits();
+	public List<String> getAcceptableSourceUnits();
 
 	/**
 	 * @return AcceptableTargetUnits
 	 */
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits();
+	public List<String> getAcceptableTargetUnits();
 
 	/**
 	 *

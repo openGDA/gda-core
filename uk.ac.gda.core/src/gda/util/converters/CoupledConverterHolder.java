@@ -22,7 +22,6 @@ package gda.util.converters;
 import java.util.List;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -162,12 +161,12 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<String>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<String>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -227,12 +226,12 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return getIQuantityConverter(getConverter()).getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return getIQuantityConverter(getConverter()).getAcceptableTargetUnits();
 	}
 

@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -37,7 +35,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.util.QuantityFactory;
 
 /**
  * Reads a file which contains columnar data and allows access to the columns. The file format is: # Any line beginning
@@ -57,7 +54,7 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 
 	private double[][] columnData;
 
-	private List<Unit<? extends Quantity>> columnUnits;
+	private List<String> columnUnits;
 
 	private int[] columnDecimalPlaces;
 
@@ -165,11 +162,7 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 				if (unitString.equals("\"\"")) {
 					unitString = "";
 				}
-				final Unit<? extends Quantity> unit = QuantityFactory.createUnitFromString(unitString);
-				if(unit == null){
-					throw new RuntimeException("unit is null for string " + unitStrings[i + 1]);
-				}
-				columnUnits.add(unit);
+				columnUnits.add(unitString);
 			}
 		}
 		// Create array in column (i.e. the opposite to the file) order
@@ -249,7 +242,7 @@ public class ColumnDataFile extends ConfigurableBase implements Findable {
 	 * @param which
 	 * @return the Unit
 	 */
-	public Unit<? extends Quantity> getColumnUnits(int which) {
+	public String getColumnUnits(int which) {
 		return columnUnits.get(which);
 	}
 

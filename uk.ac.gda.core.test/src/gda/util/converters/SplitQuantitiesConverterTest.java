@@ -21,9 +21,6 @@ package gda.util.converters;
 
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-
 import junit.framework.TestCase;
 
 /**
@@ -60,13 +57,11 @@ public class SplitQuantitiesConverterTest extends TestCase {
 		SplitQuantitiesConverter splitConverter = new SplitQuantitiesConverter(toSourceConverter,
 				calcMoveablesConverter);
 
-		List<List<Unit<? extends Quantity>>> acceptableUnits = splitConverter.getAcceptableUnits();
-		List<List<Unit<? extends Quantity>>> acceptableMoveableUnits = splitConverter
-				.getAcceptableMoveableUnits();
+		List<List<String>> acceptableUnits = splitConverter.getAcceptableUnits();
+		List<List<String>> acceptableMoveableUnits = splitConverter.getAcceptableMoveableUnits();
 
-		List<List<Unit<? extends Quantity>>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
-		List<List<Unit<? extends Quantity>>> acceptableToSourceMoveableUnits = toSourceConverter
-				.getAcceptableMoveableUnits();
+		List<List<String>> acceptableCalcMoveablesUnits = calcMoveablesConverter.getAcceptableUnits();
+		List<List<String>> acceptableToSourceMoveableUnits = toSourceConverter.getAcceptableMoveableUnits();
 
 		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableCalcMoveablesUnits, acceptableUnits));
 		assertTrue(LookupTableConverterHolder.UnitsAreEqual(acceptableToSourceMoveableUnits, acceptableMoveableUnits));

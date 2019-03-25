@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 
 import gda.util.converters.util.ConverterNameProvider;
 
@@ -109,12 +108,12 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableUnits() {
+	public List<List<String>> getAcceptableUnits() {
 		return getConverter().getAcceptableUnits();
 	}
 
 	@Override
-	public List<List<Unit<? extends Quantity>>> getAcceptableMoveableUnits() {
+	public List<List<String>> getAcceptableMoveableUnits() {
 		return getConverter().getAcceptableMoveableUnits();
 	}
 
@@ -127,12 +126,12 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableSourceUnits() {
+	public List<String> getAcceptableSourceUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableSourceUnits();
 	}
 
 	@Override
-	public List<Unit<? extends Quantity>> getAcceptableTargetUnits() {
+	public List<String> getAcceptableTargetUnits() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).getAcceptableTargetUnits();
 	}
 

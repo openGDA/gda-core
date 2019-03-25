@@ -108,15 +108,16 @@ public class InterpolationFunction extends FindableFunction implements Configura
 		this(xvalues, yvalues, xunits, yunits, decimalPlacesToPreventRounding);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure() {
 		if (!configured) {
 			cdf = (ColumnDataFile) Finder.getInstance().find(cdfName);
 			numberOfXValues = cdf.getNumberOfXValues();
 			xValues = cdf.getColumn(xColumn);
-			xUnits = cdf.getColumnUnits(xColumn);
+			xUnits = Unit.valueOf(cdf.getColumnUnits(xColumn));
 			yValues = cdf.getColumn(yColumn);
-			yUnits = cdf.getColumnUnits(yColumn);
+			yUnits = Unit.valueOf(cdf.getColumnUnits(yColumn));
 			yPlaces = cdf.getColumnDecimalPlaces(yColumn);
 			configured = true;
 		}
