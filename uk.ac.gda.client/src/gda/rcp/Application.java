@@ -160,13 +160,6 @@ public class Application implements IApplication {
 			if (problem == null) {
 				problem = "A " + ne.getClass().getName() + " was thrown.";
 			}
-			if (problem.contains("Could not initialise NetService: org.omg.CORBA.TRANSIENT")) {
-				resolution = "The GDA client cannot connect to the GDA servers, so it is likely that the GDA servers are not running."
-						+ "\n\nThe usual remedy is to Restart GDA Servers from the Diamond Launcher before restarting the GDA client.";
-			}
-			else if (problem.contains("NetService: init org.omg.CORBA.ORBPackage.InvalidName")) {
-				resolution = "It is likely that the existing workspace is incompatible with an updated client.\n\n" + resolution;
-			}
 			MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
 			messageBox.setText("Cannot Start GDA Client");
 			messageBox.setMessage("The GDA Client cannot start."
