@@ -1961,19 +1961,23 @@ public class NexusDataWriter extends DataWriterBase {
 		for(String scannableName: metadatascannablestowrite) {
 			try {
 				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-				logger.debug("Getting scannable ({}) data for writing to NeXus file.", scannable.getName());
+				if(scannable == null) {
+					logger.error("Failed to get '{}' from Jython namespace. It will not be written", scannableName);
+					continue; // Move onto the next scannable
+				}
+				logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
 				Object position = scannable.getPosition();
 				if (weKnowTheLocationFor(scannableName)) {
 					locationmap.get(scannableName).makeScannable(file, group, scannable, position, new int[] {1}, false);
 				} else {
-					makeMetadataScannableFallback(group, scannable, position);
 					// put in default location (NXcollection with name metadata)
+					makeMetadataScannableFallback(group, scannable, position);
 				}
 			} catch (NexusException e) {
-				logger.error("Nexus error while adding {} metadata to NeXus file at {}.", scannableName, file.getPath(group), e);
+				logger.error("Nexus error while adding '{}' metadata to NeXus file at '{}'.", scannableName, file.getPath(group), e);
 				throw e;
 			} catch (Exception e) {
-				logger.error("error getting {} from namespace or reading position from it.", scannableName, e);
+				logger.error("Error writing '{}' to NeXus file.", scannableName, e);
 			}
 		}
 	}
