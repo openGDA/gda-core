@@ -114,7 +114,9 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 		List<DriverProfileSection> profile = new ArrayList<>();
 
-		//start from 0 and drive to 304 in 1 minute
+		//start experiment at 200 and hold for 15 seconds
+		profile.add(new DriverProfileSection(200, 200, 0.25));
+		//damp from 200 and drive to 304 in 1 minute
 		profile.add(new DriverProfileSection(200,  304, 1.0));
 		//hold at 304 for 30 seconds
 		profile.add(new DriverProfileSection(304, 304, 0.5));
