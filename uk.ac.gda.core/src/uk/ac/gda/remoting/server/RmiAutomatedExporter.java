@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -184,11 +185,12 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 
 	private RmiObjectInfo findAndExport(String name) {
 		// Find using local we are about to export something so it should not be remote already
-		final Findable object = Finder.getInstance().findLocalNoWarn(name);
-		if (object == null) { // there is no object available in the server with this name
+		final Optional<Findable> optionalFindable = Finder.getInstance().findOptional(name);
+		if (!optionalFindable.isPresent()) { // there is no object available in the server with this name
 			logger.debug("No object with name '{}' found", name);
 			return null;
 		}
+		final Findable object = optionalFindable.get();
 		final Class<?> beanClass = object.getClass();
 		final ServiceInterface serviceInterface = beanClass.getAnnotation(ServiceInterface.class);
 		if (serviceInterface == null) {

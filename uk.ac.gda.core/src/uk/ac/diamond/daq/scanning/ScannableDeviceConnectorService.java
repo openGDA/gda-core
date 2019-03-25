@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -152,12 +153,8 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		// if not, see if we can find a gda.device.Scannable with this name using the Finder mechanism
-		Scannable scannable = null;
-		Finder finder = Finder.getInstance();
-		Findable found = finder.findNoWarn(name);
-		if (found instanceof Scannable && !(found instanceof Detector)) {
-			scannable = (Scannable) found;
-		}
+		Optional<Scannable> found = Finder.getInstance().findOptional(name);
+		Scannable scannable = found.filter(s -> !(s instanceof Detector)).orElse(null);
 
 		if (scannable == null) {
 			// if not, see if we can find a gda.device.Scannable with this name in the jython namespace

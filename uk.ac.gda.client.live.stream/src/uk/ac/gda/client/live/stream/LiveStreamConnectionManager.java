@@ -135,7 +135,7 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionService
 	 * @return		The corresponding {@link CameraConfiguration} or null if no matching one can be found
 	 */
 	private CameraConfiguration getConfigFromDisplayName(final String name) {
-		return Finder.getInstance().findLocal(name);
+		return Finder.getInstance().find(name);
 	}
 
 }

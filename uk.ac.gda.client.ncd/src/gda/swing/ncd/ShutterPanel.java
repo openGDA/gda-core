@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -105,10 +106,11 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 		}
 		try {
 			if (shutter == null) {
-				shutter = (EnumPositioner) Finder.getInstance().findNoWarn(shutterName);
-				if (shutter == null) {
+				Optional<EnumPositioner> optionalShutter = Finder.getInstance().findOptional(shutterName);
+				if (!optionalShutter.isPresent()) {
 					return;
 				}
+				shutter = optionalShutter.get();
 			}
 			setLayout(new FlowLayout());
 			statusLabel = new JLabel("Fault");

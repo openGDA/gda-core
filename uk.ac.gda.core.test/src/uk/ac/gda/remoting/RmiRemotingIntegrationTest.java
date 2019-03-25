@@ -137,9 +137,9 @@ public class RmiRemotingIntegrationTest {
 		Finder.getInstance().addFactory(mockFactory);
 		Finder.getInstance().addFactory(rmiProxyFactory);
 
-		// Note this is dubious it works only because the RmiProxyFactory is "last" in the finder so the proxy it
-		// returns replaces the direct mock returned by the mockFactory
-		final Map<String, Scannable> foundScannables = Finder.getInstance().getFindablesOfType(Scannable.class);
+		// New search order for Finder (local first) meant that we will not get the scannables
+		// from the remote factory first, so use the factory directly
+		final Map<String, Scannable> foundScannables = rmiProxyFactory.getFindablesOfType(Scannable.class);
 		assertThat(foundScannables.size(), is(equalTo(1)));
 		assertThat(foundScannables.get("testObj"), is(notNullValue()));
 		// Check we have got the RMI proxy
@@ -151,7 +151,9 @@ public class RmiRemotingIntegrationTest {
 		TestScannable testScannable = new TestScannable("testScannable");
 		when(mockFactory.getFindable("testScannable")).thenReturn(testScannable);
 
-		final Scannable foundScannable = Finder.getInstance().find("testScannable");
+		// New search order for Finder (local first) meant that we will not get the scannable
+		// from the remote factory first, so use the factory directly
+		final Scannable foundScannable = rmiProxyFactory.getFindable("testScannable");
 		// Check we have got the RMI proxy
 		assertThat(Proxy.isProxyClass(foundScannable.getClass()), is(true));
 
