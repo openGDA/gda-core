@@ -2029,6 +2029,7 @@ public class NexusDataWriter extends DataWriterBase {
 			NexusDataWriter.locationmap = new HashMap<String, ScannableWriter>();
 		else
 			NexusDataWriter.locationmap = locationmap;
+		logger.debug("Set location map");
 	}
 
 	public static Map<String, Set<String>> getMetadataScannablesPerDetector() {
