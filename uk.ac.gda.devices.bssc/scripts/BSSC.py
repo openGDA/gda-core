@@ -17,7 +17,11 @@ import uuid
 import json
 import subprocess
 
+import re
+
 SAMPLE_HOLD = True
+
+DELAY_REGEX = re.compile('delay:\s*(\d+)')
 
 class BSSCRun:
     def __init__(self, beanFile):
@@ -221,6 +225,19 @@ class BSSCRun:
                     self.bssc.setLiquidPositionFixed(self.holdsample)
                 else:
                     self.reportProgress("Sample position feedback is off.")
+
+                delay_match = DELAY_REGEX.match(titration.getKey())
+                if delay_match:
+                    try:
+                        # eg
+                        # delay: 3
+                        # will delay for 3 minutes between loading and exposing the sample
+                        delay = 60 * int(delay_match.groups()[0])
+                        self.reportProgress('Delaying collection for {}s'.format(delay))
+                        time.sleep(delay)
+                    except Exception as e:
+                        self.reportProgress('Error while sleeping before exposure: ' + str(e))
+
                 self.reportProgress("Exposing Sample")
 
                 #self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
