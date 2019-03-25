@@ -126,7 +126,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 		return gen;
 	}
 
-	public static DummyMalcolmModel createModel(File dir) {
+	public static DummyMalcolmModel createModel() {
 		DummyMalcolmModel model = new DummyMalcolmModel();
 
 		DummyMalcolmControlledDetectorModel det1Model = new DummyMalcolmControlledDetectorModel();
@@ -147,10 +147,11 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	@Test
 	public void testDummyMalcolmNexusFiles() throws Exception {
-		DummyMalcolmModel model = createModel(malcolmOutputDir);
+		DummyMalcolmModel model = createModel();
 		IRunnableDevice<DummyMalcolmModel> malcolmDevice = dservice.createRunnableDevice(model, false);
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice<?>)malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
+		((AbstractMalcolmDevice<?>)malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
 		int scanRank = 2;
 		assertNotNull(malcolmDevice);
 		malcolmDevice.configure(model);
@@ -163,11 +164,12 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	@Test
 	public void testMalcolmNexusObjects() throws Exception {
-		DummyMalcolmModel model = createModel(malcolmOutputDir);
+		DummyMalcolmModel model = createModel();
 		IRunnableDevice<DummyMalcolmModel> malcolmDevice = dservice.createRunnableDevice(model, false);
 		int scanRank = 3;
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice<?>) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device
+		((AbstractMalcolmDevice<?>)malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
 		malcolmDevice.configure(model);
 
 		NexusScanInfo nexusScanInfo = new NexusScanInfo();

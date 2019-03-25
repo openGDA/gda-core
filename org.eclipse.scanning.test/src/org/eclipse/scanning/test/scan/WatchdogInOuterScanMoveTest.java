@@ -138,7 +138,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	}
 
 	private DummyMalcolmModel createDummyMalcolmModel() {
-		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel(dir);
+		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel();
 		model.setExposureTime(0.005);
 		model.setAxesToMove(Arrays.asList("x", "y"));
 		return model;

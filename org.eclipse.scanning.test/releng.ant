@@ -101,7 +101,6 @@
 					<include name="org/eclipse/scanning/test/scan/nexus/*Test.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/Abstract*Test.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/CompositeNexusScannableTest.java" />
-					<exclude name="org/eclipse/scanning/test/scan/nexus/DummyMalcolmDeviceTest.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/NexusTest.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/PosDetectorScanTest.java" />
 					<exclude name="org/eclipse/scanning/test/scan/nexus/ScanWithNoNexusFileTest.java" />

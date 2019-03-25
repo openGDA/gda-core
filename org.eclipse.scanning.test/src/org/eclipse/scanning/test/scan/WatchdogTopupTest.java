@@ -58,7 +58,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // TODO This should also probably be removed it suggests a bad test.
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1147")
+@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-2087")
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 
@@ -210,7 +210,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	private DummyMalcolmModel createModel() {
 
-		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel(dir);
+		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel();
 		model.setExposureTime(0.001);
 		model.setAxesToMove(Arrays.asList("x", "y"));
 		return model;
