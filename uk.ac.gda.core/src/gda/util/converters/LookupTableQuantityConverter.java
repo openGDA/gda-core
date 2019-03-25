@@ -123,28 +123,26 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			// to do if the x values are the same then duplicate the first
 			// and last so that conversion of min and max target gives min
 			// and max source.
+			final Unit<? extends Quantity> sColumnUnits = columnDataFile.getColumnUnits(sColumn);
+			final Unit<? extends Quantity> tColumnUnits = columnDataFile.getColumnUnits(tColumn);
 			if (performStoT()) {
 				if (extrapolate) {
-					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn), columnDataFile
-							.getColumn(tColumn), columnDataFile.getColumnUnits(sColumn), columnDataFile
-							.getColumnUnits(tColumn));
+					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn),
+							columnDataFile.getColumn(tColumn), sColumnUnits, tColumnUnits);
 				} else {
-					interpolateFunctionStoT = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(sColumn), columnDataFile
-							.getColumn(tColumn), columnDataFile.getColumnUnits(sColumn), columnDataFile
-							.getColumnUnits(tColumn));
+					interpolateFunctionStoT = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(sColumn),
+							columnDataFile.getColumn(tColumn), sColumnUnits, tColumnUnits);
 				}
 			} else
 				interpolateFunctionStoT = null;
 
 			if (performTtoS()) {
 				if (extrapolate) {
-					interpolateFunctionTtoS = new InterpolationFunction(columnDataFile.getColumn(tColumn), columnDataFile
-							.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
-							.getColumnUnits(sColumn));
+					interpolateFunctionTtoS = new InterpolationFunction(columnDataFile.getColumn(tColumn),
+							columnDataFile.getColumn(sColumn), tColumnUnits, sColumnUnits);
 				} else {
-					interpolateFunctionTtoS = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(tColumn), columnDataFile
-							.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
-							.getColumnUnits(sColumn));
+					interpolateFunctionTtoS = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(tColumn),
+							columnDataFile.getColumn(sColumn), tColumnUnits, sColumnUnits);
 				}
 
 				double firstT = columnDataFile.getColumn(tColumn)[0];
@@ -159,11 +157,11 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			}
 
 			acceptableSourceUnits = new ArrayList<>();
-			acceptableSourceUnits.add(columnDataFile.getColumnUnits(sColumn));
+			acceptableSourceUnits.add(sColumnUnits);
 
 			acceptableTargetUnits = new ArrayList<>();
-			acceptableTargetUnits.add(columnDataFile.getColumnUnits(tColumn));
-		} catch (ArrayIndexOutOfBoundsException exception) {
+			acceptableTargetUnits.add(tColumnUnits);
+		} catch (IndexOutOfBoundsException exception) {
 			throw new IllegalArgumentException(
 					"LookupTableQuantityConverter.LookupTableQuantityConverter: Error accessing data from ColumnDataFile - check the column indices are correct. "
 							+ toString(), exception);

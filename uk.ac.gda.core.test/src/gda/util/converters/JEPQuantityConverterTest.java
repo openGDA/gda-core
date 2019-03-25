@@ -35,23 +35,15 @@ public class JEPQuantityConverterTest {
 	private static final String TEST_FILE_FOLDER = "testfiles/gda/util/converters/JEPQuantityConverterTest";
 
 	@Test
-	public void testToSource() {
+	public void testToSource() throws Exception {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(JEPQuantityConverterParameters.jUnitTestFileName);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
-		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
-		final Quantity source = converter.toSource(targetBeforeConversion);
-		final Quantity targetAfterConversion = converter.toTarget(source);
-		assertEquals(targetAfterConversion, targetBeforeConversion);
+		testConverter(converter);
 	}
 
 	@Test
-	public final void testReal() {
+	public final void testReal() throws Exception {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/Simple.xml");
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
-		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
-		final Quantity source = converter.toSource(targetBeforeConversion);
-		final Quantity targetAfterConversion = converter.toTarget(source);
-		assertEquals(targetAfterConversion, targetBeforeConversion);
+		testConverter(converter);
 	}
 
 	@Test
@@ -64,13 +56,9 @@ public class JEPQuantityConverterTest {
 	}
 
 	@Test
-	public final void testComplex() {
+	public final void testComplex() throws Exception {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/Complex.xml");
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
-		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
-		final Quantity source = converter.toSource(targetBeforeConversion);
-		final Quantity targetAfterConversion = converter.toTarget(source);
-		assertEquals(targetBeforeConversion, targetAfterConversion);
+		testConverter(converter);
 	}
 
 	@Test
@@ -78,13 +66,8 @@ public class JEPQuantityConverterTest {
 		final JEPQuantityConverter converterTarget = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
 		final JEPQuantityConverter converterSource = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
 		final CoupledQuantityConverter converter = new CoupledQuantityConverter(converterSource, converterTarget);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
-		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
-
-		final Quantity source = converter.toSource(targetBeforeConversion);
 		// target in Angstrom, source should be in mm
-		final Quantity targetAfterConversion = converter.toTarget(source);
-		assertEquals(targetAfterConversion, targetBeforeConversion);
+		testConverter(converter);
 	}
 
 	@SuppressWarnings("unused")
@@ -109,7 +92,7 @@ public class JEPQuantityConverterTest {
 	public final void testUnits() {
 		final JEPQuantityConverter converter = new JEPQuantityConverter(TEST_FILE_FOLDER + "/mmToDeg.xml");
 		final JEPQuantityConverter dummyToGetUnits = new JEPQuantityConverter(TEST_FILE_FOLDER + "/DegToAngstrom.xml");
-		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, dummyToGetUnits.getAcceptableTargetUnits().get(0));
+		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, getAcceptableTargetUnits(dummyToGetUnits));
 		try {
 			converter.toSource(targetBeforeConversion);
 			fail("Calling JEPQuantityConverter with incompatible units should throw exception");
@@ -119,5 +102,17 @@ public class JEPQuantityConverterTest {
 					"JEPQuantityConverter.ToSource: target units (Ang) do not match acceptableUnits (Deg)JEPQuantityConverter using details in "
 							+ converter.getExpressionFileName(), msg);
 		}
+	}
+
+	private Unit<? extends Quantity> getAcceptableTargetUnits(final IQuantityConverter converter) {
+		return converter.getAcceptableTargetUnits().get(0);
+	}
+
+	private void testConverter(final IQuantityConverter converter) throws Exception {
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
+		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
+		final Quantity source = converter.toSource(targetBeforeConversion);
+		final Quantity targetAfterConversion = converter.toTarget(source);
+		assertEquals(targetAfterConversion, targetBeforeConversion);
 	}
 }

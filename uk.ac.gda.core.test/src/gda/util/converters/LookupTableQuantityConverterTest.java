@@ -61,7 +61,7 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void ToSource() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity source = converter.toSource(targetBeforeConversion);
@@ -101,7 +101,7 @@ public class LookupTableQuantityConverterTest {
 	public final void testModeToTargetOnly() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
 				LookupTableQuantityConverter.Mode.S_TO_T_ONLY);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		// Should not be able to do T→S conversion with converter that only supports S→T conversion
@@ -112,7 +112,7 @@ public class LookupTableQuantityConverterTest {
 	public final void DuplicateSourceValuesIncreasing() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("DuplicateSourceValuesIncreasing.txt", false, 0, 1,
 				LookupTableQuantityConverter.Mode.S_TO_T_ONLY);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 
 		Quantity source = Quantity.valueOf(2.5, acceptableSourceUnits);
 		Quantity target = converter.toTarget(source);
@@ -127,7 +127,7 @@ public class LookupTableQuantityConverterTest {
 	public final void DuplicateSourceValuesDecreasing() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("DuplicateSourceValuesDecreasing.txt", false, 0, 1,
 				LookupTableQuantityConverter.Mode.S_TO_T_ONLY);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 
 		Quantity source = Quantity.valueOf(2.5, acceptableSourceUnits);
 		Quantity target = converter.toTarget(source);
@@ -146,7 +146,7 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void testOutOfOrder() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("OutOfOrder.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity source = converter.toSource(targetBeforeConversion);
@@ -163,8 +163,8 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void testOutOfOrderDuplicateTargetValues() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("OutOfOrderDuplicateAndDecreasingTargetValues.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion1 = Quantity.valueOf(-5, acceptableTargetUnits);
 		final Quantity targetBeforeConversion2 = Quantity.valueOf(-105, acceptableTargetUnits);
 
@@ -183,8 +183,8 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void testOutOfOrderDuplicateSourceValues() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("OutOfOrderDuplicateAndDecreasingSourceValues.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 
 		final Quantity targetBeforeConversion1 = Quantity.valueOf(-5, acceptableTargetUnits);
 		final Quantity targetBeforeConversion2 = Quantity.valueOf(4.5, acceptableTargetUnits);
@@ -213,7 +213,7 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void testReal() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity source = converter.toSource(targetBeforeConversion);
@@ -230,9 +230,9 @@ public class LookupTableQuantityConverterTest {
 	public final void testI04Pitch() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter(
 				"BeamLineEnergy_DCM_Pitch_converter.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(-.77, acceptableTargetUnits);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 
 		final Quantity source = converter.toSource(targetBeforeConversion);
 		final Quantity expectedSource = Quantity.valueOf(14.63, acceptableSourceUnits);
@@ -244,7 +244,7 @@ public class LookupTableQuantityConverterTest {
 		final LookupTableQuantityConverter converterTarget = new LookupTableQuantityConverter("DegToAngstrom.txt", false, 0, 1);
 		final LookupTableQuantityConverter converterSource = new LookupTableQuantityConverter("mmToDeg.txt", false, 0, 1);
 		final CoupledQuantityConverter converter = new CoupledQuantityConverter(converterSource, converterTarget);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity source = converter.toSource(targetBeforeConversion); // target
@@ -266,7 +266,7 @@ public class LookupTableQuantityConverterTest {
 		final LookupTableQuantityConverter converterSource = new LookupTableQuantityConverter("mmToDegHighFactor.txt", false,
 				0, 1);
 		final CoupledQuantityConverter converter = new CoupledQuantityConverter(converterSource, converterTarget);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity source = converter.toSource(targetBeforeConversion); // target
@@ -299,7 +299,7 @@ public class LookupTableQuantityConverterTest {
 	public final void testIncompatibleUnits() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("mmToDeg.txt", false, 0, 1);
 		final LookupTableQuantityConverter dummyToGetUnits = new LookupTableQuantityConverter("DegToAngstrom.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = dummyToGetUnits.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(dummyToGetUnits);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		// Should not be able to do conversion using invalid units
@@ -319,7 +319,7 @@ public class LookupTableQuantityConverterTest {
 	@Test
 	public final void testUnity() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("mmToUnity.txt", false, 0, 1);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetBeforeConversion = Quantity.valueOf(1.0, acceptableTargetUnits);
 
 		final Quantity back = converter.toSource(targetBeforeConversion);
@@ -339,7 +339,7 @@ public class LookupTableQuantityConverterTest {
 	public final void testOutOfRangeToTarget() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
 				Mode.S_TO_T_ONLY, false);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 		final Quantity sourceQuantity = Quantity.valueOf(3.0, acceptableSourceUnits);
 
 		// IllegalArgumentException expected when converting value out of range when not allowed to extrapolate
@@ -350,7 +350,7 @@ public class LookupTableQuantityConverterTest {
 	public final void testOutOfRangeToSource() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
 				Mode.T_TO_S_ONLY, false);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetQuantity = Quantity.valueOf(300.0, acceptableTargetUnits);
 
 		// IllegalArgumentException expected when converting value out of range when not allowed to extrapolate
@@ -361,7 +361,7 @@ public class LookupTableQuantityConverterTest {
 	public final void testExtrapolatedToTarget() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
 				Mode.S_TO_T_ONLY, true);
-		final Unit<? extends Quantity> acceptableSourceUnits = converter.getAcceptableSourceUnits().get(0);
+		final Unit<? extends Quantity> acceptableSourceUnits = getAcceptableSourceUnits(converter);
 		final Quantity sourceQuantity = Quantity.valueOf(3.0, acceptableSourceUnits);
 		final Quantity targetQuantity = converter.toTarget(sourceQuantity);
 		assertEquals(300.0, targetQuantity.getAmount(), DELTA);
@@ -371,9 +371,17 @@ public class LookupTableQuantityConverterTest {
 	public final void testExtrapolatedToSource() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
 				Mode.T_TO_S_ONLY, true);
-		final Unit<? extends Quantity> acceptableTargetUnits = converter.getAcceptableTargetUnits().get(0);
+		final Unit<? extends Quantity> acceptableTargetUnits = getAcceptableTargetUnits(converter);
 		final Quantity targetQuantity = Quantity.valueOf(300.0, acceptableTargetUnits);
 		final Quantity sourceQuantity = converter.toSource(targetQuantity);
 		assertEquals(3.0, sourceQuantity.getAmount(), DELTA);
+	}
+
+	private Unit<? extends Quantity> getAcceptableTargetUnits(final IQuantityConverter converter) {
+		return converter.getAcceptableTargetUnits().get(0);
+	}
+
+	private Unit<? extends Quantity> getAcceptableSourceUnits(final IQuantityConverter converter) {
+		return converter.getAcceptableSourceUnits().get(0);
 	}
 }
