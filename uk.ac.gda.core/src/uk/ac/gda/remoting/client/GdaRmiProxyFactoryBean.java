@@ -36,8 +36,6 @@ import gda.observable.IObservable;
  */
 public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements BeanNameAware, FactoryBean<Object> {
 
-	// TODO allow manipulation of parameters/return value/exceptions, to retain CORBA adapter class behaviour
-
 	/**
 	 * Name of the remote object.
 	 */
