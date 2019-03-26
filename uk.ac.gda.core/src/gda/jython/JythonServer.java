@@ -22,6 +22,7 @@ package gda.jython;
 import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
@@ -44,8 +46,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
@@ -79,6 +83,7 @@ import gda.jython.commands.InputCommands;
 import gda.jython.completion.AutoCompletion;
 import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
+import gda.jython.logging.PythonException;
 import gda.jython.server.JlineSshServer;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
@@ -112,6 +117,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	private static final SimpleDateFormat THREAD_NAME_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 	private boolean atStartup = true;
+
+	/** Time in seconds to wait for reset hooks to run */
+	private static final int RESET_HOOK_TIMEOUT = 10;
 
 	// the Jython interpreter
 	private GDAJythonInterpreter interp = null;
@@ -153,6 +161,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	private String gdaStationScript;
 
 	private TextCompleter jythonCompleter;
+
+	private Collection<Runnable> resetHooks = new ArrayList<>();
 
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
 	private boolean stopJythonScannablesOnStopAll = true;
@@ -259,6 +269,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 		if (!isConfigured()) {
 			// force garbage collect (useful if doing a restart)
 			System.gc();
+
+			resetHooks.clear();
 
 			if (messageHandler == null) {
 				final InMemoryMessageHandler memoryMessageHandler = new InMemoryMessageHandler();
@@ -672,12 +684,53 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	public void restart() {
 		setConfigured(false);
 		interruptThreads();
+		callResetHooks();
+
 		try {
 			bufferedLocalStationOutput = new StringBuilder();
 			configure();
 		} catch (FactoryException e) {
 			logger.error("Error while restarting the Jython interpreter. Fix the problem and then restart GDA immediately", e);
 		}
+	}
+
+	/** Call registered shutdown tasks */
+	private void callResetHooks() {
+		Future<?> hooks = null;
+		try {
+			logger.info("Running {} reset hooks", resetHooks.size());
+			hooks = Async.executeAll(resetHooks);
+			hooks.get(RESET_HOOK_TIMEOUT, SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			logger.error("Failed to run all reset hooks within {}s timeout", RESET_HOOK_TIMEOUT, e);
+			hooks.cancel(true);
+		}
+	}
+
+	/**
+	 * Add a task to be run before the namespace is reset. Useful for cleanup of Jython objects
+	 * that would otherwise be inaccessible after a reset.
+	 * <br>
+	 * Tasks are only run once and will not be run before subsequent resets.
+	 * <p>
+	 * NB. When registering hooks from Jython, nonlocal names are looked up at runtime, not when they are added.
+	 * ie using <pre>addResetHook(lambda: thing.deleteIObserver(foo))</pre> will try and delete whatever
+	 * <code>foo</code> is bound to at the time the namespace is reset (eg, it will fail if <code>foo</code>
+	 * has been deleted). To bind the name at the time the hook is added, use
+	 * <pre>addResetHook(lambda obs=foo: thing.deleteIObserver(obs))</pre>
+	 * @param hook task to run just before restarting the JythonServer.
+	 */
+	public void addResetHook(Runnable hook) {
+		Objects.requireNonNull(hook, "Reset hook must not be null");
+		resetHooks.add(() -> {
+			try {
+				hook.run();
+			} catch (PyException pe) {
+				logger.warn("Error running shutdown hook", PythonException.from(pe));
+			} catch (Exception e) {
+				logger.warn("Error running shutdown hook", e);
+			}
+		});
 	}
 
 	@Override
