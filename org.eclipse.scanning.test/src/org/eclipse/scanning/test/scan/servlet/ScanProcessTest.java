@@ -611,7 +611,16 @@ public class ScanProcessTest {
 	}
 
 	@Test
-	public void testMalcolmValidation() throws Exception {
+	public void testMalcolmValidation_valid() throws Exception {
+		testMalcolmValidation(true);
+	}
+
+	@Test
+	public void testMalcolmValidation_invalid() throws Exception {
+		testMalcolmValidation(false);
+	}
+
+	public void testMalcolmValidation(boolean valid) throws Exception {
 		// Arrange
 		GridModel gmodel = new GridModel();
 		gmodel.setFastAxisName("stage_x");
@@ -622,7 +631,7 @@ public class ScanProcessTest {
 
 		DummyMalcolmModel dmodel = new DummyMalcolmModel();
 		dmodel.setName("malcolm");
-		dmodel.setExposureTime(0.1);
+		dmodel.setExposureTime(valid ? 0.1 : -0.1); // use an negative exposure time for fail validation
 		dservice.createRunnableDevice(dmodel);
 
 		ScanBean scanBean = new ScanBean();
@@ -636,9 +645,12 @@ public class ScanProcessTest {
 		// Act
 		process.execute();
 
-		// Nothing to assert. This test was written to check that the malcolm device is
-		// properly initialized before validation occurs. If this didn't happen, an
-		// exception would be thrown by DummyMalcolmDevice.validate()
+		// process.execute doesn't throw an exception if there's a problem with the
+		// scan, instead it sets the status of the scan bean to FAILED
+		Status expectedStatus = valid ? Status.COMPLETE : Status.FAILED;
+		String expectedMessage = valid ? "Scan Complete" : "The exposure time for 'malcolm' must be non-zero!";
+		assertThat(process.getBean().getStatus(), is(expectedStatus));
+		assertThat(process.getBean().getMessage(), is(equalTo(expectedMessage)));
 	}
 
 }

@@ -72,7 +72,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	private static final String OUTPUT_DIR = "/path/to/ixx-1234";
 
-	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir) {
+	private EpicsMalcolmModel createExpectedEpicsMalcolmModel(IPointGenerator<?> pointGen, String outputDir) throws Exception {
 		if (outputDir == null) {
 			outputDir = System.getProperty("user.dir");
 		}
