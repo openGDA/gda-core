@@ -23,11 +23,16 @@ import static org.jline.keymap.KeyMap.alt;
 import static org.jline.keymap.KeyMap.ctrl;
 import static org.jline.reader.LineReader.ACCEPT_LINE;
 import static org.jline.reader.LineReader.BACKWARD_CHAR;
+import static org.jline.reader.LineReader.BACKWARD_WORD;
+import static org.jline.reader.LineReader.BEGINNING_OF_LINE;
+import static org.jline.reader.LineReader.DELETE_CHAR;
 import static org.jline.reader.LineReader.DOWN_HISTORY;
 import static org.jline.reader.LineReader.DOWN_LINE;
 import static org.jline.reader.LineReader.DOWN_LINE_OR_SEARCH;
+import static org.jline.reader.LineReader.END_OF_LINE;
 import static org.jline.reader.LineReader.ERRORS;
 import static org.jline.reader.LineReader.FORWARD_CHAR;
+import static org.jline.reader.LineReader.FORWARD_WORD;
 import static org.jline.reader.LineReader.HISTORY_FILE;
 import static org.jline.reader.LineReader.KILL_WHOLE_LINE;
 import static org.jline.reader.LineReader.LINE_OFFSET;
@@ -46,6 +51,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +119,9 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	 * This enables the full input to be submitted from any point.
 	 */
 	private static final String ACCEPT_BUFFER = "accept-full-buffer";
+	/** Widget reference to the builtin {@link LineReader#ACCEPT_LINE}, allowing accept line to share the behaviour of {@link #ACCEPT_BUFFER} */
+	/* Prefixing a reference with '.' calls the builtin widget */
+	private static final String SUBMIT_LINE = "." + ACCEPT_LINE;
 	/** Widget reference to move current line down in buffer - {@link #moveLineDown()} */
 	private static final String MOVE_LINE_DOWN = "move-line-down";
 	/** Widget reference to move current line up in buffer - {@link #moveLineUp()} */
@@ -150,6 +160,11 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 	private volatile boolean running;
 	/** Flag to let welcome output be coloured */
 	private final boolean colour;
+
+	/** List of widget references that involve moving the cursor in the buffer */
+	private static final Collection<String> BUFFER_CHANGE_WIDGETS = Arrays.asList(FORWARD_CHAR, BACKWARD_CHAR,
+			END_OF_LINE, BEGINNING_OF_LINE, FORWARD_WORD, BACKWARD_WORD, UP_LINE_OR_SEARCH,
+			DOWN_LINE_OR_SEARCH, MOVE_LINE_UP, MOVE_LINE_DOWN, UP_HISTORY, DOWN_HISTORY, DELETE_CHAR);
 
 	public JythonShell(Terminal term) throws Exception {
 		this(term, new HashMap<>());
@@ -263,30 +278,27 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt(ctrl('M')));
 		mainKeyMap.bind(new Reference(ACCEPT_BUFFER), alt('\n'));
 		read.getWidgets().put(ACCEPT_BUFFER, this::acceptBuffer);
-		addExecuteMessageChecks();
-	}
-
-	/** Automatically show execute prompt if needed when the buffer is changed. */
-	private void addExecuteMessageChecks() {
-		addExecuteCheck(FORWARD_CHAR);
-		addExecuteCheck(BACKWARD_CHAR);
-		addExecuteCheck(UP_LINE_OR_SEARCH);
-		addExecuteCheck(DOWN_LINE_OR_SEARCH);
-		addExecuteCheck(MOVE_LINE_DOWN);
-		addExecuteCheck(MOVE_LINE_UP);
-		addExecuteCheck(UP_HISTORY);
-		addExecuteCheck(DOWN_HISTORY);
+		read.getWidgets().put(ACCEPT_LINE, () -> {
+			int pre = read.getBuffer().cursor();
+			read.callWidget(SUBMIT_LINE);
+			int post = read.getBuffer().cursor();
+			// There doesn't seem to be a sensible way to check if a line was accepted
+			// so only clear right prompt if no newline character was entered.
+			if (pre == post) read.setRightPrompt("");
+			return true;
+		});
+		// Automatically show execute prompt if needed when the buffer is changed.
+		BUFFER_CHANGE_WIDGETS.forEach(this::addAcceptLineUpdate);
 	}
 
 	/** Wrap the referenced widget to update the accept-line prompt after execution */
-	private void addExecuteCheck(String reference) {
+	private void addAcceptLineUpdate(String reference) {
 		Optional<Widget> current = Optional.ofNullable(read.getWidgets().get(reference));
-		read.getWidgets().put(reference, () -> {
-			return current
-					.map(Widget::apply)
-					.map(r -> {updateAcceptLinePrompt(); return r;}) // a bit of unpleasantness to avoid storing temporary result
-					.orElse(true);
-		});
+		current.ifPresent(w -> read.getWidgets().put(reference, () -> {
+			boolean result = w.apply();
+			updateAcceptLinePrompt();
+			return result;
+		}));
 	}
 
 	/** Show a prompt on the right of the terminal to indicate when alt-enter is required to submit a multiline command */
@@ -310,7 +322,7 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 			logger.trace("Accepting full buffer");
 			read.setRightPrompt("");
 			read.getBuffer().cursor(read.getBuffer().length());
-			read.callWidget(ACCEPT_LINE);
+			read.callWidget(SUBMIT_LINE);
 			return true;
 		} catch (IllegalStateException ise) {
 			return false;
