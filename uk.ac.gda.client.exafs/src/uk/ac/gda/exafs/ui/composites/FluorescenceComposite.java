@@ -140,7 +140,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		confComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(confComp);
 
-		detectorConfigInformation = Finder.getInstance().findNoWarn(DetectorGroupTemplateConfiguration.NAME);
+		detectorConfigInformation = Finder.getInstance().find(DetectorGroupTemplateConfiguration.NAME);
 
 		boolean xesMode = includeMedipix && includeVortex;
 		String[] items = getDetectorTypesFromConfig(xesMode);

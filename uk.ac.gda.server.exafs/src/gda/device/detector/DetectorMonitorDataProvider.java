@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -316,9 +317,9 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	private List<Scannable> getScannables(List<String> scannableNames) {
 		List<Scannable> scannables = new ArrayList<>();
 		for (String scnName : scannableNames) {
-			Scannable scannable = Finder.getInstance().findNoWarn(scnName);
-			if (scannable != null) {
-				scannables.add(scannable);
+			Optional<Scannable> scannable = Finder.getInstance().findOptional(scnName);
+			if (scannable.isPresent()) {
+				scannables.add(scannable.get());
 			} else {
 				logger.warn("Could not find scannable called {} on server", scnName);
 			}

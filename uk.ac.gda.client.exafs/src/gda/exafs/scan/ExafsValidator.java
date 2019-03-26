@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.nfunk.jep.JEP;
 import org.slf4j.Logger;
@@ -369,14 +370,15 @@ public abstract class ExafsValidator extends AbstractValidator {
 			}
 
 			// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
-			FluorescenceDetector det = Finder.getInstance().findNoWarn(detectorName);
-			if (det == null) {
+			Optional<FluorescenceDetector> optionalDetector = Finder.getInstance().findOptional(detectorName);
+			if (!optionalDetector.isPresent()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find detector '" + detectorName +"'.\nIs name of detector in XML file " + configFileName + " correct?");
 				errors.add(msg);
 				return;
 			}
 
-			int numElementsOnDetector = det.getNumberOfElements();
+			FluorescenceDetector detector = optionalDetector.get();
+			int numElementsOnDetector = detector.getNumberOfElements();
 
 			if (numElementsInXml != numElementsOnDetector) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("Number of detector elements specified in " + configFileName + " does not match number of elements on detector \'" + detectorName + "\'.\n" +
@@ -536,14 +538,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		try {
-			final Findable findable = Finder.getInstance().findNoWarn(deviceName);
-			if (findable == null) {
+			final Optional<Findable> optionalFindable = Finder.getInstance().findOptional(deviceName);
+			if (!optionalFindable.isPresent()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find '" + deviceName + "' for input '" + label
 						+ "'.", messages);
 				msg.setLabel(label);
 				errors.add(msg);
 				return;
 			}
+
+			Findable findable = optionalFindable.get();
 
 			if (!clazz.isInstance(findable)) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("'" + deviceName + "' should be a '" + clazz.getName()
