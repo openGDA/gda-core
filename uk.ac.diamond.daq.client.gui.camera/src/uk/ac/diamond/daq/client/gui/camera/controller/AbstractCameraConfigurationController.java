@@ -16,7 +16,7 @@ import uk.ac.gda.api.camera.CameraControl;
 public abstract class AbstractCameraConfigurationController implements IObserver {
 	private static final Logger log = LoggerFactory.getLogger(AbstractCameraConfigurationController.class);
 	
-	private List<CameraConfigurationListener> listeners = new ArrayList<>();
+	protected List<CameraConfigurationListener> listeners = new ArrayList<>();
 	private CameraControl cameraControl;
 	private CameraConfigurationMode cameraConfigurationMode;
 	private RectangularROI currentRoi;
@@ -137,6 +137,12 @@ public abstract class AbstractCameraConfigurationController implements IObserver
 	
 	public void setExposure (double time) throws DeviceException {
 		cameraControl.setAcquireTime(time);
+	}
+	
+	public void refreshSnapshot () {
+		for (CameraConfigurationListener listener : listeners) {
+			listener.refreshSnapshot();
+		}
 	}
 
 	@Override

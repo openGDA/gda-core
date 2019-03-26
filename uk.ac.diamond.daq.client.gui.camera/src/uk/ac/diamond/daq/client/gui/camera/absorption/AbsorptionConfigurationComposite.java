@@ -41,7 +41,11 @@ public class AbsorptionConfigurationComposite extends Composite {
 		
 		Button updateButton = new Button(this, SWT.PUSH);
 		updateButton.setText("Refresh Image");
-		GridDataFactory.swtDefaults().span(2, 1).hint(UPDATE_BUTTON_WIDTH, SWT.DEFAULT).align(SWT.CENTER, SWT.BEGINNING).applyTo(updateButton);
+		updateButton.addListener(SWT.Selection, event -> {
+			controller.refreshSnapshot();
+		});
+		GridDataFactory.swtDefaults().span(2, 1).hint(UPDATE_BUTTON_WIDTH, SWT.DEFAULT)
+						.align(SWT.CENTER, SWT.BEGINNING).applyTo(updateButton);
 
 		Composite staticViewROIStatisticsComposite = getStaticViewROIStatisticsComposite(this);
 		GridDataFactory.fillDefaults().applyTo(staticViewROIStatisticsComposite);

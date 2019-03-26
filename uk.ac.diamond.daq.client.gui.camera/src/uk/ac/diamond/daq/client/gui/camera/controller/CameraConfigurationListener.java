@@ -14,4 +14,6 @@ public interface CameraConfigurationListener {
 	void setRatio (int highRegion, int lowRegion, double ratio);
 	
 	void setBinningFormat (BinningFormat binningFormat);
+	
+	void refreshSnapshot ();
 }

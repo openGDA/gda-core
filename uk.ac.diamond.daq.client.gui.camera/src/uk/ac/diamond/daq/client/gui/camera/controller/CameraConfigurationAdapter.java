@@ -30,4 +30,9 @@ public class CameraConfigurationAdapter implements CameraConfigurationListener {
 	public void setBinningFormat(BinningFormat binningFormat) {
 		//do nothing
 	}
+	
+	@Override
+	public void refreshSnapshot() {
+		//do nothing
+	}
 }
