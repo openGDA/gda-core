@@ -254,8 +254,8 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		mainKeyMap.bind(new Reference(DOWN_HISTORY), "\033[1;5B"); // ctrl-down
 
 		// Alt-up/down should move the current line up and down in the current command - similar to eclipse
-		read.getWidgets().put(MOVE_LINE_UP, this::moveLineUp);
-		read.getWidgets().put(MOVE_LINE_DOWN, this::moveLineDown);
+		read.getWidgets().put(MOVE_LINE_UP, () -> moveLine(UP_LINE));
+		read.getWidgets().put(MOVE_LINE_DOWN, () -> moveLine(DOWN_LINE));
 		mainKeyMap.bind(new Reference(MOVE_LINE_UP), "\033[1;3A"); // alt-up
 		mainKeyMap.bind(new Reference(MOVE_LINE_DOWN), "\033[1;3B"); // alt-down
 
@@ -315,22 +315,6 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 		} catch (IllegalStateException ise) {
 			return false;
 		}
-	}
-
-	/**
-	 * Move the current line of a multiline buffer up one line
-	 * @return true if successful
-	 */
-	private boolean moveLineUp() {
-		return moveLine(UP_LINE);
-	}
-
-	/**
-	 * Move the current line of a multiline buffer down one line
-	 * @return true if successful
-	 */
-	private boolean moveLineDown() {
-		return moveLine(DOWN_LINE);
 	}
 
 	/**
