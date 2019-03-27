@@ -18,8 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeParameters.TrackingMethod.EDGE;
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeParameters.TrackingMethod.REFERENCE;
+import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.EDGE;
+import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 
 import java.util.Map;
 
@@ -43,9 +43,10 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.HideableMappingSection;
-import uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeParameters.TrackingMethod;
 
 /**
  * View to allow the user to input the additional parameters required for the XANES scanning script.

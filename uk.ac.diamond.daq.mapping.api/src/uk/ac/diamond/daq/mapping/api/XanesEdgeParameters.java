@@ -16,9 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.xanes.ui;
+package uk.ac.diamond.daq.mapping.api;
 
-import static uk.ac.diamond.daq.mapping.xanes.ui.XanesEdgeParameters.TrackingMethod.REFERENCE;
+import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 
 /**
  * Parameters specific to tracking a XANES edge.

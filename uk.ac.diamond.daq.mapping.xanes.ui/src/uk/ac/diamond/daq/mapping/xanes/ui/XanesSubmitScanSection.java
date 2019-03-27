@@ -19,25 +19,33 @@
 package uk.ac.diamond.daq.mapping.xanes.ui;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.script.IScriptService;
+import org.eclipse.scanning.api.script.ScriptLanguage;
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.ICommandRunner;
-import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
 /**
  * Submit a XANES scan
  * <p>
- * This combines the standard mapping bean with the specific parameters from the {@link XanesEdgeParametersSection} and
- * calls the script run_xanes_scan().<br>
- * The script is beamline-specific but must be on the Jython path.
+ * This combines the standard {@link ScanRequest} with the specific parameters from the
+ * {@link XanesEdgeParametersSection} and calls the script <code>{beamline config}/scanning/submit_xanes_scan.py</code>
+ * <p>
+ * The parameters are passed in JSON format to avoid serialisation problems.
  */
 public class XanesSubmitScanSection extends SubmitScanSection {
-
 	private static final Logger logger = LoggerFactory.getLogger(XanesSubmitScanSection.class);
+
+	private static final String SCRIPT_FILE = "scanning/submit_xanes_scan.py";
 
 	@Override
 	public void createControls(Composite parent) {
@@ -47,19 +55,29 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 
 	@Override
 	protected void submitScan() {
+		final IScriptService scriptService = getService(IScriptService.class);
+		final ScanRequest<IROI> scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
-		final XanesScanParameters xanesScanParameters = new XanesScanParameters(paramsSection.getScanParameters());
-		final IMarshallerService marshaller = getService(IMarshallerService.class);
-		final ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
+		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
+		final ScriptRequest scriptRequest = new ScriptRequest(SCRIPT_FILE, ScriptLanguage.SPEC_PASTICHE);
 
 		try {
-			final String parameterString = marshaller.marshal(xanesScanParameters).replaceAll("'", "\\\\'");
-			final String command = String.format("run_xanes_scan('%s')", parameterString);
-			logger.debug("Executing Jython command: {}", command);
-			commandRunner.runCommand(command);
+			final IMarshallerService marshallerService = getService(IMarshallerService.class);
+			scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));
+			scriptService.setNamedValue(IScriptService.VAR_NAME_XANES_EDGE_PARAMS_JSON, marshallerService.marshal(xanesEdgeParameters));
 		} catch (Exception e) {
-			logger.error("Error submitting XANES scan", e);
+			logger.error("Scan submission failed", e);
+			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
+			return;
 		}
+
+		Async.execute(() -> {
+			try {
+				scriptService.execute(scriptRequest);
+			} catch (Exception e) {
+				logger.error("Error running XANES scanning script", e);
+			}
+		});
 	}
 
 	@Override
@@ -83,32 +101,6 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 		} else {
 			xanesParams.setVisible(visible);
 			relayoutMappingView();
-		}
-	}
-
-	/**
-	 * Class to hold all parameters required by the XANES scan
-	 * <p>
-	 * This will be serialised to JSON and passed to the XANES script.
-	 */
-	private class XanesScanParameters {
-		// XANES-specific parameters
-		public final String linesToTrack;
-		public final String trackingMethod;
-
-		// Standard mscan command
-		public final String mscanCommand;
-
-		XanesScanParameters(XanesEdgeParameters xanesParams) {
-			linesToTrack = xanesParams.getLinesToTrack();
-			trackingMethod = xanesParams.getTrackingMethod();
-			mscanCommand = createScanCommand();
-		}
-
-		@Override
-		public String toString() {
-			return "XanesScanParameters [linesToTrack=" + linesToTrack + ", trackingMethod=" + trackingMethod
-					+ ", mscanCommand=" + mscanCommand + "]";
 		}
 	}
 }

@@ -248,10 +248,14 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 
-		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
-		final ScanRequest<IROI> scanRequest = converter.convertToScanRequest(mappingBean);
+		final ScanRequest<IROI> scanRequest = getScanRequest(mappingBean);
 		scanBean.setScanRequest(scanRequest);
 		return scanBean;
+	}
+
+	protected ScanRequest<IROI> getScanRequest(final IMappingExperimentBean mappingBean) {
+		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
+		return converter.convertToScanRequest(mappingBean);
 	}
 
 	private void addMonitors(IMappingExperimentBean mappingBean) {
