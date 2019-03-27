@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jscience.physics.quantities.Angle;
 import org.jscience.physics.quantities.Dimensionless;
 import org.jscience.physics.quantities.Duration;
@@ -261,11 +260,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @return Returns the acceptableUnitStrings.
 	 */
 	public String[] getAcceptableUnits() {
-		String[] output = new String[0];
-		for (Unit<? extends Quantity> unit : this.acceptableUnits) {
-			output = (String[]) ArrayUtils.add(output, unit.toString());
-		}
-		return output;
+		return acceptableUnits.stream().map(Unit::toString).toArray(String[]::new);
 	}
 
 	/**
@@ -277,7 +272,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @param hardwareUnitString
 	 */
 	public void addAcceptableUnit(String hardwareUnitString) {
-		final Unit<?> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
+		final Unit<? extends Quantity> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
 
 		if (newUnit.getBaseUnits() == this.hardwareUnit.getBaseUnits() && !this.acceptableUnits.contains(newUnit)) {
 			this.acceptableUnits.add(newUnit);
