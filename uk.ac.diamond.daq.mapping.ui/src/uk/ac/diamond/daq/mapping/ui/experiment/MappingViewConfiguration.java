@@ -23,7 +23,9 @@ import java.util.Objects;
 
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import uk.ac.diamond.daq.osgi.OsgiService;
 
+@OsgiService(MappingViewConfiguration.class)
 public class MappingViewConfiguration extends ConfigurableBase {
 
 	private List<IMappingSection> scrolledSections;
