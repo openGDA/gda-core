@@ -18,10 +18,16 @@
 
 package gda.device.scannable;
 
+import static org.jscience.physics.quantities.Dimensionless.ONE;
 import static org.jscience.physics.units.SI.METER;
 import static org.jscience.physics.units.SI.MILLI;
+import static org.jscience.physics.units.SI.NANO;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +89,16 @@ public class UnitsComponentTest {
 	@Before
 	public void setUp() {
 		uc = new UnitsComponent();
+	}
+
+	@Test
+	public void testInitialState() {
+		assertEquals("", uc.getUserUnitString());
+		assertEquals("", uc.getHardwareUnitString());
+		assertFalse(uc.unitHasBeenSet());
+		assertEquals(ONE.getUnit(), uc.getUserUnit());
+		assertEquals(ONE.getUnit(), uc.getHardwareUnit());
+		assertArrayEquals(new String[] { "" }, uc.getAcceptableUnits());
 	}
 
 	@Test
@@ -267,5 +283,84 @@ public class UnitsComponentTest {
 		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
 		Collections.sort(acceptableUnits);
 		assertEquals(expectedAcceptableUnits, acceptableUnits);
+	}
+
+	@Test
+	public void testSetHardwareUnitStringOnly() throws DeviceException {
+		uc.setHardwareUnitString("mm");
+		assertTrue(uc.unitHasBeenSet());
+		assertEquals("mm", uc.getHardwareUnitString());
+		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals("mm", uc.getUserUnitString());
+		assertEquals(MILLI(METER), uc.getUserUnit());
+	}
+
+	@Test
+	public void testSetUserUnitStringOnly() throws DeviceException {
+		uc.setUserUnits("mm");
+		assertTrue(uc.unitHasBeenSet());
+		assertEquals("mm", uc.getUserUnitString());
+		assertEquals(MILLI(METER), uc.getUserUnit());
+		assertEquals("mm", uc.getHardwareUnitString());
+		assertEquals(MILLI(METER), uc.getHardwareUnit());
+	}
+
+	@Test
+	public void testSetHardwareThenUserUnit() throws DeviceException {
+		uc.setHardwareUnitString("mm");
+		uc.setUserUnits("nm");
+		assertEquals("mm", uc.getHardwareUnitString());
+		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals("nm", uc.getUserUnitString());
+		assertEquals(NANO(METER), uc.getUserUnit());
+	}
+
+	@Test
+	public void testSetUserThenHArdwareUnit() throws DeviceException {
+		uc.setUserUnits("nm");
+		uc.setHardwareUnitString("mm");
+		assertEquals("mm", uc.getHardwareUnitString());
+		assertEquals(MILLI(METER), uc.getHardwareUnit());
+		assertEquals("nm", uc.getUserUnitString());
+		assertEquals(NANO(METER), uc.getUserUnit());
+	}
+
+	@Test(expected = DeviceException.class)
+	public void testSetHardwareThenIncompatibleUserUnit() throws DeviceException {
+		uc.setHardwareUnitString("mm");
+		uc.setUserUnits("deg");
+	}
+
+	@Test(expected = DeviceException.class)
+	public void testSetUserThenIncompatibleHardwareUnit() throws DeviceException {
+		uc.setUserUnits("deg");
+		uc.setHardwareUnitString("mm");
+	}
+
+	@Test
+	public void testAddAcceptableUnit() throws DeviceException {
+		uc.setHardwareUnitString("mm");
+		uc.addAcceptableUnit("pm");
+
+		final List<String> expectedAcceptableUnits = new ArrayList<>(LENGTH_UNITS);
+		expectedAcceptableUnits.add("pm");
+		Collections.sort(expectedAcceptableUnits);
+
+		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
+		Collections.sort(acceptableUnits);
+
+		assertEquals(expectedAcceptableUnits, acceptableUnits);
+	}
+
+	@Test
+	public void testAddAcceptableUnitIncompatible() throws DeviceException {
+		uc.setHardwareUnitString("mm");
+		uc.addAcceptableUnit("deg");
+
+		final List<String> acceptableUnits = Arrays.asList(uc.getAcceptableUnits());
+		Collections.sort(acceptableUnits);
+
+		// deg not added, because it is incompatible, so we just get back the usual length units
+		assertEquals(LENGTH_UNITS, acceptableUnits);
 	}
 }
