@@ -11,9 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -33,6 +35,7 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,21 +78,30 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		// does nothing by default, subclasses may override
 	}
 
-	@Override
 	@PreConfigure
+	public void configureScan(ScanModel scanModel) {
+		if (scanModel == null) return;
+
+		logger.debug("Configuring malcolm device {} for scan", getName());
+		setPointGenerator(scanModel.getPointGenerator());
+		String outputDir = null;
+		if (scanModel.getFilePath() != null) {
+			outputDir = FilenameUtils.removeExtension(scanModel.getFilePath());
+			File outputDirFile = new File(outputDir);
+			outputDirFile.mkdirs();
+		}
+		setOutputDir(outputDir);
+		logger.debug("Finished configuring malcolm device {} for scan, output dir set to {}", getName(), getOutputDir());
+	}
+
+	@Override
 	public void setPointGenerator(IPointGenerator<?> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
 
+	@Override
 	public IPointGenerator<?> getPointGenerator() {
 		return pointGenerator;
-	}
-
-	@ScanFinally
-	public void scanFinally() throws ScanningException {
-		// clear the point generator and output dir when the scan has finished. These are set per scan
-		this.pointGenerator = null;
-		this.outputDir = null;
 	}
 
 	@Override
@@ -100,6 +112,13 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 	@Override
 	public String getOutputDir() {
 		return outputDir;
+	}
+
+	@ScanFinally
+	public void scanFinally() throws ScanningException {
+		// clear the point generator and output dir when the scan has finished. These are set per scan
+		this.pointGenerator = null;
+		this.outputDir = null;
 	}
 
 	@Override
@@ -159,7 +178,7 @@ public abstract class AbstractMalcolmDevice<M extends IMalcolmModel> extends Abs
 		if (!exceptions.isEmpty()) throw new ScanningException(exceptions.get(0));
 	}
 
-	protected void close() throws Exception {
+	protected void close() {
 		eventDelegate.close();
 	}
 

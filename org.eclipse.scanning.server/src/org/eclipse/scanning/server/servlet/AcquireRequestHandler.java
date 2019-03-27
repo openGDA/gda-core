@@ -13,7 +13,6 @@ package org.eclipse.scanning.server.servlet;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -22,13 +21,11 @@ import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.StaticModel;
@@ -95,48 +92,9 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		IRunnableDevice<?> detector = deviceService.getRunnableDevice(bean.getDetectorName());
 		scanModel.setDetectors(detector);
 		scanModel.setScannables(Collections.emptyList());
-		initializeMalcolmDevice(request, gen);
 
 		configureDetector(detector, request.getDetectorModel(), scanModel, gen);
 		return deviceService.createRunnableDevice(scanModel, null);
-	}
-
-	/**
-	 * Initialise the malcolm device with the point generator and the malcolm model
-	 * with its output directory. This needs to be done before validation as these values
-	 * are sent to the actual malcolm device over the connection for validation.
-	 * @param gen
-	 * @throws ScanningException
-	 */
-	private void initializeMalcolmDevice(AcquireRequest req, IPointGenerator<?> gen) throws ScanningException {
-
-		// check for a malcolm device, if one is found, set its output dir
-		// and point generator on the malcolm device itself
-		if (bean.getFilePath() == null) return;
-
-		if (!(req.getDetectorModel() instanceof MalcolmModel)) return;
-		final MalcolmModel malcolmModel = (MalcolmModel) req.getDetectorModel();
-
-		// Set the malcolm output directory. This is new dir in the same parent dir as the
-		// scan file and with the same name as the scan file (minus the file extension)
-		final File scanFile = new File(bean.getFilePath());
-		final File scanDir = scanFile.getParentFile();
-		String scanFileNameNoExtn = scanFile.getName();
-		final int dotIndex = scanFileNameNoExtn.indexOf('.');
-		if (dotIndex != -1) {
-			scanFileNameNoExtn = scanFileNameNoExtn.substring(0, dotIndex);
-		}
-		final File malcolmOutputDir = new File(scanDir, scanFileNameNoExtn);
-		malcolmOutputDir.mkdir(); // create the new malcolm output directory for the scan
-		logger.debug("Device {} set malcolm output dir to {}", malcolmModel.getName(), malcolmOutputDir);
-
-		// Set the point generator for the malcolm device
-		// We must set it explicitly here because validation checks for a generator and will fail.
-		final IRunnableDeviceService service = Services.getRunnableDeviceService();
-		IRunnableDevice<?> malcolmDevice = service.getRunnableDevice(malcolmModel.getName());
-		((IMalcolmDevice<?>) malcolmDevice).setPointGenerator(gen);
-		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir.toString());
-		logger.debug("Malcolm device(s) initialized");
 	}
 
 	private String getOutputFilePath(AcquireRequest request) throws Exception {

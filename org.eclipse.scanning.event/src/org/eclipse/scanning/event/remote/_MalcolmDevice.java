@@ -148,6 +148,11 @@ public class _MalcolmDevice<M extends MalcolmModel> extends _RunnableDevice<M> i
 	}
 
 	@Override
+	public IPointGenerator<?> getPointGenerator() {
+		throw new UnsupportedOperationException("This method is not supported on the client");
+	}
+
+	@Override
 	public void setOutputDir(String fileDir) {
 		throw new UnsupportedOperationException("This method is not supported on the client");
 	}

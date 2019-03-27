@@ -31,7 +31,6 @@ import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -39,7 +38,6 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -229,7 +227,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 	private void runScan(final ScanModel scanModel) throws Exception {
 		checkTerminated();
 
-		initializeMalcolmDevice(bean, scanModel.getPointGenerator());
 		this.controller = createRunnableDevice(scanModel);
 		validateScanRequest();
 
@@ -347,54 +344,6 @@ public class ScanProcess implements IConsumerProcess<ScanBean> {
 		}
 		logger.debug("Nexus file path set to {}", bean.getFilePath());
 
-	}
-
-	/**
-	 * Initialise the malcolm device with the point generator and the malcolm model
-	 * with its output directory. This needs to be done before validation as these values
-	 * are sent to the actual malcolm device over the connection for validation.
-	 * @param gen
-	 * @throws EventException
-	 * @throws ScanningException
-	 */
-	private void initializeMalcolmDevice(ScanBean bean, IPointGenerator<?> gen) throws ScanningException {
-
-		ScanRequest<?> req = bean.getScanRequest();
-
-		// check for a malcolm device, if one is found, set its output dir
-		// and point generator on the malcolm device itself
-		if (bean.getFilePath() == null) return;
-
-		final Map<String, Object> detectorMap = req.getDetectors();
-		if (detectorMap == null) return;
-
-		final Entry<String, Object> malcolmModelEntry = detectorMap.entrySet().stream()
-				.filter(entry -> entry.getValue() instanceof MalcolmModel)
-				.findFirst().orElse(null);
-		if (malcolmModelEntry == null) return;
-		final String malcolmDeviceName = malcolmModelEntry.getKey();
-		final MalcolmModel malcolmModel = (MalcolmModel) malcolmModelEntry.getValue();
-
-		// Set the malcolm output directory. This is new dir in the same parent dir as the
-		// scan file and with the same name as the scan file (minus the file extension)
-		final File scanFile = new File(bean.getFilePath());
-		final File scanDir = scanFile.getParentFile();
-		String scanFileNameNoExtn = scanFile.getName();
-		final int dotIndex = scanFileNameNoExtn.indexOf('.');
-		if (dotIndex != -1) {
-			scanFileNameNoExtn = scanFileNameNoExtn.substring(0, dotIndex);
-		}
-		final File malcolmOutputDir = new File(scanDir, scanFileNameNoExtn);
-		malcolmOutputDir.mkdir(); // create the new malcolm output directory for the scan
-		logger.debug("Device {} set malcolm output dir to {}", malcolmModel.getName(), malcolmOutputDir);
-
-		// Set the point generator for the malcolm device
-		// We must set it explicitly here because validation checks for a generator and will fail.
-		final IRunnableDeviceService service = Services.getRunnableDeviceService();
-		IRunnableDevice<?> malcolmDevice = service.getRunnableDevice(malcolmDeviceName);
-		((IMalcolmDevice<?>) malcolmDevice).setPointGenerator(gen);
-		((IMalcolmDevice<?>) malcolmDevice).setOutputDir(malcolmOutputDir.toString());
-		logger.debug("Malcolm device(s) initialized");
 	}
 
 	private void runScript(ScriptRequest req, ScanModel scanModel) throws UnsupportedLanguageException, ScriptExecutionException, EventException, InterruptedException {

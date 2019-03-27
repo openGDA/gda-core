@@ -90,6 +90,12 @@ public interface IMalcolmDevice<T> extends IRunnableEventDevice<T>, IValidator<T
 	public void setPointGenerator(IPointGenerator<?> pointGenerator);
 
 	/**
+	 * Get the point generator that this malcolm device has been configured with
+	 * @return
+	 */
+	public IPointGenerator<?> getPointGenerator();
+
+	/**
 	 * Set the directory where malcolm will write its h5 files to. The directory should exist at
 	 * the point that the malcolm device is configured, malcolm is not responsible for creating it.
 	 */
