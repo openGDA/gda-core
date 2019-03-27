@@ -106,7 +106,7 @@ public class UnitsComponent implements PositionConvertor {
 
 	// user units
 	protected Unit<? extends Quantity> userUnit = null;
-	private List<Unit<? extends Quantity>> acceptableUnits;
+	private List<String> acceptableUnits;
 
 	private boolean userUnitHasBeenExplicitlySet;
 
@@ -173,28 +173,19 @@ public class UnitsComponent implements PositionConvertor {
 		userUnitHasBeenExplicitlySet = true;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void actuallySetUserUnits(String userUnitsString) throws DeviceException {
-
 		// Check the user unit is acceptable (and create the unit)
-		Unit<? extends Quantity> unitToSet = null;
-		for (Unit<? extends Quantity> unit : this.acceptableUnits) {
-			if (unit.toString().equals(userUnitsString)) {
-				unitToSet = unit;
-			}
-		}
-
-		// Exception if user unit not compatable with hardware unit
-		if (unitToSet == null) {
+		if (acceptableUnits.contains(userUnitsString)) {
+			userUnit = Unit.valueOf(userUnitsString);
+		} else {
 			userUnitStringIsNotAcceptable(userUnitsString);
 		}
-
-		// Set the user unit
-		userUnit = unitToSet;
 	}
 
 	private void userUnitStringIsNotAcceptable(String userUnitsString) throws DeviceException {
 		final String acceptableUnitsString = Arrays.deepToString(getAcceptableUnits());
-		if (acceptableUnits.get(0) == ONE) {
+		if (acceptableUnits.get(0).equals(ONE.toString())) {
 			throw new DeviceException(
 					"User unit "
 							+ userUnitsString
@@ -230,8 +221,8 @@ public class UnitsComponent implements PositionConvertor {
 			// Check the new hardware unit is compatible
 			@SuppressWarnings("unchecked")
 			final Unit<? extends Quantity> unit = Unit.valueOf(hardwareUnitString);
-			final List<Unit<? extends Quantity>> compatibleUnits = generateCompatibleUnits(unit);
-			if (!compatibleUnits.contains(userUnit)) {
+			final List<String> compatibleUnits = generateCompatibleUnits(unit);
+			if (!compatibleUnits.contains(userUnit.toString())) {
 				throw new DeviceException("The hardware unit could not be set to '" + hardwareUnitString
 						+ "' because this is incompatible" + " with the explicitely set user unit '"
 						+ userUnit.toString() + "'");
@@ -260,7 +251,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * @return Returns the acceptableUnitStrings.
 	 */
 	public String[] getAcceptableUnits() {
-		return acceptableUnits.stream().map(Unit::toString).toArray(String[]::new);
+		return acceptableUnits.stream().toArray(String[]::new);
 	}
 
 	/**
@@ -274,95 +265,95 @@ public class UnitsComponent implements PositionConvertor {
 	public void addAcceptableUnit(String hardwareUnitString) {
 		final Unit<? extends Quantity> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
 
-		if (newUnit.getBaseUnits() == this.hardwareUnit.getBaseUnits() && !this.acceptableUnits.contains(newUnit)) {
-			this.acceptableUnits.add(newUnit);
+		if (newUnit.getBaseUnits() == this.hardwareUnit.getBaseUnits() && !this.acceptableUnits.contains(hardwareUnitString)) {
+			this.acceptableUnits.add(hardwareUnitString);
 		}
 	}
 
-	private List<Unit<? extends Quantity>> generateCompatibleUnits(Unit<? extends Quantity> unit) {
-		final List<Unit<? extends Quantity>> unitList = new ArrayList<>();
+	private List<String> generateCompatibleUnits(Unit<? extends Quantity> unit) {
+		final List<String> unitList = new ArrayList<>();
 		final Quantity hardwareUnitQuantity = Quantity.valueOf(1.0, unit);
 
 		if (hardwareUnitQuantity instanceof Length) {
 			// these first two lines here so that they are not overwritten
 			// unless we recognise the dimensions of the hardware units
-			unitList.add(METER);
-			unitList.add(NANO(METER));
-			unitList.add(MILLI(METER));
-			unitList.add(MICRO(METER));
-			unitList.add(MICRON);
-			unitList.add(MICRON_UM);
-			unitList.add(MICRONS);
-			unitList.add(ANG);
-			unitList.add(ANGSTROM);
+			unitList.add(METER.toString());
+			unitList.add(NANO(METER).toString());
+			unitList.add(MILLI(METER).toString());
+			unitList.add(MICRO(METER).toString());
+			unitList.add(MICRON.toString());
+			unitList.add(MICRON_UM.toString());
+			unitList.add(MICRONS.toString());
+			unitList.add(ANG.toString());
+			unitList.add(ANGSTROM.toString());
 		}
 		// angular motions
 		else if (hardwareUnitQuantity instanceof Angle) {
-			unitList.add(RADIAN);
-			unitList.add(DEG_ANGLE);
-			unitList.add(DEGREES_ANGLE);
-			unitList.add(mDEG_ANGLE);
-			unitList.add(DEG_ANGLE_LOWERCASE);
-			unitList.add(mDEG_ANGLE_LOWERCASE);
-			unitList.add(mRADIAN_ANGLE);
-			unitList.add(mRADIAN_ANGLE_LC);
-			unitList.add(uDEG_ANGLE);
-			unitList.add(uRADIAN_ANGLE);
-			unitList.add(uRADIAN_ANGLE_LC);
+			unitList.add(RADIAN.toString());
+			unitList.add(DEG_ANGLE.toString());
+			unitList.add(DEGREES_ANGLE.toString());
+			unitList.add(mDEG_ANGLE.toString());
+			unitList.add(DEG_ANGLE_LOWERCASE.toString());
+			unitList.add(mDEG_ANGLE_LOWERCASE.toString());
+			unitList.add(mRADIAN_ANGLE.toString());
+			unitList.add(mRADIAN_ANGLE_LC.toString());
+			unitList.add(uDEG_ANGLE.toString());
+			unitList.add(uRADIAN_ANGLE.toString());
+			unitList.add(uRADIAN_ANGLE_LC.toString());
 		}
 
 		// // temperature
 		else if (hardwareUnitQuantity instanceof Temperature) {
-			unitList.add(CENTIGRADE);
-			unitList.add(KELVIN);
+			unitList.add(CENTIGRADE.toString());
+			unitList.add(KELVIN.toString());
 		}
 
 		// Force
 		else if (hardwareUnitQuantity instanceof Force) {
-			unitList.add(NEWTON);
+			unitList.add(NEWTON.toString());
 		}
 		// Voltage
 		else if (hardwareUnitQuantity instanceof ElectricPotential) {
-			unitList.add(VOLT);
+			unitList.add(VOLT.toString());
 		}
 
 		// Count
 		else if (hardwareUnitQuantity instanceof Count) {
-			unitList.add(COUNT);
-			unitList.add(KILOCOUNT);
+			unitList.add(COUNT.toString());
+			unitList.add(KILOCOUNT.toString());
 		}
 
 		// also want energy here
 		else if (hardwareUnitQuantity instanceof Energy) {
-			unitList.add(KILOELECTRONVOLT);
-			unitList.add(ELECTRON_VOLT);
-			unitList.add(GIGAELECTRONVOLT);  //for the machine
+			unitList.add(KILOELECTRONVOLT.toString());
+			unitList.add(ELECTRON_VOLT.toString());
+			unitList.add(GIGAELECTRONVOLT.toString());  //for the machine
 		}
 
 		else if (hardwareUnitQuantity instanceof Dimensionless) {
-			unitList.add(ONE);
+			unitList.add(ONE.toString());
 		}
 
 		else if (hardwareUnitQuantity instanceof ElectricCurrent) {
-			unitList.add(AMPERE);
-			unitList.add(MICROAMPERE);
-			unitList.add(uAMPERE);
-			unitList.add(MILLI(AMPERE));
+			unitList.add(AMPERE.toString());
+			unitList.add(MICROAMPERE.toString());
+			unitList.add(uAMPERE.toString());
+			unitList.add(MILLI(AMPERE).toString());
 		}
 
 		else if (hardwareUnitQuantity instanceof Duration) {
-			unitList.add(SECOND);
-			unitList.add(MILLI(SECOND));
+			unitList.add(SECOND.toString());
+			unitList.add(MILLI(SECOND).toString());
 		}
 
 		else if (hardwareUnitQuantity instanceof Volume) {
-			unitList.add(LITER);
-			unitList.add(CUBIC_METER);
+			unitList.add(LITER.toString());
+			unitList.add(CUBIC_METER.toString());
 		}
 
 		else if (hardwareUnitQuantity instanceof VolumetricDensity) {
 			// mg/mL
-			unitList.add(MICRO(KILOGRAM).divide(MILLI(LITER)));
+			unitList.add(MICRO(KILOGRAM).divide(MILLI(LITER)).toString());
 		}
 
 		else {
