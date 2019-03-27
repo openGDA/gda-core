@@ -20,6 +20,7 @@ package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -27,8 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.MotorException;
 import gda.device.Scannable;
+import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
@@ -55,6 +58,15 @@ public class XesSpectrometerScannableTest {
 		scnMotor.setMotor(dummyMotor);
 		scnMotor.configure();
 		return scnMotor;
+	}
+
+	private EnumPositioner createBooleanPositioner(String name) throws DeviceException {
+		DummyEnumPositioner positioner = new DummyEnumPositioner();
+		positioner.setName(name);
+		positioner.setPositions(Arrays.asList(Boolean.TRUE.toString(), Boolean.FALSE.toString()));
+		positioner.configure();
+		positioner.setPosition(Boolean.TRUE.toString());
+		return positioner;
 	}
 
 	@Before
@@ -92,7 +104,10 @@ public class XesSpectrometerScannableTest {
 		xesSpectrometer.getDet_y().moveTo(475);
 		xesSpectrometer.getXtal_x().moveTo(radius);
 		xesSpectrometer.getRadiusScannable().moveTo(radius);
-		xesSpectrometer.setAdditionalCrystalsInUse(new Boolean[] {true, true, true, true});
+
+		xesSpectrometer.setMinusCrystalAllowedToMove(createBooleanPositioner("minusAllowedToMove"));
+		xesSpectrometer.setCentreCrystalAllowedToMove(createBooleanPositioner("centreAllowedToMove"));
+		xesSpectrometer.setPlusCrystalAllowedToMove(createBooleanPositioner("plusAllowedToMove"));
 
 		// Do initial move to get all crystal, detector positions consistent
 		xesSpectrometer.moveTo(75);
@@ -119,7 +134,7 @@ public class XesSpectrometerScannableTest {
 	public void testNoMinusCrystalMove() throws DeviceException {
 		double origBraggAngle = (double) xesSpectrometer.getPosition();
 		double newBraggAngle = 75;
-		xesSpectrometer.setAdditionalCrystalsInUse(new Boolean[] {false, true, true, true});
+		xesSpectrometer.getMinusCrystalAllowedToMove().moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
@@ -134,7 +149,7 @@ public class XesSpectrometerScannableTest {
 	public void testNoCentreCrystalMoves() throws DeviceException {
 		double origBraggAngle = (double) xesSpectrometer.getPosition();
 		double newBraggAngle = 78;
-		xesSpectrometer.setAdditionalCrystalsInUse(new Boolean[] {true, false, true, true});
+		xesSpectrometer.getCentreCrystalAllowedToMove().moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));
@@ -149,7 +164,7 @@ public class XesSpectrometerScannableTest {
 	public void testNoPlusCrystalMove() throws DeviceException {
 		double origBraggAngle = (double) xesSpectrometer.getPosition();
 		double newBraggAngle = 62;
-		xesSpectrometer.setAdditionalCrystalsInUse(new Boolean[] {true, true, false, true});
+		xesSpectrometer.getPlusCrystalAllowedToMove().moveTo(Boolean.FALSE.toString());
 		xesSpectrometer.moveTo(newBraggAngle);
 
 		checkPositions(xesSpectrometer.getDetectorGroup(), getDetPosition(newBraggAngle));

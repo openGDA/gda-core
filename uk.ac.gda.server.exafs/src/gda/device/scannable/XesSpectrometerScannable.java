@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotionUnitsBase;
@@ -59,7 +60,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
 
 	private Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
-	private Boolean[] additionalCrystalsInUse = new Boolean[] { true, true, true };
+
+	// Positioners that control which of the 3 crystals are allowed to be moved.
+	// If these are left as null allowedToMove is set to true.
+	private EnumPositioner minusCrystalAllowedToMove;
+	private EnumPositioner centreCrystalAllowedToMove;
+	private EnumPositioner plusCrystalAllowedToMove;
 
 	private ScannableMotor spectrometer_x; // also known as L
 	private ScannableMotor det_y;
@@ -153,13 +159,35 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 
 	/**
+	 * Set the 'allowedToMove' flag for a scannable group based on position of
+	 * allowedToMove enum positioner. If the positioner is null, or DeviceException is thrown,
+	 * a default value of 'true' is used.
+	 * @param scnGroup
+	 * @param positioner
+	 */
+	private void setGroupActive(ScannableGroupAllowedToMove scnGroup, EnumPositioner positioner) {
+		boolean doMove = true;
+		if (positioner != null) {
+			try {
+				String position = positioner.getPosition().toString();
+				doMove = Boolean.parseBoolean(position);
+			} catch (Exception ex) {
+				logger.warn("Problem setting 'allowed to move' from EnumPositioner {}", positioner, ex);
+			}
+		}
+		logger.debug("Setting {}.allowedToMove to {}", scnGroup.getName(), doMove);
+		scnGroup.setAllowedToMove(doMove);
+	}
+
+	/**
 	 * Update the 'allowedToMove' flag for each scannable group
+	 * @throws DeviceException
 	 */
 	private void updateActiveGroups() {
 		if(isConfigured()) {
-			minusCrystal.setAllowedToMove(additionalCrystalsInUse[0]);
-			centreCrystal.setAllowedToMove(additionalCrystalsInUse[1]);
-			plusCrystal.setAllowedToMove(additionalCrystalsInUse[2]);
+			setGroupActive(minusCrystal, minusCrystalAllowedToMove);
+			setGroupActive(centreCrystal, centreCrystalAllowedToMove);
+			setGroupActive(plusCrystal, plusCrystalAllowedToMove);
 		}
 	}
 
@@ -197,6 +225,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+
+		updateActiveGroups();
+
 		String pos = position.toString();
 		double targetBragg = Double.parseDouble(pos);
 		double currentPosition = Double.parseDouble(getPosition().toString());
@@ -463,15 +494,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		this.spectrometer_x = xtal_x;
 	}
 
-	public Boolean[] getAdditionalCrystalsInUse() {
-		return additionalCrystalsInUse;
-	}
-
-	public void setAdditionalCrystalsInUse(Boolean[] additionalCrystalsInUse) {
-		this.additionalCrystalsInUse = additionalCrystalsInUse;
-		updateActiveGroups();
-	}
-
 	public ScannableMotor getXtal_minus1_x() {
 		return xtalxs[0];
 	}
@@ -604,4 +626,29 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	public ScannableGroup getCentreCrystalGroup() {
 		return centreCrystal;
 	}
+
+	public EnumPositioner getMinusCrystalAllowedToMove() {
+		return minusCrystalAllowedToMove;
+	}
+
+	public void setMinusCrystalAllowedToMove(EnumPositioner minusCrystalAllowedToMove) {
+		this.minusCrystalAllowedToMove = minusCrystalAllowedToMove;
+	}
+
+	public EnumPositioner getCentreCrystalAllowedToMove() {
+		return centreCrystalAllowedToMove;
+	}
+
+	public void setCentreCrystalAllowedToMove(EnumPositioner centreCrystalAllowedToMove) {
+		this.centreCrystalAllowedToMove = centreCrystalAllowedToMove;
+	}
+
+	public EnumPositioner getPlusCrystalAllowedToMove() {
+		return plusCrystalAllowedToMove;
+	}
+
+	public void setPlusCrystalAllowedToMove(EnumPositioner plusCrystalAllowedToMove) {
+		this.plusCrystalAllowedToMove = plusCrystalAllowedToMove;
+	}
+
 }
