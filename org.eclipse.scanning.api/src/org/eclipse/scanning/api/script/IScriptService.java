@@ -26,8 +26,10 @@ public interface IScriptService {
 
 	public static final String VAR_NAME_SCAN_BEAN = "scanBean";
 	public static final String VAR_NAME_SCAN_REQUEST = "scanRequest";
+	public static final String VAR_NAME_SCAN_REQUEST_JSON = "scanRequestJson";
 	public static final String VAR_NAME_SCAN_MODEL = "scanModel";
 	public static final String VAR_NAME_SCAN_PATH = "scanPath";
+	public static final String VAR_NAME_XANES_EDGE_PARAMS_JSON = "xanesEdgeParamsJson";
 
 	/**
 	 * For DAQ server version 8 and 9 this will probably be {JYTHON, SPEC_PASTICHE}

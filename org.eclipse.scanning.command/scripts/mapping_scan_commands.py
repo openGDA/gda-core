@@ -118,8 +118,7 @@ def getScannable(name):
     return getScannableDeviceService().getScannable(name)
 
 
-def submit(request, now=False, block=True,
-           broker_uri=None):
+def submit(request, now=False, block=True, broker_uri=None, name=None):
 
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
@@ -128,7 +127,11 @@ def submit(request, now=False, block=True,
 
     See the mscan() docstring for details of `now` and `block`.
     """
-    scan_bean = ScanBean(request) # Generates a sensible name for the scan from the request.
+    scan_bean = ScanBean(request) # Generates a default name for the scan from the request.
+
+    # Override the default name if parameter set
+    if name is not None:
+        scan_bean.setName(name)
 
     # Throws an exception if we made a bad bean
     json = getEventService().getEventConnectorService().marshal(scan_bean)
