@@ -167,13 +167,16 @@ class SpinStatusComposite extends Composite {
 						if (theObserved instanceof ISpin) {
 							if (changeCode instanceof String) {
 								value = ((String) changeCode);
-								if (value.equalsIgnoreCase("Enabled")) {
+								boolean enabled = value.equalsIgnoreCase("Enabled");
+								if (enabled) {
 									currentColor=SPIN_ON_COLOR;
 									canvas.setToolTipText(SPIN_ON_TOOL_TIP);
 								} else {
 									currentColor=SPIN_OFF_COLOR;
 									canvas.setToolTipText(SPIN_OFF_TOOL_TIP);
 								}
+								spinOn.setSelection(enabled);
+								spinOff.setSelection(!enabled);
 							}
 						}
 						updateBatonCanvas();
