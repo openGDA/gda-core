@@ -104,9 +104,9 @@ public class DetectorFilePlotView extends ViewPart {
 						final ILineTrace lineTrace = plottingSystem.createLineTrace(yData.getName());
 						lineTrace.setData(xData, yData);
 						plottingSystem.addTrace(lineTrace);
+						plottingSystem.setTitle(title);
 						if (first) {
 							plottingSystem.setShowLegend(true);
-							plottingSystem.setTitle(title);
 							lineTrace.setTraceColor(ColorConstants.blue);
 							plottingSystem.getSelectedYAxis().setTitle(xAxisName);
 							plottingSystem.getSelectedYAxis().setTitle(yAxisName);
