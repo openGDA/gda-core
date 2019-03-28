@@ -33,5 +33,5 @@ public interface EpicsConstants {
 	 * <p>
 	 * So add this number to Epics timestamps to create java.util.Date objects.
 	 */
-	public static long EPICS_EPOCH_OFFSET = 631152000000L; // 00:00:00 1st Jan 1990 in Java Epoch
+	public static final long EPICS_EPOCH_OFFSET = 631152000000L; // 00:00:00 1st Jan 1990 in Java Epoch
 }
