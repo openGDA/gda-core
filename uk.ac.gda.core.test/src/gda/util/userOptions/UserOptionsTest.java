@@ -22,15 +22,16 @@
 package gda.util.userOptions;
 
 import static org.junit.Assert.assertEquals;
-import gda.TestHelpers;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-/**
- *
- */
+import gda.util.TestUtils;
+
 public class UserOptionsTest {
-	final static String TestFileFolder = "test/gda/util/userOptions";
+	static final String TEMPLATE_NAME = "GDAUserOptionsTemplate";
+	static final String OPTIONS_NAME = "GDAUserOptions";
+	static final String TEMPLATE_TITLE = "USER_OPTIONS";
 
 	/**
 	 * Test method for {@link gda.util.userOptions}.
@@ -38,20 +39,37 @@ public class UserOptionsTest {
 	 */
 	@Test
 	public void testLoadConfig() throws Exception {
-		String testScratchDirectoryName = TestHelpers.setUpTest(UserOptionsTest.class, "testLoadConfig", true);
+		String testScratchDirectoryName = TestUtils.setUpTest(UserOptionsTest.class, "testLoadConfig", true);
 
-		UserOptions options = new UserOptions();
-		options.title = "Test options";
-		options.put("key1", new UserOption<String, Boolean>("Boolean", true));
-		options.put("key2", new UserOption<String, Double>("Double", 1.0));
-		options.put("key3", new UserOption<String, String>("String", "String"));
-		options.put("key3", new UserOption<String, Integer>("Integer", 1234));
-		options.put("key5", new UserOption<String, Boolean>("Boolean", true));
-		options.saveToTemplate(testScratchDirectoryName, "testOptionsConfig");
-		options.get("key1").value = false;
-		options.saveValuesToConfig(testScratchDirectoryName, "testOptions");
-		UserOptions newOptions = UserOptions.createFromTemplate(testScratchDirectoryName, "testOptionsConfig");
-		newOptions.setValuesFromConfig(testScratchDirectoryName, "testOptions");
-		assertEquals(options, newOptions);
+		UserOptionsManager manager = new UserOptionsManager();
+		manager.setTemplateConfigDir(testScratchDirectoryName);
+		manager.setTemplateConfigName(TEMPLATE_NAME);
+		manager.setConfigured(true);
+
+		UserOptionsMap template = new UserOptionsMap();
+		template.put("key1", new UserOption<String, Boolean>("Boolean", true));
+		template.put("key2", new UserOption<String, Double>("Double", 1.0));
+		template.put("key3", new UserOption<String, String>("String", "string_value"));
+		template.put("key4", new UserOption<String, Integer>("Integer", 1234));
+		template.put("key5", new UserOption<String, Boolean>("Boolean", true));
+		template.setTitle(TEMPLATE_TITLE);
+
+		manager.saveOptionsMapToTemplate(template);
+
+		// Get defaults when specified source is empty
+		UserOptionsMap options = manager.getOptionsMapFromConfig(testScratchDirectoryName, OPTIONS_NAME);
+		assertEquals(options, template);
+
+		// Alter a value and compare
+		options.get("key1").setValue(false);
+		assertNotEquals(options, template);
+
+		// Save options map to (non-template) file
+		manager.saveOptionsMapValuesToConfig(testScratchDirectoryName, OPTIONS_NAME, options);
+		UserOptionsMap reread = manager.getOptionsMapFromConfig(testScratchDirectoryName, OPTIONS_NAME);
+		assertEquals(reread, options);
+
+		UserOptionsMap cleared = manager.resetOptions(testScratchDirectoryName, OPTIONS_NAME);
+		assertEquals(cleared, template);
 	}
 }
