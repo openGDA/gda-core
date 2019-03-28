@@ -22,11 +22,10 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
-import org.eclipse.scanning.api.IConfigurable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
@@ -34,7 +33,6 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.GridModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.example.scannable.MockScannableModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.scan.mock.MockWritingMandlebrotModel;
@@ -101,17 +99,9 @@ public class LowLevelDetectorPluginTest {
 		model.setySize(5); // This could also come from the generator made in createTestScanner(...) but it is hard coded
 
 		// Make sure that the scannables will write too
-		MockScannableModel smod = new MockScannableModel();
-		smod.setFile(file);
-		smod.setSize(8);
 		IScannable<Number> x = connector.getScannable("x");
-		((IConfigurable)x).configure(smod);
 
-		smod = new MockScannableModel();
-		smod.setFile(file);
-		smod.setSize(5);
 		IScannable<Number> y = connector.getScannable("y");
-		((IConfigurable)y).configure(smod);
 
 		IRunnableDevice<MockWritingMandlebrotModel> det = service.createRunnableDevice(model);
 		model.getFile().close();

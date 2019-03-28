@@ -22,7 +22,6 @@ import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
-import org.eclipse.scanning.example.scannable.MockScannableModel;
 
 public class ScanningExampleClassRegistry implements IClassRegistry {
 
@@ -36,9 +35,6 @@ public class ScanningExampleClassRegistry implements IClassRegistry {
 		registerClass(tmp, MandelbrotModel.class);
 		registerClass(tmp, DummyMalcolmModel.class);
 		registerClass(tmp, DummyMalcolmTriggeredModel.class);
-
-		// scannable
-		registerClass(tmp, MockScannableModel.class);
 
 		idToClassMap = Collections.unmodifiableMap(tmp);
 	}

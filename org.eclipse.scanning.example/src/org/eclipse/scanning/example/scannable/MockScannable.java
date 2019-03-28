@@ -15,27 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.january.IMonitor;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.CountableScannable;
-import org.eclipse.scanning.api.IConfigurable;
 import org.eclipse.scanning.api.ITerminatable;
-import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.Services;
 
-public class MockScannable extends CountableScannable<Number>
-		implements IConfigurable<MockScannableModel>, ITerminatable {
+public class MockScannable extends CountableScannable<Number> implements ITerminatable {
 
 	protected Number position = 0d;
 	private boolean requireSleep = true;
@@ -48,14 +36,6 @@ public class MockScannable extends CountableScannable<Number>
 
 	private List<Number> values;
 	private List<AbstractPosition> positions;
-
-	protected MockScannableModel model;
-	private LazyWriteableDataset writer;
-
-	@ScanFinally
-	public void clean() {
-		writer = null;
-	}
 
 	public MockScannable() {
 		super(Services.getScannableDeviceService());
@@ -102,35 +82,6 @@ public class MockScannable extends CountableScannable<Number>
 	private Number lower = -1000;
 
 	@Override
-	public void configure(MockScannableModel model) throws ScanningException {
-		this.model = model;
-
-		MockScannableModel mod = model;
-
-		// We make a lazy writeable dataset to write out the mandels.
-		final int[] shape = new int[] { mod.getSize() };
-
-		try {
-			/**
-			 * @see org.eclipse.dawnsci.nexus.NexusFileTest.testLazyWriteStringArray()
-			 *
-			 *      TODO FIXME Hack warning! This is not the way to write to NeXus. We are just doing this for the
-			 *      test!
-			 *
-			 *      DO NOT COPY!
-			 */
-			NexusFile file = mod.getFile();
-			GroupNode par = file.getGroup("/entry1/instrument/axes", true); // DO NOT COPY!
-			writer = new LazyWriteableDataset(getName(), Dataset.FLOAT, shape, shape, shape, null); // DO NOT COPY!
-
-			file.createData(par, writer); // DO NOT COPY!
-
-		} catch (NexusException ne) {
-			throw new ScanningException("Cannot open file for writing!", ne);
-		}
-	}
-
-	@Override
 	public Number getPosition() {
 		return position;
 	}
@@ -149,7 +100,7 @@ public class MockScannable extends CountableScannable<Number>
 
 		int index = loc != null ? loc.getIndex(getName()) : -1;
 		double val = value != null ? value.doubleValue() : Double.NaN;
-		boolean ok = delegate.firePositionWillPerform(new Scalar(getName(), index, val));
+		boolean ok = delegate.firePositionWillPerform(new Scalar<>(getName(), index, val));
 		if (!ok)
 			return this.position;
 
@@ -173,24 +124,7 @@ public class MockScannable extends CountableScannable<Number>
 		values.add(value);
 		positions.add((AbstractPosition) loc);
 
-		if (writer != null && loc != null) {
-
-			// Write a single value
-			IDataset toWrite = DatasetFactory.createFromObject(value);
-
-			final int[] start = new int[] { loc.getIndex(getName()) }; // DO NOT COPY!
-			final int[] stop = new int[] { loc.getIndex(getName()) + 1 }; // DO NOT COPY!
-
-			SliceND slice = SliceND.createSlice(writer, start, stop); // DO NOT COPY!
-			try {
-				writer.setSlice(new IMonitor.Stub(), toWrite, slice); // DO NOT COPY!
-			} catch (Exception e) {
-				throw new ScanningException("Slice unable to write!", e); // DO NOT COPY!
-			}
-
-		}
-
-		delegate.firePositionPerformed(-1, new Scalar(getName(), index, val));
+		delegate.firePositionPerformed(-1, new Scalar<>(getName(), index, val));
 		return this.position;
 	}
 
