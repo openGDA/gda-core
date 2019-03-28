@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,9 +40,19 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Utility methods used to run short-lived tasks asynchronously.<p>
@@ -78,22 +90,40 @@ public final class Async {
 	/** The time (in seconds) for threads to idle before they're terminated */
 	private static final long CACHED_THREAD_KEEP_ALIVE_TIME = 60L;
 
-	/** Thread pool to manage execution of asynchronous tasks */
+	/**
+	 * Thread pool to manage execution of asynchronous tasks.
+	 * This should not be used directly - {@link #EXECUTOR} should be used instead.
+	 */
 	/* This is the same as Executors#newCachedThreadPool.
 	 * Use constructor here rather than Executors factory method to avoid having to cast
 	 * to get usage stats */
-	private static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+	private static final ThreadPoolExecutor EXECUTOR_POOL = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
             CACHED_THREAD_KEEP_ALIVE_TIME, SECONDS,
             new SynchronousQueue<Runnable>(),
             Threads.daemon().named("AsyncThreadPool").factory()
 	);
 
-	/** Thread pool to manage scheduled execution of repeated tasks */
+	/**
+	 * An ExecutorService to manage asynchronous tasks. Returns {@link ListenableFuture}s so
+	 * that callbacks can be added.
+	 */
+	private static final ListeningExecutorService EXECUTOR = MoreExecutors.listeningDecorator(EXECUTOR_POOL);
+
+	/**
+	 * Internal thread pool to manage scheduled execution of repeated tasks.
+	 * This should not be used directly - {@link #SCHEDULER} should be used instead
+	 */
 	/* This is the same as Executors#newScheduledThreadPool.
 	 * Use constructor here to avoid casting to get usage stats */
-	private static final ScheduledThreadPoolExecutor SCHEDULER = new ScheduledThreadPoolExecutor(SCHEDULER_THREAD_BASE_COUNT,
+	private static final ScheduledThreadPoolExecutor SCHEDULER_POOL = new ScheduledThreadPoolExecutor(SCHEDULER_THREAD_BASE_COUNT,
 			Threads.daemon().named("AsyncScheduler").factory()
 	);
+
+	/**
+	 * ExecutorService to manage scheduled tasks. Returns {@link ListenableFuture}s so
+	 * that callbacks can be added.
+	 */
+	private static final ListeningScheduledExecutorService SCHEDULER = MoreExecutors.listeningDecorator(SCHEDULER_POOL);
 
 	/** Single thread to monitor state of common pools */
 	private static final ScheduledExecutorService MONITOR = Executors.newSingleThreadScheduledExecutor(
@@ -124,7 +154,7 @@ public final class Async {
 	 */
 	public static void execute(Runnable target) {
 		checkRunnable(target);
-		THREAD_POOL.execute(target);
+		EXECUTOR.execute(target);
 	}
 
 
@@ -141,13 +171,17 @@ public final class Async {
 	 */
 	public static void execute(Runnable target, String nameFormat, Object... args) {
 		checkRunnable(target);
-		THREAD_POOL.execute(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
+		EXECUTOR.execute(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
 	}
 
 	/**
 	 * Submit a task to be run in its own thread. Returns a Future giving access to the completion or
 	 * error state of the task and allowing tasks to be cancelled.<p>
-	 * The Future also gives access to the return value of the {@link Callable}
+	 * The Future also gives access to the return value of the {@link Callable target}.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the callable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param <T> the return type of the task to be run
 	 * @param target The task to be run
@@ -157,9 +191,9 @@ public final class Async {
 	 * @see Future
 	 * @since 9.8
 	 */
-	public static <T> Future<T> submit(Callable<T> target) {
+	public static <T> ListeningFuture<T> submit(Callable<T> target) {
 		checkCallable(target);
-		return THREAD_POOL.submit(target);
+		return new ListeningFuture<>(EXECUTOR.submit(target));
 	}
 
 	/**
@@ -167,7 +201,11 @@ public final class Async {
 	 * error state of the task and allowing tasks to be cancelled.<p>
 	 * The Future also gives access to the return value of the {@link Callable}.<p>
 	 * This method differs from {@link #submit(Callable)} in that it renames the thread before running the task.
-	 * The name is created using {@link String#format} with the given nameFormat and args
+	 * The name is created using {@link String#format} with the given nameFormat and args.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the callable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param <T> the return type of the task to be run
 	 * @param target The task to be run
@@ -179,15 +217,19 @@ public final class Async {
 	 * @see Future
 	 * @since 9.8
 	 */
-	public static <T> Future<T> submit(Callable<T> target, String nameFormat, Object... args) {
+	public static <T> ListeningFuture<T> submit(Callable<T> target, String nameFormat, Object... args) {
 		checkCallable(target);
-		return THREAD_POOL.submit(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target));
+		return new ListeningFuture<>(EXECUTOR.submit(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target)));
 	}
 
 	/**
 	 * Submit a task to be run in its own thread. Returns a Future giving access to the completion or
 	 * error state of the task and allowing tasks to be cancelled.<p>
-	 * The Future's get method will return {@code null} on successful completion
+	 * The Future's get method will return {@code null} on successful completion.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the runnable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to be run
 	 * @return Future giving access to the state of the running task
@@ -196,9 +238,9 @@ public final class Async {
 	 * @see Future
 	 * @since 9.8
 	 */
-	public static Future<?> submit(Runnable target) {
+	public static ListeningFuture<?> submit(Runnable target) {
 		checkRunnable(target);
-		return THREAD_POOL.submit(target);
+		return new ListeningFuture<>(EXECUTOR.submit(target));
 	}
 
 	/**
@@ -206,7 +248,11 @@ public final class Async {
 	 * error state of the task and allowing tasks to be cancelled.<p>
 	 * The Future's get method will return {@code null} on successful completion<p>
 	 * This differs from {@link #submit(Runnable)} in that it renames the thread before running the task.
-	 * The name is created using {@link String#format} with the given nameFormat and args
+	 * The name is created using {@link String#format} with the given nameFormat and args.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the runnable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to be run
 	 * @param nameFormat For the thread used to run this task
@@ -217,9 +263,9 @@ public final class Async {
 	 * @see Future
 	 * @since 9.8
 	 */
-	public static Future<?> submit(Runnable target, String nameFormat, Object... args) {
+	public static ListeningFuture<?> submit(Runnable target, String nameFormat, Object... args) {
 		checkRunnable(target);
-		return THREAD_POOL.submit(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target));
+		return new ListeningFuture<>(EXECUTOR.submit(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target)));
 	}
 
 	/**
@@ -236,7 +282,7 @@ public final class Async {
 	public static <T> Future<Collection<Future<T>>> submitAll(Collection<Callable<T>> tasks) {
 		return submit(() -> {
 			// create new list to prevent modifications to the original list affecting execution
-			return THREAD_POOL.invokeAll(new ArrayList<>(tasks));
+			return EXECUTOR.invokeAll(new ArrayList<>(tasks));
 		});
 	}
 
@@ -298,9 +344,9 @@ public final class Async {
 	 * @param delay The time before the initial execution
 	 * @param period The period between successive executions
 	 * @param unit Time unit of delay and period
-	 * @return Future giving caller ability to check status and cancel task
+	 * @return ScheduledFuture giving caller ability to check status and cancel task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
@@ -330,9 +376,10 @@ public final class Async {
 	 * @see ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static ScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
+	public static ListeningScheduledFuture<?> scheduleAtFixedRate(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
 		checkRunnable(target);
-		return SCHEDULER.scheduleAtFixedRate(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
+		Runnable task = new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target);
+		return new ListeningScheduledFuture<>(SCHEDULER.scheduleAtFixedRate(task, delay, period, unit));
 	}
 
 	/**
@@ -346,9 +393,9 @@ public final class Async {
 	 * @param delay The time before the initial execution
 	 * @param period The time between successive executions
 	 * @param unit Time unit of delay and period
-	 * @return Future giving caller ability to check status and cancel task
+	 * @return ScheduledFuture giving caller ability to check status and cancel task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
@@ -373,34 +420,39 @@ public final class Async {
 	 * @param unit Time unit of delay and period
 	 * @param nameFormat For the thread used to run this task
 	 * @param args Objects to format the name with
-	 * @return Future giving caller ability to check status and cancel task
+	 * @return ScheduledFuture giving caller ability to check status and cancel task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
+	public static ListeningScheduledFuture<?> scheduleWithFixedDelay(Runnable target, long delay, long period, TimeUnit unit, String nameFormat, Object... args) {
 		checkRunnable(target);
-		return SCHEDULER.scheduleWithFixedDelay(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, period, unit);
+		Runnable task = new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target);
+		return new ListeningScheduledFuture<>(SCHEDULER.scheduleWithFixedDelay(task, delay, period, unit));
 	}
 
 	/**
 	 * Schedule a task to run after a given delay. The remaining time and status of the task can be
 	 * checked by the caller using the returned future. {@link Future#get()} will return null after
 	 * the task is complete.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the runnable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to run
 	 * @param delay The time to wait before running
 	 * @param unit The units of the given delay
-	 * @return A Future giving access to status of task
+	 * @return A ScheduledFuture giving access to status of task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#schedule(Runnable, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit) {
+	public static ListeningScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit) {
 		checkRunnable(target);
-		return SCHEDULER.schedule(target, delay, unit);
+		return new ListeningScheduledFuture<>(SCHEDULER.schedule(target, delay, unit));
 	}
 
 	/**
@@ -409,41 +461,50 @@ public final class Async {
 	 * the task is complete.<p>
 	 * This differs from {@link #schedule(Runnable, long, TimeUnit)} in that it renames
 	 * the thread before running the task.
-	 * The name is created using {@link String#format} with the given nameFormat and args
+	 * The name is created using {@link String#format} with the given nameFormat and args.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the runnable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to run
 	 * @param delay The time to wait before running
 	 * @param unit The units of the given delay
 	 * @param nameFormat For the thread used to run this task
 	 * @param args Objects to format the name with
-	 * @return A Future giving access to status of task
+	 * @return A ScheduledFuture giving access to status of task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#schedule(Runnable, long, TimeUnit)
 	 * @since 9.8
 	 */
-	public static ScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit, String nameFormat, Object... args) {
+	public static ListeningScheduledFuture<?> schedule(Runnable target, long delay, TimeUnit unit, String nameFormat, Object... args) {
 		checkRunnable(target);
-		return SCHEDULER.schedule(new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target), delay, unit);
+		Runnable task = new ThreadNamingRunnableWrapper(String.format(nameFormat, args), target);
+		return new ListeningScheduledFuture<>(SCHEDULER.schedule(task, delay, unit));
 	}
 
 	/**
 	 * Schedule a task to run after a given delay. The remaining time and status of the task can be
 	 * checked by the caller using the returned future. {@link Future#get()} will return the result of
 	 * the task after completion.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the callable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to run
 	 * @param delay The time to wait before running
 	 * @param unit The units of the given delay
 	 * @param <T> The return type of the given task
-	 * @return A Future giving access to status of task
+	 * @return A ScheduledFuture giving access to status of task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
-	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit) {
+	public static <T> ListeningScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit) {
 		checkCallable(target);
-		return SCHEDULER.schedule(target, delay, unit);
+		return new ListeningScheduledFuture<>(SCHEDULER.schedule(target, delay, unit));
 	}
 
 	/**
@@ -452,7 +513,11 @@ public final class Async {
 	 * the task after completion.<p>
 	 * This differs from {@link #schedule(Callable, long, TimeUnit)} in that it renames
 	 * the thread before running the task.
-	 * The name is created using {@link String#format} with the given nameFormat and args
+	 * The name is created using {@link String#format} with the given nameFormat and args.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the callable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target The task to run
 	 * @param delay The time to wait before running
@@ -460,14 +525,15 @@ public final class Async {
 	 * @param nameFormat For the thread used to run this task
 	 * @param args Objects to format the name with
 	 * @param <T> The return type of the given task
-	 * @return A Future giving access to status of task
+	 * @return A ScheduledFuture giving access to status of task
 	 *
-	 * @see Future
+	 * @see ScheduledFuture
 	 * @see ScheduledExecutorService#schedule(Callable, long, TimeUnit)
 	 */
-	public static <T> ScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit, String nameFormat, Object... args) {
+	public static <T> ListeningScheduledFuture<T> schedule(Callable<T> target, long delay, TimeUnit unit, String nameFormat, Object... args) {
 		checkCallable(target);
-		return SCHEDULER.schedule(new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target), delay, unit);
+		Callable<T> task = new ThreadNamingCallableWrapper<>(String.format(nameFormat, args), target);
+		return new ListeningScheduledFuture<>(SCHEDULER.schedule(task, delay, unit));
 	}
 
 	/**
@@ -490,7 +556,11 @@ public final class Async {
 	 *
 	 * This can also be used to execute things that can't be cast to Callable directly
 	 * (eg classes with __call__ method).
-	 * The returned Future can be used as normal to cancel or get the return value
+	 * The returned Future can be used as normal to cancel or get the return value.
+	 * <p>
+	 * The returned Future can have callbacks added to be run on success or failure of the callable.
+	 * See {@link ListeningFuture#onSuccess(Consumer) onSuccess} and
+	 * {@link ListeningFuture#onFailure(Consumer) onFailure}.
 	 *
 	 * @param target should be callable
 	 * @return Future giving access to PyObject returned by callable. PyNone if void function
@@ -498,7 +568,7 @@ public final class Async {
 	 * @see Future
 	 * @since 9.8
 	 */
-	public static Future<?> call(Callable<?> target) {
+	public static ListeningFuture<?> call(Callable<?> target) {
 		return submit(target, "AsyncJython");
 	}
 
@@ -514,10 +584,10 @@ public final class Async {
 	 * Log current queue size and number of threads
 	 */
 	private static void monitorUsage() {
-		// POOL stats
-		int threadCount = THREAD_POOL.getActiveCount();
-		int poolSize = THREAD_POOL.getPoolSize();
-		int queueSize = THREAD_POOL.getQueue().size();
+		// EXECUTOR stats
+		int threadCount = EXECUTOR_POOL.getActiveCount();
+		int poolSize = EXECUTOR_POOL.getPoolSize();
+		int queueSize = EXECUTOR_POOL.getQueue().size();
 		if (queueSize > 10) {
 			// Should not really happen as new threads are created if none are available
 			logger.warn("Current common pool thread using {}/{} threads. Queue size: {}",
@@ -533,10 +603,10 @@ public final class Async {
 					);
 		}
 
-		// SCHEDULE stats
-		int scheduleThreadCount = SCHEDULER.getActiveCount();
-		int schedulerPoolSize = SCHEDULER.getCorePoolSize();
-		int scheduleQueueSize = SCHEDULER.getQueue().size();
+		// SCHEDULER stats
+		int scheduleThreadCount = SCHEDULER_POOL.getActiveCount();
+		int schedulerPoolSize = SCHEDULER_POOL.getCorePoolSize();
+		int scheduleQueueSize = SCHEDULER_POOL.getQueue().size();
 		if (scheduleThreadCount >= schedulerPoolSize) {
 			logger.warn("Current scheduled pool thread using {}/{} threads. Queue size: {}",
 					scheduleThreadCount,
@@ -544,7 +614,7 @@ public final class Async {
 					scheduleQueueSize
 					);
 			logger.info("Increasing the scheduler pool size to {}", schedulerPoolSize + 1);
-			SCHEDULER.setCorePoolSize(schedulerPoolSize + 1);
+			SCHEDULER_POOL.setCorePoolSize(schedulerPoolSize + 1);
 		} else {
 			logger.trace("Current scheduled pool thread using {}/{} threads. Queue size: {}",
 					scheduleThreadCount,
@@ -558,7 +628,7 @@ public final class Async {
 				 */
 				int newSize = schedulerPoolSize - 1;
 				logger.info("Reducing the scheduler pool size to {}", newSize);
-				SCHEDULER.setCorePoolSize(newSize);
+				SCHEDULER_POOL.setCorePoolSize(newSize);
 			}
 		}
 	}
@@ -572,13 +642,13 @@ public final class Async {
 		logger.info("Shutting down common thread pools");
 		List<Runnable> remainingTasks = new ArrayList<>();
 		remainingTasks.addAll(SCHEDULER.shutdownNow());
-		remainingTasks.addAll(THREAD_POOL.shutdownNow());
+		remainingTasks.addAll(EXECUTOR_POOL.shutdownNow());
 		MONITOR.shutdownNow();
 		if (!remainingTasks.isEmpty()) {
 			logger.warn("{} tasks were remaining on shutdown", remainingTasks.size());
 		}
 		try {
-			THREAD_POOL.awaitTermination(2, SECONDS);
+			EXECUTOR_POOL.awaitTermination(2, SECONDS);
 		} catch (InterruptedException e) {
 			logger.warn("Currently running tasks were not shutdown successfully and may be interrupted", e);
 		}
@@ -676,6 +746,168 @@ public final class Async {
 					logger.trace("Runnable '{}' took {}ms", name, executionTime.toMillis());
 				}
 			}
+		}
+	}
+
+	/**
+	 * A future that wraps a ListeningFuture and accepts success/failure callbacks.
+	 *
+	 * @param <T> The return type of the task represented by this future.
+	 */
+	public static class ListeningFuture<T> implements Future<T> {
+
+		/** The original Future that this wraps */
+		protected ListenableFuture<T> future;
+
+		/**
+		 * Wrap a {@link ListenableFuture} so that is can accept {@link #onSuccess(Consumer)} and
+		 * {@link #onFailure(Consumer)} callbacks.
+		 * @param future
+		 */
+		private ListeningFuture(ListenableFuture<T> future) {
+			this.future = future;
+		}
+
+		/**
+		 * Add a task to run if the job represented by this Future is successful (does not throw an exception).
+		 * Multiple tasks can be added via repeated use of this method but there is no guarantee of execution
+		 * order for them (only that they will all be called after the original job has completed).
+		 * <p>
+		 * Callbacks are not guaranteed to be run in the same thread as the original task and may
+		 * run concurrently.
+		 *
+		 * @param task A function that will be passed the result of the original task (or null if it
+		 * was a runnable).
+		 * @return this Future so that further callbacks can be added.
+		 */
+		public ListeningFuture<T> onSuccess(Consumer<? super T> task) {
+			Futures.addCallback(future, Callback.success(task), Async.EXECUTOR);
+			return this;
+		}
+
+		/**
+		 * Add a task to run if the job represented by this Future is unsuccessful (throws an exception).
+		 * Multiple tasks can be added via repeated use of this method but there is no guarantee of execution
+		 * order for them (only that they will all be called after the original job has failed).
+		 * <p>
+		 * Callbacks are not guaranteed to be run in the same thread as the original task and may
+		 * run concurrently.
+		 *
+		 * @param task A function that will be passed the exception thrown by the original task (unless the
+		 *     Exception was an {@link ExecutionException} where the underlying cause will be passed).
+		 * @return this Future so that further callbacks can be added.
+		 */
+		public ListeningFuture<T> onFailure(Consumer<? super Throwable> task) {
+			Futures.addCallback(future, Callback.failure(task), Async.EXECUTOR);
+			return this;
+		}
+
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			return future.cancel(mayInterruptIfRunning);
+		}
+
+		@Override
+		public boolean isCancelled() {
+			return future.isCancelled();
+		}
+
+		@Override
+		public boolean isDone() {
+			return future.isDone();
+		}
+
+		@Override
+		public T get() throws InterruptedException, ExecutionException {
+			return future.get();
+		}
+
+		@Override
+		public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+			return future.get(timeout, unit);
+		}
+	}
+
+	/**
+	 * A future that wraps a ListeningScheduledFuture and accepts success/failure callbacks.
+	 *
+	 * @param <T> The return type of the task represented by this future.
+	 */
+	public static class ListeningScheduledFuture<T> extends ListeningFuture<T> implements ScheduledFuture<T> {
+		protected final ListenableScheduledFuture<T> scheduled;
+
+		/**
+		 * Wrap a {@link ListenableScheduledFuture} so that is can accept {@link #onSuccess(Consumer)} and
+		 * {@link #onFailure(Consumer)} callbacks.
+		 * @param future
+		 */
+		private ListeningScheduledFuture(ListenableScheduledFuture<T> future) {
+			super(future);
+			scheduled = future;
+		}
+
+		@Override
+		public long getDelay(TimeUnit unit) {
+			return scheduled.getDelay(unit);
+		}
+
+		@Override
+		public int compareTo(Delayed o) {
+			return scheduled.compareTo(o);
+		}
+	}
+
+	/**
+	 * A callback factory that can be used to provide additional behaviour depending on success/failure
+	 * of the initial task
+	 *
+	 * @param <T> The return type of the original task
+	 */
+	private static class Callback<T> implements FutureCallback<T> {
+		private static final Consumer<Object> NOOP = a -> {};
+		private Consumer<? super T> success;
+		private Consumer<? super Throwable> failure;
+		private Callback(Consumer<? super T> successHandler, Consumer<? super Throwable> failureHandler) {
+			success = successHandler;
+			failure = failureHandler;
+		}
+
+		/**
+		 * Create a callback to run when the task is successful.
+		 * @param <T> The return type of the future that this callback will be added to.
+		 * @param success A consumer function that accepts the result of a Future
+		 * @return A callback that can be added to a {@link ListenableFuture}.
+		 */
+		public static <T> Callback<T> success(Consumer<? super T> success) {
+			return new Callback<T>(success, NOOP);
+		}
+
+		/**
+		 * Create a callback to run when the task is successful.
+		 * @param <T> The return type of the future that this callback will be added to.
+		 * @param failure A consumer function that accepts an exception thrown by the execution of a task.
+		 * @return A callback that can be added to a {@link ListenableFuture}.
+		 */
+		public static <T> Callback<T> failure(Consumer<? super Throwable> failure) {
+			return new Callback<>(NOOP, failure);
+		}
+
+		/**
+		 * The method run when the task represented by the future this callback is added to
+		 * completes successfully.
+		 */
+		@Override
+		public void onFailure(Throwable err) {
+			failure.accept(err);
+		}
+
+		/**
+		 * The method run when the task represented by the future this callback is added to does
+		 * not complete successfully.
+		 */
+		@Override
+		public void onSuccess(T result) {
+			success.accept(result);
 		}
 	}
 }
