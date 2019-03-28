@@ -44,6 +44,8 @@ public class UserOptionsManager implements UserOptionsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserOptionsManager.class);
 
+	public static final String DEFAULT_OPTIONS_FILENAME = "GDAUserOptions";
+
 	private boolean isConfigured = false;
 	private String name;
 	private String templateConfigDir = null; // typically ${gda.config}/xml
@@ -73,19 +75,20 @@ public class UserOptionsManager implements UserOptionsService {
 	public void configure() throws FactoryException {
 		templateConfigDir = LocalProperties.get(PROP_TEMPLATE_DIRECTORY);
 		if (templateConfigDir == null) { // use default ${gda.config}/xml
-			templateConfigDir = LocalProperties.get(LocalProperties.GDA_CONFIG) + File.separator + "xml";
+			String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);
+			if (gdaConfig != null) {
+				templateConfigDir = gdaConfig + File.separator + "xml";
+			} else {
+				throw new FactoryException("Property gda.config not defined for user options template");
+			}
 		}
-		if (templateConfigDir == null) {
-			throw new FactoryException("gda.config not defined for user options template");
-		}
-
 		String templateName = LocalProperties.get(PROP_OPTIONS_FILENAME);
 		if (templateName == null) {
-			logger.warn("gda.util.userOptions.defaultConfigName not defined. Using \"GDAUserOptions\".");
-			templateName = "GDAUserOptions";
+			templateName = DEFAULT_OPTIONS_FILENAME;
+			String warning = String.format("Property %s not defined. Using '%s'", PROP_OPTIONS_FILENAME, templateName);
+			logger.warn(warning);
 		}
 		templateConfigName = templateName + "Template";
-
 		isConfigured = true;
 	}
 
@@ -118,7 +121,8 @@ public class UserOptionsManager implements UserOptionsService {
 	public UserOptionsMap getOptionsMapFromConfig(String configDir, String configName) throws ConfigurationException, IOException {
 		FileConfiguration template = LocalParameters.getXMLConfiguration(templateConfigDir, templateConfigName, false, true);
 		FileConfiguration config = LocalParameters.getXMLConfiguration(configDir, configName, true, true);
-		UserOptionsMap options = createOptionsMapFromTemplate();
+		UserOptionsMap options = new UserOptionsMap();
+		options.setTitle(template.getString(UserOptionsMap.propTitle));
 		options = this.setOptionsMapFromConfig(options, template, config);
 		options.setIsDefault(false);
 		return options;
