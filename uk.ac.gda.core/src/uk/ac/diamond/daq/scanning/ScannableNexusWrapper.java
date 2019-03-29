@@ -104,6 +104,9 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	 */
 	public static final String FIELD_NAME_VALUE_SET = "value_set";
 
+	private static final List<String> SPECIAL_ATTRIBUTES =
+			Collections.unmodifiableList(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
+
 	/**
 	 * The GDA8 scannable being wrapped.
 	 * NOTE: always use {@link #getScannable()} to get the scannable rather than
@@ -200,9 +203,13 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		// then this field should be written to the field name 'value' as specified by the NXDL base class
 		// definition for NXpositioner
 		final String scannableName = scannable.getName();
-		if (getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && outputFieldNames.contains(scannableName)) {
-			int index = outputFieldNames.indexOf(scannableName);
-			outputFieldNames.set(index, NXpositioner.NX_VALUE);
+		try {
+			if (getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && outputFieldNames.contains(scannableName)) {
+				int index = outputFieldNames.indexOf(scannableName);
+				outputFieldNames.set(index, NXpositioner.NX_VALUE);
+			}
+		} catch (NexusException e) {
+			logger.error("Error getting nexus base class", e);
 		}
 	}
 
@@ -221,6 +228,15 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		String defaultDataField = outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
 		NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
 						scannable.getName(), nexusObject, defaultDataField);
+		try {
+			final Object categoryStr = getScannable().getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY);
+			if (categoryStr instanceof String) {
+				nexusDelegate.setCategory(NexusBaseClass.getBaseClassForName((String) categoryStr));
+			}
+		} catch (Exception e) { // DeviceException, ClassCastException or IllegalArgumentException (from Enum.valueOf)
+			throw new NexusException("Error getting Nexus category for device: " + getName(), e);
+		}
+
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
 			nexusDelegate.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_SET);
 		}
@@ -429,15 +445,14 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		return outputFieldNames;
 	}
 
-	private NexusBaseClass getNexusBaseClass() {
+	private NexusBaseClass getNexusBaseClass() throws NexusException {
 		try {
 			Object nxClass = getScannable().getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
-			if (nxClass != null && nxClass instanceof String) {
+			if (nxClass != null) {
 				return NexusBaseClass.getBaseClassForName((String) nxClass);
 			}
-		} catch (Exception e) {
-			logger.error("Error getting NXclass for device: " + getName(), e);
-			throw new RuntimeException("Error getting NXclass for device: " + getName(), e);
+		} catch (Exception e) { // DeviceException, ClassCastException or IllegalArgumentException (from Enum.valueOf)
+			throw new NexusException("Error getting NXclass for scannable: " + getName(), e);
 		}
 
 		return NexusBaseClass.NX_POSITIONER;
@@ -589,16 +604,22 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		try {
 			Set<String> attributeNames = scannable.getScanMetadataAttributeNames();
 			for (String attrName : attributeNames) {
-				try {
-					nexusObject.setField(attrName, scannable.getScanMetadataAttribute(attrName));
-				} catch (Exception e) {
-					throw new NexusException(
-							MessageFormat.format("An exception occurred attempting to get the value of the attribute ''{0}'' for the device ''{1}''",
-									scannable.getName(), attrName));
-				}
+				addAttribute(nexusObject, scannable, attrName);
 			}
 		} catch (DeviceException e) {
 			throw new NexusException("Could not get attributes of device: " + getName());
+		}
+	}
+
+	private void addAttribute(NXobject nexusObject, final Scannable scannable, String attrName) throws NexusException {
+		if (!SPECIAL_ATTRIBUTES.contains(attrName)) {
+			try {
+				nexusObject.setField(attrName, scannable.getScanMetadataAttribute(attrName));
+			} catch (Exception e) {
+				throw new NexusException(
+						MessageFormat.format("An exception occurred attempting to get the value of the attribute ''{0}'' for the device ''{1}''",
+								scannable.getName(), attrName));
+			}
 		}
 	}
 

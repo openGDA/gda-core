@@ -67,6 +67,7 @@ import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -74,6 +75,7 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
@@ -378,6 +380,12 @@ public class ScannableNexusWrapperScanTest {
 		attr.setScanMetadataAttribute("doubleAttr", 123.456);
 		factory.addFindable(attr);
 
+		DummyScannable beam = new DummyScannable("beam", 3.25);
+		beam.setInputNames(new String[] { "extent" });
+		beam.setScanMetadataAttribute(Scannable.ATTR_NX_CLASS, "NXbeam");
+		beam.setScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY, "NXsample");
+		factory.addFindable(beam);
+
 		Finder.getInstance().addFactory(factory);
 	}
 
@@ -564,6 +572,7 @@ public class ScannableNexusWrapperScanTest {
 		NXroot rootNode = (NXroot) nexusTree.getGroupNode();
 		NXentry entry = rootNode.getEntry();
 		NXinstrument instrument = entry.getInstrument();
+		NXsample sample = entry.getSample();
 
 		// check the scan points have been written correctly
 		assertSolsticeScanGroup(entry, false, false, sizes);
@@ -575,6 +584,7 @@ public class ScannableNexusWrapperScanTest {
 		// check metadata scannables
 		checkMetadataScannables(scanModel, entry);
 		checkAttributeScannable(instrument);
+		checkBeamSizeScannable(sample);
 
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
@@ -736,6 +746,11 @@ public class ScannableNexusWrapperScanTest {
 		// check each metadata scannable has been written correctly
 		for (String metadataScannableName : metadataScannableNames) {
 			Scannable scannable = Finder.getInstance().find(metadataScannableName);
+			if (scannable.getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY) != null) {
+				// the nexus object for a scannable with a nexus category won't be under NXinstrument
+				continue;
+			}
+
 			NXobject nexusObject = (NXobject) instrument.getGroupNode(metadataScannableName);
 
 			if (locationMap.containsKey(metadataScannableName)) {
@@ -836,6 +851,23 @@ public class ScannableNexusWrapperScanTest {
 		}
 	}
 
+	private void checkBeamSizeScannable(NXsample sample) throws Exception {
+		NXbeam beam = sample.getBeam();
+		assertNotNull(beam);
+
+		assertEquals(0, beam.getNumberOfGroupNodes());
+		assertEquals(3, beam.getNumberOfAttributes());
+		assertEquals("beam", beam.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
+		assertEquals(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase(),
+				beam.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
+		assertEquals(NexusBaseClass.NX_BEAM, beam.getNexusBaseClass());
+
+		IDataset extentDataset = beam.getDataset("extent"); // TODO use getExtent when Nexus base classes are next generated
+		assertNotNull(extentDataset);
+		assertEquals(0, extentDataset.getRank());
+		assertEquals(3.25, extentDataset.getObject());
+	}
+
 	private Object[] getPositionArray(Scannable legacyScannable) throws DeviceException {
 		final Object position = legacyScannable.getPosition();
 		if (!position.getClass().isArray()) {
@@ -924,7 +956,8 @@ public class ScannableNexusWrapperScanTest {
 		scanModel.setDetectors(detector);
 
 		IScannable<?> attributeScannable = connector.getScannable("attributes");
-		scanModel.setMonitorsPerScan(attributeScannable);
+		IScannable<?> beamSizeScannable = connector.getScannable("beam");
+		scanModel.setMonitorsPerScan(attributeScannable, beamSizeScannable);
 
 		// Create a file to scan into
 		File output = File.createTempFile("test_legacy_nexus", ".nxs");

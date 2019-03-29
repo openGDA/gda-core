@@ -33,11 +33,19 @@ public interface Scannable extends Device {
 	Object DEFAULT_INPUT_NAME = "value";
 
 	/**
-	 * When a {@link Scannable} is used in a GDA9 scan, the value of the scan attribute
-	 * (as returned by {@link #getScanMetadataAttribute(String)} is used to determine the
+	 * When a {@link Scannable} is used in a GDA9 scan, the value of the scan metadata attribute
+	 * (as returned by {@link #getScanMetadataAttribute(String)} with this name is used to determine the
 	 * NeXus base class to use for the NeXus object for this scannable.
 	 */
 	String ATTR_NX_CLASS = "NXclass";
+
+	/**
+	 * When a {@link Scannable} is used in a GDA9 scan, the value of the scan metadata attribute
+	 * (as returned by {@link #getScanMetadataAttribute(String)} with this name is used to determine the
+	 * parent nexus object to add the NeXus object for this scannable to. For example, if the value
+	 * of this property is {@code 'NXsample'} then the nexus object for this is added to the NeXusSample.
+	 */
+	String ATTR_NEXUS_CATEGORY = "nexusCategory";
 
 	/**
 	 * If {@link #toFormattedString()} cannot get the current value/position of a scannable, it should return this
@@ -313,10 +321,17 @@ public interface Scannable extends Device {
 	 *   <li>an array whose component type that is supported by datasets;</li>
 	 *   <li>a list whose element type is supported by datasets.</li>
 	 * </ul>
-	 *
 	 * <p>
+	 * There are two special attributes, 'NXclass' and 'nexusCategory'. If set these attributes are not written into
+	 * the nexus file as fields. Instead the control how the nexus object is created and added to the nexus tree.
+	 * Specifically:<ul>
+	 *   <li>'NXclass' specifies what Nexus base class the nexus object has;</li>
+	 *   <li>'nexusCategory' specifies the class of the parent group the nexus object is added to,
+	 *       e.g. if this attribute has the value 'NXsample' then the nexus object will be added to the NXsample group.</li>
+	 * </ul>
+	 *
 	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
-	 * scanning framework</em>
+	 * scanning framework. It should be removed once GDA9 scans use templates to write Nexus files.</em>
 	 *
 	 * @param attributeName
 	 *            attribute name
@@ -341,7 +356,7 @@ public interface Scannable extends Device {
 	 *
 	 * <p>
 	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
-	 * scanning framework</em>
+	 * scanning framework. It should be removed once GDA9 scans use templates to write Nexus files.</em>
 	 *
 	 * @param attributeName
 	 *            the name of the attribute
@@ -360,7 +375,7 @@ public interface Scannable extends Device {
 	 *
 	 * <p>
 	 * <em>Note: this is a temporary mechanism to allow GDA8 devices to work with the new
-	 * scanning framework</em>
+	 * scanning framework. It should be removed once GDA9 scans use templates to write Nexus files.</em>
 	 *
 	 * @return names of scan attributes
 	 * @throws DeviceException
