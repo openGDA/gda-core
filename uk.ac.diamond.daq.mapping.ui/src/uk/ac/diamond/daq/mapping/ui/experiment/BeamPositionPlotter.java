@@ -26,6 +26,9 @@ import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.eclipse.scanning.api.IScannable;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -57,6 +60,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 
 	private MappingStageInfo mappingStageInfo;
 	private IPlottingService plottingService;
+	private IScannableDeviceService scannableDeviceService;
 
 	private IPlottingSystem<Composite> mapPlottingSystem;
 	private Color beamMarkerColour;
@@ -82,6 +86,10 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	public void setMappingStageInfo(MappingStageInfo mappingStageInfo) {
 		this.mappingStageInfo = mappingStageInfo;
 		mappingStageInfo.addPropertyChangeListener(this);
+	}
+
+	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
+		this.scannableDeviceService = scannableDeviceService;
 	}
 
 	public BeamPositionPlotter() {
@@ -223,7 +231,16 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 				}
 			}
 			markerRegion.setVisible(showBeamPosition);
-			markerRegion.setROI(new CircularROI(mappingStageInfo.getBeamSize(), lastXCoordinate, lastYCoordinate));
+			try {
+				markerRegion.setROI(new CircularROI(getBeamSize(), lastXCoordinate, lastYCoordinate));
+			} catch (ScanningException e) {
+				logger.error("Error drawing ROI", e);
+			}
 		}
+	}
+
+	private double getBeamSize() throws ScanningException {
+		IScannable<Double> beamSizeScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());
+		return beamSizeScannable.getPosition();
 	}
 }

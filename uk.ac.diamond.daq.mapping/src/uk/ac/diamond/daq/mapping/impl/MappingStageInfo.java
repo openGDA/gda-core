@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.impl;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
@@ -51,7 +50,7 @@ public class MappingStageInfo implements IStageScanConfiguration {
 	private String activeFastScanAxis;
 	private String activeSlowScanAxis;
 	private String associatedAxis;
-	private double beamSize;
+	private String beamSize;
 
 	public void merge(MappingStageInfo other) {
 		setActiveFastScanAxis(other.getActiveFastScanAxis());
@@ -93,13 +92,12 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		this.pcs.firePropertyChange("associatedAxis", oldValue, newValue);
 	}
 
-	@UiTooltip("The beam size to use for the beam position marker on the plot, in the same units as the scan axes")
-	public double getBeamSize() {
+	public String getBeamSize() {
 		return beamSize;
 	}
 
-	public void setBeamSize(double newValue) {
-		double oldValue = this.beamSize;
+	public void setBeamSize(String newValue) {
+		String oldValue = this.beamSize;
 		this.beamSize = newValue;
 		this.pcs.firePropertyChange("beamSize", oldValue, newValue);
 	}
@@ -128,9 +126,7 @@ public class MappingStageInfo implements IStageScanConfiguration {
 		result = prime * result + ((activeFastScanAxis == null) ? 0 : activeFastScanAxis.hashCode());
 		result = prime * result + ((activeSlowScanAxis == null) ? 0 : activeSlowScanAxis.hashCode());
 		result = prime * result + ((associatedAxis == null) ? 0 : associatedAxis.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(beamSize);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((beamSize == null) ? 0 : beamSize.hashCode());
 		return result;
 	}
 
@@ -158,7 +154,12 @@ public class MappingStageInfo implements IStageScanConfiguration {
 				return false;
 		} else if (!associatedAxis.equals(other.associatedAxis))
 			return false;
-		return Double.doubleToLongBits(beamSize) == Double.doubleToLongBits(other.beamSize);
+		if (beamSize == null) {
+			if (other.beamSize != null)
+				return false;
+		} else if (!beamSize.equals(other.beamSize))
+			return false;
+		return true;
 	}
 
 }
