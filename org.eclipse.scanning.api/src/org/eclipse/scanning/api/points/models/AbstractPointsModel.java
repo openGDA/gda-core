@@ -115,4 +115,8 @@ public abstract class AbstractPointsModel implements IScanPathModel {
 
 		return Collections.emptyList();
 	}
+	@Override
+	public String toString() {
+		return "AbstractPointsModel [name=" + name + "]";
+	}
 }

@@ -133,4 +133,10 @@ public class StepModel extends AbstractPointsModel {
 	public void setLabel(String label) {
 		this.label = label;
 	}
+
+	@Override
+	public String toString() {
+		return "StepModel [name=" + name + ", label=" + label + ", start=" + start + ", stop=" + stop + ", step=" + step
+				+ ", " + super.toString() + "]";
+	}
 }

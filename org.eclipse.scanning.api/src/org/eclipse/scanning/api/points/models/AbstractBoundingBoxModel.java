@@ -88,8 +88,7 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+" [boundingBox=" + boundingBox + ", fastAxisName=" + getFastAxisName()
-				+ ", slowAxisName=" + getSlowAxisName() + ", continuous=" + isContinuous() + "]";
+		return "AbstractBoundingBoxModel [boundingBox=" + boundingBox + ", " + super.toString() + "]";
 	}
 
 }

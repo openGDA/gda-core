@@ -140,4 +140,10 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "AbstractMapModel [fastAxisName=" + fastAxisName + ", slowAxisName=" + slowAxisName + ", fastAxisUnits="
+				+ fastAxisUnits + ", slowAxisUnits=" + slowAxisUnits + ", continuous=" + continuous + ", " + super.toString() + "]";
+	}
+
 }
