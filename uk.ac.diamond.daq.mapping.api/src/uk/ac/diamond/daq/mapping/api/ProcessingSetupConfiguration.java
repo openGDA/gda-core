@@ -18,9 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import uk.ac.diamond.daq.osgi.OsgiService;
+
 /**
  * Configuration for the processing setup wizard
  */
+@OsgiService(ProcessingSetupConfiguration.class)
 public class ProcessingSetupConfiguration {
 	/**
 	 * Detector to be shown by default in the drop-down box
