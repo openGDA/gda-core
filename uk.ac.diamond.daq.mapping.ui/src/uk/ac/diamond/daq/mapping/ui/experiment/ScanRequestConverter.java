@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
@@ -171,8 +173,7 @@ public class ScanRequestConverter {
 		}
 
 		// set the per-scan and per-point monitors according to the mapping bean
-		scanRequest.setMonitorNamesPerPoint(mappingBean.getPerPointMonitorNames());
-		scanRequest.setMonitorNamesPerScan(mappingBean.getPerScanMonitorNames());
+		configureMonitors(mappingBean, scanRequest);
 
 		// set the scripts to run before and after the scan, if any
 		if (mappingBean.getScriptFiles() != null) {
@@ -187,6 +188,17 @@ public class ScanRequestConverter {
 		}
 
 		return scanRequest;
+	}
+
+	private void configureMonitors(IMappingExperimentBean mappingBean, final ScanRequest<IROI> scanRequest) {
+		scanRequest.setMonitorNamesPerPoint(mappingBean.getPerPointMonitorNames());
+
+		Set<String> perScanMonitorNames = mappingBean.getPerScanMonitorNames() == null ?
+				new TreeSet<>() : new TreeSet<>(mappingBean.getPerScanMonitorNames());
+	    if (mappingStageInfo.getBeamSize() != null) {
+	    	perScanMonitorNames.add(mappingStageInfo.getBeamSize());
+	    }
+		scanRequest.setMonitorNamesPerScan(perScanMonitorNames);
 	}
 
 	private IMapPathModel getMapPathAndConfigureScanAxes(IMappingScanRegion scanRegion) {

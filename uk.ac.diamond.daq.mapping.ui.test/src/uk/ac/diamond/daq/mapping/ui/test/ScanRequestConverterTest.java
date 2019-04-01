@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +84,7 @@ public class ScanRequestConverterTest {
 	private static final String X_AXIS_NAME = "testing_stage_x";
 	private static final String Y_AXIS_NAME = "testing_stage_y";
 	private static final String Z_AXIS_NAME = "testing_z_axis";
+	private static final String BEAM_SIZE_NAME = "beamSize";
 
 	private static final String X_AXIS_UNITS = "mm";
 	private static final String Y_AXIS_UNITS = "mdeg";
@@ -100,6 +102,7 @@ public class ScanRequestConverterTest {
 		mappingStageInfo = new MappingStageInfo();
 		mappingStageInfo.setActiveFastScanAxis(X_AXIS_NAME);
 		mappingStageInfo.setActiveSlowScanAxis(Y_AXIS_NAME);
+		mappingStageInfo.setBeamSize(BEAM_SIZE_NAME);
 
 
 		// Prepare the Finder
@@ -225,7 +228,7 @@ public class ScanRequestConverterTest {
 		assertThat(scanRequest.getMonitorNamesPerPoint(), hasItems(expectedMonitorNamesPerPoint));
 		assertThat(scanRequest.getMonitorNamesPerPoint().size(), CoreMatchers.is(expectedMonitorNamesPerPoint.length));
 
-		String[] expectedMonitorNamesPerScan = new String[] { "perScan1", "perScan2" };
+		String[] expectedMonitorNamesPerScan = new String[] { "perScan1", "perScan2", BEAM_SIZE_NAME };
 		assertThat(scanRequest.getMonitorNamesPerScan(), hasItems(expectedMonitorNamesPerScan));
 		assertThat(scanRequest.getMonitorNamesPerScan().size(), CoreMatchers.is(expectedMonitorNamesPerScan.length));
 	}
@@ -304,6 +307,16 @@ public class ScanRequestConverterTest {
 		// check that the mapping stage info has been updated with the stage names from the scan request
 		assertThat(mappingStageInfo.getActiveFastScanAxis(), is(equalTo(X_AXIS_NAME)));
 		assertThat(mappingStageInfo.getActiveSlowScanAxis(), is(equalTo(Y_AXIS_NAME)));
+	}
+
+	@Test
+	public void testBeamSizeScannableIncluded() throws Exception {
+		ScanRequest<IROI> scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		assertTrue(scanRequest.getMonitorNamesPerScan().contains(BEAM_SIZE_NAME));
+
+		mappingStageInfo.setBeamSize(null);
+		scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		assertFalse(scanRequest.getMonitorNamesPerScan().contains(BEAM_SIZE_NAME));
 	}
 
 	@Test
@@ -517,7 +530,10 @@ public class ScanRequestConverterTest {
 
 		// Assert
 		assertEquals(perPointMonitorNames, scanRequest.getMonitorNamesPerPoint());
-		assertEquals(perScanMonitorNames, scanRequest.getMonitorNamesPerScan());
+
+		Set<String> expectedPerScanMonitorNames = new HashSet<>(perScanMonitorNames);
+		expectedPerScanMonitorNames.add(BEAM_SIZE_NAME);
+		assertEquals(expectedPerScanMonitorNames, scanRequest.getMonitorNamesPerScan());
 	}
 
 }
