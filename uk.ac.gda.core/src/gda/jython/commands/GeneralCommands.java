@@ -263,6 +263,11 @@ public final class GeneralCommands {
 
 	}
 
+	public static void add_reset_hook(Runnable hook) {
+		logger.info("Adding reset hook to JythonServer");
+		Finder.getInstance().findSingleton(JythonServer.class).addResetHook(hook);
+	}
+
 	/**
 	 * Restarts the Jython server without a need for a GDA restart. The Jython namespace is completely reset and
 	 * localStation re-run. However, connections to hardware are not re-established i.e. Object Servers are not
