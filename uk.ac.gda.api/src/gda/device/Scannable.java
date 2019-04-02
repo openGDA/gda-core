@@ -19,6 +19,7 @@
 package gda.device;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import gda.jython.accesscontrol.MethodAccessProtected;
@@ -343,6 +344,15 @@ public interface Scannable extends Device {
 	@SuppressWarnings("unused")
 	public default void setScanMetadataAttribute(String attributeName, Object value) throws DeviceException {
 		// default implementation: do nothing
+	}
+
+	public default void setScanMetadataAttributes(Map<String, Object> attributes) throws DeviceException {
+		// default implementation: do nothing
+	}
+
+	public default Map<String, Object> getScanMetadataAttributes() throws DeviceException {
+		// default implementation: return empty map
+		return Collections.emptyMap();
 	}
 
 	/**

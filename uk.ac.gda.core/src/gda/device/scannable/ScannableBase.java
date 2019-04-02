@@ -613,6 +613,17 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		return scanMetadataAttributes.keySet();
 	}
 
+	@Override
+	public void setScanMetadataAttributes(Map<String, Object> attributes) throws DeviceException {
+		scanMetadataAttributes.clear();
+		scanMetadataAttributes.putAll(attributes);
+	}
+
+	@Override
+	public Map<String, Object> getScanMetadataAttributes() throws DeviceException {
+		return new HashMap<>(scanMetadataAttributes);
+	}
+
 	/**
 	 * Name/value string that can be used by toFormattedString() when getting current value/position fails
 	 */
