@@ -61,7 +61,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPositionerComposite.class);
 
 	// GUI Elements
-	private final CLabel displayNameLabel;
+	protected final CLabel displayNameLabel;
 	private final Button stopButton;
 	private final RowData stopButtonRowData;
 
