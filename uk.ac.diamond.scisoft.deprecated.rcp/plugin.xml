@@ -55,11 +55,6 @@
             name="Refresh All">
       </command>
       <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenXmlAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-            name="Open XML">
-      </command>
-      <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenDataFileAction"
             id="uk.ac.diamond.scisoft.analysis.rcp.results.openResultsFile"
             name="Open Data">
@@ -103,12 +98,6 @@
                commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
                icon="icons/page_refresh.png"
                label="Refresh All"
-               style="push">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-               icon="icons/page_code.png"
-               label="Open XML"
                style="push">
          </command>
          <separator
@@ -222,13 +211,6 @@
                label="Change data folder..."
                style="push">
          </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-               icon="icons/page_code.png"
-               label="Open XML"
-               style="push"
-               tooltip="If there is an xml node in the nexus file.">
-         </command>
       </menuContribution>
      <menuContribution
            locationURI="toolbar:org.eclipse.search.ui.views.SearchView">
@@ -267,23 +249,5 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.dataSearchPage"
             searchResultClass="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResult">
       </viewPage>
-   </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-<!--
-      <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.compareObjectContribution"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
-               enablesFor="+"
-               icon="icons/chart_curve_go.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSetsDelegate"
-               label="Compare..."
-               tooltip="Compare files">
-         </action>
-      </objectContribution>
--->
    </extension>
 </plugin>
