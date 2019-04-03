@@ -24,8 +24,6 @@ import org.jscience.physics.quantities.Energy;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
@@ -69,8 +67,6 @@ public class ZebraScannableMotorForQexafs extends ScannableMotor implements Cont
 			ZebraConstantVelocityMoveControllerForQexafs zebraConstantVelocityMoveControllerForQexafs) {
 		this.continuousMoveController = zebraConstantVelocityMoveControllerForQexafs;
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotorForQexafs.class);
 
 	public ScannableMotor getBraggScannableMotor() {
 		return braggScannableMotor;
