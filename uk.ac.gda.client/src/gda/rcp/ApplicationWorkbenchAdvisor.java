@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -66,7 +67,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.gui.RCPController;
 import gda.gui.RCPControllerImpl;
@@ -169,74 +169,8 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			InterfaceProvider.getJSFObserver().addIObserver(openXYPlotOnScanStart);
 			addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(openXYPlotOnScanStart));
 
-			Findable obj = Finder.getInstance().findNoWarn(RCPControllerImpl.name);
-			if (obj != null) {
-				final RCPController obs = (RCPController) obj;
-				final IObserver rcpControllerObs = new IObserver() {
-
-					@Override
-					public void update(Object source, final Object arg) {
-						if (arg instanceof RCPOpenViewCommand) {
-							PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-								@Override
-								public void run() {
-									String id = ((RCPOpenViewCommand) arg).getId();
-									try {
-										PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-												.showView(id);
-									} catch (PartInitException e) {
-										logger.error("Error opening " + id, e);
-									}
-								}
-							});
-						}
-						if (arg instanceof RCPOpenPerspectiveCommand) {
-							PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-								@Override
-								public void run() {
-									try {
-										PlatformUI.getWorkbench().showPerspective(
-												((RCPOpenPerspectiveCommand) arg).getId(),
-												PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-									} catch (PartInitException e) {
-										logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
-									} catch (WorkbenchException e) {
-										logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
-									}
-								}
-							});
-						}
-						if( arg instanceof RCPSetPreferenceCommand){
-							IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-							RCPSetPreferenceCommand preference = (RCPSetPreferenceCommand) arg;
-							Object value = preference.getValue();
-							if (value instanceof Double) {
-								preferenceStore.setValue(preference.getId(), (Double)value);
-							}
-							else if( value instanceof Float) {
-								preferenceStore.setValue(preference.getId(), (Float)value);
-							}
-							else if( value instanceof Integer) {
-								preferenceStore.setValue(preference.getId(), (Integer)value);
-							}
-							else if( value instanceof Long) {
-								preferenceStore.setValue(preference.getId(), (Long)value);
-							}
-							else if( value instanceof String) {
-								preferenceStore.setValue(preference.getId(), (String)value);
-							}
-							else if( value instanceof Boolean) {
-								preferenceStore.setValue(preference.getId(), (Boolean)value);
-							}
-							else {
-								throw new IllegalArgumentException("The value must be of one of the following types: Double, Float, Integer, Long, String, or Boolean");
-							}
-						}
-					}
-				};
-				obs.addIObserver(rcpControllerObs);
-				addCleanupWork(() -> obs.deleteIObserver(rcpControllerObs));
-			}
+			Optional<RCPController> controller = Finder.getInstance().findOptional(RCPControllerImpl.name);
+			controller.ifPresent(this::listenForCommands);
 
 			listenForUserMessages();
 			if (LocalProperties.isBatonManagementEnabled()) {
@@ -273,6 +207,73 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				Job.getJobManager().resume();
 			}
 		}
+	}
+
+	private void listenForCommands(RCPController controller) {
+		final IObserver rcpControllerObs = new IObserver() {
+			@Override
+			public void update(Object source, final Object arg) {
+				if (arg instanceof RCPOpenViewCommand) {
+					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							String id = ((RCPOpenViewCommand) arg).getId();
+							try {
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+										.showView(id);
+							} catch (PartInitException e) {
+								logger.error("Error opening " + id, e);
+							}
+						}
+					});
+				}
+				if (arg instanceof RCPOpenPerspectiveCommand) {
+					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								PlatformUI.getWorkbench().showPerspective(
+										((RCPOpenPerspectiveCommand) arg).getId(),
+										PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+							} catch (PartInitException e) {
+								logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
+							} catch (WorkbenchException e) {
+								logger.error("Error opening " + ((RCPOpenPerspectiveCommand) arg).getId(), e);
+							}
+						}
+					});
+				}
+				if( arg instanceof RCPSetPreferenceCommand){
+					IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+					RCPSetPreferenceCommand preference = (RCPSetPreferenceCommand) arg;
+					Object value = preference.getValue();
+					if (value instanceof Double) {
+						preferenceStore.setValue(preference.getId(), (Double)value);
+					}
+					else if( value instanceof Float) {
+						preferenceStore.setValue(preference.getId(), (Float)value);
+					}
+					else if( value instanceof Integer) {
+						preferenceStore.setValue(preference.getId(), (Integer)value);
+					}
+					else if( value instanceof Long) {
+						preferenceStore.setValue(preference.getId(), (Long)value);
+					}
+					else if( value instanceof String) {
+						preferenceStore.setValue(preference.getId(), (String)value);
+					}
+					else if( value instanceof Boolean) {
+						preferenceStore.setValue(preference.getId(), (Boolean)value);
+					}
+					else {
+						throw new IllegalArgumentException("The value must be of one of the following types: Double, Float, Integer, Long, String, or Boolean");
+					}
+				}
+			}
+		};
+
+		controller.addIObserver(rcpControllerObs);
+		addCleanupWork(() -> controller.deleteIObserver(rcpControllerObs));
 	}
 
 	private void listenForUserMessages() {

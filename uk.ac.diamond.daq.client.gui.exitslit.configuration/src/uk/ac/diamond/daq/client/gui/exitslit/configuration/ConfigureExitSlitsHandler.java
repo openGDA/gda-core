@@ -47,7 +47,7 @@ public class ConfigureExitSlitsHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			final Shell activeShell = Display.getCurrent().getActiveShell();
-			final ConfigureExitSlitsParameters params = Finder.getInstance().findLocal(EXIT_SLIT_CONFIG_PARAMS);
+			final ConfigureExitSlitsParameters params = Finder.getInstance().find(EXIT_SLIT_CONFIG_PARAMS);
 			Objects.requireNonNull(params, "No parameter bean '" + EXIT_SLIT_CONFIG_PARAMS + "' found");
 
 			final ConfigureExitSlitsDialog dialog = new ConfigureExitSlitsDialog(activeShell, params);

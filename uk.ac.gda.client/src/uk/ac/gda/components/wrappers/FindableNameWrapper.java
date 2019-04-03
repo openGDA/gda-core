@@ -18,11 +18,8 @@
 
 package uk.ac.gda.components.wrappers;
 
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
-
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,9 +36,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.common.rcp.util.GridUtils;
-
 import com.swtdesigner.SWTResourceManager;
+
+import gda.device.DeviceException;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.jython.JythonServerFacade;
+import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
  * Classes in this package are extending the base widgets in common.rcp but they connect to parts of the GDA subsystem
@@ -138,14 +139,14 @@ public class FindableNameWrapper extends TextWrapper {
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			final Object ob = Finder.getInstance().findNoWarn(name);
+			final Optional<Findable> optionalObject = Finder.getInstance().findOptional(name);
 			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
 					if (name.equals(mostRecentStarted)) {
 						// Only do the update if there isn't another job about to come along behind us
-						if (ob != null) {
-							if (!(findableClass.isInstance(ob))) {
+						if (optionalObject.isPresent()) {
+							if (!(findableClass.isInstance(optionalObject.get()))) {
 								setWrongNameError(name);
 							} else {
 								setRightName(name);

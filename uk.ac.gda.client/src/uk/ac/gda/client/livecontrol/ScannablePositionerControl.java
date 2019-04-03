@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.livecontrol;
 
+import java.util.Optional;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -181,11 +183,12 @@ public class ScannablePositionerControl implements LiveControl {
 	@Override
 	public void createControl(Composite composite) {
 		// Get the scannable with the finder
-		final Scannable scannable = Finder.getInstance().findNoWarn(getScannableName());
-		if (scannable == null) {
+		final Optional<Scannable> optionalScannable = Finder.getInstance().findOptional(getScannableName());
+		if (!optionalScannable.isPresent()) {
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;
 		}
+		final Scannable scannable = optionalScannable.get();
 
 		AbstractPositionerComposite positionerComposite;
 		if (scannable instanceof EnumPositioner) {

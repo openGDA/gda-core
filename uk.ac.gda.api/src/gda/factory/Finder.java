@@ -21,8 +21,10 @@ package gda.factory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -51,7 +53,9 @@ public enum Finder {
 
 	private static final Logger logger = LoggerFactory.getLogger(Finder.class);
 
-	private final Set<Factory> factories = new CopyOnWriteArraySet<>();
+	private final Set<Factory> allFactories = new CopyOnWriteArraySet<>();
+	private final Set<Factory> remoteFactories = new CopyOnWriteArraySet<>();
+	private final Set<Factory> localFactories = new CopyOnWriteArraySet<>();
 
 	/**
 	 * Getter to construct and/or return single instance of the finder.
@@ -74,50 +78,26 @@ public enum Finder {
 	 * @return the findable object or null if it cannot be found
 	 */
 	public <T extends Findable> T find(String name) {
-		return findObjectByName(name, false, true);
+		T findable = findObjectByName(name, true);
+
+		if (findable == null) {
+			logger.warn("Finder could not find object. At some point this method will throw an exception instead of returning null.");
+		}
+
+		return findable;
 	}
 
 	/**
-	 * Return a named object from any of the factories known to the finder.
-	 * <p>
-	 * Do <b>not</b> log warning if there is a FactoryException or nothing can be found.
+	 * Return a Optional named object from any of the factories known to the finder.
 	 *
 	 * @param <T>
-	 *            class of Object being returned
+	 *            class of Optional<T> Object being returned
 	 * @param name
 	 *            object to find.
-	 * @return the findable object or null if it cannot be found
+	 * @return the Optional<T> findable object
 	 */
-	public <T extends Findable> T findNoWarn(String name) {
-		return findObjectByName(name, false, false);
-	}
-
-	/**
-	 * Find an instance of a locally defined object
-	 *
-	 * @param <T>
-	 *            class of Object being returned
-	 * @param name
-	 *            the name of the instance to find
-	 * @return the findable object or null if it cannot be found
-	 */
-	public <T extends Findable> T findLocal(String name) {
-		return findObjectByName(name, true, true);
-	}
-
-	/**
-	 * Find an instance of a locally defined object
-	 * <p>
-	 * Do <b>not</b> log warning if there is a FactoryException or nothing can be found.
-	 *
-	 * @param <T>
-	 *            class of Object being returned
-	 * @param name
-	 *            the name of the instance to find
-	 * @return the findable object or null if it cannot be found
-	 */
-	public <T extends Findable> T findLocalNoWarn(String name) {
-		return findObjectByName(name, true, false);
+	public <T extends Findable> Optional<T> findOptional(String name) {
+		return Optional.ofNullable(findObjectByName(name, false));
 	}
 
 	/**
@@ -125,35 +105,58 @@ public enum Finder {
 	 *
 	 * @param name
 	 *            The name of the object to find
-	 * @param local
-	 *            True if only local objects are to be found
 	 * @param warn
 	 *            True to log a warning message in the case of a FactoryException
 	 * @return the findable object or null if it cannot be found
 	 */
-	private <T extends Findable> T findObjectByName(String name, boolean local, boolean warn) {
+	private <T extends Findable> T findObjectByName(String name, boolean warn) {
 		T findable = null;
-		for (Factory factory : factories) {
-			if (local && !factory.isLocal()) {
-				continue;
-			}
-			try {
-				if ((findable = factory.getFindable(name)) != null) {
-					logger.trace("Found '{}' using factory '{}' (local={})", name, factory, local);
-					break;
-				}
-			} catch (FactoryException e) {
-				if (warn) {
-					logger.warn("FactoryException looking for '{}'", name, e);
-				}
+
+		for (Factory factory : localFactories) {
+			findable = findObjectByNameInFactory(factory, name, warn);
+			if (findable != null) {
+				return findable;
 			}
 		}
-		if (findable == null && warn) {
-			logger.warn("Could not find '{}'", name);
+
+		for (Factory factory : remoteFactories) {
+			findable = findObjectByNameInFactory(factory, name, warn);
+			if (findable != null) {
+				return findable;
+			}
 		}
-		return findable;
+
+		return null;
 	}
 
+	/**
+	 * Find an instance of an object in a factory given its name
+	 *
+	 * @param factory
+	 *            The factory in which to search
+	 * @param name
+	 *            The name of the object to find
+	 * @param warn
+	 *            True to log a warning message in the case of a FactoryException
+	 * @return the findable object or null if it cannot be found
+	 */
+	private <T extends Findable> T findObjectByNameInFactory(Factory factory, String name, boolean warn) {
+		T findable = null;
+
+		try {
+			findable = factory.getFindable(name);
+			if (findable != null) {
+				logger.trace("Found '{}' using factory '{}'", name, factory);
+				return findable;
+			}
+		} catch (FactoryException e) {
+			if (warn) {
+				logger.warn("FactoryException looking for '{}'", name, e);
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * Adds a factory to the list of searchable factories known by the Finder.
@@ -162,12 +165,21 @@ public enum Finder {
 	 *            the factory to add to the list.
 	 */
 	public void addFactory(Factory factory) {
-		factories.add(factory);
-		logger.debug("Added factory '{}' now have {} factories", factory, factories.size());
+		allFactories.add(factory);
+
+		if (factory.isLocal()) {
+			localFactories.add(factory);
+		} else {
+			remoteFactories.add(factory);
+		}
+
+		logger.debug("Added factory '{}' now have {} factories", factory, allFactories.size());
 	}
 
 	public void removeAllFactories(){
-		factories.clear();
+		allFactories.clear();
+		localFactories.clear();
+		remoteFactories.clear();
 		logger.debug("Cleared factories");
 	}
 
@@ -266,39 +278,51 @@ public enum Finder {
 		}
 
 		List<Findable> objectRefs = new ArrayList<>();
-		// loop through all factories
-		for (Factory factory : factories) {
 
-			if (localObjectsOnly && !factory.isLocal()){
-				continue;
+		for (Factory factory : getFactoriesToSearch(localObjectsOnly)) {
+			Set<Findable> objectsInFactory = getAllObjectsFromFactory(factory, interfaceName);
+			objectRefs.addAll(objectsInFactory);
+		}
+
+		return objectRefs;
+	}
+
+	/**
+	 *
+	 * @param factory
+	 *            the factory to search in
+	 * @param interfaceName
+	 *            the required interface to search for.
+	 * @return the Set of Findable objects supporting the named interface.
+	 * @deprecated This should be removed once the deprecated public methods have been removed.
+	 */
+	@Deprecated
+	private Set<Findable> getAllObjectsFromFactory(Factory factory, String interfaceName) {
+		Set<Findable> objectsInFactory = new HashSet<>();
+
+		for (Findable findable : factory.getFindables()) {
+			// for this findable, check its class and interfaces to see if they match the requested interface
+			if (classOrInterfacesMatchesString(findable.getClass(), interfaceName)) {
+				objectsInFactory.add(findable);
 			}
 
-			// loop through all objects in that factory
-			for (Findable findable : factory.getFindables()) {
+			// else loop over superclasses up the hierarchy until java.lang.Object reached, testing each in turn
+			else {
+				Class<?> superclass = findable.getClass().getSuperclass();
+				boolean found = false;
 
-				// for this findable, check its class and interfaces to see if they match the reqested interface
-				if (classOrInterfacesMatchesString(findable.getClass(), interfaceName)
-						&& !objectRefs.contains(findable)) {
-					objectRefs.add(findable);
-				}
-				// else loop over superclasses up the heirachy until java.lang.Object reached, testing each in turn
-				else {
-					Class<?> superclass = findable.getClass().getSuperclass();
-					boolean found = false;
-
-					while (!found && superclass != null) {
-						found = classOrInterfacesMatchesString(superclass, interfaceName);
-						superclass = superclass.getSuperclass();
-					}
-
-					if (found) {
-						objectRefs.add(findable);
-					}
+				while (!found && superclass != null) {
+					found = classOrInterfacesMatchesString(superclass, interfaceName);
+					superclass = superclass.getSuperclass();
 				}
 
+				if (found) {
+					objectsInFactory.add(findable);
+				}
 			}
 		}
-		return objectRefs;
+
+		return objectsInFactory;
 	}
 
 	/**
@@ -346,7 +370,7 @@ public enum Finder {
 	 */
 	private List<Findable> listAllObjects() {
 		List<Findable> allFindables = new ArrayList<>();
-		for (Factory factory : factories) {
+		for (Factory factory : allFactories) {
 			allFindables.addAll(factory.getFindables());
 		}
 		return allFindables;
@@ -385,10 +409,7 @@ public enum Finder {
 	 */
 	private <T extends Findable> Map<String, T> getFindablesOfType(Class<T> clazz, boolean local) {
 		Map<String, T> findables = new HashMap<>();
-		for (Factory factory : factories) {
-			if (local && !factory.isLocal()) {
-				continue;
-			}
+		for (Factory factory : getFactoriesToSearch(local)) {
 			findables.putAll(factory.getFindablesOfType(clazz));
 		}
 		return findables;
@@ -445,4 +466,11 @@ public enum Finder {
 		return instances.values().iterator().next();
 	}
 
+	private Set<Factory> getFactoriesToSearch(boolean localOnly) {
+		if (localOnly) {
+			return localFactories;
+		} else {
+			return allFactories;
+		}
+	}
 }
