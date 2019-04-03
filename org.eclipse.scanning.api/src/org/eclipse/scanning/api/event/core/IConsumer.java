@@ -109,6 +109,13 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void resume() throws EventException;
 
 	/**
+	 * Adds the given bean to the tail of the consumer's queue.
+	 * @param bean
+	 * @throws EventException
+	 */
+	void submit(T bean) throws EventException;
+
+	/**
 	 * If the process for the given bean is running, pauses it. If the bean is queued,
 	 * then when it is consumed from the queue, it's process will be started in a paused state.
 	 * @param bean

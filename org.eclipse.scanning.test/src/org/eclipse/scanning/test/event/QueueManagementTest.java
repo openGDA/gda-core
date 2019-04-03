@@ -228,6 +228,19 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	@Test
+	public void testSubmit() throws Exception {
+		List<StatusBean> beans = createAndSubmitBeans();
+
+		StatusBean newBean = new StatusBean("new");
+		getConsumer().submit(newBean);
+
+		List<StatusBean> submissionQueue = consumer.getSubmissionQueue();
+		List<String> expectedNames = getNames(beans);
+		expectedNames.add(newBean.getName());
+		assertThat(getNames(submissionQueue), is(equalTo(expectedNames)));
+	}
+
+	@Test
 	public void testRemove() throws Exception {
 		// Arrange: submit some beans
 		List<StatusBean> beans = createAndSubmitBeans();

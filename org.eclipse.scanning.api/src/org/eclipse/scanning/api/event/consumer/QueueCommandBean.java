@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.event.consumer;
 import java.util.UUID;
 
 import org.eclipse.scanning.api.event.IdBean;
+import org.eclipse.scanning.api.event.status.StatusBean;
 
 /**
  * This bean is designed to send commands to consumers such as terminate and
@@ -63,6 +64,11 @@ public class QueueCommandBean  extends IdBean {
 		 * A command to clear the set of completed jobs.
 		 */
 		CLEAR_COMPLETED,
+
+		/**
+		 * A command to submit a bean for a job.
+		 */
+		SUBMIT_JOB,
 
 		/**
 		 * A command to pause the job for a bean.
@@ -141,10 +147,10 @@ public class QueueCommandBean  extends IdBean {
 	private Command command;
 
 	/**
-	 * The unique id of the bean that the command relates to. Only specified if
-	 * the {@link #command} is {@link Command#MOVE_FORWARD} or {@link Command#MOVE_BACKWARD}.
+	 * The bean for the job that the command applies to. Only required for command
+	 * that apply to a job rather than the queue as a whole.
 	 */
-	private String beanUniqueId;
+	private StatusBean jobBean;
 
 	/**
 	 * The error message from the consumer. Set by the consumer when executing the command
@@ -169,6 +175,11 @@ public class QueueCommandBean  extends IdBean {
 		super(); // make sure a unique id is set
 		this.queueName = queueName;
 		this.command = command;
+	}
+
+	public QueueCommandBean(String queueName, Command command, StatusBean jobBean) {
+		this(queueName, command);
+		this.jobBean = jobBean;
 	}
 
 	public UUID getConsumerId() {
@@ -203,12 +214,12 @@ public class QueueCommandBean  extends IdBean {
 		this.command = command;
 	}
 
-	public String getBeanUniqueId() {
-		return beanUniqueId;
+	public StatusBean getJobBean() {
+		return jobBean;
 	}
 
-	public void setBeanUniqueId(String beanUniqueId) {
-		this.beanUniqueId = beanUniqueId;
+	public void setJobBean(StatusBean jobBean) {
+		this.jobBean = jobBean;
 	}
 
 	public String getErrorMessage() {
@@ -231,10 +242,10 @@ public class QueueCommandBean  extends IdBean {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((beanUniqueId == null) ? 0 : beanUniqueId.hashCode());
 		result = prime * result + ((command == null) ? 0 : command.hashCode());
 		result = prime * result + ((consumerId == null) ? 0 : consumerId.hashCode());
 		result = prime * result + ((errorMessage == null) ? 0 : errorMessage.hashCode());
+		result = prime * result + ((jobBean == null) ? 0 : jobBean.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
 		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
@@ -250,11 +261,6 @@ public class QueueCommandBean  extends IdBean {
 		if (getClass() != obj.getClass())
 			return false;
 		QueueCommandBean other = (QueueCommandBean) obj;
-		if (beanUniqueId == null) {
-			if (other.beanUniqueId != null)
-				return false;
-		} else if (!beanUniqueId.equals(other.beanUniqueId))
-			return false;
 		if (command != other.command)
 			return false;
 		if (consumerId == null) {
@@ -266,6 +272,11 @@ public class QueueCommandBean  extends IdBean {
 			if (other.errorMessage != null)
 				return false;
 		} else if (!errorMessage.equals(other.errorMessage))
+			return false;
+		if (jobBean == null) {
+			if (other.jobBean != null)
+				return false;
+		} else if (!jobBean.equals(other.jobBean))
 			return false;
 		if (message == null) {
 			if (other.message != null)
@@ -288,8 +299,8 @@ public class QueueCommandBean  extends IdBean {
 	@Override
 	public String toString() {
 		return "QueueCommandBean [consumerId=" + consumerId + ", queueName=" + queueName + ", message=" + message
-				+ ", command=" + command + ", beanUniqueId=" + beanUniqueId + ", errorMessage=" + errorMessage
-				+ ", result=" + result + "]";
+				+ ", command=" + command + ", jobBean=" + jobBean + ", errorMessage=" + errorMessage + ", result="
+				+ result + "]";
 	}
 
 }

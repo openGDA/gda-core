@@ -87,8 +87,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	private Object sendCommand(Command command, U bean) throws EventException {
-		QueueCommandBean commandBean = new QueueCommandBean(getSubmitQueueName(), command);
-		commandBean.setBeanUniqueId(bean.getUniqueId());
+		QueueCommandBean commandBean = new QueueCommandBean(getSubmitQueueName(), command, bean);
 		return sendCommandBean(commandBean);
 	}
 
@@ -131,6 +130,11 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 		super.disconnect();
 		queueCommandRequestor.disconnect();
 		consumerStatusTopicSubscriber.disconnect();
+	}
+
+	@Override
+	public void submit(U bean) throws EventException {
+		sendCommand(Command.SUBMIT_JOB, bean);
 	}
 
 	@Override

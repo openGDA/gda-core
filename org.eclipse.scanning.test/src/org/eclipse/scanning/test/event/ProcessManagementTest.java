@@ -99,7 +99,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 
 	private void sendCommandBean(Command command) {
 		final QueueCommandBean pauseBean = new QueueCommandBean(consumer.getSubmitQueueName(), command);
-		pauseBean.setBeanUniqueId(bean.getUniqueId());
+		pauseBean.setJobBean(bean);
 		commandTopicListener.beanChangePerformed(new BeanEvent<>(pauseBean));
 	}
 

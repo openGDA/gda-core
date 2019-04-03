@@ -285,6 +285,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				case CLEAR_COMPLETED:
 					clearRunningAndCompleted();
 					break;
+				case SUBMIT_JOB:
+					submit((U) commandBean.getJobBean());
+					break;
 				case PAUSE_JOB:
 					processManager.processJobCommand(commandBean);
 					break;
@@ -295,16 +298,16 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					processManager.processJobCommand(commandBean);
 					break;
 				case MOVE_FORWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::moveForward);
+					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveForward);
 					break;
 				case MOVE_BACKWARD:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::moveBackward);
+					result = findBeanAndPerformAction(commandBean.getJobBean(), this::moveBackward);
 					break;
 				case REMOVE_FROM_QUEUE:
-					result = findBeanAndPerformAction(commandBean.getBeanUniqueId(), this::remove);
+					result = findBeanAndPerformAction(commandBean.getJobBean(), this::remove);
 					break;
 				case REMOVE_COMPLETED:
-					removeCompleted(commandBean.getBeanUniqueId());
+					removeCompleted((U) commandBean.getJobBean());
 					break;
 				case GET_QUEUE:
 					result = getSubmissionQueue();
@@ -652,6 +655,19 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
+	public void submit(U bean) throws EventException {
+		doWhilePaused(() -> doSubmit(bean));
+	}
+
+	private boolean doSubmit(U bean) throws EventException {
+		// TODO: temporary submit method until the queue is brought into memory
+		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
+			submitter.submit(bean);
+		}
+		return true;
+	}
+
+	@Override
 	public boolean remove(U bean) throws EventException {
 		return doWhilePaused(() -> doRemove(bean, getSubmitQueueName()));
 	}
@@ -829,7 +845,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 
 		public void processJobCommand(QueueCommandBean commandBean) throws EventException {
-			processJobCommand(commandBean.getBeanUniqueId(), commandBean.getCommand());
+			processJobCommand((U) commandBean.getJobBean(), commandBean.getCommand());
 		}
 
 		public void processJobCommand(U bean, Command command) throws EventException {
@@ -1181,12 +1197,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	}
 
-	protected Object findBeanAndPerformAction(String beanUniqueId, BeanAction<U> action) throws EventException {
-		final Optional<U> optBean = findBeanWithId(getSubmissionQueue(), beanUniqueId);
+	protected Object findBeanAndPerformAction(StatusBean bean, BeanAction<U> action) throws EventException {
+		final Optional<U> optBean = findBeanWithId(getSubmissionQueue(), bean.getUniqueId());
 		if (optBean.isPresent()) {
 			return action.performAction(optBean.get());
 		} else {
-			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", beanUniqueId);
+			LOGGER.error("Cannot find bean with id ''{}'' in submission queue!\nIt might be running now.", bean.getUniqueId());
 			return null;
 		}
 	}
@@ -1196,7 +1212,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (optBean.isPresent()) {
 			removeCompleted(optBean.get());
 		} else {
-			LOGGER.error("Cannot find bean with id ''{}'' in status set");
+			LOGGER.error("Cannot find bean with id ''{}'' in status set", beanUniqueId);
 		}
 	}
 
