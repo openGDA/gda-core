@@ -20,6 +20,8 @@ package uk.ac.gda.beamline.synoptics.composites;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -185,18 +187,22 @@ class BeamStatusComposite extends Composite {
 	
 	private Menu createPopup(Composite parent) {
 		Menu menu = new Menu(parent.getShell(), SWT.POP_UP);
-		
+		menu.addMenuListener(new MenuAdapter() {
+			@Override
+			public void menuShown(MenuEvent e) {
+				super.menuShown(e);
+				boolean monitorOn = bm.isMonitorOn();
+				switchOnMonitor.setSelection(monitorOn);
+				switchOffMonitor.setSelection(!monitorOn);
+			}
+		});
+
 		switchOnMonitor = new MenuItem(menu, SWT.RADIO);
 		switchOnMonitor.setText("Monitor ON");
 		switchOnMonitor.addSelectionListener(popupSelectionListener);
 		switchOffMonitor = new MenuItem(menu, SWT.RADIO);
 		switchOffMonitor.setText("Monitor OFF");
 		switchOffMonitor.addSelectionListener(popupSelectionListener);
-		if (bm.isMonitorOn()) {
-			switchOnMonitor.setSelection(true);
-		} else {
-			switchOffMonitor.setSelection(true);
-		}
 		return menu;
 	}
 	
@@ -207,10 +213,10 @@ class BeamStatusComposite extends Composite {
 			
 			if (event.widget instanceof MenuItem) {
 				selected = (MenuItem) event.widget;
-			}
-			else 
+			} else {
 				return;
-			
+			}
+
 			if (selected.equals(switchOnMonitor)) {
 				bm.on();
 				logger.info("Switch ON beam monitor.");
