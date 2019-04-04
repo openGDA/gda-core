@@ -18,6 +18,7 @@
 
 package uk.ac.gda.api.remoting;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -34,6 +35,7 @@ import gda.factory.Findable;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 @Inherited
 public @interface ServiceInterface {
 
