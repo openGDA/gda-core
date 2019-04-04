@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.EventListener;
 
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
@@ -142,6 +143,16 @@ public interface IEventService {
 						                                        String consumerStatusTopicName,
 						                                        String commandTopicName,
 						                                        String commandAckTopicName) throws EventException;
+
+	/**
+	 * Create a Jms queue reader. This will read messages from the JMS (ActiveMq) queue with the given name
+	 * and add it to the in-memory queue of the consumer with the same name.
+	 * @param uri
+	 * @param submissionQueueName
+	 * @return
+	 * @throws EventException
+	 */
+	public <U extends StatusBean> IJmsQueueReader<U> createJmsQueueReader(URI uri, String submissionQueueName) throws EventException;
 
 
 	/**

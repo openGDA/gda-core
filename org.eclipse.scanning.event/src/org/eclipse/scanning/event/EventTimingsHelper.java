@@ -20,6 +20,7 @@ public final class EventTimingsHelper {
 
 	public static final Duration DEFAULT_MAXIMUM_RUNNING_AGE = Duration.ofDays(2);
 	public static final Duration DEFAULT_MAXIMUM_COMPLETE_AGE = Duration.ofDays(7);
+	public static final Duration DEFAULT_MAXIMUM_WAIT_TIME = Duration.ofDays(1);
 
 	private EventTimingsHelper() {
 		// private constructor to prevent instantiation

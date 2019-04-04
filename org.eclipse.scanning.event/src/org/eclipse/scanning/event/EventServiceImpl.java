@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
@@ -117,6 +118,11 @@ public class EventServiceImpl implements IEventService {
 		IConsumer<? extends StatusBean> consumer = consumers.get(queueName);
 		if (consumer == null) throw new EventException("No consumer exists for queue '" + queueName + "'");
 		return consumer;
+	}
+
+	@Override
+	public <U extends StatusBean> IJmsQueueReader<U> createJmsQueueReader(URI uri, String queueName) throws EventException {
+		return new JmsQueueReader<>(uri, this, queueName);
 	}
 
 	@Override
