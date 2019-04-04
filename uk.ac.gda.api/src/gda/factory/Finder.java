@@ -81,7 +81,7 @@ public enum Finder {
 		T findable = findObjectByName(name, true);
 
 		if (findable == null) {
-			logger.warn("Finder could not find object. At some point this method will throw an exception instead of returning null.");
+			logger.warn("Finder could not find an object called '{}'. At some point, this method will throw an exception instead of returning null!", name);
 		}
 
 		return findable;
