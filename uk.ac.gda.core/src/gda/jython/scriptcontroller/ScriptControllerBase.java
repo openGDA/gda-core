@@ -21,7 +21,6 @@ package gda.jython.scriptcontroller;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 import gda.observable.ObservableComponent;
@@ -32,7 +31,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * that this class should not need to be sub-classed.
  */
 @ServiceInterface(Scriptcontroller.class)
-public class ScriptControllerBase extends ObservableComponent implements Scriptcontroller, Configurable, Localizable {
+public class ScriptControllerBase extends ObservableComponent implements Scriptcontroller, Configurable {
 
 	String name;
 
@@ -43,8 +42,6 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 	String importCommand;
 
 	ICommandRunner server;
-
-	boolean local = false; // for distribution by default
 
 	private boolean configured = false;
 
@@ -122,26 +119,6 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 	@Override
 	public void setImportCommand(String command) {
 		this.importCommand = command;
-	}
-
-	/**
-	 * Sets if this object is for local access only.
-	 *
-	 * @param local
-	 */
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
-
-	/**
-	 * Return if this object is for local access only.
-	 *
-	 * @return true if the object is local (not distributed)
-	 */
-	@Override
-	public boolean isLocal() {
-		return local;
 	}
 
 }

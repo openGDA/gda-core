@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import gda.factory.ConditionallyConfigurable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -36,15 +35,13 @@ import gda.observable.ObservableComponent;
 /**
  * A base implementation for all devices
  */
-public abstract class DeviceBase extends ConfigurableBase implements Device, ConditionallyConfigurable, Localizable {
+public abstract class DeviceBase extends ConfigurableBase implements Device, ConditionallyConfigurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
 
 	private String name;
 
 	private int protectionLevel = 1;
-
-	private boolean local = false;
 
 	private boolean configureAtStartup = true;
 
@@ -80,17 +77,6 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 		this.name = name;
 	}
 
-	/**
-	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
-	 * and placed on the name server.
-	 *
-	 * @return true for local only objects
-	 */
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
 	@Override
 	public int getProtectionLevel() throws DeviceException{
 		return protectionLevel;
@@ -99,19 +85,6 @@ public abstract class DeviceBase extends ConfigurableBase implements Device, Con
 	@Override
 	public void setProtectionLevel(int permissionLevel) throws DeviceException {
 		this.protectionLevel = permissionLevel;
-	}
-
-	/**
-	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
-	 * be instantiated and placed on the name server.
-	 *
-	 * @param local
-	 *            true if a local only implementation.
-	 */
-	@Override
-	@MethodAccessProtected(isProtected=true)
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	@Override

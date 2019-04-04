@@ -41,10 +41,6 @@ public class TimedRunnableInvoker extends DeviceBase {
 
 	Thread t;
 
-	public TimedRunnableInvoker() {
-		setLocal(true);
-	}
-
 	@Override
 	public void configure() throws FactoryException {
 		setConfigured(true);

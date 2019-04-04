@@ -21,13 +21,11 @@ package gda.util.findableHashtable;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @ServiceInterface(Hashtable.class)
-public class FindableHashtable extends java.util.Hashtable implements Hashtable, Configurable, Localizable {
-	private boolean local = false;
+public class FindableHashtable extends java.util.Hashtable implements Hashtable, Configurable {
 
 	/**
 	 * Flag indicating whether to store metadata to nexus file
@@ -134,15 +132,4 @@ public class FindableHashtable extends java.util.Hashtable implements Hashtable,
 		return true;
 	}
 
-	// Implements Localizable interface.
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 }

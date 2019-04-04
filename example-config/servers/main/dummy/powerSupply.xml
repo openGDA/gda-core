@@ -6,7 +6,6 @@
 
     <bean id="powerSupply1" class = "gda.org.myls.powersupply.GDAPowerSupply">
         <property name="powerSupply" ref="simplePowerSupplyId"/>
-        <property name="local" value="False"/>
     </bean>
 
 </beans>

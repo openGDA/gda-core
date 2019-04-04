@@ -38,7 +38,6 @@ import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
 import gda.jython.JythonStatus;
 import gda.scan.IScanDataPoint;
@@ -71,7 +70,7 @@ import uk.ac.diamond.daq.concurrent.Async;
  * </pre>
  *
  */
-public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar, Localizable {
+public class FileRegistrar extends DataWriterExtenderBase implements IFileRegistrar {
 
 	public FileRegistrar(ArchiveFileCreator icatXMLCreator) throws FactoryException {
 		super();
@@ -92,8 +91,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private Set<String> files = new LinkedHashSet<>();
 
 	private String name;
-
-	private boolean local = false;
 
 	/**
 	 * Entry point in GDA8 scanning to register a file
@@ -254,16 +251,6 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	public ArchiveFileCreator getIcatXMLCreator() {
 		return icatXMLCreator;
-	}
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	public DeviceBase getClientFileAnnouncer() {

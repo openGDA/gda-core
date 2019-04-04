@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.ConfigurableBase;
-import gda.factory.Localizable;
 import gda.function.Lookup;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -62,7 +61,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * it uses a MultiValuedMap object to store the lookup table.
  */
 @ServiceInterface(Lookup.class)
-public class LookupTable extends ConfigurableBase implements Lookup, Localizable {
+public class LookupTable extends ConfigurableBase implements Lookup {
 	/**
 	 * the logger instance
 	 */
@@ -135,7 +134,6 @@ public class LookupTable extends ConfigurableBase implements Lookup, Localizable
 
 	private MultiValueMap lookupMap = new MultiValueMap();
 	private ObservableComponent observableComponent = new ObservableComponent();
-	private boolean local = false;
 
 	/**
 	 * default constructor
@@ -506,13 +504,4 @@ public class LookupTable extends ConfigurableBase implements Lookup, Localizable
 		observableComponent.deleteIObservers();
 	}
 
-	@Override
-	public boolean isLocal() {
-		return this.local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 }

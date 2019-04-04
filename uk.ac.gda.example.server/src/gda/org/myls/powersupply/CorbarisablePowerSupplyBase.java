@@ -26,7 +26,6 @@ import gda.observable.ObservableComponent;
  */
 public abstract class CorbarisablePowerSupplyBase implements ICorbarisablePowerSupply {
 	protected String name;
-	protected boolean local=false;
 	ObservableComponent obs = new ObservableComponent();
 
 
@@ -38,16 +37,6 @@ public abstract class CorbarisablePowerSupplyBase implements ICorbarisablePowerS
 	@Override
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	@Override

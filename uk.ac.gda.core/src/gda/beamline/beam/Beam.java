@@ -34,7 +34,6 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -48,14 +47,13 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  */
 @ServiceInterface(BeamInfo.class)
-public class Beam extends ConfigurableBase implements BeamInfo, Localizable {
+public class Beam extends ConfigurableBase implements BeamInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Beam.class);
 	private String name = "beam";
 	private double energy = Double.NaN;
 	private double wavelength = Double.NaN;
 
 	private Metadata metadata;
-	private boolean local = false;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean configureAtStartup = false;
 	private boolean calibrated = false;
@@ -170,29 +168,6 @@ public class Beam extends ConfigurableBase implements BeamInfo, Localizable {
 	@Override
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
-	 * and placed on the name server.
-	 *
-	 * @return true for local only objects
-	 */
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	/**
-	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
-	 * be instantiated and placed on the name server.
-	 *
-	 * @param local
-	 *            true if a local only implementation.
-	 */
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	/**

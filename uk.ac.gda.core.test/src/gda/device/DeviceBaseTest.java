@@ -25,12 +25,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.device.adc.DummyAdc;
-import gda.factory.FactoryException;
-import gda.observable.IObserver;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gda.device.adc.DummyAdc;
+import gda.factory.FactoryException;
+import gda.observable.IObserver;
 
 /**
  * test for abstract DeviceBase methods using DummyAdc concrete class
@@ -70,24 +71,6 @@ public class DeviceBaseTest implements IObserver {
 	public void testConfigure() {
 		// should do nothing
 		dummyAdc.configure();
-	}
-
-	/**
-	 *
-	 */
-	@Test
-	public void testIsLocal() {
-		// default should be false
-		assertFalse("local should be false initially", dummyAdc.isLocal());
-	}
-
-	/**
-	 *
-	 */
-	@Test
-	public void testSetLocal() {
-		dummyAdc.setLocal(true);
-		assertTrue("local should now be set true", dummyAdc.isLocal());
 	}
 
 	/**

@@ -30,7 +30,6 @@ import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
@@ -40,7 +39,7 @@ import gda.observable.ObservableComponent;
  *
  */
 @SuppressWarnings("serial")
-public class Beamline extends ConfigurableBase implements BeamlineInfo, Localizable {
+public class Beamline extends ConfigurableBase implements BeamlineInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Beamline.class);
 	private final String FILE_PREFIX = "gda.data.file.prefix";
 	private final String FILE_SUFFIX = "gda.data.file.suffix";
@@ -57,7 +56,6 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo, Localiza
 	private NumTracker runs;
 	private String project;
 	private String experiment;
-	private boolean local = false;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private boolean configureAtStartup = false;
 
@@ -196,29 +194,6 @@ public class Beamline extends ConfigurableBase implements BeamlineInfo, Localiza
 	@Override
 	public void setSubHeader(String subHeader) {
 		this.subHeader = subHeader;
-	}
-
-	/**
-	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
-	 * and placed on the name server.
-	 *
-	 * @return true for local only objects
-	 */
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	/**
-	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
-	 * be instantiated and placed on the name server.
-	 *
-	 * @param local
-	 *            true if a local only implementation.
-	 */
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	/**

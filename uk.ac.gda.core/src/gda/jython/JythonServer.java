@@ -68,7 +68,6 @@ import gda.device.Stoppable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.factory.Localizable;
 import gda.jython.authoriser.Authoriser;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonManager;
@@ -106,7 +105,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
 @ServiceInterface(Jython.class)
-public class JythonServer extends ConfigurableBase implements LocalJython, Localizable, ITerminalInputProvider, TextCompleter {
+public class JythonServer extends ConfigurableBase implements LocalJython, ITerminalInputProvider, TextCompleter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
@@ -133,9 +132,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	private boolean runningLocalStation = false;
 
 	private StringBuilder bufferedLocalStationOutput = new StringBuilder();
-
-	// part of the Localizable interface
-	private boolean isLocal = false;
 
 	private final JythonServerStatusHolder statusHolder = new JythonServerStatusHolder(this);
 
@@ -242,18 +238,6 @@ public class JythonServer extends ConfigurableBase implements LocalJython, Local
 	@Override
 	public void setName(String name) {
 		// do nothing: this name needs to be fixed for all processes.
-	}
-
-	// to fulfil the localizable interface
-
-	@Override
-	public void setLocal(boolean local) {
-		isLocal = local;
-	}
-
-	@Override
-	public boolean isLocal() {
-		return isLocal;
 	}
 
 	private MessageHandler messageHandler;
