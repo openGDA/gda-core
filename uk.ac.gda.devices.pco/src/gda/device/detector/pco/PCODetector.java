@@ -87,10 +87,6 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 	private long filenumber = -1;
 	private boolean isWindowsIocSet = false;
 
-	public PCODetector() {
-		setLocal(true); // do not use CORBA, use RMI
-	}
-
 	public void preview(double acquireTime) throws Exception {
 		ADBase areaDetector = controller.getAreaDetector();
 
