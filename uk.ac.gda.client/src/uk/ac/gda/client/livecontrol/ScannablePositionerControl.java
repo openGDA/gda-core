@@ -213,6 +213,10 @@ public class ScannablePositionerControl implements LiveControl {
 		if (getDisplayName() != null) {
 			positionerComposite.setDisplayName(getDisplayName());
 		}
+
+		if (showStop != null && !showStop) {
+			positionerComposite.hideStopButton();
+		}
 	}
 
 	@Override
