@@ -59,8 +59,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
  * the desired updates.
  */
 public class NcdDataSource extends ViewPart implements IObserver {
-
 	private static final Logger logger = LoggerFactory.getLogger(NcdDataSource.class);
+
+	private static final String DISABLE_SYMMETRY = "Disable Symmetry";
+	private static final String ENABLE_SYMMETRY = "Enable Symmetry";
 	private static final String PLOT_ACTION = "symmetry_action";
 
 	protected final Runnable noReflection = (Runnable)() -> reflectData(d -> d);
@@ -317,10 +319,11 @@ public class NcdDataSource extends ViewPart implements IObserver {
 
 		enableSymmetry = new Button(symmetryGroup, SWT.TOGGLE);
 		enableSymmetry.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-		enableSymmetry.setText("Enable Symmetry");
+		enableSymmetry.setText(ENABLE_SYMMETRY);
 		enableSymmetry.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				enableSymmetry.setText(enableSymmetry.getSelection() ? DISABLE_SYMMETRY : ENABLE_SYMMETRY);
 				runReflection();
 			}
 		});
@@ -498,6 +501,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 		}
 		Dataset data = originalData.getData().stream().findFirst().get().getData();
 		Dataset newData = reflection.apply(data);
+		newData.setName(data.getName());
 		DatasetWithAxisInformation dwai = new DatasetWithAxisInformation();
 		dwai.setData(newData);
 		DataBean db = new DataBean();
