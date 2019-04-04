@@ -123,7 +123,9 @@ public class ScanRegion<T> implements INameable {
 		if (roi!=null) {
 			buf.append("Type: [");
 			buf.append(roi.getClass().getSimpleName());
-			buf.append("] ");
+			buf.append(": ");
+			buf.append(roi);
+			buf.append("], ");
 		}
 		if (scannables!=null) {
 			buf.append("Axes: ");
