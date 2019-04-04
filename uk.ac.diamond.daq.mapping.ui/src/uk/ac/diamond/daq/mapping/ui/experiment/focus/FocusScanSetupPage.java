@@ -66,7 +66,9 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.models.OneDEqualSpacingModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Image;
@@ -517,11 +519,16 @@ class FocusScanSetupPage extends WizardPage {
 
 	private void checkFocusScanAxis(IDetectorModel model) {
 		if (model instanceof IMalcolmModel) {
-			final List<String> axesToMove = ((IMalcolmModel) model).getAxesToMove();
-			final String focusScannableName = focusScanBean.getFocusScannableName();
-			if (axesToMove == null || axesToMove.isEmpty() || !axesToMove.contains(focusScannableName)) {
-				final String message = String.format("The selected malcolm device does not include the focus scannable '%s' as an axis", focusScannableName);
-				MessageDialog.openWarning(getShell(), "Focus Scan", message);
+			try {
+				final List<String> axesToMove = getMalcolmAxes(model);
+				final String focusScannableName = focusScanBean.getFocusScannableName();
+				if (axesToMove == null || axesToMove.isEmpty() || !axesToMove.contains(focusScannableName)) {
+					final String message = String.format("The selected malcolm device does not include the focus scannable '%s' as an axis", focusScannableName);
+					MessageDialog.openWarning(getShell(), "Focus Scan", message);
+				}
+			} catch (ScanningException | EventException e) {
+				logger.error("Could not get malcolm axes", e);
+				MessageDialog.openError(getShell(), "Focus Scan", "Could not get axes for malcolm device. See error log for more details");
 			}
 		}
 	}
@@ -533,6 +540,12 @@ class FocusScanSetupPage extends WizardPage {
 		} catch (URISyntaxException e) {
 			throw new EventException("Malformed URI for activemq", e);
 		}
+	}
+
+	private List<String> getMalcolmAxes(IDetectorModel malcolmModel) throws ScanningException, EventException {
+		final String deviceName = malcolmModel.getName();
+		final IMalcolmDevice<?> malcolmDevice = (IMalcolmDevice<?>) getRunnableDeviceService().getRunnableDevice(deviceName);
+		return malcolmDevice.getAvailableAxes();
 	}
 
 	private void editDetectorParameters(IScanModelWrapper<IDetectorModel> detectorModelWrapper) {
