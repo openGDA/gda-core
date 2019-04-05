@@ -54,4 +54,4 @@ print a # should get: [(1, 4, 1, 'asldkfjh,sdklajgh    ,+  ')]
 
 
 #exception output
-raise "test script has finished and should finish by throwing this exception"
+raise RuntimeError("test script has finished and should finish by throwing this exception")

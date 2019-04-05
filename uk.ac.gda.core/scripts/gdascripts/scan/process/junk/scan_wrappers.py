@@ -65,7 +65,7 @@ class ScanWrapperClass:
 			elif isinstance(token, (int, float, list)):		#paramemer is a number
 				currentlist+=[token];				#add parameter to current parameter list
 			else:
-				raise '=== Parameter must be a PseudoDevice, number or list',token
+				raise TypeError('=== Parameter must be a PseudoDevice, number or list. Found {}'.format(type(token)))
 		paramlist+=[currentlist];					#append last one to list	
 		return [devlist, paramlist]
 

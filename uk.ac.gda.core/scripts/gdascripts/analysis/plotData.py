@@ -27,7 +27,7 @@ class XYDataLoader(IFileLoader):
 
 def getScanFileHolderXY(xName,xDataRaw,yName, yDataRaw):
     if len(xDataRaw) != len(yDataRaw):
-        raise "len(xDataRaw) != len(yDataRaw)"
+        raise ValueError("len(xDataRaw) != len(yDataRaw)")
     #convert to list from array
     xData = []
     yData = []
