@@ -198,7 +198,7 @@ class RunOptimisation:
         elif self.mirror_type in ["hfm", "HFM", "x"]:
             name += "x"
         else:
-            raise "Mirror not recognised"
+            raise ValueError("Mirror not recognised")
         return name
 
     def getSlitPos(self, names, headings, errorData):
@@ -341,7 +341,7 @@ class BimorphOptimiser:
     
     def setVoltage(self, electrodeNo, voltage):
         if (voltage > self.bimorphMirror.maxSafeVoltage) or (voltage < self.bimorphMirror.minSafeVoltage):
-            raise "Set voltage is outside safe range. " + `voltage` + "min = " + `self.bimorphMirror.minSafeVoltage` + "max = " + `self.bimorphMirror.maxSafeVoltage`
+            raise ValueError("Set voltage is outside safe range. " + `voltage` + "min = " + `self.bimorphMirror.minSafeVoltage` + "max = " + `self.bimorphMirror.maxSafeVoltage`)
         else:
             leftVoltage = self.getVoltage(electrodeNo - 1)
             rightVoltage = self.getVoltage(electrodeNo + 1)
@@ -354,7 +354,7 @@ class BimorphOptimiser:
             elif (electrodeNo == 0):
                 leftDiff = 0.
             if (leftDiff > self.bimorphMirror.maxSafeVoltDiff) or (rightDiff > self.bimorphMirror.maxSafeVoltDiff):
-                raise "Voltage difference will go outside safe range."
+                raise ValueError("Voltage difference will go outside safe range.")
             else:
                 self.voltageController.setVoltage(electrodeNo, voltage)
 
