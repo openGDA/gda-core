@@ -31,7 +31,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.hrpd.SampleInfo;
 import gda.hrpd.data.ExcelWorkbook;
 import gda.jython.JythonServerFacade;
@@ -46,7 +45,7 @@ import gda.observable.ObservableComponent;
  * should be user's home directory.
  */
 @SuppressWarnings("serial")
-public class Sample extends ConfigurableBase implements Localizable, SampleInfo {
+public class Sample extends ConfigurableBase implements SampleInfo {
 	private static final Logger logger = LoggerFactory.getLogger(Sample.class);
 
 	private String carouselNo;
@@ -82,8 +81,6 @@ public class Sample extends ConfigurableBase implements Localizable, SampleInfo 
 	private ExcelWorkbook excel;
 
 	private ObservableComponent observableComponent = new ObservableComponent();
-
-	private boolean local = false;
 
 	private boolean configureAtStartup = false;
 
@@ -443,29 +440,6 @@ public class Sample extends ConfigurableBase implements Localizable, SampleInfo 
 	public void setName(String name) {
 		this.name = name;
 
-	}
-
-	/**
-	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
-	 * and placed on the name server.
-	 *
-	 * @return true for local only objects
-	 */
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	/**
-	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
-	 * be instantiated and placed on the name server.
-	 *
-	 * @param local
-	 *            true if a local only implementation.
-	 */
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	/**
