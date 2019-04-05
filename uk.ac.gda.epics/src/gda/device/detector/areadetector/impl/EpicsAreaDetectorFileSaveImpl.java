@@ -29,10 +29,6 @@ import gov.aps.jca.TimeoutException;
 
 public class EpicsAreaDetectorFileSaveImpl extends ConfigurableBase implements EpicsAreaDetectorFileSave{
 
-	// Localizable variables
-	private boolean local = true;
-
-
 	// Values to be set by Spring
 	private String  basePVName            = null;
 	private String  initialFileName       = null;
@@ -72,18 +68,6 @@ public class EpicsAreaDetectorFileSaveImpl extends ConfigurableBase implements E
 
 	private Channel channelFullFileName_RBV;
 	private Channel channelTimeStamp_RBV;
-
-	// Methods for Localizable interface
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
-
 
 	// Getters and Setters for spring
 	@Override

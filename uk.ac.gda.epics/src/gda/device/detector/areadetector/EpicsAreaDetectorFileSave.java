@@ -19,14 +19,13 @@
 package gda.device.detector.areadetector;
 
 import gda.factory.Configurable;
-import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
 /**
  *
  */
-public interface EpicsAreaDetectorFileSave extends Localizable, Configurable {
+public interface EpicsAreaDetectorFileSave extends Configurable {
 
 	// Getters and Setters for spring
 	void setBasePVName(String basePVName);

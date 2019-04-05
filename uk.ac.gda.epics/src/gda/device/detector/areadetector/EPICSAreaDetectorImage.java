@@ -21,11 +21,10 @@ package gda.device.detector.areadetector;
 import org.eclipse.january.dataset.DoubleDataset;
 
 import gda.factory.Configurable;
-import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-public interface EPICSAreaDetectorImage extends Localizable, Configurable {
+public interface EPICSAreaDetectorImage extends Configurable {
 
 	// getters and setters for spring
 	public String getBasePVName();

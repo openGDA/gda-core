@@ -36,9 +36,6 @@ public class EpicsAreaDetectorROIElementImpl extends ConfigurableBase implements
 	// Setup the logging facilities
 	static final Logger logger = LoggerFactory.getLogger(EpicsAreaDetectorROIElementImpl.class);
 
-	// localizable variables
-	private Boolean local = true;
-
 	// Variables to be set by Spring
 	private String basePVName = null;
 	private Integer initialMinX = null;
@@ -69,17 +66,6 @@ public class EpicsAreaDetectorROIElementImpl extends ConfigurableBase implements
 	private Channel channelBinY;
 	private Channel channelBinX_RBV;
 	private Channel channelBinY_RBV;
-
-	// Methods for the localizable interface
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 
 	// Getters and setters for Spring
 	@Override

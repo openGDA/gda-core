@@ -117,7 +117,6 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 
 	public EpicsScannable() {
 		super();
-		setLocal(true);
 		setInputNames(new String[]{}); //clear the entry put in by ScannableBase
 		putListener = new PutListener() {
 
@@ -177,7 +176,6 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		if(isConfigured())
 			return;
 		super.configure();
-		setLocal(true);
 		if(useNameAsInputName){
 			if( inputNames.length > 0){
 				logger.warn("useNameAsInputName is true although inputNames are already set for " + getName());

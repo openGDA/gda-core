@@ -31,10 +31,6 @@ import gov.aps.jca.TimeoutException;
 
 public class EpicsAreaDetectorImpl extends ConfigurableBase implements EpicsAreaDetector {
 
-	// Localizable Variables
-	private Boolean local = true;
-
-
 	// values to be set by Spring
 	private String basePVName = null;
 	private Integer initialMinX = null;
@@ -80,18 +76,6 @@ public class EpicsAreaDetectorImpl extends ConfigurableBase implements EpicsArea
 	private Channel channelNumImages;
 	private Channel channelNumImages_RBV;
 	private Channel channelTriggerMode;
-
-
-	// Methods for Localizable interface
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 
 	// Getters and setters for Spring
 	@Override
