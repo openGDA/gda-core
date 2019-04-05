@@ -162,6 +162,8 @@ public class FocusScanResultPage extends WizardPage {
 	private IScannable<Double> focusScannable;
 	private Double focusScannableOriginalPosition;
 
+	private MappedDataFile initialMapFile;
+
 	public FocusScanResultPage() {
 		super(FocusScanResultPage.class.getSimpleName());
 		setTitle("Select Focus Setting");
@@ -342,13 +344,23 @@ public class FocusScanResultPage extends WizardPage {
 	}
 
 	private void handleMapEvent(MappedDataFile mappedDataFile) {
-		if (mappedDataFile == null) return;
+
+		if (mappedDataFile != null && this.initialMapFile == null) {
+			this.initialMapFile = mappedDataFile;
+		}
+
+		if (initialMapFile == null) return;
 
 		if (future != null) return; // update job already running
 
+		MappedDataFile dataFile = mapFileController.getArea().getDataFile(initialMapFile.getPath());
+
 		//might have been loaded lazily, we need the data so force non-lazy load if empty file
-		if (mappedDataFile.getChildren().length == 0) {
-			mapFileController.loadLiveFile(mappedDataFile.getPath(), mappedDataFile.getLiveDataBean(), null, false);
+		if (dataFile == null || dataFile.getChildren().length == 0) {
+			logger.debug("Attempting to load {} " + initialMapFile.getPath());
+
+			//TODO test this with mapDataFile == null only
+			mapFileController.loadLiveFile(initialMapFile.getPath(), initialMapFile.getLiveDataBean(), null, false);
 			return;
 		}
 
@@ -356,7 +368,7 @@ public class FocusScanResultPage extends WizardPage {
 		plottingSystem.clear();
 
 		// extract the map from the file and check that it is present
-		final Optional<AbstractMapData> optMapData = extractMap(mappedDataFile);
+		final Optional<AbstractMapData> optMapData = extractMap(dataFile);
 		if (!optMapData.isPresent()) {
 			logger.warn("Could not find map data for scan");
 			return;
