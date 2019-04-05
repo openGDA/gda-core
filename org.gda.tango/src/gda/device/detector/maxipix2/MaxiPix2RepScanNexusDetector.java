@@ -18,6 +18,11 @@
 
 package gda.device.detector.maxipix2;
 
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -33,11 +38,6 @@ import gda.device.detector.RepScanScannable;
 import gda.device.lima.LimaCCD;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
-
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  * MaxiPix detector that works in mode: 1. readout/getPositionCallable per frame of an acquisition - with timing done by
@@ -70,7 +70,7 @@ public class MaxiPix2RepScanNexusDetector extends DetectorBase implements Positi
 
 	/*
 	 * To allow this detector to be used to monitor a set of triggers that represents a multidimensional scan
-	 * rather than a single scan line set numRepScansIsPerScanLine to false. Default is true 
+	 * rather than a single scan line set numRepScansIsPerScanLine to false. Default is true
 	 * If true call atRepScanStart with the total number of images to be made in the whole scan
 	 */
 	public void setNumRepScansIsPerScanLine(boolean numRepScansIsPerScanLine) {
@@ -88,7 +88,6 @@ public class MaxiPix2RepScanNexusDetector extends DetectorBase implements Positi
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		setLocal(true);
 		setExtraNames(new String[] { "imageNumber" });
 		this.setInputNames(new String[0]);
 		if (getMaxiPix2MultiFrameDetector() == null)

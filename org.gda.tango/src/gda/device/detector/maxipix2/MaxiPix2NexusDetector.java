@@ -18,6 +18,9 @@
 
 package gda.device.detector.maxipix2;
 
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
 import fr.esrf.Tango.DevFailed;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -39,9 +42,6 @@ import gda.device.lima.LimaROIInt;
 import gda.device.maxipix2.MaxiPix2;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
-
-import java.util.Vector;
-import java.util.concurrent.Callable;
 
 /*
  * MaxiPix2 detector that works in the mode: 1 readout/getPositionCallable per acquisition - multiple frames. Used to
@@ -78,7 +78,6 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		setLocal(true);
 		setExtraNames(new String[] { "lastImageNumber"});
 		setOutputFormat(new String[]{"%d"});
 		this.setInputNames(new String[0]);
@@ -144,7 +143,7 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 			top.addChildNode(makeNexusTreeNode("imageROIBeginY",imageROIInt.getBeginY()));
 			top.addChildNode(makeNexusTreeNode("imageROIEndX",imageROIInt.getLengthX()));
 			top.addChildNode(makeNexusTreeNode("imageROIEndY",imageROIInt.getLengthY()));
-			
+
 			return top;
 		} catch (DevFailed e) {
 			throw new DeviceException("Error getting metadata for limaCCD", TangoUtils.createDeviceExceptionStack(e));
@@ -161,7 +160,7 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 		for (int i = 0; i < timesCurrentAcq.length; i++) {
 			timesCurrentAcq[i] = i * collectionTimeCurrentAcq;
 		}
-		
+
 	}
 
 	@Override
@@ -175,8 +174,8 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 
 	public void setFastMode(boolean fastMode) {
 		maxiPix2MultiFrameDetector.setFastMode(fastMode);
-	}	
-	
+	}
+
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return false;
@@ -336,6 +335,6 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 	public void atCommandFailure() throws DeviceException {
 		maxiPix2MultiFrameDetector.atCommandFailure();
 	}
-	
-	
+
+
 }

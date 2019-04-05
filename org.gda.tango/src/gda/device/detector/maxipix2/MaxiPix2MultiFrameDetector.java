@@ -18,6 +18,14 @@
 
 package gda.device.detector.maxipix2;
 
+import java.io.File;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import gda.data.PathConstructor;
@@ -40,14 +48,6 @@ import gda.device.scannable.PositionStreamIndexer;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /*
  *
@@ -119,7 +119,6 @@ public class MaxiPix2MultiFrameDetector extends DetectorBase implements Position
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		setLocal(true);
 		if (getMaxiPix2() == null)
 			throw new IllegalStateException("maxiPix2 is not set");
 		if (getLimaCCD() == null)
