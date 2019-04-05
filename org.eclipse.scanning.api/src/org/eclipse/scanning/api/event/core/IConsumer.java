@@ -89,6 +89,12 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void awaitStart() throws InterruptedException;
 
 	/**
+	 * Awaits the consumer having stopped. Mostly useful for testing.
+	 * @throws InterruptedException
+	 */
+	void awaitStop() throws InterruptedException;
+
+	/**
 	 * Starts the consumer and block. Similar to Thread.run()
 	 * You must set the runner before calling this method
 	 * @throws Exception

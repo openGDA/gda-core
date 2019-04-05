@@ -23,16 +23,19 @@ import org.junit.Before;
  */
 public class PauseTest extends AbstractPauseTest {
 
-
 	@Before
 	public void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		eservice = ServiceTestHelper.getEventService();
 
 		submitter  = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
-		consumer   = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
+
+		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
+
+		jmsQueueReader = eservice.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);
+		jmsQueueReader.start();
 	}
 }

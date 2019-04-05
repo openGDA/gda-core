@@ -20,6 +20,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -34,6 +35,7 @@ import org.junit.Test;
 public class SubmissionTest extends AbstractJythonTest {
 
 	private static IConsumer<ScanBean> consumer;
+	private static IJmsQueueReader<ScanBean> jmsQueueReader;
 
 	private static BlockingQueue<String> testLog;
 	// We'll use this to check that things happen in the right order.
@@ -70,6 +72,9 @@ public class SubmissionTest extends AbstractJythonTest {
 		});
 		consumer.start();
 
+		jmsQueueReader = ServiceTestHelper.getEventService().createJmsQueueReader(uri, consumer.getSubmitQueueName());
+		jmsQueueReader.start();
+
 		// Put any old ScanRequest in the Python namespace.
 		pi.exec("sr = scan_request(step(my_scannable, 0, 10, 1), det=mandelbrot(0.001))");
 
@@ -86,6 +91,7 @@ public class SubmissionTest extends AbstractJythonTest {
 	@AfterClass
 	public static void disconnect() throws EventException {
 		consumer.disconnect();
+		jmsQueueReader.disconnect();
 	}
 
 	@Test

@@ -92,7 +92,7 @@ public class QueueManagementTest extends BrokerTest {
 			}
 
 			// return a short job that runs in just 10ms
-			return new DryRunProcess<StatusBean>(bean, publisher, true, 0, 1, 1, 10);
+			return new DryRunProcess<StatusBean>(bean, publisher, true, 0, 1, 2, 10);
 		}
 
 		public void waitForInitialProcessToStart() throws InterruptedException {
@@ -106,7 +106,6 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private IEventService eservice;
-	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumer;
 	private IConsumer<StatusBean> consumerProxy;
 
@@ -136,9 +135,6 @@ public class QueueManagementTest extends BrokerTest {
 
 		eservice = ServiceTestHelper.getEventService();
 
-		// We use the long winded constructor because we need to pass in the connector.
-		// In production we would normally
-		submitter = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
@@ -148,21 +144,25 @@ public class QueueManagementTest extends BrokerTest {
 			consumerProxy = eservice.createConsumerProxy(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		}
 		if (startConsumer) {
-			startConsumer();
+			startConsumer(true);
 		}
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		consumer.clearQueue();
-		consumer.clearRunningAndCompleted();
-
-		submitter.disconnect();
-		consumer.disconnect();
-
 		if (processFactory != null) {
 			processFactory.releaseInitialProcess();
 		}
+
+		consumer.clearQueue();
+		consumer.clearRunningAndCompleted();
+
+		if (startConsumer) {
+			consumer.stop();
+			consumer.awaitStop();
+		}
+		consumer.disconnect();
+		consumer = null;
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class QueueManagementTest extends BrokerTest {
 	 * @throws EventException
 	 * @throws InterruptedException
 	 */
-	private void startConsumer() throws EventException, InterruptedException {
+	private void startConsumer(boolean submitInitialBean) throws EventException, InterruptedException {
 		// starts the consumer and sets it going with an initial task
 
 		processFactory = new TestProcessCreator();
@@ -181,9 +181,11 @@ public class QueueManagementTest extends BrokerTest {
 		consumer.start();
 		consumer.awaitStart();
 
-		// create and submit the initial bean and wait for the process for it to start
-		submitter.submit(createBean("initial"));
-		processFactory.waitForInitialProcessToStart();
+		if (submitInitialBean) {
+			// create and submit the initial bean and wait for the process for it to start
+			consumer.submit(createBean("initial"));
+			processFactory.waitForInitialProcessToStart();
+		}
 	}
 
 	private IConsumer<StatusBean> getConsumer() {
@@ -194,29 +196,51 @@ public class QueueManagementTest extends BrokerTest {
 	}
 
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
-		final List<StatusBean> beans = createAndSubmitBeans(submitter);
+		final List<String> beanNames = Arrays.asList(new String[] { "one", "two", "three", "four", "five" });
+		final List<StatusBean> beans = beanNames.stream().map(this::createBean).collect(toList());
+		for (StatusBean bean : beans) {
+			consumer.submit(bean);
+		}
+
 		// check they've been submitted properly (check names for easier to read error message)
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 		return beans;
 	}
 
-	private List<StatusBean> createAndSubmitBeansToStatusSet() throws EventException {
-		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
-			final List<StatusBean> beans = createAndSubmitBeans(submitter);
-			// check they've been submitted properly (check names for easier to read error message)
-			final List<String> names = getNames(consumer.getRunningAndCompleted());
-			names.remove("initial");
-			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
-			return beans;
-		}
-	}
+	private List<StatusBean> createSubmitAndRunBeans() throws Exception {
+		final List<StatusBean> beans = createAndSubmitBeans();
 
-	private List<StatusBean> createAndSubmitBeans(ISubmitter<StatusBean> submitter) throws EventException {
-		List<String> beanNames = Arrays.asList(new String[] { "one", "two", "three", "four", "five" });
-		List<StatusBean> beans = beanNames.stream().map(this::createBean).collect(toList());
-		for (StatusBean bean : beans) {
-			submitter.submit(bean);
+		if (startConsumer) {
+			processFactory.releaseInitialProcess(); // the consumer is already started
+		} else {
+			startConsumer(false); // start the consumer just to consume the submitted beans
 		}
+
+		// wait for all beans to be set to COMPLETED
+		// note, this normally takes around 100-200ms, but sometimes can take over 2 seconds
+		final int numExpected = beans.size() + (startConsumer ? 1 : 0); // the extra bean is the initial bean
+		boolean allCompleted = false;
+		List<StatusBean> statusSet;
+		final long startTime = System.currentTimeMillis();
+		final long timeout = startTime + 5000;
+		do {
+			Thread.sleep(100);
+			statusSet = consumer.getRunningAndCompleted();
+			allCompleted = statusSet.size() == numExpected &&
+					statusSet.stream().allMatch(bean -> bean.getStatus() == Status.COMPLETE);
+		} while (!allCompleted && (System.currentTimeMillis() < timeout));
+
+		assertThat(allCompleted, is(true));
+
+		List<String> beanNames = getNames(consumer.getRunningAndCompleted());
+		beanNames.removeIf(name -> name.equals("initial"));
+		assertThat(beanNames, is(equalTo(getNames(beans))));
+
+		if (!startConsumer) {
+			consumer.stop(); // stop the consumer so that it is not running for the main test
+			consumer.awaitStop();
+		}
+
 		return beans;
 	}
 
@@ -388,16 +412,17 @@ public class QueueManagementTest extends BrokerTest {
 
 	@Test
 	public void testGetRunningAndCompleted() throws Exception {
-		List<StatusBean> beans = createAndSubmitBeansToStatusSet();
+		List<StatusBean> beans = createSubmitAndRunBeans();
 
 		List<StatusBean> completed = getConsumer().getRunningAndCompleted();
 		completed.removeIf(b -> b.getName().equals("initial"));
-		assertThat(completed, containsInAnyOrder(beans.toArray()));
+
+		assertThat(getNames(completed), is(equalTo(getNames(beans))));
 	}
 
 	@Test
 	public void testClearCompleted() throws Exception {
-		createAndSubmitBeansToStatusSet();
+		createSubmitAndRunBeans();
 
 		getConsumer().clearRunningAndCompleted();
 
@@ -451,7 +476,7 @@ public class QueueManagementTest extends BrokerTest {
 	@Test
 	public void testRemoveCompleted() throws Exception {
 		// Arrange: submit some beans directly to the status set
-		List<StatusBean> beans = createAndSubmitBeansToStatusSet();
+		List<StatusBean> beans = createSubmitAndRunBeans();
 
 		// Act: remove the third bean
 		StatusBean beanThree = beans.get(2);

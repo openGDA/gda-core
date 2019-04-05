@@ -21,7 +21,6 @@ package org.eclipse.scanning.test.event;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,12 +33,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventConnectorService;
@@ -156,43 +149,22 @@ public abstract class AbstractNewConsumerTest {
 		when(eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) statusTopicSubscriber);
 
-		// set up the mocks required to create a MessageConsumer, this is enough to get the main thread executing the main event loop without throwing
-		QueueConnectionFactory queueConnectionFactory = mock(QueueConnectionFactory.class);
-		when(eventConnectorService.createConnectionFactory(uri)).thenReturn(queueConnectionFactory);
-		QueueConnection connection = mock(QueueConnection.class);
-		when(queueConnectionFactory.createQueueConnection()).thenReturn(connection);
-		QueueSession session = mock(QueueSession.class); // TODO: createMessageConsumer creates two sessions, one by calling getSession and one in createQueue, fix this
-		when(connection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
-		QueueSession queueSession = mock(QueueSession.class);
-		when(connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(queueSession);
-		Queue queue = mock(Queue.class);
-		when(queueSession.createQueue(EventConstants.SUBMISSION_QUEUE)).thenReturn(queue);
-		when(session.createConsumer(queue)).thenReturn(messageConsumer);
-
 		assertThat(consumer.isActive(), is(false));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.STOPPED));
 		consumer.start();
 		consumer.awaitStart();
 	}
 
-	protected List<StatusBean> setupBeans() throws Exception {
-		return setupBeans("one", "two", "three", "four", "five");
+	protected List<StatusBean> createAndSubmitBeans() throws Exception {
+		return createAndSubmitBeans("one", "two", "three", "four", "five");
 	}
 
-	protected List<StatusBean> setupBeans(String... names) throws Exception {
-		TextMessage message = mock(TextMessage.class);
-		when(messageConsumer.receive(anyLong())).thenReturn(message);
-		String jsonMessage = "jsonMessage";
-		when(message.getText()).thenReturn(jsonMessage);
-
+	protected List<StatusBean> createAndSubmitBeans(String... names) throws Exception {
 		final List<StatusBean> beans = Arrays.stream(names).map(StatusBean::new).collect(toList());
-		final StatusBean firstValue = beans.get(0);
+		for (StatusBean bean : beans) {
+			consumer.submit(bean);
+		}
 
-		// beans two, three, ..., last, null. The last value is null, as that is the returned for all subsequent calls
-		final StatusBean[] remainingValues = beans.subList(1, beans.size()).toArray(new StatusBean[beans.size()]);
-
-		when(eventConnectorService.unmarshal(jsonMessage, StatusBean.class)).thenReturn(
-				firstValue, remainingValues);
 		return beans;
 	}
 
@@ -218,6 +190,7 @@ public abstract class AbstractNewConsumerTest {
 			StatusBean bean = beans.get(i);
 			@SuppressWarnings("unchecked")
 			IConsumerProcess<StatusBean> process = mock(IConsumerProcess.class);
+			when(process.getBean()).thenReturn(bean);
 			mockProcesses.add(process);
 			when(runner.createProcess(bean, statusTopicPublisher)).thenReturn(process);
 

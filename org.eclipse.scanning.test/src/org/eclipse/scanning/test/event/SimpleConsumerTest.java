@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import javax.jms.TextMessage;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
@@ -112,21 +110,20 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		verifyNoMoreInteractions(commandPublisher);
 	}
 
-	private IConsumerProcess<StatusBean> setupMocksForConsumingBean(StatusBean statusBean) throws Exception {
-		TextMessage message = mock(TextMessage.class);
-		when(messageConsumer.receive(anyLong())).thenReturn(message).thenReturn(null);
-		String jsonMessage = "jsonMessage";
-		when(message.getText()).thenReturn(jsonMessage);
-		when(eventConnectorService.unmarshal(jsonMessage, StatusBean.class)).thenReturn(statusBean);
+	private IConsumerProcess<StatusBean> submitBeanAndSetupMockProcess(StatusBean statusBean) throws Exception {
 		IConsumerProcess<StatusBean> process = mock(IConsumerProcess.class);
 		when(runner.createProcess(statusBean, statusTopicPublisher)).thenReturn(process);
+		when(process.getBean()).thenReturn(statusBean);
+		doAnswer(invocation -> { process.getBean().setStatus(Status.COMPLETE); return null; }).when(process).start();
+
+		consumer.submit(statusBean);
 		return process;
 	}
 
 	@Test
 	public void testConsumingBean() throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
-		IConsumerProcess<StatusBean> process = setupMocksForConsumingBean(statusBean);
+		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 
 		startConsumer();
 
@@ -139,21 +136,21 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 	public void testConsumeBeanRequestTerminate() throws Exception {
 		StatusBean statusBean = new StatusBean("requestTerminate");
 		statusBean.setStatus(Status.REQUEST_TERMINATE);
-		IConsumerProcess<StatusBean> process = setupMocksForConsumingBean(statusBean);
+		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 
 		startConsumer();
 
 		// verify that the bean's status was set to TERMINATED and it was broadcast on the status topic
 		// and that there was no attempt to create or run a process for it
 		verify(statusSetSubmitter, timeout(1000)).submit(statusBean);
+		verify(statusTopicPublisher, timeout(1000)).broadcast(statusBean);
 		assertThat(statusBean.getStatus(), is(Status.TERMINATED));
-		verify(statusTopicPublisher).broadcast(statusBean);
 		verifyZeroInteractions(runner, process);
 	}
 
 	public void testConsumeBeanThrowException(Exception exceptionToThrow, Status expectedStatus) throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
-		IConsumerProcess<StatusBean> process = setupMocksForConsumingBean(statusBean);
+		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 		doThrow(exceptionToThrow).when(process).start();
 
 		startConsumer();
@@ -181,10 +178,15 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 	@Test
 	public void testConsumingMultipleBeans() throws Exception {
-		List<StatusBean> beans = setupBeans();
+		List<StatusBean> beans = createAndSubmitBeans();
 		CountDownLatch latch = new CountDownLatch(beans.size());
 		List<IConsumerProcess<StatusBean>> processes = setupMockProcesses(beans, latch);
+
 		startConsumer();
+
+		for (StatusBean bean : beans) {
+			consumer.submit(bean);
+		}
 
 		boolean reachedZero = latch.await(1, TimeUnit.SECONDS); // reached zero i.e.
 		assertThat(reachedZero, is(true));

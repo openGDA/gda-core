@@ -23,12 +23,13 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
@@ -74,8 +75,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerImpl.class);
-	private static final long ONE_DAY = TimeUnit.DAYS.toMillis(1);
-
 	private String name;
 	private UUID consumerId;
 	private IEventService eventService;
@@ -87,14 +86,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private boolean pauseOnStart = false;
 	private CountDownLatch latchStart;
-	private int waitTime = 0;
+	private CountDownLatch latchStop;
 
 	private IProcessCreator<U> runner;
-	private MessageConsumer messageConsumer;
 
 	private volatile boolean active = false;
-	private Map<String, U> beanOverrideMap;
-
 	private final ProcessManager processManager = new ProcessManager();
 	/**
 	 * Concurrency design recommended by Keith Ralphs after investigating
@@ -120,6 +116,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
+	private final LinkedList<U> submissionQueue;
 
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
@@ -140,6 +137,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
 		this.consumerStatusTopicName = consumerStatusTopicName;
+
+		submissionQueue = new LinkedList<>();
 
 		connect();
 	}
@@ -234,9 +233,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (commandAckTopicPublisher != null) {
 			commandAckTopicPublisher.disconnect();
 			commandAckTopicPublisher = null;
-		}
-		if (beanOverrideMap != null) {
-			beanOverrideMap.clear();
 		}
 
 		super.disconnect();
@@ -355,116 +351,40 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		start();
 	}
 
-
-	/**
-	 * Updates the given bean on the queue to have the same status as the one given.
-	 * This is done by using a {@link QueueBrowser} to
-	 * enumerate all the beans on the queue.
-	 * @param bean
-	 * @throws EventException
-	 */
-	protected void updateQueue(U bean) throws EventException {
-		LOGGER.debug("Updating bean on queue {}", bean);
-		boolean resumeAfter = !awaitPaused;
-		Session session = null;
-		QueueBrowser queueBrowser = null;
-		try {
-			pause();
-
-			session = getSession();
-			Queue queue = session.createQueue(getSubmitQueueName());
-			queueBrowser = session.createBrowser(queue);
-
-			// Iterates through all beans on the queue to find the one with the
-			// same unique id as the given bean,
-			@SuppressWarnings("rawtypes")
-			Enumeration  e  = queueBrowser.getEnumeration();
-			while (e.hasMoreElements()) {
-				Message msg = (Message)e.nextElement();
-				TextMessage t = (TextMessage)msg;
-				String json = t.getText();
-				final StatusBean b = service.unmarshal(json, getBeanClass());
-
-				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '"+msg.getJMSMessageID()+"'");
-				Message rem = consumer.receive(EventTimingsHelper.getReceiveTimeout());
-
-				consumer.close();
-				if (b.getUniqueId().equals(bean.getUniqueId())) {
-					if (rem == null) {
-						// Something went wrong, not sure why it does this, TODO investigate
-						addBeanOverride(bean);
-						continue;
-					}
-					b.setStatus(bean.getStatus());
-					t = session.createTextMessage(service.marshal(b));
-					t.setJMSMessageID(rem.getJMSMessageID());
-					t.setJMSExpiration(rem.getJMSExpiration());
-					t.setJMSTimestamp(rem.getJMSTimestamp());
-					t.setJMSPriority(rem.getJMSPriority());
-					t.setJMSCorrelationID(rem.getJMSCorrelationID());
-				}
-
-				MessageProducer producer = session.createProducer(queue);
-				producer.send(t);
-				producer.close();
-			}
-		} catch (Exception e) {
-			throw new EventException("Cannot reorder queue!", e);
-		} finally {
-			// Only resume if it wasn't in a paused state before this update
-			if (resumeAfter) {
-				resume();
-			}
-			try {
-				if (queueBrowser != null) queueBrowser.close();
-			} catch (JMSException e) {
-				throw new EventException("Cannot close session!", e);
-			}
+	@Override
+	public List<U> getSubmissionQueue() throws EventException {
+		synchronized (submissionQueue) {
+			return new ArrayList<>(submissionQueue);
 		}
-	}
-
-	private void addBeanOverride(U bean) {
-		if (beanOverrideMap == null) {
-			beanOverrideMap = Collections.synchronizedMap(new HashMap<>());
-		}
-		beanOverrideMap.put(bean.getUniqueId(), bean);
 	}
 
 	@Override
-	public List<U> getSubmissionQueue() throws EventException {
-		return getQueue(getSubmitQueueName(), beanClass);
+	public List<U> getRunningAndCompleted() throws EventException {
+		final List<U> statusSet = getStatusSet();
+		statusSet.sort((first, second) -> Long.signum(first.getSubmissionTime() - second.getSubmissionTime()));
+		return statusSet;
 	}
 
-	protected <T> List<T> getQueue(String queueName, Class<T> beanClass) throws EventException {
-		QueueReader<T> reader = new QueueReader<>(getConnectorService());
+	private List<U> getStatusSet() throws EventException {
+		QueueReader<U> reader = new QueueReader<>(getConnectorService());
 		try {
-			return reader.getBeans(uri, queueName, beanClass);
+			return reader.getBeans(uri, getStatusSetName(), beanClass);
 		} catch (Exception e) {
 			throw new EventException("Cannot get the beans for queue " + getSubmitQueueName(), e);
 		}
 	}
 
 	@Override
-	public List<U> getRunningAndCompleted() throws EventException {
-		final List<U> statusSet = getQueue(getStatusSetName(), beanClass);
-		statusSet.sort((first, second) -> Long.signum(first.getSubmissionTime() - second.getSubmissionTime()));
-		return statusSet;
-	}
-
-	@Override
 	public void clearQueue() throws EventException {
-		// we need to pause the consumer before we clear the submission queue
-		final String queueName = getSubmitQueueName();
-		doWhilePaused(() -> { doClearQueue(queueName); return null; });
+		synchronized (submissionQueue) {
+			submissionQueue.clear();
+		}
 	}
 
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
-		doClearQueue(getStatusSetName());
-	}
-
-	private void doClearQueue(String queueName) throws EventException {
-		LOGGER.info("Clearing queue {}", queueName);
+		final String queueName = getStatusSetName();
+		LOGGER.info("Clearing status queue {}", queueName);
 		QueueConnection qCon = null;
 		try {
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
@@ -604,18 +524,22 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public boolean moveForward(U bean) throws EventException {
-		return doWhilePaused(() -> doReorder(bean, 1));
+		synchronized (submissionQueue) {
+			return doReorder(bean, 1);
+		}
 	}
 
 	@Override
 	public boolean moveBackward(U bean) throws EventException {
-		return doWhilePaused(() -> doReorder(bean, -1));
+		synchronized (submissionQueue) {
+			return doReorder(bean, -1);
+		}
 	}
 
 	private boolean doReorder(U bean, int amount) throws EventException {
-		// We are paused, read the queue
 		List<U> submitted = getSubmissionQueue();
-		if (submitted==null || submitted.isEmpty())
+
+		if (submitted.isEmpty())
 			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
 
 		Collections.reverse(submitted); // It comes out with the head at 0 and tail at size-1
@@ -646,38 +570,33 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
 
-		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
-			for (U u : submitted)
-				submitter.submit(u);
-		}
+		submissionQueue.addAll(submitted);
 
 		return true; // It was reordered
 	}
 
 	@Override
 	public void submit(U bean) throws EventException {
-		doWhilePaused(() -> doSubmit(bean));
-	}
-
-	private boolean doSubmit(U bean) throws EventException {
-		// TODO: temporary submit method until the queue is brought into memory
-		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
-			submitter.submit(bean);
+		synchronized (submissionQueue) {
+			submissionQueue.add(bean);
 		}
-		return true;
 	}
 
 	@Override
 	public boolean remove(U bean) throws EventException {
-		return doWhilePaused(() -> doRemove(bean, getSubmitQueueName()));
+		synchronized (submissionQueue) {
+			Optional<U> optBean = findBeanWithId(submissionQueue, bean.getUniqueId());
+			if (optBean.isPresent()) {
+				submissionQueue.remove(optBean.get());
+				return true;
+			}
+			return false;
+		}
 	}
 
 	@Override
-	public void removeCompleted(U bean) throws EventException {
-		doRemove(bean, getStatusSetName());
-	}
-
-	private boolean doRemove(U beanToRemove, String queueName) throws EventException {
+	public boolean removeCompleted(U bean) throws EventException {
+		final String queueName = getStatusSetName();
 		QueueConnection connection = null;
 		QueueSession session = null;
 		final QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
@@ -698,7 +617,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					TextMessage textMsg = (TextMessage) message;
 
 					final U beanFromQueue = service.unmarshal(textMsg.getText(), null);
-					if (beanFromQueue != null && isForSameObject(beanFromQueue, beanToRemove)) {
+					if (beanFromQueue != null && isForSameObject(beanFromQueue, bean)) {
 						jmsMessageId = textMsg.getJMSMessageID();
 					}
 				}
@@ -712,18 +631,18 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				consumer.close();
 				if (message == null) {
 					// It might have been removed ok
-					LOGGER.warn("Could not remove bean (JMSMessageID={}) from queue {}. Bean: {}", jmsMessageId, queueName, beanToRemove);
+					LOGGER.warn("Could not remove bean (JMSMessageID={}) from queue {}. Bean: {}", jmsMessageId, queueName, bean);
 					return false;
 				} else {
-					LOGGER.info("Removed bean (JMSMessageId={} from queue", beanToRemove);
+					LOGGER.info("Removed bean (JMSMessageId={} from queue", bean);
 					return true;
 				}
 			} else {
-				LOGGER.warn("Could not find bean to remove in queue {}. Bean: {}", queueName, beanToRemove);
+				LOGGER.warn("Could not find bean to remove in queue {}. Bean: {}", queueName, bean);
 				return false;
 			}
 		} catch (Exception ne) {
-			throw new EventException("Cannot remove item " + beanToRemove, ne);
+			throw new EventException("Cannot remove item " + bean, ne);
 
 		} finally {
 			try {
@@ -738,39 +657,20 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	@Override
-	public boolean replace(U bean) throws EventException {
-		return doWhilePaused(() -> doReplace(bean));
-	}
-
-	private boolean doReplace(U bean) throws EventException {
-		// We are paused, read the queue
-		List<U> submitted = getSubmissionQueue();
-		if (submitted == null || submitted.isEmpty())
-			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
-
-		boolean found = false;
-		for (int i = 0; i < submitted.size(); i++) {
-			U u = submitted.get(i);
-			if (u.getUniqueId().equals(bean.getUniqueId())) {
-				found = true;
-				submitted.set(i, bean);
-				break;
+	public boolean replace(U newBean) throws EventException {
+		synchronized (submissionQueue) {
+			ListIterator<U> iter = submissionQueue.listIterator();
+			while (iter.hasNext()) {
+				U bean = iter.next();
+				if (newBean.getUniqueId().equals(bean.getUniqueId())) {
+					iter.set(newBean);
+					return true;
+				}
 			}
 		}
-		if (!found)
-			throw new EventException("Cannot find bean '" + bean.getName() + "' in submission queue!\nIt might be running now.");
 
-		clearQueue();
-
-		try (ISubmitter<U> submitter = eventService.createSubmitter(getUri(), getSubmitQueueName())) {
-			for (U u : submitted) {
-				submitter.submit(u);
-			}
-		}
-		return true; // It was reordered
+		return false;
 	}
-
-
 
 	@Override
 	public void setRunner(IProcessCreator<U> runner) throws EventException {
@@ -783,6 +683,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (isActive()) throw new IllegalStateException("Consumer for queue " + getSubmitQueueName() + " is already running");
 
 		latchStart = new CountDownLatch(1);
+		latchStop = new CountDownLatch(1);
 		final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
 			Thread thread = Executors.defaultThreadFactory().newThread(r);
 			thread.setName("Consumer Thread " + getName());
@@ -801,7 +702,12 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 */
 	@Override
 	public void awaitStart() throws InterruptedException {
-		if (latchStart!=null) latchStart.await();
+		if (latchStart != null) latchStart.await();
+	}
+
+	@Override
+	public void awaitStop() throws InterruptedException {
+		if (latchStop != null) latchStop.await();
 	}
 
 	@Override
@@ -861,7 +767,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				if (ref != null) {
 					manageProcess(ref.get(), command);
 				} else {
-					updateQueue(optBean.get());
+					replace(optBean.get());
 				}
 			}
 		}
@@ -906,7 +812,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 					.toArray(new WeakReference[processMap.size()]);
 			for (WeakReference<IConsumerProcess<U>> wr : wra) {
 				IConsumerProcess<U> process = wr.get();
-				if (process != null) {
+				if (process != null && !process.getBean().getStatus().isFinal()) {
 					try {
 						process.terminate();
 					} catch (Exception e) {
@@ -936,6 +842,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				LOGGER.error("Cannot stop consumer", e1);
 			}
 		}
+
+		if (latchStop != null) latchStop.countDown();
 	}
 
 	/**
@@ -952,7 +860,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		// run the main event loop until setActive is false
 		try {
 			while (isActive()) {
-				consumeNextMessage();
+				consume();
 			}
 		} catch (Exception e) {
 			LOGGER.warn("Consumer {} exiting run() method with exception", getName(), e);
@@ -967,13 +875,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	 * <li>Consumes the next message (see {@link #consume()});</li>
 	 * <li>Handles any exception thrown by consuming the message, see {@link #processException(Exception)}.</li>
 	 * </ol>
-	 * @throws EventException
 	 */
-	private void consumeNextMessage() throws EventException {
+	private void consume() {
 		try {
 			checkPaused(); // blocks until not paused.
 			if (isActive()) { // isActive could have been set to false while we were paused
-				consume();
+				final U bean = getNextBean();
+				if (bean == null) {
+					Thread.sleep(20); // TODO use constant for this sleep?
+				} else {
+					executeBean(bean);
+				}
 			}
 		} catch (Exception e) {
 			// if processException returns false, break out of the loop to exit the consumer
@@ -981,9 +893,14 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 	}
 
+	private U getNextBean() {
+		synchronized (submissionQueue) {
+			return submissionQueue.poll();
+		}
+	}
+
 	private void init() throws EventException {
 		LOGGER.debug("Initializing consumer for queue {}", getSubmitQueueName());
-		this.waitTime = 0;
 
 		if (runner == null) {
 			throw new IllegalStateException("Cannot start a consumer without a runner to run things!");
@@ -1005,71 +922,21 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (latchStart!=null) latchStart.countDown();
 	}
 
-	private void consume() throws Exception {
-		// Consumes messages from the queue.
-		Message m = getMessage(uri, getSubmitQueueName());
-		if (m != null) {
-			waitTime = 0; // We got a message
-
-			// TODO FIXME Check if we have the max number of processes
-			// exceeded and wait until we don't...
-			TextMessage t = (TextMessage) m;
-
-			final String json = t.getText();
-			final U bean = service.unmarshal(json, getBeanClass());
-			executeBean(bean);
-		}
-	}
-
 	/**
 	 * Processes an exception that occurred during the {@link #run()} loop.
 	 * @param e exception
 	 * @return <code>true</code> to keep processing messages, <code>false</code> to exit
 	 * @throws EventException
 	 */
-	private boolean processException(Exception e) throws EventException {
+	private boolean processException(Exception e) {
 		LOGGER.debug("Processing exception in consumer", e);
 
-		// if error occurred deserializing the bean, log a specific message and don't fail even if not durable
-		if (e.getClass().getSimpleName().contains("Json") || e.getClass().getSimpleName().endsWith("UnrecognizedPropertyException")) {
-			LOGGER.error("Could not deserialize bean.", e);
-			return true;
-		}
-
-		// normal error case, log error message and continue if
-		if (e instanceof EventException || e instanceof InterruptedException) {
-			if (Thread.interrupted()) {
-				LOGGER.error("Consumer was interrupted consuming a message", e);
-				return false;
-			} else {
-				LOGGER.error("Cannot consume message ", e);
-				return true;
-			}
-		}
-
-		// TODO: below assumes some connection problem with activemq. why would any remaining
-		// exception be a connection problem?
-		LOGGER.warn("{} ActiveMQ connection to {} lost.", getName(), uri, e);
-		LOGGER.warn("We will check every 2 seconds for 24 hours, until it comes back.");
-		final long retryInterval = EventTimingsHelper.getConnectionRetryInterval();
-		try {
-			if (Thread.interrupted()) return false;
-			// Wait for 2 seconds (default time)
-			Thread.sleep(retryInterval);
-		} catch (InterruptedException ie) {
-			throw new EventException("The consumer was unable to wait!", ie);
-		}
-
-		waitTime += retryInterval;
-
-		// Exits if wait time more than one day
-		if (waitTime > ONE_DAY) {
-			LOGGER.warn("ActiveMQ permanently lost. {} will now exit", getName());
-			disconnect();
+		if (e instanceof InterruptedException) {
+			LOGGER.error("Consumer was interrupted", e);
 			return false;
 		}
 
-		LOGGER.error("Cannot consume message ", e);
+		LOGGER.error("Cannot consume bean", e);
 		return true;
 	}
 
@@ -1128,49 +995,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		return awaitPaused;
 	}
 
-	/**
-	 * Performs a task while the queue is paused.
-	 * @param task task to perform
-	 * @return the value returned by the given task
-	 * @throws EventException wrapping any exception thrown by the given task
-	 */
-	protected <T> T doWhilePaused(Callable<T> task) throws EventException {
-		final boolean requiresPause = !isPaused();
-
-		try {
-			if (requiresPause) {
-				pause();
-			}
-
-			return task.call();
-		} catch (EventException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new EventException(e);
-		} finally {
-			if (requiresPause) {
-				resume();
-			}
-		}
-	}
-
 	@Override
 	public void pause() throws EventException {
 		awaitPaused = true;
-		closeMessageConsumer(); // required so that remove(), reorder, etc. work as expected. See DAQ-1453.
 		LOGGER.info("Consumer signalled to pause {}", getName());
 		notifyStatusChanged();
-	}
-
-	private void closeMessageConsumer() throws EventException {
-		try {
-			if (messageConsumer != null) {
-				messageConsumer.close();
-				messageConsumer = null;
-			}
-		} catch (JMSException e) {
-			throw new EventException("Could not close JMS consumer " + getName(), e);
-		}
 	}
 
 	@Override
@@ -1228,14 +1057,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	private void executeBean(U bean) throws EventException, InterruptedException {
 		final Instant startTime = Instant.now();
-		// If the bean changed after being submitted to the submission queue, and that change was published to the
-		// status topic, the bean we've consumed from the submission queue will be out of date, but the override map will
-		// have the updated bean, so use that instead
-		if (beanOverrideMap != null && beanOverrideMap.containsKey(bean.getUniqueId())) {
-			U o = beanOverrideMap.remove(bean.getUniqueId());
-			bean.setStatus(o.getStatus());
-		}
-
 		// We record the bean in the status queue
 		LOGGER.trace("Moving {} to {}", bean, getSubmitQueueName());
 		statusSetSubmitter.submit(bean);
@@ -1293,25 +1114,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		}
 	}
 
-
-	private Message getMessage(URI uri, String submitQName) throws JMSException {
-		if (this.messageConsumer == null) {
-			this.messageConsumer = createMessageConsumer(uri, submitQName);
-		}
-		return messageConsumer.receive(EventTimingsHelper.getReceiveTimeout());
-	}
-
-	private MessageConsumer createMessageConsumer(URI uri, String submitQName) throws JMSException {
-
-		Session session = getSession(); // TODO: should call getQueueSession after createQueue to get this?
-		Queue queue = createQueue(submitQName);
-
-		final MessageConsumer consumer = session.createConsumer(queue);
-
-		LOGGER.info("Consumer for queue {} successfully created connection to ActiveMQ using uri {}.", getName(), uri);
-
-		return consumer;
-	}
 
 	@Override
 	public void pauseJob(U bean) throws EventException {

@@ -101,7 +101,7 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	 * @throws EventException
 	 */
 	boolean moveForward(T bean) throws EventException;
-	
+
 	/**
 	 * Moves the given bean towards the tail of the submission queue if possible,
 	 * i.e. it will be processed later
@@ -121,7 +121,8 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	 * is removed.
 	 *
 	 * @param bean
-	 * @return
+	 * @return <code>true</code> if the bean was removed, <code>false</code> otherwise,
+	 *    i.e. the bean was not present
 	 * @throws EventException
 	 */
 	boolean remove(T bean) throws EventException;
@@ -131,8 +132,10 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	 * and completed jobs (the status set).
 	 *
 	 * @param bean bean to remove
+	 * @return <code>true</code> if the bean was removed, <code>false</code> otherwise,
+	 *    i.e. the bean was not present
 	 */
-	public void removeCompleted(T bean) throws EventException;
+	public boolean removeCompleted(T bean) throws EventException;
 
 	/**
 	 * Tries to replace the bean from the submission queue if it is
@@ -143,7 +146,8 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	 * is replace.
 	 *
 	 * @param bean
-	 * @return
+	 * @return <code>true</code> if the bean was replaced, <code>false</code> otherwise,
+	 *    i.e. the bean was not present
 	 * @throws EventException
 	 */
 	boolean replace(T bean) throws EventException;

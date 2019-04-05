@@ -21,6 +21,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.servlet.IConsumerServlet;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.slf4j.Logger;
@@ -73,6 +74,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 	protected String commandAckTopic = EventConstants.ACK_TOPIC;
 
 	protected IConsumer<T> consumer;
+	private IJmsQueueReader<T> jmsQueueReader;
 	private boolean isConnected;
 
 	protected AbstractConsumerServlet() {
@@ -104,8 +106,13 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 			consumer.cleanUpCompleted();
 
 		consumer.start();
+
+		// start a queue reader for
+		jmsQueueReader = eventService.createJmsQueueReader(new URI(getBroker()), getSubmitQueue());
+		jmsQueueReader.start();
+
 		isConnected = true;
-		logger.info("Started " + getClass().getSimpleName());
+		logger.info("Started {} for queue {}", getClass().getSimpleName(), getSubmitQueue());
 	}
 
 	protected abstract String getName();
@@ -116,6 +123,7 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		if (!isConnected)
 			return; // Nothing to disconnect
 		eventService.disposeConsumers();
+		jmsQueueReader.disconnect();
 	}
 
 	public IConsumer<T> getConsumer() {

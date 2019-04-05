@@ -153,8 +153,8 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public void removeCompleted(U bean) throws EventException {
-		sendCommand(Command.REMOVE_COMPLETED, bean);
+	public boolean removeCompleted(U bean) throws EventException {
+		return sendCommand(Command.REMOVE_COMPLETED, bean) == Boolean.TRUE;
 	}
 
 	@Override
@@ -193,6 +193,12 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 
 	@Override
 	public void awaitStart() throws InterruptedException {
+		// This method cannot be performed via a proxy
+		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
+	}
+
+	@Override
+	public void awaitStop() throws InterruptedException {
 		// This method cannot be performed via a proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");
 	}

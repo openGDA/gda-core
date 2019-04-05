@@ -70,7 +70,7 @@ public class ProcessManagementTest extends AbstractNewConsumerTest {
 		MockitoAnnotations.initMocks(this); // requried as this test runs with Parameterized instead of MockitoJUnitRunner
 		super.setUp();
 
-		bean = setupBeans("test").get(0);
+		bean = createAndSubmitBeans("test").get(0);
 
 		// set the waiting answer to be called when the process for the bean is started
 		when(runner.createProcess(bean, statusTopicPublisher)).thenReturn(process);

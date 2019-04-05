@@ -9,6 +9,7 @@ import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.server.servlet.AbstractConsumerServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -38,6 +39,7 @@ public class StartServerTest extends AbstractServletTest {
 	}
 
 	@Test
+	@Ignore("Reinstate when queue persistence is reintroduced (DAQ-1704)")
 	public void runServletSomethingInQueue() throws Exception {
 		// We do not start it!
 		servlet = new ScanServlet();

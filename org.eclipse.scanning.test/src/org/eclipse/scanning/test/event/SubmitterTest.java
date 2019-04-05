@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -46,6 +47,7 @@ public class SubmitterTest extends BrokerTest {
 	private ISubmitter<StatusBean> submitter;
 	private ISubscriber<IBeanListener<StatusBean>> subscriber;
 	private IConsumer<StatusBean> consumer;
+	private IJmsQueueReader<StatusBean> jmsQueueReader;
 
 	@Before
 	public void start() throws Exception {
@@ -59,6 +61,9 @@ public class SubmitterTest extends BrokerTest {
 		consumer = eventService.createConsumer(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
 		consumer.clearQueue();
+
+		jmsQueueReader = eventService.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);
+		jmsQueueReader.start();
 
 		subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
 
@@ -74,6 +79,7 @@ public class SubmitterTest extends BrokerTest {
 		submitter.disconnect();
 
 		subscriber.disconnect();
+		jmsQueueReader.disconnect();
 	}
 
 	private StatusBean createStatusBean() {

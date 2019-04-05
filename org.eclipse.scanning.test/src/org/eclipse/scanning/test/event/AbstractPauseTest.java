@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.core.IConsumer;
+import org.eclipse.scanning.api.event.core.IJmsQueueReader;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -44,14 +45,16 @@ import org.junit.Test;
 public class AbstractPauseTest extends BrokerTest {
 
 
-	protected IEventService          eservice;
+	protected IEventService eservice;
 	protected ISubmitter<StatusBean> submitter;
-	protected IConsumer<StatusBean>  consumer;
+	protected IJmsQueueReader<StatusBean> jmsQueueReader;
+	protected IConsumer<StatusBean> consumer;
 
 
 	@After
 	public void dispose() throws EventException {
 		submitter.disconnect();
+		jmsQueueReader.disconnect();
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();
 		consumer.disconnect();
@@ -225,6 +228,8 @@ public class AbstractPauseTest extends BrokerTest {
 			statusBean.setUserName(String.valueOf(i));
 			submitter.submit(statusBean);
 		}
+
+		Thread.sleep(500);
 
 		consumer.moveForward(statusBean);
 

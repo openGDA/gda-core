@@ -20,40 +20,24 @@ package org.eclipse.scanning.test.event;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-
-import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.consumer.QueueCommandBean;
 import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
-import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.ConsumerProxy;
-import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -90,14 +74,6 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		getConsumer().restart();
 	}
 
-	protected void doClearQueue(boolean clearCompleted) throws Exception {
-		if (clearCompleted) {
-			getConsumer().clearRunningAndCompleted();
-		} else {
-			getConsumer().clearQueue();
-		}
-	}
-
 	private void verifyJobsBefore(InOrder inOrder, List<StatusBean> beans, List<IConsumerProcess<StatusBean>> processes,
 			final int waitingProcessNum) throws EventException, InterruptedException {
 		for (int i = 0; i < beans.size(); i++) {
@@ -127,7 +103,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 	@Test
 	public void testPauseResume() throws Exception {
 		final int waitingProcessNum = 2;
-		List<StatusBean> beans = setupBeans();
+		List<StatusBean> beans = createAndSubmitBeans();
 
 		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
@@ -166,7 +142,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 	@Test
 	public void testStop() throws Exception {
 		final int waitingProcessNum = 2;
-		List<StatusBean> beans = setupBeans();
+		List<StatusBean> beans = createAndSubmitBeans();
 
 		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
@@ -195,7 +171,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 	@Test
 	public void testRestart() throws Exception {
 		final int waitingProcessNum = 2;
-		List<StatusBean> beans = setupBeans();
+		List<StatusBean> beans = createAndSubmitBeans();
 
 		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
 		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
@@ -221,82 +197,9 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		verifyNoMoreInteractions(runner, consumerStatusListener);
 	}
 
-	@Test
-	public void testClearQueue() throws Exception {
-		testClearQueue(false);
-	}
-
-	@Test
-	public void testClearCompleted() throws Exception {
-		testClearQueue(true);
-	}
-
 	private InOrder inOrder(Object... objs) {
 		return Mockito.inOrder(Arrays.stream(objs).flatMap(
 				obj -> (obj instanceof Collection ? ((Collection<?>) obj).stream() : Stream.of(obj))).toArray());
-	}
-
-	private void testClearQueue(boolean clearCompleted) throws Exception {
-		final String queueName = clearCompleted ? consumer.getStatusSetName() : consumer.getSubmitQueueName();
-
-		// Set up mocks for publishing the pause bean
-		// TODO: mattd 2018-08-15: Note it's not necessary to send a pause bean when cleaning the status set,
-		// but the existing implementation does so anyway. It's ignored by the consumer as the queue name is
-		// not that of its submission queue. I intend to fix this in subsequent commit as part of bringing the
-		// queue in memory
-		IPublisher<QueueCommandBean> pauseBeanPublisher = mock(IPublisher.class);
-		when(eventService.createPublisher(uri, EventConstants.CMD_TOPIC)).thenReturn(
-				(IPublisher<Object>) (IPublisher<?>) pauseBeanPublisher); // TODO why do we need a double cast?
-
-		startConsumer();
-
-		// Set up mocks for creating the QueueBrowser
-		QueueConnectionFactory connectionFactory = mock(QueueConnectionFactory.class);
-		when(eventConnectorService.createConnectionFactory(uri)).thenReturn(connectionFactory);
-		QueueConnection connection = mock(QueueConnection.class);
-		when(connectionFactory.createQueueConnection()).thenReturn(connection);
-		QueueSession session = mock(QueueSession.class);
-		when(connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
-		Queue queue = mock(Queue.class);
-		when(session.createQueue(queueName)).thenReturn(queue);
-		QueueBrowser queueBrowser = mock(QueueBrowser.class);
-		when(session.createBrowser(queue)).thenReturn(queueBrowser);
-
-		// set up the mocks for the enumeration of the messages and receiving them
-		final int numElements = 5;
-		final int receiveTimeout = EventTimingsHelper.getReceiveTimeout();
-		List<Message> messages = new ArrayList<>(numElements);
-		List<MessageConsumer> msgConsumers = new ArrayList<>(numElements);
-		for (int i = 0; i < numElements; i++) {
-			Message message = mock(Message.class);
-			when(message.getJMSMessageID()).thenReturn("msg" + Integer.toString(i + 1));
-			messages.add(message);
-			MessageConsumer msgConsumer = mock(MessageConsumer.class);
-			when(session.createConsumer(queue, "JMSMessageID = 'msg" + (i + 1) + "'")).thenReturn(msgConsumer);
-			when(msgConsumer.receive(receiveTimeout)).thenReturn(message);
-			msgConsumers.add(msgConsumer);
-		}
-		when(queueBrowser.getEnumeration()).thenReturn(new Vector<>(messages).elements());
-
-		doClearQueue(clearCompleted);
-
-		InOrder inOrder = inOrder(consumerStatusListener, connection, session, msgConsumers);
-
-		// verify the pause bean was sent if we're clearing the submission queue
-		if (!clearCompleted) {
-			inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.PAUSED);
-		}
-
-		// verify the messages were consumed from the queue
-		inOrder.verify(connection).start();
-		for (int i = 0; i < numElements; i++) {
-			inOrder.verify(session).createConsumer(queue, "JMSMessageID = 'msg" + (i + 1) + "'");
-			inOrder.verify(msgConsumers.get(i)).receive(receiveTimeout);
-		}
-
-		if (!clearCompleted) {
-			inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
-		}
 	}
 
 }
