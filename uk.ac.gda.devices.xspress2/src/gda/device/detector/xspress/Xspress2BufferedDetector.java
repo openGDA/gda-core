@@ -18,6 +18,7 @@
 
 package gda.device.detector.xspress;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -224,6 +225,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		// Try to get name of nexus file written by NexusDataWriter
 		String scanNexusFilename = getFilenameForXspress();
 		if (StringUtils.isEmpty(scanNexusFilename)) {
+			return;
+		}
+
+		// Only append data to existing file created by NexusDataWriter (i.e. don't create a new one).
+		if (!Paths.get(scanNexusFilename).toFile().exists()) {
 			return;
 		}
 
