@@ -19,13 +19,10 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,6 +65,8 @@ import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.event.util.IModifiableIdQueue;
+import org.eclipse.scanning.event.util.SynchronizedModifiableIdQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +115,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
-	private final LinkedList<U> submissionQueue;
+	private final IModifiableIdQueue<U> submissionQueue;
 
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
@@ -138,7 +137,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.commandAckTopicName = commandAckTopicName;
 		this.consumerStatusTopicName = consumerStatusTopicName;
 
-		submissionQueue = new LinkedList<>();
+		submissionQueue = new SynchronizedModifiableIdQueue<>();
 
 		connect();
 	}
@@ -376,9 +375,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public void clearQueue() throws EventException {
-		synchronized (submissionQueue) {
-			submissionQueue.clear();
-		}
+		submissionQueue.clear();
 	}
 
 	@Override
@@ -524,74 +521,22 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public boolean moveForward(U bean) throws EventException {
-		synchronized (submissionQueue) {
-			return doReorder(bean, 1);
-		}
+		return submissionQueue.moveUp(bean);
 	}
 
 	@Override
 	public boolean moveBackward(U bean) throws EventException {
-		synchronized (submissionQueue) {
-			return doReorder(bean, -1);
-		}
-	}
-
-	private boolean doReorder(U bean, int amount) throws EventException {
-		List<U> submitted = getSubmissionQueue();
-
-		if (submitted.isEmpty())
-			throw new EventException("There is nothing submitted waiting to be run\n\nPerhaps the job started to run.");
-
-		Collections.reverse(submitted); // It comes out with the head at 0 and tail at size-1
-		boolean found = false;
-		int index = -1;
-		for (U u : submitted) {
-			index++;
-			if (u.getUniqueId().equals(bean.getUniqueId())) {
-				found=true;
-				break;
-			}
-		}
-		if (!found) throw new EventException("Cannot find bean '"+bean.getName()+"' in submission queue!\nIt might be running now.");
-
-		if (index<1 && amount<0) throw new EventException("'"+bean.getName()+"' is already at the tail of the submission queue.");
-		if (index+amount>submitted.size()-1) throw new EventException("'"+bean.getName()+"' is already at the head of the submission queue.");
-
-		clearQueue();
-
-		U existing = submitted.get(index);
-		if (amount>0) {
-			submitted.add(index+amount+1, existing);
-			submitted.remove(index);
-		} else {
-			submitted.add(index+amount, existing);
-			submitted.remove(index+1);
-		}
-
-		Collections.reverse(submitted); // It goes back with the head at 0 and tail at size-1
-
-		submissionQueue.addAll(submitted);
-
-		return true; // It was reordered
+		return submissionQueue.moveDown(bean);
 	}
 
 	@Override
 	public void submit(U bean) throws EventException {
-		synchronized (submissionQueue) {
-			submissionQueue.add(bean);
-		}
+		submissionQueue.add(bean);
 	}
 
 	@Override
 	public boolean remove(U bean) throws EventException {
-		synchronized (submissionQueue) {
-			Optional<U> optBean = findBeanWithId(submissionQueue, bean.getUniqueId());
-			if (optBean.isPresent()) {
-				submissionQueue.remove(optBean.get());
-				return true;
-			}
-			return false;
-		}
+		return submissionQueue.remove(bean);
 	}
 
 	@Override
@@ -658,18 +603,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public boolean replace(U newBean) throws EventException {
-		synchronized (submissionQueue) {
-			ListIterator<U> iter = submissionQueue.listIterator();
-			while (iter.hasNext()) {
-				U bean = iter.next();
-				if (newBean.getUniqueId().equals(bean.getUniqueId())) {
-					iter.set(newBean);
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return submissionQueue.replace(newBean);
 	}
 
 	@Override
@@ -894,9 +828,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	private U getNextBean() {
-		synchronized (submissionQueue) {
-			return submissionQueue.poll();
-		}
+		return submissionQueue.poll();
 	}
 
 	private void init() throws EventException {
@@ -951,8 +883,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			return;
 		}
 
-		List<U> items = getSubmissionQueue();
-		if (items != null && !items.isEmpty()) {
+		if (!submissionQueue.isEmpty()) {
 			LOGGER.debug("Pausing consumer {} on start ", getName());
 			pause(); // note, sets the awaitPause flag, this thread continues
 
@@ -1199,6 +1130,5 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	public void setBeanClass(Class<U> beanClass) {
 		this.beanClass = beanClass;
 	}
-
 
 }
