@@ -21,6 +21,7 @@ package org.eclipse.scanning.test.event;
 import static org.eclipse.scanning.test.util.LambdaUtils.wrap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -57,7 +58,6 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 	public void testConsumerInitialized() {
 		assertThat(consumer, is(notNullValue()));
 		assertThat(consumer.getSubmitQueueName(), is(EventConstants.SUBMISSION_QUEUE));
-		assertThat(consumer.getStatusSetName(), is(EventConstants.STATUS_SET));
 		assertThat(consumer.getStatusTopicName(), is(EventConstants.STATUS_TOPIC));
 		assertThat(consumer.getCommandTopicName(), is(EventConstants.CMD_TOPIC));
 		assertThat(consumer.getConsumerStatusTopicName(), is(EventConstants.CONSUMER_STATUS_TOPIC));
@@ -67,7 +67,6 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		assertThat(consumer.isActive(), is(false));
 
 		// verify the connections made in the connect() method
-		verify(eventService).createSubmitter(uri, EventConstants.STATUS_SET);
 		verify(eventService).createPublisher(uri, EventConstants.STATUS_TOPIC);
 		verify(eventService).createSubscriber(uri, EventConstants.CMD_TOPIC);
 	}
@@ -127,9 +126,12 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 		startConsumer();
 
-		verify(statusSetSubmitter, timeout(1000)).submit(statusBean);
-		verify(runner).createProcess(statusBean, statusTopicPublisher);
-		verify(process).start();
+		// verify that the consumer created and started a process for the bean
+		verify(runner, timeout(1000)).createProcess(statusBean, statusTopicPublisher);
+		verify(process, timeout(1000)).start();
+
+		// check that the bean is in the set of running and completed jobs
+		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
 	}
 
 	@Test
@@ -142,13 +144,15 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 		// verify that the bean's status was set to TERMINATED and it was broadcast on the status topic
 		// and that there was no attempt to create or run a process for it
-		verify(statusSetSubmitter, timeout(1000)).submit(statusBean);
 		verify(statusTopicPublisher, timeout(1000)).broadcast(statusBean);
 		assertThat(statusBean.getStatus(), is(Status.TERMINATED));
 		verifyZeroInteractions(runner, process);
+
+		// check that the bean is in the set of running and completed jobs
+		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
 	}
 
-	public void testConsumeBeanThrowException(Exception exceptionToThrow, Status expectedStatus) throws Exception {
+	private void testConsumeBeanThrowException(Exception exceptionToThrow, Status expectedStatus) throws Exception {
 		StatusBean statusBean = new StatusBean("bean");
 		IConsumerProcess<StatusBean> process = submitBeanAndSetupMockProcess(statusBean);
 		doThrow(exceptionToThrow).when(process).start();
@@ -156,14 +160,15 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 		startConsumer();
 
 		// verify that the consumer created and started a process for the bean
-		verify(statusSetSubmitter, timeout(1000)).submit(statusBean);
-		verify(runner).createProcess(statusBean, statusTopicPublisher);
-		verify(process).start();
+		verify(runner, timeout(1000)).createProcess(statusBean, statusTopicPublisher);
+		verify(process, timeout(1000)).start();
 
 		// verify that the bean's status was set to FAILED and was broadcast on the status topic
 		verify(statusTopicPublisher, timeout(1000)).broadcast(statusBean);
 		assertThat(statusBean.getStatus(), is(expectedStatus));
 		assertThat(statusBean.getMessage(), is(exceptionToThrow.getMessage()));
+
+		assertThat(consumer.getRunningAndCompleted(), contains(statusBean));
 	}
 
 	@Test

@@ -19,20 +19,6 @@ import org.eclipse.scanning.api.event.status.Status;
 public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 
 	/**
-	 * The string to define the queue for storing status of scans.
-	 *
-	 * @return
-	 */
-	public String getStatusSetName();
-
-	/**
-	 * The string to define the queue for storing status of scans.
-	 * @param topic
-	 * @throws EventException
-	 */
-	public void setStatusSetName(String queueName) throws EventException;
-
-	/**
 	 * The string to define the queue for submitting scan objects to.
 	 *
 	 * @return

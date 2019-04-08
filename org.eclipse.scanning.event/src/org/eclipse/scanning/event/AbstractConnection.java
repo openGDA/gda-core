@@ -37,7 +37,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	// set the queue and topic names to their defaults
 	protected String submitQueueName  = EventConstants.SUBMISSION_QUEUE;
-	protected String statusQueueName  = EventConstants.STATUS_SET;
 	protected String statusTopicName  = EventConstants.STATUS_TOPIC;
 
 	protected IEventConnectorService service;
@@ -56,7 +55,6 @@ abstract class AbstractConnection implements IURIConnection {
 			IEventConnectorService service) {
 		this(uri, service);
 		this.submitQueueName = submitQueueName;
-		this.statusQueueName = statusQueueName;
 		this.statusTopicName = statusTopicName;
 	}
 
@@ -131,14 +129,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	public void setSubmitQueueName(String submitQueueName) {
 		this.submitQueueName = submitQueueName;
-	}
-
-	public String getStatusSetName() {
-		return statusQueueName;
-	}
-
-	public void setStatusSetName(String statusQueueName) {
-		this.statusQueueName = statusQueueName;
 	}
 
 	public String getStatusTopicName() {

@@ -43,7 +43,6 @@ import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -198,18 +197,26 @@ public class QueueManagementTest extends BrokerTest {
 	private List<StatusBean> createAndSubmitBeans() throws EventException {
 		final List<String> beanNames = Arrays.asList(new String[] { "one", "two", "three", "four", "five" });
 		final List<StatusBean> beans = beanNames.stream().map(this::createBean).collect(toList());
-		for (StatusBean bean : beans) {
-			consumer.submit(bean);
-		}
+		submitBeans(beans);
 
 		// check they've been submitted properly (check names for easier to read error message)
 		assertThat(getNames(consumer.getSubmissionQueue()), is(equalTo(getNames(beans))));
 		return beans;
 	}
 
+	private void submitBeans(final List<StatusBean> beans) throws EventException {
+		for (StatusBean bean : beans) {
+			consumer.submit(bean);
+		}
+	}
+
 	private List<StatusBean> createSubmitAndRunBeans() throws Exception {
 		final List<StatusBean> beans = createAndSubmitBeans();
+		runBeans(beans);
+		return beans;
+	}
 
+	private void runBeans(List<StatusBean> beans) throws Exception {
 		if (startConsumer) {
 			processFactory.releaseInitialProcess(); // the consumer is already started
 		} else {
@@ -240,8 +247,6 @@ public class QueueManagementTest extends BrokerTest {
 			consumer.stop(); // stop the consumer so that it is not running for the main test
 			consumer.awaitStop();
 		}
-
-		return beans;
 	}
 
 	private StatusBean createBean(String name) {
@@ -439,38 +444,42 @@ public class QueueManagementTest extends BrokerTest {
 	@Test
 	public void testCleanUpCompleted() throws Exception {
 		if (useProxy) return; // there's no command bean for cleaning up the queue, it only needs to be done on the server side
+		// Arrange
+		// These beans aren't the ones submitted, but are used to set the submitted beans after they've been run
+		List<StatusBean> setupBeans = new ArrayList<>();
+		setupBeans.add(createBean("failed", Status.FAILED, Duration.ofHours(2)));
+		setupBeans.add(createBean("none", Status.NONE, Duration.ofHours(3)));
+		setupBeans.add(createBean("newRunning", Status.RUNNING, Duration.ofMinutes(10)));
+		setupBeans.add(createBean("oldRunning", Status.RUNNING, DEFAULT_MAXIMUM_RUNNING_AGE.plusSeconds(10)));
+		setupBeans.add(createBean("newCompleted", Status.COMPLETE, Duration.ofHours(1)));
+		setupBeans.add(createBean("oldCompleted", Status.COMPLETE, DEFAULT_MAXIMUM_COMPLETE_AGE.plusMinutes(10)));
+		setupBeans.add(createBean("notStarted", Status.SUBMITTED, Duration.ofHours(5)));
+		setupBeans.add(createBean("paused", Status.PAUSED, Duration.ofMinutes(20)));
+		// the beans we submit are just copies with the same names as the status and submission time should not be set yet
 
-		List<StatusBean> beans = new ArrayList<>();
-		beans.add(createBean("failed", Status.FAILED, Duration.ofHours(2)));
-		beans.add(createBean("none", Status.NONE, Duration.ofHours(3)));
-		beans.add(createBean("newRunning", Status.RUNNING, Duration.ofMinutes(10)));
-		beans.add(createBean("oldRunning", Status.RUNNING, DEFAULT_MAXIMUM_RUNNING_AGE.plusSeconds(10)));
-		beans.add(createBean("newCompleted", Status.COMPLETE, Duration.ofHours(1)));
-		beans.add(createBean("oldCompleted", Status.COMPLETE, DEFAULT_MAXIMUM_COMPLETE_AGE.plusMinutes(10)));
-		beans.add(createBean("notStarted", Status.SUBMITTED, Duration.ofHours(5)));
-		beans.add(createBean("paused", Status.PAUSED, Duration.ofMinutes(20)));
+		List<StatusBean> beansToSubmit = setupBeans.stream().map(bean -> createBean(bean.getName())).collect(toList());
+		submitBeans(beansToSubmit);
+		runBeans(beansToSubmit);
 
-		try (ISubmitter<StatusBean> submitter = eservice.createSubmitter(uri, EventConstants.STATUS_SET)) {
-			for (StatusBean bean : beans) {
-				submitter.submit(bean);
-			}
+		// check they've been submitted properly (check names for easier to read error message)
+		List<StatusBean> completedBeans = consumer.getRunningAndCompleted();
+		completedBeans.removeIf(bean -> bean.getName().equals("initial"));
+		final List<String> names = getNames(completedBeans);
+		assertThat(names, containsInAnyOrder(getNames(setupBeans).toArray(new String[setupBeans.size()])));
 
-			// check they've been submitted properly (check names for easier to read error message)
-			final List<String> names = getNames(consumer.getRunningAndCompleted());
-			names.remove("initial");
-			assertThat(names, containsInAnyOrder(getNames(beans).toArray(new String[beans.size()])));
-		}
+		// now we can update the completed beans to be the same as the setup beans
+		final Map<String, StatusBean> beansByName = setupBeans.stream().collect(toMap(b -> b.getName(), identity()));
+		completedBeans.stream().forEach(b -> b.merge(beansByName.get(b.getName())));
 
+		// Act - call the method under test
 		consumer.cleanUpCompleted();
+		final List<StatusBean> remainingBeans = consumer.getRunningAndCompleted();
+		final Map<String, StatusBean> remainingBeansByName = remainingBeans.stream().collect(toMap(b -> b.getName(), identity()));
+		assertThat(remainingBeansByName.keySet(), containsInAnyOrder("newRunning", "newCompleted", "notStarted", "paused"));
 
-		final Map<String, StatusBean> beanMap = consumer.getRunningAndCompleted().stream().collect(
-				toMap(StatusBean::getName, identity()));
-		beanMap.remove("initial");
-
-		assertThat(beanMap.keySet(), containsInAnyOrder("newRunning", "newCompleted", "notStarted", "paused"));
 		// check that paused and not-started beans have had their status set to FAILED
-		assertThat(beanMap.get("paused").getStatus(), is(Status.FAILED));
-		assertThat(beanMap.get("notStarted").getStatus(), is(Status.FAILED));
+		assertThat(remainingBeansByName.get("paused").getStatus(), is(Status.FAILED));
+		assertThat(remainingBeansByName.get("notStarted").getStatus(), is(Status.FAILED));
 	}
 
 	@Test
@@ -489,7 +498,7 @@ public class QueueManagementTest extends BrokerTest {
 		actualNames.remove("initial");
 
 		// Assert: check the bean has been removed from the status set
-		assertThat(expectedNames, containsInAnyOrder(expectedNames.toArray()));
+		assertThat(actualNames, containsInAnyOrder(expectedNames.toArray()));
 	}
 
 }

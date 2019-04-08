@@ -19,9 +19,11 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,18 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -61,7 +51,6 @@ import org.eclipse.scanning.api.event.core.IConsumer;
 import org.eclipse.scanning.api.event.core.IConsumerProcess;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
@@ -81,7 +70,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private IPublisher<ConsumerStatusBean> consumerStatusPublisher;
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
-	private ISubmitter<U> statusSetSubmitter; // a submitter to the status set
 
 	private boolean pauseOnStart = false;
 	private CountDownLatch latchStart;
@@ -116,6 +104,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
 	private final IModifiableIdQueue<U> submissionQueue;
+	private final Collection<U> statusSet;
 
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
@@ -138,6 +127,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.consumerStatusTopicName = consumerStatusTopicName;
 
 		submissionQueue = new SynchronizedModifiableIdQueue<>();
+		statusSet = Collections.synchronizedList(new LinkedList<>());
 
 		connect();
 	}
@@ -164,9 +154,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	private void connect() throws EventException {
-		statusSetSubmitter  = eventService.createSubmitter(uri, getStatusSetName());
 		statusTopicPublisher = eventService.createPublisher(uri, getStatusTopicName());
-		statusTopicPublisher.setStatusSetName(getStatusSetName()); // We also update values in a queue.
 
 		if (consumerStatusTopicName!=null) {
 			consumerStatusPublisher = eventService.createPublisher(uri, consumerStatusTopicName);
@@ -213,10 +201,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	public synchronized void disconnect() throws EventException {
 		if (isActive()) stop();
 
-		if (statusSetSubmitter != null) {
-			statusSetSubmitter.disconnect();
-			statusSetSubmitter = null;
-		}
 		if (statusTopicPublisher != null) {
 			statusTopicPublisher.disconnect();
 			statusTopicPublisher = null;
@@ -365,12 +349,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	}
 
 	private List<U> getStatusSet() throws EventException {
-		QueueReader<U> reader = new QueueReader<>(getConnectorService());
-		try {
-			return reader.getBeans(uri, getStatusSetName(), beanClass);
-		} catch (Exception e) {
-			throw new EventException("Cannot get the beans for queue " + getSubmitQueueName(), e);
-		}
+		return new ArrayList<>(statusSet);
 	}
 
 	@Override
@@ -380,142 +359,34 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
-		final String queueName = getStatusSetName();
-		LOGGER.info("Clearing status queue {}", queueName);
-		QueueConnection qCon = null;
-		try {
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-			qCon  = connectionFactory.createQueueConnection(); // This times out when the server is not there.
-			QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue   = qSes.createQueue(queueName);
-			qCon.start();
-
-			QueueBrowser qb = qSes.createBrowser(queue);
-
-			@SuppressWarnings("rawtypes")
-			Enumeration  e  = qb.getEnumeration();
-			while(e.hasMoreElements()) {
-				Message msg = (Message)e.nextElement();
-				MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '" + msg.getJMSMessageID() + "'");
-				Message rem = consumer.receive(EventTimingsHelper.getReceiveTimeout());
-				if (rem != null) {
-					LOGGER.trace("Removed bean {}", rem);
-				} else {
-					LOGGER.warn("Failed to remove next bean");
-				}
-				consumer.close();
-			}
-		} catch (Exception ne) {
-			throw new EventException(ne);
-		} finally {
-			if (qCon!=null) {
-				try {
-					qCon.close();
-				} catch (JMSException e) {
-					LOGGER.error("Cannot close connection to queue {}", queueName, e);
-				}
-			}
-		}
+		statusSet.clear();
 	}
 
 	@Override
 	public void cleanUpCompleted() throws EventException {
-		try {
-			QueueConnection qCon = null;
-
-			try {
-				QueueConnectionFactory connectionFactory = (QueueConnectionFactory)service.createConnectionFactory(uri);
-				qCon  = connectionFactory.createQueueConnection();
-				QueueSession    qSes  = qCon.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-				Queue queue   = qSes.createQueue(getStatusSetName());
-				qCon.start();
-
-				QueueBrowser qb = qSes.createBrowser(queue);
-
-				@SuppressWarnings("rawtypes")
-				Enumeration  e  = qb.getEnumeration();
-
-				Map<String, StatusBean> failIds = new LinkedHashMap<>();
-				List<String>          removeIds = new ArrayList<>();
-				while(e.hasMoreElements()) {
-					Message m = (Message)e.nextElement();
-					if (m==null) continue;
-					if (m instanceof TextMessage) {
-						TextMessage t = (TextMessage)m;
-
-						try {
-							final String     json  = t.getText();
-							@SuppressWarnings("unchecked")
-							final Class<U> statusBeanClass = (Class<U>) StatusBean.class;
-							final StatusBean qbean = service.unmarshal(json, getBeanClass() != null ? getBeanClass() : statusBeanClass);
-							if (qbean==null)               continue;
-							if (qbean.getStatus()==null)   continue;
-							if (!qbean.getStatus().isStarted() || qbean.getStatus()==Status.PAUSED) {
-								failIds.put(t.getJMSMessageID(), qbean);
-								continue;
-							}
-
-							// If it has failed, we clear it up
-							if (qbean.getStatus()==Status.FAILED) {
-								removeIds.add(t.getJMSMessageID());
-								continue;
-							}
-							if (qbean.getStatus()==Status.NONE) {
-								removeIds.add(t.getJMSMessageID());
-								continue;
-							}
-
-							// If it is running and older than a certain time, we clear it up
-							if (qbean.getStatus().isRunning()) {
-								final long submitted = qbean.getSubmissionTime();
-								final long current   = System.currentTimeMillis();
-								if (current-submitted > EventTimingsHelper.getMaximumRunningAgeMs()) {
-									removeIds.add(t.getJMSMessageID());
-									continue;
-								}
-							}
-
-							if (qbean.getStatus().isFinal()) {
-								final long submitted = qbean.getSubmissionTime();
-								final long current   = System.currentTimeMillis();
-								if (current-submitted > EventTimingsHelper.getMaximumCompleteAgeMs()) {
-									removeIds.add(t.getJMSMessageID());
-								}
-							}
-
-						} catch (Exception ne) {
-							LOGGER.warn("Message "+t.getText()+" is not legal and will be removed.", ne);
-							removeIds.add(t.getJMSMessageID());
-						}
+		synchronized (statusSet) {
+			for (Iterator<U> iter = statusSet.iterator(); iter.hasNext(); ) {
+				final U bean = iter.next();
+				final Status status = bean.getStatus();
+				if (status == null) {
+					// do nothing (not sure this case is even possible
+				} else if (!status.isStarted() || status == Status.PAUSED) {
+					// set paused or not started beans to failed
+					bean.setStatus(Status.FAILED);
+					LOGGER.warn("Failed job {}: {}", bean.getName(), bean);
+				} else if (status == Status.FAILED || status == Status.NONE) {
+					iter.remove(); // remove failed jobs (note: Status.NONE is probably not possible)
+				} else if (status.isRunning()) {
+					// remove running jobs older than the maximum running age
+					if (System.currentTimeMillis() - bean.getSubmissionTime() > EventTimingsHelper.getMaximumRunningAgeMs()) {
+						iter.remove();
+					}
+				} else if (status.isFinal()) {
+					if (System.currentTimeMillis() - bean.getSubmissionTime() > EventTimingsHelper.getMaximumCompleteAgeMs()) {
+						iter.remove();
 					}
 				}
-
-				// We fail the non-started jobs now - otherwise we could
-				// actually start them late. TODO check this
-				final List<String> ids = new ArrayList<>();
-				ids.addAll(failIds.keySet());
-				ids.addAll(removeIds);
-
-				for (String jMSMessageID : ids) {
-					MessageConsumer consumer = qSes.createConsumer(queue, "JMSMessageID = '"+jMSMessageID+"'");
-					Message m = consumer.receive(EventTimingsHelper.getReceiveTimeout());
-					consumer.close();
-					if (removeIds.contains(jMSMessageID)) continue; // We are done
-
-					if (m!=null && m instanceof TextMessage) {
-						MessageProducer producer = qSes.createProducer(queue);
-						final StatusBean    bean = failIds.get(jMSMessageID);
-						bean.setStatus(Status.FAILED);
-						producer.send(qSes.createTextMessage(service.marshal(bean)));
-
-						LOGGER.warn("Failed job {} messageid({})", bean.getName(), jMSMessageID);
-					}
-				}
-			} finally {
-				if (qCon!=null) qCon.close();
 			}
-		} catch (Exception ne) {
-			throw new EventException("Problem connecting to "+statusQueueName+" in order to clean it!", ne);
 		}
 	}
 
@@ -541,64 +412,18 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public boolean removeCompleted(U bean) throws EventException {
-		final String queueName = getStatusSetName();
-		QueueConnection connection = null;
-		QueueSession session = null;
-		final QueueConnectionFactory connectionFactory = (QueueConnectionFactory) service.createConnectionFactory(uri);
-		try {
-			connection = connectionFactory.createQueueConnection(); // This times out when the server is not there.
-			session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			final Queue queue = session.createQueue(queueName);
-			connection.start();
-
-			final QueueBrowser queueBrowser = session.createBrowser(queue);
-			String jmsMessageId = null;
-			@SuppressWarnings("rawtypes")
-			final Enumeration e = queueBrowser.getEnumeration();
-
-			while (jmsMessageId == null && e.hasMoreElements()) {
-				Message message = (Message) e.nextElement();
-				if (message instanceof TextMessage) {
-					TextMessage textMsg = (TextMessage) message;
-
-					final U beanFromQueue = service.unmarshal(textMsg.getText(), null);
-					if (beanFromQueue != null && isForSameObject(beanFromQueue, bean)) {
-						jmsMessageId = textMsg.getJMSMessageID();
-					}
-				}
-			}
-
-			queueBrowser.close();
-
-			if (jmsMessageId != null) {
-				MessageConsumer consumer = session.createConsumer(queue, "JMSMessageID = '" + jmsMessageId + "'");
-				Message message = consumer.receive(1000);
-				consumer.close();
-				if (message == null) {
-					// It might have been removed ok
-					LOGGER.warn("Could not remove bean (JMSMessageID={}) from queue {}. Bean: {}", jmsMessageId, queueName, bean);
-					return false;
-				} else {
-					LOGGER.info("Removed bean (JMSMessageId={} from queue", bean);
+		synchronized (statusSet) {
+			for (Iterator<U> iter = statusSet.iterator(); iter.hasNext(); ) {
+				if (iter.next().getUniqueId().equals(bean.getUniqueId())) {
+					iter.remove();
+					LOGGER.info("Removed bean with id {} from set of completed jobs. Bean: {}", bean.getUniqueId(), bean);
 					return true;
 				}
-			} else {
-				LOGGER.warn("Could not find bean to remove in queue {}. Bean: {}", queueName, bean);
-				return false;
-			}
-		} catch (Exception ne) {
-			throw new EventException("Cannot remove item " + bean, ne);
-
-		} finally {
-			try {
-				if (connection != null)
-					connection.close();
-				if (session != null)
-					session.close();
-			} catch (Exception e) {
-				throw new EventException("Cannot close connection as expected!", e);
 			}
 		}
+
+		LOGGER.warn("Could not find bean with id {} to remove from set of completed jobs. Bean: {}", bean.getUniqueId(), bean);
+		return false;
 	}
 
 	@Override
@@ -989,8 +814,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private void executeBean(U bean) throws EventException, InterruptedException {
 		final Instant startTime = Instant.now();
 		// We record the bean in the status queue
-		LOGGER.trace("Moving {} to {}", bean, getSubmitQueueName());
-		statusSetSubmitter.submit(bean);
+		LOGGER.trace("Adding bean {} to status set for queue:", bean, getSubmitQueueName());
+		statusSet.add(bean);
 
 		Instant timeNow = Instant.now();
 		if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to statusSetSubmitter.submit complete", Duration.between(startTime, timeNow).toMillis()); }
