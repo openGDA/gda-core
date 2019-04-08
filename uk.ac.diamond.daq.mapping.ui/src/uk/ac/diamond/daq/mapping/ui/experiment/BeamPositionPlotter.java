@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URI;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
@@ -28,6 +29,7 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
@@ -35,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -60,7 +63,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 
 	private MappingStageInfo mappingStageInfo;
 	private IPlottingService plottingService;
-	private IScannableDeviceService scannableDeviceService;
+	private IEventService eventService;
 
 	private IPlottingSystem<Composite> mapPlottingSystem;
 	private Color beamMarkerColour;
@@ -72,6 +75,7 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	private boolean showBeamPosition = true;
 	private double lastXCoordinate;
 	private double lastYCoordinate;
+	private double beamSize = -1.0;
 
 	/**
 	 * For use by OSGi DS or in testing only!
@@ -88,8 +92,8 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 		mappingStageInfo.addPropertyChangeListener(this);
 	}
 
-	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
-		this.scannableDeviceService = scannableDeviceService;
+	public void setEventService(IEventService eventService) {
+		this.eventService = eventService;
 	}
 
 	public BeamPositionPlotter() {
@@ -240,7 +244,20 @@ public class BeamPositionPlotter implements IObserver, PropertyChangeListener {
 	}
 
 	private double getBeamSize() throws ScanningException {
-		IScannable<Double> beamSizeScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());
-		return beamSizeScannable.getPosition();
+		 if (beamSize < 0) {
+			 try {
+					 final URI jmsUri = new URI(LocalProperties.getActiveMQBrokerURI());
+					 final IScannableDeviceService scannableDeviceService =
+							 eventService.createRemoteService(jmsUri, IScannableDeviceService.class);
+					 IScannable<Double> beamScannable = scannableDeviceService.getScannable(mappingStageInfo.getBeamSize());
+					 beamSize = beamScannable.getPosition();
+			 } catch (ScanningException e) {
+				 throw e;
+			 } catch (Exception e) {
+				 throw new ScanningException(e);
+			 }
+		 }
+
+		 return beamSize;
 	}
 }
