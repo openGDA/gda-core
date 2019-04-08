@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jython.commands.InputCommands;
+import gda.jython.logging.PythonException;
 import gda.scan.ScanInterruptedException;
 
 /**
@@ -91,6 +92,9 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			InterfaceProvider.getTerminalPrinter().print(arg0.toString());
 		} else if (arg0.match(Py.KeyboardInterrupt)) {
 			InterfaceProvider.getTerminalPrinter().print("KeyboardInterrupt");
+		} else if (arg0.match(Py.SystemExit)) {
+			// super.showexception handles SystemExit as a special case and shuts down the JVM
+			blockExit();
 		} else {
 			if (arg0.type instanceof PyJavaType) {
 				// in this case the jython code is just way too verbose for users
@@ -143,10 +147,26 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			command = GDAJythonInterpreter.getTranslator().translate(command);
 			logger.debug("Jython command: {}", command);
 			return super.runsource(command);
+		} catch (PyException pe) {
+			if (pe.match(Py.SystemExit)) {
+				blockExit();
+				return false;
+			}
+			logger.error("Error calling runsource for command: {}", command, PythonException.from(pe));
+			return false;
 		} catch (Exception e) {
 			logger.error("Error calling runsource for command: {}", command, e);
 			return false;
 		}
+	}
+
+	/**
+	 * Calling <code> exit()</code> or <code>sys.exit()</code> should not shutdown the GDA server so
+	 * display a message to users and return.
+	 */
+	private void blockExit() {
+		logger.debug("Trying to exit from jython");
+		write("Can't exit the Jython Interpreter. Use reset_namespace to reset\n");
 	}
 
 	/**
