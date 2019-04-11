@@ -44,7 +44,7 @@ public class ScannablePositionerControl implements LiveControl {
 	private Boolean showStop; // Show stop by default
 	private String userUnits; // Use to override the scannable units (if required)
 	private Double increment; // The increment to set when then control is created Double allows null i.e. default
-	private Integer incrementTextWidth; // If set, passed down to NudgePositionerComposite
+	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
 
 	@Override
 	public String getName() {
@@ -120,7 +120,6 @@ public class ScannablePositionerControl implements LiveControl {
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + ((increment == null) ? 0 : increment.hashCode());
-		result = prime * result + ((incrementTextWidth == null) ? 0 : incrementTextWidth.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((scannableName == null) ? 0 : scannableName.hashCode());
 		result = prime * result + ((showStop == null) ? 0 : showStop.hashCode());
@@ -152,11 +151,9 @@ public class ScannablePositionerControl implements LiveControl {
 				return false;
 		} else if (!increment.equals(other.increment))
 			return false;
-		if (incrementTextWidth == null) {
-			if (other.incrementTextWidth != null)
-				return false;
-		} else if (!incrementTextWidth.equals(other.incrementTextWidth))
+		if (incrementTextWidth != other.incrementTextWidth) {
 			return false;
+		}
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -203,9 +200,7 @@ public class ScannablePositionerControl implements LiveControl {
 			if (getIncrement() != null) {
 				npc.setIncrement(getIncrement());
 			}
-			if (incrementTextWidth != null) {
-				npc.setIncrementTextWidth(incrementTextWidth);
-			}
+			npc.setIncrementTextWidth(incrementTextWidth);
 		}
 		positionerComposite.setScannable(scannable);
 

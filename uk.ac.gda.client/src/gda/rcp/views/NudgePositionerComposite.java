@@ -209,7 +209,7 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		// Save the new position
 		this.currentPosition = convertPosition(currentPosition);
 		// Format current position using output format
-		final String currentPositionString = String.format(getScannableOutputFormat(), currentPosition).trim();
+		final String currentPositionString = String.format(getScannableOutputFormat(), this.currentPosition).trim();
 		// Update the GUI in the UI thread
 		Display.getDefault().asyncExec(() -> {
 			if (positionText.isDisposed()) {
