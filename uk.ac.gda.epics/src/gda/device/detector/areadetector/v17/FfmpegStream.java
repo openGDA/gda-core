@@ -46,8 +46,8 @@ public interface FfmpegStream extends GetPluginBaseAvailable {
 	static final String MJPG_URL_RBV = "MJPG_URL_RBV";
 
 	static final String MAXW ="MAXW";
-	static final String MAXH ="MAXH_RBV";
-	static final String MAXW_RBV ="MAXW";
+	static final String MAXH ="MAXH";
+	static final String MAXW_RBV ="MAXW_RBV";
 	static final String MAXH_RBV ="MAXH_RBV";
 
 	/**
