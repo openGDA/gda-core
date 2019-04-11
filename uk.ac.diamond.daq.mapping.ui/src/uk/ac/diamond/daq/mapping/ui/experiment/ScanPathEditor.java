@@ -322,10 +322,16 @@ public class ScanPathEditor extends Composite implements IObservable {
 			return null;
 		}
 
-		private MultiStepModel convertStringToMultiStepModel(String text) {
+		private IScanPathModel convertStringToMultiStepModel(String text) {
+			final String[] stepModelStrs = text.split(";");
+
+			// If there is only one step specified, return a StepModel
+			if (stepModelStrs.length == 1) {
+				return convertStringToStepModel(stepModelStrs[0].trim());
+			}
+
 			final MultiStepModel multiStepModel = new MultiStepModel();
 			multiStepModel.setName(scannableName);
-			final String[] stepModelStrs = text.split(";");
 			for (String stepModelStr : stepModelStrs) {
 				final StepModel stepModel = convertStringToStepModel(stepModelStr.trim());
 				if (stepModel == null) {
