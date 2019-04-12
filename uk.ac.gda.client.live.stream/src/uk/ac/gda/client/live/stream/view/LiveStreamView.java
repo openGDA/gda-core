@@ -146,7 +146,7 @@ public class LiveStreamView extends ViewPart {
 				}
 			});
 
-			final Button connectButton = new Button(parent, SWT.DEFAULT);
+			final Button connectButton = new Button(parent, SWT.NONE);
 			connectButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false, false));
 			connectButton.setText("Connect");
 			connectButton.addSelectionListener(new SelectionAdapter() {
