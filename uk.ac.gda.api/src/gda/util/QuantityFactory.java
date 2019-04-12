@@ -41,6 +41,10 @@ public class QuantityFactory {
 		NonSIext.initializeClass();
 	}
 
+	private QuantityFactory() {
+		// Prevent instantiation
+	}
+
 	/**
 	 * Takes an object and converts it into a quantity of the requested unit.
 	 * <p>
