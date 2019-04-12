@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -40,6 +43,8 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
 
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3BufferedDetector.class);
+
 	// for now these 3 attributes need to be protected in order to be used in Xspress3BufferedDetectorv2 when all Xspress3 will change
 	// version this will need to be updated
 	protected Xspress3 xspress3Detector;
@@ -49,6 +54,11 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void clearMemory() throws DeviceException {
+		try {
+			xspress3Detector.waitWhileBusy();
+		} catch (InterruptedException e) {
+			logger.warn("Interrupted exception in clearMemory() - detector might still be busy when clearing the data!");
+		}
 		xspress3Detector.getController().doStop();
 		xspress3Detector.getController().doErase();
 	}

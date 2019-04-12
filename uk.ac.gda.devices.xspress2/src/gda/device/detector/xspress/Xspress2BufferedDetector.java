@@ -103,6 +103,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void clearMemory() throws DeviceException {
+		xspress2system.waitForMcaCollection();
 		xspress2system.clear();
 		xspress2system.start();
 	}
@@ -175,18 +176,18 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		if (useNexusTreeWriter) {
 			writeDetectorData((NexusTreeProvider[]) readData, startFrame, finalFrame);
 		}
-		framesRead = readData;
 		return readData;
 	}
 
 	@Override
-	public void atScanStart() {
+	public void atScanStart() throws DeviceException {
 		if (useNexusTreeWriter) {
 			nexusTreeWriter = new NexusTreeWriter();
 			readFrameList.clear();
 			nexusTreeWriter.setFullpathToNexusFile(detectorNexusFilename);
 			nexusTreeWriter.atScanStart();
 		}
+		xspress2system.waitForMcaCollection();
 	}
 
 	@Override
