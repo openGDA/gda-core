@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.views.detectors;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.ui.part.ViewPart;
 
@@ -35,6 +36,7 @@ public class DetectorRateViewConfig extends FindableViewFactoryBase {
 	private List<String> detectorNames; // detectors to be used in this detector rate view
 	private double collectionTime = 1.0; // collection time for each frame of data
 	private DetectorMonitorDataProviderInterface dataProvider; // ref. to server side object used to collect the detector rates
+	private Map<String, String> numberFormatMap;
 
 	public DetectorMonitorDataProviderInterface getDataProvider() {
 		return dataProvider;
@@ -66,6 +68,14 @@ public class DetectorRateViewConfig extends FindableViewFactoryBase {
 
 	public void setCollectionTime(double collectionTime) {
 		this.collectionTime = collectionTime;
+	}
+
+	public Map<String, String> getNumberFormatMap() {
+		return numberFormatMap;
+	}
+
+	public void setNumberFormatMap(Map<String, String> numberFormatMap) {
+		this.numberFormatMap = numberFormatMap;
 	}
 
 	@Override

@@ -19,6 +19,7 @@
 package gda.device.detector;
 
 import java.util.List;
+import java.util.Map;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -40,5 +41,12 @@ public interface DetectorMonitorDataProviderInterface extends Scannable {
 	public List<String> collectData(List<String> detectors) throws DeviceException, InterruptedException;
 
 	boolean isScriptOrScanIsRunning();
+
+	/**
+	 * Set a map containing the output format to be used when displaying quanties in the GUI.
+	 * (i.e. key=field name in the 'extra name' of a scannable, value=output format to use)
+	 * @param numberFormat
+	 */
+	void setNumberFormat(Map<String, String> numberFormat);
 
 }
