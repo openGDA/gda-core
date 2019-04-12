@@ -98,7 +98,7 @@ class Run:
 			return "Omega"
 		if( self.values["irunscantype"] == 4):
 			return "Phi"
-		raise "Unknown scantype = " + `self.values["irunscantype"]`
+		raise ValueError("Unknown scantype = " + `self.values["irunscantype"]`)
 	def dump(self):
 		print "Run " + self.name
 		for value in self.values:

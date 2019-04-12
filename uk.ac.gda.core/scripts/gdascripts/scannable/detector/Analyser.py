@@ -79,7 +79,7 @@ class AnalyserDetectorClass(DetectorBase):
 		try:
 			self.data.load(fileLoader(fileName));
 		except IllegalArgumentException:
-			raise "Oh Dear. How to load this image file?";
+			raise IOError("Oh Dear. How to load this image file?");
 
 		return self.data;
 
