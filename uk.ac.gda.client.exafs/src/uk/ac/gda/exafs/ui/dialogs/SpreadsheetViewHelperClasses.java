@@ -210,7 +210,7 @@ public class SpreadsheetViewHelperClasses {
 		//scanxmlfile_%d_%d.xml :  1st number = number of scan in spreadsheet table, 2nd number = counter to identify each set of xmls files generated
 		List<String> allXmlFiles = getListOfFilesMatchingExtension(outputDirectory, ".xml");
 		int maxCount = 0;
-		String regexForXml = ".*_\\w_\\w.xml";
+		String regexForXml = ".*_\\d+_\\d+.xml";
 		for(String filename : allXmlFiles) {
 			if (filename.matches(regexForXml)) {
 				// extract integer identifier from filename (i.e. integer after last '_')
