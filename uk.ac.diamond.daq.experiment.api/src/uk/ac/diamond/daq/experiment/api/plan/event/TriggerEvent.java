@@ -10,6 +10,7 @@ public class TriggerEvent implements Serializable {
 	private String id;
 	private long timestamp;
 	private double triggeringSignal;
+	private boolean failed;
 
 	public TriggerEvent(double triggeringSignal) {
 		timestamp = Instant.now().toEpochMilli();
@@ -78,6 +79,14 @@ public class TriggerEvent implements Serializable {
 		if (Double.doubleToLongBits(triggeringSignal) != Double.doubleToLongBits(other.triggeringSignal))
 			return false;
 		return true;
+	}
+
+	public boolean isFailed() {
+		return failed;
+	}
+
+	public void setFailed(boolean failed) {
+		this.failed = failed;
 	}
 
 }

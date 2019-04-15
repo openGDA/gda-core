@@ -71,4 +71,47 @@ public class SegmentRecord implements Serializable {
 	public void setSampleEnvironmentName(String sampleEnvironmentName) {
 		this.sampleEnvironmentName = sampleEnvironmentName;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (endTime ^ (endTime >>> 32));
+		result = prime * result + ((sampleEnvironmentName == null) ? 0 : sampleEnvironmentName.hashCode());
+		result = prime * result + ((segmentName == null) ? 0 : segmentName.hashCode());
+		result = prime * result + (int) (startTime ^ (startTime >>> 32));
+		long temp;
+		temp = Double.doubleToLongBits(terminationSignal);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SegmentRecord other = (SegmentRecord) obj;
+		if (endTime != other.endTime)
+			return false;
+		if (sampleEnvironmentName == null) {
+			if (other.sampleEnvironmentName != null)
+				return false;
+		} else if (!sampleEnvironmentName.equals(other.sampleEnvironmentName))
+			return false;
+		if (segmentName == null) {
+			if (other.segmentName != null)
+				return false;
+		} else if (!segmentName.equals(other.segmentName))
+			return false;
+		if (startTime != other.startTime)
+			return false;
+		if (Double.doubleToLongBits(terminationSignal) != Double.doubleToLongBits(other.terminationSignal))
+			return false;
+		return true;
+	}
+
 }

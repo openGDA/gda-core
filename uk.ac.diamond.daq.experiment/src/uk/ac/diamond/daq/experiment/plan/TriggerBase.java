@@ -106,6 +106,7 @@ public abstract class TriggerBase implements ITrigger {
 							
 						} catch (Exception e) {
 							logger.error("Problem while executing trigger '{}'", getName(), e);
+							event.setFailed(true);
 						} finally {
 							registrar.triggerComplete(this, event, getSEV().getName());
 						}
