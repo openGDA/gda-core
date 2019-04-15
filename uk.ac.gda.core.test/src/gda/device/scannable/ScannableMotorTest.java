@@ -26,8 +26,8 @@ import static gda.device.MotorStatus.READY;
 import static gda.device.MotorStatus.SOFT_LIMIT_VIOLATION;
 import static gda.device.MotorStatus.UPPER_LIMIT;
 import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MILLI;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.amount.Amount;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -268,7 +268,7 @@ public class ScannableMotorTest {
 	@Test
 	public void testToFormattedString() throws Exception {
 		when(motor.getPosition()).thenReturn(.01); // mm
-		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -276,9 +276,9 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
-		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0)", sm.toFormattedString());
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -287,7 +287,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.0101); // mm
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
-		assertEquals("sm : 10.000micron (-1000.0:1000.0) demand", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0) demand", sm.toFormattedString());
 	}
 
 	@Test
@@ -297,7 +297,7 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals("sm : 10.100micron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : 10.100µm (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -308,7 +308,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
-		assertEquals("sm : 10.000micron (-1000.0:1000.0) *demand=200.00*", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0) *demand=200.00*", sm.toFormattedString());
 	}
 
 	@Test
@@ -318,7 +318,7 @@ public class ScannableMotorTest {
 		sm.setReturnDemandPosition(true);
 		sm.setDemandPositionTolerance(.001);// mm
 		when(motor.getStatus()).thenReturn(BUSY);
-		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0)", sm.toFormattedString());
 	}
 
 	@Test
@@ -343,7 +343,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.01); // mm
 		when(motor.getMinPosition()).thenReturn(-.02);// mm
 		when(motor.getMaxPosition()).thenReturn(.02);// mm
-		assertEquals("sm : 10.000micron (-1000.0:1000.0) mot(-20.000:20.000)", sm.toFormattedString());
+		assertEquals("sm : 10.000µm (-1000.0:1000.0) mot(-20.000:20.000)", sm.toFormattedString());
 	}
 
 	@Test
@@ -352,7 +352,7 @@ public class ScannableMotorTest {
 		sm.setOffset(1.);
 		assertEquals(1001., sm.getUpperGdaLimits()[0], FP_TOLERANCE); // micron
 		assertEquals(-999., sm.getLowerGdaLimits()[0], FP_TOLERANCE); // micron
-		assertEquals("sm : 11.000micron(+1.0000) (-999.00:1001.0)", sm.toFormattedString());
+		assertEquals("sm : 11.000µm(+1.0000) (-999.00:1001.0)", sm.toFormattedString());
 	}
 
 	public void testIsPositionValid() throws Exception {
@@ -389,7 +389,7 @@ public class ScannableMotorTest {
 	@Test
 	public void testAsynchronousMoveTo3() throws Exception {
 		final ArgumentCaptor<Double> captor = ArgumentCaptor.forClass(Double.class);
-		sm.moveTo("5 micron");
+		sm.moveTo("5 µm");
 		verify(motor).moveTo(captor.capture());
 		assertEquals(0.005, captor.getValue(), FP_TOLERANCE);
 	}
@@ -406,8 +406,8 @@ public class ScannableMotorTest {
 	public void testIsAt2() throws Exception {
 		sm.setTolerance(.1); // micron
 		when(motor.getPosition()).thenReturn(.001); // mm
-		assertTrue(sm.isAt(Quantity.valueOf(0.001, MILLI(METER))));
-		assertFalse(sm.isAt(Quantity.valueOf(0.0012, MILLI(METER))));
+		assertTrue(sm.isAt(Amount.valueOf(0.001, MILLI(METER))));
+		assertFalse(sm.isAt(Amount.valueOf(0.0012, MILLI(METER))));
 	}
 
 	@Test
@@ -464,7 +464,7 @@ public class ScannableMotorTest {
 	@Test
 	public void testSetHardwareUnitString() throws Exception {
 		sm.setHardwareUnitString("micron");
-		assertEquals("micron", sm.getHardwareUnitString());
+		assertEquals("µm", sm.getHardwareUnitString());
 	}
 
 	/**
@@ -663,7 +663,7 @@ public class ScannableMotorTest {
 		sm.setScalingFactor(-1.);
 		sm.setLowerGdaLimits(-1000.);
 		sm.setUpperGdaLimits(800.);
-		assertEquals("sm : -10.000micron (-1000.0:800.00) mot(-10.000:20.000)", sm.toFormattedString());
+		assertEquals("sm : -10.000µm (-1000.0:800.00) mot(-10.000:20.000)", sm.toFormattedString());
 	}
 
 	@Test
@@ -694,7 +694,7 @@ public class ScannableMotorTest {
 		assertNull(sm.checkPositionValid(0.));// micron
 		assertNull(sm.checkPositionValid(-999));// micron
 		assertNull(sm.checkPositionValid(799));// micron
-		assertEquals("Scannable limit violation on sm.sm: 1.001 > 1.0 (internal/hardware/dial values).", sm.checkPositionValid(-1001));// micron
+		assertEquals("Scannable limit violation on sm.sm: 1.001 > 0.9999999999999999 (internal/hardware/dial values).", sm.checkPositionValid(-1001));// micron
 		assertEquals("Scannable limit violation on sm.sm: -0.8009999999999999 < -0.7999999999999999 (internal/hardware/dial values).",
 				sm.checkPositionValid(801));// micron
 	}

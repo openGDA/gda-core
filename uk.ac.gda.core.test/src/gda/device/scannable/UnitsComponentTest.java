@@ -18,10 +18,9 @@
 
 package gda.device.scannable;
 
-import static org.jscience.physics.quantities.Dimensionless.ONE;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,8 +31,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,16 +50,16 @@ import gda.device.scannable.component.UnitsComponent;
  */
 public class UnitsComponentTest {
 	private UnitsComponent uc;
-	private static final Quantity q1m = Quantity.valueOf(1, METER);
-	private static final Quantity q2m = Quantity.valueOf(2, METER);
-	private static final Quantity q1000mm = Quantity.valueOf(1000, MILLI(METER));
-	private static final Quantity q3000mm = Quantity.valueOf(3000, MILLI(METER));
+	private static final Amount<Length> q1m = Amount.valueOf(1, METER);
+	private static final Amount<Length> q2m = Amount.valueOf(2, METER);
+	private static final Amount<Length> q1000mm = Amount.valueOf(1000, MILLI(METER));
+	private static final Amount<Length> q3000mm = Amount.valueOf(3000, MILLI(METER));
 
 	private static final List<String> LENGTH_UNITS = Arrays.asList(
 			"m", "nm", "mm", "µm", "micron", "um", "Ang", "Angstrom", "microns");
 
 	private static final List<String> ANGLE_UNITS = Arrays.asList(
-			"rad", "Deg", "degrees", "mDeg", "deg", "mdeg", "mRad", "mrad", "uDeg", "uRad", "urad");
+			"rad", "Deg", "degrees", "mDeg", "deg", "mdeg", "mRad", "mrad", "uDeg", "uRad", "urad", "°");
 
 	private static final List<String> TEMPERATURE_UNITS = Arrays.asList("centigrade", "K");
 	private static final List<String> FORCE_UNITS = Arrays.asList("N");
@@ -96,8 +98,8 @@ public class UnitsComponentTest {
 		assertEquals("", uc.getUserUnitString());
 		assertEquals("", uc.getHardwareUnitString());
 		assertFalse(uc.unitHasBeenSet());
-		assertEquals(ONE.getUnit(), uc.getUserUnit());
-		assertEquals(ONE.getUnit(), uc.getHardwareUnit());
+		assertEquals(Dimensionless.UNIT, uc.getUserUnit());
+		assertEquals(Dimensionless.UNIT, uc.getHardwareUnit());
 		assertArrayEquals(new String[] { "" }, uc.getAcceptableUnits());
 	}
 

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import javax.measure.quantity.Length;
+
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
@@ -26,7 +28,6 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.jscience.physics.quantities.Length;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 

@@ -20,20 +20,23 @@
 package gda.device.scannable;
 
 import static java.util.Arrays.asList;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.SI.CENTI;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.NANO;
 import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import gda.TestHelpers;
 import gda.device.DeviceException;
@@ -41,28 +44,23 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.function.FindableFunction;
 import gda.observable.IObserver;
-import gda.util.QuantityFactory;
 
 public class CoupledScannableTest {
 
 	private ScannableMotionUnits dummyScannable1;
 	private ScannableMotionUnits dummyScannable2;
 
-	private Function<Quantity, Quantity> mockFunction1;
-	private Function<Quantity, Quantity> mockFunction2;
+	private MockFunction mockFunction1;
+	private MockFunction mockFunction2;
 
 	@Before
 	public void setUp() throws Exception {
 		dummyScannable1 = new DummyUnitsScannable("s1", 0, "mm", "mm");
 		dummyScannable2 = new DummyUnitsScannable("s2", 0, "nm", "nm");
 
-		mockFunction1 = mock(FindableFunction.class);
-		when(mockFunction1.apply(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("12.3 cm"));
-
-		mockFunction2 = mock(FindableFunction.class);
-		when(mockFunction2.apply(Matchers.any(Quantity.class))).thenReturn(QuantityFactory.createFromString("78.9 nm"));
+		mockFunction1 = new MockFunction(Amount.valueOf(12.3, CENTI(METER)));
+		mockFunction2 = new MockFunction(Amount.valueOf(78.9, NANO(METER)));
 	}
 
 	/*
@@ -91,7 +89,7 @@ public class CoupledScannableTest {
 		final CoupledScannable scannable = new CoupledScannable();
 		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
 		scannable.setName("test");
-		scannable.setInitialUserUnits("micron");
+		scannable.setInitialUserUnits("µm");
 		scannable.configure();
 
 		dummyScannable1.moveTo(1.0);
@@ -121,13 +119,10 @@ public class CoupledScannableTest {
 
 		coupled.moveTo(798.34);
 
-		final ArgumentCaptor<Quantity> quantityCaptor = ArgumentCaptor.forClass(Quantity.class);
-
 		// Verify that the input units of the coupled scannable (i.e. eV) are passed to the evaluation function for the
 		// component scannable
-		verify(mockFunction1).apply(quantityCaptor.capture());
-		assertEquals(798.34, quantityCaptor.getValue().getAmount(), 0.0001);
-		assertEquals("eV", quantityCaptor.getValue().getUnit().toString());
+		assertEquals(798.34, mockFunction1.parameterPassed.getEstimatedValue(), 0.0001);
+		assertEquals(ELECTRON_VOLT, mockFunction1.parameterPassed.getUnit());
 
 		// Verify that the units for the component move have been handled correctly
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
@@ -237,5 +232,24 @@ public class CoupledScannableTest {
 
 		((DummyUnitsScannable) dummyScannable2).notifyIObservers(dummyScannable2, ScannableStatus.IDLE);
 		verify(observer).update(coupled, ScannableStatus.IDLE);
+	}
+
+	/**
+	 * Mockito mocks do not work well with generics (at least with the Eclipse Mars compiler currently we are using with
+	 * Buckminster), so create a class to do something similar.
+	 */
+	private class MockFunction implements Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
+		private final Amount<? extends Quantity> valueToReturn;
+		private Amount<? extends Quantity> parameterPassed;
+
+		public MockFunction(Amount<? extends Quantity> valueToReturn) {
+			this.valueToReturn = valueToReturn;
+		}
+
+		@Override
+		public Amount<? extends Quantity> apply(Amount<? extends Quantity> t) {
+			parameterPassed = t;
+			return valueToReturn;
+		}
 	}
 }

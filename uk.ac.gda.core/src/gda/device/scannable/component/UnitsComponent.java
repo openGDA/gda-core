@@ -19,61 +19,63 @@
 
 package gda.device.scannable.component;
 
-import static gda.jscience.physics.units.NonSIext.ANG;
-import static gda.jscience.physics.units.NonSIext.ANGSTROM;
-import static gda.jscience.physics.units.NonSIext.CENTIGRADE;
-import static gda.jscience.physics.units.NonSIext.COUNT;
-import static gda.jscience.physics.units.NonSIext.DEGREES_ANGLE;
-import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
-import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE;
-import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT;
-import static gda.jscience.physics.units.NonSIext.KILOCOUNT;
-import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT;
-import static gda.jscience.physics.units.NonSIext.MICROAMPERE;
-import static gda.jscience.physics.units.NonSIext.MICRON;
-import static gda.jscience.physics.units.NonSIext.MICRONS;
-import static gda.jscience.physics.units.NonSIext.MICRON_UM;
-import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE;
-import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_LOWERCASE;
-import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE;
-import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_LC;
-import static gda.jscience.physics.units.NonSIext.uAMPERE;
-import static gda.jscience.physics.units.NonSIext.uDEG_ANGLE;
-import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE;
-import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_LC;
-import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
-import static org.jscience.physics.units.NonSI.LITER;
-import static org.jscience.physics.units.SI.AMPERE;
-import static org.jscience.physics.units.SI.CUBIC_METER;
-import static org.jscience.physics.units.SI.KELVIN;
-import static org.jscience.physics.units.SI.KILOGRAM;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
-import static org.jscience.physics.units.SI.NEWTON;
-import static org.jscience.physics.units.SI.RADIAN;
-import static org.jscience.physics.units.SI.SECOND;
-import static org.jscience.physics.units.SI.VOLT;
-import static org.jscience.physics.units.Unit.ONE;
+import static gda.jscience.physics.units.NonSIext.ANGSTROM_STRING;
+import static gda.jscience.physics.units.NonSIext.ANG_STRING;
+import static gda.jscience.physics.units.NonSIext.CENTIGRADE_STRING;
+import static gda.jscience.physics.units.NonSIext.COUNT_STRING;
+import static gda.jscience.physics.units.NonSIext.DEGREES_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_SYMBOL;
+import static gda.jscience.physics.units.NonSIext.GIGAELECTRONVOLT_STRING;
+import static gda.jscience.physics.units.NonSIext.KILOCOUNT_STRING;
+import static gda.jscience.physics.units.NonSIext.KILOELECTRONVOLT_STRING;
+import static gda.jscience.physics.units.NonSIext.MICROAMPERE_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRONS_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRON_STRING;
+import static gda.jscience.physics.units.NonSIext.MICRON_UM_STRING;
+import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_LC_STRING;
+import static gda.jscience.physics.units.NonSIext.mRADIAN_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.uAMPERE_STRING;
+import static gda.jscience.physics.units.NonSIext.uDEG_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_LC_STRING;
+import static gda.jscience.physics.units.NonSIext.uRADIAN_ANGLE_STRING;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.NonSI.LITER;
+import static javax.measure.unit.SI.AMPERE;
+import static javax.measure.unit.SI.CUBIC_METRE;
+import static javax.measure.unit.SI.KELVIN;
+import static javax.measure.unit.SI.KILOGRAM;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
+import static javax.measure.unit.SI.NEWTON;
+import static javax.measure.unit.SI.RADIAN;
+import static javax.measure.unit.SI.SECOND;
+import static javax.measure.unit.SI.VOLT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Dimensionless;
-import org.jscience.physics.quantities.Duration;
-import org.jscience.physics.quantities.ElectricCurrent;
-import org.jscience.physics.quantities.ElectricPotential;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Force;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.quantities.Temperature;
-import org.jscience.physics.quantities.Volume;
-import org.jscience.physics.quantities.VolumetricDensity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Duration;
+import javax.measure.quantity.ElectricCurrent;
+import javax.measure.quantity.ElectricPotential;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Force;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
+import javax.measure.quantity.Temperature;
+import javax.measure.quantity.Volume;
+import javax.measure.quantity.VolumetricDensity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,7 +175,6 @@ public class UnitsComponent implements PositionConvertor {
 		userUnitHasBeenExplicitlySet = true;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void actuallySetUserUnits(String userUnitsString) throws DeviceException {
 		// Check the user unit is acceptable (and create the unit)
 		if (acceptableUnits.contains(userUnitsString)) {
@@ -185,15 +186,12 @@ public class UnitsComponent implements PositionConvertor {
 
 	private void userUnitStringIsNotAcceptable(String userUnitsString) throws DeviceException {
 		final String acceptableUnitsString = Arrays.deepToString(getAcceptableUnits());
-		if (acceptableUnits.get(0).equals(ONE.toString())) {
-			throw new DeviceException(
-					"User unit "
-							+ userUnitsString
-							+ " is not acceptable. The current hardware unit is at its dimensionless default of ONE (settable with an empty string ''). Make sure that a sensible hardware unit has been set.");
+		if (acceptableUnits.get(0).isEmpty()) {
+			throw new DeviceException("User unit " + userUnitsString
+					+ " is not acceptable. The current hardware unit is at its dimensionless default of ONE (settable with an empty string ''). Make sure that a sensible hardware unit has been set.");
 		}
-		throw new DeviceException("User unit " + userUnitsString + " is not acceptable. Try one of "
-				+ acceptableUnitsString);
-
+		throw new DeviceException(
+				"User unit " + userUnitsString + " is not acceptable. Try one of " + acceptableUnitsString);
 	}
 
 	/**
@@ -219,9 +217,7 @@ public class UnitsComponent implements PositionConvertor {
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException {
 		if (userUnitHasBeenExplicitlySet) {
 			// Check the new hardware unit is compatible
-			@SuppressWarnings("unchecked")
-			final Unit<? extends Quantity> unit = Unit.valueOf(hardwareUnitString);
-			final List<String> compatibleUnits = generateCompatibleUnits(unit);
+			final List<String> compatibleUnits = generateCompatibleUnits(Unit.valueOf(hardwareUnitString));
 			if (!compatibleUnits.contains(userUnit.toString())) {
 				throw new DeviceException("The hardware unit could not be set to '" + hardwareUnitString
 						+ "' because this is incompatible" + " with the explicitely set user unit '"
@@ -265,93 +261,92 @@ public class UnitsComponent implements PositionConvertor {
 	public void addAcceptableUnit(String hardwareUnitString) {
 		final Unit<? extends Quantity> newUnit = QuantityFactory.createUnitFromString(hardwareUnitString);
 
-		if (newUnit.getBaseUnits() == this.hardwareUnit.getBaseUnits() && !this.acceptableUnits.contains(hardwareUnitString)) {
+		if (newUnit.getStandardUnit() == this.hardwareUnit.getStandardUnit() && !this.acceptableUnits.contains(hardwareUnitString)) {
 			this.acceptableUnits.add(hardwareUnitString);
 		}
 	}
 
 	private List<String> generateCompatibleUnits(Unit<? extends Quantity> unit) {
 		final List<String> unitList = new ArrayList<>();
-		final Quantity hardwareUnitQuantity = Quantity.valueOf(1.0, unit);
 
-		if (hardwareUnitQuantity instanceof Length) {
+		if (unit.equals(Dimensionless.UNIT)) {
+			unitList.add("");
+		}
+		else if (unit.isCompatible(Length.UNIT)) {
 			// these first two lines here so that they are not overwritten
 			// unless we recognise the dimensions of the hardware units
 			unitList.add(METER.toString());
 			unitList.add(NANO(METER).toString());
 			unitList.add(MILLI(METER).toString());
 			unitList.add(MICRO(METER).toString());
-			unitList.add(MICRON.toString());
-			unitList.add(MICRON_UM.toString());
-			unitList.add(MICRONS.toString());
-			unitList.add(ANG.toString());
-			unitList.add(ANGSTROM.toString());
+			unitList.add(MICRON_STRING);
+			unitList.add(MICRON_UM_STRING);
+			unitList.add(MICRONS_STRING);
+			unitList.add(ANG_STRING);
+			unitList.add(ANGSTROM_STRING);
 		}
 		// angular motions
-		else if (hardwareUnitQuantity instanceof Angle) {
+		else if (unit.isCompatible(Angle.UNIT)) {
 			unitList.add(RADIAN.toString());
-			unitList.add(DEG_ANGLE.toString());
-			unitList.add(DEGREES_ANGLE.toString());
-			unitList.add(mDEG_ANGLE.toString());
-			unitList.add(DEG_ANGLE_LOWERCASE.toString());
-			unitList.add(mDEG_ANGLE_LOWERCASE.toString());
-			unitList.add(mRADIAN_ANGLE.toString());
-			unitList.add(mRADIAN_ANGLE_LC.toString());
-			unitList.add(uDEG_ANGLE.toString());
-			unitList.add(uRADIAN_ANGLE.toString());
-			unitList.add(uRADIAN_ANGLE_LC.toString());
+			unitList.add(DEG_ANGLE_STRING);
+			unitList.add(DEGREES_ANGLE_STRING);
+			unitList.add(DEG_ANGLE_SYMBOL);
+			unitList.add(mDEG_ANGLE_STRING);
+			unitList.add(DEG_ANGLE_LOWERCASE_STRING);
+			unitList.add(mDEG_ANGLE_LOWERCASE_STRING);
+			unitList.add(mRADIAN_ANGLE_STRING);
+			unitList.add(mRADIAN_ANGLE_LC_STRING);
+			unitList.add(uDEG_ANGLE_STRING);
+			unitList.add(uRADIAN_ANGLE_STRING);
+			unitList.add(uRADIAN_ANGLE_LC_STRING);
 		}
 
 		// // temperature
-		else if (hardwareUnitQuantity instanceof Temperature) {
-			unitList.add(CENTIGRADE.toString());
+		else if (unit.isCompatible(Temperature.UNIT)) {
+			unitList.add(CENTIGRADE_STRING);
 			unitList.add(KELVIN.toString());
 		}
 
 		// Force
-		else if (hardwareUnitQuantity instanceof Force) {
+		else if (unit.isCompatible(Force.UNIT)) {
 			unitList.add(NEWTON.toString());
 		}
 		// Voltage
-		else if (hardwareUnitQuantity instanceof ElectricPotential) {
+		else if (unit.isCompatible(ElectricPotential.UNIT)) {
 			unitList.add(VOLT.toString());
 		}
 
 		// Count
-		else if (hardwareUnitQuantity instanceof Count) {
-			unitList.add(COUNT.toString());
-			unitList.add(KILOCOUNT.toString());
+		else if (unit.isCompatible(Count.UNIT)) {
+			unitList.add(COUNT_STRING);
+			unitList.add(KILOCOUNT_STRING);
 		}
 
 		// also want energy here
-		else if (hardwareUnitQuantity instanceof Energy) {
-			unitList.add(KILOELECTRONVOLT.toString());
+		else if (unit.isCompatible(Energy.UNIT)) {
+			unitList.add(KILOELECTRONVOLT_STRING);
 			unitList.add(ELECTRON_VOLT.toString());
-			unitList.add(GIGAELECTRONVOLT.toString());  //for the machine
+			unitList.add(GIGAELECTRONVOLT_STRING);  //for the machine
 		}
 
-		else if (hardwareUnitQuantity instanceof Dimensionless) {
-			unitList.add(ONE.toString());
-		}
-
-		else if (hardwareUnitQuantity instanceof ElectricCurrent) {
+		else if (unit.isCompatible(ElectricCurrent.UNIT)) {
 			unitList.add(AMPERE.toString());
-			unitList.add(MICROAMPERE.toString());
-			unitList.add(uAMPERE.toString());
+			unitList.add(MICROAMPERE_STRING);
+			unitList.add(uAMPERE_STRING);
 			unitList.add(MILLI(AMPERE).toString());
 		}
 
-		else if (hardwareUnitQuantity instanceof Duration) {
+		else if (unit.isCompatible(Duration.UNIT)) {
 			unitList.add(SECOND.toString());
 			unitList.add(MILLI(SECOND).toString());
 		}
 
-		else if (hardwareUnitQuantity instanceof Volume) {
+		else if (unit.isCompatible(Volume.UNIT)) {
 			unitList.add(LITER.toString());
-			unitList.add(CUBIC_METER.toString());
+			unitList.add(CUBIC_METRE.toString());
 		}
 
-		else if (hardwareUnitQuantity instanceof VolumetricDensity) {
+		else if (unit.isCompatible(VolumetricDensity.UNIT)) {
 			// mg/mL
 			unitList.add(MICRO(KILOGRAM).divide(MILLI(LITER)).toString());
 		}
@@ -400,10 +395,10 @@ public class UnitsComponent implements PositionConvertor {
 		final Object[] internalObjectArray = PositionConvertorFunctions.toObjectArray(internalPosition);
 
 		// Amounts by definition are in internal (hardware) units, so make this explicit
-		final Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalObjectArray, hardwareUnit);
+		final Amount<? extends Quantity>[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalObjectArray, hardwareUnit);
 
 		// Convert to external (user) units
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalQuantityArray, userUnit);
+		final Amount<? extends Quantity>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalQuantityArray, userUnit);
 
 		// Retrieve the amounts
 		final Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);
@@ -434,10 +429,10 @@ public class UnitsComponent implements PositionConvertor {
 		final Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
 
 		// Amounts by definition are in external (user) units, so make this explicit
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
+		final Amount<? extends Quantity>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
 
 		// Convert to internal (hardware) units
-		final Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalQuantityArray, hardwareUnit);
+		final Amount<? extends Quantity>[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalQuantityArray, hardwareUnit);
 
 		// Retrieve the amounts
 		final Double[] internalAmountArray = PositionConvertorFunctions.toAmountArray(internalQuantityArray);
@@ -449,7 +444,7 @@ public class UnitsComponent implements PositionConvertor {
 		final Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
 
 		// Amounts by definition are in external (user) units, so make this explicit
-		final Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
+		final Amount<? extends Quantity>[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
 
 		// Retrieve the amounts
 		final Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);

@@ -18,29 +18,31 @@
 
 package gda.util.converters;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * Base class for 'simple' converters that implement the {@link IConverter} interface, converting from one
  * {@link Quantity} to another {@link Quantity}, using an object that implements the
  * {@link IReloadableQuantitiesConverter} interface.
  */
-public abstract class SimpleConverterBase implements IConverter<Quantity, Quantity> {
+public abstract class SimpleConverterBase implements IConverter<Amount<? extends Quantity>, Amount<? extends Quantity>> {
 
 	protected IReloadableQuantitiesConverter converter;
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
-		Quantity sources[] = { source };
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+		Amount<?>[] sources = { source };
 		Object[] moveables = { null }; // this means we get a result set with 1 entry
 		return converter.calculateMoveables(sources, moveables)[0];
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
-		Quantity sources[] = { target };
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+		Amount<?>[] targets = { target };
 		Object[] moveables = { null }; // this means we get a result set with 1 entry
-		return converter.calculateMoveables(sources, moveables)[0];
+		return converter.calculateMoveables(targets, moveables)[0];
 	}
 
 	@Override

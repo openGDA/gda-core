@@ -29,9 +29,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
 import org.apache.commons.collections.map.MultiValueMap;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

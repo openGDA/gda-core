@@ -18,8 +18,8 @@
 
 package gda.device.scannable;
 
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MILLI;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -30,8 +30,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -70,26 +72,26 @@ public class PositionConvertorFunctionsTest {
 					{ PositionConvertorFunctions.toDouble(new PyInteger(1)), new Double(1.),
 							"toDouble(new PyInteger(1))" },
 					// testToQuantityWithQuantities
-					{ PositionConvertorFunctions.toQuantity(Quantity.valueOf(1., MILLI(METER)), MILLI(METER)),
-							Quantity.valueOf(1., MILLI(METER)),
-							"toQuantity(Quantity.valueOf(1., MILLI(METER)), MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity(Quantity.valueOf(1000., MILLI(METER)), METER),
-							Quantity.valueOf(1., METER), "toQuantity(Quantity.valueOf(1000., MILLI(METER)), METER)" },
-					{ PositionConvertorFunctions.toQuantity(Quantity.valueOf(1., Unit.ONE), METER),
-							Quantity.valueOf(1., METER), "valueOf(1., Unit.ONE), METER)" },
+					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1., MILLI(METER)), MILLI(METER)),
+							Amount.valueOf(1., MILLI(METER)),
+							"toQuantity(Amount.valueOf(1., MILLI(METER)), MILLI(METER))" },
+					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1000., MILLI(METER)), METER),
+							Amount.valueOf(1., METER), "toQuantity(Amount.valueOf(1000., MILLI(METER)), METER)" },
+					{ PositionConvertorFunctions.toQuantity(Amount.valueOf(1., Unit.ONE), METER),
+							Amount.valueOf(1., METER), "valueOf(1., Unit.ONE), METER)" },
 					// testToQuantityWithStrings
-					{ PositionConvertorFunctions.toQuantity("1 mm", MILLI(METER)), Quantity.valueOf(1., MILLI(METER)),
+					{ PositionConvertorFunctions.toQuantity("1 mm", MILLI(METER)), Amount.valueOf(1., MILLI(METER)),
 							"toQuantity(\"1 mm\", MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity("1 m", METER), Quantity.valueOf(1., METER),
+					{ PositionConvertorFunctions.toQuantity("1 m", METER), Amount.valueOf(1., METER),
 							"toQuantity(\"1 m\", METER)" },
-					{ PositionConvertorFunctions.toQuantity("1", METER), Quantity.valueOf(1., METER),
+					{ PositionConvertorFunctions.toQuantity("1", METER), Amount.valueOf(1., METER),
 							"toQuantity(\"1\", METER)" },
 					// testToQuantityWithPyStrings
 					{ PositionConvertorFunctions.toQuantity(new PyString("1 mm"), MILLI(METER)),
-							Quantity.valueOf(1., MILLI(METER)), "toQuantity(new PyString(\"1 mm\"), MILLI(METER))" },
-					{ PositionConvertorFunctions.toQuantity(new PyString("1 m"), METER), Quantity.valueOf(1., METER),
+							Amount.valueOf(1., MILLI(METER)), "toQuantity(new PyString(\"1 mm\"), MILLI(METER))" },
+					{ PositionConvertorFunctions.toQuantity(new PyString("1 m"), METER), Amount.valueOf(1., METER),
 							"toQuantity(new PyString(\"1 m\"), METER)" },
-					{ PositionConvertorFunctions.toQuantity(new PyString("1"), METER), Quantity.valueOf(1., METER),
+					{ PositionConvertorFunctions.toQuantity(new PyString("1"), METER), Amount.valueOf(1., METER),
 							"toQuantity(new PyString(\"1\"), METER)" } });
 		}
 
@@ -102,12 +104,13 @@ public class PositionConvertorFunctionsTest {
 		@Parameter(2)
 		public String description;
 
+		@SuppressWarnings("unchecked")
 		@Test
 		public void test() {
 			if (expectedResult instanceof Double) {
 				assertEquals((double) expectedResult, (double) input, FP_TOLERANCE);
-			} else if (expectedResult instanceof Quantity) {
-				assertTrue(((Quantity) expectedResult).approxEquals(((Quantity) input)));
+			} else if (expectedResult instanceof Amount) {
+				assertTrue(((Amount<? extends Quantity>) expectedResult).approximates((Amount<? extends Quantity>) input));
 			} else {
 				assertEquals(expectedResult, input);
 			}
@@ -230,16 +233,15 @@ public class PositionConvertorFunctionsTest {
 
 		@Test
 		public void testToQuantityArray() {
-			Quantity[] expected = new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1., METER), null };
-			Quantity[] actual = PositionConvertorFunctions.toQuantityArray(
-					new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null }, METER);
-
+			final Amount<? extends Quantity>[] expected = new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1., METER), null };
+			final Amount<? extends Quantity>[] actual = PositionConvertorFunctions.toQuantityArray(
+					new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1000., MILLI(METER)), null }, METER);
 			assertEquals(expected.length, actual.length);
 			for (int i = 0; i < expected.length; i++) {
 				if (expected[i] == null) {
 					assertNull(actual[i]);
 				} else {
-					assertEquals(expected[i].getAmount(), actual[i].getAmount(), FP_TOLERANCE);
+					assertEquals(expected[i].getEstimatedValue(), actual[i].getEstimatedValue(), FP_TOLERANCE);
 				}
 			}
 		}
@@ -247,7 +249,7 @@ public class PositionConvertorFunctionsTest {
 		@Test
 		public void testToAmountArray() {
 			final Double[] actual = PositionConvertorFunctions.toAmountArray(
-					new Quantity[] { Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null });
+					new Amount<?>[] { Amount.valueOf(1., METER), Amount.valueOf(1000., MILLI(METER)), null });
 			assertEquals(3, actual.length);
 			assertEquals(1., actual[0], FP_TOLERANCE);
 			assertEquals(1000., actual[1], FP_TOLERANCE);

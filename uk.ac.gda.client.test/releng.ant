@@ -21,6 +21,7 @@
 				<pathelement location="${junitjar.loc}" />
 				<pathelement location="${jythonjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
+				<path refid="tp.jscience4.path" />  <!-- put ahead of any plugin that exports javax.measure* packages -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.client/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.api/bin" />
 				<pathelement location="${workspace.git.loc}/gda-core.git/uk.ac.gda.core/classes/main" />
@@ -31,7 +32,6 @@
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
 				<path refid="tp.swt.path" />  <!-- ensure that correct platform appears first in classpath -->
-				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">

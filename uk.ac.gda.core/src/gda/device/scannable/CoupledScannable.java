@@ -27,8 +27,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	private static final Logger logger = LoggerFactory.getLogger(CoupledScannable.class);
 
 	private List<Scannable> theScannables = new ArrayList<>();
-	private List<Function<Quantity, Quantity>> theFunctions = new ArrayList<>();
+	private List<Function<Amount<? extends Quantity>, Amount<? extends Quantity>>> theFunctions = new ArrayList<>();
 	private List<String> scannableNames;
 
 	/**
@@ -140,14 +142,14 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 	 * @param functions
 	 *            the functions
 	 */
-	public void setFunctions(List<Function<Quantity, Quantity>> functions) {
+	public void setFunctions(List<Function<Amount<? extends Quantity>, Amount<? extends Quantity>>> functions) {
 		this.theFunctions = new ArrayList<>(functions);
 	}
 
 	/**
 	 * @return all the functions this uses.
 	 */
-	public List<Function<Quantity, Quantity>> getFunctions() {
+	public List<Function<Amount<? extends Quantity>, Amount<? extends Quantity>>> getFunctions() {
 		return theFunctions;
 	}
 
@@ -188,7 +190,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		}
 
 		// loop through all functions, calculate and send command to Scannable
-		final List<Quantity> targets = new ArrayList<>(theFunctions.size());
+		final List<Amount<? extends Quantity>> targets = new ArrayList<>(theFunctions.size());
 		final Unit<? extends Quantity> userUnits = QuantityFactory.createUnitFromString(getUserUnits());
 
 		for (int i = 0; i < theFunctions.size(); i++) {
@@ -214,9 +216,9 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		final Scannable first = theScannables.get(0);
 		final Object posAmount =  ScannableUtils.getCurrentPositionArray(first)[0];
 		if (first instanceof ScannableMotionUnits) {
-			final Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, QuantityFactory
+			final Amount<? extends Quantity> sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, QuantityFactory
 					.createUnitFromString(((ScannableMotionUnits)first).getUserUnits()));
-			return (sourcePositionQuantity.to(unitsComponent.getUserUnit())).getAmount();
+			return sourcePositionQuantity.to(unitsComponent.getUserUnit()).getEstimatedValue();
 		}
 		return posAmount;
 	}

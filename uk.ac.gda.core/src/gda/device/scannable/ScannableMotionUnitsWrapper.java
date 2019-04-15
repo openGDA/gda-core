@@ -18,12 +18,14 @@
 
 package gda.device.scannable;
 
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
+
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import org.jscience.physics.quantities.Quantity;
 
 /**
  * Wraps and then delegates many method calls to a ScannableMotionUnits instance. If the name,
@@ -236,7 +238,7 @@ public class ScannableMotionUnitsWrapper extends ScannableMotionUnitsBase {
 	}
 
 	@Override
-	public Quantity[] getPositionAsQuantityArray() throws DeviceException {
+	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
 		return getDelegate().getPositionAsQuantityArray();
 	}
 

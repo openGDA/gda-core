@@ -244,9 +244,9 @@ public class TwoJawSlitsTest {
 	public void testSetHardwareUnitString() {
 		try {
 			gap.setHardwareUnitString("micron");
-			assertEquals("micron",gap.getHardwareUnitString());
-			position.setHardwareUnitString("micron");
-			assertEquals("micron",position.getHardwareUnitString());
+			assertEquals("µm", gap.getHardwareUnitString());
+			position.setHardwareUnitString("µm");
+			assertEquals("µm", position.getHardwareUnitString());
 		} catch (Exception e) {
 			fail("exception during testSetHardwareUnitString: " + e.getMessage());
 		}

@@ -18,27 +18,29 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
-import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
-import static org.jscience.physics.units.SI.KILO;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.SI.KILO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.getInitialLengthUnit;
 import static uk.ac.gda.client.UIHelper.showError;
 
 import java.util.List;
 
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,14 +106,14 @@ public class EnergyFocusFunctionDisplay {
 	 * Update display from energyFocusFunction
 	 */
 	public void update() {
-		final Quantity slopeDividend = parseValue(energyFocusFunction.getSlopeDividend());
-		slopeDividendComposite.setValue(slopeDividend.to(MODEL_LENGTH_UNIT).getAmount());
+		final Amount<? extends Quantity> slopeDividend = parseValue(energyFocusFunction.getSlopeDividend());
+		slopeDividendComposite.setValue(slopeDividend.to(MODEL_LENGTH_UNIT).getEstimatedValue());
 
-		final Quantity interception = parseValue(energyFocusFunction.getInterception());
-		interceptionComposite.setValue(interception.to(MODEL_LENGTH_UNIT).getAmount());
+		final Amount<? extends Quantity> interception = parseValue(energyFocusFunction.getInterception());
+		interceptionComposite.setValue(interception.to(MODEL_LENGTH_UNIT).getEstimatedValue());
 
-		final Quantity slopeDivisor = parseValue(energyFocusFunction.getSlopeDivisor());
-		slopeDivisorComposite.setValue(slopeDivisor.to(MODEL_ENERGY_UNIT).getAmount());
+		final Amount<? extends Quantity> slopeDivisor = parseValue(energyFocusFunction.getSlopeDivisor());
+		slopeDivisorComposite.setValue(slopeDivisor.to(MODEL_ENERGY_UNIT).getEstimatedValue());
 	}
 
 	/**
@@ -121,13 +123,13 @@ public class EnergyFocusFunctionDisplay {
 	 *            Energy function value as String
 	 * @return corresponding {@link Quantity}
 	 */
-	private static Quantity parseValue(String value) {
+	private static Amount<? extends Quantity> parseValue(String value) {
 		final String[] splitValue = value.split(" ");
 		try {
 			final Double valueNum = Double.parseDouble(splitValue[0]);
 			// Allow "um" for microns
 			final Unit<?> valueUnit = (splitValue[1].equals("um") ? MICRO(METER) : Unit.valueOf(splitValue[1]));
-			return Quantity.valueOf(valueNum, valueUnit);
+			return Amount.valueOf(valueNum, valueUnit);
 		} catch (Exception e) {
 			showError("Error parsing energy function value '{}'", e);
 			throw new IllegalArgumentException(e);

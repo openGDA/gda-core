@@ -19,7 +19,7 @@
 			<jvmarg value="-Dgda.install.workspace.loc=${workspace.loc}" />
 			<jvmarg value="-Dgda.install.git.loc=${workspace.git.loc}" />
 			<sysproperty key="basedir" value="${plugin.basedir}" />
-			<sysproperty key="gda.tests" value = "${plugin.basedir}/src"/>  <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
+			<sysproperty key="gda.tests" value = "${plugin.basedir}/src"/> <!-- read by plugins/uk.ac.gda.core/src/gda/util/TestsUtil.java -->
 			<sysproperty key="gda.propertiesFile" value = "${plugin.basedir}/src/java.properties"/>
 			<formatter type="xml" />
 			<classpath>
@@ -27,7 +27,8 @@
 				<pathelement location="${jythonjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
 				<pathelement location="${plugin.basedir}/jars/*" />
-				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
+				<path refid="tp.jscience4.path" />  <!-- put ahead of any plugin that exports javax.measure* packages -->
+				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" /> <!-- to pick up logback-test.xml -->
 				<pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.test.helpers/bin" />
 				<pathelement location="${plugin.host.basedir}/classes/main" />
 				<pathelement location="${plugin.host.basedir}/classes/test" />
@@ -60,11 +61,10 @@
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.deprecated/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-common.git/org.dawb.common.util/bin" />
 				<pathelement location="${workspace.git.loc}/diamond-springframework.git/uk.ac.diamond.org.springframework/jars/*" />
-				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
-				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
-				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<path refid="tp.jscience.path" />  <!-- ensure that latest version 2 appears first in classpath -->
-				<path refid="tp.path" />  <!-- target platform -->
+				<path refid="tp.slf4j.path" /> <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
+				<path refid="tp.jcl-over-slf4j.path" /> <!-- ensure that matching imp appears first in classpath -->
+				<path refid="tp.hamcrest.path" /> <!-- ensure that latest version appears first in classpath -->
+				<path refid="tp.path" /> <!-- target platform -->
 			</classpath>
 			<!-- DAQ-275 run ScannableNexusWrapperScanTest separately (default forkmode=perBatch), since otherwise it fails due to earlier Jython-related tests not cleaning up -->
 			<batchtest todir="@{report.dir}">

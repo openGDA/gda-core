@@ -30,9 +30,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import javax.measure.quantity.Quantity;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.amount.Amount;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -767,13 +769,13 @@ public final class ScannableUtils {
 			}
 		}
 		// if its a Quantity
-		else if (position instanceof Quantity) {
-			posArray = (Double[]) ArrayUtils.add(posArray, ((Quantity) position).getAmount());
+		else if (position instanceof Amount) {
+			posArray = (Double[]) ArrayUtils.add(posArray, ((Amount<?>) position).getEstimatedValue());
 		}
 		// if its a String, then try to convert to a double
 		else if (position instanceof String) {
-			Quantity posAsQ = QuantityFactory.createFromString((String) position);
-			Double posAsDouble = posAsQ != null ? posAsQ.getAmount() : Double.parseDouble((String) position);
+			Amount<? extends Quantity> posAsQ = QuantityFactory.createFromString((String) position);
+			Double posAsDouble = posAsQ != null ? posAsQ.getEstimatedValue() : Double.parseDouble((String) position);
 			posArray = (Double[]) ArrayUtils.add(posArray, posAsDouble);
 		}
 		// else assume its some object whose toString() method returns a String which can be converted

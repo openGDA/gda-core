@@ -18,25 +18,27 @@
 
 package gda.jscience.physics.quantities;
 
-import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Energy;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
 import gda.jscience.physics.units.NonSIext;
 
 public class WaveVectorTest {
-	private static final Energy EDGE_ENERGY = Quantity.valueOf(1.4, ELECTRON_VOLT);
-	private static final Energy ELECTRON_ENERGY = Quantity.valueOf(7.23, ELECTRON_VOLT);
-	private static final Energy NEGATIVE_ENERGY = Quantity.valueOf(-0.01, ELECTRON_VOLT);
+	private static final Amount<Energy> EDGE_ENERGY = Amount.valueOf(1.4, ELECTRON_VOLT);
+	private static final Amount<Energy> ELECTRON_ENERGY = Amount.valueOf(7.23, ELECTRON_VOLT);
+	private static final Amount<Energy> NEGATIVE_ENERGY = Amount.valueOf(-0.01, ELECTRON_VOLT);
 
 	@Test
 	public void testWaveVectorFromEnergies() {
-		final Vector result = WaveVector.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
-		assertEquals(1.237, result.getAmount(), 0.0001);
+		final Amount<Vector> result = WaveVector.waveVectorOf(EDGE_ENERGY, ELECTRON_ENERGY);
+		assertEquals(1.237, result.getEstimatedValue(), 0.0001);
 		assertEquals(NonSIext.PER_ANGSTROM, result.getUnit());
 	}
 
@@ -62,11 +64,11 @@ public class WaveVectorTest {
 
 	@Test
 	public void testWaveVectorZeroEdgeEnergy() {
-		assertNull(WaveVector.waveVectorOf(Energy.ZERO, ELECTRON_ENERGY));
+		assertNull(WaveVector.waveVectorOf(ZERO_ENERGY, ELECTRON_ENERGY));
 	}
 
 	@Test
 	public void testWaveVectorZeroElectronEnergy() {
-		assertNull(WaveVector.waveVectorOf(EDGE_ENERGY, Energy.ZERO));
+		assertNull(WaveVector.waveVectorOf(EDGE_ENERGY, ZERO_ENERGY));
 	}
 }

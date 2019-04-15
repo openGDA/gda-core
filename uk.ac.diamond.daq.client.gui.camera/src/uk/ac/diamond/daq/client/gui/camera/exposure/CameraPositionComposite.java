@@ -8,9 +8,9 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.units.SI;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Length;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 

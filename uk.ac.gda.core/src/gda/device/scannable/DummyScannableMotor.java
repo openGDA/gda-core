@@ -18,7 +18,9 @@
 
 package gda.device.scannable;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
@@ -161,8 +163,8 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 	}
 
 	@Override
-	public Quantity[] getPositionAsQuantityArray() throws DeviceException {
-		return new Quantity[] {Quantity.valueOf(motor.getPosition(), unitsComponent.getUserUnit())};
+	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
+		return new Amount<?>[] {Amount.valueOf(motor.getPosition(), unitsComponent.getUserUnit())};
 	}
 
 	@Override

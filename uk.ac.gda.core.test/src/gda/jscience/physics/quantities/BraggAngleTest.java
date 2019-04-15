@@ -19,71 +19,70 @@
 
 package gda.jscience.physics.quantities;
 
-import static org.jscience.physics.units.NonSI.ANGSTROM;
-import static org.jscience.physics.units.NonSI.DEGREE_ANGLE;
-import static org.jscience.physics.units.NonSI.ELECTRON_VOLT;
-import static org.jscience.physics.units.SI.MILLI;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
+import static javax.measure.unit.NonSI.ANGSTROM;
+import static javax.measure.unit.NonSI.DEGREE_ANGLE;
+import static javax.measure.unit.NonSI.ELECTRON_VOLT;
+import static javax.measure.unit.SI.MILLI;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.junit.Ignore;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
 /**
  * Test suite for {@link BraggAngle} class
  */
 public class BraggAngleTest {
-	private static final Length WAVELENGTH = Quantity.valueOf(1.388, ANGSTROM);
-	private static final Length TWO_D = Quantity.valueOf(6.271, ANGSTROM);
-	private static final Energy PHOTON_ENERGY = Quantity.valueOf(8.9326e+3, ELECTRON_VOLT);
-	private static final Length NEGATIVE_LENGTH = Quantity.valueOf(-0.01, ANGSTROM);
-	private static final Energy NEGATIVE_ENERGY = Quantity.valueOf(-0.01, ELECTRON_VOLT);
+	private static final Amount<Length> WAVELENGTH = Amount.valueOf(1.388, ANGSTROM);
+	private static final Amount<Length> TWO_D = Amount.valueOf(6.271, ANGSTROM);
+	private static final Amount<Energy> PHOTON_ENERGY = Amount.valueOf(8.9326e+3, ELECTRON_VOLT);
+	private static final Amount<Length> NEGATIVE_LENGTH = Amount.valueOf(-0.01, ANGSTROM);
+	private static final Amount<Energy> NEGATIVE_ENERGY = Amount.valueOf(-0.01, ELECTRON_VOLT);
 
 	//------------------------------------------------------------------------------------------
 	// Bragg angle from wavelength
 	//------------------------------------------------------------------------------------------
 	@Test
 	public void testBraggAngleFromWavelength() {
-		final Angle expectedAngle = Quantity.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Angle result = BraggAngle.braggAngleOf(WAVELENGTH, TWO_D);
-		assertEquals(expectedAngle.doubleValue(), result.doubleValue(), 0.000001);
+		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
+		final Amount<Angle> result = BraggAngle.braggAngleFromWavelength(WAVELENGTH, TWO_D);
+		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.000001);
 	}
 
-	@Ignore
 	@Test
 	public void testBraggAngleFromWavelengthNullWavelength() {
-		// Cannot currently be run, as type erasure makes the call ambiguous
-		// Reinstate after update to jscience4
-		//assertNull(BraggAngle.braggAngleOf(null, TWO_D));
+		assertNull(BraggAngle.braggAngleFromWavelength(null, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNullTwoD() {
-		assertNull(BraggAngle.braggAngleOf(WAVELENGTH, null));
+		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, null));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthZeroWavelength() {
-		assertNull(BraggAngle.braggAngleOf(Length.ZERO, TWO_D));
+		assertNull(BraggAngle.braggAngleFromWavelength(ZERO_LENGTH, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthZeroTwoD() {
-		assertNull(BraggAngle.braggAngleOf(WAVELENGTH, Length.ZERO));
+		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, ZERO_LENGTH));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNegativeWavelength() {
-		assertNull(BraggAngle.braggAngleOf(NEGATIVE_LENGTH, TWO_D));
+		assertNull(BraggAngle.braggAngleFromWavelength(NEGATIVE_LENGTH, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromWavelengthNegativeTwoD() {
-		assertNull(BraggAngle.braggAngleOf(WAVELENGTH, NEGATIVE_LENGTH));
+		assertNull(BraggAngle.braggAngleFromWavelength(WAVELENGTH, NEGATIVE_LENGTH));
 	}
 
 	//------------------------------------------------------------------------------------------
@@ -91,41 +90,38 @@ public class BraggAngleTest {
 	//------------------------------------------------------------------------------------------
 	@Test
 	public void testBraggAngleFromPhotonEnergy() {
-		final Angle expectedAngle = Quantity.valueOf(12787.5, MILLI(DEGREE_ANGLE));
-		final Angle result = BraggAngle.braggAngleOf(PHOTON_ENERGY, TWO_D);
-		assertEquals(expectedAngle.doubleValue(), result.doubleValue(), 0.000001);
+		final Amount<Angle> expectedAngle = Amount.valueOf(12787.5, MILLI(DEGREE_ANGLE));
+		final Amount<Angle> result = BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, TWO_D);
+		assertEquals(expectedAngle.doubleValue(Angle.UNIT), result.doubleValue(Angle.UNIT), 0.00001);
 	}
 
-	@Ignore
 	@Test
 	public void testBraggAngleFromPhotonEnergyNullEnergy() {
-		// Cannot currently be run, as type erasure makes the call ambiguous
-		// Reinstate after update to jscience4
-		//assertNull(BraggAngle.braggAngleOf(null, twoD));
+		assertNull(BraggAngle.braggAngleFromEnergy(null, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNullTwoD() {
-		assertNull(BraggAngle.braggAngleOf(PHOTON_ENERGY, null));
+		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, null));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyZeroEnergy() {
-		assertNull(BraggAngle.braggAngleOf(Energy.ZERO, TWO_D));
+		assertNull(BraggAngle.braggAngleFromEnergy(ZERO_ENERGY, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyZeroTwoD() {
-		assertNull(BraggAngle.braggAngleOf(PHOTON_ENERGY, Length.ZERO));
+		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, ZERO_LENGTH));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNegativeEnergy() {
-		assertNull(BraggAngle.braggAngleOf(NEGATIVE_ENERGY, TWO_D));
+		assertNull(BraggAngle.braggAngleFromEnergy(NEGATIVE_ENERGY, TWO_D));
 	}
 
 	@Test
 	public void testBraggAngleFromPhotonEnergyNegativeTwoD() {
-		assertNull(BraggAngle.braggAngleOf(PHOTON_ENERGY, NEGATIVE_LENGTH));
+		assertNull(BraggAngle.braggAngleFromEnergy(PHOTON_ENERGY, NEGATIVE_LENGTH));
 	}
 }

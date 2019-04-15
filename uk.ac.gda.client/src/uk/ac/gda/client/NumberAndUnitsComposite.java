@@ -23,6 +23,12 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.measure.quantity.Duration;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -31,17 +37,15 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import org.jscience.physics.amount.Amount;
 
 /**
  * A Composite for displaying a number with a unit.<br>
  * The selection of units supported is configured in the constructor.<br>
  * It supports JFace databinding via {@link NumberUnitsWidgetProperty} *
  * <p>
- * Generic parameter Q is the type of quantity this composite can be used to edit e.g.
- * {@link org.jscience.physics.quantities.Energy}, {@link org.jscience.physics.quantities.Length},
- * {@link org.jscience.physics.quantities.Duration}
+ * Generic parameter Q is the type of quantity this composite can be used to edit e.g. {@link Energy}, {@link Length},
+ * {@link Duration}
  * <p>
  * The composite contains a text box with the numeric value (displayed in scientific format if appropriate) and a
  * drop-down box to choose units:<br>
@@ -130,9 +134,9 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 
 	@SuppressWarnings("unchecked")
 	private void handleUnitChange(SelectionChangedEvent event) {
-		final Quantity currentValue = getValueAsQuantity(); // in "old" units
+		final Amount<? extends Quantity> currentValue = getValueAsQuantity(); // in "old" units
 		currentUnit = (Unit<Q>) ((StructuredSelection) event.getSelection()).getFirstElement();
-		setValue(currentValue.to(modelUnit).getAmount());
+		setValue(currentValue.to(modelUnit).getEstimatedValue());
 	}
 
 	/**
@@ -154,8 +158,8 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 *
 	 * @return Current value as a quantity
 	 */
-	public Quantity getValueAsQuantity() {
-		return Quantity.valueOf(getTextAsDouble(), currentUnit);
+	public Amount<? extends Quantity> getValueAsQuantity() {
+		return Amount.valueOf(getTextAsDouble(), currentUnit);
 	}
 
 	/**
@@ -165,7 +169,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 * @return the value in model units
 	 */
 	public double getValue() {
-		return getValueAsQuantity().to(modelUnit).getAmount();
+		return getValueAsQuantity().to(modelUnit).getEstimatedValue();
 	}
 
 	/**
@@ -177,7 +181,7 @@ public class NumberAndUnitsComposite<Q extends Quantity> extends Composite {
 	 */
 	public void setValue(double value) {
 		// Value in current units
-		final double valueInCurrentUnits = Quantity.valueOf(value, modelUnit).to(currentUnit).getAmount();
+		final double valueInCurrentUnits = Amount.valueOf(value, modelUnit).to(currentUnit).getEstimatedValue();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001

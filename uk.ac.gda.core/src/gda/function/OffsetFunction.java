@@ -19,7 +19,9 @@
 
 package gda.function;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.util.QuantityFactory;
 
@@ -30,9 +32,8 @@ public class OffsetFunction extends FindableFunction {
 
 	private double offset = 0.0;
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Quantity apply(Quantity value) {
+	public Amount<? extends Quantity> apply(Amount<? extends Quantity> value) {
 		return value.plus(QuantityFactory.createFromObject(offset, value.getUnit()));
 	}
 

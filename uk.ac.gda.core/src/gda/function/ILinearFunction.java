@@ -20,11 +20,13 @@ package gda.function;
 
 import java.util.function.Function;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.factory.Findable;
 
-public interface ILinearFunction extends Findable, Function<Quantity, Quantity> {
+public interface ILinearFunction extends Findable, Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
 
 	String getInterception();
 

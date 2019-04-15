@@ -1,11 +1,12 @@
-from org.jscience.physics.quantities import Constants as JScienceConstants
+from org.jscience.physics.amount import Constants as JScienceConstants
+from javax.measure.unit.SI import KILOGRAM
 
 # Useful numbers:
 
 # Pi
 pi = 3.141592653589793238
 
-eV = 1.602176462e-19 # J 
+eV = 1.602176462e-19 # J
 
 # Planck constant
 hPlanck = 6.6260693e-34 # J s
@@ -17,13 +18,13 @@ hbareV = hbar/eV # eV s
 clight = 299792458 # m s-1
 
 #electron mass
-m_e = JScienceConstants.me.doubleValue() #@UndefinedVariable
+m_e = JScienceConstants.me.doubleValue(KILOGRAM) #@UndefinedVariable
 
 # electron radius
 r_e = 2.817940325e-15 #m
 
 # Atomic unit of mass (1/12 of Carbone12)
-amu = JScienceConstants.amu.doubleValue() #@UndefinedVariable
+amu = JScienceConstants.amu.doubleValue(KILOGRAM) #@UndefinedVariable
 
 
 

@@ -22,7 +22,9 @@ package gda.function;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,25 +44,22 @@ public class SimpleTrigFunction extends FindableFunction {
 	private String trigFunc;
 
 	// These are constructed from them
-	private Quantity constantA;
+	private Amount<? extends Quantity> constantA;
 
-	private Quantity constantB;
+	private Amount<? extends Quantity> constantB;
 
 	private Method trigMethod;
 
 	@Override
-	public Quantity apply(Quantity xValue) {
-		double trigValue;
-		Quantity yValue = null;
-
+	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
 		try {
-			trigValue = (Double) trigMethod.invoke(null, constantB.times(xValue).doubleValue());
-			yValue = constantA.times(trigValue);
+			final double trigValue = (Double) trigMethod.invoke(null, constantB.times(xValue).getEstimatedValue());
+			return constantA.times(trigValue);
 		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			logger.error("Error evaluating {}", xValue, e);
 		}
 
-		return yValue;
+		return null;
 	}
 
 	/**

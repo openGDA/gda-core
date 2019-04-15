@@ -22,7 +22,9 @@ package gda.util.converters;
 import java.util.List;
 import java.util.Objects;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.util.converters.util.ConverterNameProvider;
 
@@ -93,17 +95,17 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	@Override
-	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
 
 		if (autoConversion) {
-			setConverterName(getProvider().getConverterName(sources[0].getAmount()));
+			setConverterName(getProvider().getConverterName(sources[0].getEstimatedValue()));
 			reloadConverter();
 		}
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -136,14 +138,14 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		if (autoConversion) {
-			setConverterName(getProvider().getConverterName(source.getAmount()));
+			setConverterName(getProvider().getConverterName(source.getEstimatedValue()));
 			reloadConverter();
 		}
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);

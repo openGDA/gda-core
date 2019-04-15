@@ -19,37 +19,23 @@
 
 package gda.jscience.physics.quantities;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.jscience.physics.units.NonSIext;
 
-public class Count extends Quantity {
-	private static final Logger logger = LoggerFactory.getLogger(Count.class);
-
-    /**
+public class Count implements Quantity {
+	/**
      * Holds the associated unit.
      */
-	private static final Unit<Count> UNIT = NonSIext.COUNT;
-
-	/**
-	 * Holds the factory for this class.
-	 */
-	@SuppressWarnings("unused")
-	private static final Factory<Count> FACTORY = new Factory<Count>(UNIT) {
-		@Override
-		protected Count create() {
-			logger.debug("Count created");
-			return new Count();
-		}
-	};
+	public static final Unit<Count> UNIT = NonSIext.COUNT;
 
 	/**
 	 * Represents a {@link Count} amounting to nothing.
 	 */
-	public static final Count ZERO = Quantity.valueOf(0, UNIT);
+	public static final Amount<Count> ZERO = Amount.valueOf(0, UNIT);
 
 	/**
 	 * Default constructor (allows for derivation).
@@ -57,5 +43,6 @@ public class Count extends Quantity {
 	protected Count() {
 	}
 
-    private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+	private static final long serialVersionUID = 1L;
 }

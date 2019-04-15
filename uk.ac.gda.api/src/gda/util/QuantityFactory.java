@@ -21,9 +21,11 @@ package gda.util;
 
 import java.util.StringTokenizer;
 
-import org.jscience.physics.quantities.Dimensionless;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyString;
@@ -54,38 +56,34 @@ public class QuantityFactory {
 	 * @param targetQuantity
 	 * @return the Quantity created (or null)
 	 */
-	public static Quantity createFromObject(Object position, Unit<? extends Quantity> targetQuantity) {
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity> Amount<Q> createFromObject(Object position, Unit<Q> targetQuantity) {
 		// position must be a double or a string which can be converted in a
 		// suitable quantity for this object
-		Quantity targetPosition = null;
 
 		// convert input into Quantity objects
 		if (position instanceof String) {
-			final Quantity positionAsQuantity = QuantityFactory.createFromString((String) position);
+			final Amount<? extends Quantity> positionAsQuantity = QuantityFactory.createFromString((String) position);
 			if (positionAsQuantity != null){
-				targetPosition = positionAsQuantity.to(targetQuantity);
+				return positionAsQuantity.to(targetQuantity);
 			}
 		} else if (position instanceof PyString) {
-			final Quantity positionAsQuantity = QuantityFactory.createFromString(((PyString) position).toString());
+			final Amount<? extends Quantity> positionAsQuantity = QuantityFactory.createFromString(((PyString) position).toString());
 			if (positionAsQuantity != null) {
-				targetPosition = positionAsQuantity.to(targetQuantity);
+				return positionAsQuantity.to(targetQuantity);
 			}
 		} else if (position instanceof Double) {
-			targetPosition = Quantity.valueOf((Double) position, targetQuantity);
+			return Amount.valueOf((Double) position, targetQuantity);
 		} else if (position instanceof Integer) {
-			targetPosition = Quantity.valueOf((Integer) position, targetQuantity);
+			return Amount.valueOf((Integer) position, targetQuantity);
 		} else if (position instanceof PyFloat) {
-			targetPosition = Quantity.valueOf(((PyFloat) position).getValue(), targetQuantity);
+			return Amount.valueOf(((PyFloat) position).getValue(), targetQuantity);
 		} else if (position instanceof PyInteger) {
-			targetPosition = Quantity.valueOf(((PyInteger) position).getValue(), targetQuantity);
-		} else if (position instanceof Quantity) {
-			targetPosition = ((Quantity) position).to(targetQuantity);
-		} else if (position instanceof Dimensionless) {
-			targetPosition = Quantity.valueOf(((Dimensionless) position).getAmount(), targetQuantity);
-		} else {
-			return null;
+			return Amount.valueOf(((PyInteger) position).getValue(), targetQuantity);
+		} else if (position instanceof Amount) {
+			return ((Amount<? extends Quantity>) position).to(targetQuantity);
 		}
-		return targetPosition;
+		return null;
 	}
 
 	/**
@@ -96,7 +94,7 @@ public class QuantityFactory {
 	 *            of the form '1.0 mm'
 	 * @return the Quantity created (or null)
 	 */
-	public static Quantity createFromString(String string) {
+	public static Amount<? extends Quantity> createFromString(String string) {
 		final String valueString;
 		final String unitString;
 		if (string != null) {
@@ -159,12 +157,15 @@ public class QuantityFactory {
 	 *            the units - e.g. 'mm'
 	 * @return the Quantity created (or null)
 	 */
-	public static Quantity createFromTwoStrings(String valueString, String unitString) {
+	public static Amount<? extends Quantity> createFromTwoStrings(String valueString, String unitString) {
 		if (valueString != null && unitString != null) {
 			try {
-				return Quantity.valueOf(valueString + " " + unitString);
-			} catch (NumberFormatException e) {
-				logger.warn("Invalid number specified. valueString = '{}', unitString = '{}'", valueString, unitString);
+				if (unitString.length() == 0) {
+					return Amount.valueOf(Double.parseDouble(valueString), Dimensionless.UNIT);
+				}
+				return Amount.valueOf(valueString + " " + unitString);
+			} catch (Exception e) {
+				logger.warn("Invalid Amount specified. valueString = '{}', unitString = '{}'", valueString, unitString);
 				return null;
 			}
 		}
@@ -180,8 +181,7 @@ public class QuantityFactory {
 	 *            the name of a unit.
 	 * @return the corresponding Unit, or null if not found
 	 */
-	@SuppressWarnings("unchecked")
-	public static <Q extends Quantity> Unit<Q> createUnitFromString(String string) {
+	public static Unit<? extends Quantity> createUnitFromString(String string) {
 		// This method is tagged with @suppressWarnings as we can't predict at
 		// compile time which type of unit will be created from a string.
 		try {

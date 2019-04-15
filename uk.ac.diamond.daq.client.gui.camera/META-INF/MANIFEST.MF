@@ -10,7 +10,7 @@ Import-Package: gda.factory,
  org.slf4j
 Require-Bundle: org.eclipse.jface,
  com.google.gson,
- uk.ac.diamond.org.jscience,
+ uk.ac.diamond.org.jscience4,
  org.dawnsci.plotting.histogram,
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client,

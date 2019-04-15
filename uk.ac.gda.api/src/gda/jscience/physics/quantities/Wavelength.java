@@ -19,23 +19,33 @@
 
 package gda.jscience.physics.quantities;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Constants;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
+import static gda.jscience.physics.quantities.QuantityConstants.PLANCKS_CONSTANT;
+import static gda.jscience.physics.quantities.QuantityConstants.SPEED_OF_LIGHT;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ANGLE;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
+import static javax.measure.unit.SI.RADIAN;
+
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A method only class to extend the functionality of the {@link Length} class. This class extends
+ * A method only class to extend the functionality of the {@link Length} class. This class implements
  * {@link Length} to provide additional methods for conversions between Wavelength,
  * Bragg Angle, and Photon Energy for X-Ray application. While these additional methods should be accessed using class
  * name, their returns are of the {@link Length} type, not {@link Wavelength} type, in order to make them compatible
  * with the Unit System defined in JScience. Ideally these method should be implemented directly into the {@link Length}
  * class.
  */
-public class Wavelength extends Length {
+public class Wavelength implements Length {
 	private static final Logger logger = LoggerFactory.getLogger(Wavelength.class);
+
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 2110601334827305173L;
 
 	/**
@@ -51,11 +61,11 @@ public class Wavelength extends Length {
 	 *            PhotonEnergy the energy of the photon.
 	 * @return Wavelength the X-Ray wavelength of the specified photon energy.
 	 */
-	public static Length wavelengthOf(Energy photonEnergy) {
+	public static Amount<Length> wavelengthOf(Amount<Energy> photonEnergy) {
 		logger.debug("wavelengthOf(photonEnergy = {}", photonEnergy);
-		if (photonEnergy != null && photonEnergy.isGreaterThan(Energy.ZERO)) {
+		if (photonEnergy != null && photonEnergy.isGreaterThan(ZERO_ENERGY)) {
 			// Returns (h*c/E)
-			return (Length) (Constants.h.times(Constants.c).divide(photonEnergy));
+			return PLANCKS_CONSTANT.times(SPEED_OF_LIGHT).divide(photonEnergy).to(Length.UNIT);
 		}
 		return null;
 	}
@@ -69,11 +79,12 @@ public class Wavelength extends Length {
 	 *            Length the 2d spacing of the crystal.
 	 * @return Wavelength the X-Ray wavelength selected by the crystal.
 	 */
-	public static Length wavelengthOf(Angle braggAngle, Length twoD) {
+	public static Amount<Length> wavelengthOf(Amount<Angle> braggAngle, Amount<Length> twoD) {
 		logger.debug("wavelengthOf(braggAngle = {}, twoD = {})", braggAngle, twoD);
-		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(Angle.ZERO)
-				&& twoD.isGreaterThan(Length.ZERO)) {
-			return (Length) (twoD.times(braggAngle.sine()));
+		if (braggAngle != null && twoD != null && braggAngle.isGreaterThan(ZERO_ANGLE)
+				&& twoD.isGreaterThan(ZERO_LENGTH)) {
+			final double braggAngleSine = Math.sin(braggAngle.doubleValue(RADIAN));
+			return twoD.times(braggAngleSine);
 		}
 		return null;
 	}

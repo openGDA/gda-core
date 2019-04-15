@@ -19,19 +19,25 @@
 
 package gda.jscience.physics.quantities;
 
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.SI;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_ENERGY;
+import static gda.jscience.physics.quantities.QuantityConstants.ZERO_LENGTH;
+import static javax.measure.unit.SI.RADIAN;
+
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Represents the Bragg angle of a crystal.
  */
-public final class BraggAngle extends Angle {
+public final class BraggAngle implements Angle {
 	private static final Logger logger = LoggerFactory.getLogger(BraggAngle.class);
+
 	/**
 	 * Prevent instantiation
 	 */
@@ -47,11 +53,12 @@ public final class BraggAngle extends Angle {
 	 *            Length the 2*d spacing of the crystal.
 	 * @return BraggAngle the Bragg Angle of the crystal.
 	 */
-	public static Angle braggAngleOf(Length wavelength, Length twoD) {
-		logger.debug("braggAngleOf(wavelength = {}, twoD = {})", wavelength, twoD);
-		if (wavelength != null && twoD != null && wavelength.isGreaterThan(Length.ZERO)
-				&& twoD.isGreaterThan(Length.ZERO)) {
-			return Quantity.valueOf(Math.asin(wavelength.divide(twoD).doubleValue()), SI.RADIAN);
+	public static Amount<Angle> braggAngleFromWavelength(Amount<Length> wavelength, Amount<Length> twoD) {
+		logger.debug("braggAngleFromWavelength(wavelength = {}, twoD = {})", wavelength, twoD);
+		if (wavelength != null && twoD != null && wavelength.isGreaterThan(ZERO_LENGTH)
+				&& twoD.isGreaterThan(ZERO_LENGTH)) {
+			final Amount<Dimensionless> wavelengthBySpacing = wavelength.divide(twoD).to(Dimensionless.UNIT);
+			return Amount.valueOf(Math.asin(wavelengthBySpacing.doubleValue(Dimensionless.UNIT)), RADIAN);
 		}
 		return null;
 	}
@@ -65,11 +72,11 @@ public final class BraggAngle extends Angle {
 	 *            Length the 2*d spacing of the crystal.
 	 * @return BraggAngle the Bragg Angle of the crystal.
 	 */
-	public static Angle braggAngleOf(Energy photonEnergy, Length twoD) {
-		logger.debug("braggAngleOf(photonEnergy = {}, twoD = {})", photonEnergy, twoD);
-		if (photonEnergy != null && twoD != null && photonEnergy.isGreaterThan(Energy.ZERO)
-				&& twoD.isGreaterThan(Length.ZERO)) {
-			return BraggAngle.braggAngleOf(Wavelength.wavelengthOf(photonEnergy), twoD);
+	public static Amount<Angle> braggAngleFromEnergy(Amount<Energy> photonEnergy, Amount<Length> twoD) {
+		logger.debug("braggAngleFromEnergy(photonEnergy = {}, twoD = {})", photonEnergy, twoD);
+		if (photonEnergy != null && twoD != null && photonEnergy.isGreaterThan(ZERO_ENERGY)
+				&& twoD.isGreaterThan(ZERO_LENGTH)) {
+			return BraggAngle.braggAngleFromWavelength(Wavelength.wavelengthOf(photonEnergy), twoD);
 		}
 		return null;
 	}

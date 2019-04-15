@@ -22,7 +22,9 @@ package gda.util.converters;
 import java.io.File;
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -160,12 +162,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	@Override
-	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -193,12 +195,12 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		return getConverter().toSource(target);
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		return getConverter().toTarget(source);
 	}
 

@@ -20,12 +20,12 @@
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
 				<pathelement location="${plugin.basedir}/bin" />
+				<path refid="tp.jscience4.path" />  <!-- put ahead of any plugin that exports javax.measure* packages -->
 				<pathelement location="${workspace.git.loc}/gda-core.git/diamond.releng.tools.gda/logging" />  <!-- to pick up logback-test.xml -->
 				<pathelement location="${plugin.host.basedir}/bin" />
 				<path refid="tp.slf4j.path" />  <!-- ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<path refid="tp.jcl-over-slf4j.path" />  <!-- ensure that matching imp appears first in classpath -->
 				<path refid="tp.hamcrest.path" />  <!-- ensure that latest version appears first in classpath -->
-				<path refid="tp.jscience.path" />  <!-- ensure that version 2 appears first in classpath -->
 				<path refid="tp.path" />  <!-- target platform -->
 			</classpath>
 			<batchtest todir="@{report.dir}">

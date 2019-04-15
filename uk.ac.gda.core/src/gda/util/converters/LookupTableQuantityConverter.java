@@ -22,8 +22,10 @@ package gda.util.converters;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.springframework.util.StringUtils;
 
 import gda.function.ColumnDataFile;
@@ -43,7 +45,8 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 
 	private final int sColumn, tColumn;
 
-	private final List<String> acceptableSourceUnits, acceptableTargetUnits;
+	private final List<String> acceptableSourceUnits;
+	private final List<String> acceptableTargetUnits;
 
 	private final String columnDataFileName;
 
@@ -125,9 +128,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			// and max source.
 			final String sColumnUnitsString = columnDataFile.getColumnUnits(sColumn);
 			final String tColumnUnitsString = columnDataFile.getColumnUnits(tColumn);
-			@SuppressWarnings("unchecked")
 			final Unit<? extends Quantity> sColumnUnits = Unit.valueOf(sColumnUnitsString);
-			@SuppressWarnings("unchecked")
 			final Unit<? extends Quantity> tColumnUnits = Unit.valueOf(tColumnUnitsString);
 			if (performStoT()) {
 				if (extrapolate) {
@@ -190,13 +191,12 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		if (!performTtoS()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toSource: Mode does not allow T→S conversion. "
 							+ this.toString());
 		}
-		@SuppressWarnings("unchecked")
 		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
 		if (!target.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toSource: target units ("
@@ -215,13 +215,12 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		if (!performStoT()) {
 			throw new UnsupportedConversionException(
 					"LookupTableQuantityConverter.toTarget: Mode does not allow S→T conversion. "
 							+ this.toString());
 		}
-		@SuppressWarnings("unchecked")
 		final Unit<? extends Quantity> acceptableUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
 		if (!source.getUnit().isCompatible(acceptableUnits)) {
 			throw new InvalidUnitsException("LookupTableQuantityConverter.toTarget: source units ("

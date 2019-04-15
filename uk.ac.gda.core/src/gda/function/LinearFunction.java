@@ -19,7 +19,10 @@
 
 package gda.function;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +36,13 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 public class LinearFunction extends FindableFunction implements ILinearFunction {
 	private static final Logger logger = LoggerFactory.getLogger(LinearFunction.class);
 
-	private Quantity slope;
+	private Amount<? extends Quantity> slope;
 
-	private Quantity slopeNumerator;
+	private Amount<? extends Quantity> slopeNumerator;
 
-	private Quantity slopeDenominator;
+	private Amount<? extends Quantity> slopeDenominator;
 
-	private Quantity intercept;
+	private Amount<? extends Quantity> intercept;
 
 	private String slopeDivisor;
 
@@ -51,8 +54,8 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 * Constructor with no arguments. (Must exist or creation by Finder fails.)
 	 */
 	public LinearFunction() {
-		slope = Quantity.valueOf("0.0");
-		intercept = Quantity.valueOf("0.0");
+		slope = Amount.valueOf(0.0, Dimensionless.UNIT);
+		intercept = Amount.valueOf(0.0, Dimensionless.UNIT);
 	}
 
 	/**
@@ -63,7 +66,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 * @param intercept
 	 *            the intercept
 	 */
-	public LinearFunction(Quantity slope, Quantity intercept) {
+	public LinearFunction(Amount<? extends Quantity> slope, Amount<? extends Quantity> intercept) {
 		this.slope = slope;
 		this.intercept = intercept;
 
@@ -126,14 +129,14 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	}
 
 	@Override
-	public Quantity apply(Quantity xValue) {
-		slope = slopeNumerator.times(slopeDenominator.reciprocal());
+	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
+		slope = slopeNumerator.divide(slopeDenominator);
 
 		logger.debug("LinearFunction.evaluate: xValue is {}", xValue);
 		logger.debug("LinearFunction.evaluate: slope is {}", slope);
 		logger.debug("LinearFunction.evaluate: intercept is {}", intercept);
 
-		Quantity interim = xValue.times(slope).plus(intercept);
+		Amount<? extends Quantity> interim = xValue.times(slope).plus(intercept);
 
 		logger.debug("LinearFunction.evaluate: interim is {}", interim);
 

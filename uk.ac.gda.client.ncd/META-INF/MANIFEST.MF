@@ -3,6 +3,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.core,
  uk.ac.gda.client,
+ uk.ac.diamond.org.jscience4,
  uk.ac.gda.server.ncd;bundle-version="1.0.0",
  uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0",
  org.eclipse.ui.intro;bundle-version="3.3.1",
@@ -30,8 +31,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding,
  org.eclipse.jface.databinding,
  org.eclipse.core.databinding.observable,
- org.eclipse.core.databinding.property;bundle-version="1.5.0",
- uk.ac.diamond.org.jscience
+ org.eclipse.core.databinding.property;bundle-version="1.5.0"
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

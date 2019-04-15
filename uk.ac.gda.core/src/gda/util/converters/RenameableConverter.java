@@ -20,7 +20,9 @@ package gda.util.converters;
 
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * RenameableConverter Class
@@ -99,20 +101,18 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(org.jscience.physics.quantities.Quantity[],
-	 *      java.lang.Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Amount[], Object[])
 	 */
 	@Override
-	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
 		return getConverter().calculateMoveables(sources, moveables);
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#toSource(org.jscience.physics.quantities.Quantity[],
-	 *      java.lang.Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#toSource(Amount[], Object[])
 	 */
 	@Override
-	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
 		return getConverter().toSource(targets, moveables);
 	}
 
@@ -160,12 +160,12 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, IQua
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toSource(target);
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).toTarget(source);
 	}
 

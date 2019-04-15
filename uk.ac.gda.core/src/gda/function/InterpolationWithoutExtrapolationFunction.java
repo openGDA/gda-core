@@ -18,8 +18,8 @@
 
 package gda.function;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
 
 public class InterpolationWithoutExtrapolationFunction extends InterpolationFunction {
 

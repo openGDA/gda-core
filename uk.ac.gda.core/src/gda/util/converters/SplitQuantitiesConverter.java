@@ -21,7 +21,9 @@ package gda.util.converters;
 
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * class used to test the concept used in SplitConverterHolder without the need to instantiate an ObjectServer
@@ -40,20 +42,18 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(org.jscience.physics.quantities.Quantity[],
-	 *      java.lang.Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(Amount[], Object[])
 	 */
 	@Override
-	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
 		return calculateMoveablesConverter.calculateMoveables(sources, moveables);
 	}
 
 	/**
-	 * @see gda.util.converters.IQuantitiesConverter#toSource(org.jscience.physics.quantities.Quantity[],
-	 *      java.lang.Object[])
+	 * @see gda.util.converters.IQuantitiesConverter#toSource(Amount[], Object[])
 	 */
 	@Override
-	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
+	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
 		return toSourceConverter.toSource(targets, moveables);
 	}
 
@@ -91,7 +91,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		if (!(toSourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.toSource: toSourceConverter does not support IQuantityConverter ");
@@ -100,7 +100,7 @@ final class SplitQuantitiesConverter implements IQuantitiesConverter, IQuantityC
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		if (!(calculateMoveablesConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"SplitQuantitiesConverter.toTarget: calculateMoveablesConverter does not support IQuantityConverter ");

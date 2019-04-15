@@ -27,15 +27,17 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+
+import javax.measure.quantity.Energy;
+import javax.measure.unit.NonSI;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.jscience.physics.quantities.PhotonEnergy;
+import gda.jscience.physics.quantities.Vector;
 import gda.jscience.physics.units.NonSIext;
 import uk.ac.gda.util.io.TokenFileParser;
 
@@ -353,7 +355,7 @@ public final class Element {
 	 * @param maxEnergy the end of the energy range in eV
 	 */
 	public List<String> getListOfEdgesInEnergyRange(double minEnergy, double maxEnergy) {
-		Vector<String> edges = new Vector<String>();
+		List<String> edges = new ArrayList<>();
 
 		for (int i = 0; i < edgeNames.length; i++) {
 			if (edgeExists(i) && getEdgeEnergy(i) >= minEnergy && getEdgeEnergy(i) <= maxEnergy)
@@ -456,11 +458,9 @@ public final class Element {
 
 		} else if ("L1".equals(edge)) { // L1
 			// fix L1 final energy at 15 A-1
-			Quantity edgeInEV = Quantity.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
-			Quantity k = Quantity.valueOf(15, NonSIext.PER_ANGSTROM);
-			double finalEnergyInEV = PhotonEnergy.photonEnergyOf(edgeInEV, k).getAmount();
-			return finalEnergyInEV;
-			// return edgeEnergy + 500;
+			Amount<Energy> edgeInEV = Amount.valueOf(edgeEnergy, NonSI.ELECTRON_VOLT);
+			Amount<Vector> k = Amount.valueOf(15, NonSIext.PER_ANGSTROM);
+			return PhotonEnergy.photonEnergyFromEdgeAndVector(edgeInEV, k).getEstimatedValue();
 
 		} else if ("L2".equals(edge)) { // L2
 			return (getEdgeEnergy("L1")) - 10;

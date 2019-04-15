@@ -19,38 +19,24 @@
 
 package gda.jscience.physics.quantities;
 
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.jscience.physics.units.NonSIext;
 
-public class Vector extends Quantity {
-	private static final Logger logger = LoggerFactory.getLogger(Vector.class);
-
+public class Vector implements Quantity {
 	/**
 	 * Holds the system unit.
 	 */
 	public static final Unit<Vector> UNIT = NonSIext.PER_ANGSTROM;
 
 	/**
-	 * Holds the factory for this class.
-	 */
-	@SuppressWarnings("unused")
-	private static final Factory<Vector> FACTORY = new Factory<Vector>(UNIT) {
-		@Override
-		protected Vector create() {
-			logger.debug("Vector created");
-			return new Vector();
-		}
-	};
-
-	/**
 	 * Represents a {@link Length} amounting to nothing.
 	 */
-	public static final Vector ZERO = Quantity.valueOf(0, UNIT);
+	public static final Amount<Vector> ZERO = Amount.valueOf(0, UNIT);
 
 	/**
 	 * Default constructor (allows for derivation).

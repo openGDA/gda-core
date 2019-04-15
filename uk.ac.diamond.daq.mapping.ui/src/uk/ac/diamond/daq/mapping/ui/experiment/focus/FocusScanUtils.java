@@ -19,22 +19,23 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
 import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

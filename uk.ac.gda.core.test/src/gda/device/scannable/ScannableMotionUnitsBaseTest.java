@@ -19,8 +19,8 @@
 package gda.device.scannable;
 
 
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.amount.Amount;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -290,7 +290,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setHardwareUnitString("mm");
 		smub.setUserUnits("m");
 		smub.setInputNames(new String[]{"i1", "i2", "i3"});
-		smub.setOffset(new Object[]{Quantity.valueOf(1000000, MICRO(METER)), "2m", null});
+		smub.setOffset(new Object[]{Amount.valueOf(1000000, MICRO(METER)), "2m", null});
 
 		// We expect setOffset() to be called once with array parameter {1000., 2000., null}
 		final ArgumentCaptor<Double[]> offsetCaptor = ArgumentCaptor.forClass(Double[].class);
@@ -311,8 +311,8 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setHardwareUnitString("mm");
 		smub.setUserUnits("m");
 		smub.setInputNames(new String[]{"i1"});
-		smub.setOffset(new Object[]{Quantity.valueOf(1000000, MICRO(METER))});
-		smub.setOffset(Quantity.valueOf(1000000, MICRO(METER)));
+		smub.setOffset(new Object[]{Amount.valueOf(1000000, MICRO(METER))});
+		smub.setOffset(Amount.valueOf(1000000, MICRO(METER)));
 		smub.setOffset(1);
 		smub.setOffset("1");
 		smub.setOffset("1m");

@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * Package private class used by the public LookupTableConverterHolder and JEPConverterHolder This is a helper class to
@@ -46,17 +48,17 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	}
 
 	@Override
-	public Quantity[] calculateMoveables(Quantity[] sources, Object[] moveables) throws Exception {
-		Quantity target = converter.toTarget(sources[0]);
-		Quantity[] targets = new Quantity[moveables.length];
+	public Amount<? extends Quantity>[] calculateMoveables(Amount<? extends Quantity>[] sources, Object[] moveables) throws Exception {
+		Amount<? extends Quantity> target = converter.toTarget(sources[0]);
+		Amount<? extends Quantity>[] targets = new Amount<?>[moveables.length];
 		Arrays.fill(targets, target);
 		return targets;
 	}
 
 	@Override
-	public Quantity[] toSource(Quantity[] targets, Object[] moveables) throws Exception {
-		Quantity source = converter.toSource(targets[0]);
-		Quantity sources[] = new Quantity[moveables.length];
+	public Amount<? extends Quantity>[] toSource(Amount<? extends Quantity>[] targets, Object[] moveables) throws Exception {
+		Amount<? extends Quantity> source = converter.toSource(targets[0]);
+		Amount<? extends Quantity>[] sources = new Amount<?>[moveables.length];
 		Arrays.fill(sources, source);
 		return sources;
 	}
@@ -81,11 +83,11 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 		return converter.getAcceptableTargetUnits();
 	}
 
-	public Quantity toSource(Quantity target) throws Exception {
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
 		return converter.toSource(target);
 	}
 
-	public Quantity toTarget(Quantity source) throws Exception {
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
 		return converter.toTarget(source);
 	}
 

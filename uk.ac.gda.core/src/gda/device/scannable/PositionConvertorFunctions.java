@@ -21,9 +21,11 @@ package gda.device.scannable;
 import java.lang.reflect.Array;
 import java.util.List;
 
-import org.jscience.physics.quantities.Dimensionless;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -230,6 +232,7 @@ public final class PositionConvertorFunctions {
 	 * @param object
 	 * @return a Double
 	 */
+	@SuppressWarnings("unchecked")
 	public static Double toDouble(Object object) {
 
 		try {
@@ -243,8 +246,8 @@ public final class PositionConvertorFunctions {
 				return ((PyString) object).atof();
 			} else if (object instanceof PyObject) {
 				return (Double) ((PyObject) object).__tojava__(Double.class);
-			} else if (object instanceof Quantity) {
-				return ((Quantity) object).getAmount();
+			} else if (object instanceof Amount) {
+				return ((Amount<? extends Quantity>) object).getEstimatedValue();
 			}
 		} catch (PyException | NumberFormatException ex) {
 			// Ignore this error and throw generic error below
@@ -300,22 +303,22 @@ public final class PositionConvertorFunctions {
 		return toDoubleArray(toObjectArray(objectArray));
 	}
 
-	public static Quantity[] toQuantityArray(final Object[] objectArray, final Unit<?> targetUnit) {
+	public static Amount<? extends Quantity>[] toQuantityArray(final Object[] objectArray, final Unit<?> targetUnit) {
 		if (objectArray == null) {
 			return null;
 		}
-		Quantity[] quantityArray = new Quantity[objectArray.length];
+		Amount<? extends Quantity>[] quantityArray = new Amount<?>[objectArray.length];
 		for (int i = 0; i < objectArray.length; i++) {
 			quantityArray[i] = toQuantity(objectArray[i], targetUnit);
 		}
 		return quantityArray;
 	}
 
-	public static Quantity[] toQuantityArray(final Quantity[] quantityArray, final Unit<?> targetUnit) {
+	public static Amount<? extends Quantity>[] toQuantityArray(final Amount<? extends Quantity>[] quantityArray, final Unit<?> targetUnit) {
 		if (quantityArray == null) {
 			return null;
 		}
-		Quantity[] targetQuantityArray = new Quantity[quantityArray.length];
+		Amount<? extends Quantity>[] targetQuantityArray = new Amount<?>[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
 			targetQuantityArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].to(targetUnit);
 		}
@@ -339,8 +342,8 @@ public final class PositionConvertorFunctions {
 		if (object instanceof PyObject) {
 			return (Integer) ((PyObject) object).__tojava__(Integer.class);
 		}
-		if (object instanceof Quantity) {
-			return (int) ((Quantity) object).getAmount();
+		if (object instanceof Amount) {
+			return (int) ((Amount<?>) object).getEstimatedValue();
 		}
 
 		throw new IllegalArgumentException("Could not convert " + object.toString() + " to an integer.");
@@ -372,41 +375,48 @@ public final class PositionConvertorFunctions {
 	}
 
 
-	public static Quantity toQuantity(final Object object, final Unit<?> targetUnit) {
-
+	public static <Q extends Quantity> Amount<Q> toQuantity(final Object object, final Unit<Q> targetUnit) {
 		if (object == null) {
 			return null;
 		}
 
-		if (object instanceof Dimensionless) {
-			return Quantity.valueOf(((Dimensionless) object).getAmount(), targetUnit);
-		}
-
-		if (object instanceof Quantity) {
-			return ((Quantity) object).to(targetUnit);
+		if (object instanceof Amount) {
+			@SuppressWarnings("unchecked")
+			final Amount<? extends Quantity> amount = (Amount<? extends Quantity>) object;
+			return amountToQuantity(amount, targetUnit);
 		}
 
 		if (object instanceof String) {
-			Quantity quantity = QuantityFactory.createFromString((String) object);
-			if (quantity == null) {
-				throw new IllegalArgumentException("Could not parse string '" + (String) object + "' to a quantity.");
-			}
-			return (quantity instanceof Dimensionless) ? Quantity.valueOf(((Dimensionless) quantity).getAmount(),
-					targetUnit) : quantity.to(targetUnit);
+			return stringToQuantity((String) object, targetUnit);
 		}
 
 		if (object instanceof PyString) {
-			return toQuantity(((PyString) object).toString(), targetUnit);
+			return stringToQuantity(((PyString) object).toString(), targetUnit);
 		}
 
 		// Assume it is parseable to double. toDouble throws an IllegalArgumentException if it canot parse object
-		return Quantity.valueOf(toDouble(object), targetUnit);
+		return Amount.valueOf(toDouble(object), targetUnit);
 	}
 
-	public static Double[] toAmountArray(final Quantity[] quantityArray) {
-		Double[] ammountArray = new Double[quantityArray.length];
+	private static <Q extends Quantity> Amount<Q> stringToQuantity(final String amountString, final Unit<Q> targetUnit) {
+		final Amount<? extends Quantity> amount = QuantityFactory.createFromString(amountString);
+		if (amount == null) {
+			throw new IllegalArgumentException("Could not parse string '" + amountString + "' to a quantity.");
+		}
+		return amountToQuantity(amount, targetUnit);
+	}
+
+	private static <Q extends Quantity> Amount<Q> amountToQuantity(final Amount<? extends Quantity> amount, final Unit<Q> targetUnit) {
+		if (amount.getUnit() == Dimensionless.UNIT) {
+			return Amount.valueOf(amount.getEstimatedValue(), targetUnit);
+		}
+		return amount.to(targetUnit);
+	}
+
+	public static Double[] toAmountArray(final Amount<? extends Quantity>[] quantityArray) {
+		final Double[] ammountArray = new Double[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
-			ammountArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].getAmount();
+			ammountArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].getEstimatedValue();
 		}
 		return ammountArray;
 	}

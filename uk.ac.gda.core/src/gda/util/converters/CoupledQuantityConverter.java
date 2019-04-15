@@ -21,8 +21,10 @@ package gda.util.converters;
 
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * class used to test the concept used in CoupoleConverterHolder without the need to instantiate an ObjectServer
@@ -57,19 +59,18 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 	}
 
 	@Override
-	public Quantity toSource(Quantity target) throws Exception {
-		Quantity q = targetConverter.toSource(target);
+	public Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) throws Exception {
+		Amount<? extends Quantity> q = targetConverter.toSource(target);
 		// check units are of the sort we expect for the conversion - else
 		// convert to it first
 		return sourceConverter.toSource(q);
 	}
 
 	@Override
-	public Quantity toTarget(Quantity source) throws Exception {
-		Quantity q = sourceConverter.toTarget(source);
+	public Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) throws Exception {
+		Amount<? extends Quantity> q = sourceConverter.toTarget(source);
 		// check units are of the sort we expect for the conversion - else
 		// convert to it first
-		@SuppressWarnings("unchecked")
 		final Unit<? extends Quantity> targetUnit = Unit.valueOf(getTargetConverterSourceUnit());
 		if (!q.getUnit().equals(targetUnit)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: source units (" + q.getUnit()

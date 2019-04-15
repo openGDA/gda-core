@@ -21,8 +21,10 @@ package gda.util.converters;
 
 import java.util.List;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 import org.nfunk.jep.JEP;
 
 /**
@@ -79,15 +81,16 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Quantity toSource(Quantity target) {
-		@SuppressWarnings("unchecked")
+	public synchronized Amount<? extends Quantity> toSource(Amount<? extends Quantity> target) {
+		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
 		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+
 		if (!target.getUnit().equals(acceptableTargetUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: target units (" + target.getUnit()
 					+ ") do not match acceptableUnits (" + acceptableTargetUnits + ")" + this.toString());
 		}
 
-		jepTtoS.addVariable(VariableName, target.getAmount()); // getAmount
+		jepTtoS.addVariable(VariableName, target.getEstimatedValue());
 		// returns in
 		// current units
 		// doubleValue
@@ -97,38 +100,35 @@ final class JEPQuantityConverter implements IQuantityConverter {
 		// against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToSource: Error. Result = " + val + " target = "
-					+ target.getAmount() + " expression = " + expressionParameters.getExpressionTtoS() + " "
+					+ target.getEstimatedValue() + " expression = " + expressionParameters.getExpressionTtoS() + " "
 					+ this.toString());
 		}
-		@SuppressWarnings("unchecked")
-		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
-		return Quantity.valueOf(val, acceptableSourceUnits);
+		return Amount.valueOf(val, acceptableSourceUnits);
 	}
 
 	/*
 	 * Need to be synchronized as we change the JEP during the call
 	 */
 	@Override
-	public synchronized Quantity toTarget(Quantity source) {
-		@SuppressWarnings("unchecked")
+	public synchronized Amount<? extends Quantity> toTarget(Amount<? extends Quantity> source) {
 		final Unit<? extends Quantity> acceptableSourceUnits = Unit.valueOf(getAcceptableSourceUnits().get(0));
+		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
+
 		if (!source.getUnit().equals(acceptableSourceUnits)) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: source units (" + source.getUnit()
 					+ ") do not match acceptableUnits (" + acceptableSourceUnits + ") " + this.toString());
 		}
 
-		jepStoT.addVariable(VariableName, source.getAmount());
+		jepStoT.addVariable(VariableName, source.getEstimatedValue());
 		double val = jepStoT.getValue();
 		// Infinite is a valid value for 1/X when X is 0. so only protect
 		// against Nan.
 		if (Double.isNaN(val) /* || Double.isInfinite(val) */) {
 			throw new IllegalArgumentException("JEPQuantityConverter.ToTarget: Error. Result = " + val + " source = "
-					+ source.getAmount() + " expression = " + expressionParameters.getExpressionStoT() + " "
+					+ source.getEstimatedValue() + " expression = " + expressionParameters.getExpressionStoT() + " "
 					+ this.toString());
 		}
-		@SuppressWarnings("unchecked")
-		final Unit<? extends Quantity> acceptableTargetUnits = Unit.valueOf(getAcceptableTargetUnits().get(0));
-		return Quantity.valueOf(val, acceptableTargetUnits);
+		return Amount.valueOf(val, acceptableTargetUnits);
 	}
 
 	@Override

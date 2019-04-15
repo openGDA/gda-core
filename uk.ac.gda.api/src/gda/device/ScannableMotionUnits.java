@@ -18,7 +18,9 @@
 
 package gda.device;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 /**
  * An interface for ScannableMotion classes which provide a unit conversion from lower level hardware to an 'user unit'
@@ -30,7 +32,7 @@ import org.jscience.physics.quantities.Quantity;
  * between 'user units' and 'hardware units' easier.
  * <p>
  * Strings are used rather than Unit objects to enable use of these classes in the Jython environment.
- * 
+ *
  */
 public interface ScannableMotionUnits extends ScannableMotion {
 
@@ -46,7 +48,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 
 	/**
 	 * Returns a string representation of the current reporting units
-	 * 
+	 *
 	 * @return Returns the reportingUnitsString.
 	 */
 	public String getUserUnits();
@@ -55,7 +57,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 * Sets the user unit to userUnitString. If a hardware unit has not been explicitly set, then the hardware unit is also
 	 * set to userUnitString. If a hardware unit has been set, and the userUnit is not compatible with this, then a DeviceException
 	 * is thrown.
-	 * 
+	 *
 	 * @param userUnitsString
 	 *            The reportingUnitsString to set.
 	 * @throws DeviceException
@@ -69,7 +71,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	public String getHardwareUnitString();
 
 	/**
-	 * 
+	 *
 	 * Sets the hardware unit to hardwareUnitString. If a user unit has not been explicitly set then the
 	 * user unit is also set to hardwareUnitString. If the user unit has been explicitly set and the new
 	 * hardware unit would invalidate this then a DeviceException is thrown.
@@ -79,7 +81,7 @@ public interface ScannableMotionUnits extends ScannableMotion {
 	 * <p>
 	 * @param hardwareUnitString
 	 *            The motorUnitString to set.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void setHardwareUnitString(String hardwareUnitString) throws DeviceException;
 
@@ -90,19 +92,19 @@ public interface ScannableMotionUnits extends ScannableMotion {
 
 	/**
 	 * Adds a new unit to the list of acceptable units based on the supllied string
-	 * 
+	 *
 	 * @param newUnit -
 	 *            string representation of the new acceptable unit
 	 * @throws DeviceException
 	 */
 	public void addAcceptableUnit(String newUnit) throws DeviceException;
-	
-	public Quantity[] getPositionAsQuantityArray() throws DeviceException;
-	
+
+	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException;
+
 	/**
 	 * Set offset(s) in amounts of external quantities as {@link ScannableMotion#setOffset(Double...)}, but allows any
-	 * position container containing objects that may be quantities. 
-	 * 
+	 * position container containing objects that may be quantities.
+	 *
 	 * {@link ScannableMotion#setOffset(Double...)}
 	 * @param offsetPositionInExternalUnits
 	 */

@@ -19,8 +19,10 @@
 
 package gda.function;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
 
 import gda.factory.Configurable;
 import gda.factory.Finder;
@@ -219,11 +221,8 @@ public class InterpolationFunction extends FindableFunction implements Configura
 	}
 
 	@Override
-	public Quantity apply(Quantity xValue) {
-		Quantity rtrn = null;
-		double x;
-
-		x = xValue.to(xUnits).getAmount();
+	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
+		final double x = xValue.to(xUnits).getEstimatedValue();
 		if (Double.isNaN(x))
 			throw new IllegalArgumentException("Interpolation function does not handle a value that is Nan");
 
@@ -254,10 +253,10 @@ public class InterpolationFunction extends FindableFunction implements Configura
 			// accuracy of
 			// yValues[before]
 
-			rtrn = Quantity.valueOf(roundTo(y, yPlaces), yUnits);
+			return Amount.valueOf(roundTo(y, yPlaces), yUnits);
 		}
 
-		return rtrn;
+		return null;
 	}
 
 	private double roundTo(double value, int places) {

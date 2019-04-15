@@ -23,6 +23,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.measure.quantity.Duration;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.PojoProperties;
@@ -45,10 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-import org.jscience.physics.quantities.Duration;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
-import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

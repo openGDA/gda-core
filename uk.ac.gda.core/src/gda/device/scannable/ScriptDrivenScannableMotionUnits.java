@@ -18,7 +18,9 @@
 
 package gda.device.scannable;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
@@ -250,7 +252,7 @@ public class ScriptDrivenScannableMotionUnits implements ScannableMotionUnits, I
 	}
 
 	@Override
-	public Quantity[] getPositionAsQuantityArray() throws DeviceException {
+	public Amount<? extends Quantity>[] getPositionAsQuantityArray() throws DeviceException {
 		return scannable.getPositionAsQuantityArray();
 	}
 

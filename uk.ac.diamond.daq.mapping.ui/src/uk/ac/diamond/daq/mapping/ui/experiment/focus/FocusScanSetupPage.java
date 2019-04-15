@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.measure.quantity.Length;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.PlottableMapObject;
@@ -79,7 +80,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.jscience.physics.quantities.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,8 +25,9 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.SI;
+import javax.measure.unit.SI;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,7 +62,7 @@ public class ConvertorScannableTest {
 		when(bsx.getUserUnits()).thenReturn("mm");
 
 		scannable.asynchronousMoveTo(2);
-		verify(bsx).asynchronousMoveTo(Quantity.valueOf(4.0, SI.MILLI(SI.METER)));
+		verify(bsx).asynchronousMoveTo(Amount.valueOf(4.0, SI.MILLI(SI.METER)));
 
 		when(bsx.getPosition()).thenReturn(6.0);
 		assertEquals("beamstopToSample : 3.0000mm", scannable.toFormattedString());
@@ -72,7 +73,7 @@ public class ConvertorScannableTest {
 		assertEquals("beamstopToSample : 2.0000mm", scannable.toFormattedString());
 
 		scannable.setUserUnits("micron");
-		assertEquals("beamstopToSample : 2000.0micron", scannable.toFormattedString());
+		assertEquals("beamstopToSample : 2000.0µm", scannable.toFormattedString());
 	}
 
 	@Test

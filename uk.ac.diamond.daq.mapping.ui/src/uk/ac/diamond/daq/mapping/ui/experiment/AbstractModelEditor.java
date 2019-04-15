@@ -19,10 +19,10 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static gda.configuration.properties.LocalProperties.GDA_INITIAL_LENGTH_UNITS;
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.MILLI;
-import static org.jscience.physics.units.SI.NANO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
+import static javax.measure.unit.SI.MILLI;
+import static javax.measure.unit.SI.NANO;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -40,8 +42,6 @@ import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.units.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

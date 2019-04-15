@@ -21,6 +21,7 @@ package gda.device.scannable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
@@ -222,7 +223,12 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 
 		i1.atLevelMoveStart();
 		i1.asynchronousMoveTo(10000.);
-		verify(scn).rawAsynchronousMoveTo(new Double[] { 10., null });
+
+		final ArgumentCaptor<Double[]> argCaptor = ArgumentCaptor.forClass(Double[].class);
+		verify(scn).rawAsynchronousMoveTo(argCaptor.capture());
+		final Double[] argument = argCaptor.getValue();
+		assertEquals(10., argument[0], FP_TOLERANCE);
+		assertNull(argument[1]);
 		assertFalse(scn.isTargeting());
 	}
 

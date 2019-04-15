@@ -37,6 +37,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
 
 import org.dawnsci.mapping.ui.MappingUtils;
 import org.dawnsci.mapping.ui.api.IMapFileController;
@@ -83,9 +86,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.Unit;
+import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -585,13 +586,13 @@ public class FocusScanResultPage extends WizardPage {
 		final EnergyFocusBean energyFocusBean = focusScanBean.getEnergyFocusBean();
 		if (energyFocusBean != null) {
 			final Unit<? extends Quantity> focusScannableUnit = QuantityFactory.createUnitFromString(focusScannable.getUnit());
-			final Quantity oldFocusPosition = QuantityFactory.createFromObject(focusScannableOriginalPosition, focusScannableUnit);
-			final Quantity newFocusPosition = QuantityFactory.createFromObject(focusScannablePosition.getValue(), focusScannableUnit);
-			final Quantity difference = newFocusPosition.minus(oldFocusPosition);
+			final Amount<? extends Quantity> oldFocusPosition = QuantityFactory.createFromObject(focusScannableOriginalPosition, focusScannableUnit);
+			final Amount<? extends Quantity> newFocusPosition = QuantityFactory.createFromObject(focusScannablePosition.getValue(), focusScannableUnit);
+			final Amount<? extends Quantity> difference = newFocusPosition.minus(oldFocusPosition);
 
 			final ILinearFunction energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
-			final Quantity oldInterception = QuantityFactory.createFromString(energyFocusFunction.getInterception());
-			final Quantity newInterception = oldInterception.plus(difference);
+			final Amount<? extends Quantity> oldInterception = QuantityFactory.createFromString(energyFocusFunction.getInterception());
+			final Amount<? extends Quantity> newInterception = oldInterception.plus(difference);
 
 			logger.debug("Calculated new interception for energy focus function");
 			logger.debug("Old focus position: {}, new focus position: {}, difference: {}", oldFocusPosition, newFocusPosition, difference);

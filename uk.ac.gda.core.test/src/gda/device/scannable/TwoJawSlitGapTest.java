@@ -23,7 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.jscience.physics.quantities.Length;
+import javax.measure.quantity.Length;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -133,10 +135,11 @@ public class TwoJawSlitGapTest {
 	}
 
 	// Verify that the jaw has been told to move to the expected position
+	@SuppressWarnings("unchecked")
 	private void verifyMove(ScannableMotionUnits jaw, double expectedPosition) throws DeviceException {
 		final ArgumentCaptor<Object> positionCaptor = ArgumentCaptor.forClass(Object.class);
 		verify(jaw).asynchronousMoveTo(positionCaptor.capture());
-		assertEquals(expectedPosition, ((Length) positionCaptor.getValue()).getAmount(), FP_TOLERANCE);
+		assertEquals(expectedPosition, ((Amount<Length>) positionCaptor.getValue()).getEstimatedValue(), FP_TOLERANCE);
 	}
 
 	@Test

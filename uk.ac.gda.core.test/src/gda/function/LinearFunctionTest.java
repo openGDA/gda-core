@@ -18,17 +18,19 @@
 
 package gda.function;
 
-import static org.jscience.physics.units.SI.METER;
-import static org.jscience.physics.units.SI.MICRO;
-import static org.jscience.physics.units.SI.NANO;
+import static javax.measure.unit.SI.METER;
+import static javax.measure.unit.SI.MICRO;
+import static javax.measure.unit.SI.NANO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.ConversionException;
-import org.junit.Test;
+import javax.measure.converter.ConversionException;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Quantity;
 
-import gda.util.QuantityFactory;
+import org.jscience.physics.amount.Amount;
+import org.junit.Test;
 
 public class LinearFunctionTest {
 	// For the time being, LinearFunction takes Amounts as strings
@@ -39,11 +41,15 @@ public class LinearFunctionTest {
 	private static final String ENERGY1_STRING = "1.2 eV";
 	private static final String ENERGY2_STRING = "3.7 eV";
 
-	private static final Quantity LENGTH1 = QuantityFactory.createFromString(LENGTH1_STRING);
-	private static final Quantity LENGTH2 = QuantityFactory.createFromString(LENGTH2_STRING);
-	private static final Quantity LENGTH3 = QuantityFactory.createFromString(LENGTH3_STRING);
+	@SuppressWarnings("unchecked")
+	private static final Amount<Length> LENGTH1 = (Amount<Length>) Amount.valueOf(LENGTH1_STRING);
+	@SuppressWarnings("unchecked")
+	private static final Amount<Length> LENGTH2 = (Amount<Length>) Amount.valueOf(LENGTH2_STRING);
+	@SuppressWarnings("unchecked")
+	private static final Amount<Length> LENGTH3 = (Amount<Length>) Amount.valueOf(LENGTH3_STRING);
 
-	private static final Quantity ENERGY2 = QuantityFactory.createFromString(ENERGY2_STRING);
+	@SuppressWarnings("unchecked")
+	private static final Amount<Energy> ENERGY2 = (Amount<Energy>) Amount.valueOf(ENERGY2_STRING);
 
 	@Test
 	public void testNoArgsConstructor() {
@@ -80,8 +86,8 @@ public class LinearFunctionTest {
 		function.setSlopeDividend(LENGTH2_STRING);
 		function.setSlopeDivisor(ENERGY1_STRING);
 
-		final Quantity result = function.apply(ENERGY2);
-		assertEquals(8.3025, result.getAmount(), 0.00001);
+		final Amount<? extends Quantity> result = function.apply(ENERGY2);
+		assertEquals(8.3025, result.getEstimatedValue(), 0.00001);
 		assertEquals(MICRO(METER), result.getUnit());
 	}
 
@@ -93,8 +99,8 @@ public class LinearFunctionTest {
 		function.setSlopeDividend(LENGTH3_STRING);
 		function.setSlopeDivisor(ENERGY1_STRING);
 
-		final Quantity result = function.apply(ENERGY2);
-		assertEquals(2730.608333, result.getAmount(), 0.00001);
+		final Amount<? extends Quantity> result = function.apply(ENERGY2);
+		assertEquals(2730.608333, result.getEstimatedValue(), 0.00001);
 		assertEquals(NANO(METER), result.getUnit());
 	}
 

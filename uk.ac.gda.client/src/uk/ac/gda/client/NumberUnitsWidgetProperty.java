@@ -1,8 +1,9 @@
 package uk.ac.gda.client;
 
+import javax.measure.quantity.Quantity;
+
 import org.eclipse.jface.databinding.swt.WidgetValueProperty;
 import org.eclipse.swt.SWT;
-import org.jscience.physics.quantities.Quantity;
 
 /**
  * Property for JFace data binding to {@link NumberAndUnitsComposite} and similar classes

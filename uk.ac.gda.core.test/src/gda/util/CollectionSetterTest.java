@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.function.Function;
 
-import org.jscience.physics.quantities.Quantity;
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 import org.junit.Test;
 
 import gda.data.metadata.GdaMetadata;
@@ -84,7 +86,7 @@ public class CollectionSetterTest {
 	public void testCoupledScannableFunctions() {
 		CoupledScannable cs = new CoupledScannable();
 		assertEquals(0, cs.getFunctions().size());
-		Function<Quantity, Quantity> function = new IdentityFunction();
+		Function<Amount<? extends Quantity>, Amount<? extends Quantity>> function = new IdentityFunction();
 		cs.setFunctions(asList(function));
 		assertEquals(1, cs.getFunctions().size());
 	}

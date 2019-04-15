@@ -18,7 +18,7 @@
 
 package gda.device.monitor;
 
-import org.jscience.physics.units.Unit;
+import javax.measure.unit.Unit;
 
 import gda.device.DeviceException;
 import gda.device.Monitor;
