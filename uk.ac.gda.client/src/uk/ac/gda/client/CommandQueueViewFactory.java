@@ -125,7 +125,6 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 		String queueViewPropertiesId = EventConnectionView.createSecondaryId(activeMqUri,
 				"org.eclipse.scanning.api",
 				"org.eclipse.scanning.api.event.status.StatusBean",
-				EventConstants.STATUS_SET,
 				EventConstants.STATUS_TOPIC,
 				EventConstants.SUBMISSION_QUEUE);
 		queueViewPropertiesId = queueViewPropertiesId + "partName=Queue";
