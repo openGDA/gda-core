@@ -19,12 +19,19 @@
 package gda.function;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+
+import javax.measure.quantity.Quantity;
+
+import org.jscience.physics.amount.Amount;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class LinearFunctionSerializer extends StdSerializer<ILinearFunction> {
+
+	private static final DecimalFormat numFormat = new DecimalFormat("#.##########");
 
 	public LinearFunctionSerializer() {
 		this(null);
@@ -37,9 +44,13 @@ public class LinearFunctionSerializer extends StdSerializer<ILinearFunction> {
 	@Override
 	public void serialize(ILinearFunction value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 		gen.writeStartObject();
-		gen.writeStringField("interception", value.getInterception());
-		gen.writeStringField("slopeDividend", value.getSlopeDividend());
-		gen.writeStringField("slopeDivisor", value.getSlopeDivisor());
+		gen.writeStringField("interception", formatAmount(value.getInterception()));
+		gen.writeStringField("slopeDividend", formatAmount(value.getSlopeDividend()));
+		gen.writeStringField("slopeDivisor", formatAmount(value.getSlopeDivisor()));
 		gen.writeEndObject();
+	}
+
+	private String formatAmount(Amount<? extends Quantity> amount) {
+		return numFormat.format(amount.getEstimatedValue()) + " " + amount.getUnit();
 	}
 }

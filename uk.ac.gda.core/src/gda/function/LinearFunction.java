@@ -19,67 +19,54 @@
 
 package gda.function;
 
-import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Quantity;
+import javax.measure.unit.Unit;
 
 import org.jscience.physics.amount.Amount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.util.QuantityFactory;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * LinearFunction (yValue = xValue * slope + intercept)
+ * LinearFunction (yValue = xValue * (slopeDividend / slopeDivisor) + interception)
  */
 @ServiceInterface(ILinearFunction.class)
 public class LinearFunction extends FindableFunction implements ILinearFunction {
 	private static final Logger logger = LoggerFactory.getLogger(LinearFunction.class);
 
-	private Amount<? extends Quantity> slope;
+	private Amount<? extends Quantity> slopeDividend;
 
-	private Amount<? extends Quantity> slopeNumerator;
+	private Amount<? extends Quantity> slopeDivisor;
 
-	private Amount<? extends Quantity> slopeDenominator;
-
-	private Amount<? extends Quantity> intercept;
-
-	private String slopeDivisor;
-
-	private String slopeDividend;
-
-	private String interception;
+	private Amount<? extends Quantity> interception;
 
 	/**
 	 * Constructor with no arguments. (Must exist or creation by Finder fails.)
 	 */
 	public LinearFunction() {
-		slope = Amount.valueOf(0.0, Dimensionless.UNIT);
-		intercept = Amount.valueOf(0.0, Dimensionless.UNIT);
+		slopeDividend = Amount.valueOf(1.0, Unit.ONE);
+		slopeDivisor = Amount.valueOf(1.0, Unit.ONE);
+		interception = Amount.valueOf(0.0, Unit.ONE);
 	}
 
 	/**
-	 * Another constructor.
-	 *
-	 * @param slope
-	 *            the slope
-	 * @param intercept
-	 *            the intercept
+	 * Constructor setting all values
 	 */
-	public LinearFunction(Amount<? extends Quantity> slope, Amount<? extends Quantity> intercept) {
-		this.slope = slope;
-		this.intercept = intercept;
-
-		logger.debug("LinearFunction: slope is {}", this.slope);
-		logger.debug("LinearFunction: intercept is {}", this.intercept);
+	public LinearFunction(Amount<? extends Quantity> slopeDividend, Amount<? extends Quantity> slopeDivisor, Amount<? extends Quantity> interception) {
+		this.slopeDividend = cloneAmount(slopeDividend);
+		this.slopeDivisor = cloneAmount(slopeDivisor);
+		this.interception = cloneAmount(interception);
+		logger.debug("constructor: slopeDividend: {}, slopeDivisor: {}, interception: {}",
+				this.slopeDividend, this.slopeDivisor, this.interception);
 	}
 
 	/**
 	 * @return Returns the interception.
 	 */
 	@Override
-	public String getInterception() {
-		return interception;
+	public Amount<? extends Quantity> getInterception() {
+		return cloneAmount(interception);
 	}
 
 	/**
@@ -87,17 +74,16 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The interception to set.
 	 */
 	@Override
-	public void setInterception(String interception) {
-		this.interception = interception;
-		intercept = QuantityFactory.createFromString(interception);
+	public void setInterception(Amount<? extends Quantity> interception) {
+		this.interception = cloneAmount(interception);
 	}
 
 	/**
 	 * @return Returns the slopeDividend.
 	 */
 	@Override
-	public String getSlopeDividend() {
-		return slopeDividend;
+	public Amount<? extends Quantity> getSlopeDividend() {
+		return cloneAmount(slopeDividend);
 	}
 
 	/**
@@ -105,17 +91,16 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The slopeDividend to set.
 	 */
 	@Override
-	public void setSlopeDividend(String slopeDividend) {
-		slopeNumerator = QuantityFactory.createFromString(slopeDividend);
-		this.slopeDividend = slopeDividend;
+	public void setSlopeDividend(Amount<? extends Quantity> slopeDividend) {
+		this.slopeDividend = cloneAmount(slopeDividend);
 	}
 
 	/**
 	 * @return Returns the slopeDivisor.
 	 */
 	@Override
-	public String getSlopeDivisor() {
-		return slopeDivisor;
+	public Amount<? extends Quantity> getSlopeDivisor() {
+		return cloneAmount(slopeDivisor);
 	}
 
 	/**
@@ -123,30 +108,22 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 	 *            The slopeDivisor to set.
 	 */
 	@Override
-	public void setSlopeDivisor(String slopeDivisor) {
-		slopeDenominator = QuantityFactory.createFromString(slopeDivisor);
-		this.slopeDivisor = slopeDivisor;
+	public void setSlopeDivisor(Amount<? extends Quantity> slopeDivisor) {
+		this.slopeDivisor = cloneAmount(slopeDivisor);
+
 	}
 
 	@Override
 	public Amount<? extends Quantity> apply(Amount<? extends Quantity> xValue) {
-		slope = slopeNumerator.divide(slopeDenominator);
-
-		logger.debug("LinearFunction.evaluate: xValue is {}", xValue);
-		logger.debug("LinearFunction.evaluate: slope is {}", slope);
-		logger.debug("LinearFunction.evaluate: intercept is {}", intercept);
-
-		Amount<? extends Quantity> interim = xValue.times(slope).plus(intercept);
-
-		logger.debug("LinearFunction.evaluate: interim is {}", interim);
-
-		// The return value required from this method must have the same
-		// subclass as the intercept field. Interim, has the correct
-		// numerical value and the correct units. However, it is a Quantity
-		// and the class of its units field is Unit. DOFs all expect to be
-		// given Quantities of a particular subclass and with units of a
-		// particular subclass of Unit.
+		final Amount<? extends Quantity> slope = slopeDividend.divide(slopeDivisor);
+		final Amount<? extends Quantity> interim = xValue.times(slope).plus(interception);
+		logger.debug("apply(): xValue: {}, slope: {}, interception: {}, interim: {}", xValue, slope, interception, interim);
+		// The return value required from this method must have units compatible with those of the interception field.
 		return interim;
+	}
+
+	private Amount<? extends Quantity> cloneAmount(Amount<? extends Quantity> quantity) {
+		return Amount.valueOf(quantity.getEstimatedValue(), quantity.getUnit());
 	}
 
 	@Override
@@ -156,7 +133,7 @@ public class LinearFunction extends FindableFunction implements ILinearFunction 
 
 	@Override
 	public String toString() {
-		return "LinearFunction [interception=" + interception + ", slopeDividend=" + slopeDividend + ", slopeDivisor=" + slopeDivisor
-				+ ", slope=" + slope + ", slopeNumerator=" + slopeNumerator + ", slopeDenominator=" + slopeDenominator + ", intercept=" + intercept + "]";
+		return "LinearFunction [slopeDividend=" + slopeDividend + ", slopeDivisor=" + slopeDivisor + ", interception="
+				+ interception + "]";
 	}
 }

@@ -598,7 +598,7 @@ public class FocusScanResultPage extends WizardPage {
 			final Amount<? extends Quantity> difference = newFocusPosition.minus(oldFocusPosition);
 
 			final ILinearFunction energyFocusFunction = energyFocusBean.getEnergyFocusFunction();
-			final Amount<? extends Quantity> oldInterception = QuantityFactory.createFromString(energyFocusFunction.getInterception());
+			final Amount<? extends Quantity> oldInterception = energyFocusFunction.getInterception();
 			final Amount<? extends Quantity> newInterception = oldInterception.plus(difference);
 
 			logger.debug("Calculated new interception for energy focus function");
@@ -608,7 +608,7 @@ public class FocusScanResultPage extends WizardPage {
 			final String message = String.format("Do you want to change the interception from %s to %s?",
 					oldInterception, newInterception);
 			if (displayYesNoMessage("Change interception", message)) {
-				energyFocusFunction.setInterception(newInterception.toString());
+				energyFocusFunction.setInterception(newInterception);
 				saveConfig(energyFocusFunction, energyFocusBean.getEnergyFocusConfigPath(), logger);
 			}
 		}
