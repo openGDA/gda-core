@@ -395,22 +395,6 @@ public class PlanBroadcastTest {
 		}
 
 		@Override
-		public String getStatusSetName() {
-			// no-op
-			return null;
-		}
-
-		@Override
-		public void setStatusSetName(String queueName) {
-			// no-op
-		}
-
-		@Override
-		public void setStatusSetAddRequired(boolean isRequired) {
-			// no-op
-		}
-
-		@Override
 		public void setLoggingStream(PrintStream stream) {
 			// no-op
 		}
