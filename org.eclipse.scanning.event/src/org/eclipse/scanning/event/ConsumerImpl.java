@@ -54,8 +54,8 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.util.IModifiableIdQueue;
-import org.eclipse.scanning.event.util.SynchronizedModifiableIdQueue;
+import org.eclipse.scanning.event.queue.IModifiableIdQueue;
+import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
