@@ -30,28 +30,6 @@ public interface IPublisher<T> extends ITopicConnection {
 	public void broadcast(T bean) throws EventException;
 
 	/**
-	 * The queue name to synch with the topic updates (if any)
-	 * @return
-	 */
-	public String getStatusSetName();
-
-	/**
-	 * Set the queue name (default none) to which to echo the bean.
-	 * If doing this the bean needs a UUID so that it can be found and replaced in the queue.
-	 * @param queueName
-	 */
-	public void setStatusSetName(String queueName);
-
-	/**
-	 * By default the queue is added to if the item is not found.
-	 * Optionally if you are managing the queue directly, you may want
-	 * only an update, not an add. In that case set this flag to false.
-	 *
-	 * @param isRequired
-	 */
-	public void setStatusSetAddRequired(boolean isRequired);
-
-	/**
 	 * You may optionally set a logging stream on a publisher so that
 	 * publications can be recorded to file for debugging.
 	 *
