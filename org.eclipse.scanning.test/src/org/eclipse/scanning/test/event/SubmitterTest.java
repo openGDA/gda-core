@@ -58,8 +58,7 @@ public class SubmitterTest extends BrokerTest {
 		// In production we would normally
 		submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		submitter.setStatusTopicName(null);
-		consumer = eventService.createConsumer(uri, EventConstants.SUBMISSION_QUEUE,
-				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC);
+		consumer = eventService.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC);
 		consumer.clearQueue();
 
 		jmsQueueReader = eventService.createJmsQueueReader(uri, EventConstants.SUBMISSION_QUEUE);

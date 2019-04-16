@@ -134,7 +134,7 @@ public class QueueManagementTest extends BrokerTest {
 
 		eservice = ServiceTestHelper.getEventService();
 
-		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();

@@ -111,7 +111,6 @@ public abstract class AbstractNewConsumerTest {
 	public void setUp() throws Exception {
 		uri = new URI("http://fakeUri"); // Not used as we mock the connection layer
 
-		when(eventService.createSubmitter(uri, EventConstants.STATUS_SET)).thenReturn(statusSetSubmitter);
 		when(eventService.createPublisher(uri, EventConstants.STATUS_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) statusTopicPublisher);
 		when(eventService.createPublisher(uri, EventConstants.CONSUMER_STATUS_TOPIC)).thenReturn(
@@ -122,9 +121,9 @@ public abstract class AbstractNewConsumerTest {
 				(IPublisher<Object>) (IPublisher<?>) commandAckTopicPublisher);
 
 		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
-				EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC,
-				EventConstants.CONSUMER_STATUS_TOPIC,
-				EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC, eventConnectorService, eventService);
+				EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC,
+				EventConstants.CMD_TOPIC,
+				EventConstants.ACK_TOPIC, eventConnectorService, eventService);
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);
 		consumer.addConsumerStatusListener(consumerStatusListener);

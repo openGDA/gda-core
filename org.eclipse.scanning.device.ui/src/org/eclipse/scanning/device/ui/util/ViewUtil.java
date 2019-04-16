@@ -77,22 +77,20 @@ public class ViewUtil {
 
 
 	public static void openQueueMonitor(Class<? extends StatusBean> beanClass, String partName) throws PartInitException, UnsupportedEncodingException {
-		openQueueMonitor(beanClass, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.SUBMISSION_QUEUE, partName);
+		openQueueMonitor(beanClass, EventConstants.STATUS_TOPIC, EventConstants.SUBMISSION_QUEUE, partName);
 	}
 
 	public static void openQueueMonitor(Class<? extends StatusBean> beanClass,
-			                           final String queueName,
 			                           final String topicName,
 			                           final String submissionQueueName,
 			                           String partName) throws PartInitException, UnsupportedEncodingException {
 
 		String bundle = FrameworkUtil.getBundle(beanClass).getSymbolicName();
 		String bean   = beanClass.getName();
-		String sqn    = queueName;
 		String stn    = topicName;
 		String submit = submissionQueueName;
 
-		String queueViewId = QueueViews.createSecondaryId(CommandConstants.getScanningBrokerUri(), bundle,bean, sqn, stn, submit);
+		String queueViewId = QueueViews.createSecondaryId(CommandConstants.getScanningBrokerUri(), bundle,bean, stn, submit);
 		if (partName!=null) queueViewId = queueViewId+"partName="+partName;
 		try {
 			PageUtil.getPage().showView(QueueViews.getQueueViewID(), queueViewId, IWorkbenchPage.VIEW_ACTIVATE);

@@ -55,7 +55,7 @@ public class ScanClusterProcessingTest extends NexusTest {
 
 		URI uri = URI.create(CommandConstants.getScanningBrokerUri());
 		consumer = ServiceTestHelper.getEventService().createConsumer(uri, PROCESSING_QUEUE_NAME,
-				"scisoft.operation.STATUS_SET", "scisoft.operation.STATUS_TOPIC");
+				"scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
 		consumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
 		consumer.start();

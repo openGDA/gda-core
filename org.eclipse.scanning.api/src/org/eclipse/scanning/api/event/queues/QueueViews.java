@@ -49,7 +49,7 @@ public class QueueViews {
 	 * @return
 	 */
 	public static String createId(String uri, String bundle, String className, String partName) {
-		return createId(uri, bundle, className, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.SUBMISSION_QUEUE, partName);
+		return createId(uri, bundle, className, EventConstants.STATUS_TOPIC, EventConstants.SUBMISSION_QUEUE, partName);
 	}
 
 	/**
@@ -57,20 +57,18 @@ public class QueueViews {
 	 * @param uri
 	 * @param bundle
 	 * @param bean
-	 * @param queueName
 	 * @param topicName
 	 * @param submissionQueueName
 	 * @param partName
 	 * @return
 	 */
 	public static String createId(String uri, String bundle, String bean,
-								final String queueName,
 								final String topicName,
 								final String submissionQueueName,
 								String partName)  {
 
 
-		String queueViewId = QueueViews.createSecondaryId(uri, bundle,bean, queueName, topicName, submissionQueueName);
+		String queueViewId = QueueViews.createSecondaryId(uri, bundle,bean, topicName, submissionQueueName);
 		if (partName!=null) queueViewId = queueViewId+"partName="+partName;
 
 		final StringBuilder buf = new StringBuilder();
@@ -84,13 +82,12 @@ public class QueueViews {
 	 *
 	 * @param beanBundleName
 	 * @param beanClassName
-	 * @param queueName
 	 * @param topicName
 	 * @param submissionQueueName
 	 * @return
 	 */
-	public static String createSecondaryId(final String beanBundleName, final String beanClassName, final String queueName, final String topicName, final String submissionQueueName) {
-        return createSecondaryId(null, beanBundleName, beanClassName, queueName, topicName, submissionQueueName);
+	public static String createSecondaryId(final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
+        return createSecondaryId(null, beanBundleName, beanClassName, topicName, submissionQueueName);
 	}
 
 	/**
@@ -103,7 +100,7 @@ public class QueueViews {
 	 * @param submissionQueueName
 	 * @return
 	 */
-	public static String createSecondaryId(String uri, final String beanBundleName, final String beanClassName, final String queueName, final String topicName, final String submissionQueueName) {
+	public static String createSecondaryId(String uri, final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
 
 		final StringBuilder buf = new StringBuilder();
 		if (uri!=null) {
@@ -116,7 +113,6 @@ public class QueueViews {
 		}
 		append(buf, "beanBundleName",      beanBundleName);
 		append(buf, "beanClassName",       beanClassName);
-		append(buf, "queueName",           queueName);
 		append(buf, "topicName",           topicName);
 		append(buf, "submissionQueueName", submissionQueueName);
 		return buf.toString();

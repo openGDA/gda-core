@@ -61,13 +61,6 @@ public class EventConstants {
 	public static final String SUBMISSION_QUEUE = "org.eclipse.scanning.submission.queue";
 
 	/**
-	 * The default queue used for holding status events. This queue does not hold order
-	 * reliably and behaves like a set. The user interface sorts the status objects by
-	 * date submitted (usually) when the user looks at the queue.
-	 */
-	public static final String STATUS_SET = "org.eclipse.scanning.status.set";
-
-	/**
 	 * Topic used to tell UI users that a give consumer will be going down.
      * It is usually better to use your own topic rather than the default.
 	 */

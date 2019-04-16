@@ -37,7 +37,6 @@ public class ScanServletTest extends AbstractServletTest {
 		ScanServlet servlet = new ScanServlet();
 		servlet.setBroker(uri.toString());
 		servlet.setSubmitQueue("org.eclipse.scanning.test.servlet.submitQueue");
-		servlet.setStatusSet("org.eclipse.scanning.test.servlet.statusSet");
 		servlet.setStatusTopic("org.eclipse.scanning.test.servlet.statusTopic");
 		servlet.setPauseOnStart(false);
 		servlet.connect(); // Gets called by Spring automatically

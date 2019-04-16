@@ -35,7 +35,7 @@ public class ScanRequestWithProcessingTest extends AbstractScanCommandsTest {
 	@BeforeClass
 	public static void createProcessingConsumer() throws EventException {
 
-		pconsumer = eservice.createConsumer(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_SET", "scisoft.operation.STATUS_TOPIC");
+		pconsumer = eservice.createConsumer(uri, PROCESSING_QUEUE_NAME, "scisoft.operation.STATUS_TOPIC");
 		// we need a runner, but it doesn't have to do anything
 		pconsumer.setRunner(new DryRunProcessCreator(0, 1, 1, 10, false));
 		pconsumer.start();

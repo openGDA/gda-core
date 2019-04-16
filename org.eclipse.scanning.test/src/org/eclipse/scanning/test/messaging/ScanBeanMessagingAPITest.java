@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.messaging;
 
-import static org.eclipse.scanning.api.event.EventConstants.STATUS_SET;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
 import static org.junit.Assert.assertTrue;
@@ -138,7 +137,6 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		scanServlet = new ScanServlet();
 		scanServlet.setSubmitQueue(SUBMISSION_QUEUE);
 		scanServlet.setStatusTopic(STATUS_TOPIC);
-		scanServlet.setStatusSet(STATUS_SET);
 		scanServlet.setBroker(uri.toString());
 		scanServlet.setPauseOnStart(false);
 		scanServlet.connect();

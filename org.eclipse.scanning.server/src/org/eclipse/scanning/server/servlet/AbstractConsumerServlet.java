@@ -65,7 +65,6 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 
 	// Recommended to configure these as
 	protected String submitQueue = EventConstants.SUBMISSION_QUEUE;
-	protected String statusSet   = EventConstants.STATUS_SET;
 	protected String statusTopic = EventConstants.STATUS_TOPIC;
 
 	// Recommended not to change these because easier for UI to inspect consumer created
@@ -81,17 +80,16 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 		this.eventService = Services.getEventService();
 	}
 
-	protected AbstractConsumerServlet(String submitQueue, String statusSet, String statusTopic) {
+	protected AbstractConsumerServlet(String submitQueue, String statusTopic) {
 		this();
 		this.submitQueue = submitQueue;
-		this.statusSet   = statusSet;
 		this.statusTopic = statusTopic;
 	}
 
 	@Override
 	@PostConstruct // Requires spring 3 or better
 	public void connect() throws EventException, URISyntaxException {
-		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusSet(), getStatusTopic(),
+		consumer = eventService.createConsumer(new URI(getBroker()), getSubmitQueue(), getStatusTopic(),
 				getConsumerStatusTopic(), getCommandTopic(), getCommandAckTopic());
 		consumer.setName(getName());
 		consumer.setRunner(AbstractConsumerServlet.this::createProcess);
@@ -144,14 +142,6 @@ public abstract class AbstractConsumerServlet<T extends StatusBean> implements I
 
 	public void setSubmitQueue(String submitQueue) {
 		this.submitQueue = submitQueue;
-	}
-
-	public String getStatusSet() {
-		return statusSet;
-	}
-
-	public void setStatusSet(String statusSet) {
-		this.statusSet = statusSet;
 	}
 
 	public String getStatusTopic() {

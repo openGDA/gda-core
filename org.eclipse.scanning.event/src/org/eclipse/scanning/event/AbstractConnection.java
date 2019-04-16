@@ -51,8 +51,7 @@ abstract class AbstractConnection implements IURIConnection {
 		this.service = service;
 	}
 
-	AbstractConnection(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			IEventConnectorService service) {
+	AbstractConnection(URI uri, String submitQueueName, String statusTopicName, IEventConnectorService service) {
 		this(uri, service);
 		this.submitQueueName = submitQueueName;
 		this.statusTopicName = statusTopicName;

@@ -117,12 +117,10 @@ public interface IEventService {
 	 *
 	 * @param uri
 	 * @param submissionQueueName
-	 * @param statusQueueName
 	 * @param statusTopicName
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
-						                                        String statusQueueName,
 						                                        String statusTopicName) throws EventException;
 
 	/**
@@ -131,14 +129,12 @@ public interface IEventService {
 	 *
 	 * @param uri the uri of the message
 	 * @param submissionQueueName
-	 * @param statusQueueName
 	 * @param statusTopicName
 	 * @param commandTopicName
 	 * @param commandAckTopicName
 	 * @return
 	 */
 	public <U extends StatusBean> IConsumer<U> createConsumer(URI uri, String submissionQueueName,
-						                                        String statusQueueName,
 						                                        String statusTopicName,
 						                                        String consumerStatusTopicName,
 						                                        String commandTopicName,

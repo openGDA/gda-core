@@ -11,17 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.messaging;
 
-import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
-import static org.eclipse.scanning.api.event.EventConstants.STATUS_SET;
-import static org.eclipse.scanning.api.event.EventConstants.DEVICE_REQUEST_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.DEVICE_RESPONSE_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.POSITION_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_REQUEST_TOPIC;
-import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_RESPONSE_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
-
+import static org.eclipse.scanning.api.event.EventConstants.DEVICE_REQUEST_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.DEVICE_RESPONSE_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_REQUEST_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_RESPONSE_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.POSITION_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
+import static org.eclipse.scanning.api.event.EventConstants.SUBMISSION_QUEUE;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -50,7 +48,6 @@ public class TopicAndQueueNameTest {
         return Arrays.asList(new String[][] {
 		{"STATUS_TOPIC", "org.eclipse.scanning.status.topic", STATUS_TOPIC},
 		{"SUBMISSION_QUEUE", "org.eclipse.scanning.submission.queue", SUBMISSION_QUEUE},
-		{"STATUS_SET", "org.eclipse.scanning.status.set", STATUS_SET},
 		{"DEVICE_REQUEST_TOPIC", "org.eclipse.scanning.request.device.topic", DEVICE_REQUEST_TOPIC},
 		{"DEVICE_RESPONSE_TOPIC", "org.eclipse.scanning.response.device.topic", DEVICE_RESPONSE_TOPIC},
 		{"POSITION_TOPIC", "org.eclipse.scanning.request.position.topic", POSITION_TOPIC},

@@ -109,11 +109,11 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
 
-	public ConsumerImpl(URI uri, String submitQueueName, String statusQueueName, String statusTopicName,
-			String consumerStatusTopicName, String commandTopicName, String commandAckTopicName,
-			IEventConnectorService connectorService, IEventService eventService)
+	public ConsumerImpl(URI uri, String submitQueueName, String statusTopicName, String consumerStatusTopicName,
+			String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService,
+			IEventService eventService)
 			throws EventException {
-		super(uri, submitQueueName, statusQueueName, statusTopicName, connectorService);
+		super(uri, submitQueueName, statusTopicName, connectorService);
 		this.eventService = eventService;
 
 		this.awaitPaused = false;

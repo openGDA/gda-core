@@ -116,7 +116,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		submitter = eservice.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 		publisher = eservice.createPublisher(uri, EventConstants.STATUS_TOPIC);
 
-		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_SET, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
+		consumer = eservice.createConsumer(uri, EventConstants.SUBMISSION_QUEUE, EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC);
 		consumer.setName("Test Consumer");
 		consumer.clearQueue();
 		consumer.clearRunningAndCompleted();

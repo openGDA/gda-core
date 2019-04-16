@@ -93,7 +93,7 @@ public class EventServiceTest extends BrokerTest {
 	}
 
 	private IConsumer<ScanBean> createTestConsumer() throws EventException {
-		return eventService.createConsumer(uri, QUEUE_NAME, "dont care", "dont care");
+		return eventService.createConsumer(uri, QUEUE_NAME, "dont care");
 	}
 
 }

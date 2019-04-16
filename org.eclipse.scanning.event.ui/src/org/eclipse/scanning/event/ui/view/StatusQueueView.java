@@ -1299,21 +1299,21 @@ public class StatusQueueView extends EventConnectionView {
 		}
 	}
 
-	public static String createId(final String beanBundleName, final String beanClassName, final String queueName, final String topicName, final String submissionQueueName) {
+	public static String createId(final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
 
 		final StringBuilder buf = new StringBuilder();
 		buf.append(ID);
 		buf.append(":");
-		buf.append(QueueViews.createSecondaryId(beanBundleName, beanClassName, queueName, topicName, submissionQueueName));
+		buf.append(QueueViews.createSecondaryId(beanBundleName, beanClassName, topicName, submissionQueueName));
 		return buf.toString();
 	}
 
-	public static String createId(final String uri, final String beanBundleName, final String beanClassName, final String queueName, final String topicName, final String submissionQueueName) {
+	public static String createId(final String uri, final String beanBundleName, final String beanClassName, final String topicName, final String submissionQueueName) {
 
 		final StringBuilder buf = new StringBuilder();
 		buf.append(ID);
 		buf.append(":");
-		buf.append(QueueViews.createSecondaryId(uri, beanBundleName, beanClassName, queueName, topicName, submissionQueueName));
+		buf.append(QueueViews.createSecondaryId(uri, beanBundleName, beanClassName, topicName, submissionQueueName));
 		return buf.toString();
 	}
 
