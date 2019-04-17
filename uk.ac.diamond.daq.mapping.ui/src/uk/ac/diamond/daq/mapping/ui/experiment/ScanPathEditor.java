@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -42,11 +43,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableGetPosition;
+import gda.device.scannable.ScannableGetPositionWrapper;
+import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -66,11 +73,13 @@ public class ScanPathEditor extends Composite implements IObservable {
 	private final Text axisText;
 	private final DataBindingContext dataBindingContext = new DataBindingContext();
 	private Binding axisBinding;
+	private final Label currentValueLabel;
+	private Scannable scannable;
 
 	public ScanPathEditor(Composite parent, int style, IScanModelWrapper<IScanPathModel> scannableAxisParameters) {
 		super(parent, style);
 		final String scannableName = scannableAxisParameters.getName();
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(this);
 
 		// Create text box to display/edit scan path definition
 		axisText = new Text(this, SWT.BORDER);
@@ -80,11 +89,22 @@ public class ScanPathEditor extends Composite implements IObservable {
 		GridDataFactory.fillDefaults().hint(300, SWT.DEFAULT).grab(true, false).applyTo(axisText);
 		final IObservableValue<?> axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 
+		// Box to show current value
+		currentValueLabel = new Label(this, SWT.NONE);
+		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(currentValueLabel);
+		final Optional<Scannable> optScannable = Finder.getInstance().findOptional(scannableName);
+		if (optScannable.isPresent()) {
+			scannable = optScannable.get();
+			updateCurrentValue();
+			scannable.addIObserver((source, arg) -> updateCurrentValue());
+		} else {
+			logger.error("Cannot find scannable '{}'", scannableName);
+		}
+
+		// Button to display a MultiStepEditorDialog as an alternative way of editing the scan path definition
 		final Button multiStepButton = new Button(this, 0);
 		multiStepButton.setImage(MappingExperimentUtils.getImage("icons/pencil.png"));
 		multiStepButton.setToolTipText("Edit a multi-step scan");
-
-		// Button to display a MultiStepEditorDialog as an alternative way of editing the scan path definition
 		multiStepButton.addSelectionListener(widgetSelectedAdapter(event -> {
 			final Shell activeShell = Display.getDefault().getActiveShell();
 			final MultiStepEditorDialog editorDialog = new MultiStepEditorDialog(activeShell, scannableName);
@@ -103,6 +123,19 @@ public class ScanPathEditor extends Composite implements IObservable {
 
 		// Bind scan path text box to the model
 		bindScanPathModelToTextField(scannableAxisParameters, axisTextValue);
+	}
+
+	private void updateCurrentValue() {
+		Display.getDefault().asyncExec(() -> {
+			try {
+				final ScannableGetPosition wrapper = new ScannableGetPositionWrapper(scannable.getPosition(), scannable.getOutputFormat());
+				final String position = wrapper.getStringFormattedValues()[0];
+				currentValueLabel.setText(position);
+				currentValueLabel.setToolTipText(position); // set tooltip in case value is too long for label
+			} catch (DeviceException e) {
+				logger.error("Cannot get current value of '{}'", scannable.getName(), e);
+			}
+		});
 	}
 
 	/**
