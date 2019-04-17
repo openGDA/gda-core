@@ -70,13 +70,7 @@ public class JlineSshServer {
 		// Input is being read by Jline. Server read process timing out causes it to read null
 		// and close the connection.
 		server.getProperties().put(FactoryManager.NIO2_READ_TIMEOUT, 0); // 0 -> no timeout
-		server.setShellFactory(new ShellFactoryImpl(params -> {
-			try {
-				runShell(params);
-			} finally {
-				params.getCloser().run();
-			}
-		}));
+		server.setShellFactory(new ShellFactoryImpl(this::runShell));
 		server.setCommandFactory(command -> new ShellCommand(this::exec, command));
 		server.setPublickeyAuthenticator(getAuth());
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(
@@ -120,6 +114,8 @@ public class JlineSshServer {
 		} catch (Exception e) {
 			term.writer().format("Error connecting to GDA: '%s'", e.getMessage());
 			logger.error("Jython shell failed", e);
+		} finally {
+			params.getCloser().run();
 		}
 	}
 
