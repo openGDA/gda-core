@@ -18,13 +18,14 @@
 
 package gda.device.epicsdevice;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
@@ -45,6 +46,9 @@ public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableE
 	private static final String NOT_IMPLEMENTED = "Not implemented";
 	private static final double REAL_TIME = 1000.0;
 	private static final int EVENTS = -1000;
+
+	// Record names that are valid, but setting their value requires no action in this dummy
+	private static final List<String> SET_VALUE_NO_ACTION_REQUIRED = ImmutableList.of("ERASEALL", "ERASESTART", "SCAACTIVATE", "SETPRESETTYPE", "SETRESUME");
 
 	private final DummyEpicsChannel statusChannel = new DummyEpicsChannel();
 
@@ -87,14 +91,11 @@ public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableE
 		setValue(record, field, val);
 	}
 
-	// Record names that are valid, but setting their value requires no action in this dummy
-	private final List<String> setValueNoActionRequired = Arrays.asList("ERASEALL", "ERASESTART", "SCAACTIVATE", "SETPRESETTYPE", "SETRESUME");
-
 	@Override
 	public void setValue(String record, String field, Object val) throws DeviceException {
 		logger.debug("setValue(record={}, field={}, val={}", record, field, val);
 
-		if (setValueNoActionRequired.contains(record)) {
+		if (SET_VALUE_NO_ACTION_REQUIRED.contains(record)) {
 			// no action required
 		} else if (record.equals("ACQUIRE")) {
 			handleAcquire(val);
