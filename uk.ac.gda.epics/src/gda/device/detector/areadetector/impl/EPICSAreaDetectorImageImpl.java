@@ -32,9 +32,6 @@ import gov.aps.jca.TimeoutException;
 
 public class EPICSAreaDetectorImageImpl extends ConfigurableBase implements EPICSAreaDetectorImage {
 
-	// LocalizableLocalizable
-	private boolean local = true;
-
 	// Varlues to be set by spring
 	private String basePVName = null;
 	private String initialArrayPort = null;
@@ -54,17 +51,6 @@ public class EPICSAreaDetectorImageImpl extends ConfigurableBase implements EPIC
 	private Channel channelArrayWidth_RBV;
 	private Channel channelArrayHeight_RBV;
 	private Channel channelTimeStamp_RBV;
-
-	// Methods for the Localizable interface
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 
 	// getters and setters for spring
 	@Override

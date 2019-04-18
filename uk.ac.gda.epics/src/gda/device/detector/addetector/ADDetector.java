@@ -230,10 +230,6 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	private NDStatsGroup centroidGroup;
 
-	public ADDetector() {
-		setLocal(true);
-	}
-
 	public void setCollectionStrategy(NXCollectionStrategyPlugin collectionStrategy) {
 		this.collectionStrategy = collectionStrategy;
 	}

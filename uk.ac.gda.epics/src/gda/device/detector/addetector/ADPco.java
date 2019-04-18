@@ -18,18 +18,14 @@
 
 package gda.device.detector.addetector;
 
-import gda.device.detector.addetector.filewriter.FileWriterBase;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.addetector.filewriter.FileWriterBase;
 
 public class ADPco extends ADDetector {
 
 	private static Logger logger = LoggerFactory.getLogger(ADPco.class);
-
-	public ADPco() {
-		setLocal(true);
-	}
 
 	public void initialiseFileWriterPluginImageSizeByTakingExposure() throws Exception {
 		logger.info("Epics kludge: Exposing a single image to initialise image size in file writing plugin");

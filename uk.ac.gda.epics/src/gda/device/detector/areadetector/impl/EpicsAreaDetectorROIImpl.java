@@ -28,10 +28,6 @@ import gov.aps.jca.Channel;
 
 public class EpicsAreaDetectorROIImpl extends ConfigurableBase implements EpicsAreaDetectorROI{
 
-	// Localizable variables
-	private boolean local = true;
-
-
 	// Variables to be set by Spring
 	private String basePVName = null;
 
@@ -43,18 +39,6 @@ public class EpicsAreaDetectorROIImpl extends ConfigurableBase implements EpicsA
 
 	// Channels
 	private Channel channelEnable;
-
-
-	// Methods for the Localizable interface
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 
 	// Getters and setters for Spring
 	@Override

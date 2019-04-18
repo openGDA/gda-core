@@ -27,6 +27,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -40,13 +48,6 @@ import gda.device.detector.nxdetector.NXFileWriterPlugin;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 
 public class ADDetectorTest {
@@ -136,7 +137,6 @@ public class ADDetectorTest {
 		assertFalse(adDet().isComputeStats());
 		assertFalse(adDet().isComputeCentroid());
 		assertFalse(det().createsOwnFiles());
-		assertTrue(adDet().isLocal());
 		assertTrue(adDet().isReadAcquisitionTime());
 		assertFalse(adDet().isReadAcquisitionPeriod());
 		assertFalse(adDet().isReadFilepath());

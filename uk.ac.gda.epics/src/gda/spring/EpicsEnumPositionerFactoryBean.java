@@ -18,12 +18,12 @@
 
 package gda.spring;
 
+import org.springframework.beans.factory.FactoryBean;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsEnumPositioner;
 import gda.device.enumpositioner.EpicsPneumaticCallback;
-
-import org.springframework.beans.factory.FactoryBean;
 
 /**
  * A {@link FactoryBean} for creating {@link EpicsPneumaticCallback} objects.
@@ -45,7 +45,6 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 		epicsEnumPositioner = new EpicsEnumPositioner();
 		epicsEnumPositioner.setName(name);
 		epicsEnumPositioner.setPvBase(pvBase);
-		epicsEnumPositioner.setLocal(isLocal());
 		try {
 			if (protectionLevel != null)
 					epicsEnumPositioner.setProtectionLevel(protectionLevel);

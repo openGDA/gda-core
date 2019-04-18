@@ -19,13 +19,12 @@
 package gda.device.detector.areadetector;
 
 import gda.factory.Configurable;
-import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 
 /**
  *
  */
-public interface EpicsAreaDetectorROI extends Configurable, Localizable {
+public interface EpicsAreaDetectorROI extends Configurable {
 	// Getters and setters for Spring
 	public String getBasePVName();
 

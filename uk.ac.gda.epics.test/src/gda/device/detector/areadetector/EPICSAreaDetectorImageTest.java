@@ -43,22 +43,6 @@ public class EPICSAreaDetectorImageTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.areadetector.EPICSAreaDetectorImage#isLocal()}.
-	 */
-	@Test
-	public final void testIsLocal() {
-		fail("Not yet implemented");
-	}
-
-	/**
-	 * Test method for {@link gda.device.detector.areadetector.EPICSAreaDetectorImage#setLocal(boolean)}.
-	 */
-	@Test
-	public final void testSetLocal() {
-		fail("Not yet implemented");
-	}
-
-	/**
 	 * Test method for {@link gda.device.detector.areadetector.EPICSAreaDetectorImage#getBasePVName()}.
 	 */
 	@Test

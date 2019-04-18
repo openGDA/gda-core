@@ -43,22 +43,6 @@ public class EpicsAreaDetectorROIElementTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.areadetector.EpicsAreaDetectorROIElement#isLocal()}.
-	 */
-	@Test
-	public final void testIsLocal() {
-		fail("Not yet implemented");
-	}
-
-	/**
-	 * Test method for {@link gda.device.detector.areadetector.EpicsAreaDetectorROIElement#setLocal(boolean)}.
-	 */
-	@Test
-	public final void testSetLocal() {
-		fail("Not yet implemented");
-	}
-
-	/**
 	 * Test method for {@link gda.device.detector.areadetector.EpicsAreaDetectorROIElement#getBasePVName()}.
 	 */
 	@Test

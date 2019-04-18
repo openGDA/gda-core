@@ -18,15 +18,15 @@
 
 package gda.spring;
 
-import gda.device.epicsdevice.EpicsDevice;
-import gda.device.epicsdevice.FindableEpicsDevice;
-
 import java.util.HashMap;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
+
+import gda.device.epicsdevice.EpicsDevice;
+import gda.device.epicsdevice.FindableEpicsDevice;
 
 /**
  * Spring {@link FactoryBean} for creating {@link FindableEpicsDevice}s.
@@ -102,7 +102,6 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 			findableEpicsDevice = new FindableEpicsDevice(safeName, epicsDevice);
 			findableEpicsDevice.setRecordPVs(this.recordPvs);
 		}
-		findableEpicsDevice.setLocal(local);
 	}
 
 	@Override

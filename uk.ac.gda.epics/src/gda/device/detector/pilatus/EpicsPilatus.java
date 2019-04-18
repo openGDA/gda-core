@@ -702,9 +702,4 @@ public class EpicsPilatus extends DetectorBase implements
 		}
 	}
 
-	@Override
-	public boolean isLocal() {
-		return true;
-	}
-
 }
