@@ -100,9 +100,6 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 			throw new FactoryException("Failed to connect to server remote object provider", e);
 		}
 
-		// Register as a factory with the finder
-		Finder.getInstance().addFactory(this);
-
 		// Its already configured at this point but we have to implement Configurable because of Factory
 		setConfigured(true);
 		logger.info("Finished creation");
