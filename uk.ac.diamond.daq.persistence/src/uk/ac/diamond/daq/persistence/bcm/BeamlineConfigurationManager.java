@@ -43,7 +43,6 @@ import gda.device.Scannable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-import gda.factory.Localizable;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -65,12 +64,11 @@ import uk.ac.diamond.daq.persistence.jythonshelf.ObjectShelfException;
  * <p>
  * Can only be instantiated using server.xml file.
  */
-public class BeamlineConfigurationManager extends ConfigurableBase implements Findable, Localizable, IObservable {
+public class BeamlineConfigurationManager extends ConfigurableBase implements Findable, IObservable {
 	private static final Logger logger = LoggerFactory.getLogger(BeamlineConfigurationManager.class);
 
 	private static EntityManager em;
 
-	private boolean local = true;
 	private String name = "";
 	private Map<String, Mode> activeModes = new HashMap<>();
 	private LocalObjectShelf bcmShelve;
@@ -586,16 +584,6 @@ public class BeamlineConfigurationManager extends ConfigurableBase implements Fi
 	@Override
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
-	}
-
-	// Implements Localizable interface.
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	// Implement Findable interface.

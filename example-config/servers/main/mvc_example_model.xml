@@ -6,7 +6,6 @@
 
 	<bean id="mvcExampleMotor" class="gda.device.motor.DummyMotor">
 		<property name="speed" value="90" />
-		<property name="local" value="true"/>
 		<property name="minPosition" value="-100"/>
 		<property name="maxPosition" value="300"/>
 	</bean>

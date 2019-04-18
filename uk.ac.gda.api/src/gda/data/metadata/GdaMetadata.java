@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import gda.factory.Localizable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -40,11 +39,9 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * and provides access to those objects and their contents. Metadata can be added programatically or configured via XML.
  */
 @ServiceInterface(Metadata.class)
-public class GdaMetadata extends ConfigurableBase implements Metadata, Localizable, IObserver {
+public class GdaMetadata extends ConfigurableBase implements Metadata, IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(GdaMetadata.class);
 	private String name;
-
-	private boolean local;
 
 	private final Map<String, IMetadataEntry> metadataEntries = new LinkedHashMap<>();
 	private final ObservableComponent observableComponent = new ObservableComponent();
@@ -149,16 +146,6 @@ public class GdaMetadata extends ConfigurableBase implements Metadata, Localizab
 		if (!name.equals(GDAMetadataProvider.GDAMETADATANAME)) {
 			logger.warn("GdaMetadata should be named " + GDAMetadataProvider.GDAMETADATANAME);
 		}
-	}
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	@Override

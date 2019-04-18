@@ -34,12 +34,6 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(CommandRunnerRunnable.class);
 
 	String command;
-	/**
-	 *
-	 */
-	public CommandRunnerRunnable(){
-		setLocal(true);
-	}
 
 	@Override
 	public void configure() throws FactoryException {

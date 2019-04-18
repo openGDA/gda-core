@@ -34,13 +34,12 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.scannable.CheckedScannableMotion;
 import gda.factory.FindableBase;
-import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
 
 /**
  *
  */
-public class CollisionAvoidanceController extends FindableBase implements Localizable {
+public class CollisionAvoidanceController extends FindableBase {
 	private static final Logger logger = LoggerFactory.getLogger(CollisionAvoidanceController.class);
 
 	// Map of scannables (keyed to their internal name field)
@@ -48,8 +47,6 @@ public class CollisionAvoidanceController extends FindableBase implements Locali
 
 	// Map of checkers (keyed to their internal name field)
 	private Map<String, CacChecker> cacCheckersMap = new HashMap<String, CacChecker>();
-
-	private boolean local = true;
 
 	/**
 	 * Shortcut method to get a link the collision avoidance controller from the finder.
@@ -399,18 +396,6 @@ public class CollisionAvoidanceController extends FindableBase implements Locali
 	 */
 	public PyString __repr__() {
 		return __str__();
-	}
-
-	// /////////// Implements Localizable interface. /////////////
-
-	@Override
-	public boolean isLocal() {
-		return local;
-	}
-
-	@Override
-	public void setLocal(boolean local) {
-		this.local = local;
 	}
 
 	static void printTerm(String toPrint) {

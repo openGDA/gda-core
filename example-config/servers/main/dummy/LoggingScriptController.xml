@@ -19,7 +19,6 @@
 <!-- 		<property name="messageClassToLog" -->
 <!-- 			value="gda.example.scriptcontroller.logging.ExampleLoggingMessage" /> -->
 <!-- 		<property name="directory" value="${gda.var}/" /> -->
-<!-- 		<property name="local" value="true"/> -->
 <!-- 	</bean> -->
 
 	<bean id="MyOtherLoggingScriptController"
@@ -27,7 +26,6 @@
 		<property name="messageClassToLog"
 			value="gda.example.scriptcontroller.logging.OtherExampleLoggingMessage" />
 		<property name="directory" value="${gda.var}/" />
-		<property name="local" value="true"/>
 	</bean>
 
 </beans>

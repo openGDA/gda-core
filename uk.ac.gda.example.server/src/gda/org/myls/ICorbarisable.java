@@ -19,12 +19,11 @@
 package gda.org.myls;
 
 import gda.factory.Findable;
-import gda.factory.Localizable;
 import gda.observable.IObservable;
 
 /**
  *
  */
-public interface ICorbarisable extends Findable, Localizable, IObservable{
+public interface ICorbarisable extends Findable, IObservable{
 
 }
