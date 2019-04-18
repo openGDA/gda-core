@@ -18,10 +18,14 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +36,8 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.epicsdevice.ReturnType;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 /**
  * Version of EDXDController including QMap data.
@@ -42,15 +48,24 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 	private static final Logger logger = LoggerFactory.getLogger(EDXDControllerQMap.class);
 
 	private static final String MEAN_DEAD_TIME = "DeadTime";
+	private static final int TOTAL_NUMBER_OF_TRACE_DATASETS = 10;
+	private static final String EDXD_PLOT = "EDXD Plot";
 
 	private static final String COUNTS = "counts";
 	private static final String COUNTS_PER_SECOND = "counts/second";
+	private static final String ENERGY = "Energy";
 	private static final String KEV = "keV";
 	private static final String PERCENT = "percent";
-	private static final String UNITS = "seconds";
 	private static final String SECONDS = "seconds";
+	private static final String UNITS = "units";
 
 	private Set<String> extraNamesSet;
+
+	// Spectra Monitoring and Plotting
+	private boolean plotAllSpectra = false;
+	private Integer traceOneSpectra = null;
+	private boolean newTrace = true;
+	private List<Dataset> traceDataSets = new ArrayList<>();
 
 	@Override
 	public void configure() throws FactoryException {
@@ -74,6 +89,9 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 		int deadTimeMeanElements = 0;
 		double liveTimeMean = 0.0;
 
+		// one final thing for the use of plotting
+		final Dataset[] plotds = new Dataset[subDetectors.size()];
+
 		final int nsubdets = subDetectors.size();
 		final double[][] allData = new double[nsubdets][];
 		final double[][] allEnergy = new double[nsubdets][];
@@ -90,6 +108,10 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 		// populate the data item from the elements
 		for (int i = 0; i < subDetectors.size(); i++) {
 			final IEDXDElement det = subDetectors.get(i);
+
+			// add the data
+			plotds[i] = DatasetFactory.createFromObject(det.readoutDoubles());
+			plotds[i].setName(det.getName());
 
 			allData[i] = det.readoutDoubles();
 			totalCounts += Arrays.stream(allData[i]).sum();
@@ -172,6 +194,9 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 			setPlottableIfNamed(data, "edxd_total_counts", (double) totalCounts);
 		}
 
+		// now perform the plotting
+		updatePlots(plotds);
+
 		return data;
 	}
 
@@ -184,5 +209,132 @@ public class EDXDControllerQMap extends EDXDController implements NexusDetector 
 
 	private double getMeanDeadTime() throws DeviceException {
 		return (double) xmap.getValue(ReturnType.DBR_NATIVE, MEAN_DEAD_TIME, "");
+	}
+
+	//----------------------------------------------------------------------------------------------
+	// Spectra Monitoring and Plotting
+	//----------------------------------------------------------------------------------------------
+
+	public void monitorAllSpectra() {
+		plotAllSpectra = true;
+	}
+
+	/**
+	 * Monitors a specific spectra
+	 *
+	 * @param detectorNumber
+	 */
+	public void monitorSpectra(int detectorNumber) {
+		if (detectorNumber < 1 || detectorNumber > getNumberOfElements()) {
+			throw new IllegalArgumentException("Detector number must be between 1 and 24 (both limits inclusive)");
+		}
+		plotAllSpectra = false;
+		traceOneSpectra = detectorNumber - 1;
+		newTrace = true;
+	}
+
+	/**
+	 * Stops monitoring the detector
+	 */
+	public void stopMonitoring() {
+		plotAllSpectra = false;
+		traceOneSpectra = null;
+		newTrace = true;
+	}
+
+	/**
+	 * Clears the trace if there is a specific detector being traced
+	 */
+	public void clearTrace() {
+		newTrace = true;
+	}
+
+	/**
+	 * Acquires a single image for viewing only
+	 *
+	 * @param aquisitionTime
+	 *            The time to collect for
+	 * @return The dataset of the aquired data, for additional processing if required.
+	 * @throws DeviceException
+	 * @throws InterruptedException
+	 */
+	public Dataset[] acquire(double aquisitionTime) throws DeviceException, InterruptedException {
+		return acquire(aquisitionTime, true);
+	}
+
+	/**
+	 * Acquires a single image for viewing only
+	 *
+	 * @param aquisitionTime
+	 *            The time to collect for
+	 * @return The dataset of the aquired data, for additional processing if required.
+	 * @throws DeviceException
+	 * @throws InterruptedException
+	 */
+	public Dataset[] acquire(double aquisitionTime, boolean verbose) throws DeviceException, InterruptedException {
+		this.setCollectionTime(aquisitionTime);
+		this.collectData();
+
+		while (isBusy()) {
+			if (verbose) {
+				InterfaceProvider.getTerminalPrinter().print("Acquiring");
+			}
+			Thread.sleep(1000);
+		}
+
+		if (verbose) {
+			InterfaceProvider.getTerminalPrinter().print("Done");
+		}
+
+		this.verifyData();
+
+		// now the data is acquired, plot it out to plot2 for the time being.
+		final Dataset[] data = new Dataset[subDetectors.size()];
+
+		for (int i = 0; i < subDetectors.size(); i++) {
+			// add the data
+			final IEDXDElement det = subDetectors.get(i);
+			data[i] = DatasetFactory.createFromObject(det.readoutDoubles());
+			data[i].setName(det.getName());
+		}
+		final Dataset yaxis = DatasetFactory.createFromObject(subDetectors.get(0).getEnergyBins());
+		yaxis.setName(ENERGY);
+
+		try {
+			SDAPlotter.plot(EDXD_PLOT, yaxis, data);
+		} catch (Exception e) {
+			throw new DeviceException(e.getMessage(),e);
+		}
+		return data;
+	}
+
+	private void updatePlots(Dataset[] plotds) throws DeviceException {
+		try {
+			if (plotAllSpectra) {
+				final Dataset yAxis = DatasetFactory.createFromObject(subDetectors.get(0).getEnergyBins());
+				yAxis.setName(ENERGY);
+				SDAPlotter.plot(EDXD_PLOT, yAxis, plotds);
+			} else {
+				if (traceOneSpectra != null) {
+					final Dataset yAxis = DatasetFactory.createFromObject(subDetectors.get(traceOneSpectra).getEnergyBins());
+					yAxis.setName(ENERGY);
+					if (newTrace) {
+						traceDataSets.clear();
+						newTrace = false;
+					}
+					traceDataSets.add(plotds[traceOneSpectra]);
+					while (traceDataSets.size() > TOTAL_NUMBER_OF_TRACE_DATASETS) {
+						traceDataSets.remove(0);
+					}
+					final Dataset[] plotValues = new Dataset[traceDataSets.size()];
+					for (int i = 0; i < traceDataSets.size(); i++) {
+						plotValues[i] = traceDataSets.get(i);
+					}
+					SDAPlotter.stackPlot(EDXD_PLOT, yAxis, plotValues);
+				}
+			}
+		} catch (Exception e) {
+			throw new DeviceException(e.getMessage(), e);
+		}
 	}
 }
