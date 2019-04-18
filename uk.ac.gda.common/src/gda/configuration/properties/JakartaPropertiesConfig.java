@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationFactory;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -80,7 +80,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		config.addConfiguration(sysConfig);
 
 		// create map to store individual configs
-		configMap = new HashMap<String, Configuration>();
+		configMap = new HashMap<>();
 
 		// put system properties in the map
 		configMap.put("system", sysConfig);
@@ -89,21 +89,6 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	@Override
 	public Iterator<String> getKeys() {
 		return config.getKeys();
-	}
-
-	/**
-	 * Remove all cached property information and reload system properties. User must reload any required property data
-	 * sources.
-	 */
-	public void ResetProperties() {
-		// clear out composite config and add a fresh system config into it
-		config.clear();
-		Configuration sysConfig = new SystemConfiguration();
-		config.addConfiguration(sysConfig);
-
-		// clear out the config map and put system into it
-		configMap.clear();
-		configMap.put("system", sysConfig);
 	}
 
 	/**
@@ -117,7 +102,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 * @param listName
 	 *            file path name of the property data source
 	 */
-	private void configFactoryBasePathBugWorkaround(ConfigurationFactory factory, String listName) {
+	private void configFactoryBasePathBugWorkaround(DefaultConfigurationBuilder factory, String listName) {
 		// String basePath = factory.getBasePath(); // retain for debugging
 
 		// work out length of path excluding filename
@@ -162,20 +147,16 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		if (listName.contains(".xml")) {
 			if (listName.endsWith("config.xml")) {
 
-				// *****
-				// FIXME 'ConfigurationFactory' should be replaced with the new and improved 'DefaultConfigurationBuilder'
-				// *****
-
 				// create a JCC configuration factory from a JCC config descriptor
 				// file and make a JCC configuration interface/object from it
-				ConfigurationFactory factory = new ConfigurationFactory();
+				DefaultConfigurationBuilder factory = new DefaultConfigurationBuilder();
 
 				// README - fix to get relative paths in config.xml working.
 				// See comment for this method for explanation.
 				configFactoryBasePathBugWorkaround(factory, listName);
 
 				// now try to load in config.xml - relative paths should now work
-				factory.setConfigurationFileName(listName);
+				factory.setConfigurationBasePath(listName);
 				userConfig = factory.getConfiguration();
 			} else {
 				// load a JCC XML-format property file
