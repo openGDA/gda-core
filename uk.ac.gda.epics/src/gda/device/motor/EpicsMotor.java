@@ -608,15 +608,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	}
 
 	/**
-	 * @deprecated as the name is confusing
-	 */
-	@Deprecated
-	public MotorStatus getMotorStatus() {
-		refreshMotorStatus();
-		return get_motorStatus();
-	}
-
-	/**
 	 * Refreshes the motor status from EPICS server by checking (.DMOV)(motor busy/idle status), MSTA (motor hardware
 	 * status). Also checks The method checks whether the motor stopped due to a soft limit violation.
 	 */
