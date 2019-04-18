@@ -69,6 +69,18 @@ import uk.ac.gda.util.io.FileUtils;
 public class SpreadsheetViewHelperClasses {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewHelperClasses.class);
 
+	/** Names of 'getter' methods in {@link OutputParameters} bean that return names of before/after scan scripts */
+	public static final String BEFORE_SCAN_SCRIPT = "getBeforeScriptName";
+	public static final String AFTER_SCAN_SCRIPT = "getAfterScriptName";
+	public static final String BEFORE_FIRST_REPETITION_SCRIPT = "getBeforeFirstRepetition";
+
+	public static final String SCRIPT_NAME_GETTER_REGEX = "(" + SpreadsheetViewHelperClasses.BEFORE_SCAN_SCRIPT + "|"
+			+ SpreadsheetViewHelperClasses.AFTER_SCAN_SCRIPT + "|"
+			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + ")";
+
+	/** Name of the 'getter' method in {@link DetectorParameters} bean that returns detector config filename for fluorescence experiment */
+	public static final String GETTER_FOR_FLUOPARAMETERS_DETECTOR_FILE = "getFluorescenceParameters.getConfigFileName";
+
 	private SpreadsheetViewHelperClasses() {
 	}
 
