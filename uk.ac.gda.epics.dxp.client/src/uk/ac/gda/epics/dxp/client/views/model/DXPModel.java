@@ -43,67 +43,52 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private static final String DEAD_TIME = "DeadTime";
 	private static final String ACQUIRING = "Acquiring";
 
-	private final AcquireStateMonitorListener acquireStateMonitorListener;
-	private final RealTimeMonitorListener realTimeMonitorListener;
-	private final LiveTimeMonitorListener liveTimeMonitorListener;
-	private final InstantDeadTimeMonitorListener ideadtimeMonitorListener;
-	private final DeadTimeMonitorListener deadTimeMonitorListener;
+	private final MonitorListener acquireStateMonitorListener;
+	private final MonitorListener realTimeMonitorListener;
+	private final MonitorListener liveTimeMonitorListener;
+	private final MonitorListener instantDeadTimeMonitorListener;
+	private final MonitorListener deadTimeMonitorListener;
 
 	public DXPModel() {
-		liveTimeMonitorListener = new LiveTimeMonitorListener();
-		realTimeMonitorListener = new RealTimeMonitorListener();
-		ideadtimeMonitorListener = new InstantDeadTimeMonitorListener();
-		deadTimeMonitorListener = new DeadTimeMonitorListener();
-		acquireStateMonitorListener = new AcquireStateMonitorListener();
+		liveTimeMonitorListener = this::liveTimeMonitorChanged;
+		realTimeMonitorListener = this::realTimeMonitorChanged;
+		instantDeadTimeMonitorListener = this::instantDeadTimeMonitorChanged;
+		deadTimeMonitorListener = this::deadTimeMonitorChanged;
+		acquireStateMonitorListener = this::acquireStatemonitorChanged;
 	}
 
-	private class AcquireStateMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			final DBR dbr = arg0.getDBR();
-			if (dbr.isENUM() && statusViewController != null) {
-				statusViewController.updateAcquireState(((DBR_Enum) dbr).getEnumValue()[0]);
-			}
+	private void acquireStatemonitorChanged(MonitorEvent arg0) {
+		final DBR dbr = arg0.getDBR();
+		if (dbr.isENUM() && statusViewController != null) {
+			statusViewController.updateAcquireState(((DBR_Enum) dbr).getEnumValue()[0]);
 		}
 	}
 
-	private class RealTimeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			final DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE() && statusViewController != null) {
-				statusViewController.updateRealTime(((DBR_Double) dbr).getDoubleValue()[0]);
-			}
+	private void realTimeMonitorChanged(MonitorEvent arg0) {
+		final DBR dbr = arg0.getDBR();
+		if (dbr.isDOUBLE() && statusViewController != null) {
+			statusViewController.updateRealTime(((DBR_Double) dbr).getDoubleValue()[0]);
 		}
 	}
 
-	private class LiveTimeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			final DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE() && statusViewController != null) {
-				statusViewController.updateLiveTime(((DBR_Double) dbr).getDoubleValue()[0]);
-			}
+	private void liveTimeMonitorChanged(MonitorEvent arg0) {
+		final DBR dbr = arg0.getDBR();
+		if (dbr.isDOUBLE() && statusViewController != null) {
+			statusViewController.updateLiveTime(((DBR_Double) dbr).getDoubleValue()[0]);
 		}
 	}
 
-	private class InstantDeadTimeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			final DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE() && statusViewController != null) {
-				statusViewController.updateInstantDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
-			}
+	private void instantDeadTimeMonitorChanged(MonitorEvent arg0) {
+		final DBR dbr = arg0.getDBR();
+		if (dbr.isDOUBLE() && statusViewController != null) {
+			statusViewController.updateInstantDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
 		}
 	}
 
-	private class DeadTimeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			final DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				statusViewController.updateDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
-			}
+	private void deadTimeMonitorChanged(MonitorEvent arg0) {
+		final DBR dbr = arg0.getDBR();
+		if (dbr.isDOUBLE()) {
+			statusViewController.updateDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
 		}
 	}
 
@@ -112,7 +97,7 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	}
 
 	public int getInstantDeadTime() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(INSTANT_DEAD_TIME, ideadtimeMonitorListener));
+		return EPICS_CONTROLLER.cagetInt(getChannel(INSTANT_DEAD_TIME, instantDeadTimeMonitorListener));
 	}
 
 	public double getDeadTime() throws Exception {
