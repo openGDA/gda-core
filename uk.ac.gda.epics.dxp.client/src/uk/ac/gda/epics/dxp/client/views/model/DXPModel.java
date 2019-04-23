@@ -24,8 +24,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
@@ -34,25 +32,22 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.model.impl.EPICSBaseModel;
 import uk.ac.gda.epics.dxp.client.views.StatusViewController;
 
-/**
- *
- */
 public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean {
-	static final Logger logger = LoggerFactory.getLogger(DXPModel.class);
-	protected StatusViewController statusViewController;
-	//private static List<String> detectorDataTypes;
+	private static final Logger logger = LoggerFactory.getLogger(DXPModel.class);
 
-	public static final String ElapsedReal="ElapsedReal";
-	public static final String ElapsedLive="ElapsedLive";
-	public static final String IDeadTime="IDeadTime";
-	public static final String DeadTime="DeadTime";
-	public static final String Acquiring="Acquiring";
+	private StatusViewController statusViewController;
 
-	private AcquireStateMonitorListener acquireStateMonitorListener;
-	private RealTimeMonitorListener realTimeMonitorListener;
-	private LiveTimeMonitorListener liveTimeMonitorListener;
-	private InstantDeadTimeMonitorListener ideadtimeMonitorListener;
-	private DeadTimeMonitorListener deadTimeMonitorListener;
+	private static final String ELAPSED_REAL_TIME = "ElapsedReal";
+	private static final String ELAPSED_LIVE_TIME = "ElapsedLive";
+	private static final String INSTANT_DEAD_TIME = "IDeadTime";
+	private static final String DEAD_TIME = "DeadTime";
+	private static final String ACQUIRING = "Acquiring";
+
+	private final AcquireStateMonitorListener acquireStateMonitorListener;
+	private final RealTimeMonitorListener realTimeMonitorListener;
+	private final LiveTimeMonitorListener liveTimeMonitorListener;
+	private final InstantDeadTimeMonitorListener ideadtimeMonitorListener;
+	private final DeadTimeMonitorListener deadTimeMonitorListener;
 
 	public DXPModel() {
 		liveTimeMonitorListener = new LiveTimeMonitorListener();
@@ -65,11 +60,9 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private class AcquireStateMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isENUM()) {
-				if (statusViewController != null) {
-					statusViewController.updateAcquireState(((DBR_Enum) dbr).getEnumValue()[0]);
-				}
+			final DBR dbr = arg0.getDBR();
+			if (dbr.isENUM() && statusViewController != null) {
+				statusViewController.updateAcquireState(((DBR_Enum) dbr).getEnumValue()[0]);
 			}
 		}
 	}
@@ -77,11 +70,9 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private class RealTimeMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				if (statusViewController != null) {
-					statusViewController.updateRealTime(((DBR_Double) dbr).getDoubleValue()[0]);
-				}
+			final DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE() && statusViewController != null) {
+				statusViewController.updateRealTime(((DBR_Double) dbr).getDoubleValue()[0]);
 			}
 		}
 	}
@@ -89,11 +80,9 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private class LiveTimeMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				if (statusViewController != null) {
-					statusViewController.updateLiveTime(((DBR_Double) dbr).getDoubleValue()[0]);
-				}
+			final DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE() && statusViewController != null) {
+				statusViewController.updateLiveTime(((DBR_Double) dbr).getDoubleValue()[0]);
 			}
 		}
 	}
@@ -101,11 +90,9 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private class InstantDeadTimeMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
-			if (dbr.isDOUBLE()) {
-				if (statusViewController != null) {
-					statusViewController.updateInstantDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
-				}
+			final DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE() && statusViewController != null) {
+				statusViewController.updateInstantDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
 			}
 		}
 	}
@@ -113,85 +100,36 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	private class DeadTimeMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
+			final DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
 				statusViewController.updateDeadTime(((DBR_Double) dbr).getDoubleValue()[0]);
 			}
 		}
 	}
 
-	/**
-	 * @throws InterruptedException
-	 * @throws CAException
-	 * @throws TimeoutException
-	 */
 	public short getAcquireState() throws Exception {
-		try {
-//			if (config != null) {
-//				return EPICS_CONTROLLER.cagetEnum(createChannel(config.getAcquireState().getPv(),
-//						acquireStateMonitorListener));
-//			}
-			return EPICS_CONTROLLER.cagetEnum(getChannel(Acquiring, acquireStateMonitorListener));
-		} catch (Exception ex) {
-			throw ex;
-		}
+		return EPICS_CONTROLLER.cagetEnum(getChannel(ACQUIRING, acquireStateMonitorListener));
 	}
 
 	public int getInstantDeadTime() throws Exception {
-		try {
-//			if (config != null) {
-//				return EPICS_CONTROLLER.cagetInt(createChannel(config.getInstantDeadTime().getPv(),
-//						ideadtimeMonitorListener));
-//			}
-			return EPICS_CONTROLLER.cagetInt(getChannel(IDeadTime, ideadtimeMonitorListener));
-		} catch (Exception ex) {
-			throw ex;
-		}
+		return EPICS_CONTROLLER.cagetInt(getChannel(INSTANT_DEAD_TIME, ideadtimeMonitorListener));
 	}
 
-	/**
-	*
-	*/
 	public double getDeadTime() throws Exception {
-		try {
-//			if (config != null) {
-//				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getDeadTime().getPv(),
-//						deadTimeMonitorListener));
-//			}
-			return EPICS_CONTROLLER.cagetDouble(getChannel(DeadTime, deadTimeMonitorListener));
-		} catch (Exception ex) {
-			throw ex;
-		}
+		return EPICS_CONTROLLER.cagetDouble(getChannel(DEAD_TIME, deadTimeMonitorListener));
 	}
 
 	public double getRealTime() throws Exception {
-		try {
-//			if (config != null) {
-//				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getAcquireTime_RBV().getPv(),
-//						realTimeMonitorListener));
-//			}
-			return EPICS_CONTROLLER.cagetDouble(getChannel(ElapsedReal, realTimeMonitorListener));
-		} catch (Exception ex) {
-			throw ex;
-		}
+		return EPICS_CONTROLLER.cagetDouble(getChannel(ELAPSED_REAL_TIME, realTimeMonitorListener));
 	}
 
 	public double getLiveTime() throws Exception {
-		try {
-//			if (config != null) {
-//				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getLiveTime().getPv(),
-//						liveTimeMonitorListener));
-//			}
-			return EPICS_CONTROLLER.cagetDouble(getChannel(ElapsedLive, liveTimeMonitorListener));
-		} catch (Exception ex) {
-			throw ex;
-		}
+		return EPICS_CONTROLLER.cagetDouble(getChannel(ELAPSED_LIVE_TIME, liveTimeMonitorListener));
 	}
 
 	@Override
 	public void doCheckAfterPropertiesSet() throws Exception {
-		// initializeStatusViewValues();
-
+		// nothing to do
 	}
 
 	@Override
