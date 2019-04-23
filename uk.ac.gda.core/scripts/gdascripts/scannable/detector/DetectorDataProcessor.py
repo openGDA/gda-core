@@ -142,11 +142,16 @@ class HardwareTriggerableDetectorDataProcessor(DetectorDataProcessorWithRoi, Har
 	
 	def __init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames=True):
 		DetectorDataProcessorWithRoi.__init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames)
-	
-	# HardwareTriggerableDetector
-	
+
+	# HardwareTriggeredDetector
+
 	def getHardwareTriggerProvider(self):
 		return self.det.getHardwareTriggerProvider()
+
+	def setNumberImagesToCollect(self, numberImagesToCollect):
+		self.det.setNumberImagesToCollect(numberImagesToCollect)
+
+	# HardwareTriggerableDetector
 
 	def setHardwareTriggering(self, b):
 		pass # let the wrapper do this 
