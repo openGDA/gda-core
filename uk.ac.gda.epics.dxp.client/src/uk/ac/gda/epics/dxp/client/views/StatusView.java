@@ -151,9 +151,9 @@ public class StatusView extends ViewPart implements InitializingBean {
 		/* Register the tool bar to add the refresh action */
 		registerToolBar();
 		/* Calls the update fields in a separate thread - so that the UI is not blocked. */
+		statusViewController.addListener(this);
 		Future<Boolean> isSuccessful = statusViewController.updateAllFields();
 		Async.execute(new RunUpdateAllFields(isSuccessful));
-		statusViewController.addListener(this);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class StatusView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Create the detector state composite - EPICS status for the detector ADBase
-	 * 
+	 *
 	 * @param detectorComposite
 	 */
 	private Composite createDetectorStatusComposite(Composite detectorComposite) {
@@ -298,7 +298,7 @@ public class StatusView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Sets the label background colour to show the status - used for acquire status and capture status.
-	 * 
+	 *
 	 * @param control
 	 * @param statusInt
 	 * @param doneColour
