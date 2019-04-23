@@ -63,12 +63,8 @@ public class FinderTest {
 	}
 
 	@Test
-	public void findOptionalReturnsOptionalWithCorrectFindable() {
-		try {
-			prepareFactoryForFindAndFindOptionalTests();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void findOptionalReturnsOptionalWithCorrectFindable() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
 
 		Optional<Findable> findable = Finder.getInstance().findOptional("findable1");
 
@@ -77,24 +73,17 @@ public class FinderTest {
 	}
 
 	@Test
-	public void findOptionalReturnsOptionalWithNoFindable() {
-		try {
-			prepareFactoryForFindAndFindOptionalTests();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void findOptionalReturnsOptionalWithNoFindable() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
+
 		Optional<Findable> findable = Finder.getInstance().findOptional("findable3");
 
 		assertFalse(findable.isPresent());
 	}
 
 	@Test
-	public void findReturnsCorrectFindable() {
-		try {
-			prepareFactoryForFindAndFindOptionalTests();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void findReturnsCorrectFindable() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
 
 		Findable findable = Finder.getInstance().find("findable1");
 
@@ -103,12 +92,8 @@ public class FinderTest {
 	}
 
 	@Test
-	public void findReturnsNullWhenNotFound() {
-		try {
-			prepareFactoryForFindAndFindOptionalTests();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void findReturnsNullWhenNotFound() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
 
 		Findable findable = Finder.getInstance().find("findable3");
 
@@ -116,12 +101,9 @@ public class FinderTest {
 	}
 
 	@Test
-	public void finderFindsLocalFindableFirst() {
-		try {
-			prepareLocalAndRemoteFactoryWithSameNameFindables();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void finderFindsLocalFindableFirst() throws FactoryException {
+		prepareLocalAndRemoteFactoryWithSameNameFindables();
+
 		Findable findable = Finder.getInstance().find("findable1");
 
 		assertNotNull(findable);
@@ -131,6 +113,7 @@ public class FinderTest {
 	@Test
 	public void listAllInterfacesCorrectlyListsAllInterfaces() {
 		prepareFactoryForListAllInterfacesTest();
+
 		List<String> interfaces = Finder.getInstance().listAllInterfaces();
 
 		assertTrue(interfaces.contains("FinderTest$Interface1"));
@@ -142,26 +125,19 @@ public class FinderTest {
 	}
 
 	@Test
-	public void listAllNamesCorrectlyListsAllNames() {
-		try {
-			prepareLocalAndRemoteFactory();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void listAllNamesCorrectlyListsAllNames() throws FactoryException {
+		prepareLocalAndRemoteFactory();
 
 		List<String> names = Finder.getInstance().listAllNames("gda.factory.FinderTest$Interface1");
+
 		assertTrue(names.contains("findable1"));
 		assertTrue(names.contains("findable2"));
 		assertEquals(2, names.size());
 	}
 
 	@Test
-	public void getFindablesOfTypeReturnsCorrectFindables() {
-		try {
-			prepareLocalAndRemoteFactory();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void getFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
+		prepareLocalAndRemoteFactory();
 
 		Map<String, SomeFindable> findables = Finder.getInstance().getFindablesOfType(SomeFindable.class);
 
@@ -173,12 +149,8 @@ public class FinderTest {
 	}
 
 	@Test
-	public void getLocalFindablesOfTypeReturnsLocalFindablesOnly() {
-		try {
-			prepareLocalAndRemoteFactory();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void getLocalFindablesOfTypeReturnsLocalFindablesOnly() throws FactoryException {
+		prepareLocalAndRemoteFactory();
 
 		Map<String, SomeFindable> findables = Finder.getInstance().getLocalFindablesOfType(SomeFindable.class);
 
@@ -189,12 +161,8 @@ public class FinderTest {
 	}
 
 	@Test
-	public void listFindablesOfTypeReturnsCorrectFindables() {
-		try {
-			prepareLocalAndRemoteFactory();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void listFindablesOfTypeReturnsCorrectFindables() throws FactoryException {
+		prepareLocalAndRemoteFactory();
 
 		List<SomeFindable> findables = Finder.getInstance().listFindablesOfType(SomeFindable.class);
 
@@ -208,12 +176,8 @@ public class FinderTest {
 	}
 
 	@Test
-	public void listLocalFindablesOfTypeReturnsCorrectLocalFindables() {
-		try {
-			prepareLocalAndRemoteFactory();
-		} catch (FactoryException e) {
-			// TODO Auto-generated catch block
-		}
+	public void listLocalFindablesOfTypeReturnsCorrectLocalFindables() throws FactoryException {
+		prepareLocalAndRemoteFactory();
 
 		List<SomeFindable> findables = Finder.getInstance().listLocalFindablesOfType(SomeFindable.class);
 
