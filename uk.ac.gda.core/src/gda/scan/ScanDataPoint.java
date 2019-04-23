@@ -19,7 +19,6 @@
 
 package gda.scan;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -40,7 +39,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanInformation.ScanInformationBuilder;
-import gda.util.Serializer;
 import uk.ac.gda.util.map.MapUtils;
 
 /**
@@ -134,45 +132,15 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 	/**
-	 * Unpack the ScanData object to fill this sdp rather than using accessor functions.
+	 * An alternative for populating this object. Can be used instead of repeated calls to
+	 * addScannable,addScannablePosition,addDetector,addDetectorData.
 	 * <p>
-	 * protected as only intended for use by the scandatapointserver
+	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
 	 *
-	 * @param point
-	 * @param sdpt
+	 * @param allScannables
+	 * @param allDetectors
+	 * @throws DeviceException
 	 */
-	protected ScanDataPoint(ScanData point, ScanDataPointVar sdpt) {
-		uniqueName = point.uniqueName;
-		scanInfo = point.scanInfo;
-		scannableHeader = point.scannableHeader;
-		detectorHeader = point.detectorHeader;
-		hasChild = point.hasChild;
-		numberOfChildScans = point.numberOfChildScans;
-		command = point.command;
-		scanPlotSettings = point.scanPlotSettings;
-
-		currentPointNumber = sdpt.getCurrentPointNumber();
-		detectorFormats = point.detectorFormats;
-		scannableFormats = point.scannableFormats;
-
-		scannablePositions = sdpt.getPositions();
-		detectorData = sdpt.getDetectorData();
-
-		Vector<IScanStepId> stepIds = new Vector<>();
-		if (sdpt.getStepIds() != null) {
-			Object[] dt;
-			try {
-				dt = (Object[]) Serializer.toObject(sdpt.getStepIds());
-				for (Object obj : dt) {
-					stepIds.add((IScanStepId) obj);
-				}
-			} catch (ClassNotFoundException | IOException e) {
-				logger.error("Error deserializing step IDs", e);
-			}
-		}
-		this.stepIds = stepIds;
-	}
-
 	@Override
 	public void addScannablesAndDetectors(Vector<Scannable> allScannables, Vector<Detector> allDetectors)
 			throws DeviceException {
@@ -247,8 +215,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Replaces the detector data held by the object. The replacement vector must be the same length as the previous for
 	 * this sdp to be self-consistent.
-	 * <p>
-	 * protected as only intended for use by the scandatapointserver
 	 *
 	 * @param newdata
 	 */
@@ -268,8 +234,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Replaces the scannable positions data held by the object. The replacement array must be the same length as the
 	 * previous for this sdp to be self-consistent.
-	 * <p>
-	 * protected as only for use by the scandatapointserver
 	 *
 	 * @param positions
 	 * @param formats
