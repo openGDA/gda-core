@@ -35,15 +35,10 @@ import uk.ac.gda.epics.dxp.client.views.model.IDXPModel;
  * Controller for the status view. This controller connects the Status View part to the EPICS model - showing relevant
  * statuses on the GUI.
  */
-/**
- *
- */
 public class StatusViewController implements InitializingBean {
+	private static final Logger logger = LoggerFactory.getLogger(StatusViewController.class);
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(StatusViewController.class);
-
-	private List<StatusView> statusViews = new ArrayList<StatusView>();
+	private List<StatusView> statusViews = new ArrayList<>();
 	private IDXPModel dxpModel;
 
 	public void updateView() {
@@ -87,8 +82,6 @@ public class StatusViewController implements InitializingBean {
 		}
 	}
 
-	/**
-	 */
 	public Future<Boolean> updateAllFields() {
 		return Async.submit(updateFields);
 	}
@@ -111,7 +104,6 @@ public class StatusViewController implements InitializingBean {
 				throw ex;
 			}
 			return Boolean.TRUE;
-
 		}
 
 	};
