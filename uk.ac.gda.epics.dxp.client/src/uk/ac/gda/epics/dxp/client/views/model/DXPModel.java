@@ -18,6 +18,10 @@
 
 package uk.ac.gda.epics.dxp.client.views.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.epics.interfaces.NDPluginBaseType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
@@ -27,11 +31,6 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.epics.client.views.model.impl.EPICSBaseModel;
 import uk.ac.gda.epics.dxp.client.views.StatusViewController;
 
@@ -42,32 +41,13 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 	static final Logger logger = LoggerFactory.getLogger(DXPModel.class);
 	protected StatusViewController statusViewController;
 	//private static List<String> detectorDataTypes;
-	
+
 	public static final String ElapsedReal="ElapsedReal";
 	public static final String ElapsedLive="ElapsedLive";
 	public static final String IDeadTime="IDeadTime";
 	public static final String DeadTime="DeadTime";
 	public static final String Acquiring="Acquiring";
 
-	@Override
-	protected Class<Object> getConfigClassType() {
-		return Object.class;
-	}
-
-	@Override
-	protected Logger getLogger() {
-		return logger;
-	}
-
-	public StatusViewController getStatusViewController() {
-		return statusViewController;
-	}
-
-	public void setStatusViewController(StatusViewController statusViewController) {
-		this.statusViewController = statusViewController;
-	}
-
-	/**/
 	private AcquireStateMonitorListener acquireStateMonitorListener;
 	private RealTimeMonitorListener realTimeMonitorListener;
 	private LiveTimeMonitorListener liveTimeMonitorListener;
@@ -214,46 +194,26 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 
 	}
 
-	public void initializeStatusViewValues() throws Exception {
-		if (statusViewController != null) {
-
-			try {
-				double ideadtime = getInstantDeadTime();
-				statusViewController.updateInstantDeadTime(ideadtime);
-			} catch (TimeoutException tme) {
-				logger.error("Cannot getArrayCounter_RBV - Either the PV is incorrect or the IOC is not in function");
-			}
-			try {
-				double deadtime = getDeadTime();
-				statusViewController.updateDeadTime(deadtime);
-			} catch (TimeoutException tme) {
-				logger.error("Cannot getTimeRemaining_RBV - Either the PV is incorrect or the IOC is not in function");
-			}
-			try {
-				double realtime = getRealTime();
-				statusViewController.updateRealTime(realtime);
-			} catch (TimeoutException tme) {
-				logger.error("Cannot getArrayCounter_RBV - Either the PV is incorrect or the IOC is not in function");
-			}
-			try {
-				double livetime = getLiveTime();
-				statusViewController.updateLiveTime(livetime);
-			} catch (TimeoutException tme) {
-				logger.error("Cannot getTimeRemaining_RBV - Either the PV is incorrect or the IOC is not in function");
-			}
-
-			try {
-				short acquirestate = getAcquireState();
-				statusViewController.updateAcquireState(acquirestate);
-			} catch (TimeoutException tme) {
-				logger.error("Cannot getDetectorState_RBV - Either the PV is incorrect or the IOC is not in function");
-			}
-		}
-	}
-
 	@Override
 	protected NDPluginBaseType getPluginBaseTypeConfig() throws FactoryException {
 		throw new FactoryException("No base plugin for ADBase");
 	}
 
+	@Override
+	protected Class<Object> getConfigClassType() {
+		return Object.class;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
+
+	public StatusViewController getStatusViewController() {
+		return statusViewController;
+	}
+
+	public void setStatusViewController(StatusViewController statusViewController) {
+		this.statusViewController = statusViewController;
+	}
 }
