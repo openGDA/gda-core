@@ -18,6 +18,8 @@
 
 package gda.device.motor;
 
+import static java.lang.Math.abs;
+
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -72,6 +74,16 @@ import gov.aps.jca.event.PutListener;
  * selected PVs or channels are instantiated in this class as required by the GDA motor interface.
  */
 public class EpicsMotor extends MotorBase implements InitializationListener, IObserver {
+
+	/** Possible actions to take when a motor does not reach its target during a move */
+	private enum MissedTargetLevel {
+		/** Positions are not checked at the end of moves */
+		IGNORE,
+		/** Positions are checked at the end of each move and a warning is logged if target is missed */
+		WARN,
+		/** Positions are checked at the end of each move and the motor is put in an error state if target is missed */
+		FAULT;
+	}
 
 	@Override
 	public void savePosition(String name, double currentPosition) {
@@ -258,10 +270,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@SuppressWarnings("unused")
 	private volatile boolean requestDone = true; // start true
 
-	/**
-	 * specify if missed target motion allowed or not.
-	 */
-	public boolean checkMissedTarget = false;
+	/** The action to take when a motor does not reach its target during a move */
+	private MissedTargetLevel missedTargetAction = MissedTargetLevel.WARN;
 
 	private static MoveEventQueue moveEventQueue = new MoveEventQueue();
 
@@ -1561,21 +1571,23 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 									"current script paused after motor " + getName() + " is disabled.");
 						}
 					}
-					if (retryDeadband != 0) {
-						if (targetPosition - retryDeadband <= currentPosition
-								&& currentPosition <= targetPosition + retryDeadband) {
-							// do nothing
-						} else {
-							if (checkMissedTarget) {
-								logger.error("{} : target requested is missed. Report to Engineer", getName());
-								// missing target not allowed.
-								newStatus = MotorStatus.FAULT;
+					if (missedTargetAction != MissedTargetLevel.IGNORE) {
+						double deadband = getRetryDeadband();
+						double current = getPosition();
+						if (deadband > 0 && !Double.isNaN(deadband)) {
+							if (abs(targetPosition - current) > deadband) {
+								logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Engineer",
+										getName(), targetPosition, currentPosition, retryDeadband);
+								if (missedTargetAction == MissedTargetLevel.FAULT) {
+									newStatus = MotorStatus.FAULT;
+								}
 							}
+						} else {
+							logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(),
+									retryDeadband);
 						}
-					} else {
-						logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(),
-								retryDeadband);
 					}
+					logger.trace("{} - At end of move: target={}, position={}, deadband={}", getName(), targetPosition, currentPosition, retryDeadband);
 				}
 
 				if (status == Status.NO_ALARM && severity == Severity.NO_ALARM) {
@@ -1680,20 +1692,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return epicsRecordName;
 	}
 
-	/**
-	 * checks if missing target permitted or not.
-	 */
-	public boolean isCheckMissedTarget() {
-		return checkMissedTarget;
-	}
-
-	/**
-	 * sets permission for missing target for motor moving
-	 */
-	public void setCheckMissedTarget(boolean ignorMissedTarget) {
-		this.checkMissedTarget = ignorMissedTarget;
-	}
-
 	public boolean isCallbackWait() {
 		return callbackWait;
 	}
@@ -1739,5 +1737,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if (!isConfigured()) {
 			configure();
 		}
+	}
+
+	public void setMissedTargetLevel(MissedTargetLevel level) {
+		missedTargetAction = level;
 	}
 }
