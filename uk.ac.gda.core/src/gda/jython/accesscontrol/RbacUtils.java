@@ -18,7 +18,17 @@
 
 package gda.jython.accesscontrol;
 
-import java.lang.reflect.Modifier;
+import static java.lang.String.join;
+import static java.lang.reflect.Modifier.isFinal;
+import static java.lang.reflect.Modifier.isPrivate;
+import static java.lang.reflect.Modifier.isStatic;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +44,8 @@ public class RbacUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(RbacUtils.class);
 
-	static boolean wrapWithInterceptors;
+	private static boolean wrapWithInterceptors;
+	private static Set<String> publicFieldsChecked = new HashSet<>();
 
 	static
 	{
@@ -42,13 +53,37 @@ public class RbacUtils {
 	}
 
 	protected static boolean canProxyUsingCglib(Findable findable) {
-		final boolean isFinal = Modifier.isFinal(findable.getClass().getModifiers());
+		final boolean isFinal = isFinal(findable.getClass().getModifiers());
 		if (isFinal) {
 			logger.warn("Access control cannot be applied to findable '{}' because its class ({}) is final",
 					findable.getName(),
 					findable.getClass().getName());
+		} else {
+			checkPublicFields(findable.getClass());
 		}
 		return !isFinal;
+	}
+
+	/**
+	 * Check if a Findable implementation has any public non-static fields and warn about
+	 * possible inconsistencies.
+	 * @param type
+	 */
+	private static void checkPublicFields(Class<? extends Findable> type) {
+		if (publicFieldsChecked.add(type.getCanonicalName())) {
+			List<String> fields = stream(type.getDeclaredFields())
+					.filter(f -> {
+						int mod = f.getModifiers();
+						return !isPrivate(mod) && !isStatic(mod);
+					})
+					.map(Field::getName)
+					.collect(toList());
+			if (!fields.isEmpty() && logger.isWarnEnabled()) {
+				logger.warn("Findable type {} has non-private fields. These will not work correctly with RBAC ({})",
+						type.getCanonicalName(),
+						join(", ", fields));
+			}
+		}
 	}
 
 	public static Findable wrapFindableWithInterceptor(Findable findable){
