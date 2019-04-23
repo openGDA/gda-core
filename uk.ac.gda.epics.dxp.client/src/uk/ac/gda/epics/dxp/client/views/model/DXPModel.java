@@ -32,7 +32,7 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.epics.client.views.model.impl.EPICSBaseModel;
 import uk.ac.gda.epics.dxp.client.views.StatusViewController;
 
-public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean {
+public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean, IDXPModel {
 	private static final Logger logger = LoggerFactory.getLogger(DXPModel.class);
 
 	private StatusViewController statusViewController;
@@ -92,22 +92,27 @@ public class DXPModel extends EPICSBaseModel<Object> implements InitializingBean
 		}
 	}
 
+	@Override
 	public short getAcquireState() throws Exception {
 		return EPICS_CONTROLLER.cagetEnum(getChannel(ACQUIRING, acquireStateMonitorListener));
 	}
 
+	@Override
 	public int getInstantDeadTime() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(INSTANT_DEAD_TIME, instantDeadTimeMonitorListener));
 	}
 
+	@Override
 	public double getDeadTime() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(DEAD_TIME, deadTimeMonitorListener));
 	}
 
+	@Override
 	public double getRealTime() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(ELAPSED_REAL_TIME, realTimeMonitorListener));
 	}
 
+	@Override
 	public double getLiveTime() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(ELAPSED_LIVE_TIME, liveTimeMonitorListener));
 	}

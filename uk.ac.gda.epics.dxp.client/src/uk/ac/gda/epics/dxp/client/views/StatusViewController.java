@@ -29,7 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.gda.epics.dxp.client.views.model.DXPModel;
+import uk.ac.gda.epics.dxp.client.views.model.IDXPModel;
 
 /**
  * Controller for the status view. This controller connects the Status View part to the EPICS model - showing relevant
@@ -44,7 +44,7 @@ public class StatusViewController implements InitializingBean {
 			.getLogger(StatusViewController.class);
 
 	private List<StatusView> statusViews = new ArrayList<StatusView>();
-	private DXPModel dxpModel;
+	private IDXPModel dxpModel;
 
 	public void updateView() {
 		// Do nothing
@@ -124,11 +124,11 @@ public class StatusViewController implements InitializingBean {
 		statusViews.remove(statusView);
 	}
 
-	public void setDxpModel(DXPModel dxpModel) {
+	public void setDxpModel(IDXPModel dxpModel) {
 		this.dxpModel = dxpModel;
 	}
 
-	public DXPModel getDxpModel() {
+	public IDXPModel getDxpModel() {
 		return dxpModel;
 	}
 
