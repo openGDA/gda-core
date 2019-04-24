@@ -223,4 +223,15 @@ public interface IVGScientaAnalyserRMI extends Device {
 	 */
 	void setIterations(int iterations) throws Exception;
 
+	double[] getSpectrum() throws Exception;
+
+	double[] getImage() throws Exception;
+
+	int getSlices() throws Exception;
+
+	int getFrames() throws Exception;
+
+	double getExcitationEnergy() throws Exception;
+
+	double[] getExtIO(int length) throws Exception;
 }

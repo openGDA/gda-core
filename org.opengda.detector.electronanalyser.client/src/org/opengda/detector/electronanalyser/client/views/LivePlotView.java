@@ -18,11 +18,12 @@ import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.actions.EnergyAxisAction;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
+
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 public abstract class LivePlotView extends ViewPart {
 
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private String updatePV;
 	private Action kinetic;
 	private Action binding;
@@ -138,11 +139,11 @@ public abstract class LivePlotView extends ViewPart {
 
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

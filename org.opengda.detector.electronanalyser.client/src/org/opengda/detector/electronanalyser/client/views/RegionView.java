@@ -1,7 +1,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -63,7 +62,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
@@ -78,6 +76,8 @@ import gda.device.scannable.ScannableStatus;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
+import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
@@ -162,6 +162,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private String messagePV;
 	private String zeroSuppliesPV;
 	private AnalyserComposite analyserComposite;
+
+	private IVGScientaAnalyserRMI analyser;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -697,8 +699,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 	};
 
-	private IVGScientaAnalyser analyser;
-
 	private Region getSelectedRegionInSequenceView() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
@@ -722,23 +722,28 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void initialisation() {
+		VGScientaAnalyserEnergyRange energyRange = analyser.getEnergyRange();
+
 		try {
 			// I09-137 Remove Transmission mode from UI
 			// I09-203 Remove Angular60 mode from UI
-			List<String> modes = new ArrayList<>(Arrays.asList(getAnalyser().getLensModes()));
+			List<String> modes = new ArrayList<>(energyRange.getAllLensModes());
 			modes.remove("Transmission");
 			modes.remove("Angular60");
 			lensMode.setItems(modes.toArray(new String[] {}));
-		} catch (DeviceException e) {
+		} catch (NullPointerException e) {
 			logger.error("Cannot get lens mode list from analyser.", e);
-			e.printStackTrace();
 		}
 		// new String[] { "Transmission", "Angular45", "Angular60" });
 		try {
-			passEnergy.setItems(getAnalyser().getPassENergies());
-		} catch (DeviceException e) {
+			String[] passEnergies = energyRange.getAllPassEnergies()
+					.stream()
+					.map(energy -> energy.toString())
+					.toArray(String[]::new);
+
+				passEnergy.setItems(passEnergies);
+		} catch (NullPointerException e) {
 			logger.error("Cannot get pass energy list from analyser.", e);
-			e.printStackTrace();
 		}
 		// (new String[] { "5", "10", "20","50", "75", "100", "200","500" });
 
@@ -1546,11 +1551,11 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

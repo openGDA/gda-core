@@ -23,12 +23,12 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableExecutableExtension;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 /**
  * Factory method that invokes the View object
@@ -42,7 +42,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private Camera camera;
 	private String location;
 	private String user;
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
 	private RegionValidator regionValidator;
@@ -136,11 +136,11 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		this.user = user;
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 

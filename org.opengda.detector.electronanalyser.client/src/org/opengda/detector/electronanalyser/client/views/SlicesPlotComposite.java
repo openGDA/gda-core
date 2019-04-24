@@ -224,7 +224,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 				return;
 			}
 			// Get the image data from the analyser
-			value = analyser.getController().getImage(arraysize);
+			value = analyser.getImage();
 			double[] values = Arrays.copyOf(value, arraysize);
 			final Dataset ds = DatasetFactory.createFromObject(values, dims);
 

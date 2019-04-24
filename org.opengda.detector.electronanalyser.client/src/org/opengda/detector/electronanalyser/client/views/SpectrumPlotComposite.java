@@ -212,7 +212,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		super.updatePlot();
 		try {
 			// Get the spectrum from analyser
-			double[] data = analyser.getSpectrum(xdata.length);
+			double[] data = analyser.getSpectrum();
 			// Make dataset
 			dataset = DatasetFactory.createFromObject(data);
 			dataset.setName("Intensity (counts)");

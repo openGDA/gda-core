@@ -653,6 +653,7 @@ public class VGScientaController extends ConfigurableBase {
 		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(SPECTRUM_DATA), i);
 	}
 
+
 	/**
 	 * This gets the image as a double. You need to request the correct number of elements, if you don't know call {@link #getImage()} instead as this will be
 	 * handled automatically.

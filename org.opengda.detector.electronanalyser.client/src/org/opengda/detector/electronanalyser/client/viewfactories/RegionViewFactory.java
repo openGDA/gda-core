@@ -22,13 +22,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.RegionView;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import gda.rcp.views.FindableExecutableExtension;
+import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
 
 /**
  * Factory class that creates the RegionView object to be contributed to eclipse's {@link org.eclipse.ui.views} extension point.
@@ -42,7 +42,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private Camera camera;
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
-	private IVGScientaAnalyser analyser;
+	private IVGScientaAnalyserRMI analyser;
 
 	private String currentIterationRemainingTimePV;
 	private String iterationLeadPointsPV;
@@ -145,11 +145,11 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		this.camera = camera;
 	}
 
-	public IVGScientaAnalyser getAnalyser() {
+	public IVGScientaAnalyserRMI getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyser analyser) {
+	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
 		this.analyser = analyser;
 	}
 
