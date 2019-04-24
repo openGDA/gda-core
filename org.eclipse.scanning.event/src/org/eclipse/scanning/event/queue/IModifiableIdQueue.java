@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.event.queue;
 
+import java.util.List;
 import java.util.Queue;
 
 import org.eclipse.scanning.api.event.IdBean;
@@ -35,6 +36,14 @@ import org.eclipse.scanning.api.event.IdBean;
  * @param <E>
  */
 public interface IModifiableIdQueue<E extends IdBean> extends Queue<E> {
+
+	/**
+	 * Return a list of contents of the queue, in the same order as they are in the queue.
+	 * Note that the list is a snapshot of the contents of the queue at the time that this
+	 * method is called, changes to this list will not be reflected in the underlying queue.
+	 * @return a list of the contents of the queue
+	 */
+	public List<E> getElements();
 
 	/**
 	 * Replaces the existing element in the queue with the same id as the given
