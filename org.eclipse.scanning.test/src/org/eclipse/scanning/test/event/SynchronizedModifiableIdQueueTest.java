@@ -231,7 +231,10 @@ public class SynchronizedModifiableIdQueueTest {
 		assertThat(queue.contains(result), is(false));
 		assertThat(queue, hasSize(4));
 		assertThat(getIds(queue), contains("two", "three", "four", "five"));
+	}
 
+	@Test
+	public void testPoll_empty() {
 		queue.clear();
 		assertThat(queue.poll(), is(nullValue()));
 	}
@@ -269,11 +272,23 @@ public class SynchronizedModifiableIdQueueTest {
 		assertThat(getIds(queue), contains("one", "two", "four", "three", "five"));
 	}
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testMoveDown_tailElement() {
+		StatusBean bean = createBean("five");
+		queue.moveDown(bean);
+	}
+
 	@Test
 	public void testMoveUp() {
 		StatusBean bean = createBean("three");
 		queue.moveUp(bean);
 		assertThat(getIds(queue), contains("one", "three", "two", "four", "five"));
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testMoveUp_headElement() {
+		StatusBean bean = createBean("one");
+		queue.moveUp(bean);
 	}
 
 }
