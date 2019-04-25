@@ -24,13 +24,13 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbenchPage;
@@ -60,15 +60,17 @@ class OpenViewListBoxComposite extends Composite {
 	@SuppressWarnings("unchecked")
 	public OpenViewListBoxComposite(Composite parent, int style, String label, String tooltipText, List<OpenViewOption> options) {
 		super(parent, style);
-		setLayout(new GridLayout(1, false));
+		GridLayoutFactory.swtDefaults().applyTo(this);
 		defOption = options.get(0);
 
 		final Group grpShow = new Group(this, SWT.NONE);
-		final GridData gdGrpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gdGrpShow.widthHint = 151;
-		grpShow.setLayoutData(gdGrpShow);
+		GridDataFactory.swtDefaults().applyTo(grpShow);
 		grpShow.setText(label);
-		grpShow.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+		final FillLayout grpShowLayout = new FillLayout(SWT.HORIZONTAL);
+		grpShowLayout.marginHeight = 5;
+		grpShowLayout.marginWidth = 5;
+		grpShow.setLayout(grpShowLayout);
 
 		comboShow = new ComboViewer(grpShow, SWT.READ_ONLY);
 		comboShow.getControl().setToolTipText(tooltipText);
