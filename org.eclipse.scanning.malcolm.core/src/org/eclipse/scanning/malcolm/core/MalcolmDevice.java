@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.scanning.api.ValidationException;
+import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
@@ -379,12 +380,8 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	public void configure(M model) throws MalcolmDeviceException {
 		logger.debug("configure() called");
 
-		// Reset the device before configure in case it's in a fault state
-		try {
-			reset();
-		} catch (Exception ex) {
-			// Swallow the error as it might throw one if in a non-resetable state
-		}
+		// Abort and/or reset the device before configure in case it's in a fault state
+		goToReadyState();
 
 		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model, false);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
@@ -556,6 +553,30 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 		}
 	}
 
+	/**
+	 * This method should leave the Malcolm device in a READY state.
+	 *
+	 * First we call abort(), which—if successful—will put Malcolm in an ABORTED state.
+	 * Then we call reset() which will put Malcolm in a READY state.
+	 *
+	 * Some states are unabortable, and abort() will throw exception. However,
+	 * those states are resettable, so we can swallow the first exception and trust that
+	 * reset() will work.
+	 *
+	 * If reset() throws exception, something is wrong.
+	 *
+	 * @throws MalcolmDeviceException
+	 */
+	private void goToReadyState() throws MalcolmDeviceException {
+		try {
+			abort();
+		} catch (Exception e) {
+			logger.warn("Error aborting malcolm device '{}'. This is normal depending on the current state", getName());
+		}
+
+		reset();
+	}
+
 	@Override
 	public void abort() throws MalcolmDeviceException {
 		logger.debug("abort() called");
@@ -577,15 +598,7 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public void reset() throws MalcolmDeviceException {
 		logger.debug("reset() called");
-
-
-		// First call abort to abort any existing scan. This
-		MalcolmMessage reply = wrap(()->call(MalcolmMethod.ABORT, Timeout.STANDARD.toMillis()));
-		if (reply.getType() == Type.ERROR) {
-			logger.warn("Error aborting malcolm device ''{}''. This is normal depending on the current state", getName());
-		}
-
-		reply = wrap(()->call(MalcolmMethod.RESET, Timeout.STANDARD.toMillis()));
+		MalcolmMessage reply = wrap(()->call(MalcolmMethod.RESET, Timeout.STANDARD.toMillis()));
 		if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
 		}
@@ -689,6 +702,16 @@ public class MalcolmDevice<M extends MalcolmModel> extends AbstractMalcolmDevice
 	@Override
 	public MalcolmTable getDatasets() throws MalcolmDeviceException {
 		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
+	}
+
+	/**
+	 * At the end of a scan, Malcolm remains in a FINISHED state
+	 * until reset() is called. Only at this point will Malcolm
+	 * close the file.
+	 */
+	@ScanFinally
+	public void closeFile() throws MalcolmDeviceException {
+		reset();
 	}
 
 	/**
