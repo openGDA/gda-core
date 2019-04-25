@@ -28,20 +28,17 @@ public class OpenViewListBoxCompositeFactory implements CompositeFactory, Initia
 	private List<OpenViewOption> options;
 	private String label;
 
-	public void setTooltipText(String tooltipText) {
-		this.tooltipText = tooltipText;
-	}
-
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if( tooltipText == null)
+		if (tooltipText == null) {
 			throw new IllegalArgumentException("tooltipText is null");
-		if( label == null)
+		}
+		if (label == null) {
 			throw new IllegalArgumentException("label is null");
-		if( options == null)
+		}
+		if (options == null) {
 			throw new IllegalArgumentException("options is null");
-
+		}
 	}
 
 	@Override
@@ -49,29 +46,27 @@ public class OpenViewListBoxCompositeFactory implements CompositeFactory, Initia
 		return new OpenViewListBoxComposite(parent, style, label, tooltipText, options);
 	}
 
-
 	public List<OpenViewOption> getOptions() {
 		return options;
 	}
-
 
 	public void setOptions(List<OpenViewOption> options) {
 		this.options = options;
 	}
 
-
 	public String getLabel() {
 		return label;
 	}
-
 
 	public void setLabel(String label) {
 		this.label = label;
 	}
 
-
 	public String getTooltipText() {
 		return tooltipText;
 	}
 
+	public void setTooltipText(String tooltipText) {
+		this.tooltipText = tooltipText;
+	}
 }

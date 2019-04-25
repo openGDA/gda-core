@@ -20,23 +20,23 @@ package gda.rcp.views;
 
 public class OpenViewOptionImpl implements OpenViewOption {
 
-	String secondaryId;
-	private String label;
-	private String viewId;
+	private final String secondaryId;
+	private final String label;
+	private final String viewId;
+
 	public OpenViewOptionImpl(String label, String viewId, String secondaryId) {
 		this.label = label;
 		this.viewId = viewId;
 		this.secondaryId = secondaryId;
 	}
+
 	@Override
 	public ViewDefinition getViewDefinition() {
 		return new ViewDefinition(viewId, secondaryId);
 	}
+
 	@Override
 	public String getLabel() {
 		return label;
 	}
-
-
-
 }

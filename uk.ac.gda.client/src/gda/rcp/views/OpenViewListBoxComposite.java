@@ -21,7 +21,7 @@ package gda.rcp.views;
 import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoObservables;
+import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -42,28 +42,31 @@ import org.springframework.util.StringUtils;
 
 /**
  * Displays a button with title - when pressed opens the view specified in the selected option
- *
+ * <p>
  * The options are of type OpenViewOption.
  */
-class OpenViewListBoxComposite extends Composite{
-
-	private ComboViewer comboShow;
-	private OpenViewOption openViewOption;
-
-	OpenViewOption defOption;
-
-	IObservableValue showOptionObserveValue;
-	IObservableValue comboShowObservableValue;
-
+class OpenViewListBoxComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(OpenViewListBoxComposite.class);
+
+	private static final String SHOW_OPTION_NAME = "showOption";
+
+	private final ComboViewer comboShow;
+	private OpenViewOption openViewOption;
+	private final OpenViewOption defOption;
+
+	private final IObservableValue<OpenViewOption> showOptionObserveValue;
+	private final IObservableValue<OpenViewOption> comboShowObservableValue;
+
+	@SuppressWarnings("unchecked")
 	public OpenViewListBoxComposite(Composite parent, int style, String label, String tooltipText, List<OpenViewOption> options) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		defOption = options.get(0);
-		Group grpShow = new Group(this, SWT.NONE);
-		GridData gd_grpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_grpShow.widthHint = 151;
-		grpShow.setLayoutData(gd_grpShow);
+
+		final Group grpShow = new Group(this, SWT.NONE);
+		final GridData gdGrpShow = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gdGrpShow.widthHint = 151;
+		grpShow.setLayoutData(gdGrpShow);
 		grpShow.setText(label);
 		grpShow.setLayout(new FillLayout(SWT.HORIZONTAL));
 
@@ -71,31 +74,24 @@ class OpenViewListBoxComposite extends Composite{
 		comboShow.getControl().setToolTipText(tooltipText);
 		comboShow.setContentProvider(ArrayContentProvider.getInstance());
 		comboShow.setLabelProvider(new LabelProvider() {
-
 			@Override
 			public String getText(Object element) {
 				if (element instanceof OpenViewOption) {
-					OpenViewOption opt = (OpenViewOption) element;
-					return opt.getLabel();
+					return ((OpenViewOption) element).getLabel();
 				}
 				return super.getText(element);
 			}
-
 		});
-
 
 		comboShow.setInput(options);
 
 		comboShowObservableValue = ViewersObservables.observeSingleSelection(comboShow);
-		showOptionObserveValue = PojoObservables.observeValue(this, showOptionName);
+		showOptionObserveValue = PojoProperties.value(OpenViewListBoxComposite.class, SHOW_OPTION_NAME, OpenViewOption.class).observe(this);
 
-		DataBindingContext bindingContext = new DataBindingContext();
+		final DataBindingContext bindingContext = new DataBindingContext();
 		bindingContext.bindValue(comboShowObservableValue, showOptionObserveValue);
 		showOptionObserveValue.setValue(defOption);
-
-//		GridDataFactory.fillDefaults().grab(true, false).applyTo(comboShow.getControl());
 	}
-	static final String showOptionName = "showOption";
 
 	public OpenViewOption getShowOption() {
 		return openViewOption;
@@ -103,17 +99,16 @@ class OpenViewListBoxComposite extends Composite{
 
 	public void setShowOption(OpenViewOption showOption) {
 		this.openViewOption = showOption;
-		ViewDefinition vd = openViewOption.getViewDefinition();
-		String viewId = vd.viewId;
-		if( viewId != null && viewId.length()>0){
-			String secondaryId = StringUtils.hasText(vd.secondaryId) ? vd.secondaryId : null;
+		final ViewDefinition vd = openViewOption.getViewDefinition();
+		final String viewId = vd.viewId;
+		if (viewId != null && viewId.length() > 0) {
+			final String secondaryId = StringUtils.hasText(vd.secondaryId) ? vd.secondaryId : null;
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId,secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(viewId, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
-				logger.error("Error opening  view " + viewId + " with sec id='" +secondaryId +"'" , e);
+				logger.error("Error opening view {} with secondary id='{}'", viewId, secondaryId, e);
 			}
 			comboShowObservableValue.setValue(defOption);
 		}
 	}
-
 }
