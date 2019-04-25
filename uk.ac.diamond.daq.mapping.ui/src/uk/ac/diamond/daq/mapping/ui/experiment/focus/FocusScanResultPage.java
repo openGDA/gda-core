@@ -147,7 +147,7 @@ public class FocusScanResultPage extends WizardPage {
 
 	private NumberAndUnitsComposite<Length> focusScannablePosition;
 
-	private ISubscriber<IBeanListener<StatusBean>> statusQueueSubscriber;
+	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 
 	private IBeanListener<StatusBean> statusBeanListener;
 
@@ -157,7 +157,7 @@ public class FocusScanResultPage extends WizardPage {
 
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private ScheduledFuture<?> future;
+	private ScheduledFuture<?> updateMapFuture;
 	private ScheduledExecutorService updateMapExecutor;
 
 	private IScannable<Double> focusScannable;
@@ -344,7 +344,7 @@ public class FocusScanResultPage extends WizardPage {
 		}
 	}
 
-	private void handleMapEvent(MappedDataFile mappedDataFile) {
+	private synchronized void handleMapEvent(MappedDataFile mappedDataFile) {
 
 		if (mappedDataFile != null && this.initialMapFile == null) {
 			this.initialMapFile = mappedDataFile;
@@ -352,7 +352,7 @@ public class FocusScanResultPage extends WizardPage {
 
 		if (initialMapFile == null) return;
 
-		if (future != null) return; // update job already running
+		if (updateMapFuture != null) return; // update job already running
 
 		MappedDataFile dataFile = mapFileController.getArea().getDataFile(initialMapFile.getPath());
 
@@ -378,7 +378,7 @@ public class FocusScanResultPage extends WizardPage {
 		// create a new single-thread executor to update the map at a fixed rate
 		updateMapExecutor = Executors.newScheduledThreadPool(1);
 		final Runnable plotTrace = () -> updateMap(optMapData.get());
-		future = updateMapExecutor.scheduleAtFixedRate(plotTrace, 0l, 2, TimeUnit.SECONDS);
+		updateMapFuture = updateMapExecutor.scheduleAtFixedRate(plotTrace, 0l, 2, TimeUnit.SECONDS);
 
 	}
 
@@ -500,17 +500,17 @@ public class FocusScanResultPage extends WizardPage {
 	 */
 	private void addScanTopicListener() {
 		try {
-			statusQueueSubscriber = eventService.createSubscriber(getActiveMqUri(),
+			statusTopicSubscriber = eventService.createSubscriber(getActiveMqUri(),
 				EventConstants.STATUS_TOPIC);
 			statusBeanListener = event -> {
 				// first check this is the correct bean for our scan by comparing the ids
 				if (event.getBean().getUniqueId().equals(statusBean.getUniqueId())) {
-					statusBean = event.getBean(); // update the
-					uiSync.asyncExec(this::handleStatusBeanUpdate); // update the UI
+					statusBean = event.getBean(); // update the status bean
+					uiSync.asyncExec(this::handleStatusBeanUpdate); // update the UI (in the UI thread)
 
 				}
 			};
-			statusQueueSubscriber.addListener(statusBeanListener);
+			statusTopicSubscriber.addListener(statusBeanListener);
 		} catch (EventException | URISyntaxException e) {
 			logger.error("Could not add listener to status queue", e);
 		}
@@ -533,12 +533,16 @@ public class FocusScanResultPage extends WizardPage {
 			stopScanButton.setEnabled(false);
 
 			// stop the map update thread
-			if (future != null) {
-				future.cancel(false);
-				future = null;
-				updateMapExecutor.shutdown();
-				updateMapExecutor = null;
-			}
+			stopMapUpdateThread();
+		}
+	}
+
+	private synchronized void stopMapUpdateThread() {
+		if (updateMapFuture != null) {
+			updateMapFuture.cancel(false);
+			updateMapFuture = null;
+			updateMapExecutor.shutdown();
+			updateMapExecutor = null;
 		}
 	}
 
@@ -566,11 +570,14 @@ public class FocusScanResultPage extends WizardPage {
 		}
 
 		// remove the listener from the status queue
-		statusQueueSubscriber.removeListener(statusBeanListener);
+		statusTopicSubscriber.removeListener(statusBeanListener);
 		mapFileController.removeListener(mapFileEventListener);
 
+		// stop the map update thread if it's still running
+		stopMapUpdateThread();
+
 		try {
-			statusQueueSubscriber.disconnect();
+			statusTopicSubscriber.disconnect();
 		} catch (EventException e) {
 			logger.error("Could not disconnect from status topic subscriber", e);
 		}
