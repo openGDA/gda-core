@@ -101,7 +101,7 @@ public class DescriptiveFilenameBrowserComposite extends Composite {
 				load.accept(getFilePath(filename));
 			}
 		});
-		addColumn("Name", NAME_WIDTH, new SavedScanNameLabelProvider()).getColumn().notifyListeners(SWT.Selection, null);;
+		addColumn("Name", NAME_WIDTH, new SavedScanNameLabelProvider()).getColumn().notifyListeners(SWT.Selection, null);
 		addColumn("Shape", SHAPE_WIDTH, new SavedScanShapeLabelProvider());
 		addColumn("Detail", DETAIL_WIDTH, new SavedScanDetailsLabelProvider());
 		viewer.refresh();
