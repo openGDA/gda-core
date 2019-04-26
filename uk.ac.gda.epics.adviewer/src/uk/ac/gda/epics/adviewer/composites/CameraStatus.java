@@ -57,6 +57,7 @@ public class CameraStatus extends Composite {
 	public CameraStatus(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
+		setBackgroundMode(SWT.INHERIT_FORCE);
 
 		Group group = new Group(this, SWT.NONE);
 		group.setText("Camera");

@@ -18,10 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.observable.Observable;
-import gda.observable.Observer;
-
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.swt.SWT;
@@ -35,6 +31,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.observable.Observable;
+import gda.observable.Observer;
 
 public class MinCallbackTimeComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(MinCallbackTimeComposite.class);
@@ -51,6 +51,7 @@ public class MinCallbackTimeComposite extends Composite {
 
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
+		setBackgroundMode(SWT.INHERIT_FORCE);
 
 		Group grpMaxUpdateRate = new Group(this, SWT.NONE);
 		grpMaxUpdateRate.setText("Min Update Time");

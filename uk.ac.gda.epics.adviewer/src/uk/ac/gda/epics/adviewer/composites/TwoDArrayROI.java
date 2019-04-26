@@ -18,10 +18,6 @@
 
 package uk.ac.gda.epics.adviewer.composites;
 
-import gda.device.detector.areadetector.v17.NDROI;
-import gda.observable.Observable;
-import gda.observable.Observer;
-
 import java.util.List;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -46,6 +42,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.NDROI;
+import gda.observable.Observable;
+import gda.observable.Observer;
 
 public class TwoDArrayROI extends Composite {
 	private static final String SWITCH_ON = "Start";
@@ -77,6 +77,8 @@ public class TwoDArrayROI extends Composite {
 	public TwoDArrayROI(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
+		setBackgroundMode(SWT.INHERIT_FORCE);
+
 		Group stateGroup = new Group(this, SWT.NONE);
 		stateGroup.setText("Array Source ROI");
 		GridLayout gl_stateGroup = new GridLayout(1, false);
