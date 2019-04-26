@@ -71,7 +71,6 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 	public void atScanStart() throws DeviceException {
 		if (!isOn()) {
 			on();
-			airBearingControlHere=true;
 		}
 		super.atScanStart();
 	}
@@ -79,7 +78,6 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 	public void atScanEnd() throws DeviceException {
 		if (airBearingControlHere) {
 			off();
-			airBearingControlHere=false;
 		}
 		super.atScanEnd();
 	}
@@ -91,17 +89,19 @@ public class AirBearingScannableMotor extends ScannableMotor implements IAirBear
 			logger.info("Turn air bearing on in asynchronousMoveTo.");
 		}
 		super.rawAsynchronousMoveTo(internalPosition);
+	}
+
+	@Override
+	public void moveTo(Object position) throws DeviceException {
+		super.moveTo(position);
+		//fix I21-587
 		if (airBearingControlHere) {
-			try {
-				super.waitWhileBusy();
-			} catch (InterruptedException e) {
-				logger.error("{}: Motion was interrupted", getName(), e);
-			}
 			off();
 			airBearingControlHere = false;
 			logger.info("Turn air bearing off in asynchronousMoveTo.");
 		}
 	}
+
 	public Scannable getAirBearingScannable() {
 		return airBearingScannable;
 	}
