@@ -32,8 +32,11 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command handler to show a dialogue that allows the user to change the type of scan submitted to GDA
@@ -43,6 +46,7 @@ import org.eclipse.ui.dialogs.ListDialog;
  * thereof).
  */
 public class SelectScanTypeHandler extends AbstractHandler implements IHandler {
+	private static final Logger logger = LoggerFactory.getLogger(SelectScanTypeHandler.class);
 
 	private static final String VIEW_ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
 
@@ -73,16 +77,20 @@ public class SelectScanTypeHandler extends AbstractHandler implements IHandler {
 	@Override
 	public boolean isEnabled() {
 		if (!initialised) {
-			final EPartService partService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(EPartService.class);
-			final MPart mappingViewPart = partService.findPart(VIEW_ID);
-			if (mappingViewPart != null) {
-				final MappingExperimentView mappingExperimentView = (MappingExperimentView) mappingViewPart.getObject();
-				submitScanSelector = mappingExperimentView.getSection(SubmitScanSelector.class);
-				if (submitScanSelector != null && submitScanSelector.getNumberOfSections() > 1) {
-					enabled = true;
+			final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (workbenchWindow != null) {
+				final EPartService partService = workbenchWindow.getService(EPartService.class);
+				final MPart mappingViewPart = partService.findPart(VIEW_ID);
+				if (mappingViewPart != null && mappingViewPart.getObject() != null) {
+					final MappingExperimentView mappingExperimentView = (MappingExperimentView) mappingViewPart.getObject();
+					submitScanSelector = mappingExperimentView.getSection(SubmitScanSelector.class);
+					if (submitScanSelector != null && submitScanSelector.getNumberOfSections() > 1) {
+						enabled = true;
+					}
+					initialised = true;
+					logger.info("Scan Type button enable state initialised");
 				}
 			}
-			initialised = true;
 		}
 		return enabled;
 	}
