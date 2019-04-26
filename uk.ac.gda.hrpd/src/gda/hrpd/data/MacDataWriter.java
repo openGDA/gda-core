@@ -131,7 +131,6 @@ public class MacDataWriter extends DataWriterBase implements Findable, Configura
 	private int numberOfDetectors;
 	private double scantime;
 	private boolean configured = false;
-//	private IDataCollectionListener dataCollectionListener;
 
 	/**
 	 * Constructor which determines the name of the next file and creates it.
