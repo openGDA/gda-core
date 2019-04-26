@@ -189,10 +189,6 @@ public class SimpleConsumerTest extends AbstractNewConsumerTest {
 
 		startConsumer();
 
-		for (StatusBean bean : beans) {
-			consumer.submit(bean);
-		}
-
 		boolean reachedZero = latch.await(1, TimeUnit.SECONDS); // reached zero i.e.
 		assertThat(reachedZero, is(true));
 

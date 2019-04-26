@@ -18,16 +18,19 @@
 
 package org.eclipse.scanning.event.queue;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.AbstractCollection;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.scanning.api.event.IdBean;
 
@@ -62,13 +65,22 @@ import org.eclipse.scanning.api.event.IdBean;
  */
 public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCollection<E> implements IModifiableIdQueue<E> {
 
-	// LinkedHashMap provides natural ordering, so can be used as a queue as well as for quick lookup by unique id
-	private final Map<String, E> queue = new LinkedHashMap<>();
+	private final Map<String, E> beansById;
+	private final SortedMap<Integer, String> idsByQueuePosition;
+	private int nextQueuePosition = 1;
+
+	public SynchronizedModifiableIdQueue() {
+		// TODO temporary code with non-persistent maps
+		beansById = new HashMap<>();
+		idsByQueuePosition = new TreeMap<>();
+	}
 
 	@Override
 	public List<E> getElements() {
 		synchronized (this) {
-			return new ArrayList<>(queue.values());
+			return idsByQueuePosition.values().stream() // bean ids are streamed by queue order
+					.map(beansById::get)
+					.collect(toList());
 		}
 	}
 
@@ -76,22 +88,18 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	public boolean contains(Object obj) {
 		if (!(obj instanceof IdBean)) return false;
 		synchronized (this) {
-			return queue.containsKey(((IdBean) obj).getUniqueId());
+			return beansById.containsKey(((IdBean) obj).getUniqueId());
 		}
 	}
 
 	@Override
 	public Object[] toArray() {
-		synchronized (this) {
-			return queue.values().toArray();
-		}
+		return getElements().toArray();
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		synchronized (this) {
-			return queue.values().toArray(a);
-		}
+		return getElements().toArray(a);
 	}
 
 	@Override
@@ -125,7 +133,8 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public void clear() {
 		synchronized (this) {
-			queue.clear();
+			beansById.clear();
+			idsByQueuePosition.clear();
 		}
 	}
 
@@ -137,54 +146,78 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public boolean add(E e) {
 		synchronized (this) {
-			return queue.put(e.getUniqueId(), e) == null;
+			if (beansById.containsKey(e.getUniqueId())) {
+				throw new IllegalArgumentException("The queue already contains a bean with unique id " + e.getUniqueId());
+			}
+
+			beansById.put(e.getUniqueId(), e);
+			idsByQueuePosition.put(nextQueuePosition, e.getUniqueId());
+			nextQueuePosition++;
+			return true;
+		}
+	}
+
+	private void throwIfEmpty() {
+		if (isEmpty()) {
+			throw new NoSuchElementException("The queue is empty");
 		}
 	}
 
 	@Override
 	public E remove() {
 		synchronized (this) {
-			final Iterator<E> iter = queue.values().iterator();
-			final E removed = iter.next(); // throws NoSuchElementException if empty
-			iter.remove();
-			return removed;
+			throwIfEmpty();
+			return doRemove();
 		}
 	}
 
 	@Override
 	public E poll() {
 		synchronized (this) {
-			if (queue.isEmpty()) {
+			if (isEmpty()) {
 				return null;
 			}
 
-			return remove();
+			return doRemove();
 		}
+	}
+
+	private E doRemove() {
+		final Integer firstPositionNum = idsByQueuePosition.firstKey();
+		final String firstBeanId = idsByQueuePosition.remove(firstPositionNum);
+		return beansById.remove(firstBeanId);
 	}
 
 	@Override
 	public E element() {
 		synchronized (this) {
-			return queue.values().iterator().next(); // throws NoSuchElementException if empty
+			throwIfEmpty();
+			return doPeek();
 		}
 	}
 
 	@Override
 	public E peek() {
 		synchronized (this) {
-			if (queue.isEmpty()) {
+			if (isEmpty()) {
 				return null;
 			}
 
-			return element();
+			return doPeek();
 		}
+	}
+
+	private E doPeek() {
+		final Integer firstBeanPos = idsByQueuePosition.firstKey();
+		final String firstBeanId = idsByQueuePosition.get(firstBeanPos);
+		return beansById.get(firstBeanId);
 	}
 
 	@Override
 	public boolean replace(E e) {
 		synchronized (this) {
-			if (queue.containsKey(e.getUniqueId())) {
-				queue.put(e.getUniqueId(), e);
+			if (beansById.containsKey(e.getUniqueId())) {
+				beansById.put(e.getUniqueId(), e);
 			}
 		}
 
@@ -194,69 +227,68 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public boolean moveUp(E e) {
 		synchronized (this) {
-			boolean foundElement = false;
-			final List<E> items = new ArrayList<>(queue.values());
-			for (ListIterator<E> iter = items.listIterator(); iter.hasNext(); ) {
-				boolean hasPrevious = iter.hasPrevious();
-				final E elem = iter.next();
-				if (e.getUniqueId().equals(elem.getUniqueId())) {
-					if (!hasPrevious) {
-						throw new IndexOutOfBoundsException("The element is already at the head of the queue");
-					}
-					foundElement = true;
-					iter.remove();
-					iter.previous();
-					iter.add(e);
-					break;
+			Map.Entry<Integer, String> entry = null;
+			Map.Entry<Integer, String> prevEntry = null;
+			boolean found = false;
+			final Iterator<Map.Entry<Integer, String>> iter = idsByQueuePosition.entrySet().iterator();
+			while (iter.hasNext() && !found) {
+				prevEntry = entry;
+				entry = iter.next();
+				if (entry.getValue().equals(e.getUniqueId())) {
+					found = true;
 				}
 			}
 
-			// since LinkedHashMap uses insertion order, we need to clear the map and add all the items again in the new order
-			// note ListOrderedMap from Apache Commons would make this easier, but this is only a temporary solution anyway
-			queue.clear();
-			for (E elem : items) {
-				queue.put(elem.getUniqueId(), elem);
+			if (found) {
+				if (prevEntry == null) {
+					throw new IndexOutOfBoundsException("The element is already at the head of the queue");
+				}
+				swap(prevEntry.getKey(), prevEntry.getValue(), entry.getKey(), entry.getValue());
 			}
-
-			return foundElement;
+			return found;
 		}
 	}
 
 	@Override
 	public boolean moveDown(E e) {
 		synchronized (this) {
-			boolean foundElement = false;
-			final List<E> items = new ArrayList<>(queue.values());
-			for (ListIterator<E> iter = items.listIterator(); iter.hasNext(); ) {
-				final E elem = iter.next();
-				if (e.getUniqueId().equals(elem.getUniqueId())) {
-					if (!iter.hasNext()) {
-						throw new IndexOutOfBoundsException("The element is already at the tail of the queue");
-					}
-					foundElement = true;
-					iter.remove();
-					iter.next();
-					iter.add(e);
-					break;
+			boolean found = false;
+			Map.Entry<Integer, String> entry = null;
+			final Iterator<Map.Entry<Integer, String>> iter = idsByQueuePosition.entrySet().iterator();
+			while (iter.hasNext() && !found) {
+				entry = iter.next();
+				if (entry.getValue().equals(e.getUniqueId())) {
+					found = true;
 				}
 			}
 
-			// since LinkedHashMap uses insertion order, we need to clear the map and add all the items again in the new order
-			// note ListOrderedMap from Apache Commons would make this easier, but this is only a temporary solution anyway
-			queue.clear();
-			for (E elem : items) {
-				queue.put(elem.getUniqueId(), elem);
-			}
+			if (found) {
+				if (!iter.hasNext()) {
+					throw new IndexOutOfBoundsException("The element is already at the tail of the queue");
+				}
 
-			return foundElement;
+				Map.Entry<Integer, String> nextEntry = iter.next();
+				swap(entry.getKey(), entry.getValue(), nextEntry.getKey(), nextEntry.getValue());
+				return true;
+			}
+			return found;
 		}
+	}
+
+	private void swap(Integer firstPos, String firstBean, Integer secondPos, String secondBean) {
+		idsByQueuePosition.put(secondPos, firstBean);
+		idsByQueuePosition.put(firstPos, secondBean);
 	}
 
 	@Override
 	public boolean remove(Object obj) {
 		if (!(obj instanceof IdBean)) return false; // can't be in the queue
 
-		return queue.remove(((IdBean) obj).getUniqueId()) != null;
+		synchronized (this) {
+			final String id = ((IdBean) obj).getUniqueId();
+			idsByQueuePosition.values().removeIf(str -> str.equals(id));
+			return beansById.remove(id) != null;
+		}
 	}
 
 	/**
@@ -264,13 +296,36 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	 */
 	@Override
 	public Iterator<E> iterator() {
-		return queue.values().iterator();
+		return new Iterator<E>() {
+
+			private final Iterator<String> idsByQueuePosIterator = idsByQueuePosition.values().iterator();
+
+			private String currentId = null;
+
+			@Override
+			public boolean hasNext() {
+				return idsByQueuePosIterator.hasNext();
+			}
+
+			@Override
+			public E next() {
+				currentId = idsByQueuePosIterator.next();
+				return beansById.get(currentId);
+			}
+
+			@Override
+			public void remove() {
+				idsByQueuePosIterator.remove();
+				beansById.remove(currentId);
+			}
+
+		};
 	}
 
 	@Override
 	public int size() {
 		synchronized (this) {
-			return queue.size();
+			return beansById.size();
 		}
 	}
 
