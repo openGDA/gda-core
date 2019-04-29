@@ -86,7 +86,11 @@ public class CountDownComposite extends Composite implements Observer {
 		// Name label
 		unitLabel = new Label(this, SWT.NONE);
 		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
-
+		
+		if (observable!=null) {
+			// required when the view containing this widget is re-opened
+			observable.addObserver(this);
+		}
 	}
 
 	public String getDisplayName() {
@@ -132,6 +136,7 @@ public class CountDownComposite extends Composite implements Observer {
 
 	public void setObservable(Observable observable) {
 		this.observable = observable;
+		// required when this is 1st instantiated in LiveControl
 		this.observable.addObserver(this);
 	}
 
@@ -139,12 +144,16 @@ public class CountDownComposite extends Composite implements Observer {
 	public void update(Observable o, Object arg) {
 		if (o == observable) {
 			// Update the GUI in the UI thread
-			Display.getDefault().asyncExec(()->	positionText.setText(arg.toString()));
+			if (!positionText.isDisposed()) {
+				Display.getDefault().asyncExec(()->	positionText.setText(arg.toString()));
+			}
 		}
 	}
 	@Override
 	public void dispose() {
-		SWTResourceManager.disposeColors();
+		if (observable != null) {
+			observable.deleteObserver(this);
+		}
 		super.dispose();
 	}
 }

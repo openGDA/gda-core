@@ -5,6 +5,7 @@ import java.util.Observer;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -30,11 +31,13 @@ public class CountdownProgressComposite extends Composite implements Observer {
 	private Observable observable; // must be set to obtain text to be displayed
 	private Integer barWidth;
 	private GridData gd_progressBar;
+	private Color color;
 
 	public CountdownProgressComposite(Composite parent, int style) {
 		super(parent, style);
 
-		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		color = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
+		parent.setBackground(color);
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 		
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -53,7 +56,11 @@ public class CountdownProgressComposite extends Composite implements Observer {
 		progressBar.setLayoutData(gd_progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
-
+		
+		if (getObservable()!=null) {
+			// required when view containing this being re-opened.
+			getObservable().addObserver(this);
+		}
 	}
 
 	public String getDisplayName() {
@@ -79,12 +86,15 @@ public class CountdownProgressComposite extends Composite implements Observer {
 
 	public void setObservable(Observable observable) {
 		this.observable = observable;
+		//required when 1st time this being created in LiveControl
 		this.observable.addObserver(this);
 	}	
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == observable) {
-			Display.getDefault().asyncExec(()-> progressBar.setSelection(Integer.parseInt(arg.toString())));
+			if (!progressBar.isDisposed()) {
+				Display.getDefault().asyncExec(()-> progressBar.setSelection(Integer.parseInt(arg.toString())));
+			}
 		}
 	}
 
@@ -99,7 +109,15 @@ public class CountdownProgressComposite extends Composite implements Observer {
 	}
 	@Override
 	public void dispose() {
-		SWTResourceManager.disposeColors();
+		if (observable!=null) {
+			observable.deleteObserver(this);
+		}
+		if (color!=null) {
+			color.dispose();
+		}
+		if (progressBar!=null) {
+			progressBar.dispose();
+		}
 		super.dispose();
 	}
 
