@@ -18,8 +18,6 @@
 
 package gda.scan;
 
-import gda.device.DeviceException;
-
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +25,8 @@ import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 
 public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 
@@ -39,26 +39,20 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 	public ScanDataPointPopulatorAndPublisher(ScanDataPointPublisher broadcaster, IScanDataPoint point) {
 		this.broadcaster = broadcaster;
 		this.point = point;
-		if( logger.isDebugEnabled())
-			logger.debug("'{}': created", point.toString());
+		logger.debug("'{}': created", point);
 	}
 
 	@Override
 	public Void call() throws Exception {
-		if( logger.isDebugEnabled())
-			logger.debug("'{}': running", point.toString());
+		logger.debug("'{}': running", point);
 
 		convertPositionFuturesToPositions(point);
+		logger.trace("'{}': futures converted", point);
 
-		if( logger.isDebugEnabled()){
-			logger.debug("'{}': futures converted", point.toString());
-			logger.debug("'{}' publishing", point.getUniqueName());
-		}
-
+		logger.debug("'{}' publishing", point);
 		broadcaster.publish(point);
-		if( logger.isDebugEnabled()){
-			logger.debug("'{}' published", point.toString());
-		}
+		logger.debug("'{}' published", point);
+
 		return null;
 	}
 
@@ -72,11 +66,10 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 			Object possiblyFuture = positions.get(i);
 			String name = names.get(i);
 
-			if( logger.isDebugEnabled())
-				logger.debug("'{}' converting '{}'", point.toString(), name);
+			logger.trace("'{}' converting '{}'", point, name);
 			Object pos = convertPositionFutureToPosition(name, possiblyFuture);
-			if( logger.isDebugEnabled())
-				logger.debug("'{}' converted '{}'", point.toString(), name);
+			logger.trace("'{}' converted '{}'", point, name);
+
 			positions.set(i, pos);
 		}
 	}
