@@ -320,7 +320,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	 */
 	public void setDemandTemperature(double demandTemperature) throws DeviceException {
 		try {
-			logger.info("Setting demand temperature to {} for ouput {}", demandTemperature, activeOutput);
+			logger.info("Setting demand temperature to {} for output {}", demandTemperature, activeOutput);
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_DEMAND, activeOutput), demandTemperature);
 		} catch (Exception e) {
 			logger.error("Error setting the demand temperature to {} for output {}", demandTemperature, activeOutput, e);
