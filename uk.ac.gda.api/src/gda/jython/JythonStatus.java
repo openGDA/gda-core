@@ -20,8 +20,6 @@ package gda.jython;
 
 /**
  * JythonStatus represents the three possible states of a Jython script, scan or queue.
- * <p>
- * Do not change the order of these: the ordinal values are used in the CORBA Jython interface
  */
 public enum JythonStatus {
 
@@ -40,11 +38,4 @@ public enum JythonStatus {
 	 */
 	RUNNING;
 
-	// cached for efficiency
-	// TODO remove this once we drop CORBA
-	private static final JythonStatus[] cachedValues = JythonStatus.values();
-
-	public static JythonStatus fromInt(int value) {
-		return cachedValues[value];
-	}
 }
