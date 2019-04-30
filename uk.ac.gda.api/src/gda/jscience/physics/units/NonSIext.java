@@ -72,6 +72,7 @@ public final class NonSIext {
 
 	public static final String ANG_STRING = "Ang";
 	public static final String ANGSTROM_STRING = "Angstrom";
+	public static final String ANGSTROM_SYMBOL = "Å";
 	public static final String PER_ANGSTROM_STRING = "Per_Angstrom";
 
 	public static final String CENTIGRADE_STRING = "centigrade";

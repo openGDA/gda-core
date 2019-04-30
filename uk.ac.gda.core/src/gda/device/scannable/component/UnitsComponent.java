@@ -20,6 +20,7 @@
 package gda.device.scannable.component;
 
 import static gda.jscience.physics.units.NonSIext.ANGSTROM_STRING;
+import static gda.jscience.physics.units.NonSIext.ANGSTROM_SYMBOL;
 import static gda.jscience.physics.units.NonSIext.ANG_STRING;
 import static gda.jscience.physics.units.NonSIext.CENTIGRADE_STRING;
 import static gda.jscience.physics.units.NonSIext.COUNT_STRING;
@@ -284,6 +285,7 @@ public class UnitsComponent implements PositionConvertor {
 			unitList.add(MICRONS_STRING);
 			unitList.add(ANG_STRING);
 			unitList.add(ANGSTROM_STRING);
+			unitList.add(ANGSTROM_SYMBOL);
 		}
 		// angular motions
 		else if (unit.isCompatible(Angle.UNIT)) {

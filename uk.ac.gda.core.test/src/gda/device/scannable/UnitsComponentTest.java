@@ -56,7 +56,7 @@ public class UnitsComponentTest {
 	private static final Amount<Length> q3000mm = Amount.valueOf(3000, MILLI(METER));
 
 	private static final List<String> LENGTH_UNITS = Arrays.asList(
-			"m", "nm", "mm", "µm", "micron", "um", "Ang", "Angstrom", "microns");
+			"m", "nm", "mm", "µm", "micron", "um", "Ang", "Angstrom", "Å", "microns");
 
 	private static final List<String> ANGLE_UNITS = Arrays.asList(
 			"rad", "Deg", "degrees", "mDeg", "deg", "mdeg", "mRad", "mrad", "uDeg", "uRad", "urad", "°");
