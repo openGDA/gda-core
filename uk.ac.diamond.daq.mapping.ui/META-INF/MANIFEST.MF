@@ -51,6 +51,7 @@ Import-Package: org.eclipse.e4.core.contexts,
 Service-Component: OSGI-INF/*.xml
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Export-Package: uk.ac.diamond.daq.mapping.ui.experiment,
+ uk.ac.diamond.daq.mapping.ui.experiment.file,
  uk.ac.diamond.daq.mapping.ui.experiment.focus
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui

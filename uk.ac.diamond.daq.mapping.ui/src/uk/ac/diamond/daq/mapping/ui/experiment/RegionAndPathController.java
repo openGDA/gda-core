@@ -27,9 +27,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -44,7 +44,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.event.Event;
@@ -56,7 +55,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
-import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -77,11 +75,11 @@ import uk.ac.diamond.daq.osgi.OsgiService;
  * @since GDA 9.13
  */
 @OsgiService(RegionAndPathController.class)
-public class RegionAndPathController {
+public class RegionAndPathController extends AbstractMappingController {
 	/**
 	 * This listener must handle changes to the region shape and cascade the effect down to cause rebinding and redraw
 	 * of associated controls in the client view. It does this by firing an array of handler functions injected by each
-	 * of the client views when calling the initialize method on the main class, which is mandatory
+	 * of the client views when calling the initialise method on the main class, which is mandatory
 	 */
 	public class RegionSelectorListener implements ISelectionChangedListener, IValueChangeListener<IMappingScanRegionShape> {
 
@@ -101,14 +99,17 @@ public class RegionAndPathController {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			if (inUpdate.compareAndSet(false, true)) {
-				logger.debug("Region selection event setting region to: {}", event.getSelection().toString());
+				try {
+					logger.debug("Region selection event setting region to: {}", event.getSelection().toString());
 
-				// Get the new selection.
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
+					// Get the new selection.
+					IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+					IMappingScanRegionShape selectedRegion = (IMappingScanRegionShape) selection.getFirstElement();
 
-				changeRegion(selectedRegion);
-				inUpdate.set(false);
+					changeRegion(selectedRegion);
+				} finally {
+					inUpdate.set(false);
+				}
 			}
 		}
 
@@ -118,9 +119,14 @@ public class RegionAndPathController {
 		@Override
 		public void handleValueChange(ValueChangeEvent<? extends IMappingScanRegionShape> event) {
 			if (inUpdate.compareAndSet(false, true)) {
-				logger.debug("Region selection event setting region to : {}", event.getObservableValue().getValue().getName());
-				changeRegion(event.getObservableValue().getValue());
-				inUpdate.set(false);
+				try {
+					logger.debug("Region selection event setting region to : {}",
+								event.getObservableValue().getValue().getName());
+					changeRegion(event.getObservableValue().getValue());
+
+				} finally {
+					inUpdate.set(false);
+				}
 			}
 		}
 
@@ -141,11 +147,13 @@ public class RegionAndPathController {
 			logger.debug("Setting mapping bean region to : {}", newRegion);
 			getMappingBean().getScanDefinition().getMappingScanRegion().setRegion(scanRegionShape);
 
-			// Update the path control(s) with paths valid for the new region type in each cclient view
-			// (The listener on the path control will take care of propagating the change appropriately, and updating the GUI)
-			// Do this before starting drawing the region (+ path ) with the plotting system because changing path after breaks the region drawing
+			// Update the path control(s) with paths valid for the new region type in each client view
+			// (The path control listener will take care of propagating the change appropriately, and updating the GUI)
+			// Do this before starting drawing the region (+ path ) with the plotting system because changing path
+			// afterwards breaks the region drawing
 			for (Consumer<RegionPathState> viewUpdater : viewUpdaters) {
-				viewUpdater.accept(new RegionPathState(scanRegionShape, getRegionListAndLinkRegion(), scanPathModel, getValidPathsList()));
+				viewUpdater.accept(new RegionPathState(
+						scanRegionShape, getRegionListAndLinkRegion(), scanPathModel, getScanPathListAndLinkPath()));
 			}
 
 			// If new scan region is non-null, add it to the plot and add the property change listener
@@ -201,16 +209,13 @@ public class RegionAndPathController {
 	private IMappingScanRegionShape scanRegionShape = null;
 	private IScanPathModel scanPathModel = null;
 
-	private IMappingExperimentBeanProvider mappingExperimentBeanProvider;
 	private List<Consumer<RegionPathState>> viewUpdaters = new ArrayList<>();
 	private List<Consumer<String>> statusMessageConsumers = new ArrayList<>();
 
 	private RegionSelectorListener listener;
 
-	private AtomicBoolean initalised =  new AtomicBoolean(false);
-	private boolean clickToScanArmed = false;
-
 	public RegionAndPathController() {
+		logger.debug("Created RegionAndPathController");
 	}
 
 	/**
@@ -229,31 +234,33 @@ public class RegionAndPathController {
 	 */
 	public void initialise(Optional<Consumer<RegionPathState>> viewUpdater,
 			Optional<Consumer<String>> statusMessageConsumer) {
-		if (initalised.compareAndSet(false, true)) {
-			try {
-				beamPositionPlotter = getService(BeamPositionPlotter.class);
-				beamPositionPlotter.init();
-				plotter = getService(PlottingController.class);
-				registerPathPlotEventHandler();
-
-				mappingRegionManager = getService(IMappingRegionManager.class);
-				mappingExperimentBeanProvider = getService(IMappingExperimentBeanProvider.class);
-				pathCalculationJob = createPathCalculationJob();
-				scanRegionShape = getScanRegionFromBean().getRegion();		// Initialize the shape and
-				scanPathModel = getScanRegionFromBean().getScanPath();		// path to default values
-				pathBeanPropertyChangeListener = evt -> updatePoints();
-				listener = new RegionSelectorListener();
-			} catch (Throwable anything) {
-				initalised.set(false);
-				throw anything;
-			}
-		}
+		super.initialise();
 		if (viewUpdater.isPresent()) {
 			viewUpdaters.add(viewUpdater.get());
 		}
 		if (statusMessageConsumer.isPresent()) {
 			statusMessageConsumers.add(statusMessageConsumer.get());
 		}
+	}
+
+	/**
+	 * Called by the super class's doOneTimeInitialisation method having set its {@link AtomicBoolean} initialised flag
+	 * to ensure that this code is only called once. Retrieves the required services and initalises them and also sets
+	 * up the listeners for changes in scan path and region
+	 */
+	@Override
+	protected void oneTimeInitialisation() {
+		beamPositionPlotter = getService(BeamPositionPlotter.class);
+		beamPositionPlotter.init();
+		plotter = getService(PlottingController.class);
+		registerPathPlotEventHandler();
+
+		mappingRegionManager = getService(IMappingRegionManager.class);
+		pathCalculationJob = createPathCalculationJob();
+		scanRegionShape = getScanRegionFromBean().getRegion();		// Initialize the shape and
+		scanPathModel = getScanRegionFromBean().getScanPath();		// path to default values
+		pathBeanPropertyChangeListener = evt -> updatePoints();
+		listener = new RegionSelectorListener();
 	}
 
 	public void detachViewUpdater(Consumer<RegionPathState> viewUpdater) {
@@ -264,10 +271,6 @@ public class RegionAndPathController {
 		statusMessageConsumers.remove(statusMessageConsumer);
 	}
 
-	private IMappingExperimentBean getMappingBean() {
-		return mappingExperimentBeanProvider.getMappingExperimentBean();
-	}
-
 	/**
 	 * Supplies the listener that will be trigger when the region shape is changed to allow the client view to respond.
 	 * This will be the same for all views as it is created by the {@link #initialise} method
@@ -275,6 +278,7 @@ public class RegionAndPathController {
 	 * @return An {@link ISelectionChangedListener} triggered by region shape selection
 	 */
 	public RegionSelectorListener getRegionSelectorListener() {
+		checkInitialised();
 		return listener;
 	}
 
@@ -285,6 +289,7 @@ public class RegionAndPathController {
 	 * @return	The current scanRegion
 	 */
 	public final IMappingScanRegionShape getScanRegionShape() {
+		checkInitialised();
 		return scanRegionShape;
 	}
 
@@ -295,6 +300,7 @@ public class RegionAndPathController {
 	 * @return	The current scanPathModel
 	 */
 	public final IScanPathModel getScanPathModel() {
+		checkInitialised();
 		return scanPathModel;
 	}
 
@@ -306,6 +312,7 @@ public class RegionAndPathController {
 	 * @return The list of available region shapes.
 	 */
 	public List<IMappingScanRegionShape>getRegionListAndLinkRegion() {
+		checkInitialised();
 		List<IMappingScanRegionShape> regionList = getTemplateRegions();
 		if (scanRegionShape == null) {
 			scanRegionShape = regionList.get(0);
@@ -327,6 +334,7 @@ public class RegionAndPathController {
 	 * @return The list of available scan paths.
 	 */
 	public List<IScanPathModel> getScanPathListAndLinkPath() {
+		checkInitialised();
 		List<IScanPathModel> scanPathList = getValidPathsList();
 		if (scanPathModel == null) {
 			scanPathModel = scanPathList.get(0);
@@ -375,6 +383,7 @@ public class RegionAndPathController {
 	 * mapping bean for the region are updated to reference that object instead of he current one.
 	 */
 	public void createDefaultRegionAtStagePosition() {
+		checkInitialised();
 		final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
 		final double xAxisPosition = getAxisPosition(mappingStage.getActiveFastScanAxis());
 		final double yAxisPosition = getAxisPosition(mappingStage.getActiveSlowScanAxis());
@@ -393,13 +402,21 @@ public class RegionAndPathController {
 	 * @param y		The new vertical centre of the region
 	 */
 	public void createRegionWithCurrentRegionValuesAt(double x, double y) {
+		checkInitialised();
 		scanRegionShape.centre(x, y);
+	}
+
+	public void setMappingBean(IMappingExperimentBean bean) {
+		checkInitialised();
+		mappingExperimentBeanProvider.setMappingExperimentBean(bean);
+		mappingExperimentBeanProvider.setSetByView(true);
 	}
 
 	/**
 	 * Updates the local caches of scan region and path from the mappingExperimentBean
 	 */
 	public void refreshFromMappingBean() {
+		checkInitialised();
 		IMappingScanRegion mappingScanRegion = getScanRegionFromBean();
 		scanRegionShape = mappingScanRegion.getRegion();
 		scanPathModel = mappingScanRegion.getScanPath();
@@ -413,6 +430,7 @@ public class RegionAndPathController {
 	 */
 	public void updateMappingBeanScanRegion(final IMappingScanRegionShape newRegionShapeValue,
 			final IScanPathModel newPathValue) {
+		checkInitialised();
 		IMappingScanRegion mappingScanRegion = getScanRegionFromBean();
 		mappingScanRegion.setRegion(newRegionShapeValue);
 		mappingScanRegion.setScanPath(newPathValue);
@@ -425,6 +443,7 @@ public class RegionAndPathController {
 	 * @return	The mapping bean's current {#link IMappingScanRegion}
 	 */
 	public IMappingScanRegion getScanRegionFromBean() {
+		checkInitialised();
 		return getMappingBean().getScanDefinition().getMappingScanRegion();
 	}
 
@@ -432,6 +451,7 @@ public class RegionAndPathController {
 	 * Triggers an update of the plotted region
 	 */
 	public void updatePlotRegion() {
+		checkInitialised();
 		plotter.updatePlotRegionFrom(scanRegionShape);
 	}
 
@@ -439,6 +459,7 @@ public class RegionAndPathController {
 	 * Schedules a recalculation of the current scan path, cancelling any  calculations currently in progress
 	 */
 	public void updatePoints() {
+		checkInitialised();
 		pathCalculationJob.cancel();
 		if (scanPathModel != null && scanRegionShape != null) {
 			pathCalculationJob.setScanPathModel(scanPathModel);
@@ -454,6 +475,7 @@ public class RegionAndPathController {
 	 * @param newPath The new path to be set.
 	 */
 	public void changePath(IScanPathModel newPath) {
+		checkInitialised();
 		logger.debug("Changing path to {}", newPath);
 
 		// We're going to replace the scan path with a new one
@@ -473,23 +495,10 @@ public class RegionAndPathController {
 		updatePoints();
 	}
 
-	/**
-	 * Manages indication of whether use of Ctrl-Click on the Map View should start a scan using the current mapping
-	 * bean settings
-	 *
-	 * @return	An {@link IObservableValue} indicating if Ctrl-Click scanning is enabled
-	 */
-	@SuppressWarnings("unchecked")
-	public IObservableValue<Boolean> getMappingBeanClickToScanArmedObservableValue() {
-		return BeanProperties.value("clickToScanArmed").observe(this);
-	}
-
-	public boolean isClickToScanArmed() {
-		return clickToScanArmed;
-	}
-
-	public void setClickToScanArmed(boolean clickToScanArmed) {
-		this.clickToScanArmed = clickToScanArmed;
+	public void triggerRegionUpdate(final SelectObservableValue<IMappingScanRegionShape> observableValue) {
+		checkInitialised();
+		getRegionSelectorListener().handleValueChange(
+				new ValueChangeEvent<IMappingScanRegionShape>(observableValue, null));
 	}
 
 	/**
@@ -571,9 +580,5 @@ public class RegionAndPathController {
 		Dictionary<String, String> props = new Hashtable<>();
 		props.put(org.osgi.service.event.EventConstants.EVENT_TOPIC,PathInfoCalculatorJob.PATH_CALCULATION_TOPIC);
 		ctx.registerService(EventHandler.class, handler, props);
-	}
-
-	public <S> S getService(Class<S> serviceClass) {
-		return PlatformUI.getWorkbench().getService(serviceClass);
 	}
 }

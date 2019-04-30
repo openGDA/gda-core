@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="regionAndPathController" class="uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController" />
+	<import resource="file://${gda.core.dir}/clients/_common/mapping_controllers.xml" />
 
 	<!-- Default mapping view. Beamlines can use an alternative bean if they wish to customise the view -->
 	<bean id="mappingViewConfiguration" class="uk.ac.diamond.daq.mapping.ui.experiment.MappingViewConfiguration">

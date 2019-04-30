@@ -18,24 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -44,13 +32,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
-import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
-import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
-import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
  * A section containing:<ul>
@@ -63,7 +46,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private static final String[] FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
 	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
-	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSection.class);
 
 	private Composite composite;
 
@@ -73,6 +55,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private RGB buttonColour = null;
 
+	private ScanManagementController smController;
+
 	@Override
 	public boolean createSeparator() {
 		return false;
@@ -80,6 +64,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
+		smController = getService(ScanManagementController.class);
+		smController.initialise();
 		super.createControls(parent);
 		composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).applyTo(composite);
@@ -107,7 +93,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		copyScanCommandButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				copyScanToClipboard();
+				smController.copyScanToClipboard();
 			}
 		});
 
@@ -119,7 +105,12 @@ public class SubmitScanSection extends AbstractMappingSection {
 		loadButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				loadScan();
+				Optional<IMappingExperimentBean> bean = smController.loadScan(chooseFileName(SWT.OPEN));
+				if (bean.isPresent()) {
+					getMappingView().setMappingBean(bean.get());
+					smController.updateGridModelIndex();
+					getMappingView().updateControls();
+				}
 			}
 		});
 
@@ -131,50 +122,13 @@ public class SubmitScanSection extends AbstractMappingSection {
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				saveScan();
+				smController.saveScan(chooseFileName(SWT.SAVE));
 			}
 		});
 	}
 
-	private void loadScan() {
-		final String fileName = chooseFileName(SWT.OPEN);
-		if (fileName == null) return;
-
-		try {
-			byte[] bytes = Files.readAllBytes(Paths.get(fileName));
-			final String json = new String(bytes, "UTF-8");
-
-			final IMarshallerService marshaller = getService(IMarshallerService.class);
-			IMappingExperimentBean mappingBean = marshaller.unmarshal(json, MappingExperimentBean.class);
-			getMappingView().setMappingBean(mappingBean);
-			loadStageInfoSnapshot();
-			getMappingView().updateControls();
-		} catch (Exception e) {
-			final String errorMessage = "Could not load a mapping scan from file: " + fileName;
-			logger.error(errorMessage, e);
-			ErrorDialog.openError(getShell(), "Load Scan", errorMessage,
-					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
-		}
-	}
-
-	private void saveScan() {
-		final String fileName = chooseFileName(SWT.SAVE);
-		if (fileName == null) return;
-
-		captureStageInfoSnapshot();
-		final IMappingExperimentBean mappingBean = getMappingBean();
-		final IMarshallerService marshaller = getService(IMarshallerService.class);
-		try {
-			logger.trace("Serializing the state of the mapping view to json");
-			final String json = marshaller.marshal(mappingBean);
-			logger.trace("Writing state of mapping view to file: {}", fileName);
-			Files.write(Paths.get(fileName), json.getBytes(Charset.forName("UTF-8")), StandardOpenOption.CREATE);
-		} catch (Exception e) {
-			final String errorMessage = "Could not save the mapping scan to file: " + fileName;
-			logger.error(errorMessage, e);
-			ErrorDialog.openError(getShell(), "Save Scan", errorMessage,
-					new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
-		}
+	protected void submitScan() {
+		smController.submitScan();
 	}
 
 	private String chooseFileName(int fileDialogStyle) {
@@ -186,45 +140,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 		dialog.setOverwrite(true);
 
 		return dialog.open();
-	}
-
-	private void loadStageInfoSnapshot() {
-		// push the saved stage info in the mapping bean to the OSGi component
-		IMappingExperimentBean bean = getMappingBean();
-		MappingStageInfo stage = getService(MappingStageInfo.class);
-		stage.merge((MappingStageInfo) bean.getStageInfoSnapshot());
-	}
-
-	private void captureStageInfoSnapshot() {
-		// capture the current MappingStageInfo in the mapping bean
-		IMappingExperimentBean bean = getMappingBean();
-		MappingStageInfo stage = getService(MappingStageInfo.class);
-		((MappingStageInfo) bean.getStageInfoSnapshot()).merge(stage);
-	}
-
-	private void copyScanToClipboard() {
-		try {
-			final String scanCommand = createScanCommand();
-			Clipboard clipboard = new Clipboard(Display.getDefault());
-			clipboard.setContents(new Object[] { scanCommand }, new Transfer[] { TextTransfer.getInstance() });
-			clipboard.dispose();
-			logger.debug("Copied mapping scan command to clipboard: {}", scanCommand);
-		} catch (Exception e) {
-			logger.error("Copy to clipboard failed.", e);
-			MessageDialog.openError(getShell(), "Error Copying Scan Command",
-					"The scan command could not be copied to the clipboard. See the error log for more details.");
-		}
-	}
-
-	protected void submitScan() {
-		final ScanBeanSubmitter submitter = getService(ScanBeanSubmitter.class);
-		try {
-			ScanBean scanBean = createScanBean();
-			submitter.submitScan(scanBean);
-		} catch (Exception e) {
-			logger.error("Scan submission failed", e);
-			MessageDialog.openError(getShell(), "Error Submitting Scan", "The scan could not be submitted. See the error log for more details.");
-		}
 	}
 
 	/**
