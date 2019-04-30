@@ -19,6 +19,9 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -219,7 +222,9 @@ public class ProcessingSection extends AbstractMappingSection {
 			if (dialog.open() == Window.OK) {
 				if (!useExisting.get()) {
 					try {
-						wizard.saveOutputFile(processingModelWrapper.getModel().getProcessingFilePath());
+						final Path processingFilePath = Paths.get(processingModelWrapper.getModel().getProcessingFilePath());
+						Files.createDirectories(processingFilePath.getParent());
+						wizard.saveOutputFile(processingFilePath.toString());
 					} catch (Exception e) {
 						logger.error("Could not save template file!", e);
 					}
