@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -51,20 +52,25 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.queue.IModifiableIdQueue;
+import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
+import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection implements IConsumer<U> {
 
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerImpl.class);
+
+	private static final String QUEUE_NAME_SUBMISSION_QUEUE = "queued";
+	private static final String QUEUE_NAME_STARTED_BEANS = "started"; // aka running and completed
+
 	private String name;
 	private UUID consumerId;
 	private IEventService eventService;
 	private IPublisher<U> statusTopicPublisher; // a publisher to the status topic
 	private IPublisher<ConsumerStatusBean> consumerStatusPublisher;
+	private ISubscriber<IBeanListener<U>> statusTopicSubscriber; // a subscriber to the status topic
 	private ISubscriber<IBeanListener<QueueCommandBean>> commandTopicSubscriber; // a subscriber to the command topic
 	private IPublisher<QueueCommandBean> commandAckTopicPublisher; // a publisher to the command acknowledgement topic
 
@@ -100,8 +106,9 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandTopicName;
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
-	private final IModifiableIdQueue<U> submissionQueue;
-	private final IModifiableIdQueue<U> statusSet;
+	private final String persistentStorePath;
+	private final IPersistentModifiableIdQueue<U> submissionQueue;
+	private final IPersistentModifiableIdQueue<U> statusQueue;
 
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
@@ -123,10 +130,17 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.commandAckTopicName = commandAckTopicName;
 		this.consumerStatusTopicName = consumerStatusTopicName;
 
-		submissionQueue = new SynchronizedModifiableIdQueue<>();
-		statusSet = new SynchronizedModifiableIdQueue<>();
+		final String dbDir = connectorService.getPersistenceDir();
+		persistentStorePath = Paths.get(dbDir, submitQueueName + ".db").toString();
+		final MVStore store = MVStore.open(persistentStorePath);
+		submissionQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_SUBMISSION_QUEUE);
+		statusQueue = new SynchronizedModifiableIdQueue<>(connectorService, store, QUEUE_NAME_STARTED_BEANS);
 
 		connect();
+	}
+
+	public String getPersistentStorePath() {
+		return persistentStorePath;
 	}
 
 	@Override
@@ -164,7 +178,18 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 			commandAckTopicPublisher = eventService.createPublisher(uri, commandAckTopicName);
 		}
 
+		if (getStatusTopicName()!=null) {
+			statusTopicSubscriber = eventService.createSubscriber(uri, getStatusTopicName());
+			final IBeanListener<U> beanChangeListener = evt -> updateBean(evt.getBean());
+			statusTopicSubscriber.addListener(beanChangeListener);
+		}
+
 		setConnected(true);
+	}
+
+	private void updateBean(U bean) {
+		submissionQueue.replace(bean); // these method only replace the bean if they have a copy
+		statusQueue.replace(bean);
 	}
 
 	private ConsumerStatusBean createConsumerStatusBean() {
@@ -213,6 +238,23 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		if (commandAckTopicPublisher != null) {
 			commandAckTopicPublisher.disconnect();
 			commandAckTopicPublisher = null;
+		}
+		if (statusTopicSubscriber != null) {
+			statusTopicSubscriber.disconnect();
+			statusTopicSubscriber = null;
+		}
+
+		try {
+			submissionQueue.close();
+		} catch (Exception e) {
+			LOGGER.error("An error occurred closing the submission queue for consumer {}", getName(), e);
+		}
+
+		try {
+			statusQueue.close();
+		} catch (Exception e) {
+			LOGGER.error("An error occurred closing the status queue for consumer {}", getName(), e);
+
 		}
 
 		super.disconnect();
@@ -330,7 +372,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
-		return statusSet.getElements();
+		return statusQueue.getElements();
 	}
 
 	@Override
@@ -340,13 +382,13 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public void clearRunningAndCompleted() throws EventException {
-		statusSet.clear();
+		statusQueue.clear();
 	}
 
 	@Override
 	public void cleanUpCompleted() throws EventException {
-		synchronized (statusSet) {
-			for (Iterator<U> iter = statusSet.iterator(); iter.hasNext(); ) {
+		synchronized (statusQueue) {
+			for (Iterator<U> iter = statusQueue.iterator(); iter.hasNext(); ) {
 				final U bean = iter.next();
 				final Status status = bean.getStatus();
 				if (status == null) {
@@ -393,8 +435,8 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public boolean removeCompleted(U bean) throws EventException {
-		synchronized (statusSet) {
-			for (Iterator<U> iter = statusSet.iterator(); iter.hasNext(); ) {
+		synchronized (statusQueue) {
+			for (Iterator<U> iter = statusQueue.iterator(); iter.hasNext(); ) {
 				if (iter.next().getUniqueId().equals(bean.getUniqueId())) {
 					iter.remove();
 					LOGGER.info("Removed bean with id {} from set of completed jobs. Bean: {}", bean.getUniqueId(), bean);
@@ -796,7 +838,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		final Instant startTime = Instant.now();
 		// We record the bean in the status queue
 		LOGGER.trace("Adding bean {} to status set for queue:", bean, getSubmitQueueName());
-		statusSet.add(bean);
+		statusQueue.add(bean);
 
 		Instant timeNow = Instant.now();
 		if (Duration.between(startTime, timeNow).toMillis() > 100) { LOGGER.warn("executeBean() took {}ms to statusSetSubmitter.submit complete", Duration.between(startTime, timeNow).toMillis()); }

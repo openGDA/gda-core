@@ -21,11 +21,16 @@ package org.eclipse.scanning.test.event;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -34,9 +39,13 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.jms.MessageConsumer;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventConstants;
+import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.consumer.ConsumerStatusBean;
@@ -48,12 +57,17 @@ import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.ConsumerImpl;
+import org.eclipse.scanning.event.ScanningEventsClassRegistry;
+import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.test.util.WaitingAnswer;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,13 +75,11 @@ import org.mockito.stubbing.Answer;
 
 /**
  * Abstract superclass for new mockito-based unit tests for {@link ConsumerImpl}.
- * This class can be renamed to AbstractConsumerTest if/when we delete the plug-in tests,
- * including {@link ConsumerPluginTest}.
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractNewConsumerTest {
 
-	protected static final long MOCK_PROCESS_TIME_MS = 100;
+	protected static final long DEFAULT_MOCK_PROCESS_TIME_MS = 100;
 
 	protected static URI uri;
 
@@ -106,6 +118,12 @@ public abstract class AbstractNewConsumerTest {
 	@Mock
 	protected IPublisher<QueueCommandBean> commandAckTopicPublisher;
 
+	private IMarshallerService marshallerService;
+
+	private IBeanListener<StatusBean> statusTopicListener;
+
+	private long mockProcessTime = DEFAULT_MOCK_PROCESS_TIME_MS;
+
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
@@ -117,9 +135,28 @@ public abstract class AbstractNewConsumerTest {
 				(IPublisher<Object>) (IPublisher<?>) consumerStatusTopicPublisher);
 		when(eventService.createSubscriber(uri, EventConstants.CMD_TOPIC)).thenReturn(
 				(ISubscriber<EventListener>) (ISubscriber<?>) commandTopicSubscriber);
+		when(eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)).thenReturn(
+				(ISubscriber<EventListener>) (ISubscriber<?>) statusTopicSubscriber);
 		when(eventService.createPublisher(uri, EventConstants.ACK_TOPIC)).thenReturn(
 				(IPublisher<Object>) (IPublisher<?>) commandAckTopicPublisher);
 
+		Path file = Files.createTempDirectory("temp");
+		file.toFile().deleteOnExit();
+		when(eventConnectorService.getPersistenceDir()).thenReturn(file.toString());
+
+		// pass calls to eventService.marshal/unmarshall to a real marshaller service instance
+		marshallerService = new MarshallerService(new ScanningAPIClassRegistry(),
+				new ScanningEventsClassRegistry());
+		when(eventConnectorService.marshal(any(Object.class))).thenAnswer(
+				invocation -> marshallerService.marshal(invocation.getArgumentAt(0, Object.class)));
+		when(eventConnectorService.unmarshal(any(String.class), any(Class.class))).thenAnswer(
+				invocation -> marshallerService.unmarshal(invocation.getArgumentAt(0, String.class),
+						invocation.getArgumentAt(1, Class.class)));
+
+		createConsumer();
+	}
+
+	protected void createConsumer() throws EventException {
 		consumer = new ConsumerImpl<>(uri, EventConstants.SUBMISSION_QUEUE,
 				EventConstants.STATUS_TOPIC, EventConstants.CONSUMER_STATUS_TOPIC,
 				EventConstants.CMD_TOPIC,
@@ -127,11 +164,17 @@ public abstract class AbstractNewConsumerTest {
 		consumer.setName("Test Consumer");
 		consumer.setBeanClass(StatusBean.class);
 		consumer.addConsumerStatusListener(consumerStatusListener);
-
-		// verify the methods
-		runner = mock(IProcessCreator.class);
 		consumer.setRunner(runner);
 		assertThat(consumer.getRunner(), is(runner));
+
+		if (statusTopicListener == null) {
+			// only capture the status listener of the first consumer
+			ArgumentCaptor<IBeanListener<StatusBean>> statusTopicListenerCaptor =
+					(ArgumentCaptor<IBeanListener<StatusBean>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(IBeanListener.class);
+			verify(statusTopicSubscriber).addListener(statusTopicListenerCaptor.capture());
+			statusTopicListener = statusTopicListenerCaptor.getValue();
+			assertThat(statusTopicListener, Matchers.is(notNullValue()));
+		}
 	}
 
 	@After
@@ -139,6 +182,12 @@ public abstract class AbstractNewConsumerTest {
 		if (consumer.isActive()) {
 			consumer.stop();
 		}
+
+		consumer.clearQueue();
+		consumer.clearRunningAndCompleted();
+
+		consumer.close();
+
 		consumer = null;
 	}
 
@@ -172,18 +221,45 @@ public abstract class AbstractNewConsumerTest {
 		return setupMockProcesses(beans, latch, -1, null);
 	}
 
+	protected class DummyRunProcessAnswer implements Answer<Void> {
+
+		private final StatusBean bean;
+		private final CountDownLatch latch;
+		private final long processTime;
+
+		public DummyRunProcessAnswer(StatusBean bean, CountDownLatch latch, long processTime) {
+			this.bean = bean;
+			this.latch = latch;
+			this.processTime = processTime;
+		}
+
+		@Override
+		public Void answer(InvocationOnMock invocation) throws Throwable {
+			updateBeanStatus(bean, Status.RUNNING);
+			Thread.sleep(processTime);
+			updateBeanStatus(bean, Status.COMPLETE);
+			latch.countDown();
+			return null;
+		}
+
+	}
+
+	private void updateBeanStatus(StatusBean bean, Status newStatus) {
+		bean.setStatus(newStatus);
+		statusTopicListener.beanChangePerformed(new BeanEvent<>(bean));
+	}
+
+	protected long getMockProcessTime() {
+		return mockProcessTime;
+	}
+
+	protected void setMockProcessTime(long mockProcessTime) {
+		this.mockProcessTime = mockProcessTime;
+	}
+
 	protected List<IConsumerProcess<StatusBean>> setupMockProcesses(
 			List<StatusBean> beans, CountDownLatch latch, int waitingProcessNum,
 				WaitingAnswer<Void> waitingAnswer) throws Exception {
-		final Answer<Void> processStartAnswer = new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				Thread.sleep(MOCK_PROCESS_TIME_MS); // each process takes 100ms
-				latch.countDown();
-				return null;
-			}
-		};
-
 		final List<IConsumerProcess<StatusBean>> mockProcesses = new ArrayList<>(beans.size());
 		for (int i = 0; i < beans.size(); i++) {
 			StatusBean bean = beans.get(i);
@@ -194,7 +270,7 @@ public abstract class AbstractNewConsumerTest {
 			when(runner.createProcess(bean, statusTopicPublisher)).thenReturn(process);
 
 			Answer<Void> answer = i == waitingProcessNum && waitingAnswer != null ?
-					waitingAnswer : processStartAnswer;
+					waitingAnswer : new DummyRunProcessAnswer(bean, latch, mockProcessTime);
 			doAnswer(answer).when(process).start();
 		}
 

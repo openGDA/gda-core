@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,23 +37,50 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.IEventConnectorService;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.queue.IModifiableIdQueue;
+import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.GridModel;
+import org.eclipse.scanning.api.points.models.StepModel;
+import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
+import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
+import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SynchronizedModifiableIdQueueTest {
 
-	private IModifiableIdQueue<StatusBean> queue;
+	private static final String QUEUE_NAME = "queue";
+
+	private static String storeFilename;
+
+	private static IEventConnectorService eventConnectorService;
+
+	private IPersistentModifiableIdQueue<StatusBean> queue;
 
 	private List<StatusBean> beanCopies;
 
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		File storeFile = File.createTempFile(SynchronizedModifiableIdQueueTest.class.getSimpleName(), ".mvs");
+		storeFile.deleteOnExit();
+		storeFilename = storeFile.getAbsolutePath();
+
+		ActivemqConnectorService activeMqConnectorService = new ActivemqConnectorService();
+		activeMqConnectorService.setJsonMarshaller(ServiceTestHelper.createMarshallerService());
+		eventConnectorService = activeMqConnectorService;
+	}
+
 	@Before
 	public void setUp() {
-		queue = new SynchronizedModifiableIdQueue<>();
+		queue = new SynchronizedModifiableIdQueue<>(eventConnectorService, storeFilename, QUEUE_NAME);
 		List<String> beanNames = Arrays.asList("one", "two", "three", "four", "five");
 		List<StatusBean> beans = beanNames.stream()
 				.map(name -> createBean(name))
@@ -69,7 +97,9 @@ public class SynchronizedModifiableIdQueueTest {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws Exception {
+		queue.clear();
+		queue.close();
 		queue = null;
 	}
 
@@ -289,6 +319,36 @@ public class SynchronizedModifiableIdQueueTest {
 	public void testMoveUp_headElement() {
 		StatusBean bean = createBean("one");
 		queue.moveUp(bean);
+	}
+
+	@Test
+	public void testPersistence() throws Exception {
+		List<StatusBean> beans = queue.getElements();
+		queue.close(); // forces a commit
+		queue = null;
+
+		queue = new SynchronizedModifiableIdQueue<>(eventConnectorService, storeFilename, QUEUE_NAME);
+		assertThat(queue.getElements(), is(equalTo(beans)));
+	}
+
+	@Test
+	public void testPersistenceScanBean() throws Exception {
+		queue.clear();
+
+		StepModel stepModel = new StepModel("energy", 10, 20, 2);
+		GridModel gridModel = new GridModel("x", "y", 10, 20);
+		gridModel.setBoundingBox(new BoundingBox(0, 0, 7.5, 12.2));
+		CompoundModel model = new CompoundModel(Arrays.asList(stepModel, gridModel));
+		ScanRequest<?> request = new ScanRequest<>();
+		request.setCompoundModel(model);
+		ScanBean bean = new ScanBean();
+		bean.setScanRequest(request);
+
+		queue.add(bean);
+		queue.close(); // forces a commit
+
+		queue = new SynchronizedModifiableIdQueue<StatusBean>(eventConnectorService, storeFilename, QUEUE_NAME);
+		assertThat(queue.getElements(), is(equalTo(Arrays.asList(bean))));
 	}
 
 }

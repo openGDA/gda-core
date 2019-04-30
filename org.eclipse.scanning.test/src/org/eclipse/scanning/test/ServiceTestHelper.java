@@ -130,6 +130,7 @@ public final class ServiceTestHelper {
 		ScanPointGeneratorFactory.init();
 
 		marshallerService = createMarshallerService();
+		filePathService = new MockFilePathService();
 		activemqConnectorService = createActivemqConnectorService();
 		eventServiceImpl = new EventServiceImpl(activemqConnectorService);
 		scannableDeviceService = createScannableConnectorService(remote);
@@ -140,7 +141,6 @@ public final class ServiceTestHelper {
 		loaderService = new LoaderServiceMock();
 		watchdogService = new DeviceWatchdogService();
 		nexusFileFactory = new NexusFileFactoryHDF5();
-		filePathService = new MockFilePathService();
 		parserService = createParserService();
 		operationService = new MockOperationService();
 
@@ -280,6 +280,7 @@ public final class ServiceTestHelper {
 	private static ActivemqConnectorService createActivemqConnectorService() {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(marshallerService);
+		activemqConnectorService.setFilePathService(filePathService);
 		return activemqConnectorService;
 	}
 
@@ -291,7 +292,7 @@ public final class ServiceTestHelper {
 		return validator;
 	}
 
-	private static MarshallerService createMarshallerService() {
+	public static MarshallerService createMarshallerService() {
 		return new MarshallerService(
 				Arrays.asList(new ScanningAPIClassRegistry(),
 						new ScanningExampleClassRegistry(),

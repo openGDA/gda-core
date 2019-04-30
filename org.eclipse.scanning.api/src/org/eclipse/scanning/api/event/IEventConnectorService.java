@@ -51,4 +51,11 @@ public interface IEventConnectorService {
 	 */
 	Object createConnectionFactory(URI uri);
 
+
+	/**
+	 * Returns the path of the directory to use for persistence.
+	 * @return
+	 */
+	String getPersistenceDir();
+
 }

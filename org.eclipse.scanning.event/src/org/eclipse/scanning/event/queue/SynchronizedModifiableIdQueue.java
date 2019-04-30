@@ -20,22 +20,27 @@ package org.eclipse.scanning.event.queue;
 
 import static java.util.stream.Collectors.toList;
 
+import java.nio.ByteBuffer;
 import java.util.AbstractCollection;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
+import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IdBean;
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.WriteBuffer;
+import org.h2.mvstore.type.DataType;
+import org.h2.mvstore.type.StringDataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A synchronized (thread-safe) modifiable {@link Queue}, backed by a {@link LinkedList}.
+ * A persistent thread-safe modifiable {@link Queue}.
  * In addition to implementing {@link Queue} in a thread-safe wasy, this class also
  * implements {@link IModifiableIdQueue} to add method to reorder and replace items in
  * the queue.
@@ -63,16 +68,111 @@ import org.eclipse.scanning.api.event.IdBean;
  *
  *  @param <E> the class of objects in the queue
  */
-public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCollection<E> implements IModifiableIdQueue<E> {
+public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCollection<E> implements IPersistentModifiableIdQueue<E> {
 
-	private final Map<String, E> beansById;
-	private final SortedMap<Integer, String> idsByQueuePosition;
+	/**
+	 * A custom {@link DataType} that serializes beans using the marshaller service.
+	 * This is required as not all objects that form part of a ScanBean/ScanRequest
+	 * object tree are Java serializable. (Also, Java serialization, which is how
+	 * MV store (de)serializes objects by default is bad and may be removed in future).
+	 */
+	private final class JsonSerializableDataType implements DataType {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Object a, Object b) {
+			if (a instanceof Comparable && b instanceof Comparable) {
+				return ((Comparable<Object>) a).compareTo(b);
+			}
+
+			// it looks like this is only used to compare for equality, so this is ok
+			return a.equals(b) ? 0 : 1;
+		}
+
+		@Override
+		public int getMemory(Object obj) {
+			try {
+				return eventConnectorService.marshal(obj).getBytes().length + 64;
+			} catch (Exception e) {
+				logger.error("Could not serialize bean: {}", obj);
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void write(WriteBuffer buff, Object obj) {
+			try {
+				final String str = eventConnectorService.marshal(obj);
+				StringDataType.INSTANCE.write(buff, str);
+			} catch (Exception e) {
+				logger.error("Could not serialize bean: {}", obj);
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void write(WriteBuffer buff, Object[] obj, int len, boolean key) {
+			for (int i = 0; i < len; i++) {
+				write(buff, obj[i]);
+			}
+		}
+
+		@Override
+		public Object read(ByteBuffer buff) {
+			final String str = StringDataType.INSTANCE.read(buff);
+			try {
+				return eventConnectorService.unmarshal(str, null);
+			} catch (Exception e) {
+				logger.error("Could not deserialize bean: {}", e);
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void read(ByteBuffer buff, Object[] obj, int len, boolean key) {
+			for (int i = 0; i < len; i++) {
+				obj[i] = read(buff);
+			}
+		}
+
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(SynchronizedModifiableIdQueue.class);
+
+	private final IEventConnectorService eventConnectorService;
+	private final String queueName;
+	private final MVStore store;
+	private final MVMap<String, E> beansById;
+	private final MVMap<Integer, String> idsByQueuePosition;
+
 	private int nextQueuePosition = 1;
 
-	public SynchronizedModifiableIdQueue() {
-		// TODO temporary code with non-persistent maps
-		beansById = new HashMap<>();
-		idsByQueuePosition = new TreeMap<>();
+	public SynchronizedModifiableIdQueue(IEventConnectorService eventConnectorService,
+			String dbStoreFilename, String queueName) {
+		this(eventConnectorService, MVStore.open(dbStoreFilename), queueName);
+	}
+
+	public SynchronizedModifiableIdQueue(IEventConnectorService eventConnectorService,
+			MVStore store, String queueName) {
+		this.eventConnectorService = eventConnectorService;
+		this.store = store;
+		this.queueName = queueName;
+		MVMap.Builder<String, E> mapBuilder = new MVMap.Builder<>();
+		mapBuilder.setKeyType(StringDataType.INSTANCE);
+		mapBuilder.setValueType(new JsonSerializableDataType());
+
+		beansById = store.openMap(queueName, mapBuilder);
+		idsByQueuePosition = store.openMap(queueName + "-posmap");
+	}
+
+	@Override
+	public String getQueueName() {
+		return queueName;
+	}
+
+	@Override
+	public void close() {
+		store.close();
 	}
 
 	@Override
@@ -286,20 +386,26 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 
 		synchronized (this) {
 			final String id = ((IdBean) obj).getUniqueId();
-			idsByQueuePosition.values().removeIf(str -> str.equals(id));
+			idsByQueuePosition.entrySet().stream()
+				.filter(entry -> entry.getValue().equals(id))
+				.map(Map.Entry::getKey)
+				.findFirst()
+				.ifPresent(idsByQueuePosition::remove);
+
 			return beansById.remove(id) != null;
 		}
 	}
 
 	/**
-	 * Returns an iterator over the elements in this queue. Note: client code must manually sync on this object.
+	 * Returns an iterator over the elements in this queue. Note: client code must manually sync on this queue object.
 	 */
 	@Override
 	public Iterator<E> iterator() {
 		return new Iterator<E>() {
 
-			private final Iterator<String> idsByQueuePosIterator = idsByQueuePosition.values().iterator();
+			private final Iterator<Map.Entry<Integer, String>> idsByQueuePosIterator = idsByQueuePosition.entrySet().iterator();
 
+			private Integer currentPos = null;
 			private String currentId = null;
 
 			@Override
@@ -309,13 +415,15 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 
 			@Override
 			public E next() {
-				currentId = idsByQueuePosIterator.next();
+				final Map.Entry<Integer, String> currEntry = idsByQueuePosIterator.next();
+				currentPos = currEntry.getKey();
+				currentId = currEntry.getValue();
 				return beansById.get(currentId);
 			}
 
 			@Override
 			public void remove() {
-				idsByQueuePosIterator.remove();
+				idsByQueuePosition.remove(currentPos);
 				beansById.remove(currentId);
 			}
 

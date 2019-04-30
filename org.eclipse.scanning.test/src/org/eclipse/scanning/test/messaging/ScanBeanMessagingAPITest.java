@@ -74,15 +74,23 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	private DeviceServlet dservlet;
 
 	@Before
-	public void createServices() throws Exception {
+	public void before() throws Exception {
 		ServiceTestHelper.setupServices();
-
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		eservice = ServiceTestHelper.getEventService();
+	}
 
-		setupRunnableDeviceService();
+	@After
+	public void stop() throws EventException {
+		if (scanServlet != null) {
+			scanServlet.getConsumer().clearQueue();
+			scanServlet.getConsumer().clearRunningAndCompleted();
+			scanServlet.getConsumer().close();
+		}
 
-		connect();
+		disconnect(scanServlet);
+		disconnect(submitter);
+		disconnect(subscriber);
 	}
 
 	protected void setupScannableDeviceService() {
@@ -102,7 +110,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		connector.register(device);
 	}
 
-	protected void setupRunnableDeviceService() throws IOException, ScanningException {
+	protected void createDetectors() throws IOException, ScanningException {
 
 		MandelbrotDetector mandy = new MandelbrotDetector();
 		final DeviceInformation<MandelbrotModel> info = new DeviceInformation<MandelbrotModel>(); // This comes from extension point or spring in the real world.
@@ -132,7 +140,7 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		((RunnableDeviceServiceImpl)dservice).register(device);
 	}
 
-	protected void connect() throws EventException, URISyntaxException {
+	protected void startScanServlet() throws EventException, URISyntaxException {
 
 		scanServlet = new ScanServlet();
 		scanServlet.setSubmitQueue(SUBMISSION_QUEUE);
@@ -146,19 +154,6 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 		dservlet.connect();
 
 		submitter = eservice.createSubmitter(uri, SUBMISSION_QUEUE);
-	}
-
-	@After
-	public void stop() throws EventException {
-
-		if (scanServlet!=null) {
-			scanServlet.getConsumer().clearQueue();
-			scanServlet.getConsumer().clearRunningAndCompleted();
-		}
-
-		disconnect(scanServlet);
-		disconnect(submitter);
-		disconnect(subscriber);
 	}
 
 	protected void disconnect(IConnection service) throws EventException {
@@ -211,9 +206,8 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 
 	@Test
 	public void testBasicScan() throws Exception {
-
-		// As we are doing marshalling only for second test, just do the 'Before' things manually.
-		createServices();
+		createDetectors(); // These aren't in the @Before method as only this method requires them
+		startScanServlet();
 
 		subscriber = eservice.createSubscriber(uri, STATUS_TOPIC);
 

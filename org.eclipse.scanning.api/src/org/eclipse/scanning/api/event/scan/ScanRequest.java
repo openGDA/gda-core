@@ -58,15 +58,15 @@ public class ScanRequest<T> implements Serializable {
 	private CompoundModel<T> compoundModel;
 
 	/**
-	 * The names of the detectors to use in the scan, may be null.
+	 * The names of the detectors to use in the scan
 	 */
-	private Map<String, Object> detectors;
+	private Map<String, Object> detectors = new HashMap<>(); // not emptyMap as we have a put method
 
 	/**
-	 * The names of monitors in the scan, may be null.
+	 * The names of monitors in the scan
 	 */
-	private Collection<String> monitorNamesPerPoint;
-	private Collection<String> monitorNamesPerScan;
+	private Collection<String> monitorNamesPerPoint = Collections.emptyList();
+	private Collection<String> monitorNamesPerScan = Collections.emptyList();
 
 	/**
 	 * The sample data which the user entered (if any) which determines

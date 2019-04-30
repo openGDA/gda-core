@@ -12,6 +12,8 @@
 package org.eclipse.scanning.example.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
 
@@ -115,7 +117,9 @@ public class MockFilePathService implements IFilePathService {
 
 	@Override
 	public String getPersistenceDir() {
-		return new File(dir, "var").toString();
+		final File persistenceDir = new File(dir, "var");
+		persistenceDir.mkdir();
+		return persistenceDir.toString();
 	}
 
 	@Override

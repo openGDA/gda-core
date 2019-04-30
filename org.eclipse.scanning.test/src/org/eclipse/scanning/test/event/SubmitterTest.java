@@ -74,11 +74,13 @@ public class SubmitterTest extends BrokerTest {
 	public void stop() throws Exception {
 		EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
 		submitter.disconnect();
-		consumer.clearQueue();
 		submitter.disconnect();
 
 		subscriber.disconnect();
 		jmsQueueReader.disconnect();
+
+		consumer.clearQueue();
+		consumer.close();
 	}
 
 	private StatusBean createStatusBean() {

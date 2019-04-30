@@ -25,6 +25,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IMessagingService;
+import org.eclipse.scanning.api.scan.IFilePathService;
 
 /**
  * This class is temporarily in this plugin and needs to be moved out of it once:
@@ -43,8 +44,14 @@ public class ActivemqConnectorService implements IEventConnectorService, IMessag
 
 	private IMarshallerService jsonMarshaller;
 
+	private IFilePathService filePathService;
+
 	public void setJsonMarshaller(IMarshallerService jsonMarshaller) {
 		this.jsonMarshaller = jsonMarshaller;
+	}
+
+	public void setFilePathService(IFilePathService filePathService) {
+		this.filePathService = filePathService;
 	}
 
 	static {
@@ -73,6 +80,11 @@ public class ActivemqConnectorService implements IEventConnectorService, IMessag
 	public <U> U unmarshal(String json, Class<U> beanClass) throws Exception {
 		checkJsonMarshaller();
 		return jsonMarshaller.unmarshal(json, beanClass);
+	}
+
+	@Override
+	public String getPersistenceDir() {
+		return filePathService.getPersistenceDir();
 	}
 
 	private void checkJsonMarshaller() {

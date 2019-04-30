@@ -52,7 +52,8 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  javax.management;bundle-version="1.2.0",
  javax.management.j2ee-api;bundle-version="1.1.1",
  org.dawnsci.jexl;bundle-version="1.2.0",
- org.epics.pvdata
+ org.epics.pvdata,
+ com.h2database;bundle-version="1.4.199"
 Service-Component: OSGI-INF/*.xml
 Import-Package: javax.jms,
  org.apache.commons.lang;version="2.6.0",

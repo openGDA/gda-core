@@ -36,7 +36,6 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 	// JMS things, these are null when not running and
 	// are cleaned up at the end of a run.
 	private MessageProducer messageProducer;
-	private String statusSetName = null;
 
 	private PrintStream out;
 
@@ -60,6 +59,7 @@ class PublisherImpl<T> extends AbstractTopicConnection implements IPublisher<T> 
 	}
 
 	private void send(MessageProducer producer, Object message, long messageLifetime)  throws Exception {
+		logger.debug("Publisher for topic {} publishing bean {}", getTopicName(), message);
 		int priority = message instanceof QueueCommandBean ? 8 : 4;
 
 		String json = service.marshal(message);

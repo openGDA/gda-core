@@ -116,7 +116,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		// allow the process to finish and wait for it to finish
 		waitingAnswer.resume(); // resumes the current process, once finished the consumer should pause
 
-		Thread.sleep(MOCK_PROCESS_TIME_MS * (processes.size() + 1 - waitingProcessNum));
+		Thread.sleep(getMockProcessTime() * (processes.size() + 1 - waitingProcessNum));
 		assertThat(consumer.isActive(), is(false));
 		assertThat(consumer.getConsumerStatus(), is(ConsumerStatus.PAUSED));
 
@@ -154,7 +154,7 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		assertThat(consumer.isActive(), is(false));
 		verify(processes.get(waitingProcessNum)).terminate();
 
-		boolean processCompleted = latch.await(MOCK_PROCESS_TIME_MS * (processes.size() - waitingProcessNum), TimeUnit.MILLISECONDS);
+		boolean processCompleted = latch.await(getMockProcessTime() * (processes.size() - waitingProcessNum), TimeUnit.MILLISECONDS);
 		assertThat(processCompleted, is(false)); // we shouldn't have run the last couple of processes
 
 		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
