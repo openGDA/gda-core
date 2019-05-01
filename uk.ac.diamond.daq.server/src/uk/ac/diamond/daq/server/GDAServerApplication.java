@@ -217,6 +217,7 @@ public class GDAServerApplication implements IApplication {
 
 	// TODO Once LocalProperties is backed by System properties remove this
 	private PropertyService getPropertyService() {
-		return GDAServerActivator.getService(PropertyService.class);
+		return GDAServerActivator.getService(PropertyService.class)
+				.orElseThrow(() -> new IllegalStateException("No PropertyService is available"));
 	}
 }

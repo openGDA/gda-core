@@ -1,8 +1,9 @@
 package uk.ac.diamond.daq.server;
 
+import java.util.Optional;
+
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -45,8 +46,10 @@ public class GDAServerActivator extends Plugin {
 		return context;
 	}
 
-	public static <T> T getService(Class<T> serviceClass) {
-		ServiceReference<T> ref = context.getServiceReference(serviceClass);
-		return context.getService(ref);
+	public static <T> Optional<T> getService(Class<T> serviceClass) {
+		if (context == null) return Optional.empty();
+		return Optional.of(serviceClass)
+				.map(context::getServiceReference)
+				.map(context::getService);
 	}
 }
