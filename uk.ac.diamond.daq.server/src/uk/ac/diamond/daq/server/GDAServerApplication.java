@@ -2,6 +2,8 @@ package uk.ac.diamond.daq.server;
 
 import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.ServerType.LOG;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
@@ -73,11 +75,6 @@ public class GDAServerApplication implements IApplication {
 
 			for (ObjectServerCommand command : configurationService.getObjectServerCommands()) {
 				ObjectServer server = command.execute();
-				if (server == null) {
-					logger.error("Unable to start {} Object server, GDA server shutting down", command.getProfile());
-					stop();
-					break;
-				}
 				objectServers.put(command.getProfile(), server);
 				logger.info("{} object server started", command.getProfile());
 				// Also make it obvious in the IDE Console.
@@ -88,13 +85,12 @@ public class GDAServerApplication implements IApplication {
 		catch (Exception ex) {
 			logger.error("GDA server startup failure", ex);
 			ex.printStackTrace();
-			stop();
+			stop(); // N.B. this method does not exit the app, it just cleans up resources.
 		}
 
-		// Once we are here all the servers have started
-		openStatusPort();
-
 		if (!objectServers.isEmpty()) {
+			// Once we are here all the servers have started
+			openStatusPort();
 			awaitShutdown();
 			logger.info("GDA server application ended");
 		}
