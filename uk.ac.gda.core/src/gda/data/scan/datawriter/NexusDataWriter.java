@@ -1037,7 +1037,7 @@ public class NexusDataWriter extends DataWriterBase {
 			NexusUtils.writeAttribute(file, measurementGroup, "signal", headers.getLast());
 			// This should be 1D as we are not writing complex detector data here just values
 			String[] axis = new String[] {headers.getFirst()}; // Assume the first scannable is the x axis
-			NexusUtils.writeAttribute(file, measurementGroup, "axis", axis);
+			NexusUtils.writeAttribute(file, measurementGroup, "axes", axis);
 
 			// Set to true if creating the group succeeds
 			writingMeasurementGroup = true;
