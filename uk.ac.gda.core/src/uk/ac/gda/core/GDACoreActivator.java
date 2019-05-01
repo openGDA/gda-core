@@ -1,10 +1,11 @@
 package uk.ac.gda.core;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.Optional;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 public class GDACoreActivator implements BundleActivator {
 
@@ -42,10 +43,10 @@ public class GDACoreActivator implements BundleActivator {
 	 * @return {@link Optional} containing the service implementation if found or {@link Optional#empty()} if not
 	 */
 	public static <T> Optional<T> getService(Class<T> serviceClass) {
-		if(context == null) return Optional.empty();
-		ServiceReference<T> ref = context.getServiceReference(serviceClass);
-		if(ref == null) return Optional.empty();
-		return Optional.ofNullable(context.getService(ref));
+		if (context == null) return Optional.empty();
+		return ofNullable(serviceClass)
+				.map(context::getServiceReference)
+				.map(context::getService);
 	}
 
 }
