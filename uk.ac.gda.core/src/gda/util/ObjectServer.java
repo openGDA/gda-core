@@ -383,7 +383,8 @@ public abstract class ObjectServer implements Runnable {
 	 * and also recorded in the file that allows the startup scripts to exit cleanly.
 	 *
 	 * @param args     Potential override values for the default Spring file and profile
-	 * @return         The successfully initialised server object or null
+	 * @return         The successfully initialised server object
+     * @throws         IllegalStateException if Object Server creation fails
 	 */
 	public static ObjectServer spawn(String[] args) {
 		LogbackUtils.configureLoggingForServerProcess("objectserver", LocalProperties.get(LogbackUtils.GDA_SERVER_LOGGING_XML));
@@ -394,10 +395,10 @@ public abstract class ObjectServer implements Runnable {
 		logger.info("Java version: {}", System.getProperty("java.version"));
 		logger.debug("JVM arguments: {}", ManagementFactory.getRuntimeMXBean().getInputArguments());
 
-		// Set default options...
-		commandLineXmlFile = getDefaultServerSideXmlFile();
-
 		try {
+			// Set default options...
+			commandLineXmlFile = getDefaultServerSideXmlFile();
+
 			// ...but possibly override them with command-line arguments
 			parseArgs(args);
 
@@ -420,14 +421,13 @@ public abstract class ObjectServer implements Runnable {
 			final String msg = "Unable to start ObjectServer";
 			logger.error(msg, e);
 			System.err.println(msg);
-			e.printStackTrace(System.err);
 			try {
 				String eMsg = String.format("ERROR: Failed startup; %s", Optional.ofNullable(e.getMessage()).orElse(String.format("%s thrown", e.getClass())));
 				Files.write(getStartupFile(commandLineXmlFile).toPath(), eMsg.getBytes());
 			} catch (Exception e1) {
 				logger.error("Unable to write exception message to startup file on failed start.", e1);
 			}
-			server = null;   // just in case
+			throw new IllegalStateException(e.getMessage());
 		}
 		return server;
 	}
