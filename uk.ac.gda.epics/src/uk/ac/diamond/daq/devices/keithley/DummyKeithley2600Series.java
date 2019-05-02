@@ -35,6 +35,8 @@ public class DummyKeithley2600Series extends AbstractKeithley2600Series {
 
 	boolean outputOn = false;
 	double demand = 1.0;
+	int dwellTime = 20;
+	int numberOfReadings = 500;
 
 	Random random = new Random();
 
@@ -103,6 +105,27 @@ public class DummyKeithley2600Series extends AbstractKeithley2600Series {
 	@Override
 	public boolean isOutputOn() throws DeviceException {
 		return outputOn;
+	}
+
+	@Override
+	public void setDwellTime(int demand) throws DeviceException {
+		dwellTime = demand;
+	}
+
+	@Override
+	public int getDwellTime() throws DeviceException {
+		return dwellTime;
+	}
+
+	@Override
+	public void setNumberOfReadings(int demand) throws DeviceException {
+		numberOfReadings = demand;
+
+	}
+
+	@Override
+	public int getNumberOfReadings() throws DeviceException {
+		return numberOfReadings;
 	}
 
 }

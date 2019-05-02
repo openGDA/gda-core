@@ -319,4 +319,11 @@ public abstract class AbstractKeithley2600Series extends ScannableBase {
 		this.switchOnDelayTimeMs = switchOnDelayTimeMs;
 	}
 
+	public abstract void setDwellTime(int dwellTime) throws DeviceException;
+
+	public abstract int getDwellTime() throws DeviceException;
+
+	public abstract void setNumberOfReadings(int numberOfReadings) throws DeviceException;
+
+	public abstract int getNumberOfReadings() throws DeviceException;
 }
