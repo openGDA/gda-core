@@ -18,14 +18,16 @@
 
 package gda.jython.server;
 
+import static gda.jython.server.auth.Authenticator.State.ACCEPT;
+
 import java.io.IOError;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.sshd.common.FactoryManager;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.auth.pubkey.AcceptAllPublickeyAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.jline.builtins.ssh.ShellCommand;
@@ -39,6 +41,8 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
+import gda.jython.server.auth.AuthorizedKeysDirectory;
+import gda.jython.server.auth.GdaAuthenticator;
 import gda.jython.server.shell.JythonShell;
 import gda.scan.IScanDataPoint;
 
@@ -47,7 +51,8 @@ public class JlineSshServer {
 
 	/** Property holding the directory in which to look for SSH public keys */
 	public static final String GDA_JYTHON_SERVER_KEY_DIR = "gda.remote.ssh.keys";
-
+	/** The current beamline name from system properties */
+	private static final String BEAMLINE = LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 	/**
 	 * Create and run an SSH server listening on the given port.
 	 * This method returns leaving the server running in the background.
@@ -98,9 +103,13 @@ public class JlineSshServer {
 		String keyDirectory = LocalProperties.get(GDA_JYTHON_SERVER_KEY_DIR);
 		if (keyDirectory == null) {
 			logger.warn("No key directory is set, SSH connections will not be authenticated");
-			return AcceptAllPublickeyAuthenticator.INSTANCE;
+			return new GdaAuthenticator((u, k, s) -> ACCEPT);
 		} else {
-			return new GdaAuthorizedKeys(keyDirectory);
+			Path keys = Paths.get(keyDirectory);
+			return new GdaAuthenticator(
+					new AuthorizedKeysDirectory(keys),
+					new AuthorizedKeysDirectory(keys.resolve(BEAMLINE))
+			);
 		}
 	}
 
