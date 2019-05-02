@@ -28,17 +28,17 @@ import gda.factory.Findable;
 
 public interface ILinearFunction extends Findable, Function<Amount<? extends Quantity>, Amount<? extends Quantity>> {
 
-	String getInterception();
+	Amount<? extends Quantity> getInterception();
 
-	void setInterception(String interception);
+	void setInterception(Amount<? extends Quantity> interception);
 
-	String getSlopeDividend();
+	Amount<? extends Quantity> getSlopeDividend();
 
-	void setSlopeDividend(String slopeDividend);
+	void setSlopeDividend(Amount<? extends Quantity> slopeDividend);
 
-	String getSlopeDivisor();
+	Amount<? extends Quantity> getSlopeDivisor();
 
-	void setSlopeDivisor(String slopeDivisor);
+	void setSlopeDivisor(Amount<? extends Quantity> slopeDivisor);
 
 	/**
 	 * Allow client to get the string value through an RMI proxy

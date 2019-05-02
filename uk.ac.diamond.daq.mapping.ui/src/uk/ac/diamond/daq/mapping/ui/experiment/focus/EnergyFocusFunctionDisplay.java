@@ -26,7 +26,6 @@ import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.displayError;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.getInitialLengthUnit;
-import static uk.ac.gda.client.UIHelper.showError;
 
 import java.util.List;
 
@@ -89,51 +88,27 @@ public class EnergyFocusFunctionDisplay {
 	 */
 	public void updateEnergyFocusFunction() {
 		try {
-			energyFocusFunction.setSlopeDividend(getValueAsString(slopeDividendComposite));
-			energyFocusFunction.setInterception(getValueAsString(interceptionComposite));
-			energyFocusFunction.setSlopeDivisor(getValueAsString(slopeDivisorComposite));
+			energyFocusFunction.setSlopeDividend(slopeDividendComposite.getValueAsQuantity());
+			energyFocusFunction.setInterception(interceptionComposite.getValueAsQuantity());
+			energyFocusFunction.setSlopeDivisor(slopeDivisorComposite.getValueAsQuantity());
 			logger.debug("Updated energy focus function: {}", energyFocusFunction.getAsString());
 		} catch (Exception e) {
 			displayError("Error updating energy focus function", e.getMessage(), logger);
 		}
 	}
 
-	private static String getValueAsString(NumberAndUnitsComposite<?> composite) {
-		return composite.getValueAsQuantity().toString();
-	}
-
 	/**
 	 * Update display from energyFocusFunction
 	 */
 	public void update() {
-		final Amount<? extends Quantity> slopeDividend = parseValue(energyFocusFunction.getSlopeDividend());
+		final Amount<? extends Quantity> slopeDividend = energyFocusFunction.getSlopeDividend();
 		slopeDividendComposite.setValue(slopeDividend.to(MODEL_LENGTH_UNIT).getEstimatedValue());
 
-		final Amount<? extends Quantity> interception = parseValue(energyFocusFunction.getInterception());
+		final Amount<? extends Quantity> interception = energyFocusFunction.getInterception();
 		interceptionComposite.setValue(interception.to(MODEL_LENGTH_UNIT).getEstimatedValue());
 
-		final Amount<? extends Quantity> slopeDivisor = parseValue(energyFocusFunction.getSlopeDivisor());
+		final Amount<? extends Quantity> slopeDivisor = energyFocusFunction.getSlopeDivisor();
 		slopeDivisorComposite.setValue(slopeDivisor.to(MODEL_ENERGY_UNIT).getEstimatedValue());
-	}
-
-	/**
-	 * Parse an energy function value (in String format) to a {@link Quantity}
-	 *
-	 * @param value
-	 *            Energy function value as String
-	 * @return corresponding {@link Quantity}
-	 */
-	private static Amount<? extends Quantity> parseValue(String value) {
-		final String[] splitValue = value.split(" ");
-		try {
-			final Double valueNum = Double.parseDouble(splitValue[0]);
-			// Allow "um" for microns
-			final Unit<?> valueUnit = (splitValue[1].equals("um") ? MICRO(METER) : Unit.valueOf(splitValue[1]));
-			return Amount.valueOf(valueNum, valueUnit);
-		} catch (Exception e) {
-			showError("Error parsing energy function value '{}'", e);
-			throw new IllegalArgumentException(e);
-		}
 	}
 
 	/**
