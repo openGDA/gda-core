@@ -144,6 +144,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		waitForMcaCollection();
+
 		setTriggerMode(currentTriggerMode);
 		if (currentTriggerMode == TriggerMode.Software) {
 			setAcquireTime(getCollectionTime());
@@ -293,8 +295,24 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		atScanEnd();
 	}
 
+	private volatile boolean mcaCollectionInProgress = false;
+
+	public void waitForMcaCollection() throws DeviceException {
+		try {
+			logger.debug("Waiting for MCA collection to finish");
+			waitWhileBusy();
+			logger.debug("MCA collection finished");
+
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
+		}
+	}
+
 	@Override
 	public int getStatus() throws DeviceException {
+		if (mcaCollectionInProgress) {
+			return Detector.BUSY;
+		}
 		int status = xspress3Controller.getStatus();
 		if (status == Detector.FAULT || status == Detector.STANDBY) {
 			return status;

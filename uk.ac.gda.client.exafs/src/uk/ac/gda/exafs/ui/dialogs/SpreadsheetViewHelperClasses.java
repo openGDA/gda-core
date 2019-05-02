@@ -69,6 +69,18 @@ import uk.ac.gda.util.io.FileUtils;
 public class SpreadsheetViewHelperClasses {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewHelperClasses.class);
 
+	/** Names of 'getter' methods in {@link OutputParameters} bean that return names of before/after scan scripts */
+	public static final String BEFORE_SCAN_SCRIPT = "getBeforeScriptName";
+	public static final String AFTER_SCAN_SCRIPT = "getAfterScriptName";
+	public static final String BEFORE_FIRST_REPETITION_SCRIPT = "getBeforeFirstRepetition";
+
+	public static final String SCRIPT_NAME_GETTER_REGEX = "(" + SpreadsheetViewHelperClasses.BEFORE_SCAN_SCRIPT + "|"
+			+ SpreadsheetViewHelperClasses.AFTER_SCAN_SCRIPT + "|"
+			+ SpreadsheetViewHelperClasses.BEFORE_FIRST_REPETITION_SCRIPT + ")";
+
+	/** Name of the 'getter' method in {@link DetectorParameters} bean that returns detector config filename for fluorescence experiment */
+	public static final String GETTER_FOR_FLUOPARAMETERS_DETECTOR_FILE = "getFluorescenceParameters.getConfigFileName";
+
 	private SpreadsheetViewHelperClasses() {
 	}
 
@@ -210,7 +222,7 @@ public class SpreadsheetViewHelperClasses {
 		//scanxmlfile_%d_%d.xml :  1st number = number of scan in spreadsheet table, 2nd number = counter to identify each set of xmls files generated
 		List<String> allXmlFiles = getListOfFilesMatchingExtension(outputDirectory, ".xml");
 		int maxCount = 0;
-		String regexForXml = ".*_\\w_\\w.xml";
+		String regexForXml = ".*_\\d+_\\d+.xml";
 		for(String filename : allXmlFiles) {
 			if (filename.matches(regexForXml)) {
 				// extract integer identifier from filename (i.e. integer after last '_')

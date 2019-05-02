@@ -239,6 +239,7 @@ public class DetectorRateView extends ViewPart implements IPartListener2, IObser
 			collectionIsRunning = true;
 			stopCollection = false;
 
+			dataProvider.setNumberFormat(viewConfig.getNumberFormatMap());
 			dataProvider.setCollectionTime(collectionTime);
 			while(!stopCollection && !dataProvider.isScriptOrScanIsRunning() && dataProvider.getCollectionAllowed()) {
 				logger.info("Collect frame of data");

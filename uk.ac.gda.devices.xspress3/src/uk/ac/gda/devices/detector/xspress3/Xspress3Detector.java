@@ -87,6 +87,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	private String configFileName;
 
+	private volatile boolean mcaCollectionInProgress = false;
+
 	public Xspress3Detector() {
 		super();
 	}
@@ -116,6 +118,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		waitForMcaCollection();
 		setNumberOfFramesToCollectBasedOnCurrentlyRunningScan();
 		stop();
 		prepareFileWriting();
@@ -267,6 +270,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	@Override
 	public int getStatus() throws DeviceException {
+		if (mcaCollectionInProgress) {
+			return Detector.BUSY;
+		}
 		int controllerStatus = controller.getStatus();
 		if (controllerStatus == Detector.FAULT || controllerStatus == Detector.STANDBY) {
 			return controllerStatus;
@@ -550,6 +556,16 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return getIntDataFromDoubles(mcaData);
 	}
 
+	public void waitForMcaCollection() throws DeviceException {
+		try {
+			logger.debug("Waiting for MCA collection to finish");
+			waitWhileBusy();
+			logger.debug("MCA collection finished");
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
+		}
+	}
+
 	/**
 	 * @param time
 	 *            - milliseconds
@@ -557,22 +573,27 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 */
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-		controller.doErase();
-		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
-		do {
-			synchronized (this) {
-				try {
-					wait(100);
-				} catch (InterruptedException e) {
+		mcaCollectionInProgress = true;
+		try {
+			controller.doErase();
+			controller.doStart();
+			((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+			((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
+			do {
+				synchronized (this) {
+					try {
+						wait(100);
+					} catch (InterruptedException e) {
+					}
 				}
-			}
-		} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
+			} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
 
-		controller.doStop();
+			controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+			return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		} finally {
+			mcaCollectionInProgress = false;
+		}
 	}
 
 	private int[][] getIntDataFromDoubles(double[][] mcaData) {

@@ -18,6 +18,7 @@
 
 package gda.device.detector.xspress;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,6 +103,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public void clearMemory() throws DeviceException {
+		xspress2system.waitForMcaCollection();
 		xspress2system.clear();
 		xspress2system.start();
 	}
@@ -174,18 +176,18 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		if (useNexusTreeWriter) {
 			writeDetectorData((NexusTreeProvider[]) readData, startFrame, finalFrame);
 		}
-		framesRead = readData;
 		return readData;
 	}
 
 	@Override
-	public void atScanStart() {
+	public void atScanStart() throws DeviceException {
 		if (useNexusTreeWriter) {
 			nexusTreeWriter = new NexusTreeWriter();
 			readFrameList.clear();
 			nexusTreeWriter.setFullpathToNexusFile(detectorNexusFilename);
 			nexusTreeWriter.atScanStart();
 		}
+		xspress2system.waitForMcaCollection();
 	}
 
 	@Override
@@ -224,6 +226,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		// Try to get name of nexus file written by NexusDataWriter
 		String scanNexusFilename = getFilenameForXspress();
 		if (StringUtils.isEmpty(scanNexusFilename)) {
+			return;
+		}
+
+		// Only append data to existing file created by NexusDataWriter (i.e. don't create a new one).
+		if (!Paths.get(scanNexusFilename).toFile().exists()) {
 			return;
 		}
 

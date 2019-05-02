@@ -172,9 +172,6 @@ public class SpreadsheetViewComposite {
 		});
 
 		addNewScan();
-
-		// Expand the column widths to fit content
-		spreadsheetTable.adjustColumnWidths();
 	}
 
 	private void addControlButtons(final Composite parent) {
@@ -635,6 +632,11 @@ public class SpreadsheetViewComposite {
 		parameterValuesForScanFiles.add(parametersForNewScan);
 
 		spreadsheetTable.refresh();
+
+		// Adjust the column widths to fit the content if adding the first scan
+		if (parameterValuesForScanFiles.size()==1) {
+			spreadsheetTable.adjustColumnWidths();
+		}
 	}
 
 	private void deleteScan() {

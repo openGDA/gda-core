@@ -20,9 +20,10 @@ package uk.ac.gda.exafs.ui.dialogs;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -67,6 +68,9 @@ import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
+import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.OutputParametersUIEditor;
 import uk.ac.gda.exafs.ui.dialogs.ParameterValuesForBean.ParameterValue;
 
@@ -75,8 +79,8 @@ public class SpreadsheetViewTable {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadsheetViewTable.class);
 
 	private TableViewer viewer;
-	private List<String> xmlFiles = new ArrayList<>();
 	private SpreadsheetViewConfig viewConfig;
+	private String xmlDirectoryName;
 
 	public SpreadsheetViewTable(Composite parent, int style) {
 		viewer = new TableViewer(parent, style);
@@ -199,21 +203,26 @@ public class SpreadsheetViewTable {
 					columnViewer.setEditingSupport(new EnumValueEditingSupport(viewer, typeIndex, paramIndex, paramConfig.getAllowedValues()) );
 					columnViewer.setLabelProvider(new EnumValueLabelProvider(typeIndex, paramIndex, paramConfig.getAllowedValues()));
 				}
-			} else if (paramConfig.getFullPathToGetter().matches("\\w+(ScriptName|BeforeFirstRepetition)")) {
+			} else if (paramConfig.getFullPathToGetter().matches(SpreadsheetViewHelperClasses.SCRIPT_NAME_GETTER_REGEX)) {
 				//For getBeforeScriptName, getAfterScriptName, getBeforeFirstRepetition
 				// Use textbox and a 'browse for jython script file' button
 				columnViewer.setEditingSupport(new BrowseForFileEditingSupport(viewer, typeIndex, paramIndex));
-				columnViewer.setLabelProvider(new BrowseForFileLabelProvider(typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 				column.setAlignment(SWT.RIGHT); // so name of script is visible, rather than just first part of path...
+			} else if (paramConfig.getFullPathToGetter().equals(SpreadsheetViewHelperClasses.GETTER_FOR_FLUOPARAMETERS_DETECTOR_FILE)) {
+				// Name of fluorescence detector xml configuration file
+				columnViewer.setEditingSupport(new DetectorConfigFileEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
+
 			} else {
 				// Text box
-				columnViewer.setEditingSupport(new ParameterValueEditingSupport(viewer, typeIndex, paramIndex));
-				columnViewer.setLabelProvider(new ParameterLabelProvider(typeIndex, paramIndex));
+				columnViewer.setEditingSupport(new StringValueEditingSupport(viewer, typeIndex, paramIndex));
+				columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 			}
 		} else {
 			// Text box
-			columnViewer.setEditingSupport(new ParameterValueEditingSupport(viewer, typeIndex, paramIndex));
-			columnViewer.setLabelProvider(new ParameterLabelProvider(typeIndex, paramIndex));
+			columnViewer.setEditingSupport(new StringValueEditingSupport(viewer, typeIndex, paramIndex));
+			columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 		}
 	}
 
@@ -265,27 +274,19 @@ public class SpreadsheetViewTable {
 
 			// Generate a list of files suitable for this particular combo box (i.e. scan , detector, sample or output xml files) :
 			ParameterValuesForBean parameterValuesForBean = opf.getParameterValuesForScanBeans().get(typeIndex);
-			List<String> suitableFiles = null;
-			if (parameterValuesForBean.isScanBean()) {
-				// If editor is for selecting scan xml file, several different types of file are allowed xas, xanes, xes, qexafs
-				suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingTypes(xmlFiles, scanClassTypes);
-			} else {
-				suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingType(xmlFiles, parameterValuesForBean.getBeanType());
-			}
+			List<String> classTypes = parameterValuesForBean.isScanBean() ? scanClassTypes : Arrays.asList(parameterValuesForBean.getBeanType());
+			List<String> suitableFiles = getXmlFilesMatchingTypes(classTypes);
 
 			// Make file name list to show in combo (just the filename, not full path).
-			xmlFileNamesForCombo = new String[suitableFiles.size()];
-			for(int i=0; i<suitableFiles.size(); i++) {
-				xmlFileNamesForCombo[i]=FilenameUtils.getName(suitableFiles.get(i));
-			}
+			xmlFileNamesForCombo = suitableFiles.toArray(new String[0]);
 
-			ComboBoxCellEditor ce = new ComboBoxCellEditor((Composite) getViewer().getControl(), xmlFileNamesForCombo, SWT.READ_ONLY);
-			return ce;
+			return new ComboBoxCellEditor((Composite) getViewer().getControl(), xmlFileNamesForCombo, SWT.READ_ONLY);
 		}
 
 		@Override
 		protected boolean canEdit(Object ob) {
-			return xmlFiles != null && !xmlFiles.isEmpty();
+			List<String> xmlFileList = getXmlFiles();
+			return !xmlFileList.isEmpty();
 		}
 
 		@Override
@@ -353,11 +354,11 @@ public class SpreadsheetViewTable {
 	/**
 	 * Label provider for string parameter value
 	 */
-	private class ParameterLabelProvider extends ColumnLabelProvider  {
+	private class StringValueLabelProvider extends ColumnLabelProvider  {
 		private final int paramIndex;
 		private final int typeIndex;
 
-		public ParameterLabelProvider(int typeIndex, int paramIndex) {
+		public StringValueLabelProvider(int typeIndex, int paramIndex) {
 			this.paramIndex = paramIndex;
 			this.typeIndex = typeIndex;
 		}
@@ -372,12 +373,12 @@ public class SpreadsheetViewTable {
 	/**
 	 *  Editing support for entering parameter value as text string
 	 */
-	private class ParameterValueEditingSupport extends EditingSupport {
+	private class StringValueEditingSupport extends EditingSupport {
 
 		private final int typeIndex;
 		private final int paramIndex;
 
-		public ParameterValueEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
+		public StringValueEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
 			super(viewer);
 			this.paramIndex = columnNumber;
 			this.typeIndex = typeIndex;
@@ -438,7 +439,7 @@ public class SpreadsheetViewTable {
 	}
 
 	/**
-	 *  Editing support for choosing values via combo box
+	 *  Editing support for choosing from a fixed set of values via combo box
 	 */
 	private class EnumValueEditingSupport extends EditingSupport {
 		private final int typeIndex;
@@ -479,6 +480,52 @@ public class SpreadsheetViewTable {
 			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
 			int index = ArrayUtils.indexOf(comboItems, valueInModel);
 			return Math.max(index, 0);
+		}
+	}
+
+	/**
+	 * Editing support to allow detector configuration file for Detector parameter to be changed via a Combo box.
+	 */
+	private class DetectorConfigFileEditingSupport extends EditingSupport {
+		private final int paramIndex;
+		private final int typeIndex;
+		private List<String> detectorConfigFiles = Collections.emptyList();
+
+		private List<String> detectorConfigClassTypes = Arrays.asList(XspressParameters.class.getSimpleName(),
+				Xspress3Parameters.class.getSimpleName(),
+				VortexParameters.class.getSimpleName());
+
+		public DetectorConfigFileEditingSupport(ColumnViewer viewer, int typeIndex, int columnNumber) {
+			super(viewer);
+			this.paramIndex = columnNumber;
+			this.typeIndex = typeIndex;
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			return new ComboBoxCellEditor((Composite) getViewer().getControl(), detectorConfigFiles.toArray(new String[0]));
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			detectorConfigFiles = getXmlFilesMatchingTypes(detectorConfigClassTypes);
+			return !detectorConfigFiles.isEmpty();
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			ParametersForScan param = (ParametersForScan) element;
+			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
+			int index = detectorConfigFiles.indexOf(valueInModel);
+			return Math.max(index, 0);
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			ParametersForScan param = (ParametersForScan) element;
+			String selectedItem = detectorConfigFiles.get((int) value);
+			setOverrideFromColumnData(param, selectedItem, typeIndex, paramIndex);
+			getViewer().update(param, null);
 		}
 	}
 
@@ -594,25 +641,6 @@ public class SpreadsheetViewTable {
 			String selectedFilename = (String)value;
 			setOverrideFromColumnData(param, selectedFilename, typeIndex, paramIndex);
 			getViewer().update(param, null);
-		}
-	}
-
-	/**
-	 * Label provider for file browser cell.
-	 */
-	private class BrowseForFileLabelProvider extends ColumnLabelProvider  {
-		private final int paramIndex;
-		private final int typeIndex;
-
-		public BrowseForFileLabelProvider(int typeIndex, int paramIndex) {
-			this.paramIndex = paramIndex;
-			this.typeIndex = typeIndex;
-		}
-		@Override
-		public String getText(Object element) {
-			ParametersForScan param = (ParametersForScan) element;
-			Object val = getDataForColumn(param, typeIndex, paramIndex).toString();
-			return val.toString();
 		}
 	}
 
@@ -758,27 +786,31 @@ public class SpreadsheetViewTable {
 		}
 	}
 
-	public List<String> getXmlFiles() {
+	public void setXmlDirectoryName(String xmlDirectoryName) {
+		this.xmlDirectoryName = xmlDirectoryName;
+	}
+
+	/**
+	 *
+	 * @return Sorted list of all full path to all xml files in the directory set by {@link #setXmlDirectoryName(String)}.
+	 */
+	private List<String> getXmlFiles() {
+		List<String> xmlFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingExtension(xmlDirectoryName, ".xml");
+		xmlFiles.sort( (str1, str2) -> str1.compareToIgnoreCase(str2));
 		return xmlFiles;
 	}
 
-	public void setXmlFiles(List<String> xmlFiles) {
-		this.xmlFiles = xmlFiles;
-	}
-
-	private String xmlDirectoryName;
-
-	public String getXmlDirectoryName() {
-		return xmlDirectoryName;
-	}
-
-	public void setXmlDirectoryName(String xmlDirectoryName) {
-		this.xmlDirectoryName = xmlDirectoryName;
-		xmlFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingExtension(xmlDirectoryName, ".xml");
-	}
-
-	public SpreadsheetViewConfig getViewConfig() {
-		return viewConfig;
+	/**
+	 * Return list of xml filenames matching required class types. (Filename only, not the full path)
+	 * @param classTypes
+	 * @return
+	 */
+	private List<String> getXmlFilesMatchingTypes(List<String> classTypes) {
+		List<String> xmlFilesList = getXmlFiles();
+		List<String> suitableFiles = SpreadsheetViewHelperClasses.getListOfFilesMatchingTypes(xmlFilesList, classTypes);
+		return suitableFiles.stream()
+				.map(FilenameUtils::getName)
+				.collect(Collectors.toList());
 	}
 
 	public void setViewConfig(SpreadsheetViewConfig viewConfig) {

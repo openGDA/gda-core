@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,8 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	private boolean onlyShowFF;
 	private boolean showDtValues;
 	private boolean writeHdfFile;
+
+	private Map<String, String> numberFormatMap;
 
 	public DetectorMonitorDataProvider() {
 		// Set to empty lists to avoid exceptions when formatting the position
@@ -177,8 +180,21 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 			List<String> outputData = new ArrayList<>();
 			for (Scannable scn : allScannables) {
 				logger.debug("Reading data out data for {}", scn.getName());
-				ScannableGetPosition wrapper = new ScannableGetPositionWrapper(scn.getPosition(),
-						scn.getOutputFormat());
+
+				 // Copy the output format to avoid mutating output format of the scannable
+				String[] outputFormat = scn.getOutputFormat().clone();
+
+				// Replace output format using values from numberFormatMap, if available
+				if (numberFormatMap != null) {
+					for (int i = 0; i < scn.getExtraNames().length; i++) {
+						String fieldName = scn.getExtraNames()[i];
+						if (numberFormatMap.containsKey(fieldName)) {
+							outputFormat[i] = numberFormatMap.get(fieldName);
+						}
+					}
+				}
+
+				ScannableGetPosition wrapper = new ScannableGetPositionWrapper(scn.getPosition(), outputFormat);
 
 				List<String> formattedValues = new ArrayList<>();
 				formattedValues.addAll(Arrays.asList(wrapper.getStringFormattedValues()));
@@ -372,6 +388,11 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	@Override
 	public void setCollectionAllowed(boolean collectionAllowed) {
 		this.collectionAllowed = collectionAllowed;
+	}
+
+	@Override
+	public void setNumberFormat(Map<String, String> numberFormat) {
+		this.numberFormatMap = numberFormat;
 	}
 
 	// ScannableBase overrides

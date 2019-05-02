@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
@@ -81,6 +82,8 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
 	protected Xspress2Controller controller;
+
+	private volatile boolean mcaCollectionInProgress = false;
 
 	public Xspress2Detector() {
 		this.inputNames = new String[] {};
@@ -235,6 +238,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
+		waitForMcaCollection();
 		controller.checkIsConnected();
 		// if this class was used to define framesets, then memory is only cleared at the start of the scan
 		if (controller.getTotalFrames() != 0) {
@@ -247,6 +251,7 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		waitForMcaCollection();
 		controller.checkIsConnected();
 		stop();
 		clear();
@@ -670,6 +675,9 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 
 	@Override
 	public int getStatus() throws DeviceException {
+		if (mcaCollectionInProgress) {
+			return Detector.BUSY;
+		}
 		return controller.getStatus();
 	}
 
@@ -799,9 +807,23 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 		return xspress2SystemData;
 	}
 
+	public void waitForMcaCollection() throws DeviceException {
+		if (!mcaCollectionInProgress) {
+			return;
+		}
+		try {
+			logger.info("Waiting for MCA collection to finish");
+			waitWhileBusy();
+			logger.info("MCA collection finished");
+
+		} catch (InterruptedException e) {
+			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
+		}
+	}
+
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-
+		mcaCollectionInProgress = true;
 		int[] data = controller.runOneFrame((int) Math.round(time));
 
 		if (data != null) {
@@ -824,9 +846,11 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 				return twoD;
 			} catch (Exception e) {
 				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
+			} finally {
+				mcaCollectionInProgress = false;
 			}
 		}
-
+		mcaCollectionInProgress = false;
 		return null;
 	}
 

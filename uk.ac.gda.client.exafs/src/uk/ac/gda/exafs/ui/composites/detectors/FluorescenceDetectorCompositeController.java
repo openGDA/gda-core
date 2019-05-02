@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -59,12 +60,14 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
+import gda.device.detector.FluorescenceDetectorMcaProvider;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.IJythonServerStatusObserver;
 import gda.jython.InterfaceProvider;
 import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -94,7 +97,6 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private IBeanController<FluorescenceDetectorParameters> dataBindingController;
 	private FluoCompositeDataStore dataStore;
 	private FileDialog openDialog;
-	private Thread continuousThread;
 
 	// Controller state
 	private double[][] theData;
@@ -103,13 +105,15 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	public static final String LOADED_DATA_NAME = "Data loaded from file";
 	private String plotTitle;
 	private boolean applyParametersBeforeAcquire = false;
-	private volatile boolean continuousAquire; // changed to volatile, so changes to it are noticed by different threads
+	private volatile boolean continuousAcquireIsActive; // changed to volatile, so changes to it are noticed by different threads
 	private boolean updatingRoiPlotFromUI;
 	private boolean updatingRoiUIFromPlot;
 	private volatile boolean scanIsRunning = false;
 
 	/** Default width of scaler window to use when setting window from line energy. See {@link #setWindowFromLine()}. */
 	private final int defaultWindowHalfWidth = 10;
+
+	private FluorescenceDetectorMcaProvider mcaProvider;
 
 	// Magic string
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
@@ -209,6 +213,12 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 				logger.warn("No detector parameters returned by detector {}", theDetector.getName());
 				return;
 			}
+		}
+
+		Map<String, FluorescenceDetectorMcaProvider> mcaProverObj = Finder.getInstance().getFindablesOfType(FluorescenceDetectorMcaProvider.class);
+		if (!mcaProverObj.values().isEmpty()) {
+			mcaProvider = mcaProverObj.values().iterator().next();
+			logger.info("Use FluorescenceDetectorMcaProvider object {} to retrieve MCA data from detector", mcaProvider.getName());
 		}
 
 		// Set up the composite with information about the detector
@@ -625,7 +635,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 * @param collectionTime
 	 */
 	private synchronized void continuousAcquire(final double collectionTime) {
-		if (continuousAquire) {
+		if (continuousAcquireIsActive) {
 			stopContinuousAcquire();
 		} else {
 			startContinuousAcquire(collectionTime);
@@ -634,31 +644,22 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	private void stopContinuousAcquire() {
 		logger.debug("Stopping detector");
-		continuousAquire = false;
+		continuousAcquireIsActive = false;
 	}
 
 	private void startContinuousAcquire(final double collectionTime) {
 		try {
-			continuousAquire = true;
 			acquireStarted();
-			continuousThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					while (continuousAquire) {
-						if (fluorescenceDetectorComposite.isDisposed()) {
-							break;
-						}
-						acquire(null, collectionTime, false);
+			Async.submit(() -> {
+				continuousAcquireIsActive = true;
+				while (continuousAcquireIsActive) {
+					if (fluorescenceDetectorComposite.isDisposed()) {
+						break;
 					}
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							acquireFinished();
-						}
-					});
+					acquire(null, collectionTime, false);
 				}
-			}, "Detector Live Runner");
-			continuousThread.start();
+				PlatformUI.getWorkbench().getDisplay().asyncExec(this::acquireFinished);
+			});
 		} catch (IllegalThreadStateException e) {
 			logger.error("Problem starting continuous acquire thread.", e);
 			displayErrorMessage("Exception starting continuous acquire", "Internal error while trying to start continuous acquisition. See log for details.");
@@ -707,8 +708,16 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void acquire(IProgressMonitor monitor, final double collectionTimeValue, boolean writeToDisk) {
 		int numWorkUnits = 2;
 
+		if (mcaProvider != null && !mcaProvider.canGetMcaData()) {
+			logAndAppendStatus("McaDataProvider detected that a scan or script is running. Will not acquire data from detector "+theDetector.getName());
+			scanIsRunning = true;
+			stopContinuousAcquire();
+			return;
+		}
+
 		if (scanIsRunning) {
 			logAndAppendStatus("Scan is running - will not acquire data from detector");
+			stopContinuousAcquire();
 			return;
 		}
 
@@ -717,7 +726,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		}
 
 		try {
-			theData = theDetector.getMCAData(collectionTimeValue);
+
+			if (mcaProvider != null) {
+				theData = mcaProvider.getMCAData(theDetector.getName(), collectionTimeValue);
+			} else {
+				theData = theDetector.getMCAData(collectionTimeValue);
+			}
+
 			checkDataDimensionsMatchDetectorSize();
 			dataStore.writeDataToFile(theData);
 
@@ -740,6 +755,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		} catch (DeviceException de) {
 			logger.error("Exception reading out detector data.", de);
 			displayErrorMessage("Exception reading out detector data", "Hardware problem acquiring data. See log for details.");
+			stopContinuousAcquire();
 		}
 
 		if (monitor != null) {
