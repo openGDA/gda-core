@@ -16,6 +16,7 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
@@ -206,7 +207,10 @@ public class PlanTest {
 		assertThat(experimentDriver.hasRun(), is(true));
 	}
 
-	private void someJob() {
-		// do nothing: to avoid passing in null to dummy trigger for readability
+	/**
+	 * A named {@link Triggerable} for readability. Does nothing.
+	 */
+	private Object someJob() {
+		return null;
 	}
 }

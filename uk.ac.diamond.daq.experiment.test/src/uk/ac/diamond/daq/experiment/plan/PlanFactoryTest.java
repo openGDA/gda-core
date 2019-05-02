@@ -134,8 +134,11 @@ public class PlanFactoryTest {
 		assertThat(trigger.getTriggerable(), is(instanceOf(TriggerableScan.class)));
 	}
 
-	private void work() {
-		// placeholder Triggerable
+	/**
+	 * placeholder Triggerable
+	 */
+	private Object work() {
+		return null;
 	}
 
 }

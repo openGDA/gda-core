@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.experiment.plan;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.eclipse.scanning.api.event.IdBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,14 +97,16 @@ public abstract class TriggerBase implements ITrigger {
 					executorService.execute(()->{
 						final TriggerEvent event = new TriggerEvent(signal);
 						registrar.triggerOccurred(this);
-						boolean success = false;
 						try {
-							triggerable.trigger();
-							success = true;
+							final Object id = triggerable.trigger();
+							
+							if (id != null && id instanceof IdBean) {
+								event.setId(((IdBean) id).getUniqueId());
+							}
+							
 						} catch (Exception e) {
-							logger.error("Problem while executing trigger", e);
+							logger.error("Problem while executing trigger '{}'", getName(), e);
 						} finally {
-							event.setSuccessful(success);
 							registrar.triggerComplete(this, event, getSEV().getName());
 						}
 					});

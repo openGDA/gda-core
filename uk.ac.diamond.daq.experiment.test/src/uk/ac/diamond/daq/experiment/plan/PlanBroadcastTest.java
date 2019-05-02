@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
 import org.hamcrest.Matcher;
@@ -31,6 +32,7 @@ import org.junit.Test;
 
 import gda.TestHelpers;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
+import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
@@ -178,37 +180,7 @@ public class PlanBroadcastTest {
 	}
 
 	@Test
-	public void triggerSuccessRecorded() throws Exception {
-		plan.addSegment(FIRST_SEGMENT_NAME, x -> x == 1,
-			plan.addTrigger(TRIGGER_ONE_NAME, this::badJob, 0.3, 0.01),
-			plan.addTrigger(TRIGGER_TWO_NAME, this::work, 0.4, 0.01));
-
-		// We are expecting 6 broadcasts in total:
-		// 1 segment start
-		// 2 trigger one start
-		// 3 trigger one complete
-		// 4 trigger two start
-		// 5 trigger two complete
-		// 6 experiment end
-		publisher.useCounter(6);
-
-		plan.start();
-
-		sev.broadcast(0.3); // trigger work() (succeeds)
-		sev.broadcast(0.4); // trigger badJob() (fails)
-		sev.broadcast(1);   // terminate segment
-
-		publisher.await();
-
-		TriggerEvent triggerEvent1 = plan.getExperimentRecord().getTriggerRecord(TRIGGER_ONE_NAME).getEvents().iterator().next();
-		assertThat(triggerEvent1.isSuccessful(), is(false));
-
-		TriggerEvent triggerEvent2 = plan.getExperimentRecord().getTriggerRecord(TRIGGER_TWO_NAME).getEvents().iterator().next();
-		assertThat(triggerEvent2.isSuccessful(), is(true));
-	}
-
-	@Test
-	public void BroadcastSevNamesForSegmentsAndTriggers() {
+	public void broadcastSevNamesForSegmentsAndTriggers() {
 		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1,
 				plan.addTrigger(TRIGGER_ONE_NAME, this::work, 0.5));
 
@@ -220,8 +192,41 @@ public class PlanBroadcastTest {
 		assertThat(getLastSegment().getSampleEnvironmentName(), is(SEV_NAME));
 	}
 
-	private void badJob() {
-		throw new RuntimeException("I'm afraid I cannot do that, Dave");
+	/**
+	 * This test ensures we have a link between our trigger and some scan that ends up on the queue
+	 */
+	@Test
+	public void broadcastScanUniqueId() throws Exception {
+
+		MockTriggerableScan triggerableScan = new MockTriggerableScan();
+
+		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1,
+				plan.addTrigger(TRIGGER_ONE_NAME, triggerableScan, 0.5, 0.01));
+
+		publisher.useCounter(4); // segment start, trigger start, trigger end, plan end
+
+		plan.start();
+		sev.broadcast(0.5); // trigger scan
+		sev.broadcast(2); // end plan
+
+		assertThat(publisher.await(), is(true)); // expected events published within reasonable time
+		assertThat(getLastTrigger().getEvents().get(0).getId(), is(equalTo(triggerableScan.getScanId())));
+	}
+
+	private class MockTriggerableScan implements Triggerable {
+
+		private final IdBean idBean = new IdBean();
+
+		@Override
+		public Object trigger() {
+			// do the scan, then return idBean
+			return idBean;
+		}
+
+		String getScanId() {
+			return idBean.getUniqueId();
+		}
+
 	}
 
 	@Test
@@ -330,7 +335,12 @@ public class PlanBroadcastTest {
 		experimentRecord.setEventService(eventService);
 	}
 
-	private void work() { /* a Triggerable with a more meaningful name */ }
+	/**
+	 * a {@link Triggerable} with a more meaningful name
+	 */
+	private Object work() {
+		return null;
+	}
 
 	/**
 	 * Simply assigns {@code this.broadcastedBean}
