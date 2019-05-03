@@ -48,7 +48,7 @@ public abstract class AbstractRegionEditor extends AbstractModelEditor<IMappingS
 		try {
 			final Object minimum = Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMinimum());
 			if (minimum instanceof Number) {
-				return (double) minimum;
+				return ((Number) minimum).doubleValue();
 			}
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read lower limit for scannable {}", scannableName, e);
@@ -66,7 +66,7 @@ public abstract class AbstractRegionEditor extends AbstractModelEditor<IMappingS
 		try {
 			final Object maximum = Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMaximum());
 			if (maximum instanceof Number) {
-				return (double) maximum;
+				return ((Number) maximum).doubleValue();
 			}
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read upper limit for scannable {}", scannableName, e);
