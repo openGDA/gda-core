@@ -11,7 +11,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.diamond.daq.experiment.api.ExperimentService;
+import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanBean;
 import uk.ac.diamond.daq.experiment.api.plan.SegmentDescriptor;
+import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ListWithCustomEditor;
 
 public class SegmentListEditor {
@@ -19,8 +21,11 @@ public class SegmentListEditor {
 	private ListWithCustomEditor listEditor;
 	private SegmentEditor segmentEditor;
 	
-	public SegmentListEditor(ExperimentService experimentService, String experimentId) {
+	private final ExperimentPlanBean planBean;
+	
+	public SegmentListEditor(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
 		segmentEditor = new SegmentEditor(experimentService, experimentId);
+		this.planBean = planBean;
 	}
 	
 	public Composite createEditorPart(Composite parent) {
@@ -35,8 +40,13 @@ public class SegmentListEditor {
 		listEditor.setListHeight(150);
 		listEditor.setTemplate(new SegmentDescriptor());
 		
-		
 		listEditor.setElementEditor(segmentEditor);
+		
+		if (planBean.getSegments() != null) {
+			listEditor.setList(planBean.getSegments().stream().map(EditableWithListWidget.class::cast).collect(Collectors.toList()));
+		}
+		
+		listEditor.addListListener(e -> planBean.setSegments(getSegments()));
 		
 		listEditor.create(composite);
 		

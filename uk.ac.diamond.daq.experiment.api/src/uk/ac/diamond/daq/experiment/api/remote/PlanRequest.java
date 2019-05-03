@@ -11,16 +11,11 @@ public interface PlanRequest extends Serializable {
 
 	String getPlanDescription();
 
+	boolean isDriverUsed();
 
-	/**
-	 * {@code null} if none used in the plan
-	 */
 	String getExperimentDriverName();
-	
-	
-	/**
-	 * {@code null} if no driver used
-	 */
+
+
 	String getExperimentDriverProfile();
 
 

@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.api.plan;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,18 +14,27 @@ public class ExperimentPlanBean implements PlanRequest {
 	private String name;
 	private String description;
 
+	private boolean driverUsed;
 	private String experimentDriverName;
-	private List<SegmentDescriptor> segments;
 	private String experimentDriverProfile;
 
+	private List<SegmentDescriptor> segments;
+
+	private final PropertyChangeSupport pcs;
+
+	public ExperimentPlanBean() {
+		this.pcs = new PropertyChangeSupport(this);
+	}
 
 	@Override
 	public String getPlanName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setPlanName(String name) {
+		String oldName = this.name;
 		this.name = name;
+		pcs.firePropertyChange("name", oldName, name);
 	}
 
 	@Override
@@ -32,7 +43,20 @@ public class ExperimentPlanBean implements PlanRequest {
 	}
 
 	public void setDescription(String description) {
+		String oldDescription = this.description;
 		this.description = description;
+		pcs.firePropertyChange("description", oldDescription, description);
+	}
+
+	@Override
+	public boolean isDriverUsed() {
+		return driverUsed;
+	}
+
+	public void setDriverUsed(boolean driverUsed) {
+		boolean old = this.driverUsed;
+		this.driverUsed = driverUsed;
+		pcs.firePropertyChange("driverUsed", old, driverUsed);
 	}
 
 	@Override
@@ -41,15 +65,23 @@ public class ExperimentPlanBean implements PlanRequest {
 	}
 
 	public void setExperimentDriverName(String experimentDriverName) {
+		String old = this.experimentDriverName;
 		this.experimentDriverName = experimentDriverName;
+		pcs.firePropertyChange("experimentDriverName", old, experimentDriverName);
 	}
 
+	@Override
+	public String getExperimentDriverProfile() {
+		return experimentDriverProfile;
+	}
+
+	public void setExperimentDriverProfile(String experimentDriverProfile) {
+		String old = this.experimentDriverProfile;
+		this.experimentDriverProfile = experimentDriverProfile;
+		pcs.firePropertyChange("experimentDriverProfile", old, experimentDriverProfile);
+	}
 	public List<SegmentDescriptor> getSegments() {
 		return segments;
-	}
-
-	public void setSegments(List<SegmentDescriptor> segments) {
-		this.segments = segments;
 	}
 
 	@Override
@@ -59,12 +91,17 @@ public class ExperimentPlanBean implements PlanRequest {
 				.collect(Collectors.toList());
 	}
 
-	@Override
-	public String getExperimentDriverProfile() {
-		return experimentDriverProfile;
+	public void setSegments(List<SegmentDescriptor> segments) {
+		List<SegmentDescriptor> old = this.segments;
+		this.segments = segments;
+		pcs.firePropertyChange("segments", old, segments);
 	}
 
-	public void setExperimentDriverProfile(String experimentDriverProfile) {
-		this.experimentDriverProfile = experimentDriverProfile;
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		this.pcs.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		this.pcs.removePropertyChangeListener(listener);
 	}
 }

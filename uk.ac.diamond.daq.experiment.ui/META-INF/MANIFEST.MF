@@ -18,7 +18,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.osgi,
  org.eclipse.scanning.api,
  uk.ac.gda.common,
- uk.ac.gda.core
+ uk.ac.gda.core,
+ org.apache.commons.lang3,
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.property,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.jface.databinding
 Export-Package: uk.ac.diamond.daq.experiment.ui.driver,
  uk.ac.diamond.daq.experiment.ui.plan
 Bundle-Vendor: Diamond Light Source

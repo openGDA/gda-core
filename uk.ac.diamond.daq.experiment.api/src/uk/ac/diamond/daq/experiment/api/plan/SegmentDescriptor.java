@@ -13,21 +13,21 @@ import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 
 public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest {
-	
+
 	private static final long serialVersionUID = 4022241468104721756L;
 	private String name;
 	private SignalSource source;
-	
+
 	private String sevName;
-	private Inequality ineq;
+	private Inequality ineq = Inequality.LESS_THAN;
 	private double ineqRef;
-	
+
 	private double duration;
-	
+
 	private List<TriggerDescriptor> triggers = new ArrayList<>();
-	
+
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	
+
 	@Override
 	public String getName() {
 		return name;
@@ -44,7 +44,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		return sevName;
 	}
 
-	public void setSevName(String sevName) {
+	public void setSampleEnvironmentVariableName(String sevName) {
 		this.sevName = sevName;
 	}
 
@@ -53,7 +53,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		return ineq;
 	}
 
-	public void setIneq(Inequality ineq) {
+	public void setInequality(Inequality ineq) {
 		this.ineq = ineq;
 	}
 
@@ -62,7 +62,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		return ineqRef;
 	}
 
-	public void setIneqRef(double ineqRef) {
+	public void setInequalityArgument(double ineqRef) {
 		this.ineqRef = ineqRef;
 	}
 
@@ -87,7 +87,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 	public List<TriggerDescriptor> getTriggers() {
 		return triggers;
 	}
-	
+
 	@Override
 	public List<TriggerRequest> getTriggerRequests() {
 		return triggers.stream()
@@ -109,7 +109,7 @@ public class SegmentDescriptor implements EditableWithListWidget, SegmentRequest
 		SegmentDescriptor model = new SegmentDescriptor();
 		model.setName("Unnamed segment");
 		model.setSignalSource(SignalSource.TIME);
-		model.setIneq(Inequality.LESS_THAN);
+		model.setInequality(Inequality.LESS_THAN);
 		return model;
 	}
 

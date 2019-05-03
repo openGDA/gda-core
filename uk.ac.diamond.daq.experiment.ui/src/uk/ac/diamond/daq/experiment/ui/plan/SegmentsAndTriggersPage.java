@@ -21,13 +21,14 @@ public class SegmentsAndTriggersPage extends WizardPage {
 	
 	private SegmentListEditor segments;
 	private DriverProfilePreview profilePlot;
+	
 
-	SegmentsAndTriggersPage(ExperimentService experimentService, String experimentId) {
+	SegmentsAndTriggersPage(ExperimentService experimentService, String experimentId, ExperimentPlanBean planBean) {
 		super(SegmentsAndTriggersPage.class.getSimpleName());
 		setTitle("Segments and Triggers");
 		setDescription("Automate the execution of defined measurements");
 		
-		segments = new SegmentListEditor(experimentService, experimentId);
+		segments = new SegmentListEditor(experimentService, experimentId, planBean);
 	}
 
 	@Override

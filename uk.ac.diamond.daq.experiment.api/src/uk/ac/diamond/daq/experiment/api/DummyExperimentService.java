@@ -31,6 +31,9 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 	private final Map<String, ScanRequest<IROI>> scans;
 
 	private final Map<String, ExperimentDriverModel> driverProfiles;
+	private final Map<String, ExperimentDriverModel> furnaceProfiles;
+
+	private final Map<String, Map<String, ExperimentDriverModel>> driverModels;
 
 	public DummyExperimentService() {
 		scans = new HashMap<>();
@@ -43,6 +46,14 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 		driverProfiles.put("sombrero", getProfile2());
 		driverProfiles.put("saw_10_pp", getProfile3());
 		driverProfiles.put("Aluminium Plastic Deformation Profile", getUserWorkingGroupProfile());
+
+		furnaceProfiles = new HashMap<>();
+		furnaceProfiles.put("temp99", getProfile1());
+
+
+		driverModels = new HashMap<>();
+		driverModels.put("tr6_driver", driverProfiles);
+		driverModels.put("furnace", furnaceProfiles);
 	}
 
 	private ScanRequest<IROI> getDiffractionScan() {
@@ -154,12 +165,12 @@ public class DummyExperimentService extends FindableBase implements ExperimentSe
 
 	@Override
 	public ExperimentDriverModel getDriverProfile(String driverName, String modelName, String experimentId) {
-		return driverProfiles.get(modelName);
+		return driverModels.get(driverName).get(modelName);
 	}
 
 	@Override
 	public Set<String> getDriverProfileNames(String driverName, String experimentId) {
-		return new HashSet<>(driverProfiles.keySet());
+		return new HashSet<>(driverModels.get(driverName).keySet());
 	}
 
 }
