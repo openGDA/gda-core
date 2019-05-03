@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.event.util;
+package org.eclipse.scanning.event.queue;
 
 import java.util.Queue;
 

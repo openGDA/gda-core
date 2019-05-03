@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
-import org.eclipse.scanning.event.util.IModifiableIdQueue;
-import org.eclipse.scanning.event.util.SynchronizedModifiableIdQueue;
+import org.eclipse.scanning.event.queue.IModifiableIdQueue;
+import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
