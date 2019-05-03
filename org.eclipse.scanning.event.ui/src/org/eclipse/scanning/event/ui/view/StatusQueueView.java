@@ -56,7 +56,6 @@ import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.consumer.ConsumerStatus;
 import org.eclipse.scanning.api.event.core.ConsumerConfiguration;
 import org.eclipse.scanning.api.event.core.IConsumer;
-import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.queues.QueueViews;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -135,7 +134,6 @@ public class StatusQueueView extends EventConnectionView {
 
 	private ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber;
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminTopicSubscriber;
-	private ISubmitter<StatusBean> submitter;
 	private IConsumer<StatusBean> consumerProxy;
 
 	private Action openResultsAction;
@@ -180,8 +178,6 @@ public class StatusQueueView extends EventConnectionView {
 		}
 
 		try {
-			submitter = service.createSubmitter(getUri(), getSubmissionQueueName());
-			submitter.setStatusTopicName(getTopicName());
 			updateQueue();
 
 			String name = getSecondaryIdAttribute("partName");
@@ -309,12 +305,6 @@ public class StatusQueueView extends EventConnectionView {
 			if (consumerProxy != null) consumerProxy.disconnect();
 		} catch (Exception e) {
 			logger.warn("Problem disconnecting publisher from command topic", e);
-		}
-
-		try {
-			if (submitter != null) submitter.disconnect();
-		} catch (EventException e) {
-			logger.warn("Problem disconnecting from queue connection", e);
 		}
 	}
 
@@ -907,7 +897,7 @@ public class StatusQueueView extends EventConnectionView {
 			copy.setPercentComplete(0.0);
 			copy.setSubmissionTime(System.currentTimeMillis());
 
-			submitter.submit(copy);
+			consumerProxy.submit(copy);
 
 			reconnect();
 
