@@ -19,11 +19,8 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -104,7 +101,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 	private final String commandAckTopicName;
 	private final String consumerStatusTopicName;
 	private final IModifiableIdQueue<U> submissionQueue;
-	private final Collection<U> statusSet;
+	private final IModifiableIdQueue<U> statusSet;
 
 	private final Set<IConsumerStatusListener> consumerStatusListeners = new CopyOnWriteArraySet<>();
 	private ConsumerStatusBean consumerStatusBean;
@@ -127,7 +124,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 		this.consumerStatusTopicName = consumerStatusTopicName;
 
 		submissionQueue = new SynchronizedModifiableIdQueue<>();
-		statusSet = Collections.synchronizedList(new LinkedList<>());
+		statusSet = new SynchronizedModifiableIdQueue<>();
 
 		connect();
 	}
@@ -343,13 +340,7 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 
 	@Override
 	public List<U> getRunningAndCompleted() throws EventException {
-		final List<U> statusSet = getStatusSet();
-		statusSet.sort((first, second) -> Long.signum(first.getSubmissionTime() - second.getSubmissionTime()));
-		return statusSet;
-	}
-
-	private List<U> getStatusSet() throws EventException {
-		return new ArrayList<>(statusSet);
+		return statusSet.getElements();
 	}
 
 	@Override

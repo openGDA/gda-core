@@ -62,27 +62,35 @@ import org.eclipse.scanning.api.event.IdBean;
  */
 public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCollection<E> implements IModifiableIdQueue<E> {
 
-	private final Map<String, E> beansById = new LinkedHashMap<>();
+	// LinkedHashMap provides natural ordering, so can be used as a queue as well as for quick lookup by unique id
+	private final Map<String, E> queue = new LinkedHashMap<>();
+
+	@Override
+	public List<E> getElements() {
+		synchronized (this) {
+			return new ArrayList<>(queue.values());
+		}
+	}
 
 	@Override
 	public boolean contains(Object obj) {
 		if (!(obj instanceof IdBean)) return false;
 		synchronized (this) {
-			return beansById.containsKey(((IdBean) obj).getUniqueId());
+			return queue.containsKey(((IdBean) obj).getUniqueId());
 		}
 	}
 
 	@Override
 	public Object[] toArray() {
 		synchronized (this) {
-			return beansById.values().toArray();
+			return queue.values().toArray();
 		}
 	}
 
 	@Override
 	public <T> T[] toArray(T[] a) {
 		synchronized (this) {
-			return beansById.values().toArray(a);
+			return queue.values().toArray(a);
 		}
 	}
 
@@ -117,7 +125,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public void clear() {
 		synchronized (this) {
-			beansById.clear();
+			queue.clear();
 		}
 	}
 
@@ -129,14 +137,14 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public boolean add(E e) {
 		synchronized (this) {
-			return beansById.put(e.getUniqueId(), e) == null;
+			return queue.put(e.getUniqueId(), e) == null;
 		}
 	}
 
 	@Override
 	public E remove() {
 		synchronized (this) {
-			final Iterator<E> iter = beansById.values().iterator();
+			final Iterator<E> iter = queue.values().iterator();
 			final E removed = iter.next(); // throws NoSuchElementException if empty
 			iter.remove();
 			return removed;
@@ -146,7 +154,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public E poll() {
 		synchronized (this) {
-			if (beansById.isEmpty()) {
+			if (queue.isEmpty()) {
 				return null;
 			}
 
@@ -157,14 +165,14 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public E element() {
 		synchronized (this) {
-			return beansById.values().iterator().next(); // throws NoSuchElementException if empty
+			return queue.values().iterator().next(); // throws NoSuchElementException if empty
 		}
 	}
 
 	@Override
 	public E peek() {
 		synchronized (this) {
-			if (beansById.isEmpty()) {
+			if (queue.isEmpty()) {
 				return null;
 			}
 
@@ -175,8 +183,8 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	@Override
 	public boolean replace(E e) {
 		synchronized (this) {
-			if (beansById.containsKey(e.getUniqueId())) {
-				beansById.put(e.getUniqueId(), e);
+			if (queue.containsKey(e.getUniqueId())) {
+				queue.put(e.getUniqueId(), e);
 			}
 		}
 
@@ -187,7 +195,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	public boolean moveUp(E e) {
 		synchronized (this) {
 			boolean foundElement = false;
-			final List<E> items = new ArrayList<>(beansById.values());
+			final List<E> items = new ArrayList<>(queue.values());
 			for (ListIterator<E> iter = items.listIterator(); iter.hasNext(); ) {
 				boolean hasPrevious = iter.hasPrevious();
 				final E elem = iter.next();
@@ -205,9 +213,9 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 
 			// since LinkedHashMap uses insertion order, we need to clear the map and add all the items again in the new order
 			// note ListOrderedMap from Apache Commons would make this easier, but this is only a temporary solution anyway
-			beansById.clear();
+			queue.clear();
 			for (E elem : items) {
-				beansById.put(elem.getUniqueId(), elem);
+				queue.put(elem.getUniqueId(), elem);
 			}
 
 			return foundElement;
@@ -218,7 +226,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	public boolean moveDown(E e) {
 		synchronized (this) {
 			boolean foundElement = false;
-			final List<E> items = new ArrayList<>(beansById.values());
+			final List<E> items = new ArrayList<>(queue.values());
 			for (ListIterator<E> iter = items.listIterator(); iter.hasNext(); ) {
 				final E elem = iter.next();
 				if (e.getUniqueId().equals(elem.getUniqueId())) {
@@ -235,9 +243,9 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 
 			// since LinkedHashMap uses insertion order, we need to clear the map and add all the items again in the new order
 			// note ListOrderedMap from Apache Commons would make this easier, but this is only a temporary solution anyway
-			beansById.clear();
+			queue.clear();
 			for (E elem : items) {
-				beansById.put(elem.getUniqueId(), elem);
+				queue.put(elem.getUniqueId(), elem);
 			}
 
 			return foundElement;
@@ -248,7 +256,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	public boolean remove(Object obj) {
 		if (!(obj instanceof IdBean)) return false; // can't be in the queue
 
-		return beansById.remove(((IdBean) obj).getUniqueId()) != null;
+		return queue.remove(((IdBean) obj).getUniqueId()) != null;
 	}
 
 	/**
@@ -256,13 +264,13 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	 */
 	@Override
 	public Iterator<E> iterator() {
-		return beansById.values().iterator();
+		return queue.values().iterator();
 	}
 
 	@Override
 	public int size() {
 		synchronized (this) {
-			return beansById.size();
+			return queue.size();
 		}
 	}
 
