@@ -8,13 +8,13 @@ from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
 from org.eclipse.january.dataset import Slice
 
 class DetectorDataProcessorPositionCallable(Callable):
-	
+
 	def __init__(self, datasetProvider, processors, roi=None):
 		self.datasetProvider = datasetProvider
 		self.processors = processors
 		self.roi = roi
 		#self.x1, self.y1, self.x2, self.y2 = roi
-	
+
 	def call(self):
 		result = []
 		for processor in self.processors:
@@ -44,7 +44,7 @@ class DetectorDataProcessorPositionCallable(Callable):
 			slice_x = Slice(min_x,max_x,1)
 			return dataset.getSlice(slice_y,slice_x)
 # 			return dataset[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
-	
+
 
 class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):
 
@@ -52,17 +52,17 @@ class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):
 		self.name = name
 		self.inputNames = []
 		self.level = 10
-		
+
 		self.det = processingDetector
 		self.processors = twodDatasetProcessors
 		self.prefix_name_to_extranames = prefix_name_to_extranames
-		
+
 	def asynchronousMoveTo(self, t):
 		raise Exception("DetectorDataProcessors don't yet support input parameters")
-		
-	def isBusy(self): 
+
+	def isBusy(self):
 		return False
-	
+
 	def getPosition(self, dataset=None):
 		if dataset is None:
 			return self.getPositionCallable().call()
@@ -75,10 +75,10 @@ class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):
 		else:
 			datasetProvider = BasicDataSetProvider(dataset)
 		return self._createPositionCallable(datasetProvider)
-		
+
 	def _createPositionCallable(self, datasetProvider):
 		return DetectorDataProcessorPositionCallable(datasetProvider, self.processors)
-	
+
 	def getExtraNames(self):
 		result = []
 		for processor in self.processors:
@@ -88,16 +88,16 @@ class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):
 				else:
 					result.append(label)
 		return result
-	
+
 	def getOutputFormat(self):
 		count = 0
 		for processor in self.processors:
 			count += len(processor.labelList)
 		return ['%f'] * count
-	
-	
+
+
 class DetectorDataProcessorWithRoi(DetectorDataProcessor):
-	
+
 	def __init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames=True):
 		DetectorDataProcessor.__init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames)
 		self.x1 = None
@@ -118,8 +118,8 @@ class DetectorDataProcessorWithRoi(DetectorDataProcessor):
 			if x2 < x1:
 				x1, x2 = x2, x1
 			if y2 < y1:
-				y1, y2 = y2, y1				
-				
+				y1, y2 = y2, y1
+
 			self.x1 = x1
 			self.y1 = y1
 			self.x2 = x2
@@ -129,57 +129,65 @@ class DetectorDataProcessorWithRoi(DetectorDataProcessor):
 				print self.name, " roi --> (%d, %d, %d, %d)" % (x1, y1, x2, y2)
 			except (ScanFileHolderException, IOError), _:
 				print self.name, " roi --> (%d, %d, %d, %d) (could not load file to display)" % (x1, y1, x2, y2)
-				
-		
+
 	def getRoi(self):
 		return self.x1, self.y1, self.x2, self.y2
 
 	def _createPositionCallable(self, datasetProvider):
 		return DetectorDataProcessorPositionCallable(datasetProvider, self.processors, (self.x1, self.y1, self.x2, self.y2))
-	
-	
+
+
 class HardwareTriggerableDetectorDataProcessor(DetectorDataProcessorWithRoi, HardwareTriggerableDetector):
-	
+
 	def __init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames=True):
 		DetectorDataProcessorWithRoi.__init__(self, name, processingDetector, twodDatasetProcessors, prefix_name_to_extranames)
-	
-	# HardwareTriggerableDetector
-	
+
+	# HardwareTriggeredDetector
+
 	def getHardwareTriggerProvider(self):
 		return self.det.getHardwareTriggerProvider()
 
-	def setHardwareTriggering(self, b):
-		pass # let the wrapper do this 
-								
-	def isHardwareTriggering(self):
-		return self.det.isHardwareTriggering()
+	def setNumberImagesToCollect(self, numberImagesToCollect):
+		self.det.setNumberImagesToCollect(numberImagesToCollect)
 
 	def integratesBetweenPoints(self):
 		return self.det.integratesBetweenPoints()
 
+	# HardwareTriggerableDetector
+
+	def setHardwareTriggering(self, b):
+		pass # let the wrapper do this
+
+	def isHardwareTriggering(self):
+		return self.det.isHardwareTriggering()
+
+
+	# Class functions
+
 	def arm(self):
 		pass #  let the wrapper do this
-		
-	# Detector
-		
+
+
+	# interface Detector
+
 	def setCollectionTime(self, t):
 		raise Exception("Collection time not supported")
 
 	def prepareForCollection(self):
 		pass
-	
+
 	def getCollectionTime(self):
 		return self.det.getCollectionTime()
 
 	def collectData(self):
 		pass
-		
+
 	def getStatus(self):
 		return 0
 
 	def readout(self):
 		return self.getPositionCallable().call()
-		
+
 	def endCollection(self):
 		pass
 
