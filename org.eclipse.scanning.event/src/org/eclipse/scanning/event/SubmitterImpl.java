@@ -47,8 +47,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 	private final IEventService eventService;
 
 	SubmitterImpl(URI uri, String submitQueue, IEventConnectorService service, IEventService eventService) {
-		super(uri, service);
-		setSubmitQueueName(submitQueue);
+		super(uri, submitQueue, service);
 		this.eventService = eventService;
 	}
 

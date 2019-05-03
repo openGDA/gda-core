@@ -26,12 +26,6 @@ public interface IQueueConnection<T> extends IConnection, IBeanClass<T> {
 	public String getSubmitQueueName();
 
 	/**
-	 * The string to define the queue for submitting scan objects to.
-	 * @throws EventException
-	 */
-	public void setSubmitQueueName(String queueName) throws EventException;
-
-	/**
 	 * Get a copy of the current submission queue as a list of beans, type T
 	 * The list is ordered by submission time, not necessarily the ordering
 	 * of the JMS queue.

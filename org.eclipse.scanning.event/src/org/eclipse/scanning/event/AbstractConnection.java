@@ -51,6 +51,11 @@ abstract class AbstractConnection implements IURIConnection {
 		this.service = service;
 	}
 
+	AbstractConnection(URI uri, String submitQueueName, IEventConnectorService service) {
+		this(uri, service);
+		this.submitQueueName = submitQueueName;
+	}
+
 	AbstractConnection(URI uri, String submitQueueName, String statusTopicName, IEventConnectorService service) {
 		this(uri, service);
 		this.submitQueueName = submitQueueName;
@@ -124,10 +129,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	public String getSubmitQueueName() {
 		return submitQueueName;
-	}
-
-	public void setSubmitQueueName(String submitQueueName) {
-		this.submitQueueName = submitQueueName;
 	}
 
 	public String getStatusTopicName() {

@@ -54,8 +54,7 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	private ISubscriber<IConsumerStatusBeanListener> consumerStatusTopicSubscriber;
 
 	public ConsumerProxy(URI uri, String submissionQueueName, String commandTopicName, String commandAckTopicName, IEventConnectorService connectorService, IEventService eventService) throws EventException {
-		super(uri, connectorService);
-		setSubmitQueueName(submissionQueueName);
+		super(uri, submissionQueueName, connectorService);
 		this.commandTopicName = commandTopicName;
 		this.commandAckTopicName = commandAckTopicName;
 		this.eventService = eventService;
