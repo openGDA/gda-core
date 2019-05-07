@@ -234,7 +234,7 @@ public final class HplcSessionBeanEditor extends RichBeanMultiPageEditorPart {
 			char bufferRow, short bufferPlate, short col, char row, short plate, double concentration,
 			double molecularWeight, double timePerFrame, int noOfFrames, float exposureTemp) throws Exception {
 		titrationBean.setSampleName(name);
-		String location = String.format("%c%d", col, row);
+		String location = String.format("%c%d", row, col);
 		titrationBean.setLocation(location);
 		titrationBean.setConcentration(concentration);
 		titrationBean.setMolecularWeight(molecularWeight);
