@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.bssc.ui;
 
+import static uk.ac.gda.devices.hatsaxs.SampleListStats.getRuntimeString;
 import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
 
 import java.io.File;
@@ -79,10 +80,12 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 public class MeasurementsFieldComposite extends FieldComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementsFieldComposite.class);
+	private static final String SAMPLE_TIME_OVERHEAD = "gda.devices.bssc.overhead";
 
 	Object value = null;
 	private Table table;
 	private Label sampleCount;
+	private Label totalRuntime;
 	private final TableViewer tableViewer;
 	private Composite composite_1;
 	private final RichBeanEditorPart rbeditor;
@@ -315,6 +318,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				try {
 					double time = Double.valueOf(value);
 					element.setTimePerFrame(time);
+					updateTotals();
 				} catch (NumberFormatException nfe) {
 				}
 			}
@@ -330,6 +334,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				try {
 					Integer frames = Integer.valueOf(value);
 					element.setFrames(frames);
+					updateTotals();
 				} catch (NumberFormatException nfe) {
 				}
 			}
@@ -511,8 +516,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 						if (!getList().remove(element.getData()))
 							logger.debug("data not there or not removed");
 					}
-
-					sampleCount.setText(String.valueOf(getList().size()));
+					updateTotals();
 					tableViewer.refresh();
 				} else {
 					logger.debug("not move");
@@ -560,7 +564,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 
 					list.addAll(before, data);
 
-					sampleCount.setText(String.valueOf(getList().size()));
+					updateTotals();
 					tableViewer.refresh();
 				}
 			}
@@ -583,6 +587,12 @@ public class MeasurementsFieldComposite extends FieldComposite {
 		sampleCount = new Label(composite_1, SWT.NONE);
 		sampleCount.setText("000000000000");//ensures label is long enough
 		sampleCount.setText("0");
+
+		Label runtimeLabel = new Label(composite_1, SWT.NONE);
+		runtimeLabel.setText("Total Runtime");
+
+		totalRuntime = new Label(composite_1, SWT.NONE);
+		totalRuntime.setText("00:00:00");
 	}
 
 	@Override
@@ -593,7 +603,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 	@Override
 	public void setValue(Object value) {
 		this.value = value;
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.setInput(value);
 	}
 
@@ -614,7 +624,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			getList().remove(selectionIndices[i]);
 		}
 		rbeditor.valueChangePerformed(new ValueEvent("", ""));
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.refresh();
 	}
 
@@ -642,7 +652,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 			getList().addAll(selectionIndices[selectionIndices.length - 1] + 1, toadd);
 		}
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.refresh();
 		rbeditor.valueChangePerformed(new ValueEvent("", ""));
 	}
@@ -781,5 +791,12 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			return false;
 		}
 		return true;
+	}
+
+	private void updateTotals() {
+		List<TitrationBean> samples = getList();
+		sampleCount.setText(String.valueOf(samples.size()));
+		int overheadPerSample = LocalProperties.getAsInt(SAMPLE_TIME_OVERHEAD, 90);
+		totalRuntime.setText(getRuntimeString(samples, tb -> tb.getTimePerFrame() * tb.getFrames(), overheadPerSample));
 	}
 }

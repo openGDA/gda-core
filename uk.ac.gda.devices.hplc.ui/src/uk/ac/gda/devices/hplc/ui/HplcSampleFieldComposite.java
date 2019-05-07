@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.hplc.ui;
 
+import static uk.ac.gda.devices.hatsaxs.SampleListStats.getRuntimeString;
 import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
 
 import java.io.File;
@@ -75,11 +76,14 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class HplcSampleFieldComposite extends FieldComposite {
 
+	private static final String SAMPLE_TIME_OVERHEAD = "gda.devices.hplc.overhead";
+
 	private static final Logger logger = LoggerFactory.getLogger(HplcSampleFieldComposite.class);
 
 	Object value = null;
 	private Table table;
 	private Label sampleCount;
+	private Label totalRuntime;
 	private final TableViewer tableViewer;
 	private Composite composite_1;
 	private final RichBeanEditorPart rbeditor;
@@ -219,6 +223,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				try {
 					double time = Double.valueOf(value);
 					element.setTotalDuration(time);
+					updateTotals();
 				} catch (NumberFormatException nfe) {
 				}
 			}
@@ -356,7 +361,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 						}
 					}
 
-					sampleCount.setText(String.valueOf(getList().size()));
+					updateTotals();
 					tableViewer.refresh();
 				} else {
 					logger.debug("not move");
@@ -404,7 +409,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 
 					list.addAll(before, data);
 
-					sampleCount.setText(String.valueOf(getList().size()));
+					updateTotals();
 					tableViewer.refresh();
 				}
 			}
@@ -428,6 +433,13 @@ public class HplcSampleFieldComposite extends FieldComposite {
 		sampleCount = new Label(composite_1, SWT.NONE);
 		sampleCount.setText("00000000");//ensure label is long enough
 		sampleCount.setText("0");
+
+		Label runtime = new Label(composite_1, SWT.NONE);
+		runtime.setText("Total Runtime");
+
+		totalRuntime = new Label(composite_1, SWT.NONE);
+		totalRuntime.setText("0:00:00");
+		updateTotals();
 	}
 
 	@Override
@@ -438,7 +450,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 	@Override
 	public void setValue(Object value) {
 		this.value = value;
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.setInput(value);
 	}
 
@@ -460,7 +472,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			getList().remove(selectionIndices[i]);
 		}
 		rbeditor.valueChangePerformed(new ValueEvent("", ""));
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.refresh();
 	}
 
@@ -480,8 +492,15 @@ public class HplcSampleFieldComposite extends FieldComposite {
 			}
 			getList().addAll(selectionIndices[selectionIndices.length - 1] + 1, toadd);
 		}
-		sampleCount.setText(String.valueOf(getList().size()));
+		updateTotals();
 		tableViewer.refresh();
 		rbeditor.valueChangePerformed(new ValueEvent("", ""));
+	}
+
+	private void updateTotals() {
+		List<HplcBean> samples = getList();
+		sampleCount.setText(String.valueOf(samples.size()));
+		int overheadPerSample = LocalProperties.getAsInt(SAMPLE_TIME_OVERHEAD, 120);
+		totalRuntime.setText(getRuntimeString(samples, b -> b.getTotalDuration() * 60, overheadPerSample));
 	}
 }
