@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
 public class SelectScanTypeHandler extends AbstractHandler implements IHandler {
 	private static final Logger logger = LoggerFactory.getLogger(SelectScanTypeHandler.class);
 
-	private static final String VIEW_ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
+	private static final String MAPPING_EXPERIMENT_VIEW_ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
 
 	private boolean initialised = false;
-	private boolean enabled = false;
+	private boolean multipleScanSections = false;
 	private SubmitScanSelector submitScanSelector;
 
 	@Override
@@ -76,22 +76,41 @@ public class SelectScanTypeHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public boolean isEnabled() {
+		initialise();
+		return multipleScanSections;
+	}
+
+	/**
+	 * Initialise the handler (primarily to determine whether there is a {@link SubmitScanSelector}), if it is not yet
+	 * successfully initialised.
+	 * <p>
+	 * As this function is first called early on in the start-up of the workbench, the first few calls may not succeed,
+	 * and the workbench window and/or mapping view may not have been created.
+	 */
+	private void initialise() {
 		if (!initialised) {
-			final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			if (workbenchWindow != null) {
-				final EPartService partService = workbenchWindow.getService(EPartService.class);
-				final MPart mappingViewPart = partService.findPart(VIEW_ID);
-				if (mappingViewPart != null && mappingViewPart.getObject() != null) {
-					final MappingExperimentView mappingExperimentView = (MappingExperimentView) mappingViewPart.getObject();
-					submitScanSelector = mappingExperimentView.getSection(SubmitScanSelector.class);
-					if (submitScanSelector != null && submitScanSelector.getNumberOfSections() > 1) {
-						enabled = true;
-					}
-					initialised = true;
-					logger.info("Scan Type button enable state initialised");
+			final MPart mappingViewPart = getViewPart(MAPPING_EXPERIMENT_VIEW_ID);
+			if (mappingViewPart != null && mappingViewPart.getObject() != null) {
+				final MappingExperimentView mappingExperimentView = (MappingExperimentView) mappingViewPart.getObject();
+				submitScanSelector = mappingExperimentView.getSection(SubmitScanSelector.class);
+				if (submitScanSelector != null && submitScanSelector.getNumberOfSections() > 1) {
+					multipleScanSections = true;
 				}
+				initialised = true;
+				logger.info("Scan Type button enable state initialised");
 			}
 		}
-		return enabled;
+	}
+
+	private MPart getViewPart(String viewId) {
+		final IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (workbenchWindow == null) {
+			return null;
+		}
+		final EPartService partService = workbenchWindow.getService(EPartService.class);
+		if (partService == null) {
+			return null;
+		}
+		return partService.findPart(viewId);
 	}
 }
