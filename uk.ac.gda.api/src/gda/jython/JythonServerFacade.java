@@ -483,13 +483,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public Object getFromJythonNamespace(String objectName) {
-		try {
-			// bug in Jython: should not have to catch the error, if an object
-			// is not defined then null should be returned
-			return commandServer.getFromJythonNamespace(objectName, name);
-		} catch (NullPointerException e) {
-			return null;
-		}
+		return commandServer.getFromJythonNamespace(objectName, name);
 	}
 
 	/**
