@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,11 +80,18 @@ public class XanesSubmitScanSection extends SubmitScanSection {
 
 		Async.execute(() -> {
 			try {
+				setButtonEnabled(false);
 				scriptService.execute(scriptRequest);
 			} catch (Exception e) {
 				logger.error("Error running XANES scanning script", e);
+			} finally {
+				setButtonEnabled(true);
 			}
 		});
+	}
+
+	private void setButtonEnabled(boolean enabled) {
+		Display.getDefault().syncExec(() -> setSubmitScanButtonEnabled(enabled));
 	}
 
 	@Override
