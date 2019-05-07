@@ -48,6 +48,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
 
 	private Composite composite;
+	private Button submitScanButton;
 
 	private String description = "Mapping scan";
 
@@ -72,7 +73,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(composite);
 
 		// Button to submit a scan to the queue
-		final Button submitScanButton = new Button(composite, SWT.PUSH);
+		submitScanButton = new Button(composite, SWT.PUSH);
 		submitScanButton.setText(buttonText);
 		if (buttonColour != null) {
 			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
@@ -213,5 +214,15 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 */
 	protected void setButtonColour(RGB buttonColour) {
 		this.buttonColour = buttonColour;
+	}
+
+	/**
+	 * Set the enabled state of the Submit button
+	 *
+	 * @param enabled
+	 *            <code>true</code> to enable the button, <code>false</code> to disable it
+	 */
+	protected void setSubmitScanButtonEnabled(boolean enabled) {
+		submitScanButton.setEnabled(enabled);
 	}
 }
