@@ -51,11 +51,6 @@ public class QueueCommandBean  extends IdBean {
 		STOP_QUEUE,
 
 		/**
-		 * A command to restart a running consumer.
-		 */
-		RESTART_QUEUE,
-
-		/**
 		 * A command to clear the queue of submitted jobs waiting to be run.
 		 */
 		CLEAR_QUEUE,

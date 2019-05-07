@@ -187,11 +187,6 @@ public final class ConsumerProxy<U extends StatusBean> extends AbstractConnectio
 	}
 
 	@Override
-	public void restart() throws EventException {
-		sendCommand(Command.RESTART_QUEUE);
-	}
-
-	@Override
 	public void awaitStart() throws InterruptedException {
 		// This method cannot be performed via a proxy
 		throw new UnsupportedOperationException("This method is not implemented by this proxy class");

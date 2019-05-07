@@ -252,9 +252,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				case STOP_QUEUE:
 					stop();
 					break;
-				case RESTART_QUEUE:
-					restart();
-					break;
 				case CLEAR_QUEUE:
 					clearQueue();
 					break;
@@ -322,13 +319,6 @@ public final class ConsumerImpl<U extends StatusBean> extends AbstractConnection
 				LOGGER.error("Could not publish acknowledgement for command bean {}", commandBean);
 			}
 		}
-	}
-
-	@Override
-	public void restart() throws EventException {
-		disconnect();
-		connect();
-		start();
 	}
 
 	@Override

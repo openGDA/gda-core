@@ -70,10 +70,6 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		getConsumer().stop();
 	}
 
-	protected void doRestartConsumer() throws Exception {
-		getConsumer().restart();
-	}
-
 	private void verifyJobsBefore(InOrder inOrder, List<StatusBean> beans, List<IConsumerProcess<StatusBean>> processes,
 			final int waitingProcessNum) throws EventException, InterruptedException {
 		for (int i = 0; i < beans.size(); i++) {
@@ -165,35 +161,6 @@ public class ConsumerControlTest extends AbstractNewConsumerTest {
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
 		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
 		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
-		verifyNoMoreInteractions(runner, consumerStatusListener);
-	}
-
-	@Test
-	public void testRestart() throws Exception {
-		final int waitingProcessNum = 2;
-		List<StatusBean> beans = createAndSubmitBeans();
-
-		CountDownLatch latch = new CountDownLatch(beans.size() - 1);
-		WaitingAnswer<Void> waitingAnswer = new WaitingAnswer<>(null);
-		List<IConsumerProcess<StatusBean>> processes = setupMockProcesses(beans, latch, waitingProcessNum, waitingAnswer);
-		startConsumer();
-
-		// the waiting answer of the third job will be blocked at this point, waiting to resume
-		// this allows us to pause the consumer without a race condition
-		waitingAnswer.waitUntilCalled();
-
-		InOrder inOrder = inOrder(runner, processes, consumerStatusListener);
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
-		verifyJobsBefore(inOrder, beans, processes, waitingProcessNum);
-
-		doRestartConsumer(); // restart the consumer
-		inOrder.verify(processes.get(waitingProcessNum)).terminate();
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.STOPPED);
-		Thread.sleep(500); // unfortunately, can't use Mockito.timeout as it doesn't work with InOrder
-		inOrder.verify(consumerStatusListener).consumerStatusChanged(ConsumerStatus.RUNNING);
-		boolean processesCompleted = latch.await(MOCK_PROCESS_TIME_MS * 20, TimeUnit.MILLISECONDS); // wait for the processes to finish
-		assertThat(processesCompleted, is(true));
-		verifyJobsAfter(inOrder, beans, processes, waitingProcessNum);
 		verifyNoMoreInteractions(runner, consumerStatusListener);
 	}
 

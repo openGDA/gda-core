@@ -74,12 +74,6 @@ public interface IConsumer<T> extends IQueueConnection<T> {
 	void stop() throws EventException;
 
 	/**
-	 * Restarts a running consumer.
-	 * @throws EventException
-	 */
-	void restart() throws EventException;
-
-	/**
 	 * Awaits the start of the consumer. There are occasions
 	 * when the consumer should start in its own thread but
 	 * still provide the ability to await the startup process.
