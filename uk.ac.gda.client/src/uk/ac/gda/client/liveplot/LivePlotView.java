@@ -278,7 +278,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 			};
 			action.setChecked(xyPlot.isLog10());
 			action.setToolTipText("Log10 YAxis");
-			action.setText("Log10");
+			action.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/chart_log_10_yaxis.png"));
 			actions.add(action);
 		}
 
