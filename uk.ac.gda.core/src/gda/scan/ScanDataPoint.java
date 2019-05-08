@@ -173,16 +173,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.stepIds = stepIds;
 	}
 
-	/**
-	 * An alternative for populating this object. Can be used instead of repeated calls to
-	 * addScannable,addScannablePosition,addDetector,addDetectorData.
-	 * <p>
-	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
-	 *
-	 * @param allScannables
-	 * @param allDetectors
-	 * @throws DeviceException
-	 */
 	@Override
 	public void addScannablesAndDetectors(Vector<Scannable> allScannables, Vector<Detector> allDetectors)
 			throws DeviceException {
@@ -201,23 +191,11 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		}
 	}
 
-	/**
-	 * Gets a Scannables position and adds it to the data point. Does not ass the Scannable itself.
-	 *
-	 * @param scannable
-	 * @throws DeviceException
-	 */
 	@Override
 	public void addPositionFromScannable(Scannable scannable) throws DeviceException {
 		this.addScannablePosition(scannable.getPosition(), scannable.getOutputFormat());
 	}
 
-	/**
-	 * Reads data from a detector and adds it to the point. Does not add the detector itself.
-	 *
-	 * @param detector
-	 * @throws DeviceException
-	 */
 	@Override
 	public void addDataFromDetector(Detector detector) throws DeviceException {
 		Object data = detector.readout();
@@ -253,13 +231,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.addScannablePosition(position, format);
 	}
 
-	/**
-	 * Add a piece of data to this object. Calls to this method must be made in the same order as calls to addDetector
-	 * to associate the data with the detector.
-	 * <p>
-	 *
-	 * @param data
-	 */
 	@Override
 	public void addDetectorData(Object data, String[] format) {
 		if (data != null){
@@ -286,14 +257,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		detectorFormats = format;
 	}
 
-	/**
-	 * Add a position to the array of positions. Calls to this method must be made in the same order as calls to
-	 * addScannable to associate the array of numbers with the scannable.
-	 * <p>
-	 * It is recommended to call setScannables instead.
-	 *
-	 * @param data
-	 */
 	@Override
 	public void addScannablePosition(Object data, String[] format) {
 		if (data != null) {
@@ -316,15 +279,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.scannableFormats = formats;
 	}
 
-	/**
-	 * Add a detector to the list of detectors this object holds data from. This stores the name in the detectorHeader
-	 * array and detectorNames array. If its a countertimer is stored in the boolean array. The contents of the
-	 * detectorHeader and detectorNames arrays will be different if the detector is a countertimer.
-	 * <p>
-	 * Note this does not readout the detector! Data must be added by using the addData method.
-	 *
-	 * @param det
-	 */
 	@Override
 	public void addDetector(Detector det) {
 		ScanInformationBuilder newInfo = ScanInformationBuilder.from(scanInfo);
@@ -339,13 +293,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		detectors.add(det);
 	}
 
-	/**
-	 * Add a scannable to the list of scannables this object holds data on.
-	 * <p>
-	 * Note that this does not read the current position of the scannable.
-	 *
-	 * @param scannable
-	 */
 	@Override
 	public void addScannable(Scannable scannable) {
 		scanInfo = ScanInformationBuilder.from(scanInfo)
@@ -356,52 +303,28 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		scannables.add(scannable);
 	}
 
-	/**
-	 * @return the gda command entered
-	 */
 	@Override
 	public String getCommand() {
 		return command;
 	}
 
-	/**
-	 * @return String
-	 */
 	@Override
 	public String getCurrentFilename() {
 		return scanInfo.getFilename();
 	}
 
-	/**
-	 * @return the current point number
-	 */
 	@Override
 	public int getCurrentPointNumber() {
 		return currentPointNumber;
 	}
 
-	/**
-	 * Return the vector of detector data which this object is a carrier of.
-	 *
-	 * @return Vector<Object>
-	 */
 	@Override
 	public Vector<Object> getDetectorData() {
 		return detectorData;
 	}
 
 	Double [] allValuesAsDoubles=null;
-	/**
-	 * Returns the values held by this ScanDataPoint of Scannables, Monitors and Detectors.
-	 *
-	 * @return an array of Double of length getMonitorHeader().size() + getPositionHeader().size() +
-	 *         getDetectorHeader().size() if the conversion of a field to Double is not possible then the element of the
-	 *         array will be null
-	 * @throws IllegalArgumentException
-	 *             if the fields convert to too few values
-	 * @throws IndexOutOfBoundsException
-	 *             if the fields convert to too many values
-	 */
+
 	@Override
 	public Double[] getAllValuesAsDoubles() throws IllegalArgumentException, IndexOutOfBoundsException {
 		if( allValuesAsDoubles == null){
@@ -416,11 +339,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return allValuesAsDoubles;
 	}
 
-	/**
-	 * Just returns array of detector data.
-	 *
-	 * @return all detector data.
-	 */
 	@Override
 	public Double[] getDetectorDataAsDoubles() {
 		Vector<Double> vals = new Vector<>();
@@ -440,31 +358,16 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return vals.toArray(new Double[] {});
 	}
 
-	/**
-	 * returns a vector of expanded detector header string for each data point.
-	 *
-	 * @return a vector of expanded detector header string for each data point.
-	 */
 	@Override
 	public Vector<String> getDetectorHeader() {
 		return new Vector<>(Arrays.asList(detectorHeader));
 	}
 
-	/**
-	 * Return the list of names of detectors which this object holds data from.
-	 *
-	 * @return Vector<String>
-	 */
 	@Override
 	public Vector<String> getDetectorNames() {
 		return new Vector<>(Arrays.asList(scanInfo.getDetectorNames()));
 	}
 
-	/**
-	 * The list of detectors this object refers to.
-	 *
-	 * @return list of detectors this object refers to.
-	 */
 	@Override
 	public Vector<Detector> getDetectors() {
 		return detectors;
@@ -475,12 +378,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return hasChild;
 	}
 
-	/**
-	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
-	 * with the output from toString()
-	 *
-	 * @return String - which could be used in an ascii print out of all the scan points from the same scan
-	 */
 	@Override
 	public String getHeaderString() {
 		return getHeaderString(null);
@@ -633,11 +530,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return new Vector<>(Arrays.asList(scanInfo.getScannableNames()));
 	}
 
-	/**
-	 * Just returns array of positions. Strings will be an empty element.
-	 *
-	 * @return all scannable positions.
-	 */
 	@Override
 	public Double[] getPositionsAsDoubles() {
 		Vector<Double> vals = new Vector<>();
@@ -654,9 +546,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return vals.toArray(new Double[] {});
 	}
 
-	/**
-	 * @return all Scannable positions as strings using the given format
-	 */
 	@Override
 	public String[] getPositionsAsFormattedStrings() {
 
@@ -719,12 +608,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return "ScanDataPoint [point=" + (currentPointNumber+1) + "/" + scanInfo.getNumberOfPoints() + ", scan=" + identifier + "]";
 	}
 
-	/**
-	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
-	 * with the output from getHeaderString().
-	 * <p>
-	 * To be used to create an ascii version of the data held by this object for priting to terminals or to ascii files.
-	 */
 	@Override
 	public String toFormattedString() {
 		return toFormattedString(null);
@@ -764,11 +647,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	String delimitedString=null;
 
-	/**
-	 * Returns a string of the information held by this object delimited by the static variable.
-	 *
-	 * @return String
-	 */
 	@Override
 	public String toDelimitedString() {
 		if( delimitedString == null){
@@ -931,12 +809,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		this.detectorFormats = detectorFormats;
 	}
 
-	/**
-	 * Searches the scannables for one of a given name. Used to avoid searches being in many places.
-	 *
-	 * @param name
-	 * @return Scannable if it exists or null
-	 */
 	@Override
 	public Scannable getScannable(final String name) {
 		final Iterator<Scannable> it = getScannables().iterator();
@@ -948,13 +820,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return null;
 	}
 
-	/**
-	 * Searches the scannables for one of a given name. Works for scannables where name is declared and the actual
-	 * scannable is not sent over.
-	 *
-	 * @param name
-	 * @return true if it exists or false
-	 */
 	@Override
 	public boolean isScannable(final String name) {
 		final Iterator<String> it = getScannableNames().iterator();
@@ -966,12 +831,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return getScannable(name) != null;
 	}
 
-	/**
-	 * Searches the detectors for one of a given name. Used to avoid searches being in many places.
-	 *
-	 * @param name
-	 * @return Detector if it exists or null
-	 */
 	@Override
 	public Detector getDetector(final String name) {
 		final Iterator<Detector> it = getDetectors().iterator();
@@ -983,13 +842,6 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return null;
 	}
 
-	/**
-	 * Searches the detectors for one of a given name. Works for detectors where name is declared and the actual
-	 * detector is not sent over.
-	 *
-	 * @param name
-	 * @return true if it exists or false
-	 */
 	@Override
 	public boolean isDetector(String name) {
 		final Iterator<String> it = getDetectorNames().iterator();
