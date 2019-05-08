@@ -18,6 +18,9 @@
 
 package gda.device.scannable;
 
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE;
+import static gda.jscience.physics.units.NonSIext.DEG_ANGLE_LOWERCASE_STRING;
+import static gda.jscience.physics.units.NonSIext.mDEG_ANGLE;
 import static javax.measure.unit.SI.METER;
 import static javax.measure.unit.SI.MILLI;
 import static javax.measure.unit.SI.NANO;
@@ -318,13 +321,23 @@ public class UnitsComponentTest {
 	}
 
 	@Test
-	public void testSetUserThenHArdwareUnit() throws DeviceException {
+	public void testSetUserThenHardwareUnitLength() throws DeviceException {
 		uc.setUserUnits("nm");
 		uc.setHardwareUnitString("mm");
 		assertEquals("mm", uc.getHardwareUnitString());
 		assertEquals(MILLI(METER), uc.getHardwareUnit());
 		assertEquals("nm", uc.getUserUnitString());
 		assertEquals(NANO(METER), uc.getUserUnit());
+	}
+
+	@Test
+	public void testSetUserThenHardwareUnitAngle() throws DeviceException {
+		uc.setUserUnits("mDeg");
+		uc.setHardwareUnitString("Deg");
+		assertEquals(DEG_ANGLE_LOWERCASE_STRING, uc.getHardwareUnitString());
+		assertEquals(DEG_ANGLE, uc.getHardwareUnit());
+		assertEquals("rad*1.7453292519943296E-5", uc.getUserUnitString());
+		assertEquals(mDEG_ANGLE, uc.getUserUnit());
 	}
 
 	@Test(expected = DeviceException.class)
