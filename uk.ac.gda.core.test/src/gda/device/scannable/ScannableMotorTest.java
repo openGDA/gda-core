@@ -694,9 +694,8 @@ public class ScannableMotorTest {
 		assertNull(sm.checkPositionValid(0.));// micron
 		assertNull(sm.checkPositionValid(-999));// micron
 		assertNull(sm.checkPositionValid(799));// micron
-		assertEquals("Scannable limit violation on sm.sm: 1.001 > 0.9999999999999999 (internal/hardware/dial values).", sm.checkPositionValid(-1001));// micron
-		assertEquals("Scannable limit violation on sm.sm: -0.8009999999999999 < -0.7999999999999999 (internal/hardware/dial values).",
-				sm.checkPositionValid(801));// micron
+		assertEquals("Scannable limit violation on sm.sm: 1.001 > 1.0 (internal/hardware/dial values).", sm.checkPositionValid(-1001));// micron
+		assertEquals("Scannable limit violation on sm.sm: -0.801 < -0.8 (internal/hardware/dial values).", sm.checkPositionValid(801));// micron
 	}
 
 	@Test

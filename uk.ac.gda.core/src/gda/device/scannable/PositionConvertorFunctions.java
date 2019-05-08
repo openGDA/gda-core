@@ -18,7 +18,10 @@
 
 package gda.device.scannable;
 
+import static java.math.RoundingMode.HALF_EVEN;
+
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.measure.quantity.Dimensionless;
@@ -42,6 +45,11 @@ import gda.util.QuantityFactory;
  * Some functions for converting the the objects used as positions by Scannables.
  */
 public final class PositionConvertorFunctions {
+
+	/**
+	 * Number of decimal places to round estimated values of {@link Amount}s
+	 */
+	private static final int ROUNDING_FACTOR = 12;
 
 	private PositionConvertorFunctions() {
 		// Prevent Instances
@@ -247,7 +255,7 @@ public final class PositionConvertorFunctions {
 			} else if (object instanceof PyObject) {
 				return (Double) ((PyObject) object).__tojava__(Double.class);
 			} else if (object instanceof Amount) {
-				return ((Amount<? extends Quantity>) object).getEstimatedValue();
+				return roundEstimatedValue(((Amount<? extends Quantity>) object).getEstimatedValue());
 			}
 		} catch (PyException | NumberFormatException ex) {
 			// Ignore this error and throw generic error below
@@ -416,9 +424,13 @@ public final class PositionConvertorFunctions {
 	public static Double[] toAmountArray(final Amount<? extends Quantity>[] quantityArray) {
 		final Double[] ammountArray = new Double[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
-			ammountArray[i] = (quantityArray[i]==null) ? null : quantityArray[i].getEstimatedValue();
+			ammountArray[i] = (quantityArray[i]==null) ? null : roundEstimatedValue(quantityArray[i].getEstimatedValue());
 		}
 		return ammountArray;
+	}
+
+	private static double roundEstimatedValue(double estimatedValue) {
+		return BigDecimal.valueOf(estimatedValue).setScale(ROUNDING_FACTOR, HALF_EVEN).doubleValue();
 	}
 
 }
