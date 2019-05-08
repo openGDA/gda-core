@@ -369,8 +369,6 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	@Test
 	public void testReset() throws Exception {
 		// Arrange
-		MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
-		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 		MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
@@ -378,20 +376,6 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		malcolmDevice.reset();
 
 		// Assert
-		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
-		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
-
-		// Arrange again, this time with an error message from the call to abort.
-		expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
-		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmErrorReply("Could not abort"));
-		expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
-		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
-
-		// Act
-		malcolmDevice.reset();
-
-		// Assert, the error message should be ignored (it is logged) and the call to reset is made nevertheless
-		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
 		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 	}
 
