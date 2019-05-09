@@ -78,6 +78,11 @@ public class Application implements IApplication {
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
 			logger.info("Starting GDA client...");
+			String gtk3EnvVar = "SWT_GTK3";
+			if (System.getenv(gtk3EnvVar) != null) {
+				logger.debug("GTK3 variable set: {} = {}", gtk3EnvVar, System.getenv(gtk3EnvVar));
+			}
+
 
 			// Start watchdog checking whether the server can be reached.
 			if(!serverAvailableWatchdog.startServerAvailableWatchdog()) {
