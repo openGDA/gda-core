@@ -93,7 +93,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	private EpicsChannelManager channelManager;
 	protected EpicsController controller;
 
-	private boolean isInitialised=false;
+	private boolean isInitialised = false;
 
 	/**
 	 * Constructor
@@ -105,12 +105,11 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 	@Override
 	public void configure() throws FactoryException {
-		// this only represents a single value which should be the same string
-		// as its name
-		this.setInputNames(new String[0]);
-		this.setExtraNames(new String[] { getName() });
-
+		// this only represents a single value which should be the same string as its name
 		if (!isConfigured()) {
+			this.setInputNames(new String[0]);
+			this.setExtraNames(new String[] { getName() });
+
 			if (pvName == null) {
 				throw new FactoryException("No PV set for " + getName());
 			}
@@ -500,40 +499,27 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		this.sensitivity = sensitivity / 100;
 	}
 
-	private void ensuredConfigured() throws FactoryException{
-		if(!isConfigured())
-			configure();
-	}
-
-	public boolean isInitialised() {
-		return isInitialised;
-	}
-	/**
-	 * @param initialised
-	 */
-	public void setInitialised(boolean initialised) {
-		this.isInitialised = initialised;
-	}
 	private void waitForInitialisation() throws TimeoutException, FactoryException{
-		ensuredConfigured();
+		configure();
 		long startTime_ms =	System.currentTimeMillis();
 		double timeout_s = EpicsGlobals.getTimeout();
 		long timeout_ms = (long)(timeout_s*1000.);
 
-		while (!isInitialised() && (System.currentTimeMillis() - startTime_ms < timeout_ms) ){
+		while (!isInitialised && (System.currentTimeMillis() - startTime_ms < timeout_ms) ){
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				//do nothing
 			}
 		}
-		if(!isInitialised())
+		if(!isInitialised) {
 			throw new TimeoutException(getName() + " not yet initalised. Does the PV " + pvName + " exist?");
+		}
 	}
 
 	@Override
 	public void initializationCompleted() {
-		setInitialised(true);
+		isInitialised = true;
 		DBR dbr = null;
 		try {
 			dbr = controller.getCTRL(theChannel);
