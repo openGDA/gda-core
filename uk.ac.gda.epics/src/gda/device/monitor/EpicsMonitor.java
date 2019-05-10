@@ -72,12 +72,22 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	protected volatile String latestStrValue = "";
 	private volatile byte latestByteValue;
 
+	protected volatile Double lastDblValueReported;
+	protected volatile Integer lastIntValueReported;
+	protected volatile Short lastShtValueReported;
+	protected volatile Float lastFltValueReported;
+
 	private volatile double[] latestDblArray;
 	private volatile int[] latestIntArray;
 	private volatile short[] latestShtArray;
 	private volatile float[] latestFltArray;
 	private volatile String[] latestStrArray;
 	private volatile byte[] latestByteArray;
+
+	protected volatile double[] lastDblArrayReported;
+	protected volatile int[] lastIntArrayReported;
+	protected volatile short[] lastShtArrayReported;
+	protected volatile float[] lastFltArrayReported;
 
 	private int elementCount;
 	private String unit = "";
@@ -263,32 +273,32 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 			final DBR dbr = arg0.getDBR();
 			if (dbr.getCount() == 1) { // Single PV
 				if (dbr.isDOUBLE()) {
-					final double lastValue = latestDblValue;
 					latestDblValue = ((DBR_Double) dbr).getDoubleValue()[0];
 					latestValue = latestDblValue;
-					if (Math.abs((latestDblValue - lastValue) / lastValue) >= sensitivity) {
+					if (lastDblValueReported == null || Math.abs((latestDblValue - lastDblValueReported) / lastDblValueReported) >= sensitivity) {
 						notifyIObservers(this, latestDblValue);
+						lastDblValueReported = latestDblValue;
 					}
 				} else if (dbr.isINT()) {
-					final int lastValue = latestIntValue;
 					latestIntValue = ((DBR_Int) dbr).getIntValue()[0];
 					latestValue = latestIntValue;
-					if (Math.abs((lastValue - latestIntValue) / lastValue) >= sensitivity) {
+					if (lastIntValueReported == null || Math.abs((lastIntValueReported - latestIntValue) / lastIntValueReported) >= sensitivity) {
 						notifyIObservers(this, latestIntValue);
+						lastIntValueReported = latestIntValue;
 					}
 				} else if (dbr.isSHORT()) {
-					final short lastValue = latestShtValue;
 					latestShtValue = ((DBR_Short) dbr).getShortValue()[0];
 					latestValue = latestShtValue;
-					if (Math.abs((lastValue - latestShtValue) / lastValue) >= sensitivity) {
+					if (lastShtValueReported == null || Math.abs((lastShtValueReported - latestShtValue) / lastShtValueReported) >= sensitivity) {
 						notifyIObservers(this, latestShtValue);
+						lastShtValueReported = latestShtValue;
 					}
 				} else if (dbr.isFLOAT()) {
-					final float lastValue = latestFltValue;
 					latestFltValue = ((DBR_Float) dbr).getFloatValue()[0];
 					latestValue = latestFltValue;
-					if (Math.abs((lastValue - latestFltValue) / lastValue) >= sensitivity) {
+					if (lastFltValueReported == null || Math.abs((lastFltValueReported - latestFltValue) / lastFltValueReported) >= sensitivity) {
 						notifyIObservers(this, latestFltValue);
+						lastFltValueReported = latestFltValue;
 					}
 				} else if (dbr.isSTRING()) {
 					final String lastValue = latestStrValue;
@@ -321,47 +331,36 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 				}
 			} else if (dbr.getCount() > 1) { // Array PV
 				if (dbr.isDOUBLE()) {
-					final double[] lastValue = latestDblArray;
 					latestDblArray = ((DBR_Double) dbr).getDoubleValue();
 					latestValue = latestDblArray;
-					for (int i = 0; i < latestDblArray.length; i++) {
-						if (Math.abs((latestDblArray[i] / lastValue[i]) - 1) >= sensitivity) {
-							notifyIObservers(this, latestDblArray);
-							return; // The array has changed no point in looking though any other elements
-						}
+					if (doubleArrayValueChanged()) {
+						notifyIObservers(this, latestDblArray);
+						lastDblArrayReported = latestDblArray.clone();
 					}
 				} else if (dbr.isINT()) {
-					final int[] lastValue = latestIntArray;
 					latestIntArray = ((DBR_Int) dbr).getIntValue();
 					latestValue = latestIntArray;
-					for (int i = 0; i < lastValue.length; i++) {
-						if (Math.abs((latestIntArray[i] / lastValue[i]) - 1) >= sensitivity) {
-							notifyIObservers(this, latestIntArray);
-							return; // The array has changed no point in looking though any other elements
-						}
+					if (intArrayValueChanged()) {
+						notifyIObservers(this, latestIntArray);
+						lastIntArrayReported = latestIntArray.clone();
 					}
 				} else if (dbr.isSHORT()) {
-					final short[] lastValue = latestShtArray;
 					latestShtArray = ((DBR_Short) dbr).getShortValue();
 					latestValue = latestShtArray;
-					for (int i = 0; i < latestShtArray.length; i++) {
-						if (Math.abs((latestShtArray[i] / lastValue[i]) - 1) >= sensitivity) {
-							notifyIObservers(this, latestShtValue);
-							return; // The array has changed no point in looking though any other elements
-						}
+					if (shortArrayValueChanged()) {
+						notifyIObservers(this, latestShtArray);
+						lastShtArrayReported = latestShtArray.clone();
+
 					}
 				} else if (dbr.isFLOAT()) {
-					final float[] lastValue = latestFltArray;
 					latestFltArray = ((DBR_Float) dbr).getFloatValue();
 					latestValue = latestFltArray;
-					for (int i = 0; i < latestFltArray.length; i++) {
-						if (Math.abs((latestFltArray[i] / lastValue[i]) - 1) >= sensitivity) {
-							notifyIObservers(this, latestFltValue);
-							return; // The array has changed no point in looking though any other elements
-						}
+					if (floatArrayValueChanged()) {
+						notifyIObservers(this, latestFltArray);
+						lastFltArrayReported = latestFltArray.clone();
 					}
 				} else if (dbr.isSTRING()) {
-					final String[] lastValue = latestStrArray;
+					final String[] lastValue = latestStrArray.clone();
 					latestStrArray = ((DBR_String) dbr).getStringValue();
 					latestValue = latestStrArray;
 					for (int i = 0; i < latestStrArray.length; i++) {
@@ -371,7 +370,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 						}
 					}
 				} else if (dbr.isENUM()) {
-					final String[] lastValue = latestStrArray;
+					final String[] lastValue = latestStrArray.clone();
 					// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
 					// allows the monitor to return the new string not the short specifying
 					// the position on the enum.
@@ -384,7 +383,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 						}
 					}
 				} else if (dbr.isBYTE()) {
-					final byte[] lastValue = latestByteArray;
+					final byte[] lastValue = latestByteArray.clone();
 					latestByteArray = ((DBR_Byte) dbr).getByteValue();
 					latestValue = latestByteArray;
 					for (int i = 0; i < lastValue.length; i++) {
@@ -399,6 +398,53 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 			}
 		}
 
+		private boolean doubleArrayValueChanged() {
+			if (lastDblArrayReported == null || latestDblArray.length != lastDblArrayReported.length) {
+				return true;
+			}
+			for (int i = 0; i < latestDblArray.length; i++) {
+				if (Math.abs((latestDblArray[i] - lastDblArrayReported[i]) / lastDblArrayReported[i]) >= sensitivity) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean intArrayValueChanged() {
+			if (lastIntArrayReported == null || latestIntArray.length != lastIntArrayReported.length) {
+				return true;
+			}
+			for (int i = 0; i < latestIntArray.length; i++) {
+				if (Math.abs((latestIntArray[i] - lastIntArrayReported[i]) / lastIntArrayReported[i]) >= sensitivity) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean floatArrayValueChanged() {
+			if (lastFltArrayReported == null || latestFltArray.length != lastFltArrayReported.length) {
+				return true;
+			}
+			for (int i = 0; i < latestFltArray.length; i++) {
+				if (Math.abs((latestFltArray[i] - lastFltArrayReported[i]) / lastFltArrayReported[i]) >= sensitivity) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean shortArrayValueChanged() {
+			if (lastShtArrayReported == null || latestShtArray.length != lastShtArrayReported.length) {
+				return true;
+			}
+			for (int i = 0; i < latestShtArray.length; i++) {
+				if (Math.abs((latestShtArray[i] - lastShtArrayReported[i]) / lastShtArrayReported[i]) >= sensitivity) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	@Override
