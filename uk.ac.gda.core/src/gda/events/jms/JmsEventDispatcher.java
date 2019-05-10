@@ -219,6 +219,12 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 				}
 			});
 		}
+
+		@Override
+		public String toString() {
+			return "SendMessageRunnable [event.sourceName=" + event.sourceName + ", event.message=" + event.message + "]";
+		}
+
 	}
 
 }
