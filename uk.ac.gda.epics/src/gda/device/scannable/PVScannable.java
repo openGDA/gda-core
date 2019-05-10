@@ -221,7 +221,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		}
 	}
 
-	private void notifyObserversOfNewPosition(Serializable newPosition) {
+	protected void notifyObserversOfNewPosition(Serializable newPosition) {
 		this.notifyIObservers(this, newPosition);
 		this.notifyIObservers(this, new ScannablePositionChangeEvent(newPosition));
 	}

@@ -18,10 +18,17 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.BYTE;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.STRING;
+import gov.aps.jca.event.MonitorEvent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -30,6 +37,10 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(Scannable.class)
 public class PVStringScannable extends PVScannable {
+
+	private static final Logger logger = LoggerFactory.getLogger(PVStringScannable.class);
+
+	private String lastPosition = "";
 
 	public PVStringScannable() {
 	}
@@ -42,7 +53,12 @@ public class PVStringScannable extends PVScannable {
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			return controller.cagetString(theChannel);
+			if (theChannel.get().isBYTE()) {
+				byte[] byteArray = controller.cagetByteArray(theChannel);
+				return new String(byteArray).trim();
+			} else {
+				return controller.cagetString(theChannel);
+			}
 		} catch (InterruptedException | TimeoutException | CAException e) {
 			throw new DeviceException(getName() + " exception in getPosition", e);
 		}
@@ -55,6 +71,30 @@ public class PVStringScannable extends PVScannable {
 			controller.caput(theChannel, position.toString());
 		} catch (CAException | InterruptedException | NullPointerException e) {
 			throw new DeviceException("Could not set the position of {}", getName(), e);
+		}
+	}
+
+	@Override
+	public void monitorChanged(MonitorEvent event) {
+		logger.debug("monitorChanged called for {} ({})", getName(), pvName);
+
+		final DBR dbr = event.getDBR();
+		String currentPosition;
+		if (dbr.isBYTE()) {
+			final BYTE bytes = (BYTE) dbr;
+			currentPosition = new String(bytes.getByteValue());
+		} else if (dbr.isSTRING()) {
+			final STRING str = (STRING) dbr;
+			currentPosition = str.getStringValue()[0];
+		} else {
+			logger.debug("New position {} is not a string", dbr);
+			return;
+		}
+
+		if (!currentPosition.equals(lastPosition)) {
+			logger.debug("New position : {}", currentPosition);
+			notifyObserversOfNewPosition(currentPosition);
+			lastPosition = currentPosition;
 		}
 	}
 }
