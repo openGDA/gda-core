@@ -24,21 +24,14 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.interfaces.SimplePvType;
 import gda.epics.util.EpicsGlobals;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
@@ -95,8 +88,6 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	private boolean poll = false;
 	private volatile Object latestValue;
 
-	private String epicsRecordName;
-	private EpicsRecord epicsRecord;
 	private String deviceName;
 
 	private EpicsChannelManager channelManager;
@@ -120,59 +111,14 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		this.setExtraNames(new String[] { getName() });
 
 		if (!isConfigured()) {
-
 			if (pvName == null) {
-
-				// EPICS interface version 2 for phase I beamlines + I22
-				if (getEpicsRecordName() != null) {
-					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
-						pvName = epicsRecord.getFullRecordName();
-					} else {
-						logger.error("Epics Record " + epicsRecordName + " not found");
-						throw new FactoryException("Epics Record " + epicsRecordName + " not found");
-					}
-				}
-
-				// EPICS interface version 3 for phase II beamlines (excluding I22).
-				else if (getDeviceName() != null) {
-					SimplePvType pvConfig;
-					try {
-						pvConfig = Configurator.getConfiguration(getDeviceName(), SimplePvType.class);
-						pvName = pvConfig.getRECORD().getPv();
-					} catch (ConfigurationNotFoundException e) {
-						// Try to read from unchecked xml
-						try {
-							pvName = getPV();
-						} catch (Exception ex) {
-							logger.error(
-									"Can NOT find EPICS configuration for simplePvType " + getDeviceName() + "."
-											+ e.getMessage(), ex);
-							throw new FactoryException("Can NOT find EPICS configuration for motor " + getDeviceName()
-									+ "." + e.getMessage(), e);
-						}
-					}
-				}
-
-				// Nothing specified in Server XML file
-				else {
-					logger.error("Missing EPICS interface configuration for device " + getName());
-					throw new FactoryException("Missing EPICS interface configuration for the device " + getName());
-				}
+				throw new FactoryException("No PV set for " + getName());
 			}
-
 			createChannelAccess();
 			channelManager.tryInitialize(100);
 
 			setConfigured(true);
 		}
-	}
-
-	/**
-	 * @return pv
-	 * @throws InterfaceException
-	 */
-	String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
 	}
 
 	private void fetchInitialValue() {
@@ -625,20 +571,6 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		logger.info("Monitor -  " + getName() + " is initialised.");
 
 		fetchInitialValue();
-	}
-
-	/**
-	 * @return epicsRecordName
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * @param epicsRecordName
-	 */
-	public void setEpicsRecordName(String epicsRecordName) {
-		this.epicsRecordName = epicsRecordName;
 	}
 
 	/**
