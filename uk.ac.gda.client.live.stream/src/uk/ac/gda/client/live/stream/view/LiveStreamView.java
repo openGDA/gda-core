@@ -42,6 +42,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -57,6 +58,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,8 +325,12 @@ public class LiveStreamView extends ViewPart {
 				reopenViewWithSecondaryId(getViewSite().getSecondaryId());
 			}
 			@Override
-			public String getText() {
-				return "Reset";
+			public  ImageDescriptor getImageDescriptor() {
+				return AbstractUIPlugin.imageDescriptorFromPlugin("uk.ac.gda.client.live.stream", "icons/reset_view.png");
+			}
+			@Override
+			public  String getToolTipText() {
+				return "Reset live stream view";
 			}
 		});
 
