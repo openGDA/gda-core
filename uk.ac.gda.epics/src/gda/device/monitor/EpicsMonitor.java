@@ -54,8 +54,8 @@ import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
- * A class which monitors the value of single Epics PV. The value is then broadcast to IObservers of this object or can be
- * retrieved via the getValue method. This will not monitor changes to limits, alarms or status.
+ * A class which monitors the value of single Epics PV. The value is then broadcast to IObservers of this object or can be retrieved via the getValue method.
+ * This will not monitor changes to limits, alarms or status.
  */
 @ServiceInterface(Monitor.class)
 public class EpicsMonitor extends MonitorBase implements InitializationListener {
@@ -69,7 +69,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	protected volatile int latestIntValue;
 	protected volatile short latestShtValue;
 	protected volatile float latestFltValue;
-	protected volatile String latestStrValue="";
+	protected volatile String latestStrValue = "";
 	private volatile byte latestByteValue;
 
 	private volatile double[] latestDblArray;
@@ -123,10 +123,10 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	private void fetchInitialValue() {
 		// fill the latestValue attribute in case its a while until an update
 		try {
-			boolean old_poll = isPoll();
+			final boolean oldPoll = isPoll();
 			poll = true;
 			getPosition();
-			poll = old_poll;
+			poll = oldPoll;
 		} catch (DeviceException e) {
 			// only warn because connection is made later. remove second arg for cleaner message to user
 			logger.warn("Error fetching initial value during configure from " + getName(), e);
@@ -139,14 +139,13 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
-		} catch (Throwable th) {
-			throw new FactoryException("failed to create channel", th);
+		} catch (Exception e) {
+			throw new FactoryException("failed to create channel", e);
 		}
 	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
-
 		if (!isConfigured()) {
 			return null;
 		}
@@ -154,15 +153,19 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		try {
 			waitForInitialisation();
 		} catch (Exception e) {
-			throw new DeviceException("Error waiting for initialisation for " + getName(),e);
+			throw new DeviceException("Error waiting for initialisation for " + getName(), e);
 		}
+
 		if (poll || latestValue == null) {
-			if (elementCount == 1)
+			if (elementCount == 1) {
 				return getSingularValue();
-			else if (elementCount > 1)
+			}
+			else if (elementCount > 1) {
 				return getArrayValue();
-			else
+			}
+			else {
 				throw new DeviceException("Element count is zero for EpicsMonitor " + getName());
+			}
 		}
 
 		return latestValue;
@@ -170,7 +173,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 	protected Object getSingularValue() throws DeviceException {
 		try {
-			DBR dbr = controller.getCTRL(theChannel);
+			final DBR dbr = controller.getCTRL(theChannel);
 
 			if (dbr.isDOUBLE()) {
 				latestDblValue = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
@@ -188,8 +191,8 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 				// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
 				// allows the monitor to return the new string not the short specifying
 				// the position on the enum.
-				String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
-				Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
+				final String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
+				final Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
 				latestStrValue = labels[labelNumber];
 				return latestStrValue;
 			} else if (dbr.isBYTE()) {
@@ -199,7 +202,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 				latestStrValue = ((DBR_CTRL_String) dbr).getStringValue()[0];
 				return latestStrValue;
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new DeviceException("Can NOT get " + theChannel.getName(), e);
 		}
 
@@ -208,7 +211,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 	private Object getArrayValue() throws DeviceException {
 		try {
-			DBR dbr = controller.getCTRL(theChannel);
+			final DBR dbr = controller.getCTRL(theChannel);
 
 			if (dbr.isDOUBLE()) {
 				latestDblArray = ((DBR_CTRL_Double) dbr).getDoubleValue();
@@ -235,7 +238,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 				latestStrArray = ((DBR_CTRL_String) dbr).getStringValue();
 				return latestStrArray;
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new DeviceException("Can NOT get " + theChannel.getName(), e);
 		}
 
@@ -243,71 +246,71 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	}
 
 	/**
-	 * Monitor value changes in EPICS and update observers with value, not including unit, alarms,
-	 * status or limits.
-	*/
+	 * Monitor value changes in EPICS and update observers with value, not including unit, alarms, status or limits.
+	 */
 	private class ValueMonitorListener implements MonitorListener {
-		boolean first=true;
+		boolean first = true;
+
 		/**
 		 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 		 */
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			if (first) {
-				first=false;
+				first = false;
 				return;
 			}
-			DBR dbr = arg0.getDBR();
+			final DBR dbr = arg0.getDBR();
 			if (dbr.getCount() == 1) { // Single PV
 				if (dbr.isDOUBLE()) {
-					double lastValue = latestDblValue;
+					final double lastValue = latestDblValue;
 					latestDblValue = ((DBR_Double) dbr).getDoubleValue()[0];
 					latestValue = latestDblValue;
 					if (Math.abs((latestDblValue - lastValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestDblValue);
 					}
 				} else if (dbr.isINT()) {
-					int lastValue = latestIntValue;
+					final int lastValue = latestIntValue;
 					latestIntValue = ((DBR_Int) dbr).getIntValue()[0];
 					latestValue = latestIntValue;
 					if (Math.abs((lastValue - latestIntValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestIntValue);
 					}
 				} else if (dbr.isSHORT()) {
-					short lastValue = latestShtValue;
+					final short lastValue = latestShtValue;
 					latestShtValue = ((DBR_Short) dbr).getShortValue()[0];
 					latestValue = latestShtValue;
 					if (Math.abs((lastValue - latestShtValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestShtValue);
 					}
 				} else if (dbr.isFLOAT()) {
-					float lastValue = latestFltValue;
+					final float lastValue = latestFltValue;
 					latestFltValue = ((DBR_Float) dbr).getFloatValue()[0];
 					latestValue = latestFltValue;
 					if (Math.abs((lastValue - latestFltValue) / lastValue) >= sensitivity) {
 						notifyIObservers(this, latestFltValue);
 					}
 				} else if (dbr.isSTRING()) {
-					String lastValue = latestStrValue;
+					final String lastValue = latestStrValue;
 					latestStrValue = ((DBR_String) dbr).getStringValue()[0];
 					latestValue = latestStrValue;
 					if (!lastValue.equalsIgnoreCase(latestStrValue)) {
 						notifyIObservers(this, latestStrValue);
 					}
 				} else if (dbr.isENUM()) {
-					String lastValue = latestStrValue;
+					final String lastValue = latestStrValue;
 					// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
 					// allows the monitor to return the new string not the short specifying
 					// the position on the enum.
-					String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
-					Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
+					final String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
+					final Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
 					latestStrValue = labels[labelNumber];
 					latestValue = latestStrValue;
 					if (!lastValue.equalsIgnoreCase(latestStrValue)) {
 						notifyIObservers(this, latestStrValue);
 					}
 				} else if (dbr.isBYTE()) {
-					byte lastValue = latestByteValue;
+					final byte lastValue = latestByteValue;
 					latestByteValue = ((DBR_Byte) dbr).getByteValue()[0];
 					latestValue = latestByteValue;
 					if (latestByteValue != lastValue) {
@@ -318,47 +321,47 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 				}
 			} else if (dbr.getCount() > 1) { // Array PV
 				if (dbr.isDOUBLE()) {
-					double[] lastValue = latestDblArray;
+					final double[] lastValue = latestDblArray;
 					latestDblArray = ((DBR_Double) dbr).getDoubleValue();
 					latestValue = latestDblArray;
 					for (int i = 0; i < latestDblArray.length; i++) {
-						if (Math.abs((latestDblArray[i] / lastValue[i]) - 1)  >= sensitivity) {
+						if (Math.abs((latestDblArray[i] / lastValue[i]) - 1) >= sensitivity) {
 							notifyIObservers(this, latestDblArray);
 							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isINT()) {
-					int[] lastValue = latestIntArray;
+					final int[] lastValue = latestIntArray;
 					latestIntArray = ((DBR_Int) dbr).getIntValue();
 					latestValue = latestIntArray;
 					for (int i = 0; i < lastValue.length; i++) {
-						if (Math.abs((latestIntArray[i] / lastValue[i]) - 1)  >= sensitivity) {
+						if (Math.abs((latestIntArray[i] / lastValue[i]) - 1) >= sensitivity) {
 							notifyIObservers(this, latestIntArray);
 							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isSHORT()) {
-					short[] lastValue = latestShtArray;
+					final short[] lastValue = latestShtArray;
 					latestShtArray = ((DBR_Short) dbr).getShortValue();
 					latestValue = latestShtArray;
 					for (int i = 0; i < latestShtArray.length; i++) {
-						if (Math.abs((latestShtArray[i] / lastValue[i]) - 1)  >= sensitivity) {
+						if (Math.abs((latestShtArray[i] / lastValue[i]) - 1) >= sensitivity) {
 							notifyIObservers(this, latestShtValue);
 							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isFLOAT()) {
-					float[] lastValue = latestFltArray;
+					final float[] lastValue = latestFltArray;
 					latestFltArray = ((DBR_Float) dbr).getFloatValue();
 					latestValue = latestFltArray;
 					for (int i = 0; i < latestFltArray.length; i++) {
-						if (Math.abs((latestFltArray[i] / lastValue[i]) - 1)  >= sensitivity) {
+						if (Math.abs((latestFltArray[i] / lastValue[i]) - 1) >= sensitivity) {
 							notifyIObservers(this, latestFltValue);
 							return; // The array has changed no point in looking though any other elements
 						}
 					}
 				} else if (dbr.isSTRING()) {
-					String[] lastValue = latestStrArray;
+					final String[] lastValue = latestStrArray;
 					latestStrArray = ((DBR_String) dbr).getStringValue();
 					latestValue = latestStrArray;
 					for (int i = 0; i < latestStrArray.length; i++) {
@@ -368,7 +371,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 						}
 					}
 				} else if (dbr.isENUM()) {
-					String[] lastValue = latestStrArray;
+					final String[] lastValue = latestStrArray;
 					// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
 					// allows the monitor to return the new string not the short specifying
 					// the position on the enum.
@@ -381,7 +384,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 						}
 					}
 				} else if (dbr.isBYTE()) {
-					byte[] lastValue = latestByteArray;
+					final byte[] lastValue = latestByteArray;
 					latestByteArray = ((DBR_Byte) dbr).getByteValue();
 					latestValue = latestByteArray;
 					for (int i = 0; i < lastValue.length; i++) {
@@ -400,9 +403,9 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 
 	@Override
 	public String toFormattedString() {
-		String myString = "";
+		final StringBuilder myString = new StringBuilder();
 		try {
-			Object position = this.getPosition();
+			final Object position = this.getPosition();
 
 			if (position == null) {
 				logger.warn("getPosition() from {} returns NULL.", getName());
@@ -411,42 +414,39 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 			// print out simple version if only one inputName and
 			// getPosition and getReportingUnits do not return arrays.
 			if (!(position.getClass().isArray() || position instanceof PySequence)) {
-				myString += this.getName() + " : ";
+				myString.append(this.getName()).append(" : ");
 				if (position instanceof String) {
-					myString += position.toString();
+					myString.append(position.toString());
 				} else {
-					myString += this.formatPosition(0, Double.parseDouble(position.toString()));
+					myString.append(this.formatPosition(0, Double.parseDouble(position.toString())));
 				}
 			} else {
-				myString += this.getName() + " : ";
+				myString.append(this.getName()).append(" : ");
 				if (position instanceof PySequence) {
 					for (int i = 0; i < ((PySequence) position).__len__(); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += this.formatPosition(i, Double.parseDouble(((PySequence) position).__finditem__(i)
-								.toString()));
+						myString.append(this.formatPosition(i, Double.parseDouble(((PySequence) position).__finditem__(i).toString())));
 					}
 				} else {
 					for (int i = 0; i < Array.getLength(position); i++) {
 						if (i > 0) {
-							myString += " ";
+							myString.append(" ");
 						}
-						myString += this.formatPosition(i, Double.parseDouble(Array.get(position, i).toString()));
+						myString.append(this.formatPosition(i, Double.parseDouble(Array.get(position, i).toString())));
 					}
 				}
-
 			}
 		} catch (Exception e) {
 			logger.warn("Exception formatting {}", getName(), e);
 		}
-		return myString.isEmpty() ? valueUnavailableString() : myString + " " + getUnit();
+		return myString.length() == 0 ? valueUnavailableString() : myString.append(" ").append(getUnit()).toString();
 	}
 
 	/**
-	 * Does the same job as the other formatPosition method except rather than using a supplied format string, use the
-	 * index of the array of formats this object holds. This is to be used when an object has multiple elements which
-	 * describe its position and those element require different formatting.
+	 * Does the same job as the other formatPosition method except rather than using a supplied format string, use the index of the array of formats this object
+	 * holds. This is to be used when an object has multiple elements which describe its position and those element require different formatting.
 	 *
 	 * @param format
 	 *            the index in the array of formats to use
@@ -471,8 +471,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	}
 
 	/**
-	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the
-	 * connections to the pv.
+	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the connections to the pv.
 	 *
 	 * @param pvName
 	 */
@@ -481,8 +480,8 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	}
 
 	/**
-	 * Returns the sensitivity of updates from this monitor. The sensitivity is the percentage change which must occur
-	 * in the pv value for the IObservers to be informed. This prevents unneccessary updating.
+	 * Returns the sensitivity of updates from this monitor. The sensitivity is the percentage change which must occur in the pv value for the IObservers to be
+	 * informed. This prevents unnecessary updating.
 	 *
 	 * @return the sensitivity of updates from this monitor
 	 */
@@ -499,20 +498,20 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		this.sensitivity = sensitivity / 100;
 	}
 
-	private void waitForInitialisation() throws TimeoutException, FactoryException{
+	private void waitForInitialisation() throws TimeoutException, FactoryException {
 		configure();
-		long startTime_ms =	System.currentTimeMillis();
-		double timeout_s = EpicsGlobals.getTimeout();
-		long timeout_ms = (long)(timeout_s*1000.);
+		final long startTime_ms = System.currentTimeMillis();
+		final double timeout_s = EpicsGlobals.getTimeout();
+		final long timeout_ms = (long) (timeout_s * 1000.);
 
-		while (!isInitialised && (System.currentTimeMillis() - startTime_ms < timeout_ms) ){
+		while (!isInitialised && (System.currentTimeMillis() - startTime_ms < timeout_ms)) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				//do nothing
+				Thread.currentThread().interrupt();
 			}
 		}
-		if(!isInitialised) {
+		if (!isInitialised) {
 			throw new TimeoutException(getName() + " not yet initalised. Does the PV " + pvName + " exist?");
 		}
 	}
@@ -523,7 +522,7 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 		DBR dbr = null;
 		try {
 			dbr = controller.getCTRL(theChannel);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			logger.error("failed to initialise " + getName() + " after connection", e);
 		}
 		if (dbr != null) {
