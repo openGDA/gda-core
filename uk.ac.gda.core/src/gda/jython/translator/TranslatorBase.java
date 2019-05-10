@@ -70,7 +70,7 @@ public abstract class TranslatorBase implements Translator {
 			Matcher m = NOT_A_NEW_LINE_PATTERN.matcher(full_command);
 
 			int endOfPreviousGroup = 0;
-			String newCommand = new String();
+			StringBuilder newCommandBuilder = new StringBuilder();
 			boolean ignoreRestOfLine=false;
 			while (m.find() && !ignoreRestOfLine) {
 				String thisGroup = m.group(1);
@@ -81,21 +81,24 @@ public abstract class TranslatorBase implements Translator {
 				ignoreRestOfLine = ignoreRestOfLine(thisGroup);
 				thisGroup = translateGroup(thisGroup);
 				if( ignoreRestOfLine){
-					newCommand += thisGroup;
+					newCommandBuilder.append(thisGroup);
 					endOfPreviousGroup = full_command.length();
 				} else {
 					// rebuild
 					if (startOfGroup == endOfPreviousGroup) {
-						newCommand += thisGroup;
+						newCommandBuilder.append(thisGroup);
 					} else {
-						newCommand += full_command.substring(endOfPreviousGroup, startOfGroup) + thisGroup;
+						newCommandBuilder.append(full_command.substring(endOfPreviousGroup, startOfGroup));
+						newCommandBuilder.append(thisGroup);
 					}
 					endOfPreviousGroup = endOfGroup;
 				}
 			}
 			if (endOfPreviousGroup != full_command.length()) {
-				newCommand += full_command.substring(endOfPreviousGroup);
+				newCommandBuilder.append(full_command.substring(endOfPreviousGroup));
 			}
+
+			String newCommand = newCommandBuilder.toString();
 
 			// The translate group methods may have added extra lines, rather than making a simple translation of a
 			// single line. So the \n and ;'s may get confused. Tidy up any problem here. Make sure that there are no
