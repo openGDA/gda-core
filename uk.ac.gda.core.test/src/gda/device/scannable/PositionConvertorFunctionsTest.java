@@ -92,7 +92,11 @@ public class PositionConvertorFunctionsTest {
 					{ PositionConvertorFunctions.toQuantity(new PyString("1 m"), METER), Amount.valueOf(1., METER),
 							"toQuantity(new PyString(\"1 m\"), METER)" },
 					{ PositionConvertorFunctions.toQuantity(new PyString("1"), METER), Amount.valueOf(1., METER),
-							"toQuantity(new PyString(\"1\"), METER)" } });
+							"toQuantity(new PyString(\"1\"), METER)" },
+					// test with infinite/NaN values
+					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.POSITIVE_INFINITY, METER)), Double.POSITIVE_INFINITY, "toDouble(Amount.valueOf(+Infinity, METER))" },
+					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.NEGATIVE_INFINITY, METER)), Double.NEGATIVE_INFINITY, "toDouble(Amount.valueOf(-Infinity, METER))" },
+					{ PositionConvertorFunctions.toDouble(Amount.valueOf(Double.NaN, METER)), Double.NaN, "toDouble(Amount.valueOf(NaN, METER))" }});
 		}
 
 		@Parameter
@@ -157,7 +161,15 @@ public class PositionConvertorFunctionsTest {
 							"toDoubleArray(new Object[] {new PyInteger(1), new PyFloat(2.)})" },
 					// testToDoubleArrayWithPyStrings
 					{ PositionConvertorFunctions.toDoubleArray(new Object[] { new PyString("1.") }),
-							(new Double[] { 1. }), "toDoubleArray(new Object[] { new PyString(\"1.\") })" } });
+							(new Double[] { 1. }), "toDoubleArray(new Object[] { new PyString(\"1.\") })" },
+					// test with infinite/NaN values
+					{ PositionConvertorFunctions.toAmountArray(
+							new Amount<?>[] { Amount.valueOf(Double.POSITIVE_INFINITY, METER), Amount.valueOf(Double.NEGATIVE_INFINITY, METER) }),
+							(new Double[] { Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY }),
+							"toAmountArray(new Amount<?>[] { Amount.valueOf(+Infinity, METER), Amount.valueOf(-Infinity, METER) }" },
+					{ PositionConvertorFunctions.toAmountArray(new Amount<?>[] { Amount.valueOf(Double.NaN, METER) }), (new Double[] { Double.NaN }),
+							"toAmountArray(new Amount<?>[] { Amount.valueOf(NaN, METER) }" }
+							});
 		}
 
 		@Parameter

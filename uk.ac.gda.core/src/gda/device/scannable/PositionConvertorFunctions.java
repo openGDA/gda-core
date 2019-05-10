@@ -422,14 +422,17 @@ public final class PositionConvertorFunctions {
 	}
 
 	public static Double[] toAmountArray(final Amount<? extends Quantity>[] quantityArray) {
-		final Double[] ammountArray = new Double[quantityArray.length];
+		final Double[] amountArray = new Double[quantityArray.length];
 		for (int i = 0; i < quantityArray.length; i++) {
-			ammountArray[i] = (quantityArray[i]==null) ? null : roundEstimatedValue(quantityArray[i].getEstimatedValue());
+			amountArray[i] = (quantityArray[i]==null) ? null : roundEstimatedValue(quantityArray[i].getEstimatedValue());
 		}
-		return ammountArray;
+		return amountArray;
 	}
 
 	private static double roundEstimatedValue(double estimatedValue) {
+		if (Double.isInfinite(estimatedValue) || Double.isNaN(estimatedValue)) {
+			return estimatedValue;
+		}
 		return BigDecimal.valueOf(estimatedValue).setScale(ROUNDING_FACTOR, HALF_EVEN).doubleValue();
 	}
 
