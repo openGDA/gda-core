@@ -12,6 +12,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.jface.databinding.viewers.ViewerProperties;
@@ -99,7 +100,7 @@ public class DriverAndProfileSelectionSection {
 		
 		// bind use-driver check box to enabled state of other controls
 		final IObservableValue<Boolean> driverUsedCheck = WidgetProperties.selection().observe(useDriver);
-		final List<IObservableValue<Boolean>> driverButtonsEnabled = driverButtons.stream().map(b -> WidgetProperties.enabled().observe(b)).collect(Collectors.toList());
+		final List<ISWTObservableValue> driverButtonsEnabled = driverButtons.stream().map(b -> WidgetProperties.enabled().observe(b)).collect(Collectors.toList());
 		final IObservableValue<Boolean> profileComboEnabled = WidgetProperties.enabled().observe(profileCombo.getCombo());
 		
 		driverButtonsEnabled.forEach(enabledObservable -> dbc.bindValue(driverUsedCheck, enabledObservable));
