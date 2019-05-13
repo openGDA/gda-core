@@ -1,6 +1,7 @@
 package uk.ac.gda.client.closeactions;
 
 import gda.configuration.properties.LocalProperties;
+import gda.util.Email;
 import uk.ac.gda.client.closeactions.ClientCloseOption;
 import uk.ac.gda.client.closeactions.contactinfo.ISPyBJdbcTemplate;
 import uk.ac.gda.client.closeactions.contactinfo.ISPyBLocalContacts;
@@ -19,18 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.activation.CommandMap;
-import javax.activation.MailcapCommandMap;
-import javax.mail.internet.MimeMessage;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
  * called by UserOptionsMenuOnClose
@@ -97,34 +92,14 @@ public class UserSelectedActionOnClose {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try{
-						final String[] recipients = getEmailRecipients();
-						final String from = String.format("%s <%s>", visit, beamlineName);
-						final String mailSubject = subject + " " + beamlineName;
-	
-						final String smtpHost = LocalProperties.get("gda.feedback.smtp.host","localhost");
-	
-						JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-						mailSender.setHost(smtpHost);
-	
-						MimeMessage message = mailSender.createMimeMessage();
-						final MimeMessageHelper helper = new MimeMessageHelper(message, false);
-						helper.setFrom(from);
-						helper.setTo(recipients);
-						helper.setSubject(mailSubject);
-
-						if (text != "") {
-							helper.setText(text);
-						} else {
-							helper.setText("The current user (visit: " + visit + ") on " + beamlineName + " is finished.");
-						}
-
-						{//required to workaround class loader issue with "no object DCH..." error
-							MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
-							mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
-							mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
-							CommandMap.setDefaultCommandMap(mc);
-						}
-						mailSender.send(message);
+						new Email()
+								.to(getEmailRecipients())
+								.from(visit, beamlineName)
+								.subject(subject + " " + beamlineName)
+								.message(text.isEmpty()
+										? "The current user (visit: " + visit + ") on " + beamlineName + " is finished."
+										: text)
+								.send();
 						return Status.OK_STATUS;
 					} catch(Exception e){
 						logger.error("Could not send feedback", e);
