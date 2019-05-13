@@ -272,7 +272,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		try {
 			String commands;
 			commands = slurp(script);
-			final CommandThreadEvent event = commandServer.runScript(commands, name);
+			String scriptName = script.getName();
+			final CommandThreadEvent event = commandServer.runScript(commands, scriptName, name);
 			if (event.getEventType() == CommandThreadEventType.BUSY) {
 				logger.error("Unable to run script " + script.getAbsolutePath() + " as server is busy");
 			}

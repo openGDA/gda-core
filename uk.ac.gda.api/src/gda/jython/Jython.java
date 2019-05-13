@@ -88,8 +88,10 @@ public interface Jython extends Findable, IObservable {
 	 *            String
 	 * @param JSFIdentifier
 	 *            - the unique ID of the JythonServerFacade calling this method.
+	 * @param scriptName
+	 *            - The name of the script being run
 	 */
-	public CommandThreadEvent runScript(String command, String JSFIdentifier);
+	public CommandThreadEvent runScript(String command, String scriptName, String JSFIdentifier);
 
 	/**
 	 * Similar to {@link #runCommand}, except that a boolean is returned if the command was complete or if additional lines of a

@@ -358,7 +358,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	@Override
-	public CommandThreadEvent runScript(String command, String jsfIdentifier) {
+	public CommandThreadEvent runScript(String command, String scriptName, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
 		if (!statusHolder.tryAcquireScriptLock()) {
@@ -368,7 +368,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		try {
 			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
-			runner.setName(nameThread(command));
+			runner.setName(scriptName);
 			threads.add(runner);
 			// start the thread and return immediately.
 			runner.start();
