@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.gda.beamline.synoptics.api.DetetectorFileHandler;
+import uk.ac.gda.beamline.synoptics.api.DetectorFileHandler;
 import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
 
 /**
@@ -38,7 +38,7 @@ import uk.ac.gda.beamline.synoptics.views.DetectorFilePlotView;
  * Filters can be added to only handle certain files based on file name and the
  * path to the data is configurable.
  */
-public class HdfImagePlotter implements DetetectorFileHandler {
+public class HdfImagePlotter implements DetectorFileHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(HdfImagePlotter.class);
 	private String dataPath;
