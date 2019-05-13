@@ -115,7 +115,6 @@
 					<include name="org/eclipse/scanning/test/validation/*Test.java" />
 					<exclude name="org/eclipse/scanning/test/validation/Abstract*Test.java" />
 
-					<exclude name="**/*PluginTest.java" />
 				</fileset>
 			</batchtest>
 		</junit-call>
