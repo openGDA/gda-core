@@ -44,15 +44,20 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.function.IdentityFunction;
 import gda.observable.IObserver;
 
 public class CoupledScannableTest {
+	// Allow for inaccuracy in floating point values
+	private static final double FP_TOLERANCE = 0.00000001;
 
 	private ScannableMotionUnits dummyScannable1;
 	private ScannableMotionUnits dummyScannable2;
 
 	private MockFunction mockFunction1;
 	private MockFunction mockFunction2;
+
+	private final IdentityFunction identityFunction = new IdentityFunction();
 
 	@Before
 	public void setUp() throws Exception {
@@ -70,37 +75,39 @@ public class CoupledScannableTest {
 	public void testUseFirstScannableUnits() throws DeviceException, FactoryException {
 		final CoupledScannable scannable = new CoupledScannable();
 		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
+		scannable.setFunctions(asList(identityFunction, identityFunction));
 		scannable.setName("test");
 		scannable.configure();
 
 		dummyScannable1.moveTo(1.0);
 		final double posWithUserUnits_mm = (double) scannable.getPosition();
-		assertEquals("Should have same value as position of scannable1 as user unit set to that of scannable1", 1.0, posWithUserUnits_mm, 0.0001);
+		assertEquals("Should have same value as position of scannable1 as user unit set to that of scannable1", 1.0, posWithUserUnits_mm, FP_TOLERANCE);
 
 		dummyScannable1.setUserUnits("m");
 
 		final double posWithUserUnits_m = (double) scannable.getPosition();
 
-		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, 0.0001);
+		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, FP_TOLERANCE);
 	}
 
 	@Test
 	public void testUseFirstScannableUnitsButWithInitialUnitsSet() throws DeviceException, FactoryException {
 		final CoupledScannable scannable = new CoupledScannable();
 		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
+		scannable.setFunctions(asList(identityFunction, identityFunction));
 		scannable.setName("test");
 		scannable.setInitialUserUnits("µm");
 		scannable.configure();
 
 		dummyScannable1.moveTo(1.0);
 		final double posWithUserUnits_mm = (double) scannable.getPosition();
-		assertEquals("Should have value of 1000 user unit set to micro whilst scannable1 is mm", 1000.0, posWithUserUnits_mm, 0.0001);
+		assertEquals("Should have value of 1000 user unit set to micro whilst scannable1 is mm", 1000.0, posWithUserUnits_mm, FP_TOLERANCE);
 
 		dummyScannable1.setUserUnits("m");
 
 		final double posWithUserUnits_m = (double) scannable.getPosition();
 
-		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, 0.0001);
+		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, FP_TOLERANCE);
 	}
 
 	/*
@@ -121,12 +128,12 @@ public class CoupledScannableTest {
 
 		// Verify that the input units of the coupled scannable (i.e. eV) are passed to the evaluation function for the
 		// component scannable
-		assertEquals(798.34, mockFunction1.parameterPassed.getEstimatedValue(), 0.0001);
+		assertEquals(798.34, mockFunction1.parameterPassed.getEstimatedValue(), FP_TOLERANCE);
 		assertEquals(ELECTRON_VOLT, mockFunction1.parameterPassed.getUnit());
 
 		// Verify that the units for the component move have been handled correctly
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -141,10 +148,10 @@ public class CoupledScannableTest {
 		coupled.moveTo(15.7);
 
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(78.9, (double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(78.9, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
@@ -165,10 +172,10 @@ public class CoupledScannableTest {
 		coupled.moveTo(15.7);
 
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(123.0, (double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(123.0, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(78.9, (double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(78.9, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test(expected = FactoryException.class)
@@ -182,7 +189,7 @@ public class CoupledScannableTest {
 	}
 
 	@Test
-	public void testNoFunctions() throws Exception {
+	public void testNoFunctionsMovesAllScannableToSamePositionIgnoringUnits() throws Exception {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
@@ -191,12 +198,31 @@ public class CoupledScannableTest {
 
 		coupled.moveTo(15.7);
 
-		// If there are no functions, all scannables are moved to the same position
+		// With no functions, all scannables are moved to a position with the same numerical value, ignoring differences in units
 		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(15.7, (double) dummyScannable1.getPosition(), 0.0001);
+		assertEquals(15.7, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
 
 		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(15.7, (double) dummyScannable2.getPosition(), 0.0001);
+		assertEquals(15.7, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
+	}
+
+	@Test
+	public void testIdentityFunctionMovesAllScannableToSamePositionRespectingUnits() throws Exception {
+		final CoupledScannable coupled = new CoupledScannable();
+		coupled.setName("testCoupledScannable");
+		coupled.setUserUnits("mm");
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(identityFunction, identityFunction));
+		coupled.configure();
+
+		coupled.moveTo(15.7);
+
+		// With identity functions, all scannables are moved to the same absolute position
+		assertEquals("mm", dummyScannable1.getHardwareUnitString());
+		assertEquals(15.7, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
+
+		assertEquals("nm", dummyScannable2.getHardwareUnitString());
+		assertEquals(1.57e7, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test(expected = DeviceException.class)
@@ -221,6 +247,7 @@ public class CoupledScannableTest {
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(identityFunction, identityFunction));
 		coupled.addIObserver(observer);
 		coupled.configure();
 
