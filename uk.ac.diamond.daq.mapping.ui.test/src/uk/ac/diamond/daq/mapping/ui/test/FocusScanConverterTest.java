@@ -20,9 +20,10 @@ package uk.ac.diamond.daq.mapping.ui.test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -139,17 +140,17 @@ public class FocusScanConverterTest {
 		assertThat(detectors.get("mandelbrot"), is(instanceOf(MandelbrotModel.class)));
 
 		// test that the remaining fields have not been set
-		assertNull(scanRequest.getMonitorNamesPerPoint());
-		assertNull(scanRequest.getMonitorNamesPerScan());
-		assertNull(scanRequest.getSampleData());
-		assertNull(scanRequest.getScanMetadata());
+		assertThat(scanRequest.getMonitorNamesPerPoint(), is(empty()));
+		assertThat(scanRequest.getMonitorNamesPerScan(), is(empty()));
+		assertThat(scanRequest.getSampleData(), is(nullValue()));
+		assertThat(scanRequest.getScanMetadata(), is(nullValue()));
 
-		assertNull(scanRequest.getAfterScript());
-		assertNull(scanRequest.getBeforeScript());
+		assertThat(scanRequest.getAfterScript(), is(nullValue()));
+		assertThat(scanRequest.getBeforeScript(), is(nullValue()));
 
-		assertNull(scanRequest.getStartPosition());
-		assertNull(scanRequest.getEndPosition());
-		assertNull(scanRequest.getFilePath());
+		assertThat(scanRequest.getStartPosition(), is(nullValue()));
+		assertThat(scanRequest.getEndPosition(), is(nullValue()));
+		assertThat(scanRequest.getFilePath(), is(nullValue()));
 	}
 
 }
