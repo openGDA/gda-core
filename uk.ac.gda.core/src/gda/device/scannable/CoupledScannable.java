@@ -88,8 +88,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 
 		// If functions are defined (which is preferred), check that there are the same number of functions & scannables
 		if (theFunctions.isEmpty()) {
-			logger.warn("No functions defined in '{}'. This will not be permitted from GDA 9.11", getName());
-			logger.warn("Use IdentityFunction if no value transformation is required");
+			throw new FactoryException("No functions defined in '" + getName() + "'. Use IdentityFunction if no value transformation is required");
 		} else if (theScannables.size() != theFunctions.size()) {
 			throw new FactoryException(getName()
 					+ " cannot complete configure() as arrays of Scannables and Functions are of different lengths");

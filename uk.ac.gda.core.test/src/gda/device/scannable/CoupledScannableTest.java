@@ -188,22 +188,13 @@ public class CoupledScannableTest {
 		coupled.configure();
 	}
 
-	@Test
-	public void testNoFunctionsMovesAllScannableToSamePositionIgnoringUnits() throws Exception {
+	@Test(expected = FactoryException.class)
+	public void testNoFunctionsThrowsException() throws Exception {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.configure();
-
-		coupled.moveTo(15.7);
-
-		// With no functions, all scannables are moved to a position with the same numerical value, ignoring differences in units
-		assertEquals("mm", dummyScannable1.getHardwareUnitString());
-		assertEquals(15.7, (double) dummyScannable1.getPosition(), FP_TOLERANCE);
-
-		assertEquals("nm", dummyScannable2.getHardwareUnitString());
-		assertEquals(15.7, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
 	}
 
 	@Test
