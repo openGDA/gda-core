@@ -19,12 +19,13 @@
 package uk.ac.gda.devices.bssc.beans;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class BSSCSessionBean implements XMLRichBean{
 
@@ -32,7 +33,7 @@ public class BSSCSessionBean implements XMLRichBean{
 	static public final URL schemaURL  = BSSCSessionBean.class.getResource("BSSCMapping.xsd");
 	static public PlateConfig BSSC_PLATES;
 
-	List<TitrationBean> measurements;
+	List<TitrationBean> measurements = new ArrayList<>();
 
 	public PlateConfig getPlateSetup() {
 		return BSSC_PLATES;
@@ -74,6 +75,6 @@ public class BSSCSessionBean implements XMLRichBean{
 	}
 
 	public void clear() {
-		measurements = null;
+		measurements.clear();
 	}
 }

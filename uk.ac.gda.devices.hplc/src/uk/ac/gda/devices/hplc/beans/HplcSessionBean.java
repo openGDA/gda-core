@@ -19,6 +19,7 @@
 package uk.ac.gda.devices.hplc.beans;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
@@ -32,7 +33,7 @@ public class HplcSessionBean implements XMLRichBean {
 	static public final URL schemaURL  = HplcSessionBean.class.getResource("HplcMapping.xsd");
 	public static PlateConfig HPLC_PLATES;
 	
-	List<HplcBean> measurements;
+	List<HplcBean> measurements = new ArrayList<>();
 
 	public static HplcSessionBean createFromXML(String filename) throws Exception {
 		return (HplcSessionBean) XMLHelpers.createFromXML(mappingURL, HplcSessionBean.class, schemaURL, filename);
@@ -65,7 +66,7 @@ public class HplcSessionBean implements XMLRichBean {
 	}
 
 	public void clear() {
-		measurements = null;
+		measurements.clear();
 	}
 
 }
