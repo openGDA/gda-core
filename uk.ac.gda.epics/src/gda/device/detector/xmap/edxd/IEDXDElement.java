@@ -275,6 +275,21 @@ public interface IEDXDElement extends Detector, INeXusInfoWriteable {
 	double[] getQMapping() throws DeviceException;
 
 	/**
+	 * Set the q mapping directly
+	 *
+	 * @param q
+	 *            the q mapping to set
+	 */
+	void setQMapping(double[] q);
+
+	/**
+	 * Shows whether the element is q-mapped
+	 *
+	 * @return <code>true</code> if q mapped, <code>false</code> if not
+	 */
+	public boolean isQMapped();
+
+	/**
 	 * The point of this function is to fit a curve to the data collected from a calibration Sample
 	 * @param actual
 	 * @param reported

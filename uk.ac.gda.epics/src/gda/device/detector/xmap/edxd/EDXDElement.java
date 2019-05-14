@@ -29,8 +29,8 @@ import org.eclipse.january.dataset.DatasetFactory;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
-import gda.device.epicsdevice.ReturnType;
 import gda.device.epicsdevice.IFindableEpicsDevice;
+import gda.device.epicsdevice.ReturnType;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
@@ -542,6 +542,27 @@ public class EDXDElement extends DetectorBase implements IEDXDElement {
 		if (q == null)
 			q = createQMapping();
 		return q;
+	}
+
+	/**
+	 * Set the q mapping directly
+	 *
+	 * @param q
+	 *            the q mapping to set
+	 */
+	@Override
+	public void setQMapping(double[] q) {
+		this.q = q;
+	}
+
+	/**
+	 * Shows whether the element is q-mapped
+	 *
+	 * @return <code>true</code> if q mapped, <code>false</code> if not
+	 */
+	@Override
+	public boolean isQMapped() {
+		return (q != null);
 	}
 
 	/**
