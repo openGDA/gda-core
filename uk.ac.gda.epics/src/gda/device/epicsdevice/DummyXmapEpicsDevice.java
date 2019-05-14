@@ -56,6 +56,8 @@ public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableE
 	private final Random generator = new Random(RNG_SEED);
 
 	private int numberOfBins = 1024;
+	private double binWidth = 4.0;
+	private double preampGain = 0.8;
 	private double acquisitionTime;
 	private int numberOfROIs;
 
@@ -159,6 +161,10 @@ public class DummyXmapEpicsDevice extends ConfigurableBase implements IFindableE
 			return getIntegerData();
 		} else if (record.startsWith("ENERGYBINS") ) {
 			return getDoubleData(3.6);
+		} else if (record.startsWith("GETBINWIDTH") ) {
+			return binWidth;
+		} else if (record.startsWith("GETPREAMPGAIN") ) {
+			return preampGain;
 		} else if (record.equals("SCAELEMENTS")) {
 			return numberOfROIs;
 		} else if (record.startsWith("EVENTS")) {
