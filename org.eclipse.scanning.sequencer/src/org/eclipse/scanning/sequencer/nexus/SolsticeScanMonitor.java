@@ -265,13 +265,8 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IN
 		scanPointsCollection.createDataNode(FIELD_NAME_END_TIME, scanEndTimeDataset);
 
 		if (!isMalcolmScan) {
-			pointStartTimeStamps = new LazyWriteableDataset(FIELD_NAME_POINT_START_TIME, String.class, info.getShape(),
-					null, null, null);
-			scanPointsCollection.createDataNode(FIELD_NAME_POINT_START_TIME, pointStartTimeStamps);
-
-			pointEndTimeStamps = new LazyWriteableDataset(FIELD_NAME_POINT_END_TIME, String.class, info.getShape(),
-					null, null, null);
-			scanPointsCollection.createDataNode(FIELD_NAME_POINT_END_TIME, pointEndTimeStamps);
+			pointStartTimeStamps = scanPointsCollection.initializeLazyDataset(FIELD_NAME_POINT_START_TIME, info.getRank(), String.class);
+			pointEndTimeStamps = scanPointsCollection.initializeLazyDataset(FIELD_NAME_POINT_END_TIME, info.getRank(), String.class);
 		}
 
 		return scanPointsCollection;

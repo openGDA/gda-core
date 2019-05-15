@@ -367,18 +367,22 @@ public class SolsticeScanMonitorTest {
 			}
 		}
 
-		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), scanShape);
-		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), scanShape);
-		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME), new int[] {1});
-		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME), new int[] {1});
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), true, scanRank);
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), true, scanRank);
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME), false, scanRank);
+		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME), false, scanRank);
 	}
 
-	private void checkTimeStampDataset(DataNode node, int[] expectedShape) {
+	private void checkTimeStampDataset(DataNode node, boolean perPoint, int scanRank) {
 		assertNotNull(node);
 		ILazyDataset startTimeStampsDataset = node.getDataset();
 		assertNotNull(startTimeStampsDataset);
 		assertEquals(String.class, startTimeStampsDataset.getElementClass());
-		assertArrayEquals(expectedShape, startTimeStampsDataset.getShape());
+		if (perPoint) {
+			assertEquals(scanRank, startTimeStampsDataset.getRank());
+		} else {
+			assertArrayEquals(new int[] { 1 }, startTimeStampsDataset.getShape());
+		}
 	}
 
 	@Test
